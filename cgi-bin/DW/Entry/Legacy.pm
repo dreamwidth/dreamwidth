@@ -23,146 +23,7 @@ use LJ::HTMLControls;
 use LJ::Lang;
 use Scalar::Util qw(blessed);
 
-sub decode_entry_form {
-    my ( $req, $POST ) = @_;
-
-    # find security
-    my $sec   = "public";
-    my $amask = 0;
-    if ( $POST->{'security'} eq "private" ) {
-        $sec = "private";
-    }
-    elsif ( $POST->{'security'} eq "friends" ) {
-        $sec   = "usemask";
-        $amask = 1;
-    }
-    elsif ( $POST->{'security'} eq "custom" ) {
-        $sec = "usemask";
-        foreach my $bit ( 1 .. 60 ) {
-            next unless $POST->{"custom_bit_$bit"};
-            $amask |= ( 1 << $bit );
-        }
-    }
-    $req->{'security'}  = $sec;
-    $req->{'allowmask'} = $amask;
-
-    # date/time
-    my $date = LJ::html_datetime_decode( { 'name' => "date_ymd", }, $POST );
-    my ( $year, $mon, $day ) = split( /\D/, $date );
-    my ( $hour, $min ) = ( $POST->{'hour'}, $POST->{'min'} );
-
-    # TEMP: ease golive by using older way of determining differences
-    my $date_old = LJ::html_datetime_decode( { 'name' => "date_ymd_old", }, $POST );
-    my ( $year_old, $mon_old, $day_old ) = split( /\D/, $date_old );
-    my ( $hour_old, $min_old ) = ( $POST->{'hour_old'}, $POST->{'min_old'} );
-
-    my $different = $POST->{'min_old'}
-        && ( ( $year ne $year_old )
-        || ( $mon ne $mon_old )
-        || ( $day ne $day_old )
-        || ( $hour ne $hour_old )
-        || ( $min ne $min_old ) );
-
-    # this value is set when the JS runs, which means that the user-provided
-    # time is sync'd with their computer clock. otherwise, the JS didn't run,
-    # so let's guess at their timezone.
-    if ( $POST->{'date_diff'} || $POST->{'date_diff_nojs'} || $different ) {
-        delete $req->{'tz'};
-        $req->{'year'} = $year;
-        $req->{'mon'}  = $mon;
-        $req->{'day'}  = $day;
-        $req->{'hour'} = $hour;
-        $req->{'min'}  = $min;
-    }
-
-    # copy some things from %POST
-    foreach (
-        qw(subject
-        prop_picture_keyword prop_current_moodid
-        prop_current_mood prop_current_music
-        prop_opt_screening prop_opt_noemail
-        prop_opt_preformatted prop_opt_nocomments
-        prop_current_location prop_current_coords
-        prop_taglist )
-        )
-    {
-        $req->{$_} = $POST->{$_};
-    }
-
-    if ( $POST->{"subject"} && ( $POST->{"subject"} eq LJ::Lang::ml('entryform.subject.hint2') ) ) {
-        $req->{"subject"} = "";
-    }
-
-    $req->{"prop_opt_preformatted"} ||=
-          $POST->{'switched_rte_on'} ? 1
-        : $POST->{event_format} && $POST->{event_format} eq "preformatted" ? 1
-        :                                                                    0;
-    $req->{"prop_opt_nocomments"} ||=
-        $POST->{comment_settings} && $POST->{comment_settings} eq "nocomments" ? 1 : 0;
-    $req->{"prop_opt_noemail"} ||=
-        $POST->{comment_settings} && $POST->{comment_settings} eq "noemail" ? 1 : 0;
-    $req->{'prop_opt_backdated'} = $POST->{'prop_opt_backdated'} ? 1 : 0;
-
-    if ( LJ::is_enabled('adult_content') ) {
-        $req->{prop_adult_content} = $POST->{prop_adult_content} || '';
-        $req->{prop_adult_content} = ""
-            unless $req->{prop_adult_content} eq "none"
-            || $req->{prop_adult_content} eq "concepts"
-            || $req->{prop_adult_content} eq "explicit";
-
-        $req->{prop_adult_content_reason} = $POST->{prop_adult_content_reason} || "";
-    }
-
-    # nuke taglists that are just blank
-    $req->{'prop_taglist'} = "" unless $req->{'prop_taglist'} && $req->{'prop_taglist'} =~ /\S/;
-
-    # Convert the rich text editor output back to parsable lj tags.
-    my $event = $POST->{'event'};
-    if ( $POST->{'switched_rte_on'} ) {
-        $req->{"prop_used_rte"} = 1;
-
-        # We want to see if we can hit the fast path for cleaning
-        # if they did nothing but add line breaks.
-        my $attempt = $event;
-        $attempt =~ s!<br />!\n!g;
-
-        if ( $attempt !~ /<\w/ ) {
-            $event = $attempt;
-
-            # Make sure they actually typed something, and not just hit
-            # enter a lot
-            $attempt =~ s!(?:<p>(?:&nbsp;|\s)+</p>|&nbsp;)\s*?!!gm;
-            $event = '' unless $attempt =~ /\S/;
-
-            $req->{'prop_opt_preformatted'} = 0;
-        }
-        else {
-            # Old methods, left in for compatibility during code push
-            $event =~ s!<lj-cut class="ljcut">!<lj-cut>!gi;
-
-            $event =~ s!<lj-raw class="ljraw">!<lj-raw>!gi;
-        }
-    }
-    else {
-        $req->{"prop_used_rte"} = 0;
-    }
-
-    $req->{'event'} = $event;
-
-    ## see if an "other" mood they typed in has an equivalent moodid
-    if ( $POST->{'prop_current_mood'} ) {
-        if ( my $id = DW::Mood->mood_id( $POST->{'prop_current_mood'} ) ) {
-            $req->{'prop_current_moodid'} = $id;
-            delete $req->{'prop_current_mood'};
-        }
-    }
-
-    return $req;
-}
-
-# Decode a retained update/editjournal form and move its legacy property
-# fields into the canonical property hash. Action selection, authorization,
-# and save behavior remain the responsibility of the eventual route adapter.
+# Flatten a Hash::MultiValue POST, joining repeated values with \0.
 sub legacy_post_hash {
     my ($post) = @_;
     return $post unless blessed($post) && $post->isa('Hash::MultiValue');
@@ -178,18 +39,147 @@ sub legacy_post_hash {
     return \%legacy;
 }
 
-# Convert decoded fields to the native entry form schema.
-sub decoded_to_canonical {
-    my ( $decoded, $legacy_post ) = @_;
+# Decode a legacy update/editjournal POST into the native canonical entry
+# hash; tz stays guess unless the submitted date is trusted.
+sub prepare_entry_form {
+    my ($post) = @_;
 
-    my $canonical = { %$decoded, props => { %{ $decoded->{props} || {} } } };
+    my $legacy_post = legacy_post_hash($post);
+    my $canonical   = { tz => 'guess', props => {} };
+    my $props       = $canonical->{props};
 
-    foreach my $name ( keys %$canonical ) {
-        next unless $name =~ /^prop_(.+)$/;
-        next if $name =~ /^prop_xpost_/;
-        $canonical->{props}{$1} = delete $canonical->{$name};
+    # find security
+    my $sec   = "public";
+    my $amask = 0;
+    if ( $legacy_post->{'security'} eq "private" ) {
+        $sec = "private";
+    }
+    elsif ( $legacy_post->{'security'} eq "friends" ) {
+        $sec   = "usemask";
+        $amask = 1;
+    }
+    elsif ( $legacy_post->{'security'} eq "custom" ) {
+        $sec = "usemask";
+        foreach my $bit ( 1 .. 60 ) {
+            next unless $legacy_post->{"custom_bit_$bit"};
+            $amask |= ( 1 << $bit );
+        }
+    }
+    $canonical->{'security'}  = $sec;
+    $canonical->{'allowmask'} = $amask;
+
+    # date/time
+    my $date = LJ::html_datetime_decode( { 'name' => "date_ymd", }, $legacy_post );
+    my ( $year, $mon, $day ) = split( /\D/, $date );
+    my ( $hour, $min ) = ( $legacy_post->{'hour'}, $legacy_post->{'min'} );
+
+    # TEMP: ease golive by using older way of determining differences
+    my $date_old = LJ::html_datetime_decode( { 'name' => "date_ymd_old", }, $legacy_post );
+    my ( $year_old, $mon_old, $day_old ) = split( /\D/, $date_old );
+    my ( $hour_old, $min_old ) = ( $legacy_post->{'hour_old'}, $legacy_post->{'min_old'} );
+
+    my $different = $legacy_post->{'min_old'}
+        && ( ( $year ne $year_old )
+        || ( $mon ne $mon_old )
+        || ( $day ne $day_old )
+        || ( $hour ne $hour_old )
+        || ( $min ne $min_old ) );
+
+    # this value is set when the JS runs, which means that the user-provided
+    # time is sync'd with their computer clock. otherwise, the JS didn't run,
+    # so let's guess at their timezone.
+    if ( $legacy_post->{'date_diff'} || $legacy_post->{'date_diff_nojs'} || $different ) {
+        delete $canonical->{'tz'};
+        $canonical->{'year'} = $year;
+        $canonical->{'mon'}  = $mon;
+        $canonical->{'day'}  = $day;
+        $canonical->{'hour'} = $hour;
+        $canonical->{'min'}  = $min;
     }
 
+    my $subject = $legacy_post->{'subject'};
+    $subject = ""
+        if $subject && $subject eq LJ::Lang::ml('entryform.subject.hint2');
+    $canonical->{'subject'} = $subject;
+
+    $props->{picture_keyword}  = $legacy_post->{prop_picture_keyword};
+    $props->{current_moodid}   = $legacy_post->{prop_current_moodid};
+    $props->{current_mood}     = $legacy_post->{prop_current_mood};
+    $props->{current_music}    = $legacy_post->{prop_current_music};
+    $props->{opt_screening}    = $legacy_post->{prop_opt_screening};
+    $props->{current_location} = $legacy_post->{prop_current_location};
+    $props->{current_coords}   = $legacy_post->{prop_current_coords};
+    $props->{taglist}          = $legacy_post->{prop_taglist};
+
+    $props->{opt_preformatted} = $legacy_post->{prop_opt_preformatted}
+        || (
+          $legacy_post->{'switched_rte_on'}                                                  ? 1
+        : ( $legacy_post->{event_format} && $legacy_post->{event_format} eq "preformatted" ) ? 1
+        : 0
+        );
+    $props->{opt_nocomments} = $legacy_post->{prop_opt_nocomments}
+        || ( $legacy_post->{comment_settings}
+        && $legacy_post->{comment_settings} eq "nocomments" ? 1 : 0 );
+    $props->{opt_noemail} = $legacy_post->{prop_opt_noemail}
+        || ( $legacy_post->{comment_settings}
+        && $legacy_post->{comment_settings} eq "noemail" ? 1 : 0 );
+    $props->{opt_backdated} = $legacy_post->{'prop_opt_backdated'} ? 1 : 0;
+
+    if ( LJ::is_enabled('adult_content') ) {
+        $props->{adult_content} = $legacy_post->{prop_adult_content} || '';
+        $props->{adult_content} = ""
+            unless $props->{adult_content} eq "none"
+            || $props->{adult_content} eq "concepts"
+            || $props->{adult_content} eq "explicit";
+
+        $props->{adult_content_reason} = $legacy_post->{prop_adult_content_reason} || "";
+    }
+
+    # nuke taglists that are just blank
+    $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
+
+    # Convert the rich text editor output back to parsable lj tags.
+    my $event = $legacy_post->{'event'};
+    if ( $legacy_post->{'switched_rte_on'} ) {
+        $props->{used_rte} = 1;
+
+        # We want to see if we can hit the fast path for cleaning
+        # if they did nothing but add line breaks.
+        my $attempt = $event;
+        $attempt =~ s!<br />!\n!g;
+
+        if ( $attempt !~ /<\w/ ) {
+            $event = $attempt;
+
+            # Make sure they actually typed something, and not just hit
+            # enter a lot
+            $attempt =~ s!(?:<p>(?:&nbsp;|\s)+</p>|&nbsp;)\s*?!!gm;
+            $event = '' unless $attempt =~ /\S/;
+
+            $props->{opt_preformatted} = 0;
+        }
+        else {
+            # Old methods, left in for compatibility during code push
+            $event =~ s!<lj-cut class="ljcut">!<lj-cut>!gi;
+
+            $event =~ s!<lj-raw class="ljraw">!<lj-raw>!gi;
+        }
+    }
+    else {
+        $props->{used_rte} = 0;
+    }
+
+    $canonical->{'event'} = $event;
+
+    ## see if an "other" mood they typed in has an equivalent moodid
+    if ( $legacy_post->{'prop_current_mood'} ) {
+        if ( my $id = DW::Mood->mood_id( $legacy_post->{'prop_current_mood'} ) ) {
+            $props->{current_moodid} = $id;
+            delete $props->{current_mood};
+        }
+    }
+
+    # Crosspost fields are keyed by account id.
     my %crosspost_ids;
     foreach my $name ( keys %$legacy_post ) {
         next unless $name =~ /^prop_xpost_(?:(?:password|chal|resp)_)?(\d+)$/;
@@ -206,17 +196,6 @@ sub decoded_to_canonical {
             resp     => $legacy_post->{"prop_xpost_resp_$acctid"},
         };
     }
-
-    return $canonical;
-}
-
-# Keep the original form fields alongside their normalized native values.
-sub prepare_entry_form {
-    my ( $req, $post ) = @_;
-
-    my $legacy_post = legacy_post_hash($post);
-    my $decoded     = decode_entry_form( $req, $legacy_post );
-    my $canonical   = decoded_to_canonical( $decoded, $legacy_post );
 
     return {
         canonical => $canonical,

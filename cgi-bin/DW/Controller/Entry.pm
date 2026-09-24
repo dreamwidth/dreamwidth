@@ -119,7 +119,7 @@ DW::Routing->register_string(
         # resubmit; this applies uniformly regardless of which old submit
         # button (post, preview, spellcheck, a transform) was clicked.
         my $post     = $r->post_args;
-        my $prepared = DW::Entry::Legacy::prepare_entry_form( { tz => 'guess' }, $post );
+        my $prepared = DW::Entry::Legacy::prepare_entry_form($post);
         my $warnings = DW::FormErrors->new;
         $warnings->add( undef, '.notice.legacy_carryover' );
         my $remote = LJ::get_remote();
