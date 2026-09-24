@@ -557,9 +557,6 @@ sub read_handler {
         $vars->{faqs} = [ sort { $a->sortorder <=> $b->sortorder } @faqs ];
     }
 
-    # ugh BML, but DW::Request doesn't appear to have a similar function
-    $vars->{note_mod_time} = sub { BML::note_mod_time( $_[0] ) };
-
     # Display summary if enabled and present.
     $vars->{display_summary} = $_[0] && LJ::is_enabled('faq_summaries');
 

@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 # t/plack-bml.t
 #
-# Tests for BML rendering under Plack via DW::BML
+# Router-only regression coverage for legacy .bml URLs, now that the BML
+# rendering engine is gone (E3): unmatched URLs reach the router's ordinary
+# 404, a bookmarked .bml link to a still-existing native page still routes
+# there (DW::Routing discards a trailing '.bml' format), and the engine's
+# old _config.bml special case is gone -- it is just another unmatched path.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -21,93 +25,45 @@ use Test::More;
 use HTTP::Request::Common;
 use Plack::Test;
 
-BEGIN {
-    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-    eval "use Plack::Test; 1" or do {
-        plan skip_all => "Plack::Test required for BML tests";
-    };
-}
-
-plan tests => 10;
-
-# Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
 my $app      = do $app_file;
 die "Failed to load app.psgi: $@" if $@;
 die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE';
 
-# Test 1: DW::BML module loads
-use_ok('DW::BML');
+# A bookmarked .bml link to a page that has since been migrated to a native
+# route: DW::Routing::get_call_opts strips a trailing '.bml' format and
+# routes it exactly like the extension-less URL.
+test_psgi $app, sub {
+    my $cb     = shift;
+    my $native = $cb->( GET "/login" );
+    my $bml    = $cb->( GET "/login.bml" );
+    is( $native->code, 200,           '/login renders' );
+    is( $bml->code,    $native->code, '/login.bml gets the same status as /login' );
+    like( $bml->content, qr/<form/i, '/login.bml renders the real native page, not a 404' );
+};
 
-# Test 2: resolve_path finds a known BML file (imgpreview.bml exists in htdocs)
-{
-    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/imgpreview');
-    ok( defined $file && $file =~ /imgpreview\.bml$/, "resolve_path finds imgpreview.bml" );
-}
-
-# Test 3: resolve_path returns undef for nonexistent path
-{
-    my ( $redirect, $uri, $file ) =
-        DW::BML->resolve_path('/this-path-definitely-does-not-exist-12345');
-    ok( !defined $file, "resolve_path returns undef for nonexistent path" );
-}
-
-# Test 4: resolve_path rejects paths with ..
-{
-    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/../etc/passwd');
-    ok( !defined $file, "resolve_path rejects path traversal" );
-}
-
-# Test 5: resolve_path with trailing slash resolves index.bml
-{
-    my ( $redirect, $uri, $file ) = DW::BML->resolve_path('/tools/');
-    if ( defined $file && $file =~ /index\.bml$/ ) {
-        ok( 1, "resolve_path resolves /tools/ to index.bml" );
-    }
-    else {
-        # If /tools/ doesn't exist, skip gracefully
-        ok( 1, "resolve_path handles /tools/ (no directory found)" );
-    }
-}
-
-# Test 6: _config.bml path is forbidden
+# The engine's old "_config.bml direct access is forbidden" special case is
+# gone along with the engine; it is now just another unmatched path.
 test_psgi $app, sub {
     my $cb  = shift;
     my $res = $cb->( GET "/_config.bml" );
-    is( $res->code, 403, "Direct access to _config.bml returns 403" );
+    is( $res->code, 404, '/_config.bml is an ordinary 404, not a special-cased 403' );
 };
 
-# Test 7: GET /imgpreview returns 200 with HTML content
-test_psgi $app, sub {
-    my $cb  = shift;
-    my $res = $cb->( GET "/imgpreview" );
-
-    # imgpreview.bml is served by DW::BML (not shadowed by a controller route)
-    is( $res->code, 200, "GET /imgpreview returns 200" );
-};
-
-# Test 8: BML response has text/html content type
-test_psgi $app, sub {
-    my $cb  = shift;
-    my $res = $cb->( GET "/imgpreview" );
-
-    like( $res->content_type, qr{text/html}, "BML response has text/html content type" );
-};
-
-# Test 9: Non-existent .bml-resolvable path returns 404
 test_psgi $app, sub {
     my $cb  = shift;
     my $res = $cb->( GET "/nonexistent-page-xyz-12345" );
-
-    is( $res->code, 404, "Non-existent path returns 404" );
+    is( $res->code, 404, 'unknown URL returns the router-only 404' );
 };
 
-# Test 10: Existing controller routes still work (not broken by BML fallback)
+# An unrecognized /__rpc_* URI (the legacy AJAX mapping app.psgi used to
+# special-case) falls through to the router's ordinary 404.
 test_psgi $app, sub {
     my $cb  = shift;
-    my $res = $cb->( GET "/api/v1/test" );
-
-    # This should be handled by DW::Routing, not BML
-    ok( defined $res, "Controller route still returns a response with BML fallback active" );
+    my $res = $cb->( GET "/__rpc_this_is_not_a_real_endpoint" );
+    is( $res->code, 404, "unknown /__rpc_* URI returns the router's 404" );
 };
+
+done_testing;

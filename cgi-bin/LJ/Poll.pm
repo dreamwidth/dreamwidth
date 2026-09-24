@@ -937,7 +937,7 @@ sub render {
     }
 
     # Users cannot vote unless they are logged in
-    return "<?needlogin?>"
+    return LJ::error_noremote()
         if $mode eq 'enter' && !$remote;
 
     my $do_form = $mode eq 'enter' && $can_vote;
@@ -1006,7 +1006,7 @@ sub render {
             . LJ::Lang::ml('poll.seeresults') . "</a> ]  ";
         $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear'
             class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  "
-            . BML::ml('poll.clear') . "</a> ]</div>";
+            . LJ::Lang::ml('poll.clear') . "</a> ]</div>";
     }
     elsif ( $mode eq 'results' ) {
 
@@ -1117,7 +1117,7 @@ sub render {
             if ( $q->type eq "text" && $preval{$qid} ) {
                 LJ::Poll->clean_poll( \$preval{$qid} );
                 $results_table .=
-                    "<br />" . BML::ml( 'poll.useranswer', { "answer" => $preval{$qid} } );
+                    "<br />" . LJ::Lang::ml( 'poll.useranswer', { "answer" => $preval{$qid} } );
             }
             elsif ( $q->type ne "text" ) {
                 ### but, if this is a non-text item, and we're showing results, need to load the answers:
