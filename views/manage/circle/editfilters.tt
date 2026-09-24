@@ -1,0 +1,90 @@
+[%# Access-filter editor. Derived from the LiveJournal/Dreamwidth BML page.
+    This code and its modifications are provided under the GNU General Public
+    License; see LICENSE and the controller's inherited license notice.
+    Copyright (c) 2026 by Dreamwidth Studios, LLC.
+%]
+[%- CALL dw.active_resource_group('foundation') -%]
+[%- sections.title = '.title2' | ml -%]
+[%- CALL dw.need_res({ group = 'foundation' }, 'js/access-filters.js') -%]
+[%- sections.head = BLOCK -%]
+<style>
+.access-filter-lists select { height: 18rem; background-image: none; }
+.access-filter-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.access-filter-actions .button { margin-bottom: .5rem; }
+</style>
+[%- END -%]
+
+[% IF saved %]
+    <h2>[% '.saved.header' | ml %]</h2>
+    <p>[% '.saved.text' | ml %]</p>
+    <ul>
+        <li><a href="[% site.root %]/entry/new">[% '.saved.action.post' | ml %]</a></li>
+        <li><a href="[% site.root %]/manage/subscriptions/filters">[% '.saved.action.subscription' | ml %]</a></li>
+    </ul>
+[% ELSE %]
+    <div class="alert-box secondary">[% '.subfilters' | ml(aopts = "href='" _ site.root _ "/manage/subscriptions/filters'") %]</div>
+    [% authas_form %]
+    [% IF u.is_community %]
+        <p>[% '.comm.nofilters' | ml %]</p>
+    [% ELSE %]
+        <p>[% '.text' | ml %]</p>
+        <p>[% '.text.sec' | ml %]</p>
+        <form method="post" name="fg" action="[% self_uri | html %]"
+            data-public="[% '.group.public' | ml | html %]"
+            data-rename="[% '.prompt.rename' | ml | html %]"
+            data-newname="[% '.prompt.newname' | ml | html %]"
+            data-delete="[% '.confirm.delete' | ml | html %]"
+            data-max60="[% '.error.max60' | ml | html %]"
+            data-comma="[% '.error.comma' | ml | html %]">
+            [% dw.form_auth %]
+            [% form.hidden(name = 'mode', value = 'save') %]
+            [% FOREACH group IN group_fields %]
+                [% form.hidden(name = 'efg_set_' _ group.id _ '_name', value = group.name) %]
+                [% form.hidden(name = 'efg_set_' _ group.id _ '_sort', value = group.sort) %]
+                [% form.hidden(name = 'efg_set_' _ group.id _ '_public', value = group.public) %]
+                [% form.hidden(name = 'efg_delete_' _ group.id, value = 0) %]
+            [% END %]
+            [% FOREACH member IN members %]
+                [% form.hidden(name = 'editfriend_maskhi_' _ member.user, value = member.maskhi) %]
+                [% form.hidden(name = 'editfriend_masklo_' _ member.user, value = member.masklo) %]
+                [% IF member.identity %]
+                    [% form.hidden(name = 'nameremap_' _ member.user, id = 'nameremap_' _ member.user, value = member.display) %]
+                [% END %]
+            [% END %]
+            <div class="row access-filter-lists">
+                <div class="columns small-12 medium-4">
+                    <label for="list_groups">[% '.yourgroups' | ml %]</label>
+                    <select name="list_groups" id="list_groups" size="15">
+                        [% FOREACH group IN groups %]
+                            <option value="[% group.groupnum %]">[% group.groupname | html %][% IF group.is_public %] [% '.group.public' | ml %][% END %]</option>
+                        [% END %]
+                    </select>
+                    <div class="access-filter-actions">
+                        [% INCLUDE button action='up' label='.btn.mv.up' %]
+                        [% INCLUDE button action='down' label='.btn.mv.down' %]
+                        [% INCLUDE button action='create' label='.btn.ge.new' %]
+                        [% INCLUDE button action='delete' label='.btn.ge.del' %]
+                        [% INCLUDE button action='rename' label='.btn.ge.ren' %]
+                    </div>
+                </div>
+                <div class="columns small-12 medium-4">
+                    <label for="list_out">[% '.ingroup.not' | ml %]</label>
+                    <select name="list_out" id="list_out" multiple size="15"></select>
+                    [% INCLUDE button action='add' label='.btn.add' %]
+                </div>
+                <div class="columns small-12 medium-4">
+                    <label for="list_in">[% '.ingroup' | ml %]</label>
+                    <select name="list_in" id="list_in" multiple size="15"></select>
+                    [% INCLUDE button action='remove' label='.btn.remove' %]
+                </div>
+            </div>
+            <h2>[% '.done.header' | ml %]</h2>
+            <p>[% '.done.text' | ml %]</p>
+            [% form.submit(value = dw.ml('.done.btn'), class = 'button') %]
+        </form>
+    [% END %]
+[% END %]
+
+[% BLOCK button %]
+    <input type="button" class="small secondary button" data-action="[% action %]" value="[% label | ml %]">
+[% END %]

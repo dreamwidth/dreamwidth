@@ -16,6 +16,7 @@ package LJ::Widget::ThemeNav;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
+use DW::Request;
 use LJ::Customize;
 
 sub ajax               { 1 }
@@ -179,13 +180,22 @@ sub print_cat_list {
     return $ret;
 }
 
+sub _without_query_param {
+    my ( $query, $name, $value_re ) = @_;
+
+    return join q{&}, grep {
+        my ( $key, $value ) = split /=/, $_, 2;
+        not( defined $value && $key eq $name && $value =~ /\A$value_re\z/ );
+    } split /&/, $query, -1;
+}
+
 sub handle_post {
     my $class = shift;
     my $post  = shift;
     my %opts  = @_;
 
-    my $q_string = BML::get_query_string();
-    $q_string =~ s/&?page=\d+//g;
+    my $q_string = DW::Request->get->query_string || q{};
+    $q_string = _without_query_param( $q_string, q{page}, qr/\d+/ );
 
     my $url = "$LJ::SITEROOT/customize/";
     if ( $post->{filter} ) {
@@ -207,7 +217,7 @@ sub handle_post {
         }
     }
     elsif ( $post->{show} ) {
-        $q_string =~ s/&?show=\w+//g;
+        $q_string = _without_query_param( $q_string, q{show}, qr/\w+/ );
         $q_string = "?$q_string" if $q_string;
         my $q_sep = $q_string ? "&" : "?";
 
@@ -220,15 +230,14 @@ sub handle_post {
         }
     }
     elsif ( $post->{search} ) {
-        my $show   = ( $q_string =~ /&?show=(\w+)/ )   ? "&show=$1"   : "";
-        my $authas = ( $q_string =~ /&?authas=(\w+)/ ) ? "&authas=$1" : "";
-        $q_string = "";
+        my @preserved = grep { /^(?:authas|show)=/ } split /&/, $q_string;
 
         $post->{search} = LJ::eurl( $post->{search} );
-        $url .= "?search=$post->{search}$authas$show";
+        $url .= "?search=$post->{search}";
+        $url .= q{&} . join( q{&}, @preserved ) if @preserved;
     }
 
-    return BML::redirect($url);
+    return ( redirect => $url );
 }
 
 sub js {

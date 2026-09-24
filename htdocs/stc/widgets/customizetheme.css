@@ -120,3 +120,34 @@
 * html .customize-nav li.on li {
     width: 112px;
 }
+
+@media screen and (max-width: 39.9375em) {
+    /* Let option content use the viewport before its tables become scrollable. */
+    #customize-form .customize-nav {
+        float: none;
+        width: auto;
+    }
+
+    #customize-form .customize-content {
+        margin-left: 0;
+    }
+
+    /* Keep link fields editable; the legacy table is intentionally horizontally scrollable. */
+    #linkslist-group {
+        overflow-x: auto;
+    }
+
+    #linkslist-group .linkslist-table {
+        min-width: 34rem;
+    }
+
+    #linkslist-group .linkslist-table input[type="text"] {
+        min-width: 20rem;
+        width: 20rem;
+    }
+
+    #linkslist-group .linkslist-table input[name$="_ordernum"] {
+        min-width: 3.5rem;
+        width: 3.5rem;
+    }
+}
