@@ -1,14 +1,20 @@
 #!/usr/bin/perl
-# Regression coverage for the explicit root-level static-file allowlist
-# app.psgi serves in place of the deleted BML engine fallback (E3), which
-# used to serve every plain file under any htdocs overlay as a side effect
-# of resolving unmatched paths. Confirms each legitimate file the old
-# fallback served is still reachable with the correct content type
-# (including /favicon.ico on a journal host), that the excluded paths the
-# old blanket fallback also exposed stay unreachable, and that /robots.txt
-# specifically still reaches DW::Controller::Journal's own per-journal mode
-# on a journal host rather than the static site file.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# t/plack-root-static.t
+#
+# Root static files: the allowlisted files are served with correct types,
+# other htdocs paths are not, and journal-host robots.txt reaches the
+# per-journal controller.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 

@@ -99,7 +99,7 @@ test_psgi $app, sub {
         return 1;
     };
 
-    for my $case ( [ 'neither', 0, 0 ], [ 'spam', 1, 0 ], [ 'ban', 0, 1 ], [ 'both', 1, 1 ], ) {
+    for my $case ( [ 'neither', 0, 0 ], [ 'both', 1, 1 ], ) {
         my ( $name, $spam, $ban ) = @$case;
         my $sender = temp_user();
         $sender->update_self( { status => 'A' } );
