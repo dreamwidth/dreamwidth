@@ -48,7 +48,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             class = "draft-autosave"
 
             size="20"
-            maxlength="80"
+            maxlength=limits.current_length
         ) %]
     </div></div>
 
@@ -59,7 +59,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             class = "draft-autosave"
 
             size = "20"
-            maxlength = "80"
+            maxlength = limits.current_length
         ) %]
     </div></div>
 
