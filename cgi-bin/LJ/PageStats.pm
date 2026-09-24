@@ -139,14 +139,6 @@ sub get_user {
     return LJ::get_remote();
 }
 
-# always undef: nothing under Plack constructs a request object carrying
-# a filesystem path for filename() below to use.
-sub get_request {
-    my ($self) = @_;
-
-    return undef;
-}
-
 sub get_root {
     my ($self) = @_;
 
@@ -167,20 +159,6 @@ sub get_conf {
     my ($self) = @_;
 
     return $self->{conf};
-}
-
-sub filename {
-    my ($self) = @_;
-    my $r = $self->get_request;
-    return undef unless $r;
-
-    # Only requests with an explicit filesystem path can supply a filename.
-    my $filename = $r->filename;
-    return undef unless defined $filename;
-
-    $filename =~ s!$LJ::HOME/(?:ssldocs|htdocs)!!;
-
-    return $filename;
 }
 
 sub journaltype {

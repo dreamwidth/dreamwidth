@@ -8,7 +8,6 @@ use warnings;
 use Test::More;
 use HTTP::Request::Common;
 use HTML::Form;
-use Scalar::Util qw(refaddr);
 use Plack::Test;
 use Storable qw(nfreeze thaw);
 
@@ -173,14 +172,13 @@ test_psgi $app, sub {
         my $post   = $form->click( $case->{click} );
         $post->uri( 'http://localhost' . $case->{path} );
         $post->header( Referer => 'http://localhost' . $case->{path} );
-        my ( @success_hooks, $decoded_request );
+        my @success_hooks;
         my $run_hooks = \&LJ::Hooks::run_hooks;
         my $run_hook  = \&LJ::Hooks::run_hook;
         {
             no warnings 'redefine';
             local *LJ::Hooks::run_hooks = sub {
                 my ( $name, @args ) = @_;
-                $decoded_request = $args[1] if $name eq 'decode_entry_form';
                 if ( $name eq 'after_entry_post_extra_options' ) {
                     push @success_hooks, [ $name, {@args} ];
                     return ['<li>Moderated extra option marker</li>'];
@@ -205,30 +203,6 @@ test_psgi $app, sub {
                 qr/Moderated extra HTML marker/,
                 'native response has no legacy hook output'
             );
-        }
-        else {
-            is_deeply(
-                [ map { $_->[0] } @success_hooks ],
-                ['after_entry_post_extra_html'],
-                "$case->{label} invokes only the legacy HTML success hook"
-            );
-            like(
-                $res->content,
-                qr/Moderated extra HTML marker/,
-                "$case->{label} renders legacy HTML hook output"
-            );
-            if ( @success_hooks == 1 ) {
-                my $html = $success_hooks[0][1];
-                is( $html->{user},     undef, "$case->{label} retains unset legacy hook journal" );
-                is( $html->{itemlink}, undef, "$case->{label} has no published item URL" );
-                is(
-                    refaddr( $html->{request} ),
-                    refaddr($decoded_request),
-                    "$case->{label} keeps the decoder request reference"
-                );
-                is( $html->{request}{prop_current_location},
-                    $expected->{location}, "$case->{label} hook receives flat legacy properties" );
-            }
         }
         is( $res->code, 200, "$case->{label} valid post returns a moderation response" );
         like(

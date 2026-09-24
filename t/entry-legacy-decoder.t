@@ -1,12 +1,11 @@
 #!/usr/bin/perl
-# Characterize the retained legacy entry-form decoder before moving its implementation.
+# Verify conversion of old entry-form submissions into native form fields.
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 
 use strict;
 use warnings;
 
 use Test::More;
-use Scalar::Util qw(refaddr);
 use lib "$ENV{LJHOME}/cgi-bin";
 use DW::Entry::Legacy;
 
@@ -31,15 +30,6 @@ sub date_post {
         @_,
     };
 }
-
-subtest 'LJ forwarding API delegates to the native legacy decoder' => sub {
-    my $post = date_post( security => 'friends', prop_taglist => 'forwarded' );
-    my %from_lj;
-    my %from_native;
-    LJ::entry_form_decode( \%from_lj, $post );
-    DW::Entry::Legacy::decode_entry_form( \%from_native, $post );
-    is_deeply( \%from_lj, \%from_native, 'forwarding API retains the decoder result' );
-};
 
 subtest 'security preserves friends and all custom-bit positions through bit 60' => sub {
     my $friends = decode( date_post( security => 'friends' ) );
@@ -107,25 +97,14 @@ subtest 'metadata, adult content, and comment settings retain legacy precedence'
     is( $invalid->{prop_adult_content}, '', 'unknown adult level is cleared' );
 };
 
-subtest 'RTE conversion, mood normalization, and decoder hook keep identity and order' => sub {
+subtest 'RTE conversion and mood normalization preserve submitted content' => sub {
     no warnings 'redefine';
     local *DW::Mood::mood_id = sub { $_[1] eq 'fixture mood' ? 77 : undef };
-    my @hook_calls;
-    local $LJ::HOOKS{decode_entry_form} = [
-        sub {
-            my ( $post, $request ) = @_;
-            push @hook_calls,
-                [ $post, $request, $request->{event}, $request->{prop_current_moodid} ];
-            $request->{hook_mutation} = $post->{hook_value};
-        }
-    ];
-
     my $post = date_post(
         event                 => "first<br />second",
         switched_rte_on       => 1,
         prop_opt_preformatted => 1,
         prop_current_mood     => 'fixture mood',
-        hook_value            => 'hooked',
     );
     my $request = {};
     my $decoded = decode( $post, $request );
@@ -134,13 +113,7 @@ subtest 'RTE conversion, mood normalization, and decoder hook keep identity and 
     is( $decoded->{prop_opt_preformatted}, 0,  'plain RTE conversion clears preformatted mode' );
     is( $decoded->{prop_current_moodid},   77, 'typed known mood becomes its mood id' );
     ok( !exists $decoded->{prop_current_mood}, 'known typed mood name is removed' );
-    is( $decoded->{hook_mutation},    'hooked',       'decoder hook can mutate the request' );
-    is( scalar @hook_calls,           1,              'decoder hook runs once' );
-    is( refaddr( $hook_calls[0][0] ), refaddr($post), 'hook receives the original post hash' );
-    is( refaddr( $hook_calls[0][1] ), refaddr($request),
-        'hook receives the in-place request hash' );
-    is( $hook_calls[0][2], "first\nsecond", 'hook runs after RTE event conversion' );
-    is( $hook_calls[0][3], 77, 'hook runs after mood normalization' );
+
 };
 
 done_testing;

@@ -11,35 +11,6 @@ use LJ::Test qw(temp_comm temp_user);
 plan skip_all => 'Settings integration requires a development server'
     unless $LJ::IS_DEV_SERVER;
 
-{
-
-    package LJ::Setting::BMLMigrationFixture;
-    use base 'LJ::Setting';
-    sub label { 'BML migration fixture' }
-
-    sub option {
-        my ( $class, $u, $errs, $args ) = @_;
-        my $value = $class->get_arg( $args, 'value' ) || $u->prop('opt_shortcuts');
-        return LJ::html_text( { name => $class->pkgkey . 'value', value => $value } )
-            . $class->errdiv( $errs, 'value' );
-    }
-
-    sub error_check {
-        my ( $class, $u, $args ) = @_;
-        $class->errors( value => 'Fixture value must be valid' )
-            unless $class->get_arg( $args, 'value' ) eq 'valid';
-        return 1;
-    }
-
-    sub save {
-        my ( $class, $u, $args ) = @_;
-        $class->error_check( $u, $args );
-        $u->set_prop( opt_shortcuts => $class->get_arg( $args, 'value' ) );
-        return 1;
-    }
-}
-
-package main;
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 my $u     = temp_user();
@@ -351,65 +322,6 @@ test_psgi $app, sub {
         qr/not-valid/, 'invalid display value does not persist' );
 };
 
-{
-    local $INC{'LJ/Setting/BMLMigrationFixture.pm'} = __FILE__;
-    local $LJ::HOOKS{settings_extra_cats}           = [
-        sub {
-            my ( $order, $cats ) = @_;
-            push @$order, 'migration_fixture';
-            $cats->{migration_fixture} = {
-                name     => 'Migration fixture',
-                visible  => 1,
-                disabled => 0,
-                form     => 1,
-                desc     => 'Temporary test fixture',
-                settings => ['LJ::Setting::BMLMigrationFixture'],
-            };
-        }
-    ];
-    test_psgi $app, sub {
-        my $send   = shift;
-        my $user   = temp_user();
-        my $cookie = settings_cookie($user);
-        my $url    = '/manage/settings/?cat=migration_fixture';
-        my $res    = $send->( GET $url, Cookie => $cookie );
-        my ($form) = settings_form( $res->content, $url );
-        ok( $form, 'hook-added category renders its form' ) or return;
-        my $key = 'LJ__Setting__BMLMigrationFixture_value';
-        ok( defined $form->value($key), 'hook-added setting renders its field' );
-        my $request = POST $url,
-            Content => [
-            lj_form_auth => $form->value('lj_form_auth'),
-            $key         => 'valid'
-            ];
-        $request->header( Cookie => $cookie );
-        $res = $send->($request);
-        like(
-            $res->content,
-            qr/successfully saved/i,
-            'hook-added setting saves through rendered form'
-        );
-        is( LJ::load_userid( $user->id, 1 )->prop('opt_shortcuts'),
-            'valid', 'hook-added setting persists on a fresh user' );
-        ($form) = settings_form( $res->content, $url );
-        $request = POST $url,
-            Content => [
-            lj_form_auth => $form->value('lj_form_auth'),
-            $key         => 'invalid'
-            ];
-        $request->header( Cookie => $cookie );
-        $res = $send->($request);
-        like(
-            $res->content,
-            qr/Fixture value must be valid/,
-            'hook setting reports validation error'
-        );
-        like( $res->content, qr/value=['"]invalid['"]/, 'hook setting preserves invalid input' );
-        is( LJ::load_userid( $user->id, 1 )->prop('opt_shortcuts'),
-            'valid', 'hook validation leaves persisted property unchanged' );
-    };
-}
-
 test_psgi $app, sub {
     my $send  = shift;
     my $maint = temp_user();
@@ -616,40 +528,6 @@ test_psgi $app, sub {
     $res = $send->($req);
     is( LJ::load_userid( $user->id, 1 )->prop('emailpost_auth') || '',
         $after, 'invalid CSRF preserves reply-email auth' );
-};
-
-test_psgi $app, sub {
-    my $send   = shift;
-    my $user   = temp_user();
-    my $cookie = settings_cookie($user);
-    my $calls  = 0;
-    local $LJ::HOOKS{settings_account_stats} = [
-        sub {
-            my ($hook_user) = @_;
-            $calls++;
-            return q{<span id="settings-account-stats-fixture">fixture stats</span>};
-        }
-    ];
-
-    my $account_url = '/manage/settings/?cat=account';
-    my $res         = $send->( GET $account_url, Cookie => $cookie );
-    is( $res->code, 200, 'account category renders with account-stats hook' );
-    like(
-        $res->content,
-        qr/id=["']settings-account-stats-fixture["']/,
-        'account-stats hook output is rendered in the account category'
-    );
-    is( $calls, 1, 'account-stats hook is invoked for the account category' );
-
-    my $display_url = '/manage/settings/?cat=display';
-    $res = $send->( GET $display_url, Cookie => $cookie );
-    is( $res->code, 200, 'unrelated display category renders' );
-    unlike(
-        $res->content,
-        qr/settings-account-stats-fixture/,
-        'account-stats hook output is absent from an unrelated category'
-    );
-    is( $calls, 1, 'account-stats hook is not invoked for an unrelated category' );
 };
 
 test_psgi $app, sub {

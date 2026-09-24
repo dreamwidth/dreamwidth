@@ -10,6 +10,7 @@ use Plack::Test;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user);
 use LJ::Session;
+use DW::Entry::Legacy;
 use DW::Request;
 use DW::Request::Plack;
 use LJ::Lang;
@@ -56,7 +57,7 @@ subtest 'legacy decoder uses native request language for the global subject plac
         },
     );
     my %decoded;
-    LJ::entry_form_decode(
+    DW::Entry::Legacy::decode_entry_form(
         \%decoded,
         {
             subject       => 'LEGACY-PLACEHOLDER-MARKER',
@@ -72,7 +73,7 @@ subtest 'legacy decoder uses native request language for the global subject plac
     );
     is( $decoded{subject}, '', 'custom request getter placeholder is cleared without BML' );
     $decoded{subject} = undef;
-    LJ::entry_form_decode(
+    DW::Entry::Legacy::decode_entry_form(
         \%decoded,
         {
             subject       => 'Ordinary legacy subject',
