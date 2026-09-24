@@ -13,6 +13,7 @@
 
 package LJ::PageStats;
 use strict;
+
 use DW::SiteScheme;
 
 my $all_modules;
@@ -138,11 +139,12 @@ sub get_user {
     return LJ::get_remote();
 }
 
-# return Apache request
+# always undef: nothing under Plack constructs a request object carrying
+# a filesystem path for filename() below to use.
 sub get_request {
     my ($self) = @_;
 
-    return BML::get_request();
+    return undef;
 }
 
 sub get_root {
@@ -170,8 +172,14 @@ sub get_conf {
 sub filename {
     my ($self) = @_;
     my $r = $self->get_request;
+    return undef unless $r;
 
+    # DW::BML::RequestAdapter->new never sets _filename (DW::Request has no
+    # filesystem-path concept to synthesize one from), so this is undef for
+    # every request reached under Plack; do not invent one from the URI.
     my $filename = $r->filename;
+    return undef unless defined $filename;
+
     $filename =~ s!$LJ::HOME/(?:ssldocs|htdocs)!!;
 
     return $filename;

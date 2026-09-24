@@ -68,9 +68,9 @@ Where <command> is one of:
                that code and its text in all languages
   deadphrases  Delete the text items listed in deadphrases[-local].dat from the
                database. Intentionally NOT run by "load", so keys a migration
-               moved (e.g. foo.bml.text -> foo.tt.text) survive on hosts still
-               running the old code; run it explicitly once the new keys are live
-               everywhere. On a production server ($LJ::IS_DEV_SERVER false) all
+               moved survive on hosts still running the old code; run it
+               explicitly once the new keys are live everywhere. On a
+               production server ($LJ::IS_DEV_SERVER false) all
                languages except en and the local root language ($LJ::DEFAULT_LANG
                or $LJ::LANGS[0]) are dumped first (as if by dumptext, appending).
 
@@ -470,9 +470,9 @@ sub poptext {
 
 # Remove the text items listed in deadphrases[-local].dat from the database.
 # This is intentionally NOT part of 'load'/'poptext' (which now only add/update
-# text): when a migration moves keys (e.g. foo.bml.text -> foo.tt.text), the old
-# keys must survive on hosts still running the old code (stable/BML) until the new
-# code is everywhere. Run this explicitly once that's true to retire them.
+# text): when a migration moves keys (e.g. foo.tt.text -> a new scope), the old
+# keys must survive on hosts still running the old code until the new code is
+# everywhere. Run this explicitly once that's true to retire them.
 sub deadphrases {
     my @langs = @_;
     push @langs, ( keys %lang_code ) unless @langs;

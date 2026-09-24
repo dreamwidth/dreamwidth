@@ -198,8 +198,7 @@ sub link_bar {
             || ( $remote->equals($up) && $up->can_post_to($u) ) )
         )
     {
-        push @linkele,
-            $mlink->( "$LJ::SITEROOT/editjournal?${jargent}itemid=$itemid", "editentry" );
+        push @linkele, $mlink->( "$LJ::SITEROOT/entry/" . $u->user . "/$itemid/edit", "editentry" );
     }
 
     # edit tags
@@ -2425,10 +2424,13 @@ sub enter_comment {
         || ( $journalu->opt_logcommentips eq "S" && !$site_user_comment ) )
     {
         if ( LJ::is_web_context() ) {
-            my $ip        = BML::get_remote_ip();
-            my $forwarded = BML::get_client_header('X-Forwarded-For');
-            $ip = "$forwarded, via $ip" if $forwarded && $forwarded ne $ip;
-            $talkprop{'poster_ip'} = $ip;
+            my $r = DW::Request->get;
+            if ($r) {
+                my $ip        = $r->get_remote_ip;
+                my $forwarded = $r->header_in('X-Forwarded-For');
+                $ip = "$forwarded, via $ip" if $forwarded && $forwarded ne $ip;
+                $talkprop{'poster_ip'} = $ip;
+            }
         }
     }
 

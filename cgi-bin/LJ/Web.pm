@@ -24,6 +24,7 @@ use Digest::SHA1;
 use DW::AccountSwitcher;
 use DW::Auth::Challenge;
 use DW::External::Site;
+use DW::Entry::Legacy;
 use DW::Request;
 use DW::Formats;
 use LJ::Utils;
@@ -34,6 +35,7 @@ use LJ::Directory::Search;
 use LJ::Directory::Constraint;
 use LJ::PageStats;
 use LJ::JSON;
+use LJ::Lang;
 
 # <LJFUNC>
 # name: LJ::img
@@ -192,8 +194,8 @@ sub make_authas_select {
     my ( $u, $opts ) = @_;    # type, authas, label, button
 
     my $authas = $opts->{authas} || $u->user;
-    my $button = $opts->{button} || $BML::ML{'web.authas.btn'};
-    my $label  = $opts->{label}  || $BML::ML{'web.authas.select.label'};
+    my $button = $opts->{button} || LJ::Lang::ml('web.authas.btn');
+    my $label  = $opts->{label}  || LJ::Lang::ml('web.authas.select.label');
 
     my $foundation = $opts->{foundation} || 0;
 
@@ -249,25 +251,20 @@ sub make_authas_select {
 
 # <LJFUNC>
 # name: LJ::help_icon
-# des: Returns BML to show a help link/icon given a help topic, or nothing
+# des: Returns HTML to show a help link/icon given a help topic, or nothing
 #      if the site hasn't defined a URL for that topic.  Optional arguments
-#      include HTML/BML to place before and after the link/icon, should it
+#      include HTML to place before and after the link/icon, should it
 #      be returned.
 # args: topic, pre?, post?
 # des-topic: Help topic key.
 #            See etc/config-local.pl, or [special[helpurls]] for examples.
-# des-pre: HTML/BML to place before the help icon.
-# des-post: HTML/BML to place after the help icon.
+# des-pre: HTML to place before the help icon.
+# des-post: HTML to place after the help icon.
 # </LJFUNC>
 sub help_icon {
-    my $topic = shift;
-    my $pre   = shift;
-    my $post  = shift;
-    return "" unless ( defined $LJ::HELPURL{$topic} );
-    return "$pre<?help $LJ::HELPURL{$topic} help?>$post";
+    return help_icon_html(@_);
 }
 
-# like help_icon, but no BML.
 sub help_icon_html {
     my $topic = shift;
     my $url   = $LJ::HELPURL{$topic} or return "";
@@ -280,29 +277,9 @@ sub help_icon_html {
 }
 
 # <LJFUNC>
-# name: LJ::bad_input
-# des: Returns common BML for reporting form validation errors in
-#      a bulleted list.
-# returns: BML showing errors.
-# args: error*
-# des-error: A list of errors
-# </LJFUNC>
-sub bad_input {
-    my @errors = @_;
-    my $ret    = "";
-    $ret .= "<?badcontent?>\n<ul>\n";
-    foreach my $ei (@errors) {
-        my $err = LJ::errobj($ei) or next;
-        $ret .= $err->as_bullets;
-    }
-    $ret .= "</ul>\n";
-    return $ret;
-}
-
-# <LJFUNC>
 # name: LJ::error_list
 # des: Returns an error bar with bulleted list of errors.
-# returns: BML showing errors.
+# returns: HTML showing errors.
 # args: error*
 # des-error: A list of errors
 # </LJFUNC>
@@ -311,16 +288,16 @@ sub error_list {
     # FIXME: retrofit like bad_input above?  merge?  make aliases for each other?
     my @errors = @_;
     my $ret;
-    $ret .= "<?errorbar ";
+    $ret .= qq{<div class="errorbar">};
     $ret .= "<strong>";
-    $ret .= BML::ml('error.procrequest');
+    $ret .= LJ::Lang::ml('error.procrequest');
     $ret .= "</strong><ul>";
 
     foreach my $ei (@errors) {
         my $err = LJ::errobj($ei) or next;
         $ret .= $err->as_bullets;
     }
-    $ret .= " </ul> errorbar?>";
+    $ret .= "</ul></div>";
     return $ret;
 }
 
@@ -330,13 +307,22 @@ sub error_list {
 # returns: Translation string "error.notloggedin"
 # </LJFUNC>
 sub error_noremote {
-    return "<?needlogin?>";
+    my $r        = DW::Request->get;
+    my $returnto = '';
+    if ($r) {
+        my $uri = $r->uri;
+        if ( my $qs = $r->query_string ) {
+            $uri .= '?' . $qs;
+        }
+        $returnto = '?returnto=' . LJ::eurl($uri);
+    }
+    return LJ::Lang::ml( 'error.notloggedin', { aopts => "href='$LJ::SITEROOT/login$returnto'" } );
 }
 
 # <LJFUNC>
 # name: LJ::warning_list
 # des: Returns a warning bar with bulleted list of warnings.
-# returns: BML showing warnings
+# returns: HTML showing warnings
 # args: warnings*
 # des-warnings: A list of warnings
 # </LJFUNC>
@@ -344,15 +330,15 @@ sub warning_list {
     my @warnings = @_;
     my $ret;
 
-    $ret .= "<?warningbar ";
+    $ret .= qq{<div class="warningbar">};
     $ret .= "<strong>";
-    $ret .= BML::ml('label.warning');
+    $ret .= LJ::Lang::ml('label.warning');
     $ret .= "</strong><ul>";
 
     foreach (@warnings) {
         $ret .= "<li>$_</li>";
     }
-    $ret .= " </ul> warningbar?>";
+    $ret .= "</ul></div>";
     return $ret;
 }
 
@@ -373,7 +359,11 @@ sub warning_list {
 # returns: true if REQUEST_METHOD == "POST"
 # </LJFUNC>
 sub did_post {
-    return ( BML::get_method() eq "POST" );
+    my $r = DW::Request->get;
+    return $r->did_post if $r;
+
+    # no active request (e.g. a background job): never a POST.
+    return '';
 }
 
 # <LJFUNC>
@@ -441,7 +431,7 @@ sub page_change_getargs {
 }
 
 =head2 C<< LJ::paging( $listref, $page, $pagesize ) >>
-Drop-in replacement for BML::paging in non-BML context.
+Paginate a list, returning the current page's items plus page-navigation data.
 =cut
 
 sub paging {
@@ -452,8 +442,6 @@ sub paging {
     my %self;
 
     my $newurl = sub {
-
-        # replaces BML::page_newurl
         return LJ::page_change_getargs( page => $_[0] );
     };
 
@@ -536,14 +524,18 @@ sub make_cookie {
 # args: uri?, referer?
 # des-uri: string; the URI we want the user to come from.
 # des-referer: string; the location the user is posting from.
-#              If not supplied, will be retrieved with BML::get_client_header.
-#              In general, you don't want to pass this yourself unless
-#              you already have it or know we can't get it from BML.
+#              If not supplied, will be retrieved from the active request's
+#              Referer header. In general, you don't want to pass this
+#              yourself unless you already have it or know there's no
+#              active request to get it from.
 # returns: 1 if they're coming from that URI, else undef
 # </LJFUNC>
 sub check_referer {
-    my $uri     = shift(@_) || '';
-    my $referer = shift(@_) || BML::get_client_header('Referer');
+    my $uri = shift(@_) || '';
+    my $referer =
+           shift(@_)
+        || ( DW::Request->get && DW::Request->get->header_in('Referer') )
+        || '';
 
     # get referer and check
     return 1 unless $referer;
@@ -626,7 +618,11 @@ sub form_auth {
 #          or the user has changed session (logged out and in again, or something).
 # </LJFUNC>
 sub check_form_auth {
-    my $formauth = shift || $BMLCodeBlock::POST{'lj_form_auth'};
+    my $formauth =
+        @_
+        ? shift
+        : ( DW::Request->get && DW::Request->get->post_args->{'lj_form_auth'} )
+        || $BMLCodeBlock::POST{'lj_form_auth'};
     return 0 unless $formauth;
 
     my $remote = LJ::get_remote();
@@ -811,10 +807,6 @@ sub set_lastcomment {
     return;
 }
 
-sub deemp {
-    "<span class='de'>$_[0]</span>";
-}
-
 =head2 C<< LJ::determine_viewing_style( $args, $view, $u ) >>
 Takes a hashref of get args, and the current view, and an optional user.
 Returns "original", "mine", "site", or "light" as the style.
@@ -963,1320 +955,16 @@ sub create_url {
 }
 
 # <LJFUNC>
-# name: LJ::entry_form
-# class: web
-# des: Returns a properly formatted form for creating/editing entries.
-# args: head, onload, opts
-# des-head: string reference for the <head> section (JavaScript previews, etc).
-# des-onload: string reference for JavaScript functions to be called on page load
-# des-opts: hashref of keys/values:
-#           mode: either "update" or "edit", depending on context;
-#           datetime: date and time, formatted yyyy-mm-dd hh:mm;
-#           remote: remote u object;
-#           subject: entry subject;
-#           event: entry text;
-#           richtext: allow rich text formatting;
-#           auth_as_remote: bool option to authenticate as remote user, pre-filling pic/friend groups/etc.
-# return: form to include in BML pages.
-# </LJFUNC>
-sub entry_form {
-    my ( $opts, $head, $onload, $errors ) = @_;
-
-    my $out      = "";
-    my $remote   = $opts->{remote};
-    my $altlogin = $opts->{altlogin};
-    my ( $moodlist, $moodpics );
-
-    # usejournal has no point if you're trying to use the account you're logged in as,
-    # so disregard it so we can assume that if it exists, we're trying to post to an
-    # account that isn't us
-    if ( $remote && $opts->{usejournal} && $remote->{user} eq $opts->{usejournal} ) {
-        delete $opts->{usejournal};
-    }
-
-    # Temp fix for FF 2.0.0.17
-    my $rte_is_supported = LJ::is_enabled( 'rte_support', BML::get_client_header("User-Agent") );
-    $opts->{'richtext_default'} = 0 unless $rte_is_supported;
-
-    $opts->{'richtext'} = $opts->{'richtext_default'};
-    my $tabnum = 10;    #make allowance for username and password
-                        # Leave gaps for interpolated fields eg date/time
-    my $tabindex = sub { return ( $tabnum += 10 ) - 10; };
-    $opts->{'event'} = LJ::durl( $opts->{'event'} ) if $opts->{'mode'} eq "edit";
-
-    $out .= "\n\n<div id='entry-form-wrapper'>\n";
-    $out .= LJ::error_list( $errors->{entry} ) if $errors->{entry};
-
-    ### Icon Selection
-
-    my $pic     = '';    # displays chosen/default pic
-    my $picform = '';    # displays form drop-down
-
-    LJ::Widget::UserpicSelector->render(
-        picargs              => [ $remote, \$$head, \$pic, \$picform ],
-        prop_picture_keyword => $opts->{prop_picture_keyword},
-        no_auth              => !$opts->{auth_as_remote},
-        onload               => $onload,
-        altlogin             => $altlogin,
-        entry_js             => 1
-    );
-
-    # libs for userpicselect
-    LJ::Talk::init_iconbrowser_js()
-        if !$altlogin && $remote && $remote->can_use_userpic_select;
-
-    $out .= $pic;
-
-    ### Meta Information Column 1
-    {
-        # do a login action to get usejournals, but only if using remote
-        my $res;
-        $res = LJ::Protocol::do_request(
-            "login",
-            {
-                ver      => $LJ::PROTOCOL_VER,
-                username => $remote->user,
-            },
-            undef,
-            {
-                noauth => 1,
-                u      => $remote,
-            }
-        ) if $opts->{auth_as_remote};
-
-        $out .= "<div id='metainfo'>\n\n";
-
-        # login info
-        $out .= $opts->{'auth'};
-        if ( $opts->{'mode'} eq "update" ) {
-
-            # communities the user can post in
-            my $usejournal = $opts->{'usejournal'};
-            if ($usejournal) {
-                $out .= "<p id='usejournal_single' class='pkg'>\n";
-                $out .=
-                      "<label for='usejournal' class='left'>"
-                    . BML::ml('entryform.postto')
-                    . "</label>\n";
-                $out .= LJ::ljuser($usejournal);
-                $out .= LJ::html_hidden(
-                    { name => 'usejournal', value => $usejournal, id => 'usejournal_username' } );
-                $out .= LJ::html_hidden( usejournal_set => 'true' );
-                $out .= "</p>\n";
-            }
-            elsif ( $res && ref $res->{'usejournals'} eq 'ARRAY' ) {
-                my $submitprefix = BML::ml('entryform.update3');
-                $out .= "<p id='usejournal_list' class='pkg'>\n";
-                $out .=
-                      "<label for='usejournal' class='left'>"
-                    . BML::ml('entryform.postto')
-                    . "</label>\n";
-                $out .= LJ::html_select(
-                    {
-                        'name'     => 'usejournal',
-                        'id'       => 'usejournal',
-                        'selected' => $usejournal,
-                        'tabindex' => $tabindex->(),
-                        'class'    => 'select',
-                        "onchange" => "changeSubmit('"
-                            . $submitprefix . "','"
-                            . $remote->{'user'}
-                            . "'); getUserTags('$remote->{user}'); changeSecurityOptions('$remote->{user}'); XPostAccount.updateXpostFromJournal('$remote->{user}');"
-                    },
-                    "",
-                    $remote->{'user'},
-                    map { $_, $_ } @{ $res->{'usejournals'} }
-                ) . "\n";
-                $out .= "</p>\n";
-            }
-        }
-
-        # Authentication box
-        $out .= "<p class='update-errors'><?inerr $errors->{'auth'} inerr?></p>\n"
-            if $errors->{'auth'};
-
-        # Date / Time
-        {
-            my ( $year, $mon, $mday, $hour, $min ) = split( /\D/, $opts->{'datetime'} );
-            my $monthlong = LJ::Lang::month_long($mon);
-
-            # date entry boxes / formatting note
-            my $datetime = LJ::html_datetime(
-                {
-                    name     => 'date_ymd',
-                    notime   => 1,
-                    default  => "$year-$mon-$mday",
-                    tabindex => $tabindex->(),
-                    disabled => $opts->{'disabled_save'}
-                }
-            );
-            $datetime .= "<span class='float-left'>&nbsp;&nbsp;</span>";
-            $datetime .= LJ::html_text(
-                {
-                    size      => 2,
-                    class     => 'text',
-                    maxlength => 2,
-                    value     => $hour,
-                    name      => "hour",
-                    tabindex  => $tabindex->(),
-                    disabled  => $opts->{'disabled_save'}
-                }
-            ) . "<span class='float-left'>:</span>";
-            $datetime .= LJ::html_text(
-                {
-                    size      => 2,
-                    class     => 'text',
-                    maxlength => 2,
-                    value     => $min,
-                    name      => "min",
-                    tabindex  => $tabindex->(),
-                    disabled  => $opts->{'disabled_save'}
-                }
-            );
-
-            # JavaScript sets this value, so we know that the time we get is correct
-            # but always trust the time if we've been through the form already
-            my $date_diff = ( $opts->{'mode'} eq "edit" || $opts->{'spellcheck_html'} ) ? 1 : 0;
-            $datetime .= LJ::html_hidden( "date_diff", $date_diff );
-
-            # but if we don't have JS, give a signal to trust the given time
-            $datetime .= "<noscript>" . LJ::html_hidden( "date_diff_nojs", "1" ) . "</noscript>";
-
-            $out .= "<p class='pkg'>\n";
-            $out .=
-                "<label for='modifydate' class='left'>" . BML::ml('entryform.date') . "</label>\n";
-            $out .=
-"<span id='currentdate' class='float-left'><span id='currentdate-date'>$monthlong $mday, $year, $hour"
-                . ":"
-                . "$min</span> <a href='javascript:void(0)' onclick='editdate();' id='currentdate-edit'>"
-                . BML::ml('entryform.date.edit')
-                . "</a></span>\n";
-            $out .=
-                  "<span id='modifydate'>$datetime <?de "
-                . BML::ml('entryform.date.24hournote')
-                . " de?><br />\n";
-            $out .= LJ::html_check(
-                {
-                    'type'     => "check",
-                    'id'       => "prop_opt_backdated",
-                    'name'     => "prop_opt_backdated",
-                    "value"    => 1,
-                    'selected' => $opts->{'prop_opt_backdated'},
-                    'tabindex' => $tabindex->()
-                }
-            );
-            $out .=
-                  "<label for='prop_opt_backdated' class='right'>"
-                . BML::ml('entryform.backdated4')
-                . "</label>\n";
-            $out .= LJ::help_icon_html( "backdate", "", "" ) . "\n";
-            $out .= "</span><!-- end #modifydate -->\n";
-            $out .= "</p>\n";
-            $out .=
-                  "<noscript><p id='time-correct' class='small'>"
-                . BML::ml('entryform.nojstime.note')
-                . "</p></noscript>\n";
-            $$onload .= " defaultDate();";
-        }
-
-        # User Picture
-        {
-            my $tab = $tabindex->();
-            $picform =~ s/~~TABINDEX~~/$tab/;
-            $out .= $picform;
-        }
-
-        $out .= "</div><!-- end #metainfo -->\n\n";
-
-        ### Other Posting Options
-        {
-            $out .= "<div id='infobox'>\n";
-            $out .=
-                LJ::Hooks::run_hook( 'entryforminfo', $opts->{'usejournal'}, $opts->{'remote'} );
-            $out .= "</div><!-- end #infobox -->\n\n";
-        }
-
-        ### Subject
-        $out .= "<div id='compose-entry' class='pkg'>\n";
-
-        $out .= "<label class='left' for='subject'>" . BML::ml('entryform.subject') . "</label>\n";
-        $out .= LJ::html_text(
-            {
-                'name'      => 'subject',
-                'value'     => $opts->{'subject'},
-                'class'     => 'text',
-                'id'        => 'subject',
-                'size'      => '43',
-                'maxlength' => '100',
-                'tabindex'  => $tabindex->(),
-                'disabled'  => $opts->{'disabled_save'}
-            }
-        ) . "\n";
-        $out .= "<ul id='entry-tabs' style='display: none;'>\n";
-        $out .= "<li id='jrich'>"
-            . BML::ml(
-            "entryform.htmlokay.rich4",
-            {
-                'opts' => 'href="javascript:void(0);" onclick="return useRichText(\'draft\', \''
-                    . $LJ::WSTATPREFIX . '\');"'
-            }
-            )
-            . "</li>\n"
-            if $rte_is_supported;
-        $out .= "<li id='jplain' class='on'>"
-            . BML::ml( "entryform.plainswitch2",
-            { 'aopts' => 'href="javascript:void(0);" onclick="return usePlainText(\'draft\');"' } )
-            . "</li>\n";
-        $out     .= "</ul>";
-        $out     .= "</div><!-- end #entry -->\n\n";
-        $$onload .= " showEntryTabs();";
-    }
-
-    ### Display Spell Check Results:
-    $out .=
-          "<div id='spellcheck-results'><strong>"
-        . BML::ml('entryform.spellchecked')
-        . "</strong><br />$opts->{'spellcheck_html'}</div>\n"
-        if $opts->{'spellcheck_html'};
-
-    ### Insert Object Toolbar:
-    LJ::need_res(
-        qw(
-            js/6alib/core.js
-            js/6alib/dom.js
-            js/6alib/ippu.js
-            js/lj_ippu.js
-            )
-    );
-    $out .= "<div id='htmltools' class='pkg'>\n";
-    $out .= "<ul class='pkg'>\n";
-    $out .=
-"<li class='image'><a href='javascript:void(0);' onclick='InOb.handleInsertImage();' title='"
-        . BML::ml('fckland.ljimage') . "'>"
-        . BML::ml('entryform.insert.image2')
-        . "</a></li>\n";
-    $out .=
-"<li class='media'><a href='javascript:void(0);' onclick='InOb.handleInsertEmbed();' title='"
-        . BML::ml('fcklang.ljvideo2') . "'>"
-        . BML::ml('fcklang.ljvideo2')
-        . "</a></li>\n"
-        if LJ::is_enabled('embed_module');
-    $out .= "</ul>\n";
-    my $format_selected =
-           ( $opts->{mode} eq "update" && $remote && $remote->disable_auto_formatting )
-        || $opts->{'prop_opt_preformatted'}
-        || $opts->{'event_format'} ? "checked='checked'" : "";
-    $out .=
-"<span id='linebreaks'><input type='checkbox' class='check' value='preformatted' name='event_format' id='event_format' $format_selected  />
-            <label for='event_format'>"
-        . BML::ml('entryform.format3')
-        . "</label>"
-        . LJ::help_icon_html( "noautoformat", "", " " )
-        . "</span>\n";
-    $out .= "</div>\n\n";
-
-    ### Draft Status Area
-    $out .= "<div id='draft-container' class='pkg'>\n";
-    $out .= LJ::html_textarea(
-        {
-            'name'     => 'event',
-            'value'    => $opts->{'event'},
-            'rows'     => '20',
-            'cols'     => '50',
-            'style'    => '',
-            'tabindex' => $tabindex->(),
-            'wrap'     => 'soft',
-            'disabled' => $opts->{'disabled_save'},
-            'id'       => 'draft'
-        }
-    ) . "\n";
-    $out .= "</div><!-- end #draft-container -->\n\n";
-    $out .= "<input type='text' disabled='disabled' name='draftstatus' id='draftstatus' />\n\n";
-    LJ::need_res( 'stc/fck/fckeditor.js', 'js/rte.js', 'stc/display_none.css' );
-    if ( !$opts->{'did_spellcheck'} ) {
-
-        my $jnorich = LJ::ejs( LJ::deemp( BML::ml('entryform.htmlokay.norich2') ) );
-
-        $out .= <<RTE;
-        <script language='JavaScript' type='text/javascript'>
-            <!--
-
-        // Check if this browser supports FCKeditor
-        var rte = new FCKeditor();
-        var t = rte._IsCompatibleBrowser();
-        if (t) {
-RTE
-
-        my @sites = DW::External::Site->get_sites;
-        my @sitevalues;
-        foreach my $site ( sort { $a->{sitename} cmp $b->{sitename} } @sites ) {
-            push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
-        }
-
-        $out .= "var FCKLang;\n";
-        $out .= "if (!FCKLang) FCKLang = {};\n";
-        $out .= "FCKLang.UserPrompt = \"" . LJ::ejs( BML::ml('fcklang.userprompt') ) . "\";\n";
-        $out .= "FCKLang.UserPrompt_User = \""
-            . LJ::ejs( BML::ml('fcklang.userprompt.user') ) . "\";\n";
-        $out .= "FCKLang.UserPrompt_Site = \""
-            . LJ::ejs( BML::ml('fcklang.userprompt.site') ) . "\";\n";
-        $out .= "FCKLang.UserPrompt_SiteList =" . to_json( \@sitevalues ) . ";\n";
-        $out .= "FCKLang.InvalidChars = \"" . LJ::ejs( BML::ml('fcklang.invalidchars') ) . "\";\n";
-        $out .= "FCKLang.LJUser = \"" . LJ::ejs( BML::ml('fcklang.ljuser') ) . "\";\n";
-        $out .= "FCKLang.LJVideo = \"" . LJ::ejs( BML::ml('fcklang.ljvideo2') ) . "\";\n";
-        $out .=
-            "FCKLang.EmbedContents = \"" . LJ::ejs( BML::ml('fcklang.embedcontents') ) . "\";\n";
-        $out .= "FCKLang.EmbedPrompt = \"" . LJ::ejs( BML::ml('fcklang.embedprompt') ) . "\";\n";
-        $out .= "FCKLang.CutPrompt = \"" . LJ::ejs( BML::ml('fcklang.cutprompt') ) . "\";\n";
-        $out .= "FCKLang.ReadMore = \"" . LJ::ejs( BML::ml('fcklang.readmore') ) . "\";\n";
-        $out .= "FCKLang.CutContents = \"" . LJ::ejs( BML::ml('fcklang.cutcontents') ) . "\";\n";
-        $out .= "FCKLang.LJCut = \"" . LJ::ejs( BML::ml('fcklang.ljcut') ) . "\";\n";
-
-        if ( $opts->{'richtext_default'} ) {
-            $$onload .= 'useRichText("draft", "' . LJ::ejs($LJ::WSTATPREFIX) . '");';
-        }
-
-        {
-            my $jrich = LJ::ejs(
-                LJ::deemp(
-                    BML::ml(
-                        "entryform.htmlokay.rich2",
-                        {
-                            'opts' =>
-'href="javascript:void(0);" onclick="return useRichText(\'draft\', \''
-                                . LJ::ejs($LJ::WSTATPREFIX) . '\');"'
-                        }
-                    )
-                )
-            );
-
-            my $jplain = LJ::ejs(
-                LJ::deemp(
-                    BML::ml(
-                        "entryform.plainswitch",
-                        {
-                            'aopts' =>
-'href="javascript:void(0);" onclick="return usePlainText(\'draft\');"'
-                        }
-                    )
-                )
-            );
-        }
-
-        $out .= <<RTE;
-        } else {
-            document.getElementById('entry-tabs').style.visibility = 'hidden';
-            document.getElementById('htmltools').style.display = 'block';
-            document.write("$jnorich");
-            usePlainText('draft');
-        }
-        //-->
-            </script>
-RTE
-
-        $out .=
-            '<noscript><?de ' . BML::ml('entryform.htmlokay.norich2') . ' de?><br /></noscript>';
-    }
-    $out .= LJ::html_hidden( { name => 'switched_rte_on', id => 'switched_rte_on', value => '0' } );
-
-    $out .= "<div id='options' class='pkg'>";
-    if ( !$opts->{'disabled_save'} ) {
-        ### Options
-
-        # Tag labeling
-        if ( LJ::is_enabled('tags') ) {
-            $out .= "<p class='pkg'>";
-            $out .=
-                  "<label for='prop_taglist' class='left options'>"
-                . BML::ml('entryform.tags')
-                . "</label>";
-            $out .= LJ::html_text(
-                {
-                    'name'     => 'prop_taglist',
-                    'id'       => 'prop_taglist',
-                    'class'    => 'text',
-                    'size'     => '35',
-                    'value'    => $opts->{'prop_taglist'},
-                    'tabindex' => $tabindex->(),
-                    'raw'      => "autocomplete='off'",
-                }
-            );
-            $out .= LJ::help_icon_html('addtags');
-            $out .= "</p>";
-        }
-
-        $out .= "<p class='pkg'>\n";
-        $out .= "<span id='prop_mood_wrapper' class='inputgroup-left'>\n";
-        $out .=
-              "<label for='prop_current_moodid' class='left options'>"
-            . BML::ml('entryform.mood')
-            . "</label>";
-
-        # Current Mood
-        {
-            my @moodlist = ( '', BML::ml('entryform.mood.noneother') );
-            my $sel;
-
-            my $moods = DW::Mood->get_moods;
-
-            foreach ( sort { $moods->{$a}->{'name'} cmp $moods->{$b}->{'name'} } keys %$moods ) {
-                push @moodlist, ( $_, $moods->{$_}->{'name'} );
-
-                if (   $opts->{prop_current_mood}
-                    && $opts->{prop_current_mood} eq $moods->{$_}->{name}
-                    || $opts->{prop_current_moodid} && $opts->{prop_current_moodid} == $_ )
-                {
-                    $sel = $_;
-                }
-            }
-
-            if ($remote) {
-                my $r_theme = DW::Mood->new( $remote->{'moodthemeid'} );
-                foreach my $mood ( keys %$moods ) {
-                    my $moodid = $moods->{$mood}->{id};
-                    if ( $r_theme && $r_theme->get_picture( $moodid, \my %pic ) ) {
-                        $moodlist .= "    moods[" . $moodid;
-                        $moodlist .= "] = \"";
-                        $moodlist .= $moods->{$mood}->{name} . "\";\n";
-                        $moodpics .= "    moodpics[" . $moodid;
-                        $moodpics .= "] = \"";
-                        $moodpics .= $pic{pic} . "\";\n";
-                    }
-                }
-                $$onload .= " mood_preview();";
-                $$head   .= <<MOODS;
-<script type="text/javascript" language="JavaScript"><!--
-if (document.getElementById) {
-    var moodpics = new Array();
-    $moodpics
-    var moods    = new Array();
-    $moodlist
-}
-//--></script>
-MOODS
-            }
-            my $moodpreviewoc;
-            $moodpreviewoc = 'mood_preview()' if $remote;
-            $out .= LJ::html_select(
-                {
-                    'name'     => 'prop_current_moodid',
-                    'id'       => 'prop_current_moodid',
-                    'selected' => $sel,
-                    'onchange' => $moodpreviewoc,
-                    'class'    => 'select',
-                    'tabindex' => $tabindex->()
-                },
-                @moodlist
-            );
-            $out .= " "
-                . LJ::html_text(
-                {
-                    'name'      => 'prop_current_mood',
-                    'id'        => 'prop_current_mood',
-                    'class'     => 'text',
-                    'value'     => $opts->{'prop_current_mood'},
-                    'onchange'  => $moodpreviewoc,
-                    'size'      => '15',
-                    'maxlength' => '30',
-                    'tabindex'  => $tabindex->()
-                }
-                );
-        }
-        $out .= "<span id='mood_preview'></span>";
-        $out .= "</span>\n";
-        $out .= "<span class='inputgroup-right'>\n";
-        $out .=
-              "<label for='comment_settings' class='left options'>"
-            . BML::ml('entryform.comment.settings2')
-            . "</label>\n";
-
-        # Comment Settings
-        my $comment_settings_selected = sub {
-            return "noemail" if $opts->{'prop_opt_noemail'};
-            return "nocomments"
-                if $opts->{prop_opt_nocomments} || $opts->{prop_opt_nocomments_maintainer};
-            return $opts->{'comment_settings'};
-        };
-
-        my $comment_settings_journaldefault = sub {
-            return "Disabled"
-                if $opts->{prop_opt_default_nocomments}
-                && $opts->{prop_opt_default_nocomments} eq 'N';
-            return "No Email"
-                if $opts->{prop_opt_default_noemail} && $opts->{prop_opt_default_noemail} eq 'N';
-            return "Enabled";
-        };
-
-        my $nocomments_display =
-            $opts->{prop_opt_nocomments_maintainer}
-            ? 'entryform.comment.settings.nocomments.admin'
-            : 'entryform.comment.settings.nocomments';
-
-        my $comment_settings_default = BML::ml( 'entryform.comment.settings.default5',
-            { 'aopts' => $comment_settings_journaldefault->() } );
-        $out .= LJ::html_select(
-            {
-                'name'     => "comment_settings",
-                'id'       => 'comment_settings',
-                'class'    => 'select',
-                'selected' => $comment_settings_selected->(),
-                'tabindex' => $tabindex->()
-            },
-            "",
-            $comment_settings_default,
-            "nocomments",
-            BML::ml( $nocomments_display, "noemail" ),
-            "noemail",
-            BML::ml('entryform.comment.settings.noemail')
-        );
-        $out .= LJ::help_icon_html( "comment", "", " " );
-        $out .= "\n";
-        $out .= "</span>\n";
-        $out .= "</p>\n";
-
-        # Current Location
-        $out .= "<p class='pkg'>";
-        if ( LJ::is_enabled('web_current_location') ) {
-            $out .= "<span class='inputgroup-left'>";
-            $out .=
-                  "<label for='prop_current_location' class='left options'>"
-                . BML::ml('entryform.location')
-                . "</label>";
-            $out .= LJ::html_text(
-                {
-                    name      => 'prop_current_location',
-                    value     => $opts->{prop_current_location},
-                    id        => 'prop_current_location',
-                    class     => 'text',
-                    size      => '35',
-                    maxlength => LJ::std_max_length(),
-                    tabindex  => $tabindex->()
-                }
-            ) . "\n";
-            $out .= "</span>";
-        }
-
-        # Comment Screening settings
-        $out .= "<span class='inputgroup-right'>\n";
-        $out .=
-              "<label for='prop_opt_screening' class='left options'>"
-            . BML::ml('entryform.comment.screening2')
-            . "</label>\n";
-        my $opt_default_screen = $opts->{prop_opt_default_screening} || '';
-        my $screening_levels_default =
-              $opt_default_screen eq 'N' ? BML::ml('label.screening.none2')
-            : $opt_default_screen eq 'R' ? BML::ml('label.screening.anonymous2')
-            : $opt_default_screen eq 'F' ? BML::ml('label.screening.nonfriends2')
-            : $opt_default_screen eq 'A' ? BML::ml('label.screening.all2')
-            :                              BML::ml('label.screening.none2');
-        my @levels = (
-            '',  BML::ml( 'label.screening.default4', { 'aopts' => $screening_levels_default } ),
-            'N', BML::ml('label.screening.none2'),
-            'R', BML::ml('label.screening.anonymous2'),
-            'F', BML::ml('label.screening.nonfriends2'),
-            'A', BML::ml('label.screening.all2')
-        );
-        $out .= LJ::html_select(
-            {
-                'name'     => 'prop_opt_screening',
-                'id'       => 'prop_opt_screening',
-                'class'    => 'select',
-                'selected' => $opts->{'prop_opt_screening'},
-                'tabindex' => $tabindex->()
-            },
-            @levels
-        );
-        $out .= LJ::help_icon_html( "screening", "", " " );
-        $out .= "</span>\n";
-        $out .= "</p>\n";
-
-        # Current Music
-        $out .= "<p class='pkg'>\n";
-        $out .= "<span class='inputgroup-left'>\n";
-        $out .=
-              "<label for='prop_current_music' class='left options'>"
-            . BML::ml('entryform.music')
-            . "</label>\n";
-
-        # BML::ml('entryform.music')
-        $out .= LJ::html_text(
-            {
-                name      => 'prop_current_music',
-                value     => $opts->{prop_current_music},
-                id        => 'prop_current_music',
-                class     => 'text',
-                size      => '35',
-                maxlength => LJ::std_max_length(),
-                tabindex  => $tabindex->()
-            }
-        ) . "\n";
-        $out .= "</span>\n";
-        $out .= "<span class='inputgroup-right'>";
-
-        # Content Flag
-        if ( LJ::is_enabled('adult_content') ) {
-            my @adult_content_menu = (
-                ""       => BML::ml('entryform.adultcontent.default'),
-                none     => BML::ml('entryform.adultcontent.none'),
-                concepts => BML::ml('entryform.adultcontent.concepts'),
-                explicit => BML::ml('entryform.adultcontent.explicit'),
-            );
-
-            $out .=
-                  "<label for='prop_adult_content' class='left options'>"
-                . BML::ml('entryform.adultcontent')
-                . "</label>\n";
-            $out .= LJ::html_select(
-                {
-                    name     => 'prop_adult_content',
-                    id       => 'prop_adult_content',
-                    class    => 'select',
-                    selected => $opts->{prop_adult_content} || "",
-                    tabindex => $tabindex->(),
-                },
-                @adult_content_menu
-            );
-            $out .= LJ::help_icon_html( "adult_content", "", " " );
-        }
-        $out .= "</span>\n";
-        $out .= "</p>\n";
-
-        if ( LJ::is_enabled('adult_content') ) {
-            $out .= "<p class='pkg'>";
-            $out .=
-                  "<label for='prop_adult_content_reason' class='left options'>"
-                . BML::ml('entryform.adultcontentreason')
-                . "</label>";
-            $out .= LJ::html_text(
-                {
-                    'name'      => 'prop_adult_content_reason',
-                    'id'        => 'prop_adult_content_reason',
-                    'class'     => 'text',
-                    'size'      => '35',
-                    'maxlength' => '255',
-                    'value'     => $opts->{'prop_adult_content_reason'},
-                    'tabindex'  => $tabindex->(),
-                }
-            );
-            $out .= LJ::help_icon_html('adult_content_reason');
-            $out .= "</p>";
-        }
-
-        if ( $remote && !$altlogin ) {
-
-            # crosspost
-            my @accounts = DW::External::Account->get_external_accounts($remote);
-
-            # populate the per-account html first, so that we only have to
-            # go through them once.
-            my $accthtml       = "";
-            my $xpostbydefault = 0;
-            my $xpost_tabindex = $tabindex->();
-            my $did_spellcheck = $opts->{spellcheck_html} ? 1 : 0;
-            if ( scalar @accounts ) {
-                my $xpoststring    = $opts->{prop_xpost};
-                my $xpost_selected = DW::External::Account->xpost_string_to_hash($xpoststring);
-                foreach my $acct (@accounts) {
-
-                    # print the checkbox for each account
-                    my $acctid   = $acct->acctid;
-                    my $acctname = $acct->displayname;
-                    my $selected;
-                    if ( $opts->{mode} eq 'edit' ) {
-                        $selected = $xpost_selected->{ $acct->acctid } ? "1" : "0";
-                    }
-                    elsif ($did_spellcheck) {
-                        $selected = $opts->{"prop_xpost_$acctid"};
-                    }
-                    else {
-                        $selected = $acct->xpostbydefault;
-                    }
-                    $accthtml .=
-"<tr><td><label for='prop_xpost_$acctid' class='left options'>$acctname</label></td>\n";
-                    $accthtml .= "<td>"
-                        . LJ::html_check(
-                        {
-                            'type'     => 'checkbox',
-                            'name'     => "prop_xpost_$acctid",
-                            'id'       => "prop_xpost_$acctid",
-                            'class'    => 'check xpost_acct_checkbox',
-                            'value'    => '1',
-                            'selected' => $selected,
-                            'tabindex' => $tabindex->(),
-                            'onchange' => 'XPostAccount.xpostAcctUpdated();',
-                        }
-                        ) . "</td>\n";
-                    $xpostbydefault = 1 if $selected;
-
-                    $accthtml .= "<td>";
-                    unless ( $acct->password ) {
-
-                        # password field if no password
-                        $accthtml .= "<span id='prop_xpost_pwspan_$acctid'>";
-                        $accthtml .=
-                              "<label for='prop_xpost_password_$acctid'>"
-                            . BML::ml('xpost.password')
-                            . "</label>";
-                        $accthtml .= LJ::html_text(
-                            {
-                                'name'      => "prop_xpost_password_$acctid",
-                                'id'        => "prop_xpost_password_$acctid",
-                                'value'     => "",
-                                'disabled'  => 0,
-                                'size'      => 40,
-                                'maxlength' => 80,
-                                'type'      => 'password',
-                                'class'     => 'xpost_pw'
-                            }
-                        );
-                        $accthtml .=
-                            "<span class='xpost_pwstatus' id='prop_xpost_pwstatus_$acctid'></span>";
-                        $accthtml .=
-"<input type='hidden' name='prop_xpost_chal_$acctid' id='prop_xpost_chal_$acctid' class='xpost_chal' />";
-                        $accthtml .=
-"<input type='hidden' name='prop_xpost_resp_$acctid' id='prop_xpost_resp_$acctid'/>";
-                        $accthtml .= "</span>";
-                    }
-                    $accthtml .= "</td>\n";
-
-                    $accthtml .= "</tr>\n";
-                }
-            }
-            $out .= qq [
-                    <script type="text/javascript" language="JavaScript">
-                      // xpost messages
-                      var xpostUser = '$remote->{user}';
-                ];
-            $out .= "var xpostCheckingMessage = '" . BML::ml('xpost.nopw.checking') . "';\n";
-            $out .= "var xpostCancelLabel =  '" . BML::ml('xpost.nopw.cancel') . "';\n";
-            $out .= "var xpostPwRequired = '" . BML::ml('xpost.nopw.required') . "';\n";
-            $out .= "</script>\n";
-            $out .= "<div id='xpostdiv'>\n";
-            $out .=
-                  "<p><label for='prop_xpost_check' class='left options'>"
-                . BML::ml('entryform.xpost')
-                . "</label>";
-            $out .= LJ::html_check(
-                {
-                    'type'     => 'checkbox',
-                    'name'     => 'prop_xpost_check',
-                    'id'       => 'prop_xpost_check',
-                    'class'    => 'check',
-                    'value'    => '1',
-                    'selected' => $xpostbydefault,
-                    'disabled' => ( scalar @accounts ) ? '0' : '1',
-                    'tabindex' => $xpost_tabindex,
-                    'onchange' => 'XPostAccount.xpostButtonUpdated();',
-                }
-            );
-            $out .= LJ::help_icon_html('prop_xpost_check');
-            $out .= "<a href = '/manage/settings/?cat=othersites'>"
-                . BML::ml('entryform.xpost.manage') . "</a>";
-            $out .= "</p>\n<table summary=''>";
-            $out .= $accthtml;
-            $out .= "</table>\n";
-
-            $out .= "</div>\n";
-            $out .= qq [
-              <p class='pkg'>
-              <span class='inputgroup-left'></span>
-                       ];
-        }
-
-        ### Other Posting Options
-        $out .=
-            LJ::Hooks::run_hook( 'add_extra_entryform_fields',
-            { opts => $opts, tabindex => $tabindex } )
-            || '';
-
-        $out .= "<span class='inputgroup-right'>";
-
-        # extra submit button so make sure it posts the form when person presses enter key
-        if ( $opts->{'mode'} eq "edit" ) {
-            $out .= "<input type='submit' name='action:save' class='hidden_submit xpost_submit' />";
-        }
-        if ( $opts->{'mode'} eq "update" ) {
-            $out .=
-                "<input type='submit' name='action:update' class='hidden_submit xpost_submit' />";
-        }
-
-        # submit_value field to emulate the submit button selected if we
-        # have to submit with javascript
-        $out .= "<input type='hidden' name='submit_value' />";
-
-        my $preview;
-        $preview =
-              "<input type='button' value='"
-            . BML::ml('entryform.preview')
-            . "' onclick='entryPreview(this.form)' tabindex='"
-            . $tabindex->() . "' />";
-        if ( !$opts->{'disabled_save'} ) {
-            $out .= <<PREVIEW;
-<script type="text/javascript" language="JavaScript">
-<!--
-if (document.getElementById) {
-    document.write("$preview ");
-}
-//-->
-</script>
-PREVIEW
-        }
-        if ( $LJ::SPELLER && !$opts->{'disabled_save'} ) {
-            $out .= LJ::html_submit(
-                'action:spellcheck',
-                BML::ml('entryform.spellcheck'),
-                { onclick => 'XPostAccount.doSpellcheck()', tabindex => $tabindex->() }
-            ) . "&nbsp;";
-        }
-
-        # Update posting date/time
-        $out .=
-              "<input type='button' value='"
-            . BML::ml('entryform.updatedate')
-            . "' onclick='settime(\""
-            . LJ::ejs( BML::ml('entryform.dateupdated') )
-            . "\", this);' tabindex='"
-            . $tabindex->() . "' />";
-        $out .= "</span>\n";
-        $out .= "</p>\n";
-    }
-
-    ### Community maintainer bar
-
-    if ( $opts->{'maintainer_mode'} ) {
-        $out .= "<p class='pkg'>\n";
-        $out .= "<em>" . BML::ml('entryform.maintainer') . "</em>\n";
-        $out .= "</p>\n";
-
-        # adult content settings
-        if ( LJ::is_enabled('adult_content') ) {
-            $out .= "<p class='pkg'>\n";
-            my %poster_adult_content_menu = (
-                ""       => BML::ml('entryform.adultcontent.default'),
-                none     => BML::ml('entryform.adultcontent.none'),
-                concepts => BML::ml('entryform.adultcontent.concepts'),
-                explicit => BML::ml('entryform.adultcontent.explicit'),
-            );
-
-            my @adult_content_menu = (
-                "" => BML::ml(
-                    'entryform.adultcontent.poster',
-                    { setting => $poster_adult_content_menu{ $opts->{prop_adult_content} } }
-                ),
-                none     => BML::ml('entryform.adultcontent.none'),
-                concepts => BML::ml('entryform.adultcontent.concepts'),
-                explicit => BML::ml('entryform.adultcontent.explicit'),
-            );
-
-            $out .=
-                  "<label for='prop_adult_content_maintainer' class='left options'>"
-                . BML::ml('entryform.adultcontent.maintainer')
-                . "</label>\n";
-            $out .= LJ::html_select(
-                {
-                    name     => 'prop_adult_content_maintainer',
-                    id       => 'prop_adult_content_maintainer',
-                    class    => 'select',
-                    selected => $opts->{prop_adult_content_maintainer} || "",
-                    tabindex => $tabindex->(),
-                },
-                @adult_content_menu
-            );
-            $out .= LJ::help_icon_html( "adult_content", "", " " );
-            $out .= "</p>\n";
-
-            $out .= "<p class='pkg'>";
-            $out .=
-                  "<label for='prop_adult_content_maintainer_reason' class='left options'>"
-                . BML::ml('entryform.adultcontentreason.maintainer')
-                . "</label>";
-            $out .= LJ::html_text(
-                {
-                    'name'      => 'prop_adult_content_maintainer_reason',
-                    'id'        => 'prop_adult_content_maintainer_reason',
-                    'class'     => 'text',
-                    'size'      => '35',
-                    'maxlength' => '255',
-                    'value'     => $opts->{'prop_adult_content_maintainer_reason'},
-                    'tabindex'  => $tabindex->(),
-                }
-            );
-            $out .= LJ::help_icon_html('adult_content_reason');
-            $out .= "</p>";
-        }
-
-        # comment disabling/enabling
-        # only possible if comments weren't disabled by poster
-        unless ( $opts->{prop_opt_nocomments} ) {
-            $out .= "<p class='pkg'>";
-            $out .=
-                  "<label for='prop_opt_nocomments_maintainer' class='left options'>"
-                . BML::ml('entryform.comment.disable')
-                . "</label>";
-
-            # comment disabling is done via a checkbox as it has only two settings
-            # if we got this far, this is always set to the maintainer setting
-            my $selected = $opts->{prop_opt_nocomments_maintainer};
-            $out .= LJ::html_check(
-                {
-                    type     => 'checkbox',
-                    name     => "prop_opt_nocomments_maintainer",
-                    id       => "prop_opt_nocomments_maintainer",
-                    class    => 'check',
-                    value    => '1',
-                    selected => $selected,
-                    tabindex => $tabindex->(),
-                }
-            );
-            $out .= "</p>";
-        }
-    }
-
-    $out .= "</div><!-- end #options -->\n\n";
-
-    ### Submit Bar
-    {
-        $out .= "<div id='submitbar' class='pkg'>\n\n";
-
-        # Security
-        my $secbar = 0;
-        if ( $opts->{'mode'} eq "update" || !$opts->{'disabled_save'} ) {
-            my $usejournalu = LJ::load_user( $opts->{usejournal} );
-            my $is_comm     = $usejournalu && $usejournalu->is_comm ? 1 : 0;
-
-            my $string_public       = LJ::ejs( BML::ml('label.security.public2') );
-            my $string_friends      = LJ::ejs( BML::ml('label.security.accesslist') );
-            my $string_friends_comm = LJ::ejs( BML::ml('label.security.members') );
-            my $string_private      = LJ::ejs( BML::ml('label.security.private2') );
-            my $string_admin        = LJ::ejs( BML::ml('label.security.maintainers') );
-            my $string_custom       = LJ::ejs( BML::ml('label.security.custom') );
-
-            $out .= qq{
-                    <script>var UpdateFormStrings = new Object();
-                    UpdateFormStrings.public = "$string_public";
-                    UpdateFormStrings.friends = "$string_friends";
-                    UpdateFormStrings.friends_comm = "$string_friends_comm";
-                    UpdateFormStrings.private = "$string_private";
-                    UpdateFormStrings.custom = "$string_custom";
-                    UpdateFormStrings.admin = "$string_admin";</script>
-                };
-
-            $$onload .= " setColumns();" if $remote;
-            my @secs = (
-                "public", $string_public, "friends",
-                $is_comm ? $string_friends_comm : $string_friends
-            );
-            push @secs, ( "private", $string_private ) unless $is_comm;
-            push @secs, ( "private", $string_admin )
-                if $is_comm && $remote && $remote->can_manage($usejournalu);
-
-            my ( @secopts, @trust_groups );
-            @trust_groups = $remote->trust_groups if $remote;
-            if ( scalar @trust_groups && !$is_comm ) {
-                push @secs, ( "custom", $string_custom );
-                push @secopts, ( "onchange" => "customboxes()" );
-            }
-
-            if (@secs) {
-                $secbar = 1;
-                $out .= "<div id='security_container'>\n";
-                $out .= "<label for='security'>" . BML::ml('entryform.security2') . " </label>\n";
-            }
-
-            $out .= LJ::html_select(
-                {
-                    'id'          => "security",
-                    'name'        => 'security',
-                    'include_ids' => 1,
-                    'class'       => 'select',
-                    'selected'    => $opts->{'security'},
-                    'tabindex'    => $tabindex->(),
-                    @secopts
-                },
-                @secs
-            ) . "\n";
-
-            # if custom security groups available, show them in a hideable div
-            if ( scalar @trust_groups ) {
-                my $display = $opts->{security} && $opts->{security} eq "custom" ? "block" : "none";
-                $out .= LJ::help_icon( "security", "<span id='security-help'>\n", "\n</span>\n" );
-                $out .= "<div id='custom_boxes' class='pkg' style='display: $display;'>\n";
-                $out .= "<ul id='custom_boxes_list'>";
-                foreach my $group (@trust_groups) {
-                    my $fg = $group->{groupnum};
-                    $out .= "<li>";
-                    $out .= LJ::html_check(
-                        {
-                            'name'     => "custom_bit_$fg",
-                            'id'       => "custom_bit_$fg",
-                            'selected' => $opts->{"custom_bit_$fg"}
-                                || ( $opts->{security_mask} ? $opts->{security_mask} + 0 : 0 ) &
-                                1 << $fg
-                        }
-                    ) . " ";
-                    $out .=
-                          "<label for='custom_bit_$fg'>"
-                        . LJ::ehtml( $group->{groupname} )
-                        . "</label>\n";
-                    $out .= "</li>";
-                }
-                $out .= "</ul>";
-                $out .= "</div><!-- end #custom_boxes -->\n";
-            }
-        }
-
-        if ( $opts->{'mode'} eq "update" ) {
-            my $onclick = "";
-
-            my $defaultjournal;
-            my $not_a_journal = 0;
-            if ( $opts->{'usejournal'} ) {
-                $defaultjournal = $opts->{'usejournal'};
-            }
-            elsif ( $remote && $opts->{auth_as_remote} ) {
-                $defaultjournal = $remote->user;
-            }
-            else {
-                $defaultjournal = "Journal";
-                $not_a_journal  = 1;
-            }
-
-            $$onload .= " changeSubmit('" . BML::ml('entryform.update3') . "', '$defaultjournal');";
-            $$onload .= " getUserTags('$defaultjournal');" unless $not_a_journal;
-            $$onload .= " changeSecurityOptions('$defaultjournal');" unless $opts->{'security'};
-
-            $out .= LJ::html_submit(
-                'action:update',
-                BML::ml('entryform.update4'),
-                {
-                    'onclick'  => $onclick,
-                    'class'    => 'update_submit xpost_submit',
-                    'id'       => 'formsubmit',
-                    'tabindex' => $tabindex->()
-                }
-            ) . "&nbsp;\n";
-        }
-
-        if ( $opts->{'mode'} eq "edit" ) {
-            my $onclick = "";
-
-            if ( !$opts->{'disabled_save'} ) {
-                $out .= LJ::html_submit(
-                    'action:save',
-                    BML::ml('entryform.save'),
-                    {
-                        'onclick'  => $onclick,
-                        'disabled' => $opts->{'disabled_save'},
-                        'class'    => 'xpost_submit',
-                        'tabindex' => $tabindex->()
-                    }
-                ) . "&nbsp;\n";
-            }
-            elsif ( $opts->{maintainer_mode} ) {
-                $out .= LJ::html_submit(
-                    'action:savemaintainer',
-                    BML::ml('entryform.save.maintainer'),
-                    {
-                        'onclick'  => $onclick,
-                        'disabled' => !$opts->{'maintainer_mode'},
-                        'class'    => 'xpost_submit',
-                        'tabindex' => $tabindex->()
-                    }
-                ) . "&nbsp;\n";
-            }
-
-            # do a double-confirm on delete if we have crossposts that
-            # would also get removed
-            my $delete_onclick =
-                  "return XPostAccount.confirmDelete('"
-                . LJ::ejs( BML::ml('entryform.delete.confirm') ) . "', '"
-                . LJ::ejs( BML::ml('entryform.delete.xposts.confirm') ) . "')";
-            $out .= LJ::html_submit(
-                'action:delete',
-                BML::ml('entryform.delete'),
-                {
-                    'disabled' => $opts->{'disabled_delete'},
-                    'class'    => 'xpost_submit',
-                    'tabindex' => $tabindex->(),
-                    'onclick'  => $delete_onclick
-                }
-            ) . "&nbsp;\n";
-
-            if ( !$opts->{'disabled_spamdelete'} ) {
-                $out .= LJ::html_submit(
-                    'action:deletespam',
-                    BML::ml('entryform.deletespam'),
-                    {
-                        'onclick' => "return confirm('"
-                            . LJ::ejs( BML::ml('entryform.deletespam.confirm') ) . "')",
-                        'class'    => 'xpost_submit',
-                        'tabindex' => $tabindex->()
-                    }
-                ) . "\n";
-            }
-        }
-
-        $out .= "</div><!-- end #security_container -->\n\n" if $secbar;
-        $out .= "</div><!-- end #submitbar -->\n\n";
-        $out .= "</div><!-- end #entry-form-wrapper -->\n\n";
-
-        $out .= "<script  type='text/javascript'>\n";
-        $out .= "// <![CDATA[ \n ";
-        $out .= "init_update_bml() \n";
-        $out .= "// ]]>\n";
-        $out .= "</script>\n";
-    }
-    return $out;
-}
-
-# <LJFUNC>
 # name: LJ::entry_form_decode
 # class: web
-# des: Decodes an entry_form into a protocol-compatible hash.
-# info: Generate form with [func[LJ::entry_form]].
+# des: Decodes old-schema entry-form POST fields into a protocol-compatible hash.
 # args: req, post
 # des-req: protocol request hash to build.
-# des-post: entry_form POST contents.
+# des-post: old-schema entry-form POST contents.
 # returns: req
 # </LJFUNC>
 sub entry_form_decode {
-    my ( $req, $POST ) = @_;
-
-    # find security
-    my $sec   = "public";
-    my $amask = 0;
-    if ( $POST->{'security'} eq "private" ) {
-        $sec = "private";
-    }
-    elsif ( $POST->{'security'} eq "friends" ) {
-        $sec   = "usemask";
-        $amask = 1;
-    }
-    elsif ( $POST->{'security'} eq "custom" ) {
-        $sec = "usemask";
-        foreach my $bit ( 1 .. 60 ) {
-            next unless $POST->{"custom_bit_$bit"};
-            $amask |= ( 1 << $bit );
-        }
-    }
-    $req->{'security'}  = $sec;
-    $req->{'allowmask'} = $amask;
-
-    # date/time
-    my $date = LJ::html_datetime_decode( { 'name' => "date_ymd", }, $POST );
-    my ( $year, $mon, $day ) = split( /\D/, $date );
-    my ( $hour, $min ) = ( $POST->{'hour'}, $POST->{'min'} );
-
-    # TEMP: ease golive by using older way of determining differences
-    my $date_old = LJ::html_datetime_decode( { 'name' => "date_ymd_old", }, $POST );
-    my ( $year_old, $mon_old, $day_old ) = split( /\D/, $date_old );
-    my ( $hour_old, $min_old ) = ( $POST->{'hour_old'}, $POST->{'min_old'} );
-
-    my $different = $POST->{'min_old'}
-        && ( ( $year ne $year_old )
-        || ( $mon ne $mon_old )
-        || ( $day ne $day_old )
-        || ( $hour ne $hour_old )
-        || ( $min ne $min_old ) );
-
-    # this value is set when the JS runs, which means that the user-provided
-    # time is sync'd with their computer clock. otherwise, the JS didn't run,
-    # so let's guess at their timezone.
-    if ( $POST->{'date_diff'} || $POST->{'date_diff_nojs'} || $different ) {
-        delete $req->{'tz'};
-        $req->{'year'} = $year;
-        $req->{'mon'}  = $mon;
-        $req->{'day'}  = $day;
-        $req->{'hour'} = $hour;
-        $req->{'min'}  = $min;
-    }
-
-    # copy some things from %POST
-    foreach (
-        qw(subject
-        prop_picture_keyword prop_current_moodid
-        prop_current_mood prop_current_music
-        prop_opt_screening prop_opt_noemail
-        prop_opt_preformatted prop_opt_nocomments
-        prop_current_location prop_current_coords
-        prop_taglist )
-        )
-    {
-        $req->{$_} = $POST->{$_};
-    }
-
-    if ( $POST->{"subject"} && ( $POST->{"subject"} eq BML::ml('entryform.subject.hint2') ) ) {
-        $req->{"subject"} = "";
-    }
-
-    $req->{"prop_opt_preformatted"} ||=
-          $POST->{'switched_rte_on'} ? 1
-        : $POST->{event_format} && $POST->{event_format} eq "preformatted" ? 1
-        :                                                                    0;
-    $req->{"prop_opt_nocomments"} ||=
-        $POST->{comment_settings} && $POST->{comment_settings} eq "nocomments" ? 1 : 0;
-    $req->{"prop_opt_noemail"} ||=
-        $POST->{comment_settings} && $POST->{comment_settings} eq "noemail" ? 1 : 0;
-    $req->{'prop_opt_backdated'} = $POST->{'prop_opt_backdated'} ? 1 : 0;
-
-    if ( LJ::is_enabled('adult_content') ) {
-        $req->{prop_adult_content} = $POST->{prop_adult_content} || '';
-        $req->{prop_adult_content} = ""
-            unless $req->{prop_adult_content} eq "none"
-            || $req->{prop_adult_content} eq "concepts"
-            || $req->{prop_adult_content} eq "explicit";
-
-        $req->{prop_adult_content_reason} = $POST->{prop_adult_content_reason} || "";
-    }
-
-    # nuke taglists that are just blank
-    $req->{'prop_taglist'} = "" unless $req->{'prop_taglist'} && $req->{'prop_taglist'} =~ /\S/;
-
-    # Convert the rich text editor output back to parsable lj tags.
-    my $event = $POST->{'event'};
-    if ( $POST->{'switched_rte_on'} ) {
-        $req->{"prop_used_rte"} = 1;
-
-        # We want to see if we can hit the fast path for cleaning
-        # if they did nothing but add line breaks.
-        my $attempt = $event;
-        $attempt =~ s!<br />!\n!g;
-
-        if ( $attempt !~ /<\w/ ) {
-            $event = $attempt;
-
-            # Make sure they actually typed something, and not just hit
-            # enter a lot
-            $attempt =~ s!(?:<p>(?:&nbsp;|\s)+</p>|&nbsp;)\s*?!!gm;
-            $event = '' unless $attempt =~ /\S/;
-
-            $req->{'prop_opt_preformatted'} = 0;
-        }
-        else {
-            # Old methods, left in for compatibility during code push
-            $event =~ s!<lj-cut class="ljcut">!<lj-cut>!gi;
-
-            $event =~ s!<lj-raw class="ljraw">!<lj-raw>!gi;
-        }
-    }
-    else {
-        $req->{"prop_used_rte"} = 0;
-    }
-
-    $req->{'event'} = $event;
-
-    ## see if an "other" mood they typed in has an equivalent moodid
-    if ( $POST->{'prop_current_mood'} ) {
-        if ( my $id = DW::Mood->mood_id( $POST->{'prop_current_mood'} ) ) {
-            $req->{'prop_current_moodid'} = $id;
-            delete $req->{'prop_current_mood'};
-        }
-    }
-
-    # process site-specific options
-    LJ::Hooks::run_hooks( 'decode_entry_form', $POST, $req );
-
-    return $req;
+    return DW::Entry::Legacy::decode_entry_form(@_);
 }
 
 {
@@ -2709,147 +1397,206 @@ sub control_strip {
     my $euri        = LJ::eurl($baseuri);
     my $create_link = LJ::Hooks::run_hook( "override_create_link_on_navstrip", $journal )
         || "<a href='$LJ::SITEROOT/create'>"
-        . BML::ml( 'web.controlstrip.links.create', { 'sitename' => $LJ::SITENAMESHORT } ) . "</a>";
+        . LJ::Lang::ml( 'web.controlstrip.links.create', { 'sitename' => $LJ::SITENAMESHORT } )
+        . "</a>";
+
+    my %ml = map { $_ => LJ::Lang::ml($_) } qw(
+        web.controlstrip.links.addfeed
+        web.controlstrip.links.addtocircle
+        web.controlstrip.links.confirm
+        web.controlstrip.links.editcommmembers
+        web.controlstrip.links.editcommprofile
+        web.controlstrip.links.home
+        web.controlstrip.links.inbox
+        web.controlstrip.links.invitefriends
+        web.controlstrip.links.joincomm
+        web.controlstrip.links.learnmore
+        web.controlstrip.links.leavecomm
+        web.controlstrip.links.login
+        web.controlstrip.links.managecircle
+        web.controlstrip.links.managecomminvites
+        web.controlstrip.links.manageentries
+        web.controlstrip.links.modifycircle
+        web.controlstrip.links.popfeeds
+        web.controlstrip.links.post2
+        web.controlstrip.links.postcomm
+        web.controlstrip.links.queue
+        web.controlstrip.links.recentcomments
+        web.controlstrip.links.removecomm
+        web.controlstrip.links.removefeed
+        web.controlstrip.links.settings
+        web.controlstrip.links.trackcomm
+        web.controlstrip.links.trackuser
+        web.controlstrip.links.viewreadingpage
+        web.controlstrip.links.watchcomm
+        web.controlstrip.nouserpic.alt
+        web.controlstrip.nouserpic.title
+        web.controlstrip.select.friends.all
+        web.controlstrip.select.friends.communities
+        web.controlstrip.select.friends.feeds
+        web.controlstrip.select.friends.journals
+        web.controlstrip.status.yourjournal
+        web.controlstrip.status.yournetworkpage
+        web.controlstrip.status.yourreadingpage
+        web.controlstrip.userpic.alt
+        web.controlstrip.userpic.title
+    );
 
     # Build up some common links
     my %links = (
         'login' =>
-            "<a href='$LJ::SITEROOT/?returnto=$euri'>$BML::ML{'web.controlstrip.links.login'}</a>",
+            "<a href='$LJ::SITEROOT/?returnto=$euri'>$ml{'web.controlstrip.links.login'}</a>",
         'post_journal' =>
-            "<a href='$LJ::SITEROOT/update'>$BML::ML{'web.controlstrip.links.post2'}</a>",
-        'home' => "<a href='$LJ::SITEROOT/'>" . $BML::ML{'web.controlstrip.links.home'} . "</a>",
+            "<a href='$LJ::SITEROOT/entry/new'>$ml{'web.controlstrip.links.post2'}</a>",
+        'home' => "<a href='$LJ::SITEROOT/'>" . $ml{'web.controlstrip.links.home'} . "</a>",
         'recent_comments' =>
-"<a href='$LJ::SITEROOT/comments/recent'>$BML::ML{'web.controlstrip.links.recentcomments'}</a>",
+"<a href='$LJ::SITEROOT/comments/recent'>$ml{'web.controlstrip.links.recentcomments'}</a>",
         'manage_friends' =>
-"<a href='$LJ::SITEROOT/manage/circle/'>$BML::ML{'web.controlstrip.links.managecircle'}</a>",
+            "<a href='$LJ::SITEROOT/manage/circle/'>$ml{'web.controlstrip.links.managecircle'}</a>",
         'manage_entries' =>
-"<a href='$LJ::SITEROOT/editjournal'>$BML::ML{'web.controlstrip.links.manageentries'}</a>",
+            "<a href='$LJ::SITEROOT/editjournal'>$ml{'web.controlstrip.links.manageentries'}</a>",
         'invite_friends' =>
-"<a href='$LJ::SITEROOT/manage/circle/invite'>$BML::ML{'web.controlstrip.links.invitefriends'}</a>",
+"<a href='$LJ::SITEROOT/manage/circle/invite'>$ml{'web.controlstrip.links.invitefriends'}</a>",
         'create_account' => $create_link,
         'syndicated_list' =>
-            "<a href='$LJ::SITEROOT/feeds/list'>$BML::ML{'web.controlstrip.links.popfeeds'}</a>",
+            "<a href='$LJ::SITEROOT/feeds/list'>$ml{'web.controlstrip.links.popfeeds'}</a>",
         'learn_more' => LJ::Hooks::run_hook('control_strip_learnmore_link')
-            || "<a href='$LJ::SITEROOT/'>$BML::ML{'web.controlstrip.links.learnmore'}</a>",
+            || "<a href='$LJ::SITEROOT/'>$ml{'web.controlstrip.links.learnmore'}</a>",
         'explore' => "<a href='$LJ::SITEROOT/explore/'>"
-            . BML::ml( 'web.controlstrip.links.explore', { sitenameabbrev => $LJ::SITENAMEABBREV } )
+            . LJ::Lang::ml( 'web.controlstrip.links.explore',
+            { sitenameabbrev => $LJ::SITENAMEABBREV } )
             . "</a>",
-        'confirm' =>
-            "<a href='$LJ::SITEROOT/register'>$BML::ML{'web.controlstrip.links.confirm'}</a>",
+        'confirm' => "<a href='$LJ::SITEROOT/register'>$ml{'web.controlstrip.links.confirm'}</a>",
     );
 
     if ($remote) {
         my $unread = $remote->notification_inbox->unread_count;
-        $links{inbox} .= "<a href='$LJ::SITEROOT/inbox/'>$BML::ML{'web.controlstrip.links.inbox'}";
+        $links{inbox} .= "<a href='$LJ::SITEROOT/inbox/'>$ml{'web.controlstrip.links.inbox'}";
         $links{inbox} .= " ($unread)" if $unread;
         $links{inbox} .= "</a>";
 
         $links{settings} =
-"<a href='$LJ::SITEROOT/manage/settings/'>$BML::ML{'web.controlstrip.links.settings'}</a>";
+            "<a href='$LJ::SITEROOT/manage/settings/'>$ml{'web.controlstrip.links.settings'}</a>";
         $links{'view_friends_page'} =
               "<a href='"
             . $remote->journal_base
-            . "/read'>$BML::ML{'web.controlstrip.links.viewreadingpage'}</a>";
+            . "/read'>$ml{'web.controlstrip.links.viewreadingpage'}</a>";
         $links{'add_friend'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.addtocircle'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$ml{'web.controlstrip.links.addtocircle'}</a>";
         $links{'edit_friend'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.modifycircle'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$ml{'web.controlstrip.links.modifycircle'}</a>";
         $links{'track_user'} =
-"<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackuser'}</a>";
+"<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$ml{'web.controlstrip.links.trackuser'}</a>";
 
         if ( $journal->is_syndicated ) {
             $links{'add_friend'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit?action=subscribe'>$BML::ML{'web.controlstrip.links.addfeed'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit?action=subscribe'>$ml{'web.controlstrip.links.addfeed'}</a>";
             $links{'remove_friend'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit?action=remove'>$BML::ML{'web.controlstrip.links.removefeed'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit?action=remove'>$ml{'web.controlstrip.links.removefeed'}</a>";
         }
         if ( $journal->is_community ) {
             $links{'join_community'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.joincomm'}</a>"
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$ml{'web.controlstrip.links.joincomm'}</a>"
                 unless $journal->is_closed_membership;
             $links{'leave_community'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.leavecomm'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$ml{'web.controlstrip.links.leavecomm'}</a>";
             $links{'watch_community'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit?action=subscribe'>$BML::ML{'web.controlstrip.links.watchcomm'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit?action=subscribe'>$ml{'web.controlstrip.links.watchcomm'}</a>";
             $links{'unwatch_community'} =
-"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$BML::ML{'web.controlstrip.links.removecomm'}</a>";
+"<a href='$LJ::SITEROOT/circle/$journal->{user}/edit'>$ml{'web.controlstrip.links.removecomm'}</a>";
             $links{'post_to_community'} =
-"<a href='$LJ::SITEROOT/update?usejournal=$journal->{user}'>$BML::ML{'web.controlstrip.links.postcomm'}</a>";
+"<a href='$LJ::SITEROOT/entry/$journal->{user}/new'>$ml{'web.controlstrip.links.postcomm'}</a>";
             $links{'edit_community_profile'} =
-"<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$BML::ML{'web.controlstrip.links.editcommprofile'}</a>";
+"<a href='$LJ::SITEROOT/manage/profile/?authas=$journal->{user}'>$ml{'web.controlstrip.links.editcommprofile'}</a>";
             $links{'edit_community_invites'} =
                   "<a href='"
                 . $journal->community_invite_members_url
-                . "'>$BML::ML{'web.controlstrip.links.managecomminvites'}</a>";
+                . "'>$ml{'web.controlstrip.links.managecomminvites'}</a>";
             $links{'edit_community_members'} =
                   "<a href='"
                 . $journal->community_manage_members_url
-                . "'>$BML::ML{'web.controlstrip.links.editcommmembers'}</a>";
+                . "'>$ml{'web.controlstrip.links.editcommmembers'}</a>";
             $links{'track_community'} =
-"<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$BML::ML{'web.controlstrip.links.trackcomm'}</a>";
+"<a href='$LJ::SITEROOT/manage/tracking/user?journal=$journal->{user}'>$ml{'web.controlstrip.links.trackcomm'}</a>";
             $links{'queue'} =
                   "<a href='"
                 . $journal->moderation_queue_url
-                . "'>$BML::ML{'web.controlstrip.links.queue'}</a>";
+                . "'>$ml{'web.controlstrip.links.queue'}</a>";
         }
     }
     my $journal_display = $journal->ljuser_display;
     my %statustext      = (
-        'yourjournal'            => $BML::ML{'web.controlstrip.status.yourjournal'},
-        'yourfriendspage'        => $BML::ML{'web.controlstrip.status.yourreadingpage'},
-        'yourfriendsfriendspage' => $BML::ML{'web.controlstrip.status.yournetworkpage'},
-        'personal' => BML::ml( 'web.controlstrip.status.personal', { 'user' => $journal_display } ),
-        'personalfriendspage' => BML::ml(
-            'web.controlstrip.status.personalreadingpage', { 'user' => $journal_display }
+        'yourjournal'            => $ml{'web.controlstrip.status.yourjournal'},
+        'yourfriendspage'        => $ml{'web.controlstrip.status.yourreadingpage'},
+        'yourfriendsfriendspage' => $ml{'web.controlstrip.status.yournetworkpage'},
+        'personal' =>
+            LJ::Lang::ml( 'web.controlstrip.status.personal', { 'user' => $journal_display } ),
+        'personalfriendspage' => LJ::Lang::ml(
+            'web.controlstrip.status.personalreadingpage',
+            { 'user' => $journal_display }
         ),
-        'personalfriendsfriendspage' => BML::ml(
-            'web.controlstrip.status.personalnetworkpage', { 'user' => $journal_display }
+        'personalfriendsfriendspage' => LJ::Lang::ml(
+            'web.controlstrip.status.personalnetworkpage',
+            { 'user' => $journal_display }
         ),
         'community' =>
-            BML::ml( 'web.controlstrip.status.community', { 'user' => $journal_display } ),
-        'syn'   => BML::ml( 'web.controlstrip.status.syn',   { 'user' => $journal_display } ),
-        'other' => BML::ml( 'web.controlstrip.status.other', { 'user' => $journal_display } ),
+            LJ::Lang::ml( 'web.controlstrip.status.community', { 'user' => $journal_display } ),
+        'syn'   => LJ::Lang::ml( 'web.controlstrip.status.syn',   { 'user' => $journal_display } ),
+        'other' => LJ::Lang::ml( 'web.controlstrip.status.other', { 'user' => $journal_display } ),
         'mutualtrust' =>
-            BML::ml( 'web.controlstrip.status.mutualtrust', { 'user' => $journal_display } ),
-        'mutualtrust_mutualwatch' => BML::ml(
+            LJ::Lang::ml( 'web.controlstrip.status.mutualtrust', { 'user' => $journal_display } ),
+        'mutualtrust_mutualwatch' => LJ::Lang::ml(
             'web.controlstrip.status.mutualtrust_mutualwatch',
             { 'user' => $journal_display }
         ),
-        'mutualtrust_watch' =>
-            BML::ml( 'web.controlstrip.status.mutualtrust_watch', { 'user' => $journal_display } ),
-        'mutualtrust_watchedby' => BML::ml(
+        'mutualtrust_watch' => LJ::Lang::ml(
+            'web.controlstrip.status.mutualtrust_watch',
+            { 'user' => $journal_display }
+        ),
+        'mutualtrust_watchedby' => LJ::Lang::ml(
             'web.controlstrip.status.mutualtrust_watchedby',
             { 'user' => $journal_display }
         ),
         'mutualwatch' =>
-            BML::ml( 'web.controlstrip.status.mutualwatch', { 'user' => $journal_display } ),
-        'trust_mutualwatch' =>
-            BML::ml( 'web.controlstrip.status.trust_mutualwatch', { 'user' => $journal_display } ),
+            LJ::Lang::ml( 'web.controlstrip.status.mutualwatch', { 'user' => $journal_display } ),
+        'trust_mutualwatch' => LJ::Lang::ml(
+            'web.controlstrip.status.trust_mutualwatch',
+            { 'user' => $journal_display }
+        ),
         'trust_watch' =>
-            BML::ml( 'web.controlstrip.status.trust_watch', { 'user' => $journal_display } ),
-        'trust_watchedby' =>
-            BML::ml( 'web.controlstrip.status.trust_watchedby', { 'user' => $journal_display } ),
-        'trustedby_mutualwatch' => BML::ml(
+            LJ::Lang::ml( 'web.controlstrip.status.trust_watch', { 'user' => $journal_display } ),
+        'trust_watchedby' => LJ::Lang::ml(
+            'web.controlstrip.status.trust_watchedby',
+            { 'user' => $journal_display }
+        ),
+        'trustedby_mutualwatch' => LJ::Lang::ml(
             'web.controlstrip.status.trustedby_mutualwatch',
             { 'user' => $journal_display }
         ),
-        'trustedby_watch' =>
-            BML::ml( 'web.controlstrip.status.trustedby_watch', { 'user' => $journal_display } ),
-        'trustedby_watchedby' => BML::ml(
-            'web.controlstrip.status.trustedby_watchedby', { 'user' => $journal_display }
+        'trustedby_watch' => LJ::Lang::ml(
+            'web.controlstrip.status.trustedby_watch',
+            { 'user' => $journal_display }
+        ),
+        'trustedby_watchedby' => LJ::Lang::ml(
+            'web.controlstrip.status.trustedby_watchedby',
+            { 'user' => $journal_display }
         ),
         'maintainer' =>
-            BML::ml( 'web.controlstrip.status.maintainer', { 'user' => $journal_display } ),
+            LJ::Lang::ml( 'web.controlstrip.status.maintainer', { 'user' => $journal_display } ),
         'memberwatcher' =>
-            BML::ml( 'web.controlstrip.status.memberwatcher', { 'user' => $journal_display } ),
-        'watcher' => BML::ml( 'web.controlstrip.status.watcher', { 'user' => $journal_display } ),
-        'member'  => BML::ml( 'web.controlstrip.status.member',  { 'user' => $journal_display } ),
-        'trusted' => BML::ml( 'web.controlstrip.status.trusted', { 'user' => $journal_display } ),
-        'watched' => BML::ml( 'web.controlstrip.status.watched', { 'user' => $journal_display } ),
+            LJ::Lang::ml( 'web.controlstrip.status.memberwatcher', { 'user' => $journal_display } ),
+        'watcher' =>
+            LJ::Lang::ml( 'web.controlstrip.status.watcher', { 'user' => $journal_display } ),
+        'member' =>
+            LJ::Lang::ml( 'web.controlstrip.status.member', { 'user' => $journal_display } ),
+        'trusted' =>
+            LJ::Lang::ml( 'web.controlstrip.status.trusted', { 'user' => $journal_display } ),
+        'watched' =>
+            LJ::Lang::ml( 'web.controlstrip.status.watched', { 'user' => $journal_display } ),
         'trusted_by' =>
-            BML::ml( 'web.controlstrip.status.trustedby', { 'user' => $journal_display } ),
+            LJ::Lang::ml( 'web.controlstrip.status.trustedby', { 'user' => $journal_display } ),
         'watched_by' =>
-            BML::ml( 'web.controlstrip.status.watchedby', { 'user' => $journal_display } ),
+            LJ::Lang::ml( 'web.controlstrip.status.watchedby', { 'user' => $journal_display } ),
     );
 
     # Vars for controlstrip.tt
@@ -2909,7 +1656,7 @@ sub control_strip {
             $template_args->{'userpic_html'} =
                   "<a href='$LJ::SITEROOT/manage/icons'><img src='"
                 . $userpic->url
-                . "' alt=\"$BML::ML{'web.controlstrip.userpic.alt'}\" title=\"$BML::ML{'web.controlstrip.userpic.title'}\" $wh /></a>";
+                . "' alt=\"$ml{'web.controlstrip.userpic.alt'}\" title=\"$ml{'web.controlstrip.userpic.title'}\" $wh /></a>";
         }
         else {
             my $tinted_nouserpic_img = "";
@@ -2933,7 +1680,7 @@ sub control_strip {
                 $tinted_nouserpic_img = "$LJ::IMGPREFIX/controlstrip/nouserpic.gif";
             }
             $template_args->{'userpic_html'} =
-"<a href='$LJ::SITEROOT/manage/icons'><img src='$tinted_nouserpic_img' alt=\"$BML::ML{'web.controlstrip.nouserpic.alt'}\" title=\"$BML::ML{'web.controlstrip.nouserpic.title'}\" height='43' width='43' /></a>";
+"<a href='$LJ::SITEROOT/manage/icons'><img src='$tinted_nouserpic_img' alt=\"$ml{'web.controlstrip.nouserpic.alt'}\" title=\"$ml{'web.controlstrip.nouserpic.title'}\" height='43' width='43' /></a>";
         }
 
         if ( $remote->equals($journal) ) {
@@ -2949,10 +1696,10 @@ sub control_strip {
 
             if ( $view_is->("read") || $view_is->("network") ) {
                 my @filters = (
-                    "all",             $BML::ML{'web.controlstrip.select.friends.all'},
-                    "showpeople",      $BML::ML{'web.controlstrip.select.friends.journals'},
-                    "showcommunities", $BML::ML{'web.controlstrip.select.friends.communities'},
-                    "showsyndicated",  $BML::ML{'web.controlstrip.select.friends.feeds'}
+                    "all",             $ml{'web.controlstrip.select.friends.all'},
+                    "showpeople",      $ml{'web.controlstrip.select.friends.journals'},
+                    "showcommunities", $ml{'web.controlstrip.select.friends.communities'},
+                    "showsyndicated",  $ml{'web.controlstrip.select.friends.feeds'}
                 );
 
 # content_filters returns an array of content filters this user had, sorted by sortorder
@@ -3582,7 +2329,8 @@ sub placeholder_link {
 # truncated or throw an error.  we'll risk that and give them 20 more
 # characters.
 sub std_max_length {
-    my $lang = eval { BML::get_language() };
+    my $context = LJ::Lang::request_context();
+    my $lang    = $context ? $context->{lang} : undef;
     return 80  if !$lang || $lang =~ /^en/;
     return 100 if $lang =~ /\b(hy|az|be|et|ka|ky|kk|lt|lv|mo|ru|tg|tk|uk|uz)\b/i;
     return 80;

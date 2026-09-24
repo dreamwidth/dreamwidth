@@ -13,6 +13,7 @@
 #
 package LJ::Event::JournalNewComment::Reply;
 use strict;
+use LJ::Lang;
 use List::MoreUtils qw/uniq/;
 
 use base 'LJ::Event::JournalNewComment';
@@ -31,7 +32,7 @@ sub subscription_as_html {
         2 => '.mycomment',
     );
 
-    return BML::ml( $key . $key_suffixes{$arg2} );
+    return LJ::Lang::ml( $key . $key_suffixes{$arg2} );
 }
 
 sub available_for_user {

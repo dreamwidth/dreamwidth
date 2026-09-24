@@ -500,7 +500,7 @@ sub see_request_handler {
         my %faqq;
 
         # FIXME: must refactor that somewhere
-        my $deflang = BML::get_language_default();
+        my $deflang = $LJ::DEFAULT_LANG;
         my $mll     = LJ::Lang::get_lang($curlang);
         my $mld     = LJ::Lang::get_dom("faq");
         my $altlang = $deflang ne $curlang;

@@ -13,7 +13,7 @@
 # part of this distribution.
 
 #
-# Disable directory listing by creating in it empty index.bml file.
+# Disable directory listing by creating in it empty index.html file.
 #
 
 PREFIX=${LJHOME}/htdocs

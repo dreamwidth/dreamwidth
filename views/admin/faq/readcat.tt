@@ -43,9 +43,7 @@
 
         IF display_summary( f.has_summary );
           s = f.summary_html;
-        END;
-
-        CALL note_mod_time( f.unixmodtime ) -%]
+        END -%]
 
 <div class="faq question">[% display_faq( q ) %]</div>
 <br />

@@ -31,7 +31,7 @@ LJ::Hooks::register_hook(
 
         # we also enforce that the IP the request is coming from be one of
         # some small list of IPs
-        my $ip = BML::get_remote_ip();
+        my $ip = LJ::get_remote_ip();
         return 0 unless grep { $_ eq $ip } @{ $LJ::CHANGELOG{allowed_ips} || [] };
 
         # looks good

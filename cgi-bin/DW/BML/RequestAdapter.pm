@@ -3,10 +3,10 @@
 # DW::BML::RequestAdapter
 #
 # Minimal adapter that makes DW::Request look enough like an Apache2 request
-# object for BML's public API functions (BML::get_request(), etc.) to work,
-# and for held external hooks that still expect that shape. Split out of
-# DW::BML so callers that only need the adapter don't have to load the whole
-# BML rendering engine.
+# object for the held external hook ABIs that still expect that shape:
+# LJ::Protocol's DISABLE_PROTOCOL{getevents} callback, LJ::S2's
+# s2_head_content_extra hook, and DW::Controller::Journal's data_handler:*
+# hooks.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -40,7 +40,7 @@ sub args {
 }
 
 sub path_info {
-    return '';    # BML pages don't use path_info in Plack context
+    return '';    # DW::Request has no separate path_info; always empty
 }
 
 sub hostname {
