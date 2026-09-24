@@ -52,6 +52,7 @@ sub call {
 
         # Initialize BML language getter so LJ::Lang::ml / BML::ml work everywhere
         my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
+        LJ::Lang::set_request_context( lang => $lang, getter => \&LJ::Lang::get_text );
         BML::set_language( $lang, \&LJ::Lang::get_text );
 
         # Pass on down.

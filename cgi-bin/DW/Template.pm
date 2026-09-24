@@ -114,16 +114,27 @@ sub template_string {
     $opts->{sections} = $extra;
     $opts->{sections}->{errors} = $opts->{errors};
 
-    # now we have to save the scope and update it for this rendering
-    my $oldscope = $r->note('ml_scope');
-    $r->note( ml_scope => ( $extra->{ml_scope} || "/$filename" ) );
+    # Keep the request note and native language context in lockstep while a
+    # template is active.  A BML page can render a TT fragment before resuming.
+    my $oldscope           = $r->note('ml_scope');
+    my $language_context   = LJ::Lang::request_context();
+    my $old_language_scope = $language_context ? $language_context->{scope} : undef;
+    my $scope              = $extra->{ml_scope} || "/$filename";
+    $r->note( ml_scope => $scope );
+    LJ::Lang::set_request_scope($scope);
 
     my $out;
-    $view_engine->process( $filename, $opts, \$out )
-        or die $view_engine->error->as_string;
+    my $ok = eval {
+        $view_engine->process( $filename, $opts, \$out )
+            or die $view_engine->error->as_string;
+        1;
+    };
+    my $err = $@;
 
-    # now revert the scope if we had one
-    $r->note( ml_scope => $oldscope ) if $oldscope;
+    # Restore even an undef scope and do it before rethrowing template errors.
+    $r->note( ml_scope => $oldscope );
+    LJ::Lang::set_request_scope($old_language_scope);
+    die $err unless $ok;
 
     return $out;
 }
