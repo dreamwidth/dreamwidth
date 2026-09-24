@@ -317,10 +317,10 @@ test_psgi $app, sub {
     );
 
     # itemid must override picker mode even when the action comes from the
-    # editor's JavaScript submit_value field. A carry-over POST never saves
+    # editor's JavaScript submit_value field. This POST never saves
     # regardless of form-auth token, so this no longer reaches an "Invalid
-    # form" CSRF rejection: it renders the same carry-over form every other
-    # old-schema itemid POST does.
+    # form" CSRF rejection: it renders the same subject/body recovery page
+    # every other old-schema itemid POST does.
     my $before_maintainer = $other_entry->prop('opt_nocomments_maintainer') || 0;
     for my $token ( undef, 'invalid' ) {
         for my $action ( 'action:delete', 'action:savemaintainer' ) {
@@ -334,20 +334,20 @@ test_psgi $app, sub {
             for my $path ( '/editjournal', '/editjournal.bml' ) {
                 $res = $cb->( POST $path . '?usejournal=' . $comm->user, Content => \@payload );
                 is( $res->code, 200,
-"$path itemid $action POST returns the carry-over form regardless of the form-auth token"
+"$path itemid $action POST returns the recovery page regardless of the form-auth token"
                 );
                 like(
                     $res->content,
-                    qr/previous posting page has been retired/i,
-                    "$path itemid $action POST renders the explicit carry-over notice"
+                    qr/Nothing here was posted or saved/i,
+                    "$path itemid $action POST renders the explicit recovery notice"
                 );
                 ok( !$res->header('Location'),
-                    'carry-over response does not redirect away its body' );
+                    'recovery response does not redirect away its body' );
                 LJ::Entry::reset_singletons();
                 my $fresh_entry = LJ::Entry->new( $comm, ditemid => $other_entry->ditemid );
-                ok( $fresh_entry->valid, 'carry-over POST cannot delete another poster entry' );
+                ok( $fresh_entry->valid, 'recovery POST cannot delete another poster entry' );
                 is( $fresh_entry->prop('opt_nocomments_maintainer') || 0,
-                    $before_maintainer, 'carry-over POST cannot change maintainer properties' );
+                    $before_maintainer, 'recovery POST cannot change maintainer properties' );
             }
         }
     }

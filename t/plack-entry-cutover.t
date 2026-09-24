@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 # Characterize the T2 entry cutover: /update and /editjournal?itemid= are
-# fully graduated to the native entry form. GET always redirects; POST is
-# necessarily a stale tab and is carried over, never saved, never discarded.
+# fully graduated to the native entry form. GET always redirects; a stale
+# POST is shown its exact submitted subject/body for manual copying and
+# never saved (see t/plack-entry-recovery.t for that page's own coverage).
 # Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 use strict;
 use warnings;
@@ -9,15 +10,13 @@ use warnings;
 use Test::More;
 use File::Find;
 use HTTP::Request::Common;
-use HTML::Form;
 use Plack::Test;
 use URI;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-use LJ::Entry;
 use LJ::Session;
-use LJ::Test qw(temp_user temp_comm);
+use LJ::Test qw(temp_user);
 
 plan skip_all => 'Entry cutover integration requires a development server'
     unless $LJ::IS_DEV_SERVER;
@@ -35,32 +34,9 @@ sub cookie_for {
         . $session->loggedin_cookie_string;
 }
 
-sub entry_count {
-    my ($u) = @_;
-    my ($count) =
-        $u->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $u->userid );
-    return $count;
-}
-
-sub entry_form {
-    my ($content) = @_;
-    return (
-        grep {
-                   ( $_->attr('id') || '' ) eq 'js-post-entry'
-                && $_->find_input('subject')
-                && $_->find_input('event')
-        } HTML::Form->parse( $content, 'http://localhost' )
-    )[0];
-}
-
 my $owner = temp_user();
 $owner->update_self( { status => 'A' } );
 my $owner_cookie = cookie_for($owner);
-my $outsider     = temp_user();
-$outsider->update_self( { status => 'A' } );
-my $outsider_cookie = cookie_for($outsider);
-my $comm            = temp_comm();
-LJ::set_rel( $comm, $owner, 'A' );
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'entryCutover';
 
 test_psgi $app, sub {
@@ -68,11 +44,6 @@ test_psgi $app, sub {
     my $as_owner = sub {
         my ($req) = @_;
         $req->header( Cookie => $owner_cookie );
-        return $send->($req);
-    };
-    my $as_outsider = sub {
-        my ($req) = @_;
-        $req->header( Cookie => $outsider_cookie );
         return $send->($req);
     };
 
@@ -117,116 +88,6 @@ test_psgi $app, sub {
         }
     };
 
-    subtest 'old-schema POST carry-over renders every submitted field and saves nothing' => sub {
-        $owner->set_draft_text('cutover draft sentinel');
-        my $draft_before   = $owner->draft_text;
-        my $entries_before = entry_count($owner);
-
-        my $res = $as_owner->(
-            POST '/update',
-            Content => [
-                usejournal    => $owner->user,
-                subject       => 'Cutover carry-over subject',
-                event         => '<p>Cutover carry-over body</p>',
-                security      => 'private',
-                date_ymd_mm   => '06',
-                date_ymd_dd   => '07',
-                date_ymd_yyyy => '2021',
-                hour          => '08',
-                min           => '09',
-                date_diff     => 1,
-                prop_taglist  => 'cutover-one, cutover-two',
-                'action:post' => 'Post',
-            ]
-        );
-        is( $res->code, 200, 'old-schema POST returns the carry-over form, not an error' );
-        like(
-            $res->content,
-            qr/previous posting page has been retired/i,
-            'carry-over form renders the explicit notice'
-        );
-        my $form = entry_form( $res->content );
-        ok( $form, 'native entry form parses from the carry-over response' )
-            or BAIL_OUT('carry-over entry form missing');
-        my $action_uri = URI->new( $form->action );
-        is( $action_uri->path, '/entry/new',
-            'carry-over form posts to the native new-entry route' );
-        is( $form->value('subject'), 'Cutover carry-over subject',
-            'submitted subject is retained' );
-        is( $form->value('event'), '<p>Cutover carry-over body</p>', 'submitted body is retained' );
-        is( $form->value('security'),       'private',    'submitted security is retained' );
-        is( $form->value('entrytime_date'), '2021-06-07', 'submitted date is retained' );
-        is( $form->value('entrytime_time'), '08:09',      'submitted time is retained' );
-        is( $form->value('taglist'), 'cutover-one, cutover-two', 'submitted tags are retained' );
-        is( $form->value('usejournal'), $owner->user, 'submitted target journal is retained' );
-
-        is( entry_count($owner), $entries_before, 'no entry was created by the carry-over POST' );
-        is( $owner->draft_text, $draft_before,
-            'the draft is left untouched by the carry-over POST' );
-    };
-
-    subtest 'a submitted password is never echoed back' => sub {
-        my $res = $send->(
-            POST '/update',
-            Content => [
-                user          => $owner->user,
-                password      => 'plaintext-password-marker',
-                subject       => 'Password carry-over subject',
-                event         => 'Password carry-over body',
-                'action:post' => 'Post',
-            ]
-        );
-        is( $res->code, 200, 'anonymous old-schema POST returns the carry-over form' );
-        unlike( $res->content, qr/plaintext-password-marker/,
-            'the submitted password never appears in the carry-over response' );
-        my $form = entry_form( $res->content );
-        ok( $form, 'native entry form parses for the anonymous carry-over' )
-            or BAIL_OUT('anonymous carry-over entry form missing');
-        is( ( $form->value('password') // '' ), '', 'the rendered form carries an empty password' );
-        my @username_tags = ( $res->content =~ /(<input\b[^>]*\bname="username"[^>]*>)/g );
-        ok(
-            ( grep { /\bvalue="\Q@{[ $owner->user ]}\E"/ } @username_tags ),
-            'the submitted username is still reflected back for the login modal'
-        );
-        is(
-            $form->value('subject'),
-            'Password carry-over subject',
-            'anonymous submitted subject is still retained'
-        );
-    };
-
-    subtest 'anonymous carry-over renders the native login modal, not an error' => sub {
-        my $res = $send->(
-            POST '/update',
-            Content => [ subject => 'Anon subject', event => 'Anon body', 'action:post' => 'Post' ]
-        );
-        is( $res->code, 200, 'anonymous old-schema POST is not rejected' );
-        unlike( $res->content, qr/error/i, 'anonymous carry-over does not render an error page' );
-        my $form = entry_form( $res->content );
-        ok( $form, 'native entry form parses for an anonymous carry-over with no credentials' );
-    };
-
-    subtest 'transform/spellcheck/preview old submit buttons get the same carry-over' => sub {
-        for my $action (qw(action:preview action:spellcheck)) {
-            my $res = $as_owner->(
-                POST '/update',
-                Content => [
-                    subject => 'Transform carry-over subject',
-                    event   => 'Transform carry-over body',
-                    $action => 1,
-                ]
-            );
-            is( $res->code, 200, "$action old submit gets the carry-over form" );
-            my $form = entry_form( $res->content );
-            ok( $form, "$action carry-over entry form parses" );
-            is(
-                $form->value('subject'),
-                'Transform carry-over subject',
-                "$action carry-over retains the submitted subject"
-            );
-        }
-    };
-
     subtest 'edit GET redirects to the native edit form' => sub {
         my $entry = $owner->t_post_fake_entry(
             subject => 'Edit cutover subject',
@@ -264,221 +125,6 @@ test_psgi $app, sub {
         }
         };
 
-    subtest 'edit POST carry-over renders the native edit form and saves nothing' => sub {
-        my $entry = $owner->t_post_fake_entry(
-            subject => 'Edit POST cutover subject',
-            body    => 'Edit POST cutover body',
-        );
-        my $original_body = $entry->event_raw;
-
-        my $res = $as_owner->(
-            POST '/editjournal?itemid=' . $entry->ditemid,
-            Content => [
-                subject       => 'Edit POST carry-over new subject',
-                event         => 'Edit POST carry-over new body',
-                itemid        => $entry->ditemid,
-                'action:save' => 'Save',
-            ]
-        );
-        is( $res->code, 200, 'edit old-schema POST returns the carry-over form' );
-        like(
-            $res->content,
-            qr/previous posting page has been retired/i,
-            'edit carry-over form renders the explicit notice'
-        );
-        my ($form) = grep {
-                   ( $_->attr('id') || '' ) eq 'js-post-entry'
-                && $_->find_input('subject')
-                && $_->find_input('event')
-        } HTML::Form->parse( $res->content, 'http://localhost' );
-        ok( $form, 'native edit form parses from the edit carry-over response' )
-            or BAIL_OUT('edit carry-over entry form missing');
-        is(
-            $form->value('subject'),
-            'Edit POST carry-over new subject',
-            'edit carry-over retains the submitted subject'
-        );
-        is(
-            $form->value('event'),
-            'Edit POST carry-over new body',
-            'edit carry-over retains the submitted body'
-        );
-
-        LJ::Entry::reset_singletons();
-        my $fresh = LJ::Entry->new( $owner, ditemid => $entry->ditemid );
-        is( $fresh->event_raw, $original_body,
-            'the edit carry-over POST does not actually save the entry' );
-    };
-
-    subtest 'a carried-over custom security never resolves to public in a community' => sub {
-        my $res = $as_owner->(
-            POST '/update',
-            Content => [
-                usejournal    => $comm->user,
-                subject       => 'Comm custom security subject',
-                event         => 'Comm custom security body',
-                security      => 'custom',
-                custom_bit_1  => 1,
-                'action:post' => 'Post',
-            ]
-        );
-        is( $res->code, 200, 'comm+custom carry-over returns the carry-over form' );
-        like(
-            $res->content,
-            qr/no equivalent in this community/i,
-            'comm+custom carry-over explains the security downgrade'
-        );
-        my $form = entry_form( $res->content );
-        ok( $form, 'comm+custom carry-over entry form parses' )
-            or BAIL_OUT('comm+custom carry-over entry form missing');
-        isnt( $form->value('security'), 'public', 'comm+custom carry-over never selects public' );
-        is( $form->value('security'),
-            'private', 'comm+custom carry-over selects the most restrictive available option' );
-        is(
-            $form->value('subject'),
-            'Comm custom security subject',
-            'comm+custom carry-over still retains the submitted subject'
-        );
-    };
-
-    subtest
-        'a carried-over old-schema "friends" security maps to access with no downgrade notice' =>
-        sub {
-        my $res = $as_owner->(
-            POST '/update',
-            Content => [
-                usejournal    => $comm->user,
-                subject       => 'Comm friends security subject',
-                event         => 'Comm friends security body',
-                security      => 'friends',
-                'action:post' => 'Post',
-            ]
-        );
-        is( $res->code, 200, 'comm+friends carry-over returns the carry-over form' );
-        unlike(
-            $res->content,
-            qr/no equivalent in this community/i,
-            'comm+friends carry-over is not treated as a downgrade'
-        );
-        my $form = entry_form( $res->content );
-        ok( $form, 'comm+friends carry-over entry form parses' )
-            or BAIL_OUT('comm+friends carry-over entry form missing');
-        is( $form->value('security'),
-            'access', 'comm+friends carry-over maps exactly to the community members option' );
-
-        my $entry = $owner->t_post_fake_comm_entry(
-            $comm,
-            subject => 'Comm friends edit subject',
-            body    => 'Comm friends edit body',
-        );
-        my $edit_res = $as_owner->(
-            POST '/editjournal?itemid=' . $entry->ditemid . '&usejournal=' . $comm->user,
-            Content => [
-                usejournal    => $comm->user,
-                subject       => 'Comm friends edit new subject',
-                event         => 'Comm friends edit new body',
-                security      => 'friends',
-                itemid        => $entry->ditemid,
-                'action:save' => 'Save',
-            ]
-        );
-        is( $edit_res->code, 200, 'comm+friends edit carry-over returns the carry-over form' );
-        unlike(
-            $edit_res->content,
-            qr/no equivalent in this community/i,
-            'comm+friends edit carry-over is not treated as a downgrade'
-        );
-        my $edit_form = entry_form( $edit_res->content );
-        ok( $edit_form, 'comm+friends edit carry-over entry form parses' )
-            or BAIL_OUT('comm+friends edit carry-over entry form missing');
-        is( $edit_form->value('security'),
-            'access', 'comm+friends edit carry-over maps exactly to the community members option' );
-        };
-
-    subtest 'a logged-out stale edit tab keeps its content and shows the login modal' => sub {
-        my $entry = $owner->t_post_fake_entry(
-            subject => 'Logged-out edit subject',
-            body    => 'Logged-out edit body',
-        );
-        my $res = $send->(
-            POST '/editjournal?itemid=' . $entry->ditemid,
-            Content => [
-                subject       => 'Logged-out carry-over subject',
-                event         => 'Logged-out carry-over body',
-                'action:save' => 'Save',
-            ]
-        );
-        is( $res->code, 200, 'logged-out stale edit tab POST returns the carry-over form' );
-        like(
-            $res->content,
-            qr/posting here will create a new entry/i,
-            'logged-out stale edit tab POST renders the edit-specific duplicate-post warning'
-        );
-        unlike(
-            $res->content,
-            qr/previous posting page has been retired/i,
-            'logged-out stale edit tab POST does not render the generic /update notice'
-        );
-        like( $res->content, qr/id="js-post-entry-login"/,
-            'logged-out carry-over renders the native login modal' );
-        my $form = entry_form( $res->content );
-        ok( $form, 'logged-out carry-over entry form parses' )
-            or BAIL_OUT('logged-out carry-over entry form missing');
-        is(
-            $form->value('subject'),
-            'Logged-out carry-over subject',
-            'logged-out carry-over keeps the submitted subject (body_kept)'
-        );
-        is(
-            $form->value('event'),
-            'Logged-out carry-over body',
-            'logged-out carry-over keeps the submitted body (body_kept)'
-        );
-        unlike( $res->content, qr/error/i, 'logged-out carry-over does not render an error page' );
-        LJ::Entry::reset_singletons();
-        is(
-            LJ::Entry->new( $owner, ditemid => $entry->ditemid )->event_raw,
-            'Logged-out edit body',
-            'logged-out carry-over never touches the real entry'
-        );
-    };
-
-    subtest 'a non-editable stale edit tab keeps its content read-only' => sub {
-        my $entry = $owner->t_post_fake_entry(
-            subject => 'Not-editable edit subject',
-            body    => 'Not-editable edit body',
-        );
-        my $res = $as_outsider->(
-            POST '/editjournal?itemid=' . $entry->ditemid,
-            Content => [
-                subject       => 'Not-editable carry-over subject',
-                event         => 'Not-editable carry-over body',
-                'action:save' => 'Save',
-            ]
-        );
-        is( $res->code, 200, 'non-editable stale edit tab POST returns a response, not a crash' );
-        like(
-            $res->content,
-            qr/Not-editable carry-over subject/,
-            'non-editable carry-over keeps the submitted subject (body_kept)'
-        );
-        like(
-            $res->content,
-            qr/Not-editable carry-over body/,
-            'non-editable carry-over keeps the submitted body (body_kept)'
-        );
-        like(
-            $res->content,
-            qr/could no longer be found or edited/i,
-            'non-editable carry-over explains why it is read-only'
-        );
-        LJ::Entry::reset_singletons();
-        is(
-            LJ::Entry->new( $owner, ditemid => $entry->ditemid )->event_raw,
-            'Not-editable edit body',
-            'non-editable carry-over never touches the real entry'
-        );
-    };
 };
 
 subtest 'the updatepage beta no longer gates anything reachable' => sub {
