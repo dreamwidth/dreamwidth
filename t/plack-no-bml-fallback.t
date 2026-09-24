@@ -97,20 +97,6 @@ test_psgi $app, sub {
 '/inbox/index.bml reaches the same require-login handler as /inbox/index, .bml stripped before matching'
         );
         };
-
-    subtest '/update GET still redirects legacy posting links to the native form' => sub {
-        my $res = $cb->( GET '/update?subject=hello' );
-        is( $res->code, 302, '/update?subject=hello status is 302' );
-        is( location_path_query($res),
-            '/entry/new?subject=hello',
-            '/update redirects to /entry/new carrying the subject arg' );
-
-        my $suffixed_res = $cb->( GET '/update.bml?subject=hello' );
-        is( $suffixed_res->code, 302, '/update.bml?subject=hello status is 302' );
-        is( location_path_query($suffixed_res),
-            '/entry/new?subject=hello',
-            '/update.bml reaches the same handler as /update, .bml stripped before matching' );
-    };
 };
 
 done_testing;

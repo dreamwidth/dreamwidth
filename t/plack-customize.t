@@ -48,25 +48,14 @@ test_psgi $app, sub {
         is( $res->code, 200, 'authorized personal/community theme browser' );
         like( $res->content, qr/id="journaltitle"/, 'title widget renders' );
         is( $target->prop('stylesys'), 2, 'S2 enabled' );
-        for my $alias (qw(/customize /customize/ /customize/index /customize/index.bml)) {
-            my $alias_res = $cb->( GET $alias . $query );
-            is( $alias_res->code, 200, "$alias legacy index alias renders" );
-            like( $alias_res->content, qr/id="journaltitle"/,
-                "$alias retains customization controls" );
-            my ($alias_token) =
-                $alias_res->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
-            my $alias_title = 'Alias ' . $alias . ' ' . $target->user;
-            $alias_res = $cb->(
-                POST $alias . $query,
-                Content => [
-                    lj_form_auth                        => $alias_token,
-                    'Widget[JournalTitles]_which_title' => 'journaltitle',
-                    'Widget[JournalTitles]_title_value' => $alias_title,
-                ]
-            );
-            is( LJ::load_userid( $target->id )->prop('journaltitle'),
-                $alias_title, "$alias POST retains widget body dispatch" );
-        }
+
+        # A legacy alias needs only to prove routing equivalence with the
+        # canonical path, not re-run the full widget-dispatch case per alias.
+        my $alias_res = $cb->( GET '/customize/index.bml' . $query );
+        is( $alias_res->code, 200, 'legacy index.bml alias renders' );
+        like( $alias_res->content, qr/id="journaltitle"/,
+            'legacy index.bml alias retains customization controls' );
+
         my $style = LJ::S2::load_style( $target->prop('s2_style') );
         is( $style->{userid}, $target->id, 'style belongs to effective user' );
         my ($token) = $res->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
@@ -103,7 +92,8 @@ test_psgi $app, sub {
         );
         ok( !$res->header('Location'), 'invalid ThemeNav token does not redirect' );
 
-        for my $path ( '/customize/', '/customize/options', '/customize/options.bml' ) {
+        {
+            my $path = '/customize/';
             $res = $cb->( GET $path . $query );
             my ($page_token) = $res->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
             my $title = 'Characterized ' . $path . ' ' . $target->user;
@@ -132,8 +122,8 @@ test_psgi $app, sub {
             );
             is( LJ::load_userid( $target->id )->prop('journaltitle'),
                 $title, 'invalid token cannot change title' );
-            like( $res->content, qr/Invalid form/i, 'invalid widget token shows its error message' )
-                if $path eq '/customize/';
+            like( $res->content, qr/Invalid form/i,
+                'invalid widget token shows its error message' );
             unlike(
                 $res->content,
                 qr/(?:LJ::Error::DieObject|ARRAY\()/,

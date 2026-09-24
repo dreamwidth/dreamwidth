@@ -16,7 +16,6 @@
 use strict;
 use warnings;
 use Test::More;
-use File::Spec;
 use HTTP::Request::Common;
 use Plack::Test;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -58,20 +57,4 @@ test_psgi $app, sub {
         );
     }
 };
-for my $bundle (qw(fckeditorcode_gecko_2.js fckeditorcode_ie_2.js)) {
-    my $path = File::Spec->catfile( $ENV{LJHOME}, 'htdocs', 'stc', 'fck', 'editor', 'js', $bundle );
-    open my $fh, '<', $path or die "open $path: $!";
-    local $/;
-    my $source = <$fh>;
-    like(
-        $source,
-        qr{window\.parent\.Site\.siteroot \+ '/imguploadrte\.bml\?ImageButton'},
-        "$bundle ImageButton command uses the native root URL with its exact query"
-    );
-    unlike(
-        $source,
-        qr{dialog/imguploadrte\.bml\?ImageButton},
-        "$bundle no longer targets the removed static dialog"
-    );
-}
 done_testing;

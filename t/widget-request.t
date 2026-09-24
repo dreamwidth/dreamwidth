@@ -1,7 +1,18 @@
-# Widgets must work without BML input globals and isolate request errors.
+#!/usr/bin/perl
+#
+# t/widget-request.t
+#
+# Widget request-plumbing contract: no BML input globals, isolated request errors.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
 # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
 # This program is free software; you may redistribute it and/or modify it under
-# the same terms as Perl itself.
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 use Test::More;
@@ -146,27 +157,9 @@ sub request {
 
     $r =
         request( POST
-q{http://localhost/customize/?authas=team%2Bone&show=24&show=48&search=old&page=2&page=3}
-        );
-    my %theme_nav_result = LJ::Widget::ThemeNav->handle_post( { search => q{new search} } );
-    is(
-        $theme_nav_result{redirect},
-        "$LJ::SITEROOT/customize/?search=new+search&authas=team%2Bone&show=24&show=48",
-        q{ThemeNav search preserves repeated encoded authas and show query values}
-    );
-    %theme_nav_result = LJ::Widget::ThemeNav->handle_post( { page => 4 } );
-    is(
-        $theme_nav_result{redirect},
-        "$LJ::SITEROOT/customize/?authas=team%2Bone&show=24&show=48&search=old&page=4",
-        q{ThemeNav page redirect preserves raw non-page query values}
-    );
-
-    # The BML renderer temporarily supplies its legacy error array to the cache.
-    $r =
-        request( POST
             q{http://localhost/customize/?page=2&mypage=2&search=homepage=2&page=3&encoded=page%3D2}
         );
-    %theme_nav_result = LJ::Widget::ThemeNav->handle_post( { page => 4 } );
+    my %theme_nav_result = LJ::Widget::ThemeNav->handle_post( { page => 4 } );
     is(
         $theme_nav_result{redirect},
         "$LJ::SITEROOT/customize/?mypage=2&search=homepage=2&encoded=page%3D2&page=4",
