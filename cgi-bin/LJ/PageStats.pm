@@ -174,9 +174,7 @@ sub filename {
     my $r = $self->get_request;
     return undef unless $r;
 
-    # DW::BML::RequestAdapter->new never sets _filename (DW::Request has no
-    # filesystem-path concept to synthesize one from), so this is undef for
-    # every request reached under Plack; do not invent one from the URI.
+    # Only requests with an explicit filesystem path can supply a filename.
     my $filename = $r->filename;
     return undef unless defined $filename;
 
