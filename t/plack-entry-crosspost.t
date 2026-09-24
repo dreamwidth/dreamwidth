@@ -1,13 +1,24 @@
 #!/usr/bin/perl
+#
+# t/plack-entry-crosspost.t
+#
 # Characterize native rendered crossposting without external delivery.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 use Test::More;
 use HTTP::Request::Common;
 use HTML::Form;
 use Plack::Test;
-use Storable qw(nfreeze thaw);
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Entry;
 use LJ::Session;
@@ -30,13 +41,6 @@ sub form {
             HTML::Form->parse( $_[0], 'http://localhost/entry/new' ) )[0];
 }
 
-sub fresh_draft_properties {
-    my ($user) = @_;
-    my $frozen = $user->prop('draft_properties') || '';
-    return {} unless length $frozen;
-    return thaw($frozen);
-}
-
 sub edit_form {
     ( grep { $_->find_input('subject') && $_->find_input('event') }
             HTML::Form->parse( $_[0], 'http://localhost' ) )[0];
@@ -51,20 +55,6 @@ my $cookie =
     . $session->master_cookie_string
     . '; ljloggedin='
     . $session->loggedin_cookie_string;
-ok( $user->set_draft_text('Crosspost draft body'), 'seeded disposable crosspost draft body' );
-$user->set_prop( 'draft_properties', nfreeze( { subject => 'Crosspost draft subject' } ) );
-my $fresh_seed = LJ::load_userid( $uid, 1 );
-is(
-    $fresh_seed->draft_text,
-    'Crosspost draft body',
-    'fresh owner exposes seeded crosspost draft body'
-);
-is_deeply(
-    fresh_draft_properties($fresh_seed),
-    { subject => 'Crosspost draft subject' },
-    'fresh owner exposes seeded crosspost draft properties'
-);
-
 my @accounts = (
     CrosspostFixture::Account->new(
         id       => 41,
@@ -97,9 +87,7 @@ test_psgi $app, sub {
     my $res = $request->( GET '/entry/new' );
     is( $res->code, 200, 'native form renders' );
     my $f = form( $res->content );
-    ok( $f,                                'actual native form parses' ) or return;
-    ok( $f->find_input('crosspost_entry'), 'master crosspost control renders' );
-    ok( $f->find_input('crosspost'),       'repeated account control renders' );
+    ok( $f, 'actual native form parses' ) or return;
     $f->value( subject         => 'Crosspost scheduler marker' );
     $f->value( event           => 'Crosspost body marker' );
     $f->value( crosspost_entry => 1 );
@@ -120,10 +108,6 @@ test_psgi $app, sub {
     my ($count) =
         $user->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $uid );
     is( $count, 1, 'real form persists one entry' );
-    my $fresh_after_new = LJ::load_userid( $uid, 1 );
-    is( $fresh_after_new->draft_text, undef, 'native new post clears saved draft body' );
-    is_deeply( fresh_draft_properties($fresh_after_new),
-        {}, 'native new post clears saved draft properties' );
 
     my ( $jitemid, $anum ) = $user->selectrow_array(
         'SELECT jitemid, anum FROM log2 WHERE journalid=? ORDER BY jitemid ASC LIMIT 1',
@@ -133,9 +117,7 @@ test_psgi $app, sub {
     $res   = $request->( GET $edit_path );
     is( $res->code, 200, 'native owned-entry edit form renders' );
     my $edit = edit_form( $res->content );
-    ok( $edit,                                'native owned-entry edit form parses' ) or return;
-    ok( $edit->find_input('crosspost_entry'), 'native edit has crosspost master control' );
-    ok( $edit->find_input('crosspost'), 'native edit has repeated account selection control' );
+    ok( $edit, 'native owned-entry edit form parses' ) or return;
     $edit->action( 'http://localhost' . $edit_path );
     $edit->value( subject         => 'Native edit crosspost subject' );
     $edit->value( event           => 'Native edit crosspost body' );

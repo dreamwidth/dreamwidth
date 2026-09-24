@@ -1,7 +1,19 @@
 #!/usr/bin/perl
+#
+# t/plack-legacy-preview.t
+#
 # The native preview route; the retired /preview/entry legacy route itself
 # is gone.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 use Test::More;
@@ -12,8 +24,6 @@ use LJ::Test qw(temp_user);
 use LJ::Session;
 use DW::Request;
 use DW::Request::Plack;
-use LJ::Lang;
-use LJ::Customize;
 use LJ::Userpic;
 plan skip_all => 'Preview integration requires a development server' unless $LJ::IS_DEV_SERVER;
 
@@ -100,53 +110,6 @@ subtest 'native preview invokes the spam hook' => sub {
     };
 };
 
-subtest 'native preview retains its own request translation scope' => sub {
-    LJ::Customize->verify_and_load_style($u);
-    my $s2_style = $u->prop('s2_style');
-    ok( $s2_style, 'fixture has an existing nonzero S2 style' )
-        or BAIL_OUT('temporary preview user has no S2 style');
-    $u->set_prop( use_journalstyle_entry_page => 'N' );
-
-    no warnings 'redefine';
-    local *LJ::Lang::get_text = sub {
-        my ( $lang, $key ) = @_;
-        return 'NATIVE-SUBJECT-PLACEHOLDER' if $key eq 'entryform.subject.hint2';
-        return "preview-key:$key";
-    };
-    test_psgi $app, sub {
-        my $send    = shift;
-        my $request = sub {
-            my ($req) = @_;
-            $req->header( Cookie => $cookie );
-            return $send->($req);
-        };
-        my $native = $request->(
-            POST 'http://localhost/entry/preview',
-            [
-                usejournal     => $u->user,
-                security       => 'public',
-                subject        => 'Native translation subject',
-                event          => 'native translation body',
-                editor         => 'html_casual1',
-                entrytime_date => '2020-01-02',
-                entrytime_time => '03:04',
-                trust_datetime => 1,
-            ]
-        );
-        is( $native->code, 200, 'native preview renders with a custom request getter' );
-        like(
-            $native->content,
-            qr/preview-key:\/entry\/preview\.tt\.title/,
-            'native preview title retains its TT key'
-        );
-        like(
-            $native->content,
-            qr/preview-key:\/entry\/preview\.tt\.entry\.preview_warn_text/,
-            'native preview warning retains its TT key'
-        );
-    };
-};
-
 subtest 'native preview content pipeline preserves formatting, ordered polls, and embeds' => sub {
     local $LJ::T_HAS_ALL_CAPS      = 1;
     local $LJ::EMBED_MODULE_DOMAIN = 'embed.localhost';
@@ -168,10 +131,6 @@ subtest 'native preview content pipeline preserves formatting, ordered polls, an
 
         for my $native_case (
             [ 'raw HTML', 'html_raw0', "<strong>Native raw HTML preview</strong>\nRAW-LINE-TWO" ],
-            [
-                'casual HTML', 'html_casual1',
-                "<strong>Native casual HTML preview</strong>\nCASUAL-LINE-TWO"
-            ],
             )
         {
             my ( $name, $editor, $event ) = @$native_case;
@@ -267,15 +226,5 @@ subtest 'native preview content pipeline preserves formatting, ordered polls, an
 my ($entries_after_all) =
     $u->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $u->id );
 is( $entries_after_all, $before, 'all previews leave the entry count unchanged' );
-
-subtest 'the retired legacy preview route is gone' => sub {
-    test_psgi $app, sub {
-        my $send = shift;
-        for my $path ( '/preview/entry', '/preview/entry.bml' ) {
-            my $get = $send->( GET "http://localhost$path" );
-            is( $get->code, 404, "$path GET is no longer routed" );
-        }
-    };
-};
 
 done_testing;

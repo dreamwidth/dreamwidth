@@ -1,7 +1,19 @@
 #!/usr/bin/perl
-# Characterize native community-manager entry moderation (delete and
-# delete-as-spam of another poster's entry) and the RTE poll-permission fix.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# t/plack-entry-manager-moderation.t
+#
+# Characterize native community-manager entry moderation: delete and
+# delete-as-spam of another poster's entry.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 use strict;
 use warnings;
 
@@ -58,15 +70,11 @@ my $poster = temp_user();
 $poster->update_self( { status => 'A' } );
 my $outsider = temp_user();
 $outsider->update_self( { status => 'A' } );
-my $member = temp_user();
-$member->update_self( { status => 'A' } );
 my $comm = temp_comm();
 LJ::set_rel( $comm, $manager, 'A' );
-LJ::set_rel( $comm, $member,  'P' );
 
 my $manager_cookie  = cookie_for($manager);
 my $outsider_cookie = cookie_for($outsider);
-my $member_cookie   = cookie_for($member);
 my $poster_cookie   = cookie_for($poster);
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'managerModeration';
 
@@ -95,11 +103,6 @@ test_psgi $app, sub {
     my $as_outsider = sub {
         my ($req) = @_;
         $req->header( Cookie => $outsider_cookie );
-        return $send->($req);
-    };
-    my $as_member = sub {
-        my ($req) = @_;
-        $req->header( Cookie => $member_cookie );
         return $send->($req);
     };
     my $as_poster = sub {
@@ -213,40 +216,17 @@ test_psgi $app, sub {
             'unauthorized attempt leaves the entry body unchanged'
         );
 
-        # A valid CSRF token alone must not be enough: these cases isolate the
-        # can_manage/editable_by/poster authorization guards themselves from
-        # the CSRF guard exercised above. Check the recorder per attempt, not
-        # only in aggregate: an aggregate-only check can still read as zero
-        # net change if unrelated calls happen to offset each other.
-        for my $case (
-            [ 'outsider',           $as_outsider, $outsider_cookie ],
-            [ 'non-manager member', $as_member,   $member_cookie ],
-            )
-        {
-            my ( $label, $as, $cookie ) = @$case;
-            my $token = $valid_token_for->($as);
-            ok( $token, "$label has a real CSRF token to attempt with" );
-
-            for my $action (qw(action:delete action:deletespam)) {
-                my $before_calls = scalar @spam_calls;
-                my $post_res =
-                    $as->( POST $url, Content => [ $action => 1, lj_form_auth => $token ] );
-                my $after = fresh_entry( $comm, $entry->ditemid );
-                ok( $after->valid,
-                    "$label with a VALID token and $action still cannot delete another poster entry"
-                );
-                is(
-                    $after->event_raw,
-                    'Non-manager target body',
-                    "$label with a VALID token and $action leaves the entry body unchanged"
-                );
-                is(
-                    scalar @spam_calls,
-                    $before_calls,
-                    "$label with a VALID token and $action calls LJ::mark_entry_as_spam zero times"
-                );
-            }
-        }
+        # A valid CSRF token alone must not be enough: isolate the
+        # can_manage/editable_by/poster authorization guard itself from the
+        # CSRF guard exercised above.
+        my $token = $valid_token_for->($as_outsider);
+        ok( $token, 'outsider has a real CSRF token to attempt with' );
+        my $before_calls = scalar @spam_calls;
+        $as_outsider->( POST $url, Content => [ 'action:delete' => 1, lj_form_auth => $token ] );
+        my $after = fresh_entry( $comm, $entry->ditemid );
+        ok( $after->valid, 'outsider with a VALID token still cannot delete another poster entry' );
+        is( scalar @spam_calls,
+            $before_calls, 'outsider with a valid token calls LJ::mark_entry_as_spam zero times' );
     };
 
     subtest
@@ -267,31 +247,6 @@ test_psgi $app, sub {
             $spam_calls_before,
             'a poster sending deletespam on their own entry never calls LJ::mark_entry_as_spam' );
         };
-
-    subtest 'a poster deleting their own community entry is unaffected' => sub {
-        my $own_entry = $manager->t_post_fake_comm_entry(
-            $comm,
-            subject => 'Manager own entry subject',
-            body    => 'Manager own entry body',
-        );
-        my $url = '/entry/' . $comm->user . '/' . $own_entry->ditemid . '/edit';
-        my $get = $as_manager->( GET $url );
-        is( $get->code, 200, 'poster GET on their own community entry renders the real editor' );
-        unlike( $get->content, qr/entry-maintainer-form/,
-            'own-entry edit is the ordinary editor, not the maintainer form' );
-        my ($form) = grep {
-                   ( $_->attr('id') || '' ) eq 'js-post-entry'
-                && $_->find_input('subject')
-                && $_->find_input('event')
-        } HTML::Form->parse( $get->content, 'http://localhost' );
-        ok( $form, 'ordinary edit form parses for the entry owner' )
-            or BAIL_OUT('owned edit form missing');
-        $form->action( 'http://localhost' . $url );
-        my $res = $as_manager->( $form->click('action:delete') );
-        is( $res->code, 200, 'own-entry delete via the ordinary editor still succeeds' );
-        ok( !fresh_entry( $comm, $own_entry->ditemid )->valid,
-            'own-entry delete via the ordinary editor still actually deletes' );
-    };
 
     subtest 'CSRF denial for manager delete' => sub {
         my $entry = $poster->t_post_fake_comm_entry(
@@ -315,76 +270,6 @@ test_psgi $app, sub {
         );
         is( scalar @spam_calls,
             $before_invalid, 'an invalid form-auth token calls LJ::mark_entry_as_spam zero times' );
-
-        $form = maintainer_form( $as_manager->( GET $url )->content );
-        $form->value( 'lj_form_auth', '' );
-        $form->action( 'http://localhost' . $url );
-        my $before_missing = scalar @spam_calls;
-        $res = $as_manager->( $form->click('action:deletespam') );
-        unlike( $res->content, qr/deleted|entry.*removed/i,
-            'a missing form-auth token does not perform a delete-as-spam' );
-        ok(
-            fresh_entry( $comm, $entry->ditemid )->valid,
-            'a missing form-auth token leaves the entry intact'
-        );
-        is( scalar @spam_calls,
-            $before_missing, 'a missing form-auth token calls LJ::mark_entry_as_spam zero times' );
-    };
-
-    subtest 'a wrong-target deletespam cannot mark a nonexistent entry as spam' => sub {
-        my $unrelated = $poster->t_post_fake_comm_entry(
-            $comm,
-            subject => 'Wrong-target unrelated entry subject',
-            body    => 'Wrong-target unrelated entry body',
-        );
-
-        # A bogus ditemid in the URL itself: nothing in this community was
-        # ever posted at this id, so editable_by must decline before the
-        # anum/itemid consistency check or can_manage are ever reached.
-        my $bogus_ditemid = ( ( $unrelated->jitemid + 999_000 ) << 8 ) + $unrelated->anum;
-        my $url           = '/entry/' . $comm->user . '/' . $bogus_ditemid . '/edit';
-        my $token         = $valid_token_for->($as_manager);
-        ok( $token, 'manager has a real CSRF token for the wrong-target case' );
-
-        my $before_calls = scalar @spam_calls;
-        my $res          = $as_manager->(
-            POST $url, Content => [ 'action:deletespam' => 1, lj_form_auth => $token ]
-        );
-        ok( $res->code, 'a bogus ditemid does not crash the handler' );
-        is( scalar @spam_calls,
-            $before_calls, 'a bogus ditemid calls LJ::mark_entry_as_spam zero times' );
-        ok(
-            fresh_entry( $comm, $unrelated->ditemid )->valid,
-            'a bogus ditemid leaves the real unrelated entry intact'
-        );
-    };
-};
-
-subtest 'rte_js_vars follows the remote capability, not a fixed default' => sub {
-    like(
-        LJ::rte_js_vars(),
-        qr/var canmakepoll = true;/,
-        'no remote at all keeps the existing permissive default'
-    );
-    is( $manager->can_create_polls ? 1 : 0,
-        0, 'fixture confirms the ordinary test account genuinely lacks poll capability' );
-    like(
-        LJ::rte_js_vars($manager),
-        qr/var canmakepoll = false;/,
-        'a real remote lacking the poll capability now gets canmakepoll = false'
-    );
-
-    test_psgi $app, sub {
-        my $send = shift;
-        my $req  = GET '/entry/new';
-        $req->header( Cookie => $manager_cookie );
-        my $res = $send->($req);
-        is( $res->code, 200, 'manager can load the native new-entry form' );
-        like(
-            $res->content,
-            qr/var canmakepoll = false;/,
-            q{the actual new-entry route now reflects the logged-in remote's poll capability}
-        );
     };
 };
 

@@ -1,6 +1,18 @@
 #!/usr/bin/perl
+#
+# t/plack-entry-new-parity.t
+#
 # Characterize ordinary owned private-entry creation through the native form.
-# Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
 
 use strict;
 use warnings;
@@ -239,6 +251,44 @@ test_psgi $app, sub {
         qr/\[missing string/,
         'invalid usejournal error is not an unresolved missing-string placeholder'
     );
+};
+
+test_psgi $app, sub {
+    my $send    = shift;
+    my $request = sub {
+        my ($req) = @_;
+        $req->header( Cookie => $cookie );
+        return $send->($req);
+    };
+
+    my ($entries_before) =
+        $owner->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $owner_id );
+
+    my $res  = $request->( GET '/entry/new' );
+    my $form = new_entry_form( $res->content );
+    ok( $form, 'actual native new-entry form parses' ) or BAIL_OUT('new-entry form missing');
+    $form->action('http://localhost/entry/new');
+    $form->value( subject => 'Empty body retained title' );
+    $form->value( event   => '' );
+    $res = $request->( $form->click('action:post') );
+
+    is( $res->code, 200, 'empty-body post re-renders the form instead of erroring' );
+    my $error_count = () = $res->content =~ /Must provide entry text/ig;
+    is( $error_count, 1, 'empty-body validation renders exactly one error' );
+    unlike(
+        $res->content,
+        qr/\[missing string|error\.noentry/,
+        'empty-body response exposes no missing-string banner or raw key'
+    );
+    like(
+        $res->content,
+        qr/Empty body retained title/,
+        'empty-body response retains submitted title'
+    );
+
+    my ($entries_after) =
+        $owner->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $owner_id );
+    is( $entries_after, $entries_before, 'empty-body post creates no entry' );
 };
 
 done_testing;
