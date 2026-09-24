@@ -126,7 +126,7 @@ sub save {
     unless ( DW::SiteScheme->set_for_user( $val, $u ) ) {
         return 0;
     }
-    BML::set_scheme($val);
+    DW::SiteScheme->set_for_request($val);
 
     return 1;
 }

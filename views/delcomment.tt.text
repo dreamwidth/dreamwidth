@@ -47,6 +47,8 @@ only <em>community members</em> to post comments.
 
 .success.noban=The comment has been deleted.
 
+.settings.title=Account Settings
+
 .success.spam=The site administrators have also been notified that this comment was spam.  Thank you for your report.
 
 .title=Delete Comment

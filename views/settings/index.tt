@@ -1,0 +1,87 @@
+[%# Native settings hub. Legacy form names and settings classes are intentionally retained. %]
+[%- sections.title = title -%]
+[%- sections.windowtitle = windowtitle -%]
+[%# Settings uses Foundation as its page resource group; controller-provided legacy
+   resources remain explicitly in their compatible groups. %]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- dw.need_res( { group => "foundation" }, "stc/tabs.css", "stc/settings.css", "js/settings.js" ) -%]
+<div id='settings_page'>
+[% IF u %]
+    <div id='authas_select'>
+        <form action='[% site.root %]/manage/settings/' method='get'>
+            [% authas_form %]
+            [% form.hidden( name = 'cat', value = category ) %]
+        </form>
+    </div>
+[% END %]
+
+[% FOREACH message IN messages %]<div class='success'>[% message %]</div>[% END %]
+[% FOREACH error IN errors %]<div class='error'>[% error %]</div>[% END %]
+
+[%# Both ordinary and notification forms use settings.js's dirty-form guard. %]
+[% IF form_enabled || (notification && notification.has_user_form) %]
+<script>window.SettingsConfirmMsg = [% confirm_msg %];</script>
+[% END %]
+
+<div id='settings_left'>
+    <ul class='tablist' id='settings_nav'>
+    [% FOREACH tab IN tabs %]
+        [% IF tab.disabled %]
+            <li class='tab disabled' aria-disabled='true'>[% tab.name %]</li>
+        [% ELSE %]
+            <li class='tab'><a href='[% tab.url %]'[% IF tab.active %] class='active'[% END %]>[% tab.name %]</a></li>
+        [% END %]
+    [% END %]
+    </ul>
+    <div id='settings_nav_title' class='tab-header'><p>[% category_data.desc %]</p></div>
+    [% IF community_linkbar %]<p class='intro'>[% community_linkbar %]</p>[% END %]
+    [% IF intro %]<p class='intro'>[% intro %]</p>[% END %]
+
+    [% IF notification %]
+        [% IF delete_sub %]
+            <div class='settings_content notifications-delete-confirmation'>
+                <p>[% '.confirm.delete' | ml %]</p>
+                <form class='table-form' id='settings_form' action='[% form_action %]' method='post'>
+                    [% dw.form_auth %]
+                    [% form.hidden( name = 'delete_subscription_id', value = delete_sub.id ) %]
+                    [% form.submit( name = 'delete_subscription_confirm', value = dw.ml('.btn.delete') ) %]
+                </form>
+            </div>
+        [% ELSE %]
+            [% INCLUDE 'tracking/settings-interface.tt'
+    has_admin_form = notification.has_admin_form
+    has_user_form = notification.has_user_form
+    post_action = notification.post_action
+    viewing_self = notification.viewing_self
+    get_args = notification.get_args
+    subscribe_interface = notification.subscribe_interface
+    delete_base_url = notification.delete_base_url
+%]
+        [% END %]
+    [% ELSE %]
+        <div class='settings_content'>
+            <div class='[% category %]'>
+            [% IF form_enabled %]
+                <form class='table-form' id='settings_form' action='[% form_action %]' method='post'>
+                [% dw.form_auth %]
+            [% END %]
+                <table summary=''>
+                [% FOREACH row IN rows %]
+                    <tr id='[% row.id %]'>
+                        [% IF row.label %]<th class='[% category %]_label'>[% row.label %]</th>[% END %]
+                        <td class='[% category %]_option'>[% row.option %]</td>
+                        <td class='[% category %]_actionlink'>[% row.actionlink %]</td>
+                        <td class='help'>[% row.helpicon %]</td>
+                    </tr>
+                [% END %]
+                </table>
+                [% IF account_stats %]<div class='account_stats'>[% account_stats %]</div>[% END %]
+            [% IF form_enabled %]
+                <div id='settings_save' class='action-bar'>[% form.submit( value = dw.ml('.btn.save') ) %]</div>
+                </form>
+            [% END %]
+            </div>
+        </div>
+    [% END %]
+</div>
+</div>
