@@ -12,6 +12,7 @@ Convert::Base32
 CryptX@0.080
 Danga::Socket
 Data::ObjectDriver
+Devel::NYTProf
 Devel::Size
 Digest::HMAC_SHA1
 Digest::SHA1
