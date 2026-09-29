@@ -21,8 +21,8 @@ RUN apt-get update && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata
 
-# Install Node.js 20 LTS (for sass and esbuild)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+# Install Node.js 24 LTS (for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs
 
 # Install base system dependencies, then clean up

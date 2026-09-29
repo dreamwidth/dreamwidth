@@ -41,8 +41,8 @@ RUN curl -fsSL https://repo.manticoresearch.com/manticore-repo.noarch.deb \
     apt-get install -y manticore && \
     rm /tmp/manticore-repo.deb
 
-# Install Node.js 20 LTS (for sass and esbuild)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+# Install Node.js 24 LTS (for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g sass esbuild
 
