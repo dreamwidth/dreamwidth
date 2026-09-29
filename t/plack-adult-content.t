@@ -31,6 +31,7 @@ my $date = substr( $entry->eventtime_mysql, 0, 10 );
 $date =~ s!-!/!g;
 my $name       = $owner->user;
 my $eid        = $entry->ditemid;
+my $reply_to   = $entry->t_enter_comment( u => $owner )->dtalkid;
 my $base       = "http://localhost/users/$name";
 my $logic      = 'DW::Logic::AdultContent';
 my $comm       = temp_comm();
@@ -61,9 +62,9 @@ with_fake_memcache {
             unlike( $res->content, qr/JOURNAL_RENDERED/, 'maintainer rating is enforced' );
         }
         for my $path (
-            "/$eid.html",              "/$eid.html?style=site",
-            "/$eid.html?format=light", "/$eid.html?mode=reply",
-            "/$eid.html?replyto=1",    "/$date/age-restriction-test.html"
+            "/$eid.html",                   "/$eid.html?style=site",
+            "/$eid.html?format=light",      "/$eid.html?mode=reply",
+            "/$eid.html?replyto=$reply_to", "/$date/age-restriction-test.html"
             )
         {
             my $before = $renders;

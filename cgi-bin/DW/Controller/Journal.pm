@@ -199,16 +199,22 @@ sub determine_view {
 # entry_hidden( $entry, $remote, %GET )
 #
 # True if an entry URL must be answered as not found: the entry doesn't exist,
-# the anum is wrong, or the viewer can't see it. A public entry can only be
-# hidden by suspension, so it goes on to make_journal for the suspension notice.
+# the anum is wrong, or the viewer can't see it or the comment it names. A
+# public entry can only be hidden by suspension, so it goes on to make_journal
+# for the suspension notice.
 sub entry_hidden {
     my ( $class, $entry, $remote, %GET ) = @_;
 
     return 1 unless $entry && $entry->correct_anum;
 
     my $canview = $GET{viewall} && $remote && $remote->has_priv('canview');
-    return 0 if $entry->visible_to( $remote, $canview );
-    return $entry->security ne 'public';
+    return $entry->security ne 'public' unless $entry->visible_to( $remote, $canview );
+
+    # the reply page shows or edits the comment these name
+    for my $dtalkid ( grep { $_ } @GET{qw( replyto edit )} ) {
+        return 1 unless $entry->visible_comment( $dtalkid, $remote );
+    }
+    return 0;
 }
 
 # entry_not_found( $u )

@@ -1185,7 +1185,11 @@ sub talkscreen_handler {
             . "parenttalkid, journalid, posterid FROM talk2 "
             . "WHERE journalid=$u->{'userid'} AND jtalkid=$qtalkid" );
 
-    return $error->('talk.error.nocomment') unless $post;
+    # hidden comments answer as missing ones, except to journal managers
+    return $error->('talk.error.nocomment')
+        unless $post
+        && ( $remote->can_manage($u)
+        || LJ::Entry->new( $u, jitemid => $post->{itemid} )->visible_comment( $talkid, $remote ) );
     return $error->('talk.error.comm_deleted') if $post->{'state'} eq "D";
 
     my $state = $post->{'state'};
@@ -1356,8 +1360,11 @@ sub delcomment_handler {
         undef, $u->userid, $tpid
     );
 
+    # hidden comments answer as missing ones, except to journal managers
     return $bad_input->('/delcomment.tt.error.nocomment')
-        unless $tp;
+        unless $tp
+        && ( $remote->can_manage($u)
+        || LJ::Entry->new( $u, jitemid => $tp->{itemid} )->visible_comment( $GET->{id}, $remote ) );
 
     return $bad_input->('/delcomment.tt.error.invalidtype2')
         unless $tp->{'nodetype'} eq 'L';

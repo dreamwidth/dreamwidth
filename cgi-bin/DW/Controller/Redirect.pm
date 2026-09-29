@@ -83,10 +83,14 @@ sub threadroot_url {
     my $u       = LJ::load_user($journal);
     return unless $u;
 
+    # one answer for missing and hidden comments
+    my $remote  = LJ::get_remote();
     my $comment = eval { LJ::Comment->new( $u, dtalkid => $talkid ) };
-    return ( error => ".error.nocomment" ) if $@;
-
-    return ( error => ".error.noentry" ) unless $comment->entry && $comment->entry->valid;
+    my $entry   = $comment && $comment->entry;
+    return ( error => ".error.nocomment" )
+        unless $entry
+        && $entry->visible_to($remote)
+        && $entry->visible_comment( $talkid, $remote );
 
     my $threadroot = LJ::Comment->new( $u, jtalkid => $comment->threadrootid );
     my $url        = eval { $threadroot->url( LJ::viewing_style_args(%$args) ) };

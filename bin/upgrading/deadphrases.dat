@@ -4645,3 +4645,13 @@ general setting.captcha.label
 general setting.captcha.option
 general setting.captcha.option.select.image
 general setting.captcha.option.select.text
+general /protected.tt.message.comment.posted
+general /protected.tt.protected.error.notauthorised.comm.closed
+general /protected.tt.protected.error.notauthorised.comm.open
+general /protected.tt.protected.message.nouser
+general /protected.tt.protected.message.user
+general /protected.tt.title
+general /protected.tt.windowtitle
+general /tracking/manage.tt.error.hiddenentry
+general /tracking/manage.tt.error.nocomment
+general redirect.error.noentry

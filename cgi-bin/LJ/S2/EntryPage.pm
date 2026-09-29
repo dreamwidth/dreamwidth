@@ -168,6 +168,11 @@ sub EntryPage {
     my $top_only_mode = ( $view_arg =~ /\btop-only\b/ );
     my $view_num      = ( $view_arg =~ /(\d+)/ ) ? $1 : undef;
 
+    # an id with the wrong anum is treated like a missing one
+    my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} : 0;
+    $thread   = 0     if $thread % 256 != $entry->anum;
+    $view_num = undef if defined $view_num && $view_num % 256 != $entry->anum;
+
     my $expand_all = ( $u->thread_expand_all($remote) && $get->{'expand_all'} );
 
     my %userpic;
@@ -175,7 +180,7 @@ sub EntryPage {
     my $copts = {
         'flat'       => $flat_mode,
         'top-only'   => $top_only_mode,
-        'thread'     => $get->{thread} ? ( $get->{thread} >> 8 ) : 0,
+        'thread'     => $thread >> 8,
         'page'       => $get->{'page'},
         'view'       => $view_num,
         'userpicref' => \%userpic,
@@ -565,6 +570,17 @@ sub EntryPage {
     return $p;
 }
 
+# Answers the request with the page for a missing or hidden entry or comment;
+# must match DW::Controller::Journal->entry_not_found.
+sub EntryPage_not_found {
+    my ( $u, $opts ) = @_;
+
+    $opts->{internal_redir} = "/protected";
+    $opts->{r}->notes->{journalid} = $u->userid;
+    $opts->{r}->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
+    return;
+}
+
 sub EntryPage_entry {
     my ( $u, $remote, $opts ) = @_;
     my $entry = $opts->{ljentry};    # only defined in named-URI case.  otherwise undef.
@@ -573,18 +589,10 @@ sub EntryPage_entry {
     my $uri         = $apache_r->uri;
     my $ditemid_uri = ( $uri =~ /^\/(\d+)\.html$/ ) ? 1 : 0;
 
-    # must match DW::Controller::Journal->entry_not_found
-    my $not_found = sub {
-        $opts->{internal_redir} = "/protected";
-        $apache_r->notes->{journalid} = $u->userid;
-        $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
-        return;
-    };
-
-    return $not_found->() unless $entry || $ditemid_uri;
+    return EntryPage_not_found( $u, $opts ) unless $entry || $ditemid_uri;
 
     $entry ||= LJ::Entry->new( $u, ditemid => $1 );
-    return $not_found->() unless $entry->correct_anum;
+    return EntryPage_not_found( $u, $opts ) unless $entry->correct_anum;
 
     my $ditemid = $entry->ditemid;
     my $itemid  = $entry->jitemid;
@@ -617,7 +625,7 @@ sub EntryPage_entry {
             return;
         }
 
-        return $not_found->();
+        return EntryPage_not_found( $u, $opts );
     }
 
     my $style_args = LJ::viewing_style_args(%$get);

@@ -1077,6 +1077,23 @@ sub visible_to {
     return 0;
 }
 
+# Returns the LJ::Comment for $dtalkid if it's on this entry and $u (undef when
+# logged out) can see it. Callers must answer exactly the same way for every
+# undef result, so that hidden comments can't be told apart from missing ones.
+sub visible_comment {
+    my ( $self, $dtalkid, $u ) = @_;
+
+    return undef unless ( $dtalkid // '' ) =~ /^\d+$/ && $dtalkid % 256 == $self->anum;
+
+    my $comment = LJ::Comment->new( $self->journal, dtalkid => $dtalkid );
+    return undef unless $comment->valid;
+    return undef unless $comment->nodetype eq 'L' && $comment->nodeid == $self->jitemid;
+    return undef if $comment->is_deleted;
+    return undef if $comment->poster && $comment->poster->is_suspended;
+    return undef if $comment->is_screened && !$comment->visible_to($u);
+    return $comment;
+}
+
 # returns hashref of (kwid => tag) for tags on the entry
 sub tag_map {
     my $self = $_[0];
