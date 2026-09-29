@@ -48,12 +48,12 @@ sub wrap {
         # Check rate limit
         my $result = $limit->check(
             userid => $args->{user} ? $args->{user}->userid : undef,
-            ip     => $r->connection->remote_ip
+            ip     => $r->get_remote_ip
         );
 
         if ( $result->{exceeded} ) {
             $r->status(429);
-            $r->headers_out->{'Retry-After'} = $result->{time_remaining};
+            $r->header_out( 'Retry-After' => $result->{time_remaining} );
             $r->print(
                 to_json(
                     {
