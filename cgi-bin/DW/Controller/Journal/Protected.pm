@@ -2,7 +2,7 @@
 #
 # DW::Controller::Journal::Protected
 #
-# Displays when a user tries to access protected content.
+# Displays for an entry that doesn't exist or that the viewer can't see.
 #
 # Author:
 #      Allen Petersen <allen@suberic.net>
@@ -33,8 +33,8 @@ sub protected_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    # set the status to 403
-    $r->status(403);
+    # Same status as a missing entry, so the two can't be told apart (RFC 9110 15.5.4).
+    $r->status(404);
 
     # returnto will either have been set as a request note or passed in as
     # a query argument.  if neither of those work, we can reconstruct it
@@ -46,28 +46,13 @@ sub protected_handler {
 
     my $vars = {
         returnto => $returnto,
+        remote   => $rv->{remote},
         message  => $r->get_args->{posted} ? '.message.comment.posted' : '',
     };
 
-    my $remote = $rv->{remote};
+    $vars->{chal} = DW::Auth::Challenge->generate(300) unless $rv->{remote};
 
-    if ($remote) {
-        $vars->{remote} = $remote;
-        if ( $r->note('error_key') ) {
-            my $journalname = $r->note('journalname');
-            $vars->{journalname} = $journalname;
-            $vars->{'error_key'} = '.protected.error.notauthorised' . $r->note('error_key');
-        }
-        else {
-            $vars->{'error_key'}   = '.protected.message.user';
-            $vars->{'journalname'} = "";
-        }
-    }
-    else {
-        $vars->{chal} = DW::Auth::Challenge->generate(300);
-    }
-
-    return DW::Template->render_template( 'protected.tt', $vars );
+    return DW::Template->render_template( 'error/unavailable.tt', $vars );
 
 }
 

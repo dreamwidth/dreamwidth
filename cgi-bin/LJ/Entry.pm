@@ -362,12 +362,14 @@ sub anum {
 sub correct_anum {
     my ( $self, $given ) = @_;
 
+    # valid() loads the row, which fills in anum for slug and jitemid lookups
+    return 0 unless $self->valid;
+
     $given =
           defined $given   ? int($given)
         : $self->{ditemid} ? $self->{_untrusted_anum}
         :                    $self->{anum};
 
-    return 0 unless $self->valid;
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
 }

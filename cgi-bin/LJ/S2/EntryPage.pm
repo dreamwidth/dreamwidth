@@ -573,16 +573,18 @@ sub EntryPage_entry {
     my $uri         = $apache_r->uri;
     my $ditemid_uri = ( $uri =~ /^\/(\d+)\.html$/ ) ? 1 : 0;
 
-    unless ( $entry || $ditemid_uri ) {
-        $opts->{'handler_return'} = 404;
+    # must match DW::Controller::Journal->entry_not_found
+    my $not_found = sub {
+        $opts->{internal_redir} = "/protected";
+        $apache_r->notes->{journalid} = $u->userid;
+        $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
         return;
-    }
+    };
+
+    return $not_found->() unless $entry || $ditemid_uri;
 
     $entry ||= LJ::Entry->new( $u, ditemid => $1 );
-    if ( $ditemid_uri && !$entry->correct_anum ) {
-        $opts->{'handler_return'} = 404;
-        return;
-    }
+    return $not_found->() unless $entry->correct_anum;
 
     my $ditemid = $entry->ditemid;
     my $itemid  = $entry->jitemid;
@@ -615,29 +617,7 @@ sub EntryPage_entry {
             return;
         }
 
-        # this checks to see why the logged-in user is not allowed to see
-        # the given content.
-        if ( defined $remote ) {
-            my $journal = $entry->journal;
-
-            if (   $journal->is_community
-                && !$journal->is_closed_membership
-                && $remote
-                && $entry->security ne "private" )
-            {
-                $apache_r->notes->{error_key}   = ".comm.open";
-                $apache_r->notes->{journalname} = $journal->username;
-            }
-            elsif ( $journal->is_community && $journal->is_closed_membership ) {
-                $apache_r->notes->{error_key}   = ".comm.closed";
-                $apache_r->notes->{journalname} = $journal->username;
-            }
-        }
-
-        $opts->{internal_redir} = "/protected";
-        $apache_r->notes->{journalid} = $entry->journalid;
-        $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
-        return;
+        return $not_found->();
     }
 
     my $style_args = LJ::viewing_style_args(%$get);
