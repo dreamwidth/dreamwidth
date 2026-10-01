@@ -362,12 +362,14 @@ sub anum {
 sub correct_anum {
     my ( $self, $given ) = @_;
 
+    # valid() loads the row, which fills in anum for slug and jitemid lookups
+    return 0 unless $self->valid;
+
     $given =
           defined $given   ? int($given)
         : $self->{ditemid} ? $self->{_untrusted_anum}
         :                    $self->{anum};
 
-    return 0 unless $self->valid;
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
 }
@@ -1073,6 +1075,23 @@ sub visible_to {
     }
 
     return 0;
+}
+
+# Returns the LJ::Comment for $dtalkid if it's on this entry and $u (undef when
+# logged out) can see it. Callers must answer exactly the same way for every
+# undef result, so that hidden comments can't be told apart from missing ones.
+sub visible_comment {
+    my ( $self, $dtalkid, $u ) = @_;
+
+    return undef unless ( $dtalkid // '' ) =~ /^\d+$/ && $dtalkid % 256 == $self->anum;
+
+    my $comment = LJ::Comment->new( $self->journal, dtalkid => $dtalkid );
+    return undef unless $comment->valid;
+    return undef unless $comment->nodetype eq 'L' && $comment->nodeid == $self->jitemid;
+    return undef if $comment->is_deleted;
+    return undef if $comment->poster && $comment->poster->is_suspended;
+    return undef if $comment->is_screened && !$comment->visible_to($u);
+    return $comment;
 }
 
 # returns hashref of (kwid => tag) for tags on the entry

@@ -949,13 +949,8 @@ sub load_comments {
                     $should_show = $filtermap{ $opts->{filter} }->();
                 }
 
-                # then check for comment owner/journal owner
-                $should_show = 0
-                    if $should_show &&    # short circuit, and check the following conditions
-                                          # only if we wanted to show in the first place
-                        # can view if not screened, or if screened and some conditions apply
-                    $state eq "S"
-                    && !(
+                # can view if not screened, or if screened and some conditions apply
+                my $screened_hidden = $state eq "S" && !(
                     $remote
                     && (
                         $remote->userid == $uposterid        ||   # made in remote's journal
@@ -970,8 +965,13 @@ sub load_comments {
                             && $poster->can_manage($u)
                         )
                     )
-                    );
+                );
+                $should_show = 0 if $screened_hidden;
+
+                # unlike _show, ignores filters
+                $post->{_hidden} = 1 if $screened_hidden || ( $poster && $poster->is_suspended );
             }
+            $post->{_hidden} = 1 if $state eq 'D';
             $post->{'_show'} = $should_show;
             $post_count += $should_show;
 
@@ -1077,9 +1077,10 @@ sub load_comments {
         }
     }
 
-    # with a wrong thread number, silently default to the whole page
+    # with a wrong thread number, silently default to the whole page; a hidden
+    # comment must be indistinguishable from a missing one
     my $thread = $opts->{'thread'} + 0;
-    $thread = 0 unless $posts->{$thread};
+    $thread = 0 unless $posts->{$thread} && !$posts->{$thread}->{_hidden};
 
     unless ( $thread || $children{$thread} ) {
         $opts->{'out_error'} = "noposts";
@@ -1105,6 +1106,7 @@ sub load_comments {
 
         # find top-level comment that this comment is under
         my $viewid = $opts->{'view'} >> 8;
+        $viewid = 0 if $posts->{$viewid} && $posts->{$viewid}->{_hidden};
         while ( $posts->{$viewid} && $posts->{$viewid}->{'parenttalkid'} ) {
             $viewid = $posts->{$viewid}->{'parenttalkid'};
         }
@@ -2715,7 +2717,10 @@ sub prepare_and_validate_comment {
         my $dbcr = LJ::get_cluster_def_reader($journalu);
         return $mlerr->('error.nodb') unless $dbcr;    # tbh we got bigger problems at this point.
         $parpost = LJ::Talk::get_talk2_row( $dbcr, $journalu->{userid}, $parenttalkid );
-        unless ($parpost) {
+
+        # one answer for missing and hidden parents
+        my $dparent = $parenttalkid * 256 + $entry->anum;
+        unless ( $parpost && $entry->visible_comment( $dparent, $commenter ) ) {
             return $mlerr->("$tp_d.error.noparent");
         }
     }
@@ -3186,6 +3191,11 @@ sub edit_comment {
     my $comment_obj = LJ::Comment->new( $journalu, dtalkid => $comment->{editid} );
 
     my $remote = LJ::get_remote();
+
+    # one answer for missing and hidden comments
+    return ( 0, LJ::Lang::ml('talk.error.cantedit.invalid') )
+        unless $item->visible_comment( $comment->{editid}, $remote );
+
     my $edit_error;
     return ( 0, $edit_error ) unless $comment_obj->remote_can_edit( \$edit_error );
 
