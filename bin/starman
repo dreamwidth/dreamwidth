@@ -37,6 +37,21 @@ use FindBin;
 $ENV{LJHOME} //= "$FindBin::Bin/..";
 use lib "$ENV{LJHOME}/extlib/lib/perl5";
 
+# Optional request profiling. -d:NYTProf must be applied at interpreter startup,
+# so when DW_NYTPROF is requested but not yet active we re-exec ourselves with it
+# in PERL5OPT (guarded by %INC to avoid an exec loop). start=no keeps the profiler
+# idle until DW::NYTProf middleware enables it per request; sigexit=0 stops workers
+# dumping a profile when recycled. Gated behind DW_NYTPROF so it never loads by
+# accident -- it slows every request on the worker, so enable it only on canary.
+BEGIN {
+    if ( $ENV{DW_NYTPROF} && !$INC{'Devel/NYTProf.pm'} ) {
+        $ENV{PERL5OPT} = join ' ', grep { length } ( '-d:NYTProf', $ENV{PERL5OPT} // '' );
+        $ENV{NYTPROF} //= 'start=no:sigexit=0:file=/tmp/nytprof-startup.out';
+        exec $^X, $0, @ARGV
+            or die "Failed to re-exec bin/starman under Devel::NYTProf: $!\n";
+    }
+}
+
 use Getopt::Long;
 use Plack::Runner;
 

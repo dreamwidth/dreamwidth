@@ -311,5 +311,10 @@ builder {
     # Rate limiting (after auth and sysban, before request dispatch)
     enable 'DW::RateLimit';
 
+    # On-demand request profiler (?nytprof=1). Innermost so it wraps only the
+    # dispatch, and after Auth so it can require an admin remote. Inert unless the
+    # worker was booted with Devel::NYTProf loaded (bin/starman + DW_NYTPROF).
+    enable 'DW::NYTProf';
+
     $app;
 };
