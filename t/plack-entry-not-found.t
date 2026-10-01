@@ -30,6 +30,7 @@ my $stranger = temp_user();
 my $public   = $owner->t_post_fake_entry( body => 'PUBLIC_MARKER' );
 my $private  = $owner->t_post_fake_entry( body => 'PRIVATE_MARKER', security => 'private' );
 $private->slug('hidden-slug');
+$public->slug('public-slug');
 my $date = substr( $private->eventtime_mysql, 0, 10 );
 $date =~ s!-!/!g;
 
@@ -63,6 +64,8 @@ my @hidden = (
     "/$wrong.html",
     "/$date/hidden-slug.html",
     "/$date/no-such-slug.html",
+    '/1999/01/01/hidden-slug.html',
+    '/1999/01/01/public-slug.html',
     '/' . $private->ditemid . '.html?mode=reply',
     "/$missing.html?mode=reply",
     map {
