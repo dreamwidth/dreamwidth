@@ -576,8 +576,8 @@ sub EntryPage_not_found {
     my ( $u, $opts ) = @_;
 
     $opts->{internal_redir} = "/protected";
-    $opts->{r}->notes->{journalid} = $u->userid;
-    $opts->{r}->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
+    $opts->{r}->note( journalid => $u->userid );
+    $opts->{r}->note( returnto  => LJ::create_url( undef, keep_args => 1 ) );
     return;
 }
 
