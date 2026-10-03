@@ -87,9 +87,11 @@ sub determine_view {
 
         my $date = $1;
         $ljentry = LJ::Entry->new( $u, slug => $2 );
+
+        # a slug under the wrong date names no entry, so it gets the missing-entry answer
         if ( defined $ljentry ) {
             my $dt = join( '/', split( '-', substr( $ljentry->eventtime_mysql, 0, 10 ) ) );
-            return 404 unless $dt eq $date;
+            undef $ljentry unless $dt eq $date;
         }
 
         if ( ( $GET{'mode'} // '' ) eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
