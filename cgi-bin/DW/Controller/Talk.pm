@@ -360,7 +360,16 @@ sub talkpost_do_handler {
     # For most errors, we preview anyway; they can fix it while they edit
     # their text. But we DO need to know who they think they are, so let the
     # error path handle auth failures.
-    if ( $authok && $POST->{submitpreview} ) {
+    #
+    # The preview reflects the entry and parent as they appear to the commenter,
+    # so build it only when both are readable for them; otherwise there's nothing
+    # to show and we fall through to the error path below.
+    my $parenttalkid = ( $POST->{replyto} || $POST->{parenttalkid} || 0 ) + 0;
+    my $can_preview  = $entry->visible_to($commenter)
+        && ( !$parenttalkid
+        || $entry->visible_comment( $parenttalkid * 256 + $entry->anum, $commenter ) );
+
+    if ( $authok && $POST->{submitpreview} && $can_preview ) {
 
         # yer a reply page, Harry. (keep consistent behavior by loading same
         # JS/CSS as journal pages.)
@@ -458,7 +467,10 @@ sub talkpost_do_handler {
 
     my $parent = $comment->{parent};
 
-    my $unscreen_parent = $POST->{unscreen_parent} ? 1 : 0;
+    # Act on the unscreen-parent option using the same check that decides whether
+    # to offer the checkbox in the first place, so the two stay consistent.
+    my $unscreen_parent = $POST->{unscreen_parent}
+        && LJ::Talk::can_unscreen( $commenter, $journalu, $entry->poster ) ? 1 : 0;
 
     # ACTUALLY POST IT
     my $editid      = $POST->{editid};
