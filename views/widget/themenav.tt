@@ -1,6 +1,15 @@
 <h2 class='widget-header'>[% dw.ml('widget.themenav.title2') %]</h2>
 
-<script>Customize.ThemeNav.searchwords = [[% keywords_string %]];</script>
+<script>
+(function (init) {
+    if (window.LJWidget && LJWidget.runInit) {
+        LJWidget.runInit(init);
+    } else {
+        window.LJWidgetInitQueue = window.LJWidgetInitQueue || [];
+        window.LJWidgetInitQueue.push(init);
+    }
+})(function () { Customize.ThemeNav.searchwords = [[% keywords_string %]]; });
+</script>
 <form id="search_form" method="POST">
 [% dw.form_auth() %]
 <p class='detail theme-nav-search-box'>

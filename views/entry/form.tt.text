@@ -82,3 +82,15 @@
 .title=Create Entries
 
 .title.edit=Edit Entry
+
+.image.cancel=Cancel
+.image.insert=Insert
+.image.open=Insert Image
+
+.insertimage.alt.body=This description is used by screenreaders, some mobile devices, and when images are turned off in your browser. Please fill it out! We have
+
+.insertimage.alt.faqlink=tips on writing good descriptions
+
+.insertimage.alt.label=Short Description
+
+.insertimage.url=Image from URL

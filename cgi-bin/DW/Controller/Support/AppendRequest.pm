@@ -43,7 +43,7 @@ sub append_handler {
     my $r     = $rv->{r};
     my $scope = '/support/append_request.tt';
 
-    # %FORM mirrors BML's merged GET+POST hash (POST wins).
+    # %FORM merges GET and POST args; POST wins on a key collision.
     my %FORM = ( %{ $r->get_args }, %{ $r->post_args } );
 
     my $status = "";

@@ -25,6 +25,7 @@ use DW::Routing;
 use DW::Template;
 use LJ::JSON;
 use LJ::S2Theme;
+use DW::Controller::Customize::Simple;
 
 # routing directions
 DW::Routing->register_string( '/customize/viewuser',         \&viewuser_handler,         app => 1 );

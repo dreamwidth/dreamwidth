@@ -14,6 +14,8 @@
 # part of this distribution.
 
 use strict;
+
+use DW::Request;
 no warnings 'uninitialized';
 
 use Digest::MD5;
@@ -563,7 +565,12 @@ sub sendmessage {
     @to = keys %to;
 
     my @msg;
-    BML::set_language('en');    # FIXME
+
+    # Protocol error text is a wire contract, not a rendered page: force
+    # English regardless of the sender's negotiated language. getter => undef
+    # discards any getter already on the request; set_request_context merges
+    # keys, so omitting it would keep one (doc/BML-TRANSLATION-SHIM.md §4).
+    LJ::Lang::set_request_context( lang => 'en', getter => undef );
 
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
@@ -685,10 +692,8 @@ sub login {
     LJ::text_out( \$res->{'fullname'} ) if $ver >= 1;
 
     if ( $req->{'clientversion'} =~ /^\S+\/\S+$/ ) {
-        eval {
-            my $apache_r = BML::get_request();
-            $apache_r->notes->{clientver} = $req->{'clientversion'};
-        };
+        my $r = DW::Request->get;
+        $r->note( clientver => $req->{'clientversion'} ) if $r;
     }
 
     ## update or add to clientusage table
@@ -1669,9 +1674,7 @@ sub postevent {
     $res->{message} = translate(
         $u, $errref,
         {
-                  aopts => "href='$LJ::SITEROOT/editjournal?journal="
-                . $uowner->user
-                . "&itemid=$ditemid'"
+            aopts => "href='$LJ::SITEROOT/entry/" . $uowner->user . "/$ditemid/edit'"
         }
     ) if $errref;
 
@@ -2191,9 +2194,7 @@ sub editevent {
         translate(
             $u, $errref,
             {
-                      aopts => "href='$LJ::SITEROOT/editjournal?journal="
-                    . $uowner->user
-                    . "&itemid=$ditemid'"
+                aopts => "href='$LJ::SITEROOT/entry/" . $uowner->user . "/$ditemid/edit'"
             }
         )
     ) if $errref;
@@ -2339,13 +2340,6 @@ sub getevents {
 
     # can't pull events from deleted/suspended journal
     return fail( $err, 307 ) unless $uowner->is_visible || $uowner->is_readonly;
-
-    my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
-    if ( ref $reject_code eq "CODE" ) {
-        my $apache_r = eval { BML::get_request() };
-        my $errmsg   = $reject_code->( $req, $flags, $apache_r );
-        if ($errmsg) { return fail( $err, "311", $errmsg ); }
-    }
 
     # if this is on, we sort things different (logtime vs. posttime)
     # to avoid timezone issues
@@ -3490,9 +3484,9 @@ sub check_altusage {
     # we are going to load the alt user
     $flags->{u_owner} = LJ::load_user($alt);
     $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
-    my $apache_r = eval { BML::get_request() };
-    $apache_r->notes->{journalid} = $flags->{ownerid}
-        if $apache_r && !$apache_r->notes->{journalid};
+    my $r = DW::Request->get;
+    $r->note( journalid => $flags->{ownerid} )
+        if $r && !$r->note('journalid');
 
     # allow usage if we're told explicitly that it's okay
     if ( $flags->{usejournal_okay} ) {

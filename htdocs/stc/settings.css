@@ -117,3 +117,74 @@
 .sitescheme-style {
     clear: both;
 }
+
+/* The legacy hub assumed a desktop-wide table. Keep its desktop geometry, but
+ * let Foundation's narrow viewport wrap tabs and constrain setting controls. */
+@media screen and (max-width: 39.9375em) {
+    #settings_left {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #settings_nav {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    #settings_nav .tab {
+        float: none;
+    }
+
+    #settings_nav .tab.disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+
+    /* Stack the outer settings rows: a four-column desktop table would make
+     * the option column unusably narrow even when the viewport has room. */
+    #settings_page .settings_content > div > .table-form > table {
+        max-width: 100%;
+    }
+
+    #settings_page .settings_content > div > .table-form > table > tbody > tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    #settings_page .settings_content > div > .table-form > table > tbody > tr > th,
+    #settings_page .settings_content > div > .table-form > table > tbody > tr > td {
+        display: block;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    #settings_page .settings_content > div > .table-form > table > tbody > tr > th {
+        grid-column: 1;
+    }
+
+    #settings_page .settings_content > div > .table-form > table > tbody > tr > td.help {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    #settings_page .settings_content > div > .table-form > table > tbody > tr > td[class$='_option'] {
+        grid-column: 1 / -1;
+        width: auto;
+    }
+
+    #settings_page .settings_content > div > .table-form > table > tbody > tr > td[class$='_actionlink'] {
+        grid-column: 1 / -1;
+        width: auto;
+    }
+
+    #settings_page .settings_content input:not([type='checkbox']):not([type='radio']),
+    #settings_page .settings_content select,
+    #settings_page .settings_content textarea {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    #settings_page .sitescheme-item {
+        float: none;
+    }
+}

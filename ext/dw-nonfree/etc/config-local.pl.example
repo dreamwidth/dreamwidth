@@ -89,11 +89,6 @@
     $SUGGESTIONS_COMM = "dw_suggestions";
     $SUGGESTIONS_USER = "suggestions_bot";
 
-    # 404 page
-    # Uncomment if you don't want the (dw-free) default, 404-error.bml
-    # (Note: you need to provide your own 404-error-local.bml)
-    $PAGE_404 = "404-error-local.bml";
-
     # additional domain from which to serve the iframes for embedded content
     # for security reasons, we strongly recommend that this not be on your $DOMAIN
     #$EMBED_MODULE_DOMAIN = "embedded.dreamwidth.net";

@@ -109,7 +109,12 @@ Get or set the ML scope of the template
 
 sub ml_scope {
     my $r = DW::Request->get;
-    return $#_ == 1 ? $r->note( 'ml_scope', $_[1] ) : $r->note('ml_scope');
+    return $r->note('ml_scope') unless $#_ == 1;
+
+    my $scope = $_[1];
+    my $rv    = $r->note( ml_scope => $scope );
+    LJ::Lang::set_request_scope($scope);
+    return $rv;
 }
 
 =head2 form_auth
@@ -182,8 +187,14 @@ sub scoped_include {
     my ( $self, $page, $args ) = @_;
     my $old_scope = $self->ml_scope;
     $self->ml_scope( '/' . $page );
-    my $rv = $self->{_CONTEXT}->include( $page, $args || {} );
+    my $rv;
+    my $ok = eval {
+        $rv = $self->{_CONTEXT}->include( $page, $args || {} );
+        1;
+    };
+    my $err = $@;
     $self->ml_scope($old_scope);
+    die $err unless $ok;
     return $rv;
 }
 
@@ -200,8 +211,14 @@ sub scoped_process {
     my ( $self, $page, $args ) = @_;
     my $old_scope = $self->ml_scope;
     $self->ml_scope( '/' . $page );
-    my $rv = $self->{_CONTEXT}->process( $page, $args || {} );
+    my $rv;
+    my $ok = eval {
+        $rv = $self->{_CONTEXT}->process( $page, $args || {} );
+        1;
+    };
+    my $err = $@;
     $self->ml_scope($old_scope);
+    die $err unless $ok;
     return $rv;
 }
 

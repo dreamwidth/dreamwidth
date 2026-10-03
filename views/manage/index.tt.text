@@ -4,6 +4,8 @@
 
 .circle.edit.about=Add, edit, or remove access and subscriptions
 
+.circle.edit.title=Manage Circle
+
 .circle.filter=Manage Subscription Filters
 
 .circle.filter.about=Filter your reading page with subscription filters
@@ -66,6 +68,8 @@
 
 .entries.tags.about=View and work with your journal's tags
 
+.entries.tags.title=Manage Tags
+
 .information=Choose what information is displayed on your account:
 
 .information.changeemail=Change Account Email Address
@@ -88,7 +92,11 @@
 
 .information.profile.about=Edit your profile information
 
+.information.profile.title=Edit Profile
+
 .information.settings.about=Change your viewing options and other account settings
+
+.information.settings.title=Account Settings
 
 .information.status.about=Set your account's activation status
 
