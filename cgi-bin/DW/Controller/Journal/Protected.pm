@@ -44,13 +44,28 @@ sub protected_handler {
         $returnto = LJ::ehtml( LJ::create_url( undef, keep_args => 1 ) );
     }
 
+    my $remote = $rv->{remote};
+
     my $vars = {
         returnto => $returnto,
-        remote   => $rv->{remote},
+        remote   => $remote,
         message  => $r->get_args->{posted} ? '.message.comment.posted' : '',
     };
 
-    $vars->{chal} = DW::Auth::Challenge->generate(300) unless $rv->{remote};
+    # The journal is named by a request note, so the page can depend on it (here,
+    # a community join link) without ever depending on whether the entry exists
+    # or its security: a hidden entry and a missing one render identically.
+    my $journal = LJ::load_userid( $r->note('journalid') );
+    if (   $journal
+        && $journal->is_community
+        && $remote
+        && !$remote->member_of($journal)
+        && !$journal->is_closed_membership )
+    {
+        $vars->{join_url} = "$LJ::SITEROOT/circle/" . $journal->user . "/edit";
+    }
+
+    $vars->{chal} = DW::Auth::Challenge->generate(300) unless $remote;
 
     return DW::Template->render_template( 'error/unavailable.tt', $vars );
 

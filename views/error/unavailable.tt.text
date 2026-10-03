@@ -3,4 +3,6 @@
 
 .message.comment.posted=Comment was posted successfully.
 
+.join=This is a community. Would you like to <a href="[[url]]">join it</a>?
+
 .title=Page not found
