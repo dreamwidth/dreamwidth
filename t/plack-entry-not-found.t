@@ -20,7 +20,7 @@ use HTTP::Request::Common;
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Test qw(temp_user with_fake_memcache);
+use LJ::Test qw(temp_user temp_comm with_fake_memcache);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
@@ -57,6 +57,23 @@ my %hidden_comment = (
     'wrong anum'       => $shown->jtalkid * 256 + ( $anum + 1 ) % 256,
 );
 my $missing_comment = ( $elsewhere->jtalkid + 100 ) * 256 + $anum;
+
+# A community with open membership and one hidden entry. The join prompt depends
+# only on the journal and viewer, so a hidden and a missing entry in the same
+# community must render identically; a person journal offers no join prompt.
+my $comm  = temp_comm();
+my $admin = temp_user();
+LJ::set_rel( $comm, $admin, 'A' );
+my $comm_entry = $admin->t_post_fake_entry(
+    usejournal      => $comm->user,
+    usejournal_okay => 1,
+    security        => 'private',
+    body            => 'COMM_PRIVATE_MARKER',
+);
+my $comm_user    = $comm->user;
+my $comm_base    = "http://localhost/users/$comm_user";
+my $comm_hidden  = '/' . $comm_entry->ditemid . '.html';
+my $comm_missing = '/' . ( ( $comm_entry->jitemid + 100 ) * 256 + 1 ) . '.html';
 
 my @hidden = (
     '/' . $private->ditemid . '.html',
@@ -120,6 +137,37 @@ with_fake_memcache {
             is( $res->code, 404, "adult journal: $path is 404, not the interstitial" );
         }
         $owner->set_prop( adult_content => 'none' );
+
+        # The login form shows only to logged-out viewers.
+        my $person = $base . '/' . $private->ditemid . '.html';
+        my $out    = $cb->( GET "$person?as=nobody_exists" );
+        my $in     = $cb->( GET "$person?as=" . $stranger->user );
+        like( $out->content, qr/id="protected_login"/, 'logged-out viewer sees the login form' );
+        unlike( $in->content, qr/id="protected_login"/, 'logged-in viewer sees no login form' );
+        unlike( $in->content, qr/Change login options/, 'logged-in viewer sees no login panel' );
+
+        # A community the viewer could join offers the join link, the same for a
+        # hidden entry and a missing one; a person journal offers none.
+        my $join = qr/id="join-community"/;
+        unlike( $in->content, $join, 'person journal offers no join link' );
+        my %comm_body;
+        for my $path ( $comm_hidden, $comm_missing ) {
+            my $res = $cb->( GET "$comm_base$path?as=" . $stranger->user );
+            is( $res->code, 404, "community $path is 404" );
+            unlike( $res->content, qr/COMM_PRIVATE_MARKER/, "community $path shows no entry" );
+            like( $res->content, $join, "community $path offers the join link" );
+            like(
+                $res->content,
+                qr{/circle/\Q$comm_user\E/edit},
+                "community $path join link targets the community"
+            );
+            $comm_body{$path} = normalized( $res->content );
+        }
+        is(
+            $comm_body{$comm_hidden},
+            $comm_body{$comm_missing},
+            'community hidden and missing entries render identically'
+        );
 
         for (
             [ $owner,    '/' . $private->ditemid . '.html' ],
