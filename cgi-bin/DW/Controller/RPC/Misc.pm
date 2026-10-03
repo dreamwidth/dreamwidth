@@ -307,6 +307,11 @@ sub addcomment_handler {
     my $r      = DW::Request->get;
     my $post   = $r->post_args;
 
+    # quick reply is only offered to logged-in users; the underlying protocol
+    # needs a poster, so reject anonymous posts instead of dereferencing undef
+    return DW::RPC->err( LJ::Lang::ml('comment.rpc.notloggedin') )
+        unless $remote;
+
     return DW::RPC->err( LJ::Lang::ml('error.invalidform.quickerreply') )
         if $r->did_post && !LJ::check_form_auth( $post->{lj_form_auth} );
 
