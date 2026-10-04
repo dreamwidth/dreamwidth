@@ -268,13 +268,17 @@ sub _notification_error_html {
 }
 
 sub _resource_setup {
-    LJ::set_active_resource_group('foundation');
-    LJ::need_res( 'stc/tabs.css', 'stc/settings.css', 'js/settings.js' );
+
+    # The settings hub keeps the legacy (non-Foundation) chrome. res_includes
+    # only emits resources in the active group (plus 'all'), so every page
+    # resource is declared in the jquery group that is made active here; the
+    # legacy sitescheme supplies the core JS (and the LiveJournal global).
+    LJ::set_active_resource_group('jquery');
     LJ::need_res(
-        { group => 'jquery' },
-        'js/jquery.settings.js', 'js/notifications.js',
-        'js/components/jquery.select-all-special.js',
-        'stc/css/components/select-all.css'
+        { group => 'jquery' }, 'stc/tabs.css',
+        'stc/settings.css',                           'js/settings.js',
+        'js/jquery.settings.js',                      'js/notifications.js',
+        'js/components/jquery.select-all-special.js', 'stc/css/components/select-all.css'
     );
 }
 
@@ -367,6 +371,7 @@ sub settings_handler {
 
     my @rows;
     my $setting_count = 0;
+    my $total         = scalar @settings;
     for my $setting (@settings) {
         $setting_count++ unless $setting->is_conditional_setting;
         my $setting_errors = $setting->errors_from_save($save_rv);
@@ -379,6 +384,8 @@ sub settings_handler {
             actionlink  => $setting->actionlink($u),
             helpicon    => LJ::help_icon( $setting->helpurl($u) ),
             conditional => $setting->is_conditional_setting,
+            row_class   => $setting_count % 2 == 0 ? 'even' : 'odd',
+            last        => $setting_count == $total ? 1 : 0,
             };
     }
 
