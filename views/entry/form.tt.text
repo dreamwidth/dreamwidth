@@ -93,4 +93,6 @@
 
 .insertimage.alt.label=Short Description
 
+.insertimage.example=Example
+
 .insertimage.url=Image from URL
