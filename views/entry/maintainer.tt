@@ -1,38 +1,83 @@
-[%# Community maintainer entry-management surface: read-only entry context plus
-    the administrator override box. A maintainer may change the override props
-    or delete the entry, but never edit the subject or body. %]
+[%# Community maintainer entry-management surface. It reproduces the legacy
+    entry-editor layout, but the subject, body and editor chrome are inert
+    (disabled or non-functional) so a maintainer can only change the override
+    props or delete the entry, never edit the subject or body. The disabled
+    subject/body controls carry the raw text and are not submitted, so
+    moderating spam does not load the entry's images or embeds. %]
 [%- sections.title = '/entry/form.tt.title.edit' | ml -%]
 [%- delete_confirm = "entryform.delete.confirm" | ml | js -%]
 [%- deletespam_confirm = "entryform.deletespam.confirm" | ml | js -%]
-[%# Subject and body are raw text in read-only controls outside the form: a
-   maintainer cannot edit them, nothing is submitted, and moderating spam does
-   not load the entry's images or embeds. %]
-<table summary='' class='entry-maintainer-context'>
-    <tr><th>[% '.poster' | ml %]</th>
-        <td>[% entry.poster.ljuser_display %] [% '.incommunity' | ml %] [% journal.ljuser_display %]</td></tr>
-    <tr><th>[% 'entryform.date' | ml %]</th>
-        <td>[% eventtime | html %]</td></tr>
-    <tr><th>[% 'entryform.subject' | ml %]</th>
-        <td><input type="text" readonly size="50" value="[% entry.subject_raw | html %]"></td></tr>
-</table>
-<textarea readonly rows="15" style="width: 100%;">[% entry.event_raw | html %]</textarea>
-<form method="post" action="[% action | html %]" class="entry-maintainer-form">[% dw.form_auth() %]
-<fieldset class='highlight-box'>
-<legend>[% 'entryform.maintainer' | ml %]</legend>
-[% IF adult_content_enabled %]
-<p><label>[% 'entryform.adultcontent.maintainer' | ml %]
-<select name="prop_adult_content_maintainer">
-<option value="">[% dw.ml('entryform.adultcontent.poster', setting=dw.ml('entryform.adultcontent.' _ (props.adult_content || 'default'))) %]</option>
-<option value="none"[% ' selected' IF props.adult_content_maintainer == 'none' %]>[% 'entryform.adultcontent.none' | ml %]</option>
-<option value="concepts"[% ' selected' IF props.adult_content_maintainer == 'concepts' %]>[% 'entryform.adultcontent.concepts' | ml %]</option>
-<option value="explicit"[% ' selected' IF props.adult_content_maintainer == 'explicit' %]>[% 'entryform.adultcontent.explicit' | ml %]</option>
-</select></label></p>
-<p><label>[% 'entryform.adultcontentreason.maintainer' | ml %]
-<input maxlength="255" name="prop_adult_content_maintainer_reason" value="[% props.adult_content_maintainer_reason | html %]"></label></p>
-[% END %]
-[% UNLESS props.opt_nocomments %]<p>[% form.checkbox(name='prop_opt_nocomments_maintainer', value='1', selected=props.opt_nocomments_maintainer, label=dw.ml('entryform.comment.disable')) %]</p>[% END %]
-</fieldset>
-[% form.submit(name='action:savemaintainer', value=dw.ml('entryform.save.maintainer')) %]
-[% form.submit(name='action:delete', id='js-manager-delete-button', value=dw.ml('entryform.delete'), onclick="return confirm(" _ delete_confirm _ ")") %]
-[% form.submit(name='action:deletespam', id='js-manager-deletespam-button', value=dw.ml('entryform.deletespam'), onclick="return confirm(" _ deletespam_confirm _ ")") %]
+<table summary=''><tr><td>
+<div style='width: 100%; float: left;'>
+<form method='post' action='[% action | html %]' id='updateForm' name='updateForm' class='entry-maintainer-form'>[% dw.form_auth() %]
+<div id='entry-form-wrapper'>
+
+<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='[% site.root %]/manage/icons'>[% 'entryform.userpic.upload' | ml %]</a></p></div>
+
+<div id='metainfo'>
+    <p class='pkg'><label class='left'>[% '.poster' | ml %]</label>
+        <span id='poster' class='float-left'>[% entry.poster.ljuser_display %] [% '.incommunity' | ml %] [% journal.ljuser_display %]</span></p>
+    <p class='pkg'><label for='modifydate' class='left'>[% 'entryform.date' | ml %]</label>
+        <span id='currentdate' class='float-left' style='display: inline;'><span id='currentdate-date'>[% eventtime | html %]</span>
+        <a href='javascript:void(0)' id='currentdate-edit'>[% 'entryform.date.edit' | ml %]</a></span></p>
+</div><!-- end #metainfo -->
+
+<div id='infobox'>[% infobox %]</div><!-- end #infobox -->
+
+<div id='compose-entry' class='pkg'>
+    <label class='left' for='subject'>[% 'entryform.subject' | ml %]</label>
+    <input type='text' class='text' id='subject' size='43' maxlength='100' disabled='disabled' value='[% entry.subject_raw | html %]' />
+    <ul id='entry-tabs'>
+        <li id='jrich'>[% dw.ml('entryform.htmlokay.rich4', opts='href="javascript:void(0);"') %]</li>
+        <li id='jplain' class='on'>[% dw.ml('entryform.plainswitch2', aopts='href="javascript:void(0);"') %]</li>
+    </ul>
+</div><!-- end #entry -->
+
+<div id='htmltools' class='pkg'>
+    <ul class='pkg'>
+        <li class='image'><a href='javascript:void(0);'>[% 'entryform.insert.image2' | ml %]</a></li>
+        <li class='media'><a href='javascript:void(0);'>[% 'fcklang.ljvideo2' | ml %]</a></li>
+    </ul>
+    <span id='linebreaks'><input type='checkbox' class='check' id='event_format' disabled='disabled' />
+        <label for='event_format'>[% 'entryform.format3' | ml %]</label></span>
+</div>
+
+<div id='draft-container' class='pkg'>
+    <textarea id='draft' rows='20' cols='50' wrap='soft' disabled='disabled'>[% entry.event_raw | html %]</textarea>
+</div><!-- end #draft-container -->
+
+<div id='options'>
+    <p class='pkg'><em>[% 'entryform.maintainer' | ml %]</em></p>
+    [% IF adult_content_enabled %]
+    <p class='pkg'>
+        <label for='prop_adult_content_maintainer' class='left options'>[% 'entryform.adultcontent.maintainer' | ml %]</label>
+        <select name='prop_adult_content_maintainer' id='prop_adult_content_maintainer' class='select'>
+            <option value=''>[% dw.ml('entryform.adultcontent.poster', setting=dw.ml('entryform.adultcontent.' _ (props.adult_content || 'default'))) %]</option>
+            <option value="none"[% ' selected' IF props.adult_content_maintainer == 'none' %]>[% 'entryform.adultcontent.none' | ml %]</option>
+            <option value="concepts"[% ' selected' IF props.adult_content_maintainer == 'concepts' %]>[% 'entryform.adultcontent.concepts' | ml %]</option>
+            <option value="explicit"[% ' selected' IF props.adult_content_maintainer == 'explicit' %]>[% 'entryform.adultcontent.explicit' | ml %]</option>
+        </select>
+    </p>
+    <p class='pkg'>
+        <label for='prop_adult_content_maintainer_reason' class='left options'>[% 'entryform.adultcontentreason.maintainer' | ml %]</label>
+        <input type='text' class='text' name='prop_adult_content_maintainer_reason' id='prop_adult_content_maintainer_reason' size='35' maxlength='255' value='[% props.adult_content_maintainer_reason | html %]' />
+    </p>
+    [% END %]
+    [% UNLESS props.opt_nocomments %]
+    <p class='pkg'>
+        <label for='prop_opt_nocomments_maintainer' class='left options'>[% 'entryform.comment.disable' | ml %]</label>
+        [% form.checkbox(name='prop_opt_nocomments_maintainer', id='prop_opt_nocomments_maintainer', class='check', value='1', selected=props.opt_nocomments_maintainer) %]
+    </p>
+    [% END %]
+</div><!-- end #options -->
+
+<div id='submitbar' class='pkg'>
+    [% form.submit(name='action:savemaintainer', value=dw.ml('entryform.save.maintainer')) %]&nbsp;
+    [% form.submit(name='action:delete', id='js-manager-delete-button', value=dw.ml('entryform.delete'), onclick="return confirm(" _ delete_confirm _ ")") %]&nbsp;
+    [% form.submit(name='action:deletespam', id='js-manager-deletespam-button', value=dw.ml('entryform.deletespam'), onclick="return confirm(" _ deletespam_confirm _ ")") %]
+</div><!-- end #submitbar -->
+
+</div><!-- end #entry-form-wrapper -->
 </form>
+</div>
+</td></tr></table>
