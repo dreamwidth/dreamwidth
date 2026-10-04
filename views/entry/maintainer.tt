@@ -17,9 +17,8 @@
 <div id='metainfo'>
     <p class='pkg'><label class='left'>[% '.poster' | ml %]</label>
         <span id='poster' class='float-left'>[% entry.poster.ljuser_display %] [% '.incommunity' | ml %] [% journal.ljuser_display %]</span></p>
-    <p class='pkg'><label for='modifydate' class='left'>[% 'entryform.date' | ml %]</label>
-        <span id='currentdate' class='float-left' style='display: inline;'><span id='currentdate-date'>[% eventtime | html %]</span>
-        <a href='javascript:void(0)' id='currentdate-edit'>[% 'entryform.date.edit' | ml %]</a></span></p>
+    <p class='pkg'><label class='left'>[% 'entryform.date' | ml %]</label>
+        <span id='currentdate' class='float-left' style='display: inline;'>[% eventtime | html %]</span></p>
 </div><!-- end #metainfo -->
 
 <div id='infobox'>[% infobox %]</div><!-- end #infobox -->
@@ -27,22 +26,11 @@
 <div id='compose-entry' class='pkg'>
     <label class='left' for='subject'>[% 'entryform.subject' | ml %]</label>
     <input type='text' class='text' id='subject' size='43' maxlength='100' disabled='disabled' value='[% entry.subject_raw | html %]' />
-    <ul id='entry-tabs'>
-        <li id='jrich'>[% dw.ml('entryform.htmlokay.rich4', opts='href="javascript:void(0);"') %]</li>
-        <li id='jplain' class='on'>[% dw.ml('entryform.plainswitch2', aopts='href="javascript:void(0);"') %]</li>
-    </ul>
 </div><!-- end #entry -->
 
-<div id='htmltools' class='pkg'>
-    <ul class='pkg'>
-        <li class='image'><a href='javascript:void(0);'>[% 'entryform.insert.image2' | ml %]</a></li>
-        <li class='media'><a href='javascript:void(0);'>[% 'fcklang.ljvideo2' | ml %]</a></li>
-    </ul>
-    <span id='linebreaks'><input type='checkbox' class='check' id='event_format' disabled='disabled' />
-        <label for='event_format'>[% 'entryform.format3' | ml %]</label></span>
-</div>
-
-<div id='draft-container' class='pkg'>
+[%# The read-only body keeps the bordered box, but without the editor's
+    toolbar above it that box needs its own top edge. %]
+<div id='draft-container' class='pkg' style='border-top: 1px solid #ccc;'>
     <textarea id='draft' rows='20' cols='50' wrap='soft' disabled='disabled'>[% entry.event_raw | html %]</textarea>
 </div><!-- end #draft-container -->
 
