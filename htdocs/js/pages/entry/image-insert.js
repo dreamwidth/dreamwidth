@@ -20,7 +20,8 @@
 
         // Open from JS so the first call also initialises Foundation's reveal
         // handlers; start each visit with empty fields.
-        $(open).on("click", function () {
+        $(open).on("click", function (event) {
+            event.preventDefault();
             url.value = "";
             alt.value = "";
             $modal.foundation("reveal", "open");

@@ -416,7 +416,9 @@
     border-bottom: none;
     text-align: right;
 
-    & > * {
+    // :not([hidden]) so a hidden toolbar item (e.g. the plain-editor-only
+    // Insert Image trigger) is not forced back into view.
+    & > *:not([hidden]) {
         display: inline-block;
         margin-left: 1.25rem;
     }
@@ -455,6 +457,20 @@
         .button {
             width: auto;
             margin: 0 0.5rem 0 0;
+        }
+    }
+
+    // A normal-sized close, scoped to this dialog. box-shadow:none drops the
+    // default button's inset highlight, which showed as a bar along its top.
+    .close-reveal-modal {
+        font-size: rem-calc(24);
+        font-weight: normal;
+        color: $monsoon;
+        box-shadow: none;
+
+        &:hover,
+        &:focus {
+            color: $primary-color;
         }
     }
 }

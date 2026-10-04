@@ -36,7 +36,10 @@ function lineReader(stream, child) {
         page.on('pageerror', error => errors.push(error.message));
         page.on('requestfailed', request => failures.push(request.url()));
         page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
-        const dialogShown = () => page.waitForFunction(() => { const m = document.querySelector('#js-image-insert'); if (!m || !m.classList.contains('open') || getComputedStyle(m).display === 'none') return false; const r = m.getBoundingClientRect(); return r.top >= 0 && r.height > 0; });
+        // Ready once open, positioned, and the first field is focused (the
+        // modal's open animation and focus-on-reveal have finished), so typing
+        // is not interrupted by a late re-focus.
+        const dialogShown = () => page.waitForFunction(() => { const m = document.querySelector('#js-image-insert'); if (!m || !m.classList.contains('open') || getComputedStyle(m).display === 'none') return false; const r = m.getBoundingClientRect(); return r.top >= 0 && r.height > 0 && document.activeElement === document.getElementById('entry-image-url'); });
         const dialogClosed = () => page.waitForFunction(() => { const m = document.querySelector('#js-image-insert'); return !m || getComputedStyle(m).display === 'none'; });
         const openDialog = async () => { await page.click('[data-image-insert-open]'); await dialogShown(); };
         await page.goto('http://127.0.0.1:8080/mobile/login',{waitUntil:'networkidle0'});
@@ -58,7 +61,7 @@ function lineReader(stream, child) {
         const value = await insert(`/entry/${data.user}/${data.id}/edit`,'markdown0','/relative.png','');
         assert.equal(value,'left <img src="/relative.png">');
         await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); await page.$eval('#entry-body',e=>{e.value='body';e.setSelectionRange(4,4)}); await openDialog(); await page.type('#entry-image-url','/img/nouserpic.png?x=1&y=2'); await page.type('#entry-image-alt','a"&'); await page.focus('#entry-image-alt'); await page.keyboard.press('Enter'); await dialogClosed(); assert.match(await page.$eval('#entry-body',e=>e.value),/nouserpic\.png\?x=1&amp;y=2.*a&quot;&amp;/);
-        await page.select('#editor','rte0'); await page.waitForFunction(()=>window.FCKeditorAPI && FCKeditorAPI.GetInstance('entry-body')?.Status === 2); assert.equal(await page.$eval('[data-image-insert-open]',e=>e.hidden),true);
+        await page.select('#editor','rte0'); await page.waitForFunction(()=>window.FCKeditorAPI && FCKeditorAPI.GetInstance('entry-body')?.Status === 2); assert.equal(await page.$eval('[data-image-insert-open]',e=>getComputedStyle(e).display==='none'),true,'trigger not shown while the RTE is active');
         for (const viewport of [{width:1280,height:800},{width:390,height:844}]) {
             await page.setViewport(viewport); await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); await openDialog();
             const visible = await page.$$eval('#entry-image-url,#entry-image-alt,[data-image-insert-confirm],[data-image-insert-cancel]', (els, width, height) => els.every(e => { const r=e.getBoundingClientRect(); return r.left >= 0 && r.right <= width && r.top >= 0 && r.bottom <= height; }), viewport.width, viewport.height);
