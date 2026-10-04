@@ -153,6 +153,11 @@ postFormInitData.strings = {
                 -%]
                 [%- END -%]
 
+                [%- dw.need_res( { group => "foundation" } "stc/css/components/foundation-icons.css" ) -%]
+                <a class="fi-icon--decorative" href="#" role="button" data-image-insert-open>
+                    <span class="fi-icon fi-photo" aria-hidden="true"></span> [% dw.ml('.image.open') %]
+                </a>
+
                 <span id="js-entry-settings">
                 [%- INCLUDE "components/icon-link-decorative.tt"
                         link = {
@@ -227,7 +232,6 @@ postFormInitData.strings = {
 
                     placeholder = dw.ml(".event.placeholder")
                 ) -%]
-                <button type="button" class="secondary" data-image-insert-open>[% dw.ml('.image.open') %]</button>
                 [%- WRAPPER components/modal.tt id="js-image-insert" class="small" -%]
                 <h2>[% dw.ml('.image.open') %]</h2>
                 <div class="row"><div class="columns">
