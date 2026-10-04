@@ -653,12 +653,16 @@ sub _render_maintainer_form {
             LJ::Lang::month_long_ml($mon) . ' ' . ( $d + 0 ) . ', ' . ( $y + 0 ) . ", $h:$min";
     }
 
+    # the legacy editor stylesheet lays out the read-only entry context
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
+
     return DW::Template->render_template(
         'entry/maintainer.tt',
         {
-            entry                 => $entry,
-            journal               => $journal,
-            eventtime             => $eventtime,
+            entry     => $entry,
+            journal   => $journal,
+            eventtime => $eventtime,
+            infobox   => LJ::Hooks::run_hook( 'entryforminfo', $journal->user, $remote ),
             adult_content_enabled => LJ::is_enabled('adult_content'),
             remote                => $remote,
             action                => $opts{action} // LJ::create_url( undef, keep_args => 1 ),
