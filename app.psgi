@@ -281,13 +281,10 @@ builder {
     }
 
     # A fixed set of individual root-level files (plus the FCK rich-text-editor
-    # assets under rte/) that the deleted BML engine fallback used to serve from
-    # any htdocs overlay, as a side effect of serving every plain file under
-    # htdocs. Listed explicitly, not restored as a blanket rule: the old
-    # fallback also exposed htdocs/inc/account-codes, htdocs/doc/.placeholder,
-    # htdocs/preview/index.html, and raw .scss sources, none of which should be
-    # reachable. Path-only matching (not Host-based), so this also covers
-    # /favicon.ico on journal subdomains, which relied on the same fallback.
+    # assets under rte/), served from any htdocs overlay. Deliberately a list
+    # rather than every plain file under htdocs, which would expose files such
+    # as htdocs/inc/account-codes and raw .scss sources. Path-only matching (not
+    # Host-based), so this also covers /favicon.ico on journal subdomains.
     #
     # /robots.txt is the one exception: on a journal host (dw.journal_user set
     # by SubdomainFunction, which runs before this) it must fall through to

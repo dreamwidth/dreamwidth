@@ -2,9 +2,9 @@
 #
 # t/plack-no-bml-fallback.t
 #
-# Locks the request-dispatch fallback chain (DW::Routing -> journal routing ->
-# DW::BML resolve_path/render -> 404) that app.psgi's _handle_request builds
-# today, so E3's engine deletion can prove it preserved every branch.
+# Request dispatch in app.psgi's _handle_request: DW::Routing, then journal
+# routing, then the router's 404 page. Covers the 404 fallback, that _config.bml
+# files are never served, and that a .bml suffix reaches the native handler.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -25,7 +25,7 @@ use URI;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-plan skip_all => 'BML fallback characterization requires a development server'
+plan skip_all => 'dispatch fallback tests require a development server'
     unless $LJ::IS_DEV_SERVER;
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -52,24 +52,14 @@ test_psgi $app, sub {
             qr/Page not found/,
             'body is the routed internal 404 page (app.psgi\'s _render_error_document)'
         );
-        unlike(
-            $res->content,
-            qr/^Not Found$/,
-            'body is not DW::BML::render\'s bare 404 fallback body'
-        );
     };
 
     subtest '_config.bml is never served from any overlay directory' => sub {
 
-        # htdocs/_config.bml and ext/dw-nonfree/htdocs/_config-local.bml are
-        # both reachable through LJ::get_all_directories('htdocs')'s overlay
-        # search, at the URLs below (the overlay extends the search path, not
-        # the URL namespace -- there is no literal /ext/ URL prefix). Asserted
-        # as "not 200 and no leaked directive" rather than the current literal
-        # 403, so this holds whether the request is rejected by DW::BML::
-        # render's _config check (today) or simply falls through to the
-        # router's 404 once the engine is gone (after E3) -- either way, the
-        # file's contents must never reach the response.
+        # htdocs/_config.bml and ext/dw-nonfree/htdocs/_config-local.bml sit in
+        # the htdocs overlay directories at the URLs below (the overlay extends
+        # the search path, not the URL namespace). Their directives must never
+        # reach a response.
         for my $path (qw(/_config.bml /_config-local.bml)) {
             my $res = $cb->( GET $path );
             isnt( $res->code, 200, "$path is never served with a 200" );

@@ -526,7 +526,7 @@ sub current_uniq {
     my $val = DW::Cache->request->get( 'uniqcookie', 'current_uniq' );
     return $val if $val;
 
-    # otherwise, legacy place is in $r->notes
+    # otherwise, a uniq set earlier in this request
     return unless LJ::is_web_context();
 
     my $r = DW::Request->get;
