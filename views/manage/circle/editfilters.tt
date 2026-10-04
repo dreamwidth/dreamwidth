@@ -11,7 +11,7 @@
 [%- CALL dw.need_res('js/access-filters.js') -%]
 
 [% IF saved %]
-    <h2>[% '.saved.header' | ml %]</h2>
+    <h1>[% '.saved.header' | ml %]</h1>
     <p>[% '.saved.text' | ml %]</p>
     <ul>
         <li><a href="[% site.root %]/entry/new">[% '.saved.action.post' | ml %]</a></li>
@@ -19,7 +19,8 @@
     </ul>
 [% ELSE %]
     <div class="highlight-box">[% '.subfilters' | ml(aopts = "href='" _ site.root _ "/manage/subscriptions/filters'") %]</div>
-    [% authas_form %]
+    [%# Legacy inline switcher (hidden when there are no other journals to work as). %]
+    <p><form method="get" action="[% site.root %]/manage/circle/editfilters">[% authas_html %]</form></p>
     [% IF u.is_community %]
         <p>[% '.comm.nofilters' | ml %]</p>
     [% ELSE %]
@@ -75,7 +76,7 @@
                 [% INCLUDE button action='rename' label='.btn.ge.ren' %]
             </td><td></td><td></td><td></td></tr>
             </table>
-            <h2>[% '.done.header' | ml %]</h2>
+            <h1>[% '.done.header' | ml %]</h1>
             <p>[% '.done.text' | ml %]</p>
             [% form.submit(value = dw.ml('.done.btn')) %]
         </form>
