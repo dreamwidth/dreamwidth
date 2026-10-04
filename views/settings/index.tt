@@ -1,10 +1,8 @@
-[%# Native settings hub. Legacy form names and settings classes are intentionally retained. %]
+[%# Native settings hub. Legacy form names and settings classes are intentionally retained.
+   The page keeps the legacy (non-Foundation) chrome; resources are declared by the
+   controller's _resource_setup under the jquery resource group. %]
 [%- sections.title = title -%]
 [%- sections.windowtitle = windowtitle -%]
-[%# Settings uses Foundation as its page resource group; controller-provided legacy
-   resources remain explicitly in their compatible groups. %]
-[%- CALL dw.active_resource_group( "foundation" ) -%]
-[%- dw.need_res( { group => "foundation" }, "stc/tabs.css", "stc/settings.css", "js/settings.js" ) -%]
 <div id='settings_page'>
 [% IF u %]
     <div id='authas_select'>
@@ -14,6 +12,9 @@
         </form>
     </div>
 [% END %]
+
+[% IF community_linkbar %]<p class='intro'>[% community_linkbar %]</p>[% END %]
+[% IF intro %]<p class='intro'>[% intro %]</p>[% END %]
 
 [% FOREACH message IN messages %]<div class='success'>[% message %]</div>[% END %]
 [% FOREACH error IN errors %]<div class='error'>[% error %]</div>[% END %]
@@ -34,8 +35,6 @@
     [% END %]
     </ul>
     <div id='settings_nav_title' class='tab-header'><p>[% category_data.desc %]</p></div>
-    [% IF community_linkbar %]<p class='intro'>[% community_linkbar %]</p>[% END %]
-    [% IF intro %]<p class='intro'>[% intro %]</p>[% END %]
 
     [% IF notification %]
         [% IF delete_sub %]
@@ -67,11 +66,11 @@
             [% END %]
                 <table summary=''>
                 [% FOREACH row IN rows %]
-                    <tr id='[% row.id %]'>
-                        [% IF row.label %]<th class='[% category %]_label'>[% row.label %]</th>[% END %]
-                        <td class='[% category %]_option'>[% row.option %]</td>
-                        <td class='[% category %]_actionlink'>[% row.actionlink %]</td>
-                        <td class='help'>[% row.helpicon %]</td>
+                    <tr class='[% row.row_class %]' id='[% row.id %]'>
+                        [% IF row.label %]<th class='[% category %]_label[% ' last' IF row.last %]'>[% row.label %]</th>[% END %]
+                        <td class='[% category %]_option[% ' last' IF row.last %]'>[% row.option OR '&nbsp;' %]</td>
+                        <td class='[% category %]_actionlink[% ' last' IF row.last %]'>[% row.actionlink OR '&nbsp;' %]</td>
+                        <td class='help[% ' last' IF row.last %]'>[% row.helpicon OR '&nbsp;' %]</td>
                     </tr>
                 [% END %]
                 </table>
