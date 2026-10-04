@@ -37,7 +37,7 @@ with_fake_memcache {
         [ $adult,   'concepts', 'concepts', 'concepts' ],
         [ $unknown, 'none',     'explicit', 'explicit' ],
         [ $unknown, 'none',     'concepts', 'concepts' ],
-        [ undef,    '',         'explicit', 'explicit' ],
+        [ undef,    '',         'explicit', 'explicit_login' ],
         [ undef,    '',         'concepts', 'concepts' ],
         [ $minor,   'concepts', 'none',     undef ],
         [ undef,    '',         'none',     undef ],

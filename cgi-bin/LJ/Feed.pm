@@ -211,11 +211,23 @@ ENTRY:
         my $entry_url = $entry_obj->url;
         my $readmore  = qq{<b>(<a href="$entry_url">Read more ...</a>)</b>};
 
+        # Explicit content requires an account, so anonymous feed readers get a
+        # stub linking to the entry instead of the body. Concepts entries are
+        # left as they are.
+        my $explicit_for_anon =
+               !$remote
+            && LJ::is_enabled('adult_content')
+            && ( $entry_obj->adult_content_calculated || $u->adult_content_calculated ) eq
+            'explicit';
+
         # empty string so we don't waste time cleaning an entry that won't be used
-        my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $logtext->{$itemid}->[1];
+        my $event =
+              $explicit_for_anon ? qq{<b>(<a href="$entry_url">Log in to read this entry.</a>)</b>}
+            : $u->{'opt_synlevel'} eq 'title' ? ''
+            :                                   $logtext->{$itemid}->[1];
 
         # clean the event, if non-empty
-        if ($event) {
+        if ( $event && !$explicit_for_anon ) {
 
             # users without 'full_rss' get their logtext bodies truncated
             # do this now so that the html cleaner will hopefully fix html we break
@@ -269,7 +281,7 @@ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: 
         # include comment count image at bottom of event (for readers
         # that don't understand the commentcount)
         $event .= "<br /><br />" . $entry_obj->comment_imgtag . " comments"
-            unless $opts->{'apilinks'} || $r->get_args->{no_comment_count};
+            unless $opts->{'apilinks'} || $r->get_args->{no_comment_count} || $explicit_for_anon;
 
         my $mood;
         if ( $logprops{$itemid}->{'current_mood'} ) {

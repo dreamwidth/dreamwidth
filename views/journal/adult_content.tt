@@ -39,6 +39,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
         "no"        = ".action.age.no"
         "message"   = ".message.explicit.blocked"
     }
+    "explicit_login" = {
+        "title"     = ".title.18.login"
+        "no"        = ".action.age.no"
+        "message"   = ".message.explicit.login"
+    }
 } -%]
 [%- strings = all_strings.$type  -%]
 
@@ -56,7 +61,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div>
 </div></div>
 
-[%- IF form_url -%]
+[%- IF type == "explicit_login" -%]
+<div class="row"><div class="columns">
+    [%- INCLUDE components/login.tt returnto = returnto -%]
+</div></div>
+<div class="row"><div class="columns text-center">
+    <a href='[%- site.root -%]' class="secondary button">[%- strings.no | ml( sitename => site.nameshort ) -%]</a>
+</div></div>
+[%- ELSIF form_url -%]
 <div class="row"><div class="columns">
     <form method="POST" action="[%- form_url -%]">
     [%- dw.form_auth -%]

@@ -35,6 +35,12 @@
 
 .message.explicit.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
 
+.message.explicit.login.byjournal=You're about to view content that [[journal]] marked as <strong>inappropriate for anyone under the age of 18</strong>. You must be logged in to a Dreamwidth account to view this.
+
+.message.explicit.login.byposter=You're about to view content that [[poster]] marked as <strong>inappropriate for anyone under the age of 18</strong>. You must be logged in to a Dreamwidth account to view this.
+
+.message.explicit.login.bycommunity=You're about to view content that community administrators on [[journal]] have marked as <strong>inappropriate for anyone under the age of 18</strong>. You must be logged in to a Dreamwidth account to view this.
+
 .message.explicit.byjournal.reason=[[journal]] provided the following reason for this entry being marked "suitable for 18+" : <strong>[[reason]]</strong>.
 
 .message.explicit.byposter=You're about to view content that [[poster]] marked as <strong>inappropriate for anyone under the age of 18</strong>. To continue, you must confirm that you're at least 18 years of age.
@@ -52,5 +58,7 @@
 .title.18=Discretion Advised: 18+ Content
 
 .title.18.blocked=Adult Content: Restricted to 18+
+
+.title.18.login=Adult Content: Log In to View
 
 .title.nsfw=Discretion Advised

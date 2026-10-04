@@ -18,6 +18,8 @@ package DW::Logic::AdultContent;
 
 use strict;
 
+use DW::Request;
+
 # Returns the interstitial required before exposing a journal or entry body.
 sub interstitial_type {
     my ( $class, %opts ) = @_;
@@ -36,11 +38,19 @@ sub interstitial_type {
         || $journal->adult_content_calculated;
     return if $level eq 'none';
 
+    # Logged-out decisions read only the flag and the concepts cookie: explicit
+    # needs an account, concepts needs a confirmation.
+    unless ($remote) {
+        return 'explicit_login' if $level eq 'explicit';
+        return if $class->concepts_cookie_confirmed;
+        return 'concepts';
+    }
+
     # A confirmation is a viewing preference, never proof that a minor is eligible.
-    return 'explicit_blocked' if $level eq 'explicit' && $remote && $remote->is_minor;
+    return 'explicit_blocked' if $level eq 'explicit' && $remote->is_minor;
     return if $class->user_confirmed_page( %opts, adult_content => $level );
 
-    my $hide = $remote ? $remote->hide_adult_content : 'concepts';
+    my $hide = $remote->hide_adult_content;
     return 'explicit' if $level eq 'explicit' && $hide ne 'none';
     return 'concepts' if $level eq 'concepts' && $hide eq 'concepts';
     return;
@@ -239,9 +249,36 @@ sub interstitial_reason {
 }
 
 ################################################################################
+# Logged-out confirmation of discretion-advised ("concepts") content: a
+# site-wide viewing preference, not access, so the cookie is plain and unsigned.
+################################################################################
+
+our $CONCEPTS_COOKIE_NAME = 'adult_concepts_ok';
+our $CONCEPTS_COOKIE_TTL  = 60 * 30;
+
+sub concepts_cookie_confirmed {
+    my ($class) = @_;
+    my $r = DW::Request->get or return 0;
+    return $r->cookie($CONCEPTS_COOKIE_NAME) ? 1 : 0;
+}
+
+sub set_concepts_cookie {
+    my ($class) = @_;
+    my $r = DW::Request->get or return 0;
+    $r->add_cookie(
+        name    => $CONCEPTS_COOKIE_NAME,
+        value   => 1,
+        domain  => ".$LJ::DOMAIN",
+        path    => '/',
+        expires => time() + $CONCEPTS_COOKIE_TTL,
+    );
+    return 1;
+}
+
+################################################################################
 # These methods are for holding/retrieving data in memcache that states whether
-# a particular user has confirmed seeing an adult journal or entry.  The
-# structure of the hash in memcache is as follows:
+# a logged-in user has confirmed seeing an adult journal or entry. The structure
+# of the hash in memcache is as follows:
 #
 # {
 #     explicit => {
@@ -259,13 +296,7 @@ sub interstitial_reason {
 
 sub _memcache_key {
     my ( $class, $u ) = @_;
-
-    my $key = "confirmedadult:";
-
-    return [ $u->id, $key . $u->id ]
-        if LJ::isu($u);
-
-    return $key . LJ::UniqCookie->current_uniq;
+    return [ $u->id, "confirmedadult:" . $u->id ];
 }
 
 sub confirmed_pages {

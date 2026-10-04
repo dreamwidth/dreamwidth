@@ -12,6 +12,7 @@ use Plack::Test;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user temp_comm with_fake_memcache);
 use DW::Logic::AdultContent;
+use LJ::Feed;
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
@@ -83,17 +84,26 @@ with_fake_memcache {
             my $res = $cb->( GET "$url?$as_minor" );
             like( $res->content, qr/Restricted to 18\+/, 'alternate journal URL is also gated' );
         }
-        for my $viewer ( $unknown, undef ) {
-            my $as  = $viewer ? 'as=' . $viewer->user : 'as=nobody_exists';
-            my $res = $cb->( GET "$base/$eid.html?$as" );
-            like(
-                $res->content,
-                qr/Yes, I am at least 18 years old/,
-                'unknown age must self-attest'
-            );
-            unlike( $res->content, qr/JOURNAL_RENDERED/, 'unknown viewer has no entry body' );
-        }
-        my $res = $cb->( GET "$base/$eid.html?as=" . $owner->user );
+
+        # A logged-in viewer with no birthdate on file must still self-attest.
+        my $res = $cb->( GET "$base/$eid.html?as=" . $unknown->user );
+        like( $res->content, qr/Yes, I am at least 18 years old/, 'unknown age must self-attest' );
+        unlike( $res->content, qr/JOURNAL_RENDERED/, 'unknown viewer has no entry body' );
+
+        # A logged-out viewer gets the login gate: no confirm button, no self-
+        # attestation, no body.
+        $res = $cb->( GET "$base/$eid.html?as=nobody_exists" );
+        like( $res->content, qr/Log In to View/, 'logged-out explicit entry shows login gate' );
+        like( $res->content, qr/name=['"]password['"]/, 'login gate offers a login form' );
+        unlike( $res->content, qr/name="adult_check"/, 'login gate has no confirmation button' );
+        unlike(
+            $res->content,
+            qr/Yes, I am at least 18 years old/,
+            'login gate does not offer self-attestation'
+        );
+        unlike( $res->content, qr/JOURNAL_RENDERED/, 'logged-out explicit entry has no body' );
+
+        $res = $cb->( GET "$base/$eid.html?as=" . $owner->user );
         like( $res->content, qr/JOURNAL_RENDERED/, 'author exemption preserved' );
 
         $owner->set_prop( adult_content => 'explicit' );
@@ -103,6 +113,9 @@ with_fake_memcache {
             $res = $cb->( GET "$base$path?$as_minor" );
             like( $res->content, qr/Restricted to 18\+/, "journal restriction covers $path" );
         }
+        $res = $cb->( GET "$base/?as=nobody_exists" );
+        like( $res->content, qr/Log In to View/, 'logged-out explicit journal shows login gate' );
+        unlike( $res->content, qr/JOURNAL_RENDERED/, 'logged-out explicit journal has no body' );
         for my $path ( '/data/rss', '/data/atom' ) {
             $res = $cb->( GET "$base$path?$as_minor" );
             like( $res->content, qr/JOURNAL_RENDERED/, "$path remains outside interstitial gate" );
@@ -122,8 +135,8 @@ with_fake_memcache {
         $res = $cb->( GET "$rpc&as=" . $owner->user );
         like( $res->content, qr/INSIDE_MARKER/, 'author can expand own cut' );
 
-        for my $viewer ( $minor, $adult, $unknown, undef ) {
-            my $as      = $viewer ? 'as=' . $viewer->user : 'as=nobody_exists';
+        for my $viewer ( $minor, $adult, $unknown ) {
+            my $as      = 'as=' . $viewer->user;
             my $form    = $cb->( GET "http://localhost/login?$as" );
             my ($token) = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
             ok( $token, 'received signed CSRF token' );
@@ -136,7 +149,7 @@ with_fake_memcache {
                     ret          => "$base/$eid.html"
                 ]
             );
-            if ( $viewer && $viewer->equals($minor) ) {
+            if ( $viewer->equals($minor) ) {
                 is( $res->code, 403, 'minor cannot POST approval directly' );
                 ok(
                     !$logic->user_confirmed_page(
@@ -156,6 +169,31 @@ with_fake_memcache {
                 $res = $cb->( GET "$rpc&$as" );
                 like( $res->content, qr/INSIDE_MARKER/, 'confirmed viewer can expand cut' );
             }
+        }
+
+        # A logged-out confirm POST for explicit content records nothing and
+        # lands back on the login gate.
+        {
+            my $form = $cb->( GET "http://localhost/login?as=nobody_exists" );
+            my ($token) = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+            $res = $cb->(
+                POST "http://localhost/journal/adult_explicit?as=nobody_exists",
+                Content => [
+                    lj_form_auth => $token,
+                    journalid    => $owner->id,
+                    entryid      => $eid,
+                    ret          => "$base/$eid.html"
+                ]
+            );
+            is( $res->code, 303, 'logged-out explicit confirm redirects without recording' );
+            $res = $cb->( GET "$base/$eid.html?as=nobody_exists" );
+            like(
+                $res->content,
+                qr/Log In to View/,
+                'logged-out explicit entry still gated after confirm POST'
+            );
+            unlike( $res->content, qr/JOURNAL_RENDERED/,
+                'no entry body after logged-out confirm POST' );
         }
 
         # Even approvals created by an older deployment must not unblock a minor.
@@ -192,6 +230,37 @@ with_fake_memcache {
         $res = $cb->( GET "$base/$eid.html?$as_minor" );
         like( $res->content, qr/JOURNAL_RENDERED/, 'confirmed discretion entry renders' );
 
+        # Logged-out discretion: confirming sets a site-wide cookie that unlocks
+        # any concepts page; without it, the warning returns.
+        $res = $cb->( GET "$base/$eid.html?as=nobody_exists" );
+        like(
+            $res->content,
+            qr/Yes, I want to view this content/,
+            'logged-out concepts shows discretion warning'
+        );
+        unlike( $res->content, qr/JOURNAL_RENDERED/, 'discretion warning hides the body' );
+        my ($ctoken) = $res->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        $res = $cb->(
+            POST "http://localhost/journal/adult_concepts?as=nobody_exists",
+            Content => [
+                lj_form_auth => $ctoken,
+                journalid    => $owner->id,
+                entryid      => $eid,
+                ret          => "$base/$eid.html"
+            ]
+        );
+        is( $res->code, 303, 'logged-out discretion confirmation redirects' );
+        like( $res->header('Set-Cookie') || '',
+            qr/adult_concepts_ok=1/, 'discretion confirmation sets the viewing cookie' );
+        $res = $cb->( GET "$base/$eid.html?as=nobody_exists", Cookie => 'adult_concepts_ok=1' );
+        like( $res->content, qr/JOURNAL_RENDERED/, 'concepts cookie unlocks the page' );
+        $res = $cb->( GET "$base/$eid.html?as=nobody_exists" );
+        like(
+            $res->content,
+            qr/Yes, I want to view this content/,
+            'without the cookie the discretion warning returns'
+        );
+
         $res = $cb->(
             POST "http://localhost/journal/adult_explicit?as=" . $adult->user,
             Content => [ journalid => $owner->id, entryid => 99999, ret => $base ]
@@ -200,4 +269,19 @@ with_fake_memcache {
             qr/\Q$base\E/, 'confirmation still requires CSRF token' );
     };
 };
+
+# Feeds: explicit content is account-gated, so anonymous readers get a login
+# stub in place of the body; logged-in readers still receive the full entry.
+{
+    $entry->set_prop( adult_content => 'explicit' );
+    my $r_feed = DW::Request::Standard->new( HTTP::Request->new( GET => "$base/data/atom" ) );
+
+    my $opts = { pathextra => '/atom', saycharset => 'utf-8' };
+    my $anon = LJ::Feed::make_feed( $r_feed, $owner, undef, {%$opts} );
+    like( $anon, qr/Log in to read this entry/, 'anonymous feed stubs explicit entry' );
+    unlike( $anon, qr/OUTSIDE_MARKER/, 'anonymous feed omits explicit body' );
+
+    my $member = LJ::Feed::make_feed( $r_feed, $owner, $adult, {%$opts} );
+    like( $member, qr/OUTSIDE_MARKER/, 'logged-in reader still receives explicit body' );
+}
 done_testing;

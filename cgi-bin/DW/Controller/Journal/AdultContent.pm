@@ -40,6 +40,12 @@ DW::Routing->register_string(
     app      => 1,
     no_cache => 1
 );
+DW::Routing->register_string(
+    "/journal/adult_explicit_login",
+    \&adult_explicit_login_handler,
+    app      => 1,
+    no_cache => 1
+);
 
 sub _init_vars {
     my ( $type, $journal, $entry ) = @_;
@@ -68,6 +74,18 @@ sub _extract_from_request {
         $r->pnote('entry'), $r->pnote('user'), );
 }
 
+# Renders the explicit login gate: logged-out visitors must sign in to view
+# explicit content, so there is no confirmation form and nothing is recorded.
+sub _render_login {
+    my ( $returl, $journal, $entry ) = @_;
+
+    my $vars = _init_vars( 'explicit_login', $journal, $entry );
+    delete $vars->{form_url};
+    $vars->{returnto} = $returl;
+
+    return DW::Template->render_template( 'journal/adult_content.tt', $vars );
+}
+
 sub adult_concepts_handler {
     my ($opts) = @_;
 
@@ -86,13 +104,19 @@ sub adult_concepts_handler {
 
     # if we posted, then record we did so and let them view the entry
     if ( $r->did_post && $returl ) {
-        my $post = $r->post_args;
-        DW::Logic::AdultContent->set_confirmed_pages(
-            user          => $remote,
-            journalid     => $post->{journalid},
-            entryid       => $post->{entryid},
-            adult_content => $type
-        );
+        if ($remote) {
+            my $post = $r->post_args;
+            DW::Logic::AdultContent->set_confirmed_pages(
+                user          => $remote,
+                journalid     => $post->{journalid},
+                entryid       => $post->{entryid},
+                adult_content => $type
+            );
+        }
+        else {
+            # logged-out confirmation is a site-wide viewing preference
+            DW::Logic::AdultContent->set_concepts_cookie;
+        }
         return $r->redirect($returl);
     }
 
@@ -117,7 +141,11 @@ sub adult_explicit_handler {
     my ( $returl, $entry, $journal ) = _extract_from_request($r);
     my $type = "explicit";
 
-    if ( $remote && $remote->is_minor ) {
+    # Logged-out visitors can't confirm explicit content: record nothing and send
+    # them back to the page, which shows the login gate.
+    return $r->redirect( $returl || $LJ::SITEROOT ) unless $remote;
+
+    if ( $remote->is_minor ) {
         $r->status(403);
         return error_ml('error.nopermission');
     }
@@ -168,6 +196,26 @@ sub adult_explicit_blocked_handler {
     delete $vars->{form_url};
 
     return DW::Template->render_template( 'journal/adult_content.tt', $vars );
+}
+
+sub adult_explicit_login_handler {
+    my ($opts) = @_;
+
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $remote = $rv->{remote};
+
+    my ( $returl, $entry, $journal ) = _extract_from_request($r);
+
+    # Logged-in visitors never see the login gate; send them back to the page.
+    return $r->redirect( $returl || $LJ::SITEROOT ) if $remote;
+
+    # if we didn't provide a journal, then redirect away. We can't do anything here
+    return $r->redirect($LJ::SITEROOT) unless $journal;
+
+    return _render_login( $returl, $journal, $entry );
 }
 
 1;
