@@ -203,6 +203,37 @@
   }
 }
 
+// Folder list as a side navigation: no bullets, each folder a block link,
+// sub-folders (e.g. Circle Updates children) indented, current folder marked.
+#inbox_folders .folders {
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    display: block;
+    padding: 0.3rem 0.6rem;
+    text-decoration: none;
+    border-radius: $global-radius;
+
+    &:hover,
+    &:focus {
+      background-color: #f0f0f0;
+    }
+
+    &.selected {
+      background-color: #e4e4e4;
+      font-weight: bold;
+    }
+  }
+
+  ul ul a {
+    padding-left: 1.6rem;
+  }
+}
+
 #inbox_folders .links {
   margin-bottom: 1em;
 }
