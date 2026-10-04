@@ -74,12 +74,12 @@
                     </tr>
                 [% END %]
                 </table>
-            [% IF form_enabled %]
-                <div id='settings_save' class='action-bar'>[% form.submit( value = dw.ml('.btn.save') ) %]</div>
-                </form>
-            [% END %]
             </div>
         </div>
+        [%# The action bar renders on every tab -- an empty bar when the tab has
+            no form -- so the table always closes with the trailing header bar. %]
+        <div id='settings_save' class='action-bar'>[% IF form_enabled %][% form.submit( value = dw.ml('.btn.save') ) %][% ELSE %]&nbsp;[% END %]</div>
+        [% IF form_enabled %]</form>[% END %]
     [% END %]
 </div>
 </div>
