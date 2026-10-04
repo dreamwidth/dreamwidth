@@ -13,7 +13,11 @@ Copyright (c) 2026 by Dreamwidth Studios, LLC.
 %]
 [%- sections.title = '.title' | ml -%]
 
-[% authas_form %]
+[%# The whole picker sits in one full-width table cell, as on the old page, so
+    the intro and form inherit the cell's spacing. authas_html is the legacy
+    inline switcher (hidden when there are no other journals to work as). %]
+<table summary='' style="width: 100%;"><tr><td>
+<form action="[% site.root %]/editjournal" method="get">[% authas_html %]</form>
 
 <p>[% '.desc' | ml %]
 [% IF remote.can_use_mass_privacy %] [% '.massprivacy' | ml(aopts = "href='" _ site.root _ "/editprivacy'") %][% END %]</p>
@@ -75,3 +79,4 @@ Copyright (c) 2026 by Dreamwidth Studios, LLC.
 [% END %]
 </td></tr></table>
 [% END %]
+</td></tr></table>
