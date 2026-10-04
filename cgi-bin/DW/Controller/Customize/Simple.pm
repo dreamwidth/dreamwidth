@@ -43,6 +43,22 @@ sub _widget_html {
     return $widget->render(%$args);
 }
 
+# Reproduce the markup the old BML pages got from LJ::bad_input: the standard
+# "bad content" heading and intro, then the collected errors as bullets.
+sub _errors_html {
+    my ($errors) = @_;
+    return '' unless $errors && @$errors;
+
+    my $ret = '<h1>' . LJ::Lang::ml('Error') . '</h1>';
+    $ret .= '<p>' . LJ::Lang::ml('bml.badcontent.body') . "</p>\n<ul>\n";
+    foreach my $ei (@$errors) {
+        my $err = LJ::errobj($ei) or next;
+        $ret .= $err->as_bullets;
+    }
+    $ret .= "</ul>\n";
+    return $ret;
+}
+
 sub _legacy_redirect {
     my ( $r, $url ) = @_;
     $r->redirect($url);
@@ -101,8 +117,8 @@ sub index_handler {
     $vars->{theme_nav} = _widget_html( $theme_nav, \%theme_args, \$headextra, 'Customize' );
     $vars->{layout_chooser} =
         _widget_html( $layout_chooser, { headextra => \$headextra }, \$headextra, 'Customize' );
-    $vars->{errors}    = $errors;
-    $vars->{headextra} = $headextra;
+    $vars->{errors_html} = _errors_html($errors);
+    $vars->{headextra}   = $headextra;
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/customize.css' );
     LJ::need_res(qw(js/customize.js stc/select-list.css));
     return DW::Template->render_template( 'customize/index.tt', $vars );
@@ -143,8 +159,8 @@ sub options_handler {
     $vars->{layout_chooser} =
         _widget_html( $layout_chooser, { no_theme_chooser => 1, headextra => \$headextra },
         \$headextra, 'Customize' );
-    $vars->{errors}    = $errors;
-    $vars->{headextra} = $headextra;
+    $vars->{errors_html} = _errors_html($errors);
+    $vars->{headextra}   = $headextra;
     LJ::need_res(qw(stc/customize.css js/customize.js stc/select-list.css));
     return DW::Template->render_template( 'customize/options.tt', $vars );
 }
