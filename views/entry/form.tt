@@ -227,16 +227,24 @@ postFormInitData.strings = {
 
                     placeholder = dw.ml(".event.placeholder")
                 ) -%]
-                <div class="entry-image-insert" data-image-insert hidden>
+                <button type="button" class="secondary" data-image-insert-open>[% dw.ml('.image.open') %]</button>
+                [%- WRAPPER components/modal.tt id="js-image-insert" class="small" -%]
+                <h2>[% dw.ml('.image.open') %]</h2>
+                <div class="row"><div class="columns">
                     <label for="entry-image-url">[% dw.ml('.insertimage.url') %]</label>
                     <input id="entry-image-url" type="text" inputmode="url">
+                    <small class="image-insert-note">[% dw.ml('.insertimage.example') %]: http://www.example.com/some-picture.jpg</small>
+                </div></div>
+                <div class="row"><div class="columns">
                     <label for="entry-image-alt">[% dw.ml('.insertimage.alt.label') %]</label>
                     <input id="entry-image-alt" type="text">
-                    <small>[% dw.ml('.insertimage.alt.body') %] [% image_alt_faq %].</small>
-                    <button type="button" data-image-insert-confirm>[% dw.ml('.image.insert') %]</button>
-                    <button type="button" data-image-insert-cancel>[% dw.ml('.image.cancel') %]</button>
-                </div>
-                <button type="button" data-image-insert-open>[% dw.ml('.image.open') %]</button>
+                    <small class="image-insert-note">[% dw.ml('.insertimage.alt.body') %] [% image_alt_faq %].</small>
+                </div></div>
+                <div class="row"><div class="columns image-insert-actions">
+                    <button type="button" class="button" data-image-insert-confirm>[% dw.ml('.image.insert') %]</button>
+                    <button type="button" class="button secondary" data-image-insert-cancel>[% dw.ml('.image.cancel') %]</button>
+                </div></div>
+                [%- END -%]
                 <small id="draftstatus" type="text" disabled="disabled" name="draftstatus" role="status" aria-live="polite"></small>
                 [%- IF spellcheck.did -%]
                 <div id="spellcheck-results"><strong>[% 'entryform.spellchecked' | ml %]</strong><br />[% spellcheck.html %]</div>

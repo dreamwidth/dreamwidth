@@ -36,17 +36,20 @@ function lineReader(stream, child) {
         page.on('pageerror', error => errors.push(error.message));
         page.on('requestfailed', request => failures.push(request.url()));
         page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
+        const dialogShown = () => page.waitForFunction(() => { const m = document.querySelector('#js-image-insert'); if (!m || !m.classList.contains('open') || getComputedStyle(m).display === 'none') return false; const r = m.getBoundingClientRect(); return r.top >= 0 && r.height > 0; });
+        const dialogClosed = () => page.waitForFunction(() => { const m = document.querySelector('#js-image-insert'); return !m || getComputedStyle(m).display === 'none'; });
+        const openDialog = async () => { await page.click('[data-image-insert-open]'); await dialogShown(); };
         await page.goto('http://127.0.0.1:8080/mobile/login',{waitUntil:'networkidle0'});
         await page.type('[name=user]',data.user); await page.type('[name=password]',data.password);
         await Promise.all([page.waitForNavigation(),page.click('[type=submit]')]);
         const before = await state();
-        await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); const initialURL = page.url(); await page.click('[data-image-insert-open]'); await page.type('#entry-image-url','https://x.invalid/enter.png'); await page.keyboard.press('Enter'); await page.waitForFunction(()=>document.querySelector('[data-image-insert]').hidden); assert.match(await page.$eval('#entry-body',e=>e.value),/enter\.png/); assert.equal(page.url(),initialURL);
-        await page.click('[data-image-insert-open]'); await page.focus('[data-image-insert-cancel]'); await page.keyboard.press('Enter'); assert.equal(await page.$eval('[data-image-insert]',e=>e.hidden),true);
+        await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); const initialURL = page.url(); await openDialog(); await page.type('#entry-image-url','https://x.invalid/enter.png'); await page.keyboard.press('Enter'); await dialogClosed(); assert.match(await page.$eval('#entry-body',e=>e.value),/enter\.png/); assert.equal(page.url(),initialURL);
+        await openDialog(); await page.focus('[data-image-insert-cancel]'); await page.keyboard.press('Enter'); await dialogClosed();
         async function insert(path, editor, url, alt) {
             await page.goto('http://127.0.0.1:8080'+path,{waitUntil:'networkidle0'}); await page.select('#editor',editor);
             await page.$eval('#entry-body',e=>{e.value='left RIGHT';e.setSelectionRange(5,10)});
-            await page.click('[data-image-insert-open]'); await page.type('#entry-image-url',url); if(alt) await page.type('#entry-image-alt',alt);
-            await page.click('[data-image-insert-confirm]'); return page.$eval('#entry-body',e=>e.value);
+            await openDialog(); await page.type('#entry-image-url',url); if(alt) await page.type('#entry-image-alt',alt);
+            await page.click('[data-image-insert-confirm]'); await dialogClosed(); return page.$eval('#entry-body',e=>e.value);
         }
         for (const editor of ['html_casual1', 'html_raw0', 'markdown0']) {
             const value = await insert('/entry/new', editor, 'https://x.invalid/a.png', 'alt');
@@ -54,15 +57,15 @@ function lineReader(stream, child) {
         }
         const value = await insert(`/entry/${data.user}/${data.id}/edit`,'markdown0','/relative.png','');
         assert.equal(value,'left <img src="/relative.png">');
-        await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); await page.$eval('#entry-body',e=>{e.value='body';e.setSelectionRange(4,4)}); await page.click('[data-image-insert-open]'); await page.type('#entry-image-url','/img/nouserpic.png?x=1&y=2'); await page.type('#entry-image-alt','a"&'); await page.focus('#entry-image-alt'); await page.keyboard.press('Enter'); await page.waitForFunction(()=>document.querySelector('[data-image-insert]').hidden); assert.match(await page.$eval('#entry-body',e=>e.value),/nouserpic\.png\?x=1&amp;y=2.*a&quot;&amp;/);
+        await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); await page.$eval('#entry-body',e=>{e.value='body';e.setSelectionRange(4,4)}); await openDialog(); await page.type('#entry-image-url','/img/nouserpic.png?x=1&y=2'); await page.type('#entry-image-alt','a"&'); await page.focus('#entry-image-alt'); await page.keyboard.press('Enter'); await dialogClosed(); assert.match(await page.$eval('#entry-body',e=>e.value),/nouserpic\.png\?x=1&amp;y=2.*a&quot;&amp;/);
         await page.select('#editor','rte0'); await page.waitForFunction(()=>window.FCKeditorAPI && FCKeditorAPI.GetInstance('entry-body')?.Status === 2); assert.equal(await page.$eval('[data-image-insert-open]',e=>e.hidden),true);
         for (const viewport of [{width:1280,height:800},{width:390,height:844}]) {
-            await page.setViewport(viewport); await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); await page.click('[data-image-insert-open]');
+            await page.setViewport(viewport); await page.goto('http://127.0.0.1:8080/entry/new',{waitUntil:'networkidle0'}); await openDialog();
             const visible = await page.$$eval('#entry-image-url,#entry-image-alt,[data-image-insert-confirm],[data-image-insert-cancel]', (els, width, height) => els.every(e => { const r=e.getBoundingClientRect(); return r.left >= 0 && r.right <= width && r.top >= 0 && r.bottom <= height; }), viewport.width, viewport.height);
-            assert.equal(visible, true, `image panel controls fit ${viewport.width}px viewport`); await page.screenshot({path:`/tmp/native-image-${viewport.width}.png`,fullPage:true}); await page.click('[data-image-insert-cancel]');
+            assert.equal(visible, true, `image dialog controls fit ${viewport.width}px viewport`); await page.screenshot({path:`/tmp/native-image-${viewport.width}.png`,fullPage:true}); await page.click('[data-image-insert-cancel]'); await dialogClosed();
         }
-        await page.click('[data-image-insert-open]'); const unchanged=await page.$eval('#entry-body',e=>e.value); await page.click('[data-image-insert-cancel]');
-        assert.equal(await page.$eval('#entry-body',e=>e.value),unchanged); assert.equal(await page.$eval('#js-post-entry',e=>e.checkValidity()),true); assert.equal(await page.evaluate(()=>document.activeElement.id),'entry-body');
+        await openDialog(); const unchanged=await page.$eval('#entry-body',e=>e.value); await page.click('[data-image-insert-cancel]'); await dialogClosed();
+        assert.equal(await page.$eval('#entry-body',e=>e.value),unchanged); assert.equal(await page.$eval('#js-post-entry',e=>e.checkValidity()),true); assert.equal(await page.evaluate(()=>document.activeElement.hasAttribute('data-image-insert-open')),true);
         const after=await state(); assert.deepEqual(after,before); assert.deepEqual(errors,[]); assert.deepEqual(failures,[]);
         if(process.env.IMAGE_INSERT_INTENTIONAL_FAIL) throw Error('intentional image insertion cleanup');
         console.log('PASS native image new and edit');

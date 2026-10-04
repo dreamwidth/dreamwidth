@@ -433,3 +433,28 @@
         }
     }
 }
+
+/* Insert-image dialog (a Foundation reveal modal). */
+#js-image-insert {
+    h2 {
+        margin-top: 0;
+    }
+
+    // Help text under each field, tucked beneath the field's own margin.
+    .image-insert-note {
+        display: block;
+        margin: -0.75rem 0 1rem;
+        color: $monsoon;
+        font-style: italic;
+    }
+
+    // Insert and Cancel sit side by side, not stacked full-width.
+    .image-insert-actions {
+        margin-bottom: 0;
+
+        .button {
+            width: auto;
+            margin: 0 0.5rem 0 0;
+        }
+    }
+}
