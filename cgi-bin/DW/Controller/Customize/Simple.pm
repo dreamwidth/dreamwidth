@@ -65,12 +65,7 @@ sub _common_vars {
 sub index_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
-    my $r = $rv->{r};
-    local $LJ::ACTIVE_RES_GROUP = 'foundation';
-    LJ::need_res(
-        { group => 'foundation' },
-        qw(js/6alib/core.js js/6alib/dom.js js/6alib/httpreq.js js/livejournal.js js/customize.js)
-    );
+    my $r         = $rv->{r};
     my $u         = _prepare($rv);
     my $get       = $r->get_args;
     my $headextra = '';
@@ -109,20 +104,14 @@ sub index_handler {
     $vars->{errors}    = $errors;
     $vars->{headextra} = $headextra;
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/customize.css' );
-    LJ::need_res( { group    => 'foundation' },          'js/customize.js' );
-    LJ::need_res('stc/select-list.css');
+    LJ::need_res(qw(js/customize.js stc/select-list.css));
     return DW::Template->render_template( 'customize/index.tt', $vars );
 }
 
 sub options_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
-    my $r = $rv->{r};
-    local $LJ::ACTIVE_RES_GROUP = 'foundation';
-    LJ::need_res(
-        { group => 'foundation' },
-        qw(js/6alib/core.js js/6alib/dom.js js/6alib/httpreq.js js/livejournal.js js/customize.js)
-    );
+    my $r         = $rv->{r};
     my $u         = _prepare($rv);
     my $group     = $r->get_args->{group} || 'presentation';
     my $headextra = '';
@@ -156,8 +145,7 @@ sub options_handler {
         \$headextra, 'Customize' );
     $vars->{errors}    = $errors;
     $vars->{headextra} = $headextra;
-    LJ::need_res( { group => 'foundation' }, 'js/customize.js' );
-    LJ::need_res(qw(stc/customize.css stc/select-list.css));
+    LJ::need_res(qw(stc/customize.css js/customize.js stc/select-list.css));
     return DW::Template->render_template( 'customize/options.tt', $vars );
 }
 
