@@ -645,11 +645,20 @@ sub edit_handler {
 sub _render_maintainer_form {
     my ( $entry, $journal, $remote, %opts ) = @_;
 
+    my $eventtime;
+    if ( my ( $y, $mon, $d, $h, $min ) =
+        $entry->eventtime_mysql =~ /^(\d+)-(\d+)-(\d+) (\d+):(\d+)/ )
+    {
+        $eventtime =
+            LJ::Lang::month_long_ml($mon) . ' ' . ( $d + 0 ) . ', ' . ( $y + 0 ) . ", $h:$min";
+    }
+
     return DW::Template->render_template(
         'entry/maintainer.tt',
         {
             entry                 => $entry,
             journal               => $journal,
+            eventtime             => $eventtime,
             adult_content_enabled => LJ::is_enabled('adult_content'),
             remote                => $remote,
             action                => $opts{action} // LJ::create_url( undef, keep_args => 1 ),
@@ -662,7 +671,7 @@ sub _render_maintainer_form {
                 opt_nocomments            => $entry->prop('opt_nocomments')            || 0,
             },
         },
-        { ml_scope => '/entry/form.tt' }
+        { ml_scope => '/entry/maintainer.tt' }
     );
 }
 

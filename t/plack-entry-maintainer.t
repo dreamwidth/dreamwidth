@@ -288,7 +288,7 @@ test_psgi $app, sub {
     my $native_get = $cb->( GET $native_url );
     is( $native_get->code, 200, 'authorized manager receives native maintainer form' );
     like( $native_get->content, qr/entry-maintainer-form/, 'native form is property-only surface' );
-    is( scalar( () = $native_get->content =~ m{<h1(?:\s[^>]*)?>Administrator Override</h1>}g ),
+    is( scalar( () = $native_get->content =~ m{<h1(?:\s[^>]*)?>Edit Entry</h1>}g ),
         1, 'native maintainer form has one accessible page heading' );
     like(
         $native_get->content,
@@ -297,7 +297,7 @@ test_psgi $app, sub {
     );
     like(
         $native_get->content,
-        qr/<input(?=[^>]*name="prop_opt_nocomments_maintainer")(?=[^>]*checked="1")[^>]*>/,
+qr/<input(?=[^>]*name="prop_opt_nocomments_maintainer")(?=[^>]*checked=['"]checked['"])[^>]*>/,
         'native form checks an existing nondefault comments override'
     );
     like(
@@ -370,7 +370,7 @@ test_psgi $app, sub {
     );
     like(
         $native_reload->content,
-        qr/<input(?=[^>]*name="prop_opt_nocomments_maintainer")(?=[^>]*checked="1")[^>]*>/,
+qr/<input(?=[^>]*name="prop_opt_nocomments_maintainer")(?=[^>]*checked=['"]checked['"])[^>]*>/,
         'fresh native GET retains checked comments override'
     );
     LJ::set_logprop( $comm, $other_entry->jitemid, { opt_nocomments => 1 } );
@@ -556,6 +556,45 @@ subtest 'picker resolves its relocated language keys with a request getter' => s
         );
         unlike( $res->content, qr/editjournal\.bml\./,
             'picker never asks the getter for a retired BML page key' );
+    };
+};
+
+subtest 'maintainer comments-disable box defaults unticked and saves unticked' => sub {
+
+    # Regression: the override checkbox must not be pre-checked when
+    # opt_nocomments_maintainer is unset, and a save that leaves it unticked
+    # must not disable comments. (A prior form.checkbox( checked => ... ) call
+    # rendered checked="0", which a browser treats as ticked.)
+    my $comm = temp_comm();
+    LJ::set_rel( $comm, $owner, 'A' );
+    my $entry = $outsider->t_post_fake_comm_entry( $comm, body => 'Regression body' );
+    LJ::set_logprop( $comm, $entry->jitemid, { opt_nocomments_maintainer => 0 } );
+    LJ::Entry::reset_singletons();
+
+    my $url = '/entry/' . $comm->user . '/' . $entry->ditemid . '/edit';
+    test_psgi $app, sub {
+        my $send = shift;
+        my $cb  = sub { my $req = shift; $req->header( Cookie => $cookie ); return $send->($req); };
+        my $get = $cb->( GET $url );
+        is( $get->code, 200, 'maintainer form renders' );
+        unlike(
+            $get->content,
+            qr/<input(?=[^>]*name="prop_opt_nocomments_maintainer")[^>]*\bchecked=/,
+            'comments-disable box is not pre-ticked when the maintainer prop is unset'
+        );
+        my ($form) = grep { $_->find_input('action:savemaintainer') }
+            HTML::Form->parse( $get->content, 'http://localhost' . $url );
+        ok( $form, 'maintainer save form parses' );
+        $form->action( 'http://localhost' . $url );
+        my $save = $cb->( $form->click('action:savemaintainer') );
+        is( $save->code, 302, 'save without ticking redirects on success' );
+        LJ::Entry::reset_singletons();
+        is(
+            LJ::Entry->new( $comm, ditemid => $entry->ditemid )->prop('opt_nocomments_maintainer')
+                || 0,
+            0,
+            'saving with the box unticked leaves comments enabled'
+        );
     };
 };
 
