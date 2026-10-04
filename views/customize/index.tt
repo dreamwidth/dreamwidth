@@ -13,7 +13,6 @@ A copy of that license is included in the repository LICENSE file.
 %]
 [%- sections.title = title -%]
 [%- sections.head = headextra -%]
-[%- CALL dw.active_resource_group( 'foundation' ) -%]
 
 [% errors_html = errors.size ? '<div class="alert-box alert">' _ errors.join('<br />') _ '</div>' : '' %]
 [% errors_html %]
