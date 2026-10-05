@@ -155,4 +155,18 @@ subtest 'F2: .bml suffixes still resolve natively after the retired pages are de
     };
 };
 
+subtest 'a stale old-editor tab still autosaves its draft' => sub {
+    test_psgi $app, sub {
+        my $send = shift;
+        my $req  = POST '/tools/endpoints/draft', [ saveDraft => 'Unsaved stale-tab text' ];
+        $req->header( Cookie => $owner_cookie );
+        is( $send->($req)->code, 200, 'the old autosave URL answers' );
+    };
+    is(
+        LJ::load_userid( $owner->userid )->draft_text,
+        'Unsaved stale-tab text',
+        'the draft text is saved'
+    );
+};
+
 done_testing;

@@ -71,6 +71,13 @@ DW::Routing->register_string(
 
 DW::Routing->register_string( '/__rpc_draft', \&draft_rpc_handler, app => 1, format => 'json' );
 
+# Old-editor tabs left open across the cutover still autosave here.
+DW::Routing->register_string(
+    '/tools/endpoints/draft', \&draft_rpc_handler,
+    app    => 1,
+    format => 'json'
+);
+
 DW::Routing->register_string( '/entry/options',      \&options_handler,     app => 1 );
 DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
 DW::Routing->register_string(
