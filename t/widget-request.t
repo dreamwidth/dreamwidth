@@ -182,11 +182,10 @@ sub request {
     local *LJ::get_remote      = sub { $remote };
     local *LJ::is_web_context  = sub { 1 };
     local *LJ::get_authas_user = sub { return $_[0] };
-    local $BMLCodeBlock::GET{authas} = 'stale_community';
     request( GET 'http://localhost/example?authas=current_community' );
     is( LJ::get_effective_remote(), 'current_community', 'authas comes from current request' );
     request( GET 'http://localhost/example' );
-    is( LJ::get_effective_remote(), $remote, 'previous BML authas does not leak' );
+    is( LJ::get_effective_remote(), $remote, 'previous request authas does not leak' );
     request( POST 'http://localhost/example', Content => [ authas => 'post_community' ] );
     is( LJ::get_effective_remote(), 'post_community', 'widget RPC POST authas works' );
 }

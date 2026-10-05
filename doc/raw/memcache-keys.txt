@@ -73,7 +73,7 @@ rate:tracked:<userid> == cluster tracking on login, posts, and comments
 
 ml.<lang>.<dmid>.<code>
 
-includefile:<name> == text of BML include file
+includefile:<name> == text of an include file (includetext table)
 
 <intid> introw:<intid> -- arrayref of [ $intid, $interest, $intcount ]
 <uid>   intids:<uid>   -- arrayref of intids for this userid

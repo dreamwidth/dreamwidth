@@ -620,8 +620,7 @@ sub check_form_auth {
     my $formauth =
         @_
         ? shift
-        : ( DW::Request->get && DW::Request->get->post_args->{'lj_form_auth'} )
-        || $BMLCodeBlock::POST{'lj_form_auth'};
+        : ( DW::Request->get && DW::Request->get->post_args->{'lj_form_auth'} );
     return 0 unless $formauth;
 
     my $remote = LJ::get_remote();
@@ -863,7 +862,7 @@ sub viewing_style_opts {
     my $valid_style_args = {
         style    => { light => 1, site => 1, mine => 1, original => 1 },
         format   => { light => 1 },
-        fallback => { s2    => 1, bml => 1 },
+        fallback => { s2    => 1 },
     };
 
     my %ret;
