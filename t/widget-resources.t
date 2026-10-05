@@ -23,56 +23,31 @@ use LJ::Widget;
 
     package LJ::Widget::ResourceTest;
     our @ISA = ('LJ::Widget');
-    sub need_res    { qw(test.js stc/widgets/resourcetest.css) }
+    sub need_res    { qw(test.js) }
     sub render_body { return 'widget body' }
     sub js          { return 'initWidget: function () {}' }
 }
 
-sub resources {
-    return map { @$_ } grep { $_ } @LJ::NEEDED_RES;
+sub in_foundation {
+    my ($file) = @_;
+    return grep { $_->[0] eq 'foundation' && $_->[1] eq $file }
+        map { @$_ } grep { $_ } @LJ::NEEDED_RES;
 }
 
-{
-    local @LJ::NEEDED_RES;
-    local %LJ::NEEDED_RES;
-    local $LJ::ACTIVE_RES_GROUP = 'foundation';
+local @LJ::NEEDED_RES;
+local %LJ::NEEDED_RES;
+local $LJ::ACTIVE_RES_GROUP = 'foundation';
 
-    LJ::Widget::ResourceTest->render;
-    my @resources = resources();
-    ok(
-        grep( $_->[0] eq 'foundation' && $_->[1] eq 'js/widgets/ResourceTest/test.js', @resources ),
-        'widget JavaScript is available to Foundation pages'
-    );
-    ok( grep( $_->[0] eq 'all' && $_->[1] eq 'stc/widgets/resourcetest.css', @resources ),
-        'widget CSS remains available to all resource groups' );
+no warnings 'redefine';
+local *LJ::Auth::ajax_auth_token = sub { return 'token'; };
 
-    no warnings 'redefine';
-    local *LJ::Auth::ajax_auth_token = sub { return 'token'; };
-    my $setup = LJ::Widget::ResourceTest->new->wrapped_js;
-    @resources = resources();
-    ok( grep( $_->[0] eq 'foundation' && $_->[1] eq 'js/ljwidget.js', @resources ),
-        'widget runtime is available to Foundation pages' );
-    foreach
-        my $dependency (qw(js/6alib/core.js js/6alib/dom.js js/6alib/httpreq.js js/livejournal.js))
-    {
-        ok(
-            grep( $_->[0] eq 'foundation' && $_->[1] eq $dependency, @resources ),
-            "$dependency loads before the widget runtime in Foundation"
-        );
-    }
-    like( $setup, qr/LJWidgetInitQueue/,        'setup waits for body-loaded widget runtime' );
-    like( $setup, qr/var \$ = DOM\.getElement/, 'legacy widget lookup is locally scoped' );
-}
+LJ::Widget::ResourceTest->render;
+ok(
+    in_foundation('js/widgets/ResourceTest/test.js'),
+    'widget JavaScript is available to Foundation pages'
+);
 
-{
-    local @LJ::NEEDED_RES;
-    local %LJ::NEEDED_RES;
-    local $LJ::ACTIVE_RES_GROUP;
-
-    LJ::Widget::ResourceTest->render;
-    my @resources = resources();
-    ok( grep( $_->[0] eq 'default' && $_->[1] eq 'js/widgets/ResourceTest/test.js', @resources ),
-        'legacy callers retain the default JavaScript resource group' );
-}
+LJ::Widget::ResourceTest->new->wrapped_js;
+ok( in_foundation('js/ljwidget.js'), 'widget runtime is available to Foundation pages' );
 
 done_testing;

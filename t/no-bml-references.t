@@ -2,7 +2,7 @@
 #
 # t/no-bml-references.t
 #
-# Calls into the deleted BML:: package compile but die at runtime.
+# References to the deleted BML packages compile but fail at runtime.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -27,7 +27,7 @@ File::Find::find(
             local $/;
             my $content = <$fh>;
             push @offenders, $File::Find::name
-                if $content =~ /(?<!\w)(?:\$)?BML::/;
+                if $content =~ /(?<!\w)BML(?:CodeBlock)?::/;
         },
         no_chdir => 1,
     },
@@ -37,6 +37,6 @@ File::Find::find(
     "$ENV{LJHOME}/ext/dw-nonfree",
 );
 
-is_deeply( \@offenders, [], 'no file references the deleted BML:: package or $BML:: globals' );
+is_deeply( \@offenders, [], 'no file references the deleted BML:: or BMLCodeBlock:: packages' );
 
 done_testing;
