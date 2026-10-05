@@ -1,7 +1,7 @@
 // Editing the picker's howmany/date fields auto-selects the matching mode
-// radio via a client-side change handler, with no radio click of its own --
-// JS-only behavior; the resulting listings themselves are covered by
-// t/plack-entry-picker.t.
+// radio via a client-side change handler, with no radio click of its own, and
+// a listed entry's "Edit this Entry" button opens that entry in the native
+// editor rather than the stale-form recovery page.
 // Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 const assert = require('node:assert/strict');
 const {spawn} = require('node:child_process');
@@ -47,8 +47,14 @@ const puppeteer = require('/opt/dw-screenshot/node_modules/puppeteer-core');
         assert.equal(await page.$eval('#selecttype-day', el => el.checked), true,
             'editing a date field selects day mode without a radio click');
 
+        await page.goto(base + '/editjournal', {waitUntil:'networkidle0'});
+        await Promise.all([page.waitForNavigation({waitUntil:'networkidle0'}),
+            page.click('[id="itemid-' + data.ditemid + '"], [name="itemid-' + data.ditemid + '"]')]);
+        assert.equal(new URL(page.url()).pathname, '/entry/' + data.user + '/' + data.ditemid + '/edit',
+            'Edit this Entry opens the native editor for that entry');
+
         assert.deepEqual(errors, [], 'picker flow has no JavaScript exceptions');
-        console.log('PASS: editing howmany/date fields auto-selects the matching mode radio');
+        console.log('PASS: mode radios follow their fields; Edit this Entry opens the native editor');
     } finally {
         try { if (browser) await browser.close(); }
         finally { fixture.stdin.end(); await done; }

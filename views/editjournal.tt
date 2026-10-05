@@ -59,10 +59,10 @@ Copyright (c) 2026 by Dreamwidth Studios, LLC.
     <hr />
     <table summary=''><tr valign="top">
         <td align="center">
-            <form method="post" action="[% self_uri | html %]">
-                [% form.hidden(name = 'mode', value = 'edit') %]
-                [% form.hidden(name = 'itemid', value = entry.ditemid) %]
-                [% form.submit(name = 'itemid-' _ entry.ditemid, value = dw.ml('.edit.this.entry')) %]
+            [%# A GET to the native editor: a POST to /editjournal with an itemid is
+                treated as a stale old-editor submission. %]
+            <form method="get" action="[% entry.edit_url | html %]">
+                <input type="submit" id="itemid-[% entry.ditemid %]" value="[% dw.ml('.edit.this.entry') | html %]">
             </form>
         </td>
         <td>
