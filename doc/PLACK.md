@@ -4,7 +4,7 @@ This document describes the Plack/Starman web server implementation for Dreamwid
 
 ## Overview
 
-Dreamwidth runs under Plack/Starman. (It historically also ran under Apache/mod_perl; that path was retired once all web services moved to Starman.) The `DW::Request` abstraction layer still mediates request access — now over Plack, with `DW::Request::Standard` for tests and CLI. The Plack stack handles routing, BML rendering, journal pages, static assets, authentication, and sysban enforcement.
+Dreamwidth runs under Plack/Starman. (It historically also ran under Apache/mod_perl; that path was retired once all web services moved to Starman.) The `DW::Request` abstraction layer still mediates request access — now over Plack, with `DW::Request::Standard` for tests and CLI. The Plack stack handles routing, journal pages, static assets, authentication, and sysban enforcement.
 
 ## Running the Server
 
@@ -35,25 +35,19 @@ Applied in order by `app.psgi` via `Plack::Builder`. Order matters.
 
 ## Request Routing
 
-The `$app` handler in `app.psgi` dispatches requests through three systems in order:
+The `$app` handler in `app.psgi` dispatches requests through two systems in order:
 
 1. **DW::Routing** — Modern controller-based routes (`DW::Controller::*`). Handles `/api/v\d+/` endpoints and all routes registered via `DW::Routing->register_*`.
 
 2. **DW::Controller::Journal** — Path-based journal URLs (`/~user/...`, `/users/user/...`). Extracts the journal username and delegates to `LJ::make_journal()`.
 
-3. **DW::BML** — Legacy BML page fallback. Resolves URI to a `.bml` file in `htdocs/`, renders it via the BML engine (shared with `Apache::BML`).
-
-If none of these handle the request, a 404 is returned.
+If neither handles the request, a 404 is returned. Static files are served by `Plack::Middleware::Static` before the app is reached.
 
 ## Key Modules
 
 ### DW::Request::Plack (`cgi-bin/DW/Request/Plack.pm`)
 
 Implements the `DW::Request` interface over `Plack::Request`/`Plack::Response`. Provides `method()`, `uri()`, `path()`, `host()`, `header_in()`, `header_out()`, `status()`, `print()`, `redirect()`, `res()`, and cookie management. `uri()` returns path-only (not full URL) to match Apache behavior.
-
-### DW::BML (`cgi-bin/DW/BML.pm`)
-
-Plack-compatible BML renderer. Reuses the core BML engine from `Apache::BML` (`%Apache::BML::FileConfig`) while replacing the Apache-specific request handling. Includes path traversal protection and `_config.bml` access blocking.
 
 ### DW::Controller::Journal (`cgi-bin/DW/Controller/Journal.pm`)
 
@@ -75,7 +69,6 @@ Serves userpic images. Route regex ensures numeric IDs only. Works under both Ap
 | `t/plack-sysban.t` | Sysban middleware: IP bans, uniq bans, tempbans, noanon_ip |
 | `t/plack-integration.t` | Full middleware stack: homepage rendering, API endpoints, redirects, method filtering |
 | `t/plack-static.t` | Static file serving from htdocs directories |
-| `t/plack-bml.t` | BML page resolution and rendering |
 | `t/plack-controller.t` | Journal controller routing and rendering |
 
 ### Running Tests
