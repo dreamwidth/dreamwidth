@@ -234,6 +234,7 @@ sub _get_entries {
             push @entries,
                 {
                 ditemid   => $ditemid,
+                edit_url  => LJ::create_url( '/entry/' . $journal->user . "/$ditemid/edit" ),
                 eventtime => $res{"events_${i}_eventtime"},
                 poster    => LJ::load_user( $res{"events_${i}_poster"} ),
                 subject   => $subject,

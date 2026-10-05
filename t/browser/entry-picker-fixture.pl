@@ -11,6 +11,8 @@ my $user     = temp_user();
 my $password = 'picker-browser-' . LJ::rand_chars(12);
 $user->set_password($password);
 $user->update_self( { status => 'A' } );
+my $entry = $user->t_post_fake_entry( subject => 'Picker edit target' );
 $| = 1;
-print encode_json( { user => $user->user, password => $password } ) . "\n";
+print encode_json( { user => $user->user, password => $password, ditemid => $entry->ditemid } )
+    . "\n";
 <STDIN>;

@@ -73,9 +73,10 @@ sub picker_forms {
     return HTML::Form->parse( $_[0], 'http://localhost/editjournal' );
 }
 
+# Each listed entry's button submits to that entry's native edit URL.
 sub entry_ids {
-    my @ids = sort { $a <=> $b } map { $_->value('itemid') }
-        grep { $_->find_input('itemid') } picker_forms( $_[0] );
+    my @ids = sort { $a <=> $b }
+        map { $_->action =~ m{/entry/[^/]+/(\d+)/edit$} ? $1 : () } picker_forms( $_[0] );
     return @ids;
 }
 test_psgi $app, sub {
