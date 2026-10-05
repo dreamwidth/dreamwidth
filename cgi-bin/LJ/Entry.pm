@@ -365,10 +365,12 @@ sub correct_anum {
     # valid() loads the row, which fills in anum for slug and jitemid lookups
     return 0 unless $self->valid;
 
+    # Trust the untrusted anum only when the constructor took a ditemid: _untrusted_anum
+    # marks that, while {ditemid} may be lazily filled by ditemid() on any entry.
     $given =
-          defined $given   ? int($given)
-        : $self->{ditemid} ? $self->{_untrusted_anum}
-        :                    $self->{anum};
+          defined $given                   ? int($given)
+        : defined $self->{_untrusted_anum} ? $self->{_untrusted_anum}
+        :                                    $self->{anum};
 
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
