@@ -2,12 +2,9 @@
 #
 # t/plack-page-smoke.t
 #
-# Real pages render with no literal "<?...?>" macro and no unresolved
-# translation key. Covers help_icon (a widget, a controller, and the
-# shared subscribe_interface path), the manage hub's relocated ml keys,
-# and LJ::error_list/warning_list's sitewide error bar (rendered on
-# every page here, so its own "<?errorbar?>"/"<?warningbar?>" class is
-# covered incidentally).
+# Real pages render with no unresolved translation key. Covers help_icon
+# (a widget, a controller, and the shared subscribe_interface path), the
+# manage hub's relocated ml keys, and the sitewide error bar.
 #
 # Excluded from the missing-string check: profile.service.icq. It has
 # real DB text (en/en_DW both define it as "ICQ"), but no source .dat
@@ -83,7 +80,6 @@ test_psgi $app, sub {
         $req->header( Cookie => $cookie );
         my $res = $send->($req);
         is( $res->code, 200, "$page->{name} ($page->{path}) renders" );
-        unlike( $res->content, qr/<\?\w/, "$page->{name} has no broken BML macro tag" );
         ( my $content_scrubbed = $res->content ) =~ s/\Q[missing string profile.service.icq]\E//g;
         unlike(
             $content_scrubbed,

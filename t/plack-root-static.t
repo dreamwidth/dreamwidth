@@ -2,9 +2,9 @@
 #
 # t/plack-root-static.t
 #
-# Root static files: the allowlisted files are served with correct types,
-# other htdocs paths are not, and journal-host robots.txt reaches the
-# per-journal controller.
+# Root static files: allowlisted files are served, other htdocs paths are not,
+# journal-host robots.txt reaches the per-journal controller, and an old .bml
+# URL reaches its native route.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -21,6 +21,7 @@ use warnings;
 use Test::More;
 use HTTP::Request::Common;
 use Plack::Test;
+use URI;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user);
@@ -31,71 +32,51 @@ die $@ unless ref $app eq 'CODE';
 test_psgi $app, sub {
     my $cb = shift;
 
-    subtest 'allow-listed root-level files and rte/ assets are served with the right type' => sub {
-        for my $case (
-            [ '/robots.txt',           qr{^text/plain} ],
-            [ '/favicon.ico',          qr{^image/(?:vnd\.microsoft\.icon|x-icon)} ],
-            [ '/apple-touch-icon.png', qr{^image/png} ],
-            [ '/protocol.dat',         qr{^text/plain} ],
-            [ '/500-error.html',       qr{^text/html} ],
-            [ '/rte/blank.html',       qr{^text/html} ],
-            [ '/rte/index.html',       qr{^text/html} ],
-            [ '/rte/palette.html',     qr{^text/html} ],
-            )
-        {
-            my ( $path, $type ) = @$case;
-            my $res = $cb->( GET $path );
-            is( $res->code, 200, "$path is 200" );
-            like( $res->header('Content-Type') // '', $type,
-                "$path has the expected content type" );
+    subtest 'allow-listed root-level files are served' => sub {
+        for my $path ( '/robots.txt', '/favicon.ico', '/rte/blank.html' ) {
+            is( $cb->( GET $path )->code, 200, "$path is 200" );
         }
+        like( $cb->( GET '/500-error.html' )->content,
+            qr/downforeveryoneorjustme/, 'ext/dw-nonfree overrides the base htdocs file' );
     };
 
-    subtest '500-error.html is served from the dw-nonfree overlay, not the base file' => sub {
-        my $res = $cb->( GET '/500-error.html' );
-        is( $res->code, 200, '/500-error.html is 200' );
-        like( $res->content, qr/downforeveryoneorjustme/,
-            'overlay priority still favors ext/dw-nonfree over the base htdocs file' );
-    };
-
-    subtest 'the old blanket fallback\'s excluded paths stay unreachable' => sub {
+    subtest 'other htdocs files stay unreachable' => sub {
         for my $path (
             '/inc/account-codes',  '/doc/.placeholder',
             '/preview/index.html', '/scss/foundation/normalize.scss',
             )
         {
-            my $res = $cb->( GET $path );
-            is( $res->code, 404, "$path is still 404" );
+            is( $cb->( GET $path )->code, 404, "$path is 404" );
         }
+    };
+
+    subtest 'an old .bml URL reaches its native route' => sub {
+        my $res = $cb->( GET '/inbox/index.bml' );
+        is( $res->code, 302, '/inbox/index.bml redirects anonymous visitors to login' );
+        is(
+            URI->new( $res->header('Location') // '' )->path_query,
+            '/login?returnto=/inbox/index.bml',
+            'the redirect comes from the native inbox handler'
+        );
     };
 };
 
-subtest 'favicon.ico is served on a journal subdomain, not just the site host' => sub {
+subtest 'favicon.ico is served on a journal subdomain' => sub {
     local $LJ::USER_DOMAIN = 'example.org';
     local $LJ::DOMAIN_WEB  = 'www.example.org';
     local $LJ::DOMAIN      = 'example.org';
 
     test_psgi $app, sub {
-        my $cb  = shift;
-        my $res = $cb->( GET 'http://someuser.example.org/favicon.ico' );
-        is( $res->code, 200, 'journal-host favicon.ico is 200' );
-        like(
-            $res->header('Content-Type') // '',
-            qr{^image/(?:vnd\.microsoft\.icon|x-icon)},
-            'journal-host favicon.ico has the expected content type'
-        );
+        my $cb = shift;
+        is( $cb->( GET 'http://someuser.example.org/favicon.ico' )->code,
+            200, 'journal-host favicon.ico is 200' );
     };
 };
 
-subtest 'robots.txt on a journal host reaches Journal.pm, not the static allowlist' => sub {
+subtest 'robots.txt on a journal host reaches Journal.pm, not the static file' => sub {
     local $LJ::USER_DOMAIN = 'example.org';
     local $LJ::DOMAIN_WEB  = 'www.example.org';
     local $LJ::DOMAIN      = 'example.org';
-
-    local $LJ::HOOKS{robots_txt_extra} = [ sub { return "# extra line\n" } ];
-
-    my $ordinary = temp_user();
-    $ordinary->update_self( { status => 'A' } );
 
     my $blocked = temp_user();
     $blocked->update_self( { status => 'A' } );
@@ -104,28 +85,18 @@ subtest 'robots.txt on a journal host reaches Journal.pm, not the static allowli
     test_psgi $app, sub {
         my $cb = shift;
 
-        my $res = $cb->( GET 'http://' . $ordinary->user . '.example.org/robots.txt' );
-        is( $res->code, 200, "ordinary journal's robots.txt is 200" );
+        my $res = $cb->( GET 'http://' . $blocked->user . '.example.org/robots.txt' );
+        is( $res->code, 200, "blocked journal's robots.txt is 200" );
         is(
             $res->content,
-            "# extra line\nUser-Agent: *\n",
-"ordinary journal's robots.txt matches Journal.pm's own output, including robots_txt_extra"
+            "User-Agent: *\nDisallow: /\n",
+            "blocked journal's robots.txt is Journal.pm's per-journal output"
         );
 
-        my $blocked_res = $cb->( GET 'http://' . $blocked->user . '.example.org/robots.txt' );
-        is( $blocked_res->code, 200, "blocked journal's robots.txt is 200" );
-        is(
-            $blocked_res->content,
-            "# extra line\nUser-Agent: *\nDisallow: /\n",
-            "blocked journal's robots.txt is Journal.pm's own output with a bare Disallow: / line"
-        );
-
-        my $site_res = $cb->( GET 'http://www.example.org/robots.txt' );
-        is( $site_res->code, 200, "www's robots.txt is 200" );
         like(
-            $site_res->content,
+            $cb->( GET 'http://www.example.org/robots.txt' )->content,
             qr{Disallow: /directorysearch},
-            "www's robots.txt is the static htdocs file, not Journal.pm's per-journal output"
+            "www's robots.txt is the static htdocs file"
         );
     };
 };

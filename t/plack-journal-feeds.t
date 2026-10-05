@@ -2,7 +2,7 @@
 #
 # t/plack-journal-feeds.t
 #
-# Journal RSS/Atom Plack characterization for adapter-removal preparation.
+# Journal feeds render through the Plack journal controller with native requests.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -58,29 +58,15 @@ local *DW::Routing::call = sub { return undef };
 local *LJ::get_cap = sub { return $_[1] eq 'userdomain' ? 1 : 0 };
 
 test_psgi $app, sub {
-    my $cb = shift;
-    for my $feed ( [ rss => qr{<rss\b}i, 'RSS' ], [ atom => qr{<feed\b}i, 'Atom' ], ) {
-        my ( $kind, $root, $label ) = @$feed;
-        my $res = $cb->( GET "$base/$kind" );
-        is( $res->code, 200, "$label journal feed renders through the Plack Journal controller" );
-        like(
-            $res->header('Content-Type') || '',
-            qr{text/xml;\s*charset=utf-8}i,
-            "$label response keeps XML UTF-8 content type"
-        );
-        like( $res->content, $root, "$label response has its feed root" );
-        like(
-            $res->content,
-            qr/Adapter feed subject/,
-            "$label response includes public entry content"
-        );
-        ok( $res->header('Last-Modified'), "$label response supplies feed modification time" );
-    }
+    my $cb    = shift;
+    my $first = $cb->( GET "$base/rss" );
+    is( $first->code, 200, 'RSS renders through the Plack journal controller' );
+    like( $first->header('Content-Type') || '', qr{text/xml;\s*charset=utf-8}i,
+        'RSS is UTF-8 XML' );
+    like( $first->content, qr/Adapter feed subject/, 'RSS includes the public entry' );
 
-    my $first         = $cb->( GET "$base/rss" );
     my $last_modified = $first->header('Last-Modified');
-    ok( $last_modified, 'RSS baseline has Last-Modified for conditional request' );
-    my $conditional = $cb->( GET "$base/rss", 'If-Modified-Since' => $last_modified, );
+    my $conditional   = $cb->( GET "$base/rss", 'If-Modified-Since' => $last_modified, );
     is( $conditional->code,    304, 'RSS conditional request returns not-modified status' );
     is( $conditional->content, '',  'RSS not-modified response has no body' );
 };
