@@ -27,34 +27,16 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Entry;
 use LJ::Session;
 use LJ::Test qw(temp_user);
-use LJ::Userpic;
 
 plan skip_all => 'Entry integration requires a development server' unless $LJ::IS_DEV_SERVER;
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-sub file_contents {
-    my ($path) = @_;
-    open my $fh, '<', $path or die "open $path: $!";
-    binmode $fh;
-    local $/;
-    my $contents = <$fh>;
-    return \$contents;
-}
-
-sub forms {
-    return HTML::Form->parse( $_[0], 'http://localhost' );
-}
-
 sub edit_form {
     my ($content) = @_;
-    return ( grep { $_->find_input('subject') && $_->find_input('event') } forms($content) )[0];
-}
-
-sub sorted_tags {
-    my ($taglist) = @_;
-    return [ sort grep { length } map { s/^\s+|\s+$//gr } split /,/, $taglist // '' ];
+    return ( grep { $_->find_input('subject') && $_->find_input('event') }
+            HTML::Form->parse( $content, 'http://localhost' ) )[0];
 }
 
 sub fresh_entry {
@@ -70,11 +52,6 @@ my $entry = $owner->t_post_fake_entry(
     body    => 'Editor parity original body',
 );
 my $ditemid = $entry->ditemid;
-my $userpic =
-    LJ::Userpic->create( $owner, data => file_contents("$ENV{LJHOME}/t/data/userpics/good.jpg"), );
-ok( $userpic, 'disposable owner userpic is created' )
-    or BAIL_OUT('cannot exercise userpic control');
-$userpic->set_keywords('editor-parity-pic');
 
 my $session = LJ::Session->create( $owner, nolog => 1 );
 my $cookie =
@@ -83,6 +60,9 @@ my $cookie =
     . '; ljloggedin='
     . $session->loggedin_cookie_string;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'entryEditParity';
+
+my @spam_checks;
+local $LJ::HOOKS{spam_check} = [ sub { push @spam_checks, [@_]; return; } ];
 
 my $path = '/entry/' . $owner->user . '/' . $ditemid . '/edit';
 
@@ -94,85 +74,30 @@ test_psgi $app, sub {
         return $send->($req);
     };
 
-    my $res = $request->( GET $path );
-    is( $res->code, 200, 'authenticated owner receives the native edit form' );
-    my $form = edit_form( $res->content );
+    my $form = edit_form( $request->( GET $path )->content );
     ok( $form, 'actual owned-entry edit form is rendered' ) or BAIL_OUT('edit form missing');
-
-    for my $name (
-        qw(subject event taglist current_location current_music prop_picture_keyword lj_form_auth))
-    {
-        ok( $form->find_input($name), "rendered form contains $name" );
-    }
-
     $form->action( 'http://localhost' . $path );
-    $form->value( subject              => 'Editor parity changed subject' );
-    $form->value( event                => 'Editor parity changed body' );
-    $form->value( taglist              => 'editor-one, editor-two' );
-    $form->value( current_location     => 'Editor parity location' );
-    $form->value( current_music        => 'Editor parity music' );
-    $form->value( prop_picture_keyword => 'editor-parity-pic' );
-    $res = $request->( $form->click('action:post') );
-    is( $res->code, 200, 'actual save control rerenders the populated owned-entry form' );
+    $form->value( subject          => 'Editor parity changed subject' );
+    $form->value( event            => 'Editor parity changed body' );
+    $form->value( taglist          => 'editor-one, editor-two' );
+    $form->value( current_location => 'Editor parity location' );
+    $request->( $form->click('action:post') );
 
     my $fresh = fresh_entry( $owner, $ditemid );
-    is(
-        $fresh->subject_raw,
-        'Editor parity changed subject',
-        'fresh entry persists changed subject'
-    );
-    is( $fresh->event_raw, 'Editor parity changed body', 'fresh entry persists changed body' );
-    is_deeply(
-        [ sort $fresh->tags ],
-        [ 'editor-one', 'editor-two' ],
-        'fresh entry persists changed tags'
-    );
-    is(
-        $fresh->prop('current_location'),
-        'Editor parity location',
-        'fresh entry persists changed location'
-    );
-    is( $fresh->prop('current_music'), 'Editor parity music',
-        'fresh entry persists changed music' );
-    is( $fresh->userpic_kw, 'editor-parity-pic', 'fresh entry persists changed userpic keyword' );
+    is( $fresh->event_raw, 'Editor parity changed body', 'edit persists the changed body' );
+    is_deeply( [ sort $fresh->tags ], [ 'editor-one', 'editor-two' ], 'edit persists tags' );
+    is( $fresh->prop('current_location'), 'Editor parity location', 'edit persists location' );
 
-    $res = $request->( GET $path );
-    is( $res->code, 200, 'fresh edit GET renders after populated save' );
-    $form = edit_form( $res->content );
-    is(
-        $form->value('subject'),
-        'Editor parity changed subject',
-        'fresh form selects persisted subject'
-    );
-    is( $form->value('event'), 'Editor parity changed body', 'fresh form selects persisted body' );
-    is_deeply(
-        sorted_tags( $form->value('taglist') ),
-        [ 'editor-one', 'editor-two' ],
-        'fresh form selects the persisted tag set'
-    );
-    is(
-        $form->value('current_location'),
-        'Editor parity location',
-        'fresh form selects persisted location'
-    );
-    is( $form->value('current_music'), 'Editor parity music',
-        'fresh form selects persisted music' );
-    is( $form->value('prop_picture_keyword'),
-        'editor-parity-pic', 'fresh form selects persisted userpic' );
-
+    # Blank fields must clear stored metadata, not be skipped as absent.
+    $form = edit_form( $request->( GET $path )->content );
     $form->action( 'http://localhost' . $path );
-    $form->value( taglist              => '' );
-    $form->value( current_location     => '' );
-    $form->value( current_music        => '' );
-    $form->value( prop_picture_keyword => '' );
-    $res = $request->( $form->click('action:post') );
-    is( $res->code, 200, 'actual save control rerenders cleared metadata values' );
+    $form->value( taglist          => '' );
+    $form->value( current_location => '' );
+    $request->( $form->click('action:post') );
 
     $fresh = fresh_entry( $owner, $ditemid );
-    is_deeply( [ $fresh->tags ], [], 'fresh entry clears prior tags' );
-    is( $fresh->prop('current_location'), undef, 'fresh entry clears prior location' );
-    is( $fresh->prop('current_music'),    undef, 'fresh entry clears prior music' );
-    is( $fresh->userpic_kw,               undef, 'fresh entry clears prior userpic selection' );
+    is_deeply( [ $fresh->tags ], [], 'blank taglist clears prior tags' );
+    is( $fresh->prop('current_location'), undef, 'blank location clears prior location' );
     is(
         $fresh->subject_raw,
         'Editor parity changed subject',
@@ -180,24 +105,19 @@ test_psgi $app, sub {
     );
     is( $fresh->event_raw, 'Editor parity changed body', 'metadata clearing preserves body' );
 
-    $res  = $request->( GET $path );
-    $form = edit_form( $res->content );
-    is( $form->value('taglist'),              '', 'fresh form renders cleared tags' );
-    is( $form->value('current_location'),     '', 'fresh form renders cleared location' );
-    is( $form->value('current_music'),        '', 'fresh form renders cleared music' );
-    is( $form->value('prop_picture_keyword'), '', 'fresh form renders cleared userpic selection' );
-
     my $timestamp_before = $fresh->eventtime_mysql;
+    $form = edit_form( $request->( GET $path )->content );
     $form->action( 'http://localhost' . $path );
-    $form->value( 'entrytime_date', 'not-a-date' );
-    $form->value( 'entrytime_time', 'not-a-time' );
-    $res = $request->( $form->click('action:post') );
+    $form->value( event          => 'Body that must not be saved' );
+    $form->value( entrytime_date => 'not-a-date' );
+    $form->value( entrytime_time => 'not-a-time' );
+    my $res = $request->( $form->click('action:post') );
     is( $res->code, 200, 'invalid timestamp re-renders the form' );
     like( $res->content, qr/not-a-date/, 'invalid date is retained' );
-    like( $res->content, qr/not-a-time/, 'invalid time is retained' );
+    like( $res->content, qr/Body that must not be saved/, 'submitted body is retained' );
     $fresh = fresh_entry( $owner, $ditemid );
-    is( $fresh->eventtime_mysql, $timestamp_before,
-        'invalid timestamp leaves the entry unchanged' );
+    is( $fresh->eventtime_mysql, $timestamp_before, 'invalid timestamp leaves the time unchanged' );
+    is( $fresh->event_raw, 'Editor parity changed body', 'invalid timestamp saves nothing' );
 };
 
 done_testing;

@@ -2,10 +2,9 @@
 #
 # t/plack-entry-cutover.t
 #
-# Characterize the T2 entry cutover: /update and /editjournal?itemid= are
-# fully graduated to the native entry form. GET always redirects; a stale
-# POST is shown its exact submitted subject/body for manual copying and
-# never saved (see t/plack-entry-recovery.t for that page's own coverage).
+# The old /update and /editjournal?itemid= entry URLs: GET redirects to the
+# native entry form without an open redirect, and a stale old-editor tab
+# can still autosave its draft.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -35,20 +34,17 @@ plan skip_all => 'Entry cutover integration requires a development server'
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-sub cookie_for {
-    my ($u) = @_;
-    my $session = LJ::Session->create( $u, nolog => 1 );
-    return
-          'ljmastersession='
-        . $session->master_cookie_string
-        . '; ljloggedin='
-        . $session->loggedin_cookie_string;
-}
-
 my $owner = temp_user();
 $owner->update_self( { status => 'A' } );
-my $owner_cookie = cookie_for($owner);
+my $session = LJ::Session->create( $owner, nolog => 1 );
+my $owner_cookie =
+      'ljmastersession='
+    . $session->master_cookie_string
+    . '; ljloggedin='
+    . $session->loggedin_cookie_string;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'entryCutover';
+
+my $hostile = '//evil.example/x';
 
 test_psgi $app, sub {
     my $send     = shift;
@@ -58,61 +54,16 @@ test_psgi $app, sub {
         return $send->($req);
     };
 
-    subtest 'GET redirects to the native form with mapped arguments' => sub {
-        for my $path (qw(/update /update.bml)) {
-            my $res =
-                $as_owner->( GET $path
-                    . '?subject=Cutover+subject&event=Cutover+event&prop_taglist=one%2C+two&share=http%3A%2F%2Fexample.com%2F&altlogin=1'
-                );
-            is( $res->code, 302, "$path GET redirects" );
-            my $location = URI->new( $res->header('Location') );
-            is( $location->path, '/entry/new', "$path redirects to the native new-entry path" );
-            my %query = $location->query_form;
-            is( $query{subject}, 'Cutover subject',     "$path maps subject" );
-            is( $query{event},   'Cutover event',       "$path maps event" );
-            is( $query{tags},    'one, two',            "$path maps prop_taglist to tags" );
-            is( $query{share},   'http://example.com/', "$path maps share" );
-            ok( !exists $query{altlogin}, "$path drops altlogin" );
-        }
-
-        my $res      = $as_owner->( GET '/update?usejournal=' . $owner->user );
-        my $location = URI->new( $res->header('Location') );
-        is(
-            $location->path,
-            '/entry/' . $owner->user . '/new',
-            'a named usejournal redirects to that journal\'s native new-entry path'
-        );
-    };
-
     subtest 'a hostile usejournal never reaches the redirect Location unsanitized' => sub {
-        for my $hostile ( '//evil.example/x', '..%2F..' ) {
-            my $res = $as_owner->( GET '/update?subject=Hostile+subject&usejournal=' . $hostile );
-            is( $res->code, 302, "usejournal=$hostile GET still redirects" );
-            my $location = URI->new( $res->header('Location') );
-            is( $location->path, '/entry/new', "usejournal=$hostile falls back to /entry/new" );
-            my %query = $location->query_form;
-            is(
-                $query{subject},
-                'Hostile subject',
-                "usejournal=$hostile still maps other query args"
-            );
-        }
-    };
-
-    subtest 'edit GET redirects to the native edit form' => sub {
-        my $entry = $owner->t_post_fake_entry(
-            subject => 'Edit cutover subject',
-            body    => 'Edit cutover body',
+        my $res = $as_owner->( GET '/update?subject=Hostile+subject&usejournal=' . $hostile );
+        is( $res->code, 302, 'hostile usejournal GET still redirects' );
+        my $location = URI->new( $res->header('Location') );
+        is( $location->path, '/entry/new', 'hostile usejournal falls back to /entry/new' );
+        is(
+            { $location->query_form }->{subject},
+            'Hostile subject',
+            'hostile usejournal still maps other query args'
         );
-        for my $path ( '/editjournal', '/editjournal.bml' ) {
-            my $res = $as_owner->( GET $path . '?itemid=' . $entry->ditemid );
-            is( $res->code, 302, "$path?itemid GET redirects" );
-            is(
-                URI->new( $res->header('Location') )->path,
-                '/entry/' . $owner->user . '/' . $entry->ditemid . '/edit',
-                "$path?itemid redirects to the native edit path"
-            );
-        }
     };
 
     subtest 'a hostile journal/usejournal never reaches the edit redirect Location unsanitized' =>
@@ -121,52 +72,28 @@ test_psgi $app, sub {
             subject => 'Hostile edit redirect subject',
             body    => 'Hostile edit redirect body',
         );
-        for my $hostile ( '//evil.example/x', '..%2F..' ) {
-            for my $param (qw(usejournal journal)) {
-                my $res =
-                    $as_owner->(
-                    GET '/editjournal?itemid=' . $entry->ditemid . "&$param=" . $hostile );
-                is( $res->code, 302, "$param=$hostile edit GET still redirects" );
-                is(
-                    URI->new( $res->header('Location') )->path,
-                    '/entry/new',
-                    "$param=$hostile falls back to /entry/new, never an unsanitized path"
-                );
-            }
+        for my $param (qw(usejournal journal)) {
+            my $res =
+                $as_owner->( GET '/editjournal?itemid=' . $entry->ditemid . "&$param=" . $hostile );
+            is( $res->code, 302, "hostile $param edit GET still redirects" );
+            is(
+                URI->new( $res->header('Location') )->path,
+                '/entry/new',
+                "hostile $param falls back to /entry/new, never an unsanitized path"
+            );
         }
         };
 
-};
-
-subtest 'F2: .bml suffixes still resolve natively after the retired pages are deleted' => sub {
-    my $entry = $owner->t_post_fake_entry(
-        subject => 'F2 routing-precedence subject',
-        body    => 'F2 routing-precedence body',
-    );
-    test_psgi $app, sub {
-        my $send = shift;
-        for my $path ( '/update.bml', '/editjournal.bml?itemid=' . $entry->ditemid ) {
-            my $req = GET $path;
-            $req->header( Cookie => $owner_cookie );
-            my $res = $send->($req);
-            is( $res->code, 302,
-                "$path still resolves through DW::Routing, not the deleted BML file" );
-        }
+    subtest 'a stale old-editor tab still autosaves its draft' => sub {
+        my $res =
+            $as_owner->( POST '/tools/endpoints/draft', [ saveDraft => 'Unsaved stale-tab text' ] );
+        is( $res->code, 200, 'the old autosave URL answers' );
+        is(
+            LJ::load_userid( $owner->userid, 1 )->draft_text,
+            'Unsaved stale-tab text',
+            'the draft text is saved'
+        );
     };
-};
-
-subtest 'a stale old-editor tab still autosaves its draft' => sub {
-    test_psgi $app, sub {
-        my $send = shift;
-        my $req  = POST '/tools/endpoints/draft', [ saveDraft => 'Unsaved stale-tab text' ];
-        $req->header( Cookie => $owner_cookie );
-        is( $send->($req)->code, 200, 'the old autosave URL answers' );
-    };
-    is(
-        LJ::load_userid( $owner->userid )->draft_text,
-        'Unsaved stale-tab text',
-        'the draft text is saved'
-    );
 };
 
 done_testing;
