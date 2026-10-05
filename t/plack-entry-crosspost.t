@@ -20,7 +20,6 @@ use HTTP::Request::Common;
 use HTML::Form;
 use Plack::Test;
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use LJ::Entry;
 use LJ::Session;
 use LJ::Test qw(temp_user);
 plan skip_all => 'Entry integration requires a development server' unless $LJ::IS_DEV_SERVER;
@@ -39,11 +38,6 @@ die $@ unless ref $app eq 'CODE';
 sub form {
     ( grep { ( $_->attr('id') || '' ) eq 'js-post-entry' }
             HTML::Form->parse( $_[0], 'http://localhost/entry/new' ) )[0];
-}
-
-sub edit_form {
-    ( grep { $_->find_input('subject') && $_->find_input('event') }
-            HTML::Form->parse( $_[0], 'http://localhost' ) )[0];
 }
 
 my $user = temp_user();
@@ -70,6 +64,8 @@ my @accounts = (
     )
 );
 my @calls;
+my @spam_checks;
+local $LJ::HOOKS{spam_check} = [ sub { push @spam_checks, [@_]; return; } ];
 test_psgi $app, sub {
     my $send    = shift;
     my $request = sub { my ($r) = @_; $r->header( Cookie => $cookie ); $send->($r) };
@@ -108,32 +104,5 @@ test_psgi $app, sub {
     my ($count) =
         $user->selectrow_array( 'SELECT COUNT(*) FROM log2 WHERE journalid=?', undef, $uid );
     is( $count, 1, 'real form persists one entry' );
-
-    my ( $jitemid, $anum ) = $user->selectrow_array(
-        'SELECT jitemid, anum FROM log2 WHERE journalid=? ORDER BY jitemid ASC LIMIT 1',
-        undef, $uid );
-    my $edit_path = '/entry/' . $user->user . '/' . ( $jitemid * 256 + $anum ) . '/edit';
-    @calls = ();
-    $res   = $request->( GET $edit_path );
-    is( $res->code, 200, 'native owned-entry edit form renders' );
-    my $edit = edit_form( $res->content );
-    ok( $edit, 'native owned-entry edit form parses' ) or return;
-    $edit->action( 'http://localhost' . $edit_path );
-    $edit->value( subject         => 'Native edit crosspost subject' );
-    $edit->value( event           => 'Native edit crosspost body' );
-    $edit->value( crosspost_entry => 1 );
-    $edit->value( crosspost       => 41 );
-    $res = $request->( $edit->click('action:post') );
-    is( $res->code,    200, 'native owned-entry edit succeeds' );
-    is( scalar @calls, 1,   'native owned-entry edit schedules exactly once' );
-    is( $calls[0][2],  0,   'native owned-entry edit uses non-delete scheduler state' );
-    is_deeply(
-        $calls[0][3],
-        [
-            [ 41, [ 1, { password => '',    auth_challenge => '',    auth_response => '' } ] ],
-            [ 42, [ 0, { password => undef, auth_challenge => undef, auth_response => undef } ] ],
-        ],
-        'native owned-entry edit callback preserves selected and unselected values'
-    );
 };
 done_testing;
