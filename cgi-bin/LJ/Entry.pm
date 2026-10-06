@@ -1392,11 +1392,11 @@ sub TO_JSON {
     # terms for display.
     if ( $self->security() eq "usemask" ) {
         if ( $self->allowmask == 1 || !$self->poster->equals($remote) ) {
-            $entry->security = "access";
+            $entry->{security} = "access";
         }
         else {
-            $entry->security      = "custom";
-            $entry->custom_groups = grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60;
+            $entry->{security}      = "custom";
+            $entry->{custom_groups} = [ grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60 ];
         }
 
     }
