@@ -241,6 +241,34 @@ note("logout_all_accounts: ends every session, keeps or forgets the list");
 }
 
 # ---------------------------------------------------------------------------
+note("logout: a session that can't be destroyed aborts without handing off");
+{
+    my $sb = LJ::Session->create( $ub, exptype => 'long' );
+    new_request( build_cookie( [ $ub, $sb ] ) );
+    my $sa = login_active($ua);
+
+    {
+        local *LJ::Session::destroy_sessions = sub { 0 };
+        ok( !eval { DW::AccountSwitcher->logout_active;       1 }, "logout_active dies" );
+        ok( !eval { DW::AccountSwitcher->logout_all_accounts; 1 }, "logout_all_accounts dies" );
+    }
+    ok( LJ::get_remote()->equals($ua),         "still logged in as A" );
+    ok( !$req->last_cookie('ljmastersession'), "no handoff to B" );
+    ok( !$req->last_cookie('ljsessions'),      "switcher cookie untouched" );
+}
+
+# ---------------------------------------------------------------------------
+note("logout_all_accounts: revokes a session bound to another IP");
+{
+    my $sb = LJ::Session->create( $ub, exptype => 'long', ipfixed => '10.9.8.7' );
+    new_request( build_cookie( [ $ub, $sb ] ) );
+    login_active($ua);
+
+    DW::AccountSwitcher->logout_all_accounts;
+    ok( !LJ::Session->instance( $ub, $sb->{sessid} ), "B's IP-bound session destroyed" );
+}
+
+# ---------------------------------------------------------------------------
 note("demote_current: logging in as a new account keeps the old one switchable");
 {
     new_request( build_cookie() );

@@ -281,26 +281,39 @@ sub switch_to {
     return 1;
 }
 
+# Destroy the session behind a stored handle, even one unusable from this
+# request (e.g. IP-bound to another network). False only if it could not be
+# destroyed.
+sub _revoke {
+    my ( $class, $entry ) = @_;
+    my $u    = LJ::load_userid( $entry->{userid} ) or return 1;
+    my $sess = LJ::Session->instance( $u, $entry->{sessid} ) or return 1;
+    return 1 unless $sess->{auth} eq $entry->{auth};
+    return $sess->destroy;
+}
+
 # Log out the active account -- this session, or with $opts{all} every session
 # it has anywhere -- and hand off to the first usable stored account. The
 # logged-out account stays listed, signed out, for a pre-filled re-login.
 # Returns the promoted LJ::User, or undef after a full logout. A full logout
 # forgets the list when it held only the logged-out account, so a lone login on
-# a shared computer leaves no trace.
+# a shared computer leaves no trace. Dies, changing nothing, if the session
+# can't be destroyed.
 sub logout_active {
     my ( $class, %opts ) = @_;
 
     my $remote  = LJ::get_remote() or return undef;
+    my $cur     = $class->_current_handle;
     my $entries = $class->_with_current( $class->_entries );
 
-    if ( $opts{all} ) {
-        LJ::Session->destroy_all_sessions($remote);
-    }
-    elsif ( my $sess = $remote->session ) {
-        $sess->destroy;
-    }
+    my $revoked =
+          $opts{all} ? LJ::Session->destroy_all_sessions($remote)
+        : $cur       ? $class->_revoke($cur)
+        :              1;
+    die "Unable to end session\n" unless $revoked;
 
     foreach my $entry (@$entries) {
+        next if $entry->{userid} == $remote->userid;
         my $rec = $class->_resolve($entry);
         next unless $rec && $rec->{valid};
 
@@ -320,15 +333,14 @@ sub logout_active {
 }
 
 # Log out of the active account and every stored one in this browser. The
-# accounts stay listed, signed out, unless $opts{forget}.
+# accounts stay listed, signed out, unless $opts{forget}. Dies, leaving the
+# cookies alone, if any session can't be destroyed.
 sub logout_all_accounts {
     my ( $class, %opts ) = @_;
 
     my $entries = $class->_with_current( $class->_entries );
-    foreach my $entry (@$entries) {
-        my $rec = $class->_resolve($entry);
-        $rec->{sess}->destroy if $rec && $rec->{sess};
-    }
+    my @failed  = grep { !$class->_revoke($_) } @$entries;
+    die "Unable to end session\n" if @failed;
 
     if ( my $remote = LJ::get_remote() ) {
         $remote->_logout_common;
@@ -338,7 +350,8 @@ sub logout_all_accounts {
 }
 
 # Remove one stored account from this browser without touching the active one:
-# destroy its session and drop it from the list. Returns 1 if it was present.
+# destroy its session and drop it from the list. Returns 1 if it was present and
+# its session is gone.
 sub remove_account {
     my ( $class, $userid ) = @_;
     $userid += 0;
@@ -347,8 +360,7 @@ sub remove_account {
     my ($target) = grep { $_->{userid} == $userid } @entries;
     return 0 unless $target;
 
-    my $rec = $class->_resolve($target);
-    $rec->{sess}->destroy if $rec && $rec->{sess};
+    return 0 unless $class->_revoke($target);
 
     $class->_write( [ grep { $_->{userid} != $userid } @entries ] );
     return 1;

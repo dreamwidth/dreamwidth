@@ -86,20 +86,27 @@ sub logout_handler {
     if ( $remote && $r->did_post ) {
         my $post_args = $r->post_args;
 
-        if ( exists $post_args->{logout_accounts} ) {
-            my $forget = $post_args->{forget} ? 1 : 0;
-            DW::AccountSwitcher->logout_all_accounts( forget => $forget );
-            $vars->{success} = $forget ? 'accounts_forgotten' : 'accounts';
-        }
-        elsif ( exists $post_args->{logout_one} || exists $post_args->{logout_all} ) {
-            my $all = exists $post_args->{logout_all};
-            if ( my $next = DW::AccountSwitcher->logout_active( all => $all ) ) {
-                $vars->{success}     = 'switched';
-                $vars->{switched_to} = $next->ljuser_display;
+        my $done = eval {
+            if ( exists $post_args->{logout_accounts} ) {
+                my $forget = $post_args->{forget} ? 1 : 0;
+                DW::AccountSwitcher->logout_all_accounts( forget => $forget );
+                $vars->{success} = $forget ? 'accounts_forgotten' : 'accounts';
             }
-            else {
-                $vars->{success} = $all ? 'all' : 'one';
+            elsif ( exists $post_args->{logout_one} || exists $post_args->{logout_all} ) {
+                my $all = exists $post_args->{logout_all};
+                if ( my $next = DW::AccountSwitcher->logout_active( all => $all ) ) {
+                    $vars->{success}     = 'switched';
+                    $vars->{switched_to} = $next->ljuser_display;
+                }
+                else {
+                    $vars->{success} = $all ? 'all' : 'one';
+                }
             }
+            1;
+        };
+        unless ($done) {
+            $log->error( 'Logout failed for ', $remote->user, ': ', $@ );
+            $vars->{failed} = 1;
         }
 
         # If the logout form asked to be sent back to the original page (with a
@@ -113,7 +120,7 @@ sub logout_handler {
     }
 
     # GET case or the logout success case
-    $vars->{other_accounts} = [ DW::AccountSwitcher->accounts ]
+    $vars->{other_accounts} = [ grep { $_->{valid} } DW::AccountSwitcher->accounts ]
         if $remote && !$vars->{success};
     return DW::Template->render_template( 'auth/logout.tt', $vars );
 }

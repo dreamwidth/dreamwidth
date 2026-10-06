@@ -52,6 +52,12 @@
 
 [% ELSE %]
 
+    [% IF failed %]
+    <div class="alert-box alert radius">
+    Something went wrong and you have not been logged out. Please try again.
+    </div>
+    [% END %]
+
     <p>
     If you would like to log out of [% site.nameshort %], you can choose to either log out
     this browser only, or to log out everywhere. This is useful if you were logged in on another
