@@ -4,8 +4,8 @@
 # account stays in ljmastersession; the other signed-in accounts live in a
 # separate "ljsessions" cookie as (userid, sessid, auth) handles. Covers cookie
 # parsing, listing/validating stored accounts, switching (which re-validates
-# against the DB and demotes the old active), promotion on logout, removal, and
-# rejection of tampered / stale / rotated cookies.
+# against the DB and demotes the old active), logout, removal, and rejection of
+# tampered / stale / rotated cookies.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -40,6 +40,7 @@ sub cookie {
 }
 sub get_remote_ip { "127.0.0.1" }
 sub header_in     { "" }
+sub delete_cookie { }
 
 sub add_cookie {
     my ( $self, %args ) = @_;
@@ -174,33 +175,111 @@ note("switch_to: unknown account id is refused");
 }
 
 # ---------------------------------------------------------------------------
-note("promote_next: hands off to the first usable stored account");
+note("logout_active: hands off to the next account, keeps the old one signed out");
 {
     my $sb = LJ::Session->create( $ub, exptype => 'long' );
     my $sc = LJ::Session->create( $uc, exptype => 'long' );
 
-    # simulate the active account having just been destroyed on logout
     new_request( build_cookie( [ $ub, $sb ], [ $uc, $sc ] ) );
-    LJ::set_remote(undef);
+    my $sa = login_active($ua);
 
-    my $next = DW::AccountSwitcher->promote_next;
-    ok( $next && $next->equals($ub), "promote_next returns B (first stored)" );
+    my $next = DW::AccountSwitcher->logout_active;
+    ok( $next && $next->equals($ub), "logout_active returns B (first stored)" );
     is( master_userid(), $ub->id, "master cookie switched to B" );
+    ok( !LJ::Session->instance( $ua, $sa->{sessid} ), "A's session was destroyed" );
 
-    my %ids = map { $_->{userid} => 1 } DW::AccountSwitcher->accounts;
-    ok( $ids{ $uc->id } && !$ids{ $ub->id }, "B removed from list, C remains" );
+    my %accts = map { $_->{userid} => $_ } DW::AccountSwitcher->accounts;
+    ok( $accts{ $ua->id } && !$accts{ $ua->id }{valid}, "A still listed, signed out" );
+    ok( $accts{ $uc->id }{valid},                       "C still listed and usable" );
+    ok( !$accts{ $ub->id },                             "B (now active) not listed" );
 }
 
 # ---------------------------------------------------------------------------
-note("promote_next: nothing usable -> undef");
+note("logout_active: nothing usable -> full logout");
 {
+    # a lone account leaves nothing behind
+    new_request( build_cookie() );
+    login_active($ua);
+    ok( !defined DW::AccountSwitcher->logout_active, "no stored account -> undef" );
+    ok( !LJ::get_remote(),                           "logged out" );
+    my $set = $req->last_cookie('ljsessions');
+    ok( $set && $set->{value} eq "" && $set->{expires}, "lone account: switcher cookie deleted" );
+
+    # signed-out accounts the user kept are not forgotten
     my $sb     = LJ::Session->create( $ub, exptype => 'long' );
     my $cookie = build_cookie( [ $ub, $sb ] );
     $sb->destroy;
 
     new_request($cookie);
-    LJ::set_remote(undef);
-    ok( !defined DW::AccountSwitcher->promote_next, "no usable account -> undef" );
+    login_active($ua);
+    ok( !defined DW::AccountSwitcher->logout_active, "only signed-out accounts -> undef" );
+    my %ids = map { $_->{userid} => 1 } DW::AccountSwitcher->accounts;
+    ok( $ids{ $ua->id } && $ids{ $ub->id }, "A and B both still listed" );
+}
+
+# ---------------------------------------------------------------------------
+note("logout_all_accounts: ends every session, keeps or forgets the list");
+{
+    my $sb = LJ::Session->create( $ub, exptype => 'long' );
+    new_request( build_cookie( [ $ub, $sb ] ) );
+    my $sa = login_active($ua);
+
+    DW::AccountSwitcher->logout_all_accounts;
+    ok( !LJ::get_remote(), "logged out" );
+    ok( !LJ::Session->instance( $ua, $sa->{sessid} ), "A's session destroyed" );
+    ok( !LJ::Session->instance( $ub, $sb->{sessid} ), "B's session destroyed" );
+
+    my @accts = DW::AccountSwitcher->accounts;
+    is( scalar @accts, 2, "both accounts still listed" );
+    ok( !( grep { $_->{valid} } @accts ), "all of them signed out" );
+
+    $sb = LJ::Session->create( $ub, exptype => 'long' );
+    new_request( build_cookie( [ $ub, $sb ] ) );
+    login_active($ua);
+    DW::AccountSwitcher->logout_all_accounts( forget => 1 );
+    is( scalar DW::AccountSwitcher->accounts, 0, "forget => list cleared" );
+}
+
+# ---------------------------------------------------------------------------
+note("logout: a session that can't be destroyed aborts without handing off");
+{
+    my $sb = LJ::Session->create( $ub, exptype => 'long' );
+    new_request( build_cookie( [ $ub, $sb ] ) );
+    my $sa = login_active($ua);
+
+    {
+        local *LJ::Session::destroy_sessions = sub { 0 };
+        ok( !eval { DW::AccountSwitcher->logout_active;       1 }, "logout_active dies" );
+        ok( !eval { DW::AccountSwitcher->logout_all_accounts; 1 }, "logout_all_accounts dies" );
+    }
+    ok( LJ::get_remote()->equals($ua),         "still logged in as A" );
+    ok( !$req->last_cookie('ljmastersession'), "no handoff to B" );
+    ok( !$req->last_cookie('ljsessions'),      "switcher cookie untouched" );
+}
+
+# ---------------------------------------------------------------------------
+note("logout_all_accounts: revokes a session bound to another IP");
+{
+    my $sb = LJ::Session->create( $ub, exptype => 'long', ipfixed => '10.9.8.7' );
+    new_request( build_cookie( [ $ub, $sb ] ) );
+    login_active($ua);
+
+    DW::AccountSwitcher->logout_all_accounts;
+    ok( !LJ::Session->instance( $ub, $sb->{sessid} ), "B's IP-bound session destroyed" );
+}
+
+# ---------------------------------------------------------------------------
+note("demote_current: logging in as a new account keeps the old one switchable");
+{
+    new_request( build_cookie() );
+    login_active($ua);
+
+    DW::AccountSwitcher->demote_current;
+    $ub->make_login_session;
+
+    my ($rec) = grep { $_->{userid} == $ua->id } DW::AccountSwitcher->accounts;
+    ok( $rec && $rec->{valid}, "A stored and usable after B logs in" );
+    is( DW::AccountSwitcher->switch_to( $ua->id ), 1, "can switch back to A" );
 }
 
 # ---------------------------------------------------------------------------
