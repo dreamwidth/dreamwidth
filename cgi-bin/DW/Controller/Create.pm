@@ -23,6 +23,7 @@
 package DW::Controller::Create;
 
 use strict;
+use DW::AccountSwitcher;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -273,7 +274,8 @@ sub create_handler {
             # note that this user needs to be reviewed for spam content
             $nu->set_prop( not_approved => 1 ) if LJ::is_enabled('approvenew');
 
-            # we're all done
+            # we're all done; keep the account we were logged in as switchable
+            DW::AccountSwitcher->demote_current;
             $nu->make_login_session;
 
             if ($code) {

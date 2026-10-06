@@ -227,19 +227,29 @@ sub _current_handle {
     };
 }
 
+# $entries plus the active account's handle, replacing any older entry for that
+# account (e.g. one left signed out by an earlier logout).
+sub _with_current {
+    my ( $class, $entries ) = @_;
+    my $cur = $class->_current_handle or return $entries;
+    return [ ( grep { $_->{userid} != $cur->{userid} } @$entries ), $cur ];
+}
+
+# Move the active account into the stored list, so a login as another account
+# that follows keeps it switchable.
+sub demote_current {
+    my $class = shift;
+    return $class->_write( $class->_with_current( $class->_entries ) );
+}
+
 # Add a freshly-authenticated account and make it active, demoting the current
 # active into the stored list. $u must already be password-verified by the
 # caller. Returns 1.
 sub add_account {
     my ( $class, $u, $exptype, $ipfixed, $session ) = @_;
 
-    my @list = grep { $_->{userid} != $u->userid } @{ $class->_entries };
-
-    # demote the account we're currently logged in as
-    if ( my $cur = $class->_current_handle ) {
-        push @list, $cur unless $cur->{userid} == $u->userid;
-    }
-    $class->_write( \@list );
+    $class->_write(
+        [ grep { $_->{userid} != $u->userid } @{ $class->_with_current( $class->_entries ) } ] );
 
     # make_login_session creates a new session for $u, writes the master cookie,
     # and sets the remote -- exactly like a normal login.
@@ -265,35 +275,66 @@ sub switch_to {
     return 'expired' unless $rec && $rec->{valid};
 
     # demote current active, drop the target from the stored list
-    my @list = grep { $_->{userid} != $userid } @entries;
-    if ( my $cur = $class->_current_handle ) {
-        push @list, $cur unless $cur->{userid} == $userid;
-    }
-    $class->_write( \@list );
+    $class->_write( [ grep { $_->{userid} != $userid } @{ $class->_with_current( \@entries ) } ] );
 
     $class->_activate( $rec->{u}, $rec->{sess} );
     return 1;
 }
 
-# After the active account has logged out, promote the first usable stored
-# account to active. Returns the promoted LJ::User, or undef if none is usable
-# (in which case the caller finishes a normal logout). Does NOT demote the old
-# active -- it is already gone.
-sub promote_next {
-    my $class = shift;
+# Log out the active account -- this session, or with $opts{all} every session
+# it has anywhere -- and hand off to the first usable stored account. The
+# logged-out account stays listed, signed out, for a pre-filled re-login.
+# Returns the promoted LJ::User, or undef after a full logout. A full logout
+# forgets the list when it held only the logged-out account, so a lone login on
+# a shared computer leaves no trace.
+sub logout_active {
+    my ( $class, %opts ) = @_;
 
-    my @entries = @{ $class->_entries };
-    foreach my $entry (@entries) {
+    my $remote  = LJ::get_remote() or return undef;
+    my $entries = $class->_with_current( $class->_entries );
+
+    if ( $opts{all} ) {
+        LJ::Session->destroy_all_sessions($remote);
+    }
+    elsif ( my $sess = $remote->session ) {
+        $sess->destroy;
+    }
+
+    foreach my $entry (@$entries) {
         my $rec = $class->_resolve($entry);
         next unless $rec && $rec->{valid};
 
-        my @list = grep { $_->{userid} != $entry->{userid} } @entries;
-        $class->_write( \@list );
+        $class->_write( [ grep { $_->{userid} != $entry->{userid} } @$entries ] );
         $class->_activate( $rec->{u}, $rec->{sess} );
         return $rec->{u};
     }
 
+    $remote->_logout_common;
+    if ( grep { $_->{userid} != $remote->userid } @$entries ) {
+        $class->_write($entries);
+    }
+    else {
+        $class->clear;
+    }
     return undef;
+}
+
+# Log out of the active account and every stored one in this browser. The
+# accounts stay listed, signed out, unless $opts{forget}.
+sub logout_all_accounts {
+    my ( $class, %opts ) = @_;
+
+    my $entries = $class->_with_current( $class->_entries );
+    foreach my $entry (@$entries) {
+        my $rec = $class->_resolve($entry);
+        $rec->{sess}->destroy if $rec && $rec->{sess};
+    }
+
+    if ( my $remote = LJ::get_remote() ) {
+        $remote->_logout_common;
+    }
+
+    return $opts{forget} ? $class->clear : $class->_write($entries);
 }
 
 # Remove one stored account from this browser without touching the active one:

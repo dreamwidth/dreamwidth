@@ -3,7 +3,11 @@
 
 .btn.cancel=Cancel
 
+.btn.create=Create a new account
+
 .btn.login=Log in
+
+.btn.logout=Log out
 
 .btn.remove=Remove
 
