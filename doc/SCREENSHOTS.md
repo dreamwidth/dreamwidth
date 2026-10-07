@@ -1,8 +1,3 @@
----
-name: screenshot-dev-page
-description: Capture a screenshot of a page rendered by the local Dreamwidth dev server, to visually check how a change looks. Use when asked to screenshot, "show me", or visually verify how a page/view/.tt renders (e.g. after a BML→TT migration or a CSS/template change). Runs headless Chrome inside the devcontainer via bin/dev/screenshot.
----
-
 # Screenshot a dev-server page
 
 `bin/dev/screenshot` renders a page from the local Starman dev server (port 8080)
@@ -20,7 +15,8 @@ than only reading the HTML.
 ## Run it
 
 ```bash
-CID=$(docker ps --filter label=devcontainer.local_folder=<worktree-path> --format '{{.ID}}')
+# Run from the checkout root on the host.
+CID=$(docker ps --filter "label=devcontainer.local_folder=$(pwd)" --format '{{.ID}}')
 
 # public page
 docker exec -w /workspaces/dreamwidth $CID bin/dev/screenshot /login
@@ -40,7 +36,7 @@ Copy it out, then look at it and/or send it to the user:
 docker cp $CID:/tmp/dw-screenshot.png /tmp/shot.png
 ```
 
-Then `Read` `/tmp/shot.png` to inspect it yourself, and/or `SendUserFile` it.
+Open `/tmp/shot.png` in an image viewer to inspect the result or share it for review.
 
 ## Gotchas
 

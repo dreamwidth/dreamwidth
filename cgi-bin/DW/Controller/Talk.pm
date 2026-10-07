@@ -3,6 +3,8 @@ package DW::Controller::Talk;
 use strict;
 use LJ::JSON;
 use DW::Controller;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 use DW::Routing;
 use DW::Template;
 use DW::Formats;
@@ -358,7 +360,16 @@ sub talkpost_do_handler {
     # For most errors, we preview anyway; they can fix it while they edit
     # their text. But we DO need to know who they think they are, so let the
     # error path handle auth failures.
-    if ( $authok && $POST->{submitpreview} ) {
+    #
+    # The preview reflects the entry and parent as they appear to the commenter,
+    # so build it only when both are readable for them; otherwise there's nothing
+    # to show and we fall through to the error path below.
+    my $parenttalkid = ( $POST->{replyto} || $POST->{parenttalkid} || 0 ) + 0;
+    my $can_preview  = $entry->visible_to($commenter)
+        && ( !$parenttalkid
+        || $entry->visible_comment( $parenttalkid * 256 + $entry->anum, $commenter ) );
+
+    if ( $authok && $POST->{submitpreview} && $can_preview ) {
 
         # yer a reply page, Harry. (keep consistent behavior by loading same
         # JS/CSS as journal pages.)
@@ -456,7 +467,10 @@ sub talkpost_do_handler {
 
     my $parent = $comment->{parent};
 
-    my $unscreen_parent = $POST->{unscreen_parent} ? 1 : 0;
+    # Act on the unscreen-parent option using the same check that decides whether
+    # to offer the checkbox in the first place, so the two stay consistent.
+    my $unscreen_parent = $POST->{unscreen_parent}
+        && LJ::Talk::can_unscreen( $commenter, $journalu, $entry->poster ) ? 1 : 0;
 
     # ACTUALLY POST IT
     my $editid      = $POST->{editid};
@@ -701,6 +715,14 @@ sub authenticate_user_and_mutate_form {
             return $mlerr->("/talkpost_do.tt.error.postshared");
         }
 
+        my $requires_2fa = DW::Auth::TOTP->is_enabled($up);
+        return $got_user->($remote)
+            if $requires_2fa
+            && $remote
+            && $remote->equals($up)
+            && $remote->session
+            && $remote->session->valid;
+
         # authenticate on username/password
         my $ok = LJ::auth_okay( $up, $form->{password} );
 
@@ -712,6 +734,12 @@ sub authenticate_user_and_mutate_form {
                 "/talkpost_do.tt.error.badpassword2",
                 { aopts => "href='$LJ::SITEROOT/lostinfo'" }
             );
+        }
+
+        # Enrollment may have completed while the password was being checked.
+        if ( DW::Auth::TOTP->is_enabled($up) ) {
+            $form->{password} = '';
+            return $err->( DW::Auth::Login->required_message );
         }
 
         # GREAT, they're in!
@@ -1169,7 +1197,11 @@ sub talkscreen_handler {
             . "parenttalkid, journalid, posterid FROM talk2 "
             . "WHERE journalid=$u->{'userid'} AND jtalkid=$qtalkid" );
 
-    return $error->('talk.error.nocomment') unless $post;
+    # hidden comments answer as missing ones, except to journal managers
+    return $error->('talk.error.nocomment')
+        unless $post
+        && ( $remote->can_manage($u)
+        || LJ::Entry->new( $u, jitemid => $post->{itemid} )->visible_comment( $talkid, $remote ) );
     return $error->('talk.error.comm_deleted') if $post->{'state'} eq "D";
 
     my $state = $post->{'state'};
@@ -1340,8 +1372,11 @@ sub delcomment_handler {
         undef, $u->userid, $tpid
     );
 
+    # hidden comments answer as missing ones, except to journal managers
     return $bad_input->('/delcomment.tt.error.nocomment')
-        unless $tp;
+        unless $tp
+        && ( $remote->can_manage($u)
+        || LJ::Entry->new( $u, jitemid => $tp->{itemid} )->visible_comment( $GET->{id}, $remote ) );
 
     return $bad_input->('/delcomment.tt.error.invalidtype2')
         unless $tp->{'nodetype'} eq 'L';

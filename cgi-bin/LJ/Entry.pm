@@ -362,12 +362,16 @@ sub anum {
 sub correct_anum {
     my ( $self, $given ) = @_;
 
-    $given =
-          defined $given   ? int($given)
-        : $self->{ditemid} ? $self->{_untrusted_anum}
-        :                    $self->{anum};
-
+    # valid() loads the row, which fills in anum for slug and jitemid lookups
     return 0 unless $self->valid;
+
+    # Trust the untrusted anum only when the constructor took a ditemid: _untrusted_anum
+    # marks that, while {ditemid} may be lazily filled by ditemid() on any entry.
+    $given =
+          defined $given                   ? int($given)
+        : defined $self->{_untrusted_anum} ? $self->{_untrusted_anum}
+        :                                    $self->{anum};
+
     return 0 unless defined $self->{anum} && defined $given;
     return $self->{anum} == $given;
 }
@@ -1075,6 +1079,23 @@ sub visible_to {
     return 0;
 }
 
+# Returns the LJ::Comment for $dtalkid if it's on this entry and $u (undef when
+# logged out) can see it. Callers must answer exactly the same way for every
+# undef result, so that hidden comments can't be told apart from missing ones.
+sub visible_comment {
+    my ( $self, $dtalkid, $u ) = @_;
+
+    return undef unless ( $dtalkid // '' ) =~ /^\d+$/ && $dtalkid % 256 == $self->anum;
+
+    my $comment = LJ::Comment->new( $self->journal, dtalkid => $dtalkid );
+    return undef unless $comment->valid;
+    return undef unless $comment->nodetype eq 'L' && $comment->nodeid == $self->jitemid;
+    return undef if $comment->is_deleted;
+    return undef if $comment->poster && $comment->poster->is_suspended;
+    return undef if $comment->is_screened && !$comment->visible_to($u);
+    return $comment;
+}
+
 # returns hashref of (kwid => tag) for tags on the entry
 sub tag_map {
     my $self = $_[0];
@@ -1175,7 +1196,11 @@ sub can_tellafriend {
 sub adult_content {
     my $self = $_[0];
 
-    return $self->prop('adult_content');
+    my $level = $self->prop('adult_content');
+
+    # Legacy invalid values must not suppress journal defaults or maintainer ratings.
+    return $level if defined $level && $level =~ /\A(?:none|concepts|explicit)\z/;
+    return undef;
 }
 
 # defined by a community maintainer
@@ -1185,7 +1210,7 @@ sub adult_content_maintainer {
     my $userLevel  = $self->adult_content;
     my $maintLevel = $self->prop('adult_content_maintainer');
 
-    return undef unless $maintLevel;
+    return undef unless $maintLevel && $maintLevel =~ /\A(?:none|concepts|explicit)\z/;
     return $maintLevel if $userLevel eq $maintLevel;
     return $maintLevel if !$userLevel || $userLevel eq "none";
     return $maintLevel if $userLevel eq "concepts" && $maintLevel eq "explicit";
@@ -1367,11 +1392,11 @@ sub TO_JSON {
     # terms for display.
     if ( $self->security() eq "usemask" ) {
         if ( $self->allowmask == 1 || !$self->poster->equals($remote) ) {
-            $entry->security = "access";
+            $entry->{security} = "access";
         }
         else {
-            $entry->security      = "custom";
-            $entry->custom_groups = grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60;
+            $entry->{security}      = "custom";
+            $entry->{custom_groups} = [ grep { $self->allowmask & ( 1 << $_ ) } 1 .. 60 ];
         }
 
     }

@@ -32,6 +32,7 @@ use Imager::QRCode;
 
 use DW::AccountSwitcher;
 use DW::Auth::TOTP;
+use MIME::Base64 qw(encode_base64);
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -44,11 +45,10 @@ DW::Controller::Settings - Controller for settings/settings-related pages
 
 =cut
 
-DW::Routing->register_string( "/accountstatus",    \&account_status_handler,   app    => 1 );
-DW::Routing->register_string( "/changepassword",   \&changepassword_handler,   app    => 1, );
-DW::Routing->register_string( "/lostinfo",         \&lostinfo_handler,         app    => 1, );
-DW::Routing->register_string( "/manage2fa",        \&manage2fa_handler,        app    => 1, );
-DW::Routing->register_string( "/manage2fa/qrcode", \&manage2fa_qrcode_handler, format => 'png' );
+DW::Routing->register_string( "/accountstatus",  \&account_status_handler, app => 1 );
+DW::Routing->register_string( "/changepassword", \&changepassword_handler, app => 1, );
+DW::Routing->register_string( "/lostinfo",       \&lostinfo_handler,       app => 1, );
+DW::Routing->register_string( "/manage2fa", \&manage2fa_handler, app => 1, no_cache => 1 );
 
 sub account_status_handler {
     my ($opts) = @_;
@@ -262,24 +262,38 @@ sub manage2fa_handler {
     my $post_args = $r->post_args;
     my $errors    = DW::FormErrors->new;
 
+    return error_ml('error.invaliduser') unless $remote->is_personal;
+
     if ( DW::Auth::TOTP->is_enabled($remote) ) {
         my $vars;
 
         if ( $post_args->{'action:show-codes'} ) {
-            $vars->{codes}      = [ DW::Auth::TOTP->get_recovery_codes($remote) ];
-            $vars->{show_codes} = 1;
+            my $codes = !LJ::login_ip_banned($remote)
+                && DW::Auth::TOTP->recovery_codes_for_credentials( $remote, $post_args->{password},
+                $post_args->{code} );
+            if ( !$codes ) {
+                LJ::handle_bad_login($remote);
+                $errors->add_string( password => 'Invalid password or authentication code.' );
+                $vars->{errors} = $errors;
+            }
+            else {
+                $vars->{codes}      = $codes;
+                $vars->{show_codes} = 1;
+            }
         }
         elsif ( $post_args->{'action:disable'} ) {
             return DW::Template->render_template('settings/manage2fa/disable.tt');
         }
         elsif ( $post_args->{'action:disable-confirm'} ) {
-            if ( !$remote->check_password( $post_args->{password} ) ) {
-                $errors->add_string( password => 'Password invalid.' );
+            if ( LJ::login_ip_banned($remote)
+                || !DW::Auth::TOTP->disable( $remote, $post_args->{password}, $post_args->{code} ) )
+            {
+                LJ::handle_bad_login($remote);
+                $errors->add_string( password => 'Invalid password or authentication code.' );
                 return DW::Template->render_template( 'settings/manage2fa/disable.tt',
                     { errors => $errors } );
             }
             else {
-                DW::Auth::TOTP->disable( $remote, $post_args->{password} );
 
                 return DW::Template->render_template( 'settings/manage2fa/index-disabled.tt',
                     { just_disabled => 1 } );
@@ -289,53 +303,85 @@ sub manage2fa_handler {
         return DW::Template->render_template( 'settings/manage2fa/index-enabled.tt', $vars );
     }
 
+    # Legacy credentials need the existing password migration before enrollment.
+    if ( $remote->dversion <= 9
+        && ( $post_args->{'action:setup'} || $post_args->{'action:enable'} ) )
+    {
+        return DW::Template->render_template(
+            'error.tt',
+            {
+                message =>
+'This account needs a password-storage upgrade before two-factor authentication can be enabled. Please contact Support.'
+            }
+        );
+    }
+
     # User does not have 2fa
     if ( $post_args->{'action:setup'} ) {
         return DW::Template->render_template( 'settings/manage2fa/setup.tt',
-            { totp_secret => DW::Auth::TOTP->generate_secret } );
+            _totp_setup_vars( DW::Auth::TOTP->generate_secret ) );
 
     }
     elsif ( $post_args->{'action:enable'} ) {
         my $secret      = $post_args->{totp_secret};
         my $verify_code = $post_args->{verification_code};
 
-        if ( !DW::Auth::TOTP->check_code( $remote, $verify_code, secret => $secret ) ) {
+        my $password_ok = LJ::auth_okay( $remote, $post_args->{password} );
+        if (   !$password_ok
+            || !DW::Auth::TOTP->check_code( $remote, $verify_code, secret => $secret ) )
+        {
+            LJ::handle_bad_login($remote) if $password_ok;
             $errors->add_string(
-                verification_code => 'Verification code failed. Please, try again.' );
+                verification_code => 'Invalid password or verification code. Please try again.' );
             return DW::Template->render_template( 'settings/manage2fa/setup.tt',
-                { totp_secret => $secret, errors => $errors } );
+                _totp_setup_vars( $secret, $errors ) );
         }
 
-        DW::Auth::TOTP->enable( $remote, $secret );
+        unless (
+            DW::Auth::TOTP->enable(
+                $remote, $secret, $post_args->{password},
+                $remote->session, $verify_code
+            )
+            )
+        {
+            # Another enrollment may have won while this request was waiting.
+            return DW::Template->render_template('settings/manage2fa/index-enabled.tt')
+                if DW::Auth::TOTP->is_enabled($remote);
+            LJ::handle_bad_login($remote);
+            $errors->add_string(
+                password => 'Invalid password or verification code. Please try again.' );
+            return DW::Template->render_template( 'settings/manage2fa/setup.tt',
+                _totp_setup_vars( $secret, $errors ) );
+        }
 
-        return DW::Template->render_template( 'settings/manage2fa/index-enabled.tt',
-            { codes => [ DW::Auth::TOTP->get_recovery_codes($remote) ], show_codes => 1 } );
+        return DW::Template->render_template(
+            'settings/manage2fa/index-enabled.tt',
+            {
+                codes        => [ DW::Auth::TOTP->get_recovery_codes($remote) ],
+                show_codes   => 1,
+                just_enabled => 1
+            }
+        );
     }
 
     return DW::Template->render_template('settings/manage2fa/index-disabled.tt');
 }
 
-sub manage2fa_qrcode_handler {
-    my ($opts) = @_;
-
-    my ( $ok, $rv ) = controller();
-    return $rv unless $ok;
-
-    my $r      = $rv->{r};
-    my $remote = $rv->{remote};
-
-    my $secret = $r->get_args->{'secret'} or die;
-
-    my $qrcode = Imager::QRCode->new( casesensitive => 1, );
-
-    my $image = $qrcode->plot(
-        qq{otpauth://totp/Dreamwidth:%20$remote->{user}?secret=$secret&issuer=Dreamwidth});
-
+sub _totp_setup_vars {
+    my ( $secret, $errors ) = @_;
+    $secret = DW::Auth::TOTP->generate_secret
+        unless defined $secret && $secret =~ /^[a-zA-Z2-7]{26}(?:={6})?$/;
+    my $remote = LJ::get_remote();
+    my $qrcode = Imager::QRCode->new( casesensitive => 1 );
+    my $image =
+        $qrcode->plot("otpauth://totp/Dreamwidth:$remote->{user}?secret=$secret&issuer=Dreamwidth");
     my $data;
     $image->write( data => \$data, type => 'png' );
-    $r->print($data);
-
-    return $r->OK;
+    return {
+        totp_secret => $secret,
+        errors      => $errors,
+        qrcode      => 'data:image/png;base64,' . encode_base64( $data, '' )
+    };
 }
 
 sub changepassword_handler {
@@ -348,7 +394,8 @@ sub changepassword_handler {
     my $get = $r->get_args;
     my $post;
 
-    my $remote = $rv->{remote};
+    my $remote    = $rv->{remote};
+    my $needs_2fa = $remote && DW::Auth::TOTP->is_enabled($remote);
 
     my ( $aa, $authu );
     my $ml_scope = "/settings/changepassword.tt";
@@ -425,11 +472,48 @@ sub changepassword_handler {
         $errors->add( "newpass1", ".error.notvalidated" )
             if $u->{status} ne 'A' && !$authu;
 
-        # now let's change the password
+        # Enrollment and password authentication must observe the same locked row,
+        # including when this account did not have a factor at request start.
+
+        # Consume a one-use factor only after the proposed password and account
+        # have passed all validation. A failed update rolls consumption back.
+        if ( !$errors->exist && !$authu ) {
+            my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+            $dbh->begin_work or die $dbh->errstr;
+            my $changed = eval {
+                $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid = ? FOR UPDATE',
+                    undef, $u->id );
+                die $dbh->errstr if $dbh->err;
+                $needs_2fa = DW::Auth::TOTP->is_enabled($u);
+                if ( !$u->check_password($password) ) {
+                    $errors->add( 'password', '.error.badoldpassword' );
+                    LJ::handle_bad_login($u);
+                }
+                elsif ( $needs_2fa && !DW::Auth::TOTP->verify( $u, $post->{code} ) ) {
+                    $errors->add_string( 'code', 'Enter a valid authentication or recovery code.' );
+                    LJ::handle_bad_login($u);
+                }
+                if ( $errors->exist ) {
+                    $dbh->rollback or die $dbh->errstr;
+                }
+                else {
+                    $u->set_password( $post->{newpass1} );
+                    $dbh->commit or die $dbh->errstr;
+                }
+                1;
+            };
+            unless ($changed) {
+                my $error = $@;
+                $dbh->rollback unless $dbh->{AutoCommit};
+                die $error;
+            }
+        }
+
+        # Finish session cleanup and notifications after the password commits.
         unless ( $errors->exist ) {
             $u->infohistory_add( 'password', 'changed' );
             $u->log_event( 'password_change', { remote => $remote } );
-            $u->set_password( $post->{newpass1} );
+            $u->set_password( $post->{newpass1} ) if $authu;
 
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
@@ -500,8 +584,9 @@ sub changepassword_handler {
             && !$r->did_post
             && $remote->{status} ne 'A',
 
-        authu  => $authu,
-        remote => $remote,
+        needs_2fa => $needs_2fa,
+        authu     => $authu,
+        remote    => $remote,
 
         formdata => $post || { user => $remote ? $remote->user : "" },
         errors   => $errors,

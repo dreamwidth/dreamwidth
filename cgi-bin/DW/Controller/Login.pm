@@ -24,6 +24,8 @@ use DW::Template;
 use DW::Controller;
 use DW::FormErrors;
 use DW::AccountSwitcher;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 
 # no_cache: the login form embeds a form_auth (CSRF) token that, for logged-out
 # users, is bound to their per-browser ljuniq cookie. If a shared proxy caches
@@ -31,6 +33,8 @@ use DW::AccountSwitcher;
 # "Invalid form submission". (The pre-TT login.bml set nocache=>1 for the same
 # reason; /register and /openid carry no_cache => 1 likewise.)
 DW::Routing->register_string( '/login', \&login_handler, app => 1, no_cache => 1 );
+
+DW::Routing->register_string( '/login/2fa', \&login_2fa_handler, app => 1, no_cache => 1 );
 
 sub login_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
@@ -227,6 +231,20 @@ sub login_handler {
                     : "short";
                 my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
 
+                if ( DW::Auth::TOTP->is_enabled($u) ) {
+                    my $destination = $returnto;
+                    $destination ||= $r->header_in('Referer')
+                        if ( $post->{ret} // $get->{ret} // '' ) eq '1';
+                    return DW::Auth::Login->start_challenge(
+                        $u,
+                        password => $post->{password},
+                        exptype  => $exptype,
+                        bindip   => $bindip,
+                        adding   => $adding,
+                        returnto => DW::Auth::Login->return_url($destination)
+                    );
+                }
+
                 # when adding a second account, keep the current one signed in
                 # and demote it into the switcher's stored list
                 if ( $adding && $old_remote && !$old_remote->equals($u) ) {
@@ -287,5 +305,56 @@ sub login_handler {
     $vars->{errors}  = \@errors;
     $vars->{remote}  = $remote;
     return DW::Template->render_template( 'login.tt', $vars );
+}
+
+sub login_2fa_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    return $rv unless $ok;
+    my $r           = $rv->{r};
+    my $token       = $r->cookie('ljmfapending');
+    my $restart_url = DW::Auth::Login->restart_url( $r->cookie('ljmfarestart') );
+    my ( $u, $opts ) = DW::Auth::Login->pending( $token, 1 );
+    unless ($u) {
+        $r->delete_cookie( name => 'ljmfapending', path => '/login' );
+        return $r->redirect($restart_url);
+    }
+    my $errors = DW::FormErrors->new;
+    $r->note( ml_scope => '/login/2fa.tt' );
+    if ( $r->did_post ) {
+        my ( $verified, $completion ) =
+            $opts->{verified}
+            ? ( $u, $opts )
+            : DW::Auth::Login->verify( $token, $r->post_args->{code} );
+        if ($verified) {
+            $opts = $completion;
+            if ( DW::Auth::Login->complete( $verified, %$completion ) ) {
+                DW::Stats::increment(
+                    'dw.action.session.login_ok',
+                    1,
+                    [
+                        'bindip:' . ( $completion->{bindip} ? 'yes' : 'no' ),
+                        'exptype:' . $completion->{exptype}
+                    ]
+                );
+                $r->delete_cookie( name => 'ljmfapending', path => '/login' );
+                $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
+                my $url = $completion->{returnto};
+                $url = DW::Auth::Login->return_url($url) || "$LJ::SITEROOT/";
+                return $r->redirect($url);
+            }
+        }
+        else {
+            $errors->add( 'code', '.error.badcredentials' );
+        }
+    }
+    return DW::Template->render_template(
+        'login/2fa.tt',
+        {
+            errors      => $errors,
+            user        => $u->display_name,
+            restart_url => $restart_url,
+            verified    => $opts->{verified}
+        }
+    );
 }
 1;

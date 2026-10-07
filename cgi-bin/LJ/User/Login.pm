@@ -19,6 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Auth::Password;
+use DW::Auth::TOTP;
 use LJ::Session;
 
 ########################################################################
@@ -154,7 +155,18 @@ sub make_login_session {
     };
     $sess_opts->{nolog} = 1 if $fake_login;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts );
+    my $sess = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create login session';
+    return $u->publish_login_session( $sess, $fake_login );
+}
+
+# A protected login supplies its already-verified session here.
+sub publish_login_session {
+    my ( $u, $sess, $fake_login ) = @_;
+    return 0 unless $sess && $sess->owner->equals($u);
+    $u->{_session} = $sess;
+    if ($fake_login) {
+        DW::Auth::TOTP->authorize_impersonation( $u, $sess );
+    }
     $sess->update_master_cookie;
 
     LJ::User->set_remote($u);

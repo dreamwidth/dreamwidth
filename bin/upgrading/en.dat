@@ -45,6 +45,8 @@ collapsible.collapsed=Expand
 
 collapsible.expanded=Collapse
 
+comment.rpc.notloggedin=You must be logged in to post a comment.
+
 comment.rpc.posted=Your comment has been posted.
 
 commlist.actinfo2=Profile
@@ -2378,8 +2380,6 @@ redirect.defaultbody=No parameters given.
 redirect.defaulttitle=Error
 
 redirect.error.nocomment=No such comment exists.
-
-redirect.error.noentry=No such entry exists.
 
 redirect.error.noentry.next2=There is no entry following this one. Go back to [[journal]].
 

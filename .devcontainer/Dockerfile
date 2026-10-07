@@ -41,10 +41,15 @@ RUN curl -fsSL https://repo.manticoresearch.com/manticore-repo.noarch.deb \
     apt-get install -y manticore && \
     rm /tmp/manticore-repo.deb
 
-# Install Node.js 20 LTS (for sass and esbuild)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g sass esbuild
+# Install Node.js 24 LTS (runtime for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get install -y nodejs
+
+# Install pinned CSS/JS build tools (sass, esbuild). Versions live in
+# etc/build-tools; Dependabot proposes upgrades (see .github/dependabot.yml).
+COPY etc/build-tools /opt/dw-build-tools
+RUN npm ci --prefix /opt/dw-build-tools
+ENV PATH="/opt/dw-build-tools/node_modules/.bin:${PATH}"
 
 # Install Go (for building devtool and other Go utilities)
 RUN curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -

@@ -203,7 +203,12 @@ use Net::Subnet;
     #         secret_key => undef,
     #
     #         # The name of your bucket. This is created in the S3 control panel.
-    #         bucket_name => 'my-bucket-name',
+    #         bucket => 'my-bucket-name',  # bucket_name is also accepted
+    #
+    #         # Optional S3-compatible service URL; omit for normal AWS S3.
+    #         # Paws uses path-style requests (endpoint/bucket/key).
+    #         # endpoint => 'https://storage.example.org',
+    #         # session_token => undef,  # optional with explicit temporary credentials
     #
     #         # The name of the region in AWS nomenclature. If you're in US Standard then
     #         # this is us-east-1.

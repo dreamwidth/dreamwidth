@@ -2218,6 +2218,36 @@ CREATE TABLE password2 (
 )
 EOC
 
+register_tablecreate( "mfa_sessions", <<'EOC');
+CREATE TABLE mfa_sessions (
+    userid INT UNSIGNED NOT NULL,
+    sessid INT UNSIGNED NOT NULL,
+    factor CHAR(64) NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    PRIMARY KEY (userid, sessid),
+    INDEX (expires)
+)
+EOC
+
+register_tablecreate( "login_challenges", <<'EOC');
+CREATE TABLE login_challenges (
+    token CHAR(64) NOT NULL PRIMARY KEY,
+    userid INT UNSIGNED NOT NULL,
+    payload TEXT NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    attempts INT UNSIGNED NOT NULL DEFAULT 0,
+    INDEX (expires),
+    INDEX (userid)
+)
+EOC
+
+register_tablecreate( "totp_used", <<'EOC');
+CREATE TABLE totp_used (
+    userid INT UNSIGNED NOT NULL PRIMARY KEY,
+    time_step BIGINT UNSIGNED NOT NULL
+)
+EOC
+
 register_tablecreate( "totp_recovery_codes", <<'EOC');
 CREATE TABLE totp_recovery_codes (
     userid      INT UNSIGNED NOT NULL,
