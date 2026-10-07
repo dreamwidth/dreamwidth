@@ -1,12 +1,11 @@
 paths:
-  "/journals/{username}/entries":
+  /journals/{username}/entries:
     parameters:
       - name: username
         in: path
         description: The journal you want entry information for
         required: true
-        schema:
-          &a1
+        schema: &a1
           type: string
           minLength: 3
           maxLength: 25
@@ -18,7 +17,8 @@ paths:
       parameters:
         - name: count
           in: query
-          description: The number of entries to fetch. FIXME - max
+          description: The number of entries to fetch. Large values are capped at the
+            site's scrollback limit.
           schema:
             type: integer
             minimum: 0
@@ -51,13 +51,11 @@ paths:
       responses:
         "200":
           description: a list of recent entries
-        "400":
-          &a3
+        "400": &a3
           description: Bad or missing request parameters.
           content:
             application/json:
-              schema:
-                &a2
+              schema: &a2
                 type: object
                 properties:
                   error:
@@ -66,20 +64,17 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
-        "401":
-          &a4
+        "401": &a4
           description: Missing or invalid API key.
           content:
             application/json:
               schema: *a2
-        "404":
-          &a5
+        "404": &a5
           description: Username specified does not exist.
           content:
             application/json:
               schema: *a2
-        "500":
-          &a6
+        "500": &a6
           description: Server error, please try again later. If it persists, open a
             support ticket.
           content:
@@ -88,6 +83,7 @@ paths:
     post:
       description: Post a new journal entry.
       requestBody:
+        required: true
         content:
           application/json:
             schema:

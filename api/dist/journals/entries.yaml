@@ -1,5 +1,5 @@
 paths:
-  "/journals/{username}/entries/{entry_id}":
+  /journals/{username}/entries/{entry_id}:
     parameters:
       - name: username
         in: path
@@ -22,13 +22,11 @@ paths:
       responses:
         "200":
           description: A single entry
-        "401":
-          &a2
+        "401": &a2
           description: Missing or invalid API key.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:
@@ -43,15 +41,15 @@ paths:
         "404":
           description: Journal or entry specified does not exist.
           schema: *a1
-        "500":
-          &a3
+        "500": &a3
           description: Server error, please try again later. If it persists, open a
             support ticket.
           content:
             application/json:
               schema: *a1
     post:
-      description: Edit a specified journal entry.
+      description: Edit a specified journal entry. Fields left out of the request keep
+        their current values.
       requestBody:
         content:
           application/json:
@@ -70,8 +68,8 @@ paths:
                   description: Keyword of icon to use
                 datetime:
                   type: string
-                  description: The date and time of the entry in the format `FIXME`. If omitted,
-                    the server time will be used instead.
+                  description: The date and time of the entry in the format `YYYY-MM-DD hh:mm`. If
+                    omitted, the entry's current date and time are kept.
                 security:
                   type: string
                   description: Security level to use. Can be `public`, `private`, or `access`.
@@ -84,7 +82,7 @@ paths:
                   description: Age restriction flag. `none` puts no flags on the entry,
                     `discretion` marks it as "viewer discretion advised", and
                     `restricted` marks it inacessible to users under eighteen.
-                    If omitted, the journal default will be used.
+                    If omitted, the current setting is kept.
                   enum:
                     - none
                     - discretion
@@ -97,7 +95,7 @@ paths:
                   type: string
                   description: Comment settings for the new entry. `nocomments` disables comments,
                     and `noemail` disables notifications. If omitted, the
-                    journal default will be used.
+                    current setting is kept.
                 tags:
                   description: An array of tags to apply to the entry.
                   type: array
@@ -125,8 +123,8 @@ paths:
                   description: Schedule for crosspost, using the account's default crosspost
                     accounts.
       responses:
-        "204":
-          description: The entry has been updated.
+        "200":
+          description: A link to the updated entry.
         "400":
           description: Bad or missing request parameters.
           content:

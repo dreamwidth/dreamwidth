@@ -131,7 +131,8 @@ sub register_rest_controller {
         $path =~ s/{$param}/$TYPE_REGEX{$type}/;
 
     }
-    DW::Routing->register_api_rest_endpoint( $path . '$', "_dispatcher", $info, version => $ver );
+    DW::Routing->register_api_rest_endpoint( '^' . $path . '$',
+        "_dispatcher", $info, version => $ver );
 }
 
 # A generic API method dispatcher, for use in registering API
@@ -150,9 +151,10 @@ sub _dispatcher {
     my $r      = $rv->{r};
     my $keystr = $r->header_in('Authorization');
     my $apikey;
-    if ( defined $keystr ) {
-        $keystr =~ s/Bearer (\w+)/$1/;
-        $apikey = DW::API::Key->get_key($keystr);
+
+    # RFC 6750 bearer token; the scheme name is case-insensitive (RFC 9110 11.1)
+    if ( defined $keystr && $keystr =~ /^\s*Bearer\s+(\S+)\s*$/i ) {
+        $apikey = DW::API::Key->get_key($1);
     }
 
     # all paths require an API key except the spec (which informs users that they need
@@ -256,7 +258,7 @@ sub _validate_param {
     # run the schema validator
     my @errors = $pval->validate($p);
     if (@errors) {
-        my $err_str = join( ', ', map { $_->{message} } @errors );
+        my $err_str = join( ', ', map { "$_" } @errors );
         $r->print(
             to_json( { success => 0, error => "Bad format for $param. Errors: $err_str" } ) );
         $r->status('400');
@@ -279,12 +281,37 @@ sub _validate_param {
 sub _validate_body {
     my ( $config, $r, $arg_obj ) = @_;
     my $preq         = $config->{required};
-    my $content_type = lc $r->header_in('Content-Type');
+    my $content_type = lc( $r->header_in('Content-Type') // '' );
     $content_type =~ s/;.*//;    # drop data that isn't the MIMEtype
+    $content_type =~ s/\s+$//;
+    my $has_body = length( $r->content // '' ) > 0;
     my $p;
+
+    # an optional body can be left out entirely
+    unless ($has_body) {
+        return 1 unless $preq;
+
+        $r->print( to_json( { success => 0, error => "Missing or badly formatted request!" } ) );
+        $r->status('400');
+        return 0;
+    }
+
+    # we can only validate bodies in a content type the spec defines a schema for
+    unless ( ref $config->{content}{$content_type} && $config->{content}{$content_type}{validator} )
+    {
+        my $types = join( ', ', sort keys %{ $config->{content} } );
+        $r->print( to_json( { success => 0, error => "Unsupported content type. Use: $types" } ) );
+        $r->status('415');
+        return 0;
+    }
 
     if ( $content_type eq 'application/json' ) {
         $p = $r->json;
+        if ( $has_body && !defined $p ) {
+            $r->print( to_json( { success => 0, error => "Request body is not valid JSON." } ) );
+            $r->status('400');
+            return 0;
+        }
     }
     elsif ( $content_type eq 'application/x-www-form-urlencoded' ) {
         $p = $r->post_args;
@@ -325,7 +352,7 @@ sub _validate_body {
     # run the schema validator
     my @errors = $config->{content}{$content_type}{validator}->validate($p);
     if (@errors) {
-        my $err_str = join( ', ', map { $_->{message} } @errors );
+        my $err_str = join( ', ', map { "$_" } @errors );
         $r->print(
             to_json( { success => 0, error => "Bad format for request body. Errors: $err_str" } ) );
         $r->status('400');

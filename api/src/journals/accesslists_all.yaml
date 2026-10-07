@@ -26,6 +26,7 @@ paths:
     post:
       description: Create a new entry accesslist for the journal
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -54,6 +55,8 @@ paths:
           description: ID of accesslist to delete.
           schema:
             type: integer
+            minimum: 1
+            maximum: 60
       responses:
         204:
           description: Successfully deleted accesslist.
