@@ -413,6 +413,8 @@ sub html_color {
     my $des      = ehtml( $opts->{'des'} ) || "Pick a Color";
     my $ret;
 
+    my $raw = $opts->{'raw'} // '';
+
     # 'onchange' argument happens when color picker button is clicked,
     # or when focus is changed to text box
 
@@ -426,7 +428,7 @@ sub html_color {
             'disabled'  => $opts->{'disabled'},
             'value'     => $opts->{'default'},
             'noescape'  => 1,
-            'raw'       => $opts->{'raw'} . " data-coloris",
+            'raw'       => "$raw  data-coloris",
         }
     );
 

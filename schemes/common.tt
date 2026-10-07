@@ -104,29 +104,7 @@ the table based way can be removed when the entire site is Foundation-based.
 <div class='row'><div class='columns'>
     [%- switch_accounts = dw_scheme.switch_accounts -%]
     <span class='account-links-active'>
-        [%- remote.ljuser_display -%]
-        [%- IF switch_accounts.size -%]
-        <details class='account-switcher'>
-        <summary aria-label="[% 'sitescheme.accountlinks.switch.label' | ml %]"></summary>
-        <ul>
-        [%- FOREACH acct IN switch_accounts -%]
-            <li class='switch-account'>
-                <span class='switch-account-name'>[% acct.u.ljuser_display %]</span>
-            [%- IF acct.valid -%]
-                <form action='[% site.root %]/switchaccount' method='post' class='switch-account-form'>
-                    [%- dw.form_auth -%]
-                    [%- form.hidden( name = "userid", value = acct.userid ) -%]
-                    [%- form.hidden( name = "returnto", value = returnto ) -%]
-                    <button type="submit" class="switch-account-btn">[% 'sitescheme.accountlinks.switch.go' | ml %]</button>
-                </form>
-            [%- ELSE -%]
-                <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'sitescheme.accountlinks.switch.signedout' | ml %]</a>
-            [%- END -%]
-            </li>
-        [%- END -%]
-        </ul>
-        </details>
-        [%- END -%]
+        [% INCLUDE 'account-switcher.tt' %]
     </span>
     <form class='account-links-logout' action='[% site.root %]/logout' method='post'>
         [%- dw.form_auth -%]
@@ -187,29 +165,7 @@ the table based way can be removed when the entire site is Foundation-based.
     [%- switch_accounts = dw_scheme.switch_accounts -%]
     [%- -%]<div id='account-links-text'>
     <span class='account-links-active'>
-        [%- remote.ljuser_display -%]
-        [%- IF switch_accounts.size -%]
-        <details class='account-switcher'>
-        <summary aria-label="[% 'sitescheme.accountlinks.switch.label' | ml %]"></summary>
-        <ul>
-        [%- FOREACH acct IN switch_accounts -%]
-            <li class='switch-account'>
-                <span class='switch-account-name'>[% acct.u.ljuser_display %]</span>
-            [%- IF acct.valid -%]
-                <form action='[% site.root %]/switchaccount' method='post' class='switch-account-form'>
-                    [%- dw.form_auth -%]
-                    [%- form.hidden( name = "userid", value = acct.userid ) -%]
-                    [%- form.hidden( name = "returnto", value = returnto ) -%]
-                    <button type="submit" class="switch-account-btn">[% 'sitescheme.accountlinks.switch.go' | ml %]</button>
-                </form>
-            [%- ELSE -%]
-                <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'sitescheme.accountlinks.switch.signedout' | ml %]</a>
-            [%- END -%]
-            </li>
-        [%- END -%]
-        </ul>
-        </details>
-        [%- END -%]
+        [% INCLUDE 'account-switcher.tt' %]
     </span>
     <form action='[% site.root %]/logout' method='post' class='account-links-logout'>
         [%- dw.form_auth -%]

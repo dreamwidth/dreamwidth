@@ -2888,7 +2888,7 @@ sub control_strip {
         $template_args->{'remote'} = {
             'sessid'       => $remote->session->id || 0,
             'user'         => $remote->user,
-            'display'      => $remote->ljuser_display,
+            'ljuser_display'=> $remote->ljuser_display,
             'is_validated' => $remote->is_validated,
             'is_identity'  => $remote->is_identity,
         };

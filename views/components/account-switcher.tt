@@ -1,0 +1,27 @@
+[%- dw.need_res( { group => "foundation" },
+        "stc/css/components/account-switcher.css"
+    ); -%]
+
+[%- IF switch_accounts.size -%]
+<details id='lj_controlstrip_switch' class='account-switcher'>
+    <summary aria-label="[% 'web.controlstrip.switch.label' | ml %]"></summary>
+    <ul>
+    [%- FOREACH acct IN switch_accounts -%]
+        <li>
+        <span class='switch-account-name'>[% acct.display %]</span>
+        [%- IF acct.valid -%]
+        <form class='switch-account' action='[% site.root %]/switchaccount' method='post'>
+            [%- dw.form_auth -%]
+            [%- form.hidden( name = "userid", value = acct.userid ) -%]
+            [%- form.hidden( name = "returnto", value = returnto ) -%]
+            <button type="submit" class="switch-account-btn">[% 'web.controlstrip.switch.go' | ml %]</button>
+        </form>
+        [%- ELSE -%]
+        <a class='switch-account-signedout' href='[% site.root %]/login?switch=1&amp;user=[% acct.user | uri %]&amp;returnto=[% returnto | uri %]'>[% 'web.controlstrip.switch.signedout' | ml %]</a>
+        [%- END -%]
+        </li>
+    [%- END -%]
+    </ul>
+</details>
+[%- END -%]
+[% remote.ljuser_display %]
