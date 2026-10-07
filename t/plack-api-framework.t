@@ -96,12 +96,8 @@ subtest 'API key validation' => sub {
 
         $su->update_self( { statusvis => $statusvis } );
 
-    TODO: {
-            local $TODO = 'API key validation is incomplete';
-
-            ( $res, $body ) = api_request( GET => $spath, key => $skey );
-            is( $res->code, 401, "key stops working when the account is not active ($statusvis)" );
-        }
+        ( $res, $body ) = api_request( GET => $spath, key => $skey );
+        is( $res->code, 401, "key stops working when the account is not active ($statusvis)" );
     }
 };
 
