@@ -742,7 +742,7 @@ sub create_trust_group {
     my $grp = $u->trust_groups;
 
     # calculate an id to use
-    my $id = delete( $opts{id} ) + 0;
+    my $id = ( delete( $opts{id} ) // 0 ) + 0;
     confess 'group with that id already exists'
         if $id > 0 && exists $grp->{$id};
     ($id) ||= ( grep { !exists $grp->{$_} } 1 .. 60 )[0];
