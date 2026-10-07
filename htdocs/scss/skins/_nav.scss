@@ -49,8 +49,8 @@ $nav-small-screen-header-height: 3em;
             list-style: none;
             white-space: nowrap;
             text-align: left;
-            background: #fff;
-            border: 1px solid #ccc;
+            background: $background-color;
+            border: 1px solid $border-color;
             box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
         }
 

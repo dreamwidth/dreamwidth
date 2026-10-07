@@ -4645,6 +4645,9 @@ general setting.captcha.label
 general setting.captcha.option
 general setting.captcha.option.select.image
 general setting.captcha.option.select.text
+general sitescheme.accountlinks.switch.go
+general sitescheme.accountlinks.switch.label
+general sitescheme.accountlinks.switch.signedout
 general /protected.tt.message.comment.posted
 general /protected.tt.protected.error.notauthorised.comm.closed
 general /protected.tt.protected.error.notauthorised.comm.open
