@@ -2069,6 +2069,10 @@ sub editevent {
         if $req->{security}
         && $req->{security} =~ /^(?:public|private|usemask)$/;
 
+    # the API sends tags as an arrayref, as postevent already allows
+    $req->{props}->{taglist} = join( ", ", @{ $req->{props}->{taglist} } )
+        if $req->{props} && ref $req->{props}->{taglist} eq 'ARRAY';
+
     my $do_tags = $req->{props} && defined $req->{props}->{taglist};
     my $do_tags_security;
     my $entry_tags;
