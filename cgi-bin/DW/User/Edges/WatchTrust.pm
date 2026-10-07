@@ -26,6 +26,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use Carp qw/ confess /;
 
 use DW::Cache;
+use DW::Stats;
 use DW::User::Edges;
 use DW::User::Edges::WatchTrust::Loader;
 use DW::User::Edges::WatchTrust::UserHelper;
@@ -150,6 +151,14 @@ sub _add_wt_edge {
     LJ::memcache_kill( $from_userid, 'trusted' );
     LJ::memcache_kill( $to_userid,   'watched_by' );
     LJ::memcache_kill( $to_userid,   'trusted_by' );
+
+    # someone new is reading this feed, so don't leave them waiting out a long
+    # inactive-feed interval (see LJ::SynSuck::reader_interval)
+    if ( $do_watch && !$existing_watch && $to_u->is_syndicated ) {
+        $dbh->do( "UPDATE syndicated SET checknext=NOW(), failcount=0 WHERE userid=?",
+            undef, $to_userid );
+        DW::Stats::increment( 'dw.synsuck.wake', 1, ['reason:watch'] );
+    }
 
     # fire notifications if we have theschwartz
     my $notify =
