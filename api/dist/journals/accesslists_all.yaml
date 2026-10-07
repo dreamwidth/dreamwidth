@@ -85,6 +85,8 @@ paths:
           description: ID of accesslist to delete.
           schema:
             type: integer
+            minimum: 1
+            maximum: 60
       responses:
         "204":
           description: Successfully deleted accesslist.

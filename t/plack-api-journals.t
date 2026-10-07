@@ -60,41 +60,29 @@ subtest 'access lists' => sub {
     ( $res, $body ) = api_request( GET => "$base/accesslists", key => $okey );
     ok( ( grep { $_->{id} == $id && $_->{name} eq 'friends' } @$body ), 'list includes it' );
 
-TODO: {
-        local $TODO = 'adding members reads the wrong body shape';
+    ( $res, $body ) = api_request(
+        POST => "$base/accesslists/$id",
+        key  => $okey,
+        json => [ $member->user ]
+    );
+    is( $res->code, 200, 'add a member' );
 
-        ( $res, $body ) = api_request(
-            POST => "$base/accesslists/$id",
-            key  => $okey,
-            json => [ $member->user ]
-        );
-        is( $res->code, 200, 'add a member' );
+    ( $res, $body ) = api_request( GET => "$base/accesslists/$id", key => $okey );
+    is_deeply( $body, [ $member->user ], 'member is listed' );
 
-        ( $res, $body ) = api_request( GET => "$base/accesslists/$id", key => $okey );
-        is_deeply( $body, [ $member->user ], 'member is listed' );
+    for my $bad ( 0, 61, 99 ) {
+        ( $res, $body ) = api_request( GET => "$base/accesslists/$bad", key => $okey );
+        is( $res->code, 400, "access list id $bad is rejected" );
     }
 
-TODO: {
-        local $TODO = 'access list ids are not bounds-checked';
+    ( $res, $body ) =
+        api_request( DELETE => "$base/accesslists", key => $okey, query => { id => $id } );
+    is( $res->code, 204, 'delete access list' );
+    ok( !$owner->trust_groups( id => $id ), 'access list is gone' );
 
-        for my $bad ( 0, 61, 99 ) {
-            ( $res, $body ) = api_request( GET => "$base/accesslists/$bad", key => $okey );
-            is( $res->code, 400, "access list id $bad is rejected" );
-        }
-    }
-
-TODO: {
-        local $TODO = 'access lists are never deleted';
-
-        ( $res, $body ) =
-            api_request( DELETE => "$base/accesslists", key => $okey, query => { id => $id } );
-        is( $res->code, 204, 'delete access list' );
-        ok( !$owner->trust_groups( id => $id ), 'access list is gone' );
-
-        ( $res, $body ) =
-            api_request( DELETE => "$base/accesslists", key => $okey, query => { id => $id } );
-        is( $res->code, 404, 'deleting it again is a 404' );
-    }
+    ( $res, $body ) =
+        api_request( DELETE => "$base/accesslists", key => $okey, query => { id => $id } );
+    is( $res->code, 404, 'deleting it again is a 404' );
 };
 
 subtest 'tags' => sub {

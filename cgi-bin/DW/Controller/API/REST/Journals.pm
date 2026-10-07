@@ -101,8 +101,11 @@ sub accesslists_delete {
     return $self->rest_error("403") unless $user == $remote;
 
     my $id = $args->{query}{id};
+    return $self->rest_error( "404", "Access filter doesn't exist." )
+        unless $user->trust_groups( id => $id );
 
-    my $group = $user->delete_trust_group( { id => $id } );
+    $user->delete_trust_group( id => $id )
+        or return $self->rest_error( "500", "Couldn't delete access filter." );
 
     return $self->rest_ok();
 }
@@ -138,9 +141,10 @@ sub accesslist_get {
     return $self->rest_error("404") unless $user;
     return $self->rest_error("403") unless $user == $remote;
 
-    my $id            = $args->{path}{accesslistid};
+    my $id = $args->{path}{accesslistid};
+    return $self->rest_error( "400", "Access filter doesn't exist." )
+        unless $user->trust_groups( id => $id );
     my $group_members = $user->trust_group_members( id => $id );
-    return $self->rest_error( "400", "Access filter doesn't exist." ) unless $group_members;
     my @accesslist;
     my $members = LJ::load_userids( keys %$group_members );
 
@@ -161,10 +165,10 @@ sub accesslist_edit {
     return $self->rest_error("404") unless $user;
     return $self->rest_error("403") unless $user == $remote;
 
-    my $journals = $args->{body}{journals};
+    my $journals = $args->{body};
     my $id       = $args->{path}{accesslistid};
 
-    my $trust_group = $user->trust_groups( { id => $id } );
+    my $trust_group = $user->trust_groups( id => $id );
     return $self->rest_error( "400", "Access filter doesn't exist." ) unless $trust_group;
 
     foreach my $journal ( @{$journals} ) {
@@ -175,7 +179,9 @@ sub accesslist_edit {
         next unless $trusted_u && $user->trusts($trusted_u);
         $user->edit_trustmask( $trusted_u, add => $id );
     }
-    return $self->rest_ok();
+
+    # respond with the updated list, as a GET would
+    return accesslist_get( $self, $args );
 }
 
 sub accesslist_delete {
@@ -189,7 +195,7 @@ sub accesslist_delete {
     my $journals = $args->{query}{journal};
     my $id       = $args->{path}{accesslistid};
 
-    my $trust_group = $user->trust_groups( { id => $id } );
+    my $trust_group = $user->trust_groups( id => $id );
     return $self->rest_error( "400", "Access filter doesn't exist." ) unless $trust_group;
 
     foreach my $journal ( @{$journals} ) {
