@@ -13,7 +13,7 @@ paths:
       parameters:
         - name: count
           in: query
-          description: The number of entries to fetch. FIXME - max
+          description: The number of entries to fetch. Large values are capped at the site's scrollback limit.
           schema:
             type: integer
             minimum: 0

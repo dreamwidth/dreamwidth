@@ -158,12 +158,27 @@ sub _form_to_backend {
 
     # handle event subject and body, and normalize prop some prop names in the API
     if ($is_api) {
-        $req->{subject} = $post->{subject} || $req->{subject};
-        $req->{event}   = $post->{text}    || $req->{event} || "";
+        $req->{subject} = $post->{subject} if defined $post->{subject};
+        $req->{event} =
+            defined $post->{text} && length $post->{text} ? $post->{text} : $req->{event} // "";
 
         $post->{taglist}              = delete $post->{tags} if defined $post->{tags};
         $post->{prop_picture_keyword} = delete $post->{icon} if defined $post->{icon};
         $post->{current_mood_other} = delete $post->{current_mood} if defined $post->{current_mood};
+
+        # When editing, $req holds the entry's current values from _backend_to_form.
+        # Fields the client left out keep those values, because the code below
+        # treats a missing field as "turn this off". New entries start with an
+        # empty $req, so they still get the defaults.
+        foreach my $field (
+            qw( taglist entrytime_outoforder age_restriction age_restriction_reason
+            entry_slug opt_screening comment_settings custom_bit )
+            )
+        {
+            $post->{$field} = $req->{$field}
+                if !defined $post->{$field} && defined $req->{$field};
+        }
+        $post->{admin_post} //= $req->{flags_adminpost};
     }
     else {
         $req->{subject} = $post->{subject};

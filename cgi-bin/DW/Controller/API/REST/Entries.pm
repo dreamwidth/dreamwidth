@@ -259,15 +259,10 @@ sub edit_entry {
     my $ditemid    = $args->{path}{entry_id};
     my $remote     = $args->{user};
 
-    my $post = $args->{body};
+    my $post = $args->{body} // {};
 
     return $self->rest_error('401') unless $remote;
     return $self->rest_error('404') unless $usejournal;
-
-    # we can always trust this value:
-    # it either came straight from the entry
-    # or it's from the user's POST
-    my $trust_datetime_value = 1;
 
     my $entry_obj = LJ::Entry->new( $usejournal, ditemid => $ditemid );
 
@@ -280,14 +275,19 @@ sub edit_entry {
         && $anum == $entry_obj->anum
         && $itemid == $entry_obj->jitemid;
 
-    return $self->rest_error('400')
-        unless $post->{text} ne '';
-
     # so at this point, we know that we are authorized to edit this entry
     # but we need to handle things differently if we're an admin
     # FIXME: handle communities
     return $self->rest_error( 'POST', 401, "Admin override not implemented yet" )
         unless $entry_obj->poster->equals($remote);
+
+    # an omitted datetime keeps the entry's current date
+    if ( $post->{datetime} ) {
+        my ( $date, $time ) = split( / /, $post->{datetime} );
+        $post->{entrytime_date} = $date;
+        $post->{entrytime_time} = $time;
+        $post->{trust_datetime} = 1;
+    }
 
     my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
     DW::Entry::_form_to_backend( 1, $form_req, $post );

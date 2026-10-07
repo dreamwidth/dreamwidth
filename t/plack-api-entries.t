@@ -187,13 +187,8 @@ TODO: {
         is( $res->code, 400, 'invalid tag in the array is rejected' );
     }
 
-TODO: {
-        local $TODO = 'API edits reset fields the client omits';
-
-        ( $res, $body ) =
-            api_request( POST => "$base/$id", key => $okey, json => { text => 'e2' } );
-        is( entry_state( fresh_entry( $owner, $id ) )->{tags}, 'a, b', 'omitted tags are kept' );
-    }
+    ( $res, $body ) = api_request( POST => "$base/$id", key => $okey, json => { text => 'e2' } );
+    is( entry_state( fresh_entry( $owner, $id ) )->{tags}, 'a, b', 'omitted tags are kept' );
 
     ( $res, $body ) =
         api_request( POST => "$base/$id", key => $okey, json => { text => 'e3', tags => [] } );
@@ -241,12 +236,8 @@ subtest 'editing: omitted fields are unchanged' => sub {
         my $after = entry_state( fresh_entry( $owner, $id ) );
         is( $after->{event}, 'new text', "$name: text changed" );
 
-    TODO: {
-            local $TODO = 'API edits reset fields the client omits';
-
-            for my $field ( sort grep { $_ ne 'event' } keys %$before ) {
-                is( $after->{$field}, $before->{$field}, "$name: $field kept" );
-            }
+        for my $field ( sort grep { $_ ne 'event' } keys %$before ) {
+            is( $after->{$field}, $before->{$field}, "$name: $field kept" );
         }
     }
 };
@@ -273,31 +264,23 @@ subtest 'editing: explicit changes' => sub {
     ok( !$state->{opt_nocomments}, 'comments re-enabled' );
     is( $state->{opt_noemail}, 1, 'comment email turned off' );
 
-TODO: {
-        local $TODO = 'edit ignores datetime';
+    ( $res, $body ) = api_request(
+        POST => "$base/$id",
+        key  => $okey,
+        json => { text => 'changed', datetime => '2019-05-06 07:08' }
+    );
+    is(
+        entry_state( fresh_entry( $owner, $id ) )->{eventtime},
+        '2019-05-06 07:08:00',
+        'datetime changed'
+    );
 
-        ( $res, $body ) = api_request(
-            POST => "$base/$id",
-            key  => $okey,
-            json => { text => 'changed', datetime => '2019-05-06 07:08' }
-        );
-        is(
-            entry_state( fresh_entry( $owner, $id ) )->{eventtime},
-            '2019-05-06 07:08:00',
-            'datetime changed'
-        );
-    }
-
-TODO: {
-        local $TODO = 'edit requires text';
-
-        ( $res, $body ) =
-            api_request( POST => "$base/$id", key => $okey, json => { subject => 'only subject' } );
-        is( $res->code, 200, 'edit without text' );
-        $state = entry_state( fresh_entry( $owner, $id ) );
-        is( $state->{subject}, 'only subject', 'subject changed without text' );
-        is( $state->{event},   'changed',      'text kept' );
-    }
+    ( $res, $body ) =
+        api_request( POST => "$base/$id", key => $okey, json => { subject => 'only subject' } );
+    is( $res->code, 200, 'edit without text' );
+    $state = entry_state( fresh_entry( $owner, $id ) );
+    is( $state->{subject}, 'only subject', 'subject changed without text' );
+    is( $state->{event},   'changed',      'text kept' );
 };
 
 subtest 'editing: authorization' => sub {
