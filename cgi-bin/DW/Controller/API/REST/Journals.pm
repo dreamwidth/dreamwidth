@@ -264,19 +264,17 @@ sub tags_post {
     return $self->rest_error("404") unless $user;
     return $self->rest_error("403") unless $user == $remote;
 
-    my $tagerr = "";
     my @errors;
 
     my $tags = $args->{body};
 
-    #push the usernames for all comms the user has posting access to onto the list.
     foreach my $tag ( @{$tags} ) {
-
-        my $rv = LJ::Tags::create_usertag( $user, $tag, { display => 1, err_ref => \$tagerr } );
-        push @errors, $tagerr unless $rv;
+        my $tagerr = "";
+        my $rv     = LJ::Tags::create_usertag( $user, $tag, { display => 1, err_ref => \$tagerr } );
+        push @errors, $tagerr || "Couldn't create tag." unless $rv;
     }
 
-    return $self->rest_error( 'GET', 400 ) if $#errors > 0;
+    return $self->rest_error( '400', join( ' ', @errors ) ) if @errors;
     return $self->rest_ok();
 }
 

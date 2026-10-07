@@ -114,17 +114,13 @@ subtest 'tags' => sub {
     ( $res, $body ) = api_request( GET => "$base/tags", key => $okey );
     is_deeply( [ map { $_->{name} } @$body ], ['beta'], 'deleted tag is gone' );
 
-TODO: {
-        local $TODO = 'tag creation errors return an invalid HTTP status';
+    ( $res, $body ) = api_request( POST => "$base/tags", key => $okey, json => ['<b>'] );
+    is( $res->code, 400, 'one invalid tag is rejected' );
 
-        ( $res, $body ) = api_request( POST => "$base/tags", key => $okey, json => ['<b>'] );
-        is( $res->code, 400, 'one invalid tag is rejected' );
-
-        ( $res, $body ) =
-            api_request( POST => "$base/tags", key => $okey, json => [ '<b>', '<i>' ] );
-        is( $res->code, 400, 'several invalid tags are rejected' );
-        like( $body->{error}, qr/[a-z]/i, 'with an error message' );
-    }
+    ( $res, $body ) =
+        api_request( POST => "$base/tags", key => $okey, json => [ '<b>', '<i>' ] );
+    is( $res->code, 400, 'several invalid tags are rejected' );
+    like( $body->{error}, qr/[a-z]/i, 'with an error message' );
 };
 
 subtest 'tag visibility' => sub {

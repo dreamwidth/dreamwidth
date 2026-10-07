@@ -151,14 +151,10 @@ subtest 'community posting and editing' => sub {
     ( $res, $body ) = api_request( POST => $cbase, key => $skey, json => { text => 'outsider' } );
     is( $res->code, 403, 'non-member cannot post to the community' );
 
-TODO: {
-        local $TODO = 'refusal uses an invalid HTTP status';
-
-        ( $res, $body ) =
-            api_request( POST => "$cbase/$id", key => $okey, json => { text => 'mod' } );
-        is( $res->code, 403, "maintainer cannot edit a member's entry through the API" );
-        like( $body->{error}, qr/[a-z]/i, 'with an error message' );
-    }
+    ( $res, $body ) =
+        api_request( POST => "$cbase/$id", key => $okey, json => { text => 'mod' } );
+    is( $res->code, 403, "maintainer cannot edit a member's entry through the API" );
+    like( $body->{error}, qr/[a-z]/i, 'with an error message' );
 };
 
 subtest 'editing: tags' => sub {

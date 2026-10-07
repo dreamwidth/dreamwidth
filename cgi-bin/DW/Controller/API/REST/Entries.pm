@@ -278,7 +278,7 @@ sub edit_entry {
     # so at this point, we know that we are authorized to edit this entry
     # but we need to handle things differently if we're an admin
     # FIXME: handle communities
-    return $self->rest_error( 'POST', 401, "Admin override not implemented yet" )
+    return $self->rest_error( '403', "Editing other people's entries is not supported yet." )
         unless $entry_obj->poster->equals($remote);
 
     # an omitted datetime keeps the entry's current date
@@ -298,10 +298,9 @@ sub edit_entry {
     my $edit_res = _do_edit( $ditemid, $form_req, { poster => $remote, journal => $usejournal }, );
     return $self->rest_ok($edit_res) if $edit_res->{success} == 1;
 
-    # oops errors when posting: show specific error if we have one.
-    my $error = $edit_res->{errors} || "Unknown error while editing entry.";
-
-    return $self->rest_error( 500, $error );
+    # protocol errors are about the request (bad tags, bad date, etc), as when posting
+    return $self->rest_error( '400', $edit_res->{errors} ) if $edit_res->{errors};
+    return $self->rest_error( '500', "Unknown error while editing entry." );
 }
 
 sub _do_edit {
