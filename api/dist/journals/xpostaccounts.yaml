@@ -1,5 +1,5 @@
 paths:
-  "/journals/{username}/xpostaccounts":
+  /journals/{username}/xpostaccounts:
     parameters:
       - name: username
         in: path
@@ -20,8 +20,7 @@ paths:
           description: Missing or invalid API key.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:

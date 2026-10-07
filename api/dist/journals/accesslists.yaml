@@ -1,12 +1,11 @@
 paths:
-  "/journals/{username}/accesslists/{accesslistid}":
+  /journals/{username}/accesslists/{accesslistid}:
     parameters:
       - name: username
         in: path
         description: The username you want accesslist information for
         required: true
-        schema:
-          &a1
+        schema: &a1
           type: string
           minLength: 3
           maxLength: 25
@@ -28,13 +27,11 @@ paths:
               schema:
                 type: array
                 items: *a1
-        "400":
-          &a3
+        "400": &a3
           description: Bad or missing request parameters.
           content:
             application/json:
-              schema:
-                &a2
+              schema: &a2
                 type: object
                 properties:
                   error:
@@ -43,8 +40,7 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
-        "401":
-          &a4
+        "401": &a4
           description: Missing or invalid API key.
           content:
             application/json:
@@ -52,14 +48,12 @@ paths:
         "403":
           description: You cannot view accesslists on that journal.
           schema: *a2
-        "404":
-          &a5
+        "404": &a5
           description: Username specified does not exist.
           content:
             application/json:
               schema: *a2
-        "500":
-          &a6
+        "500": &a6
           description: Server error, please try again later. If it persists, open a
             support ticket.
           content:

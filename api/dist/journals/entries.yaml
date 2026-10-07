@@ -1,5 +1,5 @@
 paths:
-  "/journals/{username}/entries/{entry_id}":
+  /journals/{username}/entries/{entry_id}:
     parameters:
       - name: username
         in: path
@@ -22,13 +22,11 @@ paths:
       responses:
         "200":
           description: A single entry
-        "401":
-          &a2
+        "401": &a2
           description: Missing or invalid API key.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:
@@ -43,8 +41,7 @@ paths:
         "404":
           description: Journal or entry specified does not exist.
           schema: *a1
-        "500":
-          &a3
+        "500": &a3
           description: Server error, please try again later. If it persists, open a
             support ticket.
           content:

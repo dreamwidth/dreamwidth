@@ -1,5 +1,5 @@
 paths:
-  "/users/{username}/icons/{picid}":
+  /users/{username}/icons/{picid}:
     parameters:
       - name: username
         in: path
@@ -50,8 +50,7 @@ paths:
           description: Bad or missing request parameters.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:
