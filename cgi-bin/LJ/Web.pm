@@ -2886,11 +2886,11 @@ sub control_strip {
     if ($remote) {
         my $userpic = $remote->userpic;
         $template_args->{'remote'} = {
-            'sessid'       => $remote->session->id || 0,
-            'user'         => $remote->user,
-            'ljuser_display'=> $remote->ljuser_display,
-            'is_validated' => $remote->is_validated,
-            'is_identity'  => $remote->is_identity,
+            'sessid'         => $remote->session->id || 0,
+            'user'           => $remote->user,
+            'ljuser_display' => $remote->ljuser_display,
+            'is_validated'   => $remote->is_validated,
+            'is_identity'    => $remote->is_identity,
         };
 
         # other accounts signed in to this browser, for the switcher

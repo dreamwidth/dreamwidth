@@ -27,6 +27,8 @@ use LJ::Test qw(temp_user);
 use LJ::Session;
 use DW::AccountSwitcher;
 use DW::Cache;
+use DW::Template;
+use DW::Template::Plugin::SiteScheme;
 
 # Minimal fake request: a readable cookie jar plus a capture of everything the
 # code under test sets via add_cookie.
@@ -40,6 +42,16 @@ sub cookie {
 }
 sub get_remote_ip { "127.0.0.1" }
 sub header_in     { "" }
+
+# The rest is only read by DW::Template when rendering the switcher component.
+sub did_post { 0 }
+sub get_args { {} }
+
+sub note {
+    my ( $self, $key, $value ) = @_;
+    $self->{notes}{$key} = $value if @_ > 2;
+    return $self->{notes}{$key};
+}
 
 sub add_cookie {
     my ( $self, %args ) = @_;
@@ -257,6 +269,52 @@ note("cookie-generation rotation drops the stored accounts");
     local @LJ::COOKIE_GEN_OKAY = ();
     DW::Cache->request->clear_ns('account_switcher');    # re-read under the new gen
     is( scalar DW::AccountSwitcher->accounts, 0, "rotated cookie gen -> empty list" );
+}
+
+# ---------------------------------------------------------------------------
+note("rendering: both callers feed the shared switcher component");
+{
+    my $sb = LJ::Session->create( $ub, exptype => 'long' );
+    my $sc = LJ::Session->create( $uc, exptype => 'long' );
+    my $cookie = build_cookie( [ $ub, $sb ], [ $uc, $sc ] );
+    $sc->destroy;                                        # C stays listed, but signed out
+
+    new_request($cookie);
+    login_active($ua);
+
+    my $accts = DW::Template::Plugin::SiteScheme->switch_accounts;
+    my ($rb) = grep { $_->{userid} == $ub->id } @$accts;
+    is( $rb->{display}, $ub->ljuser_display, "site scheme records carry the ljuser display" );
+
+    my %vars = ( switch_accounts => $accts, returnto => "$LJ::SITEROOT/somewhere" );
+
+    # site scheme passes the remote LJ::User
+    my $html =
+        DW::Template->template_string( 'components/account-switcher.tt', { %vars, remote => $ua } );
+    like( $html, qr/\Q${\ $ua->ljuser_display }\E/, "active username rendered" );
+    like( $html, qr/\Q${\ $ub->ljuser_display }\E/, "stored account rendered" );
+    like(
+        $html,
+        qr/<form class='switch-account-form'[^>]*>.*name="userid" value="${\ $ub->id }"/s,
+        "valid account gets a switch form"
+    );
+    like(
+        $html,
+        qr/switch-account-signedout' href='[^']*user=${\ $uc->user }/,
+        "signed-out account gets a re-login link"
+    );
+
+    # the control strip passes a plain hash of the remote's fields
+    $html = DW::Template->template_string( 'components/account-switcher.tt',
+        { %vars, remote => { ljuser_display => '<b>active-user</b>' } } );
+    like( $html, qr{<b>active-user</b>}, "control strip remote hash renders the username" );
+
+    new_request( build_cookie() );
+    login_active($ua);
+    $html = DW::Template->template_string( 'components/account-switcher.tt',
+        { switch_accounts => [], remote => $ua } );
+    unlike( $html, qr/<details/, "no fold-out when there are no other accounts" );
+    like( $html, qr/\Q${\ $ua->ljuser_display }\E/, "username still rendered" );
 }
 
 done_testing();

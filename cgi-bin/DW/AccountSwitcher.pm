@@ -172,7 +172,6 @@ sub _resolve {
         user   => $u->user,
         sess   => ( $valid ? $sess : undef ),
         valid  => $valid,
-        display => $u->ljuser_display
     };
 }
 

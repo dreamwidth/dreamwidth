@@ -428,7 +428,7 @@ sub html_color {
             'disabled'  => $opts->{'disabled'},
             'value'     => $opts->{'default'},
             'noescape'  => 1,
-            'raw'       => "$raw  data-coloris",
+            'raw'       => "$raw data-coloris",
         }
     );
 

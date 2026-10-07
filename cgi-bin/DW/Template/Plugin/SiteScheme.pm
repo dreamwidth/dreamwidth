@@ -92,9 +92,13 @@ sub show_invite_link {
 }
 
 # The other accounts signed in to this browser (for the account switcher), as a
-# list of records: { u => LJ::User, user, userid, valid }.
+# list of records: { u => LJ::User, user, userid, valid, display }.
 sub switch_accounts {
-    return [ DW::AccountSwitcher->accounts ];
+    return [
+        map {
+            { %$_, display => $_->{u}->ljuser_display }
+        } DW::AccountSwitcher->accounts
+    ];
 }
 
 =head1 AUTHOR
