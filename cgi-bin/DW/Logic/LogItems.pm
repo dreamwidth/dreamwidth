@@ -645,21 +645,29 @@ sub active_entries {
     # disregard screened and deleted comments when ordering
 
     # NOTE: we have to force the index because MySQL's optimizer gets this wrong. we know that our
-    # data is going to be near the top.
-    my $entryids = $u->selectcol_arrayref(
-        q{SELECT DISTINCT nodeid FROM talk2 FORCE INDEX (PRIMARY)
+    # data is going to be near the top. scan a bounded window of the newest comments and dedupe in
+    # Perl.
+    my $nodeids = $u->selectcol_arrayref(
+        q{SELECT nodeid FROM talk2 FORCE INDEX (PRIMARY)
           WHERE journalid = ? AND state NOT IN ('D', 'S')
-          ORDER BY jtalkid DESC LIMIT 10},
+          ORDER BY jtalkid DESC LIMIT 500},
         undef, $u->id
     );
     die $u->errstr if $u->err;
-    return unless $entryids && @$entryids;
+    return unless $nodeids && @$nodeids;
+
+    my ( %seen, @entryids );
+    foreach my $nodeid (@$nodeids) {
+        next if $seen{$nodeid}++;
+        push @entryids, $nodeid;
+        last if @entryids >= 10;
+    }
 
     # memcache this data in the form: activeentries:journalid
-    LJ::MemCache::set( [ $uid, "activeentries:$uid" ], \@$entryids );
+    LJ::MemCache::set( [ $uid, "activeentries:$uid" ], \@entryids );
 
     # return. we check whether the user viewing is allowed to view these entries later
-    return @$entryids;
+    return @entryids;
 }
 
 *LJ::User::active_entries = \&active_entries;

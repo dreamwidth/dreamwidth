@@ -26,6 +26,22 @@ use DW::TaskQueue::Dedup;
 use DW::TaskQueue::SQS;
 use DW::TaskQueue::LocalDisk;
 
+# Minimal scope guard: runs $code when the object goes out of scope, on every
+# exit path (normal, die, or return). Used to guarantee LJ::end_request pairs
+# with LJ::start_request for each job even when the job dies or times out.
+{
+
+    package DW::TaskQueue::ScopeGuard;
+    sub new { bless { code => $_[1] }, $_[0] }
+
+    # Never throw during stack unwinding: a die here would mask the job's own
+    # exception. local $@ keeps a propagating error intact across the eval.
+    sub DESTROY {
+        local $@;
+        eval { $_[0]->{code}->() };
+    }
+}
+
 my $_queue;
 
 sub get {
@@ -33,19 +49,23 @@ sub get {
 
     return $_queue if defined $_queue;
 
-    # Determine what kind of queue object to build, depending on if we're
-    # running locally or not
-    if ( exists $LJ::SQS{region} ) {
-        return $_queue = DW::TaskQueue::SQS->init(%LJ::SQS);
-    }
+    my $backend = $class->backend_name;
+    return $_queue = DW::TaskQueue::SQS->init(%LJ::SQS) if $backend eq 'sqs';
+    return $_queue = DW::TaskQueue::LocalDisk->init();
+}
 
-    # If we're a dev server, allow the local mode (not allowed in production,
-    # it's really crappy)
-    if ($LJ::IS_DEV_SERVER) {
-        return $_queue = DW::TaskQueue::LocalDisk->init();
+# Keep the historical defaults unless an operator explicitly selects a backend.
+sub backend_name {
+    my $backend = $LJ::TASK_QUEUE_BACKEND || 'auto';
+    if ( $backend eq 'auto' ) {
+        return 'sqs' if exists $LJ::SQS{region};
+        return 'localdisk' if $LJ::IS_DEV_SERVER;
+        $log->logcroak( 'Configure %SQS or select $TASK_QUEUE_BACKEND = "localdisk" '
+                . 'for a small single-host site. See doc/SELF-HOSTING.md.' );
     }
-
-    $log->logcroak('Unable to instantiate any DW::TaskQueue modules.');
+    $log->logcroak('TASK_QUEUE_BACKEND must be auto, sqs, or localdisk.')
+        unless $backend eq 'sqs' || $backend eq 'localdisk';
+    return $backend;
 }
 
 sub send {
@@ -191,6 +211,14 @@ sub start_work {
         my ( $work_start_time, $work_end_time );
         foreach my $message_pair (@$messages) {
             my ( $handle, $message ) = @$message_pair;
+
+            # Give every job a clean request scope, like the web front door and
+            # the legacy TheSchwartz/Gearman workers: start_request wipes all
+            # per-request caches so nothing leaks from the previous job. The
+            # guard guarantees the matching end_request runs on every exit path
+            # (normal completion, the die below, or the timeout return).
+            LJ::start_request();
+            my $req_scope = DW::TaskQueue::ScopeGuard->new( sub { LJ::end_request() } );
 
             # Record earliest start time of any coroutine
             my $local_start_time = time();

@@ -175,7 +175,7 @@ sub parse_module_embed {
     return unless LJ::is_enabled('embed_module');
 
     # fast track out if we don't have to expand anything
-    return unless $$postref =~ /(lj|site)\-embed|embed|object|iframe/i;
+    return unless $$postref =~ /<((lj|site)\-embed|embed|object|iframe)/i;
 
     # do we want to replace with the lj-embed tags or iframes?
     my $expand = $opts{expand};

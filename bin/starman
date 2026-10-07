@@ -16,6 +16,7 @@
 #   --daemonize      Fork into background (writes PID to log dir)
 #   --preload-app    Load the app in the master before forking (CoW memory)
 #   --max-requests N Recycle each worker after N requests (caps memory growth)
+#   --disable-keepalive  Turn off HTTP keep-alive (for prefork behind a pooling LB)
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -46,17 +47,19 @@ my $log_dir;
 my $daemonize;
 my $preload_app;
 my $max_requests;
+my $disable_keepalive;
 
 GetOptions(
-    'port=i'         => \$port,
-    'host=s'         => \$host,
-    'workers=i'      => \$workers,
-    'log=s'          => \$log_dir,
-    'daemonize'      => \$daemonize,
-    'preload-app'    => \$preload_app,
-    'max-requests=i' => \$max_requests,
+    'port=i'            => \$port,
+    'host=s'            => \$host,
+    'workers=i'         => \$workers,
+    'log=s'             => \$log_dir,
+    'daemonize'         => \$daemonize,
+    'preload-app'       => \$preload_app,
+    'max-requests=i'    => \$max_requests,
+    'disable-keepalive' => \$disable_keepalive,
 ) or die
-    "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize] [--preload-app] [--max-requests N]\n";
+    "Usage: $0 [--port PORT] [--host HOST] [--workers COUNT] [--log DIR] [--daemonize] [--preload-app] [--max-requests N] [--disable-keepalive]\n";
 
 my $app_psgi = "$ENV{LJHOME}/app.psgi";
 die "Cannot find $app_psgi\n" unless -f $app_psgi;
@@ -86,6 +89,10 @@ push @opts, '--preload-app' if $preload_app;
 # their footprint until they hit the task memory limit. Cheap with --preload-app
 # (respawn is a fork from the preloaded master, no recompile).
 push @opts, '--max-requests', $max_requests if defined $max_requests;
+
+# Behind a connection-pooling LB, keep-alive pins prefork workers to idle
+# connections and starves new requests in the accept backlog.
+push @opts, '--disable-keepalive' if $disable_keepalive;
 
 if ($log_dir) {
     mkdir $log_dir unless -d $log_dir;

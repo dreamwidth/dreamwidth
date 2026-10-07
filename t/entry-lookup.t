@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -68,6 +68,16 @@ note("test entry from ditemid (invalid jitemid, invalid anum)");
     my $entry_from_ditemid = LJ::Entry->new( $u, ditemid => ( $jitemid + 1 ) );
     ok( !$entry_from_ditemid->valid,        "valid entry" );
     ok( !$entry_from_ditemid->correct_anum, "incorrect anum" );
+}
+
+note("correct_anum ignores a ditemid lazily filled by ditemid()");
+{
+    # A permalink emitted elsewhere (e.g. the active-entries module) calls ditemid()
+    # on the shared singleton, which must not make correct_anum read _untrusted_anum.
+    LJ::Entry->reset_singletons;
+    my $entry_from_jitemid = LJ::Entry->new( $u, jitemid => $jitemid );
+    $entry_from_jitemid->ditemid;
+    ok( $entry_from_jitemid->correct_anum, "correct anum after ditemid() fills {ditemid}" );
 }
 
 1;

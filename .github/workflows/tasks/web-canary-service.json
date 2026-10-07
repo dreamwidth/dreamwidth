@@ -2,14 +2,9 @@
     "containerDefinitions": [
         {
             "name": "web",
-            "image": "ghcr.io/dreamwidth/web:latest",
+            "image": "ghcr.io/dreamwidth/web22:latest",
             "cpu": 0,
             "portMappings": [
-                {
-                    "containerPort": 6081,
-                    "hostPort": 6081,
-                    "protocol": "tcp"
-                },
                 {
                     "containerPort": 8080,
                     "hostPort": 8080,

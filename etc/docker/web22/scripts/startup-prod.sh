@@ -6,7 +6,7 @@ set -xe
 # so that someone can log in and debug.
 perl -I$LJHOME/extlib/ $LJHOME/bin/checkconfig.pl || sleep infinity
 
-# Starman on port 8080 (Varnish sits in front on 6081)
+# Starman on port 8080
 mkdir -p /var/log/starman
 
 # Worker count. Do NOT derive this from nproc: on Fargate nproc reports 2 even
@@ -20,10 +20,9 @@ WORKERS=${DW_STARMAN_WORKERS:-10}
 # load (workers climb to ~600MB before cycling). Low QPS here, so frequent
 # recycling is cheap — especially with --preload-app (respawn = fork, no recompile).
 MAX_REQUESTS=${DW_STARMAN_MAX_REQUESTS:-100}
-perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --max-requests "$MAX_REQUESTS" --preload-app --log /var/log/starman --daemonize
 
-# Kick off Varnish
-service varnish start
+# --disable-keepalive: prefork workers pin to idle keep-alive conns behind the pooling ALB.
+perl $LJHOME/bin/starman --port 8080 --workers "$WORKERS" --max-requests "$MAX_REQUESTS" --disable-keepalive --preload-app --log /var/log/starman --daemonize
 
 # Sleep a few seconds to ensure things get up and running
 sleep 5

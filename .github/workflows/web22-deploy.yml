@@ -71,3 +71,49 @@ jobs:
           url: "https://${{ env.REGION }}.console.aws.amazon.com/ecs/v2/clusters/dreamwidth/services/${{ inputs.service }}-service/deployments?region=${{ env.REGION }}"
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           nocontext: true
+
+  # Shop tracks stable: after a stable deploy succeeds, promote the same image
+  # digest to the shop tier automatically. `needs: deploy` skips this if stable
+  # failed (shop stays on its current version), and the service guard keeps
+  # shop/canary/unauth deploys from fanning out.
+  deploy-shop-follows-stable:
+    needs: deploy
+    if: github.repository == 'dreamwidth/dreamwidth' && inputs.service == 'web-stable'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Render Amazon ECS task definition
+        id: render-web-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/web-shop-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ inputs.tag }}"
+
+      - name: Deploy to Amazon ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "web-shop-service"
+
+      - name: Notify Discord
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          title: "web-shop DEPLOY STARTED (following stable)"
+          description: "Deploying `${{ inputs.tag }}` to `web-shop`\n\nClick the header above to watch the deployment progress."
+          url: "https://${{ env.REGION }}.console.aws.amazon.com/ecs/v2/clusters/dreamwidth/services/web-shop-service/deployments?region=${{ env.REGION }}"
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          nocontext: true

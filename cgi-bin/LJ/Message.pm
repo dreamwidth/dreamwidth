@@ -15,12 +15,13 @@ package LJ::Message;
 use strict;
 use Carp qw/ croak /;
 use LJ::Typemap;
-use DW::CacheStats;
+use DW::Cache;
 
 my %singletons = ();    # journalid-msgid
 
-# instrument this per-request cache's byte size for memory metrics
-DW::CacheStats::register( 'message_singletons', sub { \%singletons } );
+# file-scoped lexical, so it self-registers: cleared between requests/jobs, and
+# its byte size is measured for memory metrics
+DW::Cache->request->register_var( 'message_singletons', \%singletons );
 
 sub new {
     my ( $class, $opts ) = @_;

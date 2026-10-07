@@ -4,7 +4,6 @@ Authen::Passphrase::Clear
 Business::CreditCard
 CGI
 Cache::Memcached
-Captcha::reCAPTCHA@0.99
 Class::Autouse
 Class::Data::Inheritable
 Class::Trigger

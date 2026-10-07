@@ -2,7 +2,7 @@
 #
 # DW::Controller::Journal::Protected
 #
-# Displays when a user tries to access protected content.
+# Displays for an entry that doesn't exist or that the viewer can't see.
 #
 # Author:
 #      Allen Petersen <allen@suberic.net>
@@ -33,8 +33,8 @@ sub protected_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
     return $rv unless $ok;
 
-    # set the status to 403
-    $r->status(403);
+    # Same status as a missing entry, so the two can't be told apart (RFC 9110 15.5.4).
+    $r->status(404);
 
     # returnto will either have been set as a request note or passed in as
     # a query argument.  if neither of those work, we can reconstruct it
@@ -44,30 +44,30 @@ sub protected_handler {
         $returnto = LJ::ehtml( LJ::create_url( undef, keep_args => 1 ) );
     }
 
+    my $remote = $rv->{remote};
+
     my $vars = {
         returnto => $returnto,
+        remote   => $remote,
         message  => $r->get_args->{posted} ? '.message.comment.posted' : '',
     };
 
-    my $remote = $rv->{remote};
-
-    if ($remote) {
-        $vars->{remote} = $remote;
-        if ( $r->note('error_key') ) {
-            my $journalname = $r->note('journalname');
-            $vars->{journalname} = $journalname;
-            $vars->{'error_key'} = '.protected.error.notauthorised' . $r->note('error_key');
-        }
-        else {
-            $vars->{'error_key'}   = '.protected.message.user';
-            $vars->{'journalname'} = "";
-        }
-    }
-    else {
-        $vars->{chal} = DW::Auth::Challenge->generate(300);
+    # The journal is named by a request note, so the page can depend on it (here,
+    # a community join link) without ever depending on whether the entry exists
+    # or its security: a hidden entry and a missing one render identically.
+    my $journal = LJ::load_userid( $r->note('journalid') );
+    if (   $journal
+        && $journal->is_community
+        && $remote
+        && !$remote->member_of($journal)
+        && !$journal->is_closed_membership )
+    {
+        $vars->{join_url} = "$LJ::SITEROOT/circle/" . $journal->user . "/edit";
     }
 
-    return DW::Template->render_template( 'protected.tt', $vars );
+    $vars->{chal} = DW::Auth::Challenge->generate(300) unless $remote;
+
+    return DW::Template->render_template( 'error/unavailable.tt', $vars );
 
 }
 

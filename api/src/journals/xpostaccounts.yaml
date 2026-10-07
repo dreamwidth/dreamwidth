@@ -19,3 +19,7 @@ paths:
           description: Not allowed to view crosspost accounts for that user.
           schema:
                 $ref: ../components/error.yaml
+        401:
+          $ref: ../components/errors/401.yaml
+        500:
+          $ref: ../components/errors/500.yaml

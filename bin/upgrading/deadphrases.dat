@@ -192,6 +192,13 @@ general /create.bml.tos.p1.2
 general /create.bml.username.charsallowed
 general /create.bml.username.text
 
+general /edit/icons.tt.fromfile
+general /edit/icons.tt.fromfile.key
+general /edit/icons.tt.fromurl
+general /edit/icons.tt.fromurl.key
+general /edit/icons.tt.upload.btn.addfile
+general /edit/icons.tt.upload.btn.addurl
+general /edit/icons.tt.upload.formats.desc
 general /editinfo.bml.allowshocontact.email.if_domainaddy
 general /editinfo.bml.allowshowcontact.email.reason
 general /editinfo.bml.allowshowcontact.email.withdomainaddr
@@ -4634,3 +4641,20 @@ general /manage/moodthemes.bml.yourthemes.example.none
 general /manage/moodthemes.bml.yourthemes.example.sad
 general /manage/moodthemes.bml.yourthemes.header
 general /manage/moodthemes.bml.yourthemes.nothemes
+general setting.captcha.label
+general setting.captcha.option
+general setting.captcha.option.select.image
+general setting.captcha.option.select.text
+general sitescheme.accountlinks.switch.go
+general sitescheme.accountlinks.switch.label
+general sitescheme.accountlinks.switch.signedout
+general /protected.tt.message.comment.posted
+general /protected.tt.protected.error.notauthorised.comm.closed
+general /protected.tt.protected.error.notauthorised.comm.open
+general /protected.tt.protected.message.nouser
+general /protected.tt.protected.message.user
+general /protected.tt.title
+general /protected.tt.windowtitle
+general /tracking/manage.tt.error.hiddenentry
+general /tracking/manage.tt.error.nocomment
+general redirect.error.noentry

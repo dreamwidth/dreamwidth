@@ -95,4 +95,41 @@ sub timing {
     }
 }
 
+my $page_size;
+
+sub _page_size {
+    return $page_size if defined $page_size;
+    $page_size = eval { require POSIX; POSIX::sysconf( POSIX::_SC_PAGESIZE() ) } || 4096;
+    return $page_size;
+}
+
+# Resident set size of this process, in bytes, from /proc (Linux). Returns
+# undef where /proc/self/statm is unavailable.
+sub _rss_bytes {
+    open my $fh, '<', '/proc/self/statm' or return undef;
+    my $line = <$fh>;
+    close $fh;
+    return undef unless $line;
+
+    my ( undef, $rss_pages ) = split /\s+/, $line;
+    return undef unless defined $rss_pages;
+    return $rss_pages * _page_size();
+}
+
+# Usage: DW::Stats::report_rss()
+#
+# Emits this process's resident set size (dw.process.rss_bytes) as a timing
+# metric so the backend aggregates a histogram across workers. Sampled at
+# $LJ::PROCESS_STATS_SAMPLE_RATE (0..1, defaults off); called once per request
+# from LJ::start_request. A no-op unless a stats sink is configured.
+sub report_rss {
+    my $rate = $LJ::PROCESS_STATS_SAMPLE_RATE;
+    return unless $rate && $sock;
+    return unless rand() < $rate;
+
+    my $rss = _rss_bytes();
+    timing( 'dw.process.rss_bytes', $rss ) if defined $rss;
+    return 1;
+}
+
 1;
