@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 121;
+use Test::More tests => 123;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -242,6 +242,8 @@ note("misc");
     test_good_url("//scratch.mit.edu/projects/embed/144290094/?autostart=false");
     test_good_url(
         "http://www.scribd.com/embeds/123123/content?start_page=1&view_mode=list&access_key=");
+    test_good_url("https://sendvid.com/embed/gctqv3f8");
+    test_bad_url( "https://sendvid.com/gctqv3f8", "sendvid watch page, not embed" );
     test_good_url("http://www.slideshare.net/slideshow/embed_code/12312312");
     test_good_url(
 "https://api.smugmug.com/services/embed/10385063342_c6j9ncH?width=360&height=640&albumId=250921912&albumKey=BqhhKn"
