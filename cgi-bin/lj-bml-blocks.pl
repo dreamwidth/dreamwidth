@@ -46,7 +46,7 @@ BML::register_block(
         }
         $uri = LJ::eurl($uri);
 
-        return BML::redirect("$LJ::SITEROOT/?returnto=$uri");
+        return BML::redirect("$LJ::SITEROOT/login?returnto=$uri");
     }
 );
 

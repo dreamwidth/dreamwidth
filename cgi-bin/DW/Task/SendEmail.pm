@@ -33,6 +33,17 @@ my $smtp;
 my $last_email    = 0;
 my $email_counter = 0;
 
+sub validate_config {
+    my ( $class, %config ) = @_;
+    croak 'SMTP_SERVER requires hostname.' unless $config{hostname};
+    croak 'SMTP_SERVER port must be between 1 and 65535.'
+        if defined $config{port}
+        && ( $config{port} !~ /^\d+$/ || $config{port} < 1 || $config{port} > 65535 );
+    croak 'SMTP_SERVER username and password must both be provided or both omitted.'
+        if !!$config{username} != !!$config{password};
+    return 1;
+}
+
 sub work {
     my ( $self, $handle ) = @_;
 
@@ -62,6 +73,9 @@ sub work {
                 "SMTP server not configured. Please set up %SMTP_SERVER in your config.");
         }
 
+        eval { __PACKAGE__->validate_config(%LJ::SMTP_SERVER) };
+        return $failed->( "Invalid SMTP configuration: %s", $@ ) if $@;
+
         $smtp = Net::SMTP->new(
             Host    => $LJ::SMTP_SERVER{hostname},
             Port    => $LJ::SMTP_SERVER{port} || 587,
@@ -72,14 +86,22 @@ sub work {
 
         # Start TLS unless disabled.
         unless ( $LJ::SMTP_SERVER{plaintext} ) {
-            $smtp->starttls();
+            return $failed->("SMTP STARTTLS failed; refusing to send credentials or mail.")
+                unless $smtp->starttls();
         }
 
         # Only try auth if we have username/pw configured for mail server
         if ( $LJ::SMTP_SERVER{username} && $LJ::SMTP_SERVER{password} ) {
-            $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} )
-                or return $failed->(
-                "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}, will retry.");
+
+            # Capture the server's response on failure so we can distinguish a
+            # real credential rejection (535) from temporary throttling (454).
+            unless ( $smtp->auth( $LJ::SMTP_SERVER{username}, $LJ::SMTP_SERVER{password} ) ) {
+                my $resp = eval { $smtp->code . ' ' . $smtp->message } || '(no response)';
+                chomp $resp;
+                return $failed->(
+                    "Couldn't authenticate to $LJ::SMTP_SERVER{hostname}: %s, will retry.", $resp
+                );
+            }
         }
     }
     $last_email = time();
@@ -150,6 +172,13 @@ sub work {
         my ($this_domain) = $env_from =~ /\@(.+)/;
         my $hstr = substr( md5_hex($handle), 0, 12 );
         $headers = "Message-ID: <dw-$hstr\@$this_domain>\r\n" . $headers;
+    }
+
+    # Tag the message with the SES configuration set (if configured) so SES
+    # emits per-message sending events (delivery/bounce/reject/complaint) to the
+    # config set's event destination. No-op when unset.
+    if ( $LJ::SES_CONFIGURATION_SET && $headers !~ m!^x-ses-configuration-set:!mi ) {
+        $headers = "X-SES-CONFIGURATION-SET: $LJ::SES_CONFIGURATION_SET\r\n" . $headers;
     }
 
     my $details = sub {

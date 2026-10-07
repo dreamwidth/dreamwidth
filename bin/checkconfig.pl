@@ -29,6 +29,7 @@ my @checks = (   # put these in the order they should be checked in
     "env",
     "database",
     "secrets",
+    "services",
 );
 foreach my $check (@checks) { $dochecks{$check} = 1; }
 
@@ -55,6 +56,7 @@ if ($debs_only) {
     $dochecks{database} = 0;
     $dochecks{timezone} = 0;
     $dochecks{secrets}  = 0;
+    $dochecks{services} = 0;
 }
 
 usage() if $only_check && $no_check;
@@ -287,4 +289,52 @@ sub check_secrets {
             }
         }
     }
+}
+
+# Configuration checks only: do not send mail, create queues, or contact S3.
+sub check_services {
+    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
+    require DW::TaskQueue;
+    require DW::Task::SendEmail;
+    require DW::BlobStore::S3;
+    print "[Checking service configuration...]\n";
+    my @problems;
+    my $backend = eval { DW::TaskQueue->backend_name };
+    push @problems, $@ if $@;
+
+    if ( $backend && $backend eq 'sqs' ) {
+        foreach my $key (qw/ region prefix account /) {
+            push @problems, "SQS requires $key."
+                unless defined $LJ::SQS{$key} && length $LJ::SQS{$key};
+        }
+    }
+    elsif ( $backend && $backend eq 'localdisk' ) {
+        my $path = $LJ::TASK_QUEUE_LOCAL_PATH || "$LJ::HOME/var/taskqueue";
+        push @problems, "Local task queue path must be a writable directory: $path"
+            if -e $path && ( !-d $path || !-w $path );
+        print "LocalDisk queue: $path; run only ONE consumer per task type on one host.\n";
+        print "WARNING: LocalDisk has no retry backoff, claim leases, or dead-letter queue.\n"
+            unless $LJ::IS_DEV_SERVER;
+    }
+    if (%LJ::SMTP_SERVER) {
+        eval { DW::Task::SendEmail->validate_config(%LJ::SMTP_SERVER) };
+        push @problems, $@ if $@;
+        print "WARNING: SMTP TLS is disabled (plaintext).\n" if $LJ::SMTP_SERVER{plaintext};
+    }
+    else {
+        print "WARNING: %SMTP_SERVER is unset; outgoing email cannot be delivered.\n";
+    }
+    print "Outgoing email requires a running bin/worker/dw-send-email consumer.\n";
+    my @stores = @LJ::BLOBSTORES;
+    while (@stores) {
+        my ( $type, $config ) = splice @stores, 0, 2;
+        next unless $type eq 's3';
+        if ( ref $config ne 'HASH' ) {
+            push @problems, 'S3 blobstore configuration must be a hash reference.';
+            next;
+        }
+        eval { DW::BlobStore::S3->validate_config(%$config) };
+        push @problems, $@ if $@;
+    }
+    $err->(@problems);
 }

@@ -236,7 +236,11 @@ sub _string_to_multivalue {
     my @out;
     foreach my $key ( keys %gets ) {
 
-        my @parts = defined $gets{$key} ? split( /\0/, $gets{$key} ) : '';
+        # -1 keeps trailing empties (repeated params); split('') returns (), so
+        # guard the all-empty case too. Both would otherwise drop empty fields.
+        my @parts = defined $gets{$key} ? split( /\0/, $gets{$key}, -1 ) : ('');
+        @parts = ('') unless @parts;
+
         push @out, map { $opts{lowercase} ? lc $key : $key => $_ } @parts;
     }
 

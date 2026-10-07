@@ -85,6 +85,86 @@ html body
     border: 0;
 }
 
+#Greeting form {
+    display: inline-block;
+}
+
+/* Account switcher in the control strip: a bare caret (native <details>) beside
+   the username, whose open panel overlays the page rather than pushing the
+   strip's layout. Panel and link colors come from controlstrip-{dark,light}.css,
+   since the strip's own link color may not contrast with the panel; the values
+   here are only a fallback. */
+#lj_controlstrip .account-switcher {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#lj_controlstrip .account-switcher > summary {
+    cursor: pointer;
+    list-style: none;
+}
+
+#lj_controlstrip .account-switcher > summary::-webkit-details-marker {
+    display: none;
+}
+
+#lj_controlstrip .account-switcher > summary::after {
+    content: "\25BE";
+}
+
+#lj_controlstrip .account-switcher[open] > summary::after {
+    content: "\25B4";
+}
+
+#lj_controlstrip .account-switcher ul {
+    position: absolute;
+    left: 0;
+    z-index: 1000;
+    margin: 2px 0 0;
+    padding: 4px 8px;
+    min-width: 12em;
+    list-style: none;
+    background: #f7f7f7;
+    color: #333333;
+    border: 1px solid #cccccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+}
+
+#lj_controlstrip .account-switcher li {
+    display: block;
+    margin: 2px 0;
+    white-space: nowrap;
+}
+
+#lj_controlstrip .account-switcher .switch-account-form {
+    display: inline-block;
+    margin-left: .5em;
+}
+
+#lj_controlstrip .account-switcher .switch-account-signedout {
+    margin-left: .5em;
+    font-style: italic;
+}
+
+#lj_controlstrip .account-switcher ul a,
+#lj_controlstrip .account-switcher .switch-account-btn {
+    font-family: Arial, sans-serif;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
+    color: #2172a8;
+    width: auto;
+}
+
+#lj_controlstrip .account-switcher ul a:hover,
+#lj_controlstrip .account-switcher .switch-account-btn:hover {
+    text-decoration: underline;
+}
+
 /* Make sure all form elements use default colors and control strip fonts */
 #lj_controlstrip input
 {

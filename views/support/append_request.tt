@@ -1,0 +1,28 @@
+[%# support/append_request.tt
+  #
+  # Confirmation page shown after a support response/action is logged by
+  # DW::Controller::Support::AppendRequest. Error and login cases are handled in
+  # the controller (error_ml / needlogin), so this only renders the two success
+  # states: a normal "logged" confirmation, or the "bounced to email" one. Both
+  # show the navigation links and a link back to the support board.
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = '.title' | ml -%]
+
+[%- IF state == 'bounced' %]
+<p>[% dw.ml( '.bounced.success', { addresslist => addresslist } ) %]</p>
+[%- ELSE %]
+<h1>[% '.logged.title' | ml %]</h1>
+<p>[% '.logged.text' | ml %]</p>
+[%- END %]
+
+[% successlinks %]
+
+<hr />
+[% dw.ml( '.back.support2', { aopts => "href='${site.root}/support/'" } ) %]

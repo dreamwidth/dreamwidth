@@ -1,4 +1,10 @@
 <?_c
+# DEPRECATED: This page is the preview target for the old BML entry form
+# (update.bml, editjournal.bml) only; the Template Toolkit entry editor uses
+# DW::Controller::Entry's /entry/preview, which provides the same
+# functionality. Remove this page when the old entry form pages are removed.
+_c?>
+<?_c
 # This code was forked from the LiveJournal project owned and operated
 # by Live Journal, Inc. The code has been modified and expanded by
 # Dreamwidth Studios, LLC. These files were originally licensed under

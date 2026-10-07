@@ -13,7 +13,7 @@ under the same terms as Perl itself.  For a copy of the license, please
 reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 %]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
-[% IF remote %]
+[% IF remote && !add_account %]
     [% sections.title = dw.ml(".loggedin.head2", { 'sitename' => site.nameshort}) %]
 
     <p> [% dw.ml(".loggedin.text2", { 'username' => remote.user} ) %]</p>
@@ -92,6 +92,19 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
       </div>
     </div>
     </form>
+[% ELSIF add_account && remote %]
+[% sections.title = dw.ml(".addaccount.title", { 'sitename' => site.nameshort} ) %]
+[% IF errors.size %]
+    [% FOREACH err = errors %]
+        <div class="alert-box alert radius">[% err.1 %]</div>
+    [% END %]
+[% END %]
+<p>[% dw.ml('.addaccount.text', { 'username' => remote.ljuser_display }) %]</p>
+<div class="row" id="protected_login">
+  <div class="columns medium-6">
+    [% PROCESS "components/login.tt" switch = 1 default_user = prefill_user %]
+  </div>
+</div>
 [% ELSE %]
 [% sections.title = dw.ml(".login.title", { 'sitename' => site.nameshort} ) %]
 [% IF errors.size %]

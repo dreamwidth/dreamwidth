@@ -1,0 +1,125 @@
+[%# tools/memories.tt
+  #
+  # View a user's memorable entries: the list of categories, the memories
+  # saved under one keyword, and the bulk-delete confirmation.
+  #
+  # Authors:
+  #     Mark Smith <mark@dreamwidth.org>
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- IF robot_meta; sections.head = robot_meta; END -%]
+
+[%- IF state == 'deleted' -%]
+[%- sections.title = '.delete.deleted.title' | ml -%]
+
+<h2>[% '.delete.deleted.head' | ml %]</h2>
+<p>[% '.delete.deleted.text' | ml( aopts => "href='$view_url'" ) %]</p>
+
+[%- ELSE -%]
+
+[%- IF authas_html %]
+<form method='get' action='[% site.root %]/tools/memories'>
+[% authas_html %]
+[% IF keyword %]<input type="hidden" name="keyword" value="[% keyword | html %]" />[% END %]
+</form>
+[% END -%]
+
+[%- IF state == 'keyword' -%]
+
+  [%- IF keyword == '*' -%]
+[%- sections.title = '.title.memorable' | ml -%]
+<p>[% '.body.memorable' | ml( user => user ) %]</p>
+  [%- ELSE -%]
+[%- sections.title = dw.ml( '.title.keyword', { keyword => ekeyword, user => user } ) -%]
+<p>[% '.body.keyword' | ml( keyword => ekeyword, user => user ) %]</p>
+  [%- END -%]
+
+<form method='get' action='[% site.root %]/tools/memories'>
+[% IF keyword %]<input type="hidden" name="keyword" value="[% keyword | html %]" />[% END %]
+[% IF get_user %]<input type="hidden" name="user" value="[% get_user | html %]" />[% END %]
+[% IF get_authas %]<input type="hidden" name="authas" value="[% get_authas | html %]" />[% END %]
+<div class='row collapse'>
+  <div class='columns small-3 medium-2'><label class='inline' for='sortby'>[% '.form.sort' | ml %]</label></div>
+  <div class='columns small-9 medium-10'><div class='row'>
+    <div class='columns small-8 medium-4'>
+    [%- sort_items = [];
+        FOREACH sorttype IN [ [ 'memid', '.sort.orderadded' ], [ 'des', '.sort.description' ], [ 'user', '.sort.journal' ] ];
+          sort_items.push( sorttype.0, dw.ml( sorttype.1 ) );
+        END -%]
+    [% form.select( name => 'sortby', id => 'sortby', selected => sort, items => sort_items ) %]
+    </div>
+    <div class='columns small-4 medium-2 end'>
+    [% form.submit( value => dw.ml( '.form.switch' ), class => 'secondary button' ) %]
+    </div>
+  </div></div>
+</div>
+</form>
+
+<p><a href="[% back_url %]">&laquo; [% '.back' | ml %]</a></p>
+
+  [%- IF is_owner && multidelete %]
+<form method='post' action='[% back_url %]'>
+[% dw.form_auth %]
+  [%- END %]
+<ul class='memory-list'>
+  [%- FOREACH mem IN memories %]
+  <li>
+    [%- IF is_owner && multidelete %]<input type="checkbox" name="select_mem_[% mem.memid %]" value="1" /> [% END -%]
+    <a href="[% mem.entry_url %]"><strong>[% mem.des | html %]</strong></a>
+    [%- IF is_owner %] <a class='edit-link' href="[% mem.edit_url %]">[% '.edit' | ml %]</a>[% END %]
+    [%- IF mem.security == 'friends' %] [% dw.img( 'security-protected', '' ) %]
+    [%- ELSIF mem.security == 'private' %] [% dw.img( 'security-private', '' ) %]
+    [%- END %]
+    <br /><small>[% mem.user %]</small>
+  </li>
+  [%- END %]
+</ul>
+  [%- IF is_owner && multidelete %]
+[% form.submit( value => dw.ml( '.delete' ), class => 'button', onclick => "return confirm('$delete_confirm')" ) %]
+</form>
+  [%- END %]
+
+[%- ELSE -%]
+
+[%- sections.title = '.title.memorable' | ml -%]
+<p>[% '.body.list_categories' | ml( user => user ) %]</p>
+
+<form method='get' action='[% site.root %]/tools/memories'>
+<input type='hidden' name='user' value="[% user %]" />
+<div class='row collapse'>
+  <div class='columns small-3 medium-2'><label class='inline' for='filter'>[% '.form.filter' | ml %]</label></div>
+  <div class='columns small-9 medium-10'><div class='row'>
+    <div class='columns small-8 medium-4'>
+    [%- filter_items = [];
+        FOREACH filt IN [ 'all', 'own', 'other' ];
+          filter_items.push( filt, dw.ml( ".filter.$filt", { user => user } ) );
+        END -%]
+    [% form.select( name => 'filter', id => 'filter', selected => filter, items => filter_items ) %]
+    </div>
+    <div class='columns small-4 medium-2 end'>
+    [% form.submit( value => dw.ml( '.form.switch' ), class => 'secondary button' ) %]
+    </div>
+  </div></div>
+</div>
+</form>
+
+  [%- IF categories.size %]
+<ul class='memory-categories'>
+    [%- FOREACH cat IN categories %]
+  <li><strong><a href="[% cat.url %]">[% IF cat.keyword == '*' %][% '.uncategorized' | ml %][% ELSE %][% cat.keyword | html %][% END %]</a></strong>: [% '.plur_entry' | ml( num => cat.count ) %]</li>
+    [%- END %]
+</ul>
+  [%- ELSE %]
+<h2>[% '.error.noentries.title' | ml %]</h2>
+<p>[% '.error.noentries.body' | ml( username => u_mem.display_name ) %]</p>
+  [%- END %]
+
+[%- END -%]
+[%- END -%]

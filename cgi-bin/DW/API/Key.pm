@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use Carp;
 
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 
 # Usage: new_for_user ( user )
 # Creates a new API key for a given user, saves it to DB,
@@ -69,13 +69,14 @@ sub get_key {
         LJ::MemCache::set( $memkey, $keydata, 60 * 60 * 24 );    # cache for one day
     }
 
-    if ($keydata) {
-        my $user = LJ::want_user( $keydata->{userid} );
-        return $class->_create( $user, $keydata->{keyid}, $keydata->{hash} );
-    }
-    else {
-        return undef;
-    }
+    return undef unless $keydata;
+
+    # Checked on every lookup rather than cached with the key, so that a change
+    # to the account takes effect immediately.
+    my $user = LJ::want_user( $keydata->{userid} );
+    return undef unless $user && $user->is_visible;
+
+    return $class->_create( $user, $keydata->{keyid}, $keydata->{hash} );
 }
 
 # Usage: get_keys_for_user ( user )

@@ -1,0 +1,66 @@
+[%# support/act.tt
+  #
+  # Result page for acting on a support request (touch/close/lock/unlock).
+  # Rendered by DW::Controller::Support::Act; the error cases use error_ml and
+  # the redirect cases are handled in the controller, so this template only
+  # covers the states that show content: a reopened-request comment form, the
+  # lock/unlock confirmations, and the two "closed" variants.
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = page_title -%]
+
+[%- IF state == 'touched' %]
+<h1>[% '.touched' | ml %]</h1>
+<p>
+[%- '.your.request' | ml %]
+[%- dw.ml( is_open ? '.will.stay.open.now' : '.has.been.reopened' ) %]
+[% '.please.comment' | ml %]
+</p>
+
+<br />
+<form method="post" action="append_request">
+<input type="hidden" name="spid" value="[% spid %]" />
+<input type="hidden" name="auth" value="[% auth %]" />
+<table summary='' border='0'>
+<tr valign="middle"><td align="right">From:</td><td>
+[%- IF remote %][% remote.ljuser_display %][% ELSE %](not logged in)[% END %]
+</td></tr>
+<tr><td align='right'>Reply Type:</td><td>
+<input type="hidden" name="replytype" value="comment" />
+<b>[% '.more.info' | ml %]</b>
+</td></tr>
+<tr valign="top"><td align="right">[% '.message' | ml %]</td><td colspan="2">
+<textarea rows="10" cols="50" name="body"></textarea><br />
+<div class='de'>[% '.no.html.allowed3' | ml %]</div><br />
+<input type="submit" name="submitpost" value="[% '.postbutton' | ml %]" />
+</td></tr></table>
+</form>
+
+[%- ELSIF state == 'locked' %]
+<h1>[% '.success' | ml %]</h1>
+<p>[% dw.ml( '.request.has.been.locked', { requestlink => "href='/support/see_request?id=$spid'" } ) %]</p>
+
+[%- ELSIF state == 'unlocked' %]
+<h1>[% '.success' | ml %]</h1>
+<p>[% dw.ml( '.request.has.been.unlocked', { requestlink => "href='/support/see_request?id=$spid'" } ) %]</p>
+
+[%- ELSIF state == 'closed_nav' %]
+<h1>[% '.closed' | ml %]</h1>
+<ul>
+  <li>[% dw.ml( '.go.back.to.request', { 'back.req.url' => "href='see_request?id=$spid'", spid => spid } ) %]</li>
+  <li>[% dw.ml( '.go.back.to.open.request', { url => "href='help'" } ) %]</li>
+  <li>[% dw.ml( '.go.back.to.category', { url => "href='help?cat=$catkey'" } ) %]</li>
+  <li>[% dw.ml( '.go.to.previous.next.request', { 'prev.url' => "href='see_request?id=${spid}&amp;find=prev'", 'next.url' => "href='see_request?id=${spid}&amp;find=next'" } ) %]</li>
+  <li>[% dw.ml( '.go.to.previous.next.req.cat', { 'prev.url' => "href='see_request?id=${spid}&amp;find=cprev'", 'next.url' => "href='see_request?id=${spid}&amp;find=cnext'" } ) %]</li>
+</ul>
+
+[%- ELSIF state == 'closed_simple' %]
+<h1>[% '.closed' | ml %]</h1>
+<p>[% '.request.closed' | ml %]</p>
+[%- END %]

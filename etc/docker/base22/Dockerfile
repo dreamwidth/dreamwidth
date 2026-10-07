@@ -21,16 +21,15 @@ RUN apt-get update && \
     bash -c 'echo "Etc/UTC" > /etc/timezone' && \
     dpkg-reconfigure -f noninteractive tzdata
 
-# Install Node.js 20 LTS (for sass and esbuild)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+# Install Node.js 24 LTS (for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs
 
 # Install base system dependencies, then clean up
 RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/dependencies-system | \
         xargs apt-get -y install && \
     rm -rf /var/lib/apt/lists/* && \
-    cpanm -nq App::cpm && \
-    npm install -g sass esbuild
+    cpanm -nq App::cpm
 
 # Split CPAN dependencies into a second step, since they change more
 # frequently than system dependencies
@@ -39,12 +38,17 @@ RUN curl https://raw.githubusercontent.com/dreamwidth/dreamwidth/main/doc/depend
     rm -rf /root/.perl-cpm && \
     rm -rf /root/.cpanm
 
-# Actually check out the source code now. Also build static, so that later when
-# we do individual deploys, the static build is faster.
+# Actually check out the source code now. Install the pinned CSS/JS build
+# tools from the checkout (no build context here, so install post-clone), then
+# build static so that later individual deploys build faster.
+ENV PATH="/opt/dw-build-tools/node_modules/.bin:${PATH}"
 RUN mv $LJHOME/extlib /dw-extlib && \
     rmdir $LJHOME && \
     git clone https://github.com/dreamwidth/dreamwidth.git $LJHOME && \
     mv /dw-extlib $LJHOME/extlib && \
     git -C $LJHOME checkout $COMMIT && \
     git -C $LJHOME pull --ff-only origin $COMMIT && \
+    mkdir -p /opt/dw-build-tools && \
+    cp $LJHOME/etc/build-tools/package.json $LJHOME/etc/build-tools/package-lock.json /opt/dw-build-tools/ && \
+    npm ci --prefix /opt/dw-build-tools && \
     $LJHOME/bin/build-static.sh

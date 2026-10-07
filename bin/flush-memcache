@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+#
+# flush-memcache
+#
+# Flush all configured memcache servers.
+#
+# Authors:
+#     Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself.  For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use v5.10;
+use strict;
+BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+
+use IO::Socket::INET;
+
+unless (@LJ::MEMCACHE_SERVERS) {
+    say "No memcache servers configured.";
+    exit 1;
+}
+
+say "Flushing " . scalar(@LJ::MEMCACHE_SERVERS) . " memcache server(s)...";
+
+for my $server (@LJ::MEMCACHE_SERVERS) {
+    my $name = ref $server ? $server->[0] : $server;
+    my $sock = IO::Socket::INET->new(
+        PeerAddr => $name,
+        Timeout  => 3,
+    );
+    unless ($sock) {
+        say "  $name - FAILED (could not connect)";
+        next;
+    }
+
+    print $sock "flush_all\r\n";
+    my $result = <$sock>;
+    close $sock;
+
+    if ( $result && $result =~ /^OK/ ) {
+        say "  $name - OK";
+    }
+    else {
+        chomp $result if $result;
+        say "  $name - FAILED ($result)";
+    }
+}
+
+say "Done.";

@@ -20,6 +20,9 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
+use DW::Cache;
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::Entry;
 use LJ::HTMLControls;
@@ -76,6 +79,18 @@ sub reset_singletons {
     %unloaded_text_singletons = ();
     %unloaded_prop_singletons = ();
 }
+
+# file-scoped lexicals, so they self-register: cleared between requests/jobs,
+# with the main registry's byte size measured for memory metrics
+DW::Cache->request->register_var( 'comment_singletons', \%singletons );
+DW::Cache->request->register_reset(
+    'comment_unloaded_singletons',
+    sub {
+        %unloaded_singletons      = ();
+        %unloaded_text_singletons = ();
+        %unloaded_prop_singletons = ();
+    }
+);
 
 # <LJFUNC>
 # name: LJ::Comment::new
@@ -940,8 +955,34 @@ sub viewable_by_others {
 sub visible_to {
     my ( $self, $u ) = @_;
 
-    return 0 unless LJ::isu($u);
-    return 0 unless $self->entry && $self->entry->visible_to($u);
+    my $trace = $LJ::ESN::CURRENT_TRACE // '';
+
+    unless ( LJ::isu($u) ) {
+        $log->debug("[esn $trace] visible_to: reject reason=invalid_user") if $trace;
+        return 0;
+    }
+
+    unless ( $self->entry ) {
+        $log->debug(
+            sprintf(
+                '[esn %s] visible_to: reject user=%s(%d) reason=entry_not_loaded jtalkid=%d',
+                $trace, $u->user, $u->id, $self->jtalkid
+            )
+        ) if $trace;
+        return 0;
+    }
+
+    unless ( $self->entry->visible_to($u) ) {
+        $log->debug(
+            sprintf(
+                '[esn %s] visible_to: reject user=%s(%d) reason=entry_not_visible'
+                    . ' jtalkid=%d ditemid=%d security=%s',
+                $trace, $u->user, $u->id, $self->jtalkid,
+                $self->entry->ditemid, $self->entry->security || 'public'
+            )
+        ) if $trace;
+        return 0;
+    }
 
     my $posted_comment = $self->poster && $u->equals( $self->poster );
     my $posted_entry   = $self->entry->poster
@@ -954,18 +995,37 @@ sub visible_to {
         && $self->poster->can_manage( $self->journal );
 
     # screened comment
-    return 0 if $self->is_screened && !    # allowed viewers:
-        (
-        $u->can_manage( $self->journal )       # owns the journal
-        || $posted_comment || $posted_entry    # owns the content
-        || ( $posted_parent && $posted_by_admin )
-        );
-
-    # person this is in reply to,
-    # as long as this comment was by a moderator
+    if (
+        $self->is_screened
+        && !(
+               $u->can_manage( $self->journal )
+            || $posted_comment
+            || $posted_entry
+            || ( $posted_parent && $posted_by_admin )
+        )
+        )
+    {
+        $log->debug(
+            sprintf(
+                '[esn %s] visible_to: reject user=%s(%d) reason=screened jtalkid=%d',
+                $trace, $u->user, $u->id, $self->jtalkid
+            )
+        ) if $trace;
+        return 0;
+    }
 
     # comments from suspended users aren't visible
-    return 0 if $self->poster && $self->poster->is_suspended;
+    if ( $self->poster && $self->poster->is_suspended ) {
+        $log->debug(
+            sprintf(
+                '[esn %s] visible_to: reject user=%s(%d) reason=poster_suspended'
+                    . ' jtalkid=%d poster=%s(%d)',
+                $trace,         $u->user,            $u->id,
+                $self->jtalkid, $self->poster->user, $self->poster->id
+            )
+        ) if $trace;
+        return 0;
+    }
 
     return 1;
 }

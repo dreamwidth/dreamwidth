@@ -5,7 +5,9 @@
     color: #7c7c7c;
 }
 
-#lj_controlstrip a
+#lj_controlstrip a,
+#lj_controlstrip .account-switcher ul a,
+#lj_controlstrip .account-switcher .switch-account-btn
 {
     color: #505050;
 }
@@ -19,5 +21,12 @@
 
 #lj_controlstrip_statustext
 {
+    color: #404040;
+}
+
+#lj_controlstrip .account-switcher ul
+{
+    background-color: #c7c6c6;
+    border-color: #fbfbfb;
     color: #404040;
 }

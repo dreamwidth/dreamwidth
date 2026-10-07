@@ -24,9 +24,11 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use LJ::JSON;
+use LJ::S2Theme;
 
 # routing directions
-DW::Routing->register_string( '/customize/viewuser', \&viewuser_handler, app => 1 );
+DW::Routing->register_string( '/customize/viewuser',         \&viewuser_handler,         app => 1 );
+DW::Routing->register_string( '/customize/preview_redirect', \&preview_redirect_handler, app => 1 );
 
 sub viewuser_handler {
     my ( $ok, $rv ) = controller( authas => 1 );
@@ -144,6 +146,41 @@ sub viewuser_handler {
     };
 
     return DW::Template->render_template( 'customize/viewuser.tt', $vars );
+}
+
+# Resolve a theme/layout to a preview style for the viewer's own journal and
+# redirect there with ?s2id=. Linked from the theme chooser and the admin
+# themes list; carries no view of its own.
+sub preview_redirect_handler {
+    my ( $ok, $rv ) = controller( anonymous => 1 );
+    return $rv unless $ok;
+
+    my $r     = $rv->{r};
+    my $scope = '/customize/preview_redirect.tt';
+
+    my $u = LJ::get_effective_remote();
+    return error_ml("$scope.error.user") unless LJ::isu($u);
+
+    my $get      = $r->get_args;
+    my $themeid  = ( $get->{themeid} || 0 ) + 0;
+    my $layoutid = ( $get->{layoutid} || 0 ) + 0;
+
+    my $theme;
+    if ($themeid) {
+        $theme = LJ::S2Theme->load_by_themeid( $themeid, $u );
+    }
+    elsif ($layoutid) {
+        $theme = LJ::S2Theme->load_custom_layoutid( $layoutid, $u );
+    }
+    else {
+        return error_ml("$scope.error.id");
+    }
+
+    my $styleid = $theme && $theme->get_preview_styleid($u);
+    return error_ml("$scope.error.preview") unless $styleid;
+
+    my $base = $u->is_identity ? $u->openid_journal_base : $u->journal_base;
+    return $r->redirect("$base/?s2id=$styleid");
 }
 
 1;

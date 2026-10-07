@@ -4,28 +4,42 @@
 # the same terms as Perl itself. For a copy of the license, please reference
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-# Parse flags. If none specified, run everything.
-# The rsync to build/static always runs since all steps feed into it.
+# Parse flags. If no step flags are specified, run everything appropriate for
+# the build mode. The rsync to build/static always runs since all steps feed
+# into it.
 do_sass=0
 do_compress=0
 force=0
-is_dev=${DW_DEV:-0}
+
+# Build mode: dev builds are unminified to aid debugging, prod builds are
+# minified. Dev mode follows LJ_IS_DEV_SERVER (with the same truthiness that
+# ljlib.pl uses); --dev and --prod override it.
+mode=prod
+if [[ -n "$LJ_IS_DEV_SERVER" && "$LJ_IS_DEV_SERVER" != "0" ]]; then
+    mode=dev
+fi
 
 for arg in "$@"; do
     case "$arg" in
         --sass)     do_sass=1 ;;
         --compress) do_compress=1 ;;
-        --force) force=1 ;;
-        --prod) is_dev=0 ;;
+        --dev)      mode=dev ;;
+        --prod)     mode=prod ;;
+        --force)    force=1 ;;
         --help|-h)
-            echo "Usage: $0 [--sass] [--compress] [--prod] [--force]"
+            echo "Usage: $0 [--sass] [--compress] [--dev|--prod] [--force]"
             echo "  --sass       Compile SCSS files with Dart Sass"
-            echo "  --compress   Minify JS & CSS with esbuild"
-            echo "  --prod       Apply heavier minification for prod environments - defaults to true if the DW_DEV envvar is not set to 1"
-            echo "  --force      Force rebuild/re-sync of all static assets - defaults to true if --prod is true "
-            echo "  (no flags runs both sass compilation and minification)"
+            echo "  --compress   Minify JS and CSS with esbuild (even in dev mode)"
+            echo "  --dev        Dev mode: expanded CSS, no minification by default"
+            echo "               (the default if LJ_IS_DEV_SERVER is set)"
+            echo "  --prod       Prod mode: compressed CSS, minified JS and CSS"
+            echo "               (the default otherwise; overrides LJ_IS_DEV_SERVER)"
+            echo "  --force      Wipe the build directory and rebuild everything"
+            echo "  (no step flags runs SCSS compilation, plus minification in prod mode)"
             echo ""
-            echo "  Asset sync (rsync to build/static/) always runs."
+            echo "  Asset sync (rsync to build/static/) always runs. A full rebuild also"
+            echo "  happens automatically when this script, the tool versions, or the"
+            echo "  build mode change."
             exit 0
             ;;
         *)
@@ -35,27 +49,75 @@ for arg in "$@"; do
     esac
 done
 
-# No flags = run everything
+# No step flags = run everything; only minify by default in prod
 if [[ $do_sass -eq 0 && $do_compress -eq 0 ]]; then
     do_sass=1
-    do_compress=1
+    if [[ $mode = "prod" ]]; then
+        do_compress=1
+    fi
 fi
 
-# set up our commandline options to sass for prod and dev
-# and set --force to true in prod environments
-sass_options=''
-
-if [[ $is_dev -eq 0 ]]; then
+# Dart Sass writes source maps next to the compiled CSS by default; we never
+# want those, since they'd end up synced into build/static
+if [[ $mode = "prod" ]]; then
     sass_options="--style=compressed --no-source-map"
-    force=1
+else
+    sass_options="--style=expanded --no-source-map"
+fi
+
+if [[ -z "$LJHOME" ]]; then
+    echo "Error: LJHOME is not set" >&2
+    exit 1
 fi
 
 buildroot="$LJHOME/build/static"
 mkdir -p $buildroot
 
+sass=$(which sass)
+
+compressor=""
+uncompressed_dir=""
+if [[ $do_compress -eq 1 ]]; then
+    compressor=$(which esbuild)
+    uncompressed_dir="/max"
+    if [ -z "$compressor" ]; then
+        echo "Warning: No esbuild command found" >&2
+        uncompressed_dir=""
+    fi
+fi
+
+# --- Full rebuild check ---
+# Incremental syncs only reprocess files whose source changed, so if anything
+# that affects the output changes (this script, the tool versions, or the build
+# mode) everything needs to be rebuilt. Record those in a stamp file and wipe
+# the build directory when they differ, or when --force is given.
+stamp_file="$buildroot/.build-stamp"
+stamp=$(
+    echo "script: $(sha256sum < "${BASH_SOURCE[0]}" | cut -d ' ' -f 1)"
+    echo "esbuild: $( [ -n "$compressor" ] && $compressor --version )"
+    echo "sass: $( [ -n "$sass" ] && $sass --version )"
+    echo "mode: $mode"
+    echo "minify: $( [ -n "$compressor" ] && echo 1 || echo 0 )"
+)
+
+if [[ $force -eq 1 ]]; then
+    echo "* Forced full rebuild"
+elif [[ ! -f "$stamp_file" ]]; then
+    echo "* No build stamp found, doing a full rebuild"
+    force=1
+elif [[ "$(cat "$stamp_file")" != "$stamp" ]]; then
+    echo "* Build script, tools or mode changed, doing a full rebuild"
+    force=1
+fi
+
+if [[ $force -eq 1 ]]; then
+    # Remove the contents rather than the directory itself, which may be a
+    # symlink (e.g. in the dev container)
+    find -H "$buildroot" -mindepth 1 -delete
+fi
+
 # --- SCSS compilation ---
 if [[ $do_sass -eq 1 ]]; then
-    sass=$(which sass)
     if [ "$sass" != "" ]; then
         echo "* Building SCSS..."
         if ! $sass $sass_options \
@@ -80,16 +142,6 @@ if [[ $do_sass -eq 1 ]]; then
 fi
 
 # --- Asset sync (always runs) and optional compression ---
-compressor=""
-uncompressed_dir=""
-if [[ $do_compress -eq 1 ]]; then
-    compressor=$(which esbuild)
-    uncompressed_dir="/max"
-    if [ -z "$compressor" ]; then
-        echo "Warning: No esbuild command found" >&2
-        uncompressed_dir=""
-    fi
-fi
 
 # check the relevant paths using the same logic as the codebase
 perl -e '
@@ -119,8 +171,6 @@ do
     if [[ ! -e $final ]];   then mkdir -p "$final"; fi
 
     from=`echo $line | cut -d ":" -f 3`
-    
-    if [[ $force -eq 1 ]]; then rm -rf "$sync_to"; fi
 
     echo "* Syncing to $sync_to..."
     rsync --archive --out-format="%n" --delete $from $sync_to | while read -r modified_file
@@ -142,12 +192,13 @@ do
 
                 mkdir -p "$final/$dir"
 
-                if [[ ("$ext" = "js" || "$ext" = "css") && (is_dev -eq 0) ]]; then
-                    # Minify JS & CSS with esbuild - Dart Sass will minify compiled CSS but not vanilla
+                if [[ "$ext" = "js" || "$ext" = "css" ]]; then
+                    # Minify JS and CSS with esbuild (Dart Sass output is
+                    # already compressed in prod, but plain CSS is not)
                     $compressor --target=es6 --minify "$synced_file" --outfile="$final/$modified_file" 2>/dev/null \
                         || cp -p "$synced_file" "$final/$modified_file"
                 else
-                    # CSS is already minified by Dart Sass; other files copy as-is
+                    # other files copy as-is
                     cp -p "$synced_file" "$final/$modified_file"
                 fi
             else
@@ -168,5 +219,9 @@ if [[ -n $compressor ]]; then
     find $buildroot/js $buildroot/max/js   | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
     find $buildroot/stc $buildroot/max/stc | sed "s/$escaped\/\(max\/\)\?//" | sort | uniq -c | sort -n   | grep '^[[:space:]]\+1'
 fi
+
+# Only record the stamp once the build has finished, so an interrupted build
+# gets redone from scratch next time
+echo "$stamp" > "$stamp_file"
 
 exit 0

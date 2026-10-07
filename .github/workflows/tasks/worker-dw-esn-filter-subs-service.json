@@ -1,6 +1,42 @@
 {
     "containerDefinitions": [
         {
+            "name": "log_router",
+            "image": "194396987458.dkr.ecr.us-east-1.amazonaws.com/dreamwidth-fluent-bit:3",
+            "essential": true,
+            "firelensConfiguration": {
+                "type": "fluentbit",
+                "options": {
+                    "config-file-type": "file",
+                    "config-file-value": "/fluent-bit/configs/minimize-log-loss.conf"
+                }
+            },
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/dreamwidth/fluent-bit",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "dw-esn-filter-subs"
+                }
+            },
+            "secrets": [
+                {
+                    "name": "LOKI_USER",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-username"
+                },
+                {
+                    "name": "LOKI_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:us-east-1:194396987458:parameter/dreamwidth/grafana-cloud/loki-password"
+                }
+            ],
+            "environment": [],
+            "portMappings": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "systemControls": []
+        },
+        {
             "name": "worker",
             "image": "ghcr.io/dreamwidth/worker:latest",
             "cpu": 0,
@@ -25,12 +61,19 @@
                 "initProcessEnabled": true
             },
             "logConfiguration": {
-                "logDriver": "awslogs",
+                "logDriver": "awsfirelens",
                 "options": {
-                    "awslogs-create-group": "true",
-                    "awslogs-group": "/dreamwidth/worker/dw-esn-filter-subs",
-                    "awslogs-region": "us-east-1",
-                    "awslogs-stream-prefix": "worker"
+                    "Name": "loki",
+                    "host": "logs-prod-042.grafana.net",
+                    "port": "443",
+                    "tls": "on",
+                    "tls.verify": "on",
+                    "http_user": "${LOKI_USER}",
+                    "http_passwd": "${LOKI_PASSWORD}",
+                    "labels": "source=dreamwidth,service=dw-esn-filter-subs",
+                    "label_keys": "$container_name,$ecs_task_arn",
+                    "remove_keys": "container_id,ecs_task_definition,ecs_cluster",
+                    "line_format": "key_value"
                 }
             }
         }

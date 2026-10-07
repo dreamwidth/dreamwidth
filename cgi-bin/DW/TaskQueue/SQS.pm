@@ -21,9 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use MIME::Base64 qw/ encode_base64 decode_base64 /;
 use Paws;
-use Storable qw/ nfreeze thaw /;
 use Time::HiRes qw/ time /;
 use UUID::Tiny qw/ :std /;
 
@@ -224,7 +222,7 @@ sub send {
 sub _offload_large_message_if_necessary {
     my ( $self, $message ) = @_;
 
-    $message = encode_base64( nfreeze($message) );
+    $message = $message->serialize();
     return $message if length $message < LARGE_MESSAGE_CUTOFF;
 
     my $uuid = create_uuid_as_string(UUID_V4);
@@ -295,7 +293,7 @@ sub receive {
     $messages = [
         map {
             my $task =
-                thaw( decode_base64( $self->_reload_large_message_if_necessary( $_->Body ) ) );
+                DW::Task->deserialize( $self->_reload_large_message_if_necessary( $_->Body ) );
             $task->receive_count( $_->Attributes->{ApproximateReceiveCount} || 0 );
             [ $_->ReceiptHandle, $task ]
         } @$messages

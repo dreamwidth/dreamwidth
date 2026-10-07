@@ -1,0 +1,93 @@
+# t/console-suspenduserpic.t
+#
+# Test suspending / unsuspending a single userpic via the LJ::Console suspend
+# and unsuspend commands (which dispatch on a userpic URL, like they do for
+# entry URLs).
+#
+# Authors:
+#      Mark Smith <mark@dreamwidth.org>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+use strict;
+use warnings;
+
+use Test::More;
+
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Console;
+use LJ::Test qw (temp_user);
+local $LJ::T_NO_COMMAND_PRINT = 1;
+
+my $u = temp_user();
+LJ::set_remote($u);
+
+my $run = sub {
+    my $cmd = shift;
+    return LJ::Console->run_commands_text($cmd);
+};
+
+my $file_contents = sub {
+    my $file = shift;
+    open( my $fh, $file ) or die $!;
+    my $ct = do { local $/; <$fh> };
+    return \$ct;
+};
+
+# Read state straight from the DB so a cached object doesn't mask the second
+# transition (suspend then unsuspend).
+my $pic_state = sub {
+    my $picid = shift;
+    return $u->selectrow_array( "SELECT state FROM userpic2 WHERE userid=? AND picid=?",
+        undef, $u->userid, $picid );
+};
+
+my $upfile = "$ENV{LJHOME}/t/data/userpics/good.jpg";
+die "No such file $upfile" unless -e $upfile;
+
+my $up;
+eval { $up = LJ::Userpic->create( $u, data => $file_contents->($upfile) ) };
+if ($@) {
+    plan skip_all => "Storage failure: $@";
+    exit 0;
+}
+else {
+    plan tests => 8;
+}
+
+# Suspended pics stay in the owner's listing (shown with a note, served as the
+# default image) but are not selectable for posting.
+my $in_listing = sub {
+    return scalar grep { $_->id == $up->id } LJ::Userpic->load_user_userpics($u);
+};
+my $selectable = sub {
+    return $u->get_userpic_info->{pic}->{ $up->id } ? 1 : 0;
+};
+
+is(
+    $run->( "suspend " . $up->url . " dmca-test" ),
+    "error: You are not authorized to run this command.",
+    "suspend requires the suspend priv."
+);
+$u->grant_priv("suspend");
+
+is(
+    $run->( "suspend " . $up->url . " dmca-test" ),
+    "success: Userpic " . $up->url . " suspended.",
+    "suspend accepts a userpic URL."
+);
+is( $pic_state->( $up->id ), "S", "Userpic actually suspended." );
+ok( $in_listing->(),  "suspended pic stays in the owner's listing (shown with a note)." );
+ok( !$selectable->(), "suspended pic is not selectable for posting." );
+
+is(
+    $run->( "unsuspend " . $up->url . " dmca-test" ),
+    "success: Userpic " . $up->url . " unsuspended.",
+    "unsuspend accepts a userpic URL."
+);
+is( $pic_state->( $up->id ), "N", "Userpic restored to normal." );
+ok( $selectable->(), "unsuspended pic is selectable again." );

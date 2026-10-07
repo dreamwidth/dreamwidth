@@ -61,13 +61,6 @@ sub get {
     # the logic below is a little heavy so it doesn't run over and over.
     return $cur_req if $determined;
 
-    # attempt Apache 2 if it's available
-    if ($DW::Request::APACHE2_AVAILABLE) {
-        my $r = Apache2::RequestUtil->request;
-        $cur_req = DW::Request::Apache2->new($r)
-            if $r;
-    }
-
     # attempt plack if we're in that space
     if ($DW::Request::PLACK_AVAILABLE) {
         $cur_req = DW::Request::Plack->new( $opts{plack_env} )

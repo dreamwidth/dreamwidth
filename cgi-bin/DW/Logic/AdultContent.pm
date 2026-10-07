@@ -18,6 +18,34 @@ package DW::Logic::AdultContent;
 
 use strict;
 
+# Returns the interstitial required before exposing a journal or entry body.
+sub interstitial_type {
+    my ( $class, %opts ) = @_;
+    return unless LJ::is_enabled('adult_content');
+
+    my $journal = $opts{journal};
+    my $entry   = $opts{entry};
+    my $remote  = $opts{user};
+    return unless $journal && $journal->is_visible;
+    return if $entry && ( !$entry->valid || !$entry->visible_to($remote) );
+    return
+        if $remote
+        && ( $remote->can_manage($journal) || ( $entry && $remote->equals( $entry->poster ) ) );
+
+    my $level = ( $entry && $entry->adult_content_calculated )
+        || $journal->adult_content_calculated;
+    return if $level eq 'none';
+
+    # A confirmation is a viewing preference, never proof that a minor is eligible.
+    return 'explicit_blocked' if $level eq 'explicit' && $remote && $remote->is_minor;
+    return if $class->user_confirmed_page( %opts, adult_content => $level );
+
+    my $hide = $remote ? $remote->hide_adult_content : 'concepts';
+    return 'explicit' if $level eq 'explicit' && $hide ne 'none';
+    return 'concepts' if $level eq 'concepts' && $hide eq 'concepts';
+    return;
+}
+
 # changes an adult post into a fake LJ-cut if this journal/entry is marked as adult content
 # and the viewer doesn't want to see such entries
 sub transform_post {
@@ -254,6 +282,8 @@ sub set_confirmed_pages {
     my $journalid     = $opts{journalid} + 0;
     my $entryid       = $opts{entryid} + 0;
     my $adult_content = $opts{adult_content};
+
+    return 0 if $adult_content eq 'explicit' && $u && $u->is_minor;
 
     my $confirmed_pages = $class->confirmed_pages($u);
     if ( $entryid && $journalid ) {

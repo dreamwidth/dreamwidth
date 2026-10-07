@@ -6,9 +6,9 @@
 # handler logic using the DW::Request abstraction layer instead of Apache APIs,
 # allowing BML pages to render under Plack.
 #
-# The existing Apache::BML module continues to work unchanged for mod_perl.
-# This module reuses the core BML engine (bml_decode, bml_block, config loading,
-# scheme/look system) and only replaces the handler and request adapter layers.
+# This module reuses the core BML engine from the legacy Apache::BML module
+# (bml_decode, bml_block, config loading, scheme/look system) and only replaces
+# the handler and request adapter layers.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -33,12 +33,13 @@ use DW::Request;
 use DW::SiteScheme;
 use LJ::Directories;
 
-# Provide BML::* package functions for the Plack environment. Under mod_perl these
-# are defined by Apache::BML, but that module can't be loaded without Apache2::*.
+# Provide BML::* package functions for the Plack environment. These live in the
+# legacy Apache::BML engine, which pulls in Apache2::* at compile time — so below
+# we install %INC stubs for those modules, letting it load without mod_perl.
 # Many non-BML callers (LJ::Lang::ml, LJ::Web, etc.) rely on these existing in any
 # web context, so we define them here at load time.
 #
-# If Apache::BML is already loaded (mod_perl), we skip all of this.
+# If Apache::BML is already loaded, we skip all of this.
 unless ( defined &BML::ml ) {
 
     # Load Apache::BML for the core BML engine functions (bml_decode,

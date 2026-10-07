@@ -11,10 +11,10 @@ ARG COMMIT=main
 # Things that commands need, but shouldn't change.
 ENV LJHOME /dw
 
-# Install some packages we need in web only.
+# Refresh apt lists for the dependency install below (and bust the build cache
+# when COMMIT changes).
 RUN echo $COMMIT && \
-    apt-get update && \
-    apt-get install -y varnish
+    apt-get update
 
 
 # Actually check out the source code now & install branch dependencies.
@@ -27,23 +27,11 @@ RUN git -C $LJHOME fetch && \
 
 RUN $LJHOME/bin/build-static.sh
 
-# Copy in support scripts/configurations that are useful.
+# Copy in support scripts that are useful.
 ADD scripts/ /opt/
-ADD config/ /dw/ext/local
 
-# Setup script that runs to make sure we get configs in the right place and do any
-# last minute configuration.
-RUN bash /opt/setup.sh
-
-# We run on 80, TLS is handled by a proxy of some kind.
-EXPOSE 80/tcp
-
-# Varnish is here and is layered in front of Apache typically.
-EXPOSE 6081/tcp
-
-# Starman runs here, direct (no Varnish).
 EXPOSE 8080/tcp
 
 # Kick off the startup script, which does some healthcheck and then starts
-# Apache if things look good.
+# Starman if things look good.
 CMD bash /opt/startup-prod.sh

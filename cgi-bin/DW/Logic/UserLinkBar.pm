@@ -44,6 +44,7 @@ DW::Logic::UserLinkBar - This module provides logic for rendering the user link 
 
 use strict;
 use warnings;
+use DW::Search;
 
 =head1 API
 
@@ -518,7 +519,7 @@ sub search {
 
     # don't show if search is disabled
     return undef
-        unless @LJ::SPHINX_SEARCHD && $u->allow_search_by($remote);
+        unless DW::Search::enabled() && $u->allow_search_by($remote);
 
     my $link = {
         url      => 'search?user=' . $u->user,

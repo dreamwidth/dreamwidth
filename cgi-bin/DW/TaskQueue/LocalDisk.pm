@@ -2,8 +2,9 @@
 #
 # DW::TaskQueue::LocalDisk
 #
-# Library for queueing and executing jobs via local disk. This is in no way
-# production quality code, only use it in development.
+# Library for queueing and executing jobs via local disk.
+# Use one consumer per task type on a single host; this backend does not scale.
+# Intended for development and small, low-volume self-hosted sites.
 #
 # Authors:
 #     Mark Smith <mark@dreamwidth.org>
@@ -22,9 +23,8 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-use MIME::Base64 qw/ encode_base64 decode_base64 /;
-use Storable qw/ nfreeze thaw /;
-use Time::HiRes qw/ time /;
+use Time::HiRes qw/ time sleep /;
+use File::Path qw/ make_path /;
 use UUID::Tiny qw/ :std /;
 
 use DW::Task;
@@ -34,9 +34,12 @@ sub init {
 
     $log->debug("Initializing taskqueue for LocalDisk");
 
-    mkdir("$LJ::HOME/var/taskqueue") unless -d "$LJ::HOME/var/taskqueue";
+    my $path = $LJ::TASK_QUEUE_LOCAL_PATH || "$LJ::HOME/var/taskqueue";
+    make_path($path) unless -d $path;
+    $log->logcroak("Local task queue directory is not writable: $path")
+        unless -d $path && -w $path;
 
-    my $self = { path => "$LJ::HOME/var/taskqueue", queues => {} };
+    my $self = { path => $path, queues => {} };
     return bless $self, $class;
 }
 
@@ -66,10 +69,13 @@ sub send {
 
         # Pickle the message and write to a file with a random name
         my $uuid = create_uuid_as_string(UUID_V4);
-        open FILE, ">$dir/$uuid"
-            or $log->logcroak('Failed to open message file!');
-        print FILE encode_base64( nfreeze($task) );
-        close FILE;
+
+        # Publish only complete messages; readers ignore the temporary dotfile.
+        my $tmp = "$dir/.$uuid";
+        open my $fh, '>', $tmp or $log->logcroak("Cannot create queue message: $!");
+        print {$fh} $task->serialize() or $log->logcroak("Cannot write queue message: $!");
+        close $fh or $log->logcroak("Cannot close queue message: $!");
+        rename $tmp, "$dir/$uuid" or $log->logcroak("Cannot publish queue message: $!");
     }
 
     return 1;
@@ -92,12 +98,15 @@ sub receive {
         closedir DIR;
 
         last if @tasks || time() >= $abort_after;
+        sleep 0.1;
     }
+
+    splice @tasks, $count if @tasks > $count;
 
     my $thaw_task = sub {
         local $/ = undef;
         open FILE, "<$dir/$_[0]" or $log->logcroak('Unable to open file.');
-        my $task = thaw( decode_base64(<FILE>) );
+        my $task = DW::Task->deserialize(<FILE>);
         close FILE;
         return $task;
     };

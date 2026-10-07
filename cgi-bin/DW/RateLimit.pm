@@ -23,6 +23,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
 use LJ::User;
+use Net::Subnet;
 use Time::HiRes qw(time);
 
 # Class to handle rate limiting
@@ -210,6 +211,35 @@ sub get {
         per_interval_secs => $parsed->{per_interval_secs},
         mode              => $opts{mode},
     );
+}
+
+# Memoized default matcher: RFC1918 + loopback. Link-local (169.254/16) is
+# intentionally excluded.
+my $_default_internal_matcher;
+
+sub _default_internal_matcher {
+    $_default_internal_matcher ||= subnet_matcher qw(
+        10.0.0.0/8
+        172.16.0.0/12
+        192.168.0.0/16
+        127.0.0.0/8
+    );
+    return $_default_internal_matcher;
+}
+
+# Returns true if rate limiting should be skipped for this IP (i.e. the IP is
+# internal infrastructure such as the load balancer issuing health checks).
+# Honors $LJ::RATE_LIMIT_EXCLUDE_IP (a subnet_matcher / coderef) when set, else
+# falls back to the default RFC1918 + loopback matcher.
+sub ip_is_excluded {
+    my ( $class, $ip ) = @_;
+    return 0 unless defined $ip && length $ip;
+
+    if ( ref $LJ::RATE_LIMIT_EXCLUDE_IP eq 'CODE' ) {
+        return $LJ::RATE_LIMIT_EXCLUDE_IP->($ip) ? 1 : 0;
+    }
+
+    return _default_internal_matcher()->($ip) ? 1 : 0;
 }
 
 1;

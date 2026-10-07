@@ -61,7 +61,7 @@ sub get {
         return $page->[1];
     }
 
-    my $lock = LJ::locker()->trylock($key);
+    my $lock = LJ::locker()->trylock( $key, class => 'fragmentcache' );
     unless ($lock) {
 
         # no lock, someone else is updating this.  let's try to print out the stale memcache

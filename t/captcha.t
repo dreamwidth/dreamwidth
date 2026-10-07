@@ -20,16 +20,16 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-my $recaptcha_enabled = DW::Captcha::reCAPTCHA->site_enabled;
+my $hcaptcha_enabled = DW::Captcha::hCaptcha->site_enabled;
 
 if ( !DW::Captcha->site_enabled ) {
     plan skip_all => "CAPTCHA functionality disabled.";
 }
-elsif ( !$recaptcha_enabled ) {
+elsif ( !$hcaptcha_enabled ) {
     plan skip_all => "No valid CAPTCHA configuration.";
 }
 else {
-    plan tests => 13;
+    plan tests => 8;
 }
 
 # override for the sake of the test
@@ -56,16 +56,12 @@ note("check various implementations are loaded okay");
     my $captcha = DW::Captcha->new('testpage');
     is( $captcha->name, $default, "Use default captcha implementation" );
 
-SKIP: {
-        skip "reCAPTCHA disabled.", 2 unless $recaptcha_enabled;
+    $captcha = DW::Captcha->new( 'testpage', want => 'H' );
+    is( $captcha->name, "hcaptcha", "Using hCaptcha" );
 
-        $captcha = DW::Captcha->new( 'testpage', want => 'I' );
-        is( $captcha->name, "recaptcha", "Using reCAPTCHA" );
-
-        # can also be done using DW::Captcha::reCAPTCHA->site_enabled
-        # but technically we shouldn't be worrying about module names
-        ok( $captcha->site_enabled, "reCAPTCHA is enabled and configured on this site" );
-    }
+    # can also be done using DW::Captcha::hCaptcha->site_enabled
+    # but technically we shouldn't be worrying about module names
+    ok( $captcha->site_enabled, "hCaptcha is enabled and configured on this site" );
 
     $captcha = DW::Captcha->new( 'testpage', want => 'abc' );
     is( $captcha->name, $default, "not a valid captcha implementation, so used default" );
@@ -73,26 +69,16 @@ SKIP: {
         "not a valid captcha implementation, so used default to make sure we still get captcha" );
 }
 
-note("user tries to use a disabled captcha type");
-
-# it's possible only one type currently works, so activate a good one
+note("captcha implementation disabled via the DISABLED config");
 {
     local %LJ::DISABLED = (
         captcha => sub {
             my $module = $_[0] // '';
-            return !$recaptcha_enabled if $module eq "recaptcha";
+            return 1 if $module eq "hcaptcha";    # disable hCaptcha specifically
+            return 0;
         }
     );
-    local $LJ::DEFAULT_CAPTCHA_TYPE = $recaptcha_enabled ? "I" : "T";
-    my $BAD_CAPTCHA_TYPE = $recaptcha_enabled ? "T" : "I";
-    my $default_name     = $LJ::CAPTCHA_TYPES{$LJ::DEFAULT_CAPTCHA_TYPE};
 
-    my $captcha = DW::Captcha->new( "testpage", want => $LJ::DEFAULT_CAPTCHA_TYPE );
-    is( $captcha->name, $default_name, "want $default_name, everything is fine" );
-    ok( $captcha->site_enabled, "$default_name was enabled" );
-
-    $captcha = DW::Captcha->new( "testpage", want => $BAD_CAPTCHA_TYPE );
-    is( $captcha->name, $default_name,
-        "wanted other type, but it's not enabled so use default instead" );
-    ok( $captcha->site_enabled, "our fallback is enabled" );
+    my $captcha = DW::Captcha->new("testpage");
+    ok( !$captcha->site_enabled, "hCaptcha is disabled via the DISABLED config" );
 }

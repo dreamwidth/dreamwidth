@@ -4,7 +4,7 @@ This document describes the Plack/Starman web server implementation for Dreamwid
 
 ## Overview
 
-Dreamwidth runs under both Apache/mod_perl and Plack/Starman. The `DW::Request` abstraction layer lets most application code work under either server. The Plack stack handles routing, BML rendering, journal pages, static assets, authentication, and sysban enforcement.
+Dreamwidth runs under Plack/Starman. (It historically also ran under Apache/mod_perl; that path was retired once all web services moved to Starman.) The `DW::Request` abstraction layer still mediates request access — now over Plack, with `DW::Request::Standard` for tests and CLI. The Plack stack handles routing, BML rendering, journal pages, static assets, authentication, and sysban enforcement.
 
 ## Running the Server
 

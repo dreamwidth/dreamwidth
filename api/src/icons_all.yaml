@@ -21,3 +21,7 @@ paths:
                   $ref: components/schemas/icon.yaml
         404:
           $ref: components/errors/404-user.yaml
+        401:
+          $ref: components/errors/401.yaml
+        500:
+          $ref: components/errors/500.yaml

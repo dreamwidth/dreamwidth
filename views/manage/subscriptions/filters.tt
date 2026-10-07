@@ -1,0 +1,134 @@
+[%# manage/subscriptions/filters.tt
+  #
+  # Page to manage your subscription filters. Mostly a static shell driven by
+  # js/subfilters.js (resources are loaded by the controller).
+  #
+  # Authors:
+  #     Mark Smith <mark@dreamwidth.org>
+  #
+  # Copyright (c) 2009-2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = '.title' | ml -%]
+
+[%# subfilters.js reads these globals to build its __rpc_contentfilters calls %]
+<script type="text/javascript">
+DW.currentUser = '[% remote.user %]';
+DW.userIsPaid = [% remote.is_paid ? 'true' : 'false' %];
+</script>
+
+<div class='highlight-box'>[% '.accessfilters' | ml( aopts => "href='" _ site.root _ "/manage/circle/editfilters'" ) %]</div>
+
+<div id='cf-select'>
+    <div id='cf-select-filter'>
+        Filter:
+        <select id='cf-filters'>
+            <option value="0">Loading, please wait...</option>
+        </select>
+    </div>
+    <div id='cf-save'>
+        [% dw.img( 'hourglass', '', { id => 'cf-hourglass' } ) %]
+        <span id='cf-unsaved'>Saving in N seconds...</span>
+    </div>
+    <div id='cf-make-new'>
+        <a href='javascript:void(0);' id='cf-delete'>Delete</a>
+        <input id='cf-view' type='button' value='View' />
+        <input id='cf-rename' type='button' value='Rename' />
+        <input id='cf-new' type='button' value='New' />
+    </div>
+    <div style='clear: both;'></div>
+</div>
+
+<div id='cf-filtopts'>
+    <h4>[% '.foptions' | ml %] "<span id='cf-foname'>selected filter</span>"</h4>
+
+    <p><label for='cf-public'>Visibility:</label>
+    <select id='cf-public'>
+       <option value='0'>Private</option>
+       <option value='1'>Public</option>
+    </select></p>
+
+    <p><label for="cf-sortorder">Order:</label>
+    <input id="cf-sortorder" onchange="cfSortOrder()" size="2" /></p>
+
+</div>
+
+<div id='cf-intro'>
+    <p>[% '.intro.hello' | ml %]</p>
+    <p>[% '.intro.welcome' | ml %]</p>
+    <p>[% '.intro.firsttime' | ml %]</p>
+</div>
+
+<div id='cf-edit'>
+    <div id='cf-members'>
+        <div id='cf-notin'>
+            Not in filter:<br />
+            <select id='cf-notin-list' size='20' multiple></select><br />
+            <div id='cf-add-box'>
+                <input id='cf-add-btn' type='button' value='Add &gt;&gt;' />
+                <select id='cf-showtypes'>
+                    <option value=''>All Types</option>
+                    <option value='C'>Communities</option>
+                    <option value='Y'>Feeds</option>
+                    <option value='P'>People</option>
+                </select>
+            </div>
+        </div>
+
+        <div id='cf-in'>
+            In filter:<br />
+            <select id='cf-in-list' size='20' multiple></select><br />
+            <div id='cf-del-box'>
+                <input id='cf-del-btn' type='button' value='&lt;&lt; Remove' />
+            </div>
+        </div>
+    </div>
+
+    <div id='cf-options'>
+        Options:<br />
+        <div id='cf-opts-box'>
+            <div id='cf-free-warning'>
+                [% '.freewarning' | ml %]
+            </div>
+            [% '.opts.showonly' | ml %]
+            <div id='cf-ac-box'>
+                [% '.opts.rated' | ml %]
+                <select id='cf-adultcontent'>
+                    <option value='any'>anything (show all content)</option>
+                    <option value='nonexplicit'>safe or non-explicit</option>
+                    <option value='sfw'>safe for work only</option>
+                </select>
+            </div>
+            <div id='cf-pt-box'>
+                [% '.opts.poster' | ml %]
+                <select id='cf-postertype'>
+                    <option value='any'>anybody</option>
+                    <option value='moderator'>a moderator or maintainer</option>
+                    <option value='maintainer'>a maintainer</option>
+                </select>
+            </div>
+            <div id='cf-t-box'>
+                [% '.opts.tagged' | ml %]
+                <select id='cf-tagmode'>
+                    <option value='any_of'>any</option>
+                    <option value='all_of'>all</option>
+                    <option value='none_of'>none</option>
+                </select>
+                [% '.opts.ofselected' | ml %]
+                <div id='cf-notagssel'>[% '.opts.notagssel' | ml %]</div>
+                <div id='cf-t-box3'>
+                </div>
+                [% '.opts.availabletags' | ml %]
+                <div id='cf-notagsavail'>[% '.opts.notagsavail' | ml %]</div>
+                <div id='cf-t-box2'>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style='clear: both;'></div>
+</div>

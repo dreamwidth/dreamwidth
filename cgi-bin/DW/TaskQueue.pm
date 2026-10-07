@@ -18,12 +18,29 @@ package DW::TaskQueue;
 
 use strict;
 use v5.10;
+use Time::HiRes ();
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::TaskQueue::Dedup;
 use DW::TaskQueue::SQS;
 use DW::TaskQueue::LocalDisk;
+
+# Minimal scope guard: runs $code when the object goes out of scope, on every
+# exit path (normal, die, or return). Used to guarantee LJ::end_request pairs
+# with LJ::start_request for each job even when the job dies or times out.
+{
+
+    package DW::TaskQueue::ScopeGuard;
+    sub new { bless { code => $_[1] }, $_[0] }
+
+    # Never throw during stack unwinding: a die here would mask the job's own
+    # exception. local $@ keeps a propagating error intact across the eval.
+    sub DESTROY {
+        local $@;
+        eval { $_[0]->{code}->() };
+    }
+}
 
 my $_queue;
 
@@ -32,19 +49,23 @@ sub get {
 
     return $_queue if defined $_queue;
 
-    # Determine what kind of queue object to build, depending on if we're
-    # running locally or not
-    if ( exists $LJ::SQS{region} ) {
-        return $_queue = DW::TaskQueue::SQS->init(%LJ::SQS);
-    }
+    my $backend = $class->backend_name;
+    return $_queue = DW::TaskQueue::SQS->init(%LJ::SQS) if $backend eq 'sqs';
+    return $_queue = DW::TaskQueue::LocalDisk->init();
+}
 
-    # If we're a dev server, allow the local mode (not allowed in production,
-    # it's really crappy)
-    if ($LJ::IS_DEV_SERVER) {
-        return $_queue = DW::TaskQueue::LocalDisk->init();
+# Keep the historical defaults unless an operator explicitly selects a backend.
+sub backend_name {
+    my $backend = $LJ::TASK_QUEUE_BACKEND || 'auto';
+    if ( $backend eq 'auto' ) {
+        return 'sqs' if exists $LJ::SQS{region};
+        return 'localdisk' if $LJ::IS_DEV_SERVER;
+        $log->logcroak( 'Configure %SQS or select $TASK_QUEUE_BACKEND = "localdisk" '
+                . 'for a small single-host site. See doc/SELF-HOSTING.md.' );
     }
-
-    $log->logcroak('Unable to instantiate any DW::TaskQueue modules.');
+    $log->logcroak('TASK_QUEUE_BACKEND must be auto, sqs, or localdisk.')
+        unless $backend eq 'sqs' || $backend eq 'localdisk';
+    return $backend;
 }
 
 sub send {
@@ -184,10 +205,20 @@ sub start_work {
             )
         );
 
+        DW::Stats::increment( 'dw.task.received', scalar(@$messages), ["task_class:$class"] );
+
         my ( @completed,       @failed );
         my ( $work_start_time, $work_end_time );
         foreach my $message_pair (@$messages) {
             my ( $handle, $message ) = @$message_pair;
+
+            # Give every job a clean request scope, like the web front door and
+            # the legacy TheSchwartz/Gearman workers: start_request wipes all
+            # per-request caches so nothing leaks from the previous job. The
+            # guard guarantees the matching end_request runs on every exit path
+            # (normal completion, the die below, or the timeout return).
+            LJ::start_request();
+            my $req_scope = DW::TaskQueue::ScopeGuard->new( sub { LJ::end_request() } );
 
             # Record earliest start time of any coroutine
             my $local_start_time = time();
@@ -195,6 +226,7 @@ sub start_work {
                 if $local_start_time < $work_start_time || !defined $work_start_time;
 
             my ( $res, $abort );
+            my $job_start = Time::HiRes::time();
             eval {
                 local $SIG{ALRM} = sub {
                     $log->error(
@@ -209,12 +241,27 @@ sub start_work {
                 $res = $message->work($handle);
             };
             alarm 0;
-            die if $@;    # Reraise if the work call died.
+            my $work_ms = ( Time::HiRes::time() - $job_start ) * 1000;
+
+            # The work call died: record it as its own result state, then reraise.
+            if ($@) {
+                DW::Stats::increment( 'dw.task.processed', 1,
+                    [ "task_class:$class", 'outcome:died' ] );
+                DW::Stats::timing( 'dw.task.duration_seconds', $work_ms,
+                    [ "task_class:$class", 'outcome:died' ] );
+                die;
+            }
 
             # Clear out MDC so we don't continue to log with whatever the worker might
             # have put into context
             Log::Log4perl::MDC->remove;
-            return if $abort;
+            if ($abort) {
+                DW::Stats::increment( 'dw.task.processed', 1,
+                    [ "task_class:$class", 'outcome:timeout' ] );
+                DW::Stats::timing( 'dw.task.duration_seconds', $work_ms,
+                    [ "task_class:$class", 'outcome:timeout' ] );
+                return;
+            }
 
             $messages_done++;
 
@@ -223,8 +270,10 @@ sub start_work {
             $work_end_time = $local_end_time
                 if $local_end_time > $work_end_time || !defined $work_end_time;
 
+            my $outcome;
             if ( $res == DW::Task::COMPLETED ) {
                 push @completed, $handle;
+                $outcome = 'completed';
 
                 # Release dedup key on successful completion
                 if ( my $uniqkey = $message->uniqkey ) {
@@ -242,10 +291,12 @@ sub start_work {
                         )
                     );
                     push @completed, $handle;
+                    $outcome = 'failed_abandoned';
                 }
                 else {
                     $log->warn( sprintf( '[%s] Message "%s" failed', $class, $handle ) );
                     push @failed, $handle;
+                    $outcome = 'failed_retry';
                 }
 
                 # Release dedup key on failure so the task can be
@@ -254,6 +305,18 @@ sub start_work {
                     DW::TaskQueue::Dedup->release_unique( ref($message), $uniqkey );
                 }
             }
+
+            # Per-job stats, tagged by result state so a slow/failing class shows
+            # up on its own series and failures don't skew the success timing.
+            #
+            # The timing VALUE is milliseconds (statsd "ms" type), but the
+            # Prometheus statsd_exporter converts "ms" timers to base-unit
+            # seconds -- so the metric is named *_seconds to match what it
+            # actually stores. (Same convention as dw.request.duration_seconds
+            # in Plack::Middleware::DW::AccessLog.)
+            my @stat_tags = ( "task_class:$class", "outcome:$outcome" );
+            DW::Stats::increment( 'dw.task.processed', 1, \@stat_tags );
+            DW::Stats::timing( 'dw.task.duration_seconds', $work_ms, \@stat_tags );
         }
 
         $log->debug(

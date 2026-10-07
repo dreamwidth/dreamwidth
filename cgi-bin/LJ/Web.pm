@@ -21,11 +21,12 @@ use POSIX;
 use Digest::MD5;
 use Digest::SHA1;
 
+use DW::AccountSwitcher;
 use DW::Auth::Challenge;
 use DW::External::Site;
 use DW::Request;
 use DW::Formats;
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
@@ -2885,12 +2886,24 @@ sub control_strip {
     if ($remote) {
         my $userpic = $remote->userpic;
         $template_args->{'remote'} = {
-            'sessid'       => $remote->session->id || 0,
-            'user'         => $remote->user,
-            'display'      => $remote->ljuser_display,
-            'is_validated' => $remote->is_validated,
-            'is_identity'  => $remote->is_identity,
+            'sessid'         => $remote->session->id || 0,
+            'user'           => $remote->user,
+            'ljuser_display' => $remote->ljuser_display,
+            'is_validated'   => $remote->is_validated,
+            'is_identity'    => $remote->is_identity,
         };
+
+        # other accounts signed in to this browser, for the switcher
+        $template_args->{'switch_accounts'} = [
+            map {
+                {
+                    userid  => $_->{userid},
+                    user    => $_->{user},
+                    display => $_->{u}->ljuser_display,
+                    valid   => $_->{valid},
+                }
+            } DW::AccountSwitcher->accounts
+        ];
         if ($userpic) {
             my $wh = $userpic->img_fixedsize( width => 43, height => 43 );
             $template_args->{'userpic_html'} =

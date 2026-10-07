@@ -300,9 +300,9 @@ sub post_with {
 
     my %req;
     my $errors = DW::FormErrors->new;
-    DW::Controller::Entry::_form_to_backend( \%req, $post, errors => $errors );
+    DW::Entry::_form_to_backend( 0, \%req, $post, errors => $errors );
 
-    my $res = DW::Controller::Entry::_save_new_entry( \%req, \%flags, \%auth );
+    my $res = DW::Entry::_save_new_entry( \%req, \%flags, \%auth );
     delete $req{props}->{unknown8bit};    # TODO: remove this from protocol at some point
 
     return ( \%req, $res, $remote, $errors );

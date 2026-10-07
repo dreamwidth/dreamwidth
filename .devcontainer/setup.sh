@@ -4,6 +4,13 @@ set -xe
 mkdir -p $LJHOME/ext/local
 ln -ns $LJHOME/.devcontainer/config/etc/dw-etc $LJHOME/ext/local/etc || true
 
+# Symlink extlib from image into workspace so extlib/bin/tidyall etc. work.
+# The main repo may already have a real extlib/ dir (from local CPAN installs);
+# worktrees won't — create the symlink only when extlib/ doesn't exist.
+if [ ! -e $LJHOME/extlib ]; then
+    ln -s /opt/dreamwidth-extlib $LJHOME/extlib
+fi
+
 # Seed MySQL data from pre-baked image if the volume is empty (first run)
 if [ ! -d /var/lib/mysql/mysql ]; then
     cp -a /opt/dreamwidth-mysql/* /var/lib/mysql/
@@ -41,10 +48,6 @@ t/bin/initialize-db
 mkdir -p $LJHOME/build
 ln -snf /opt/dreamwidth-static $LJHOME/build/static
 
-# Set up apache config
-rm -rf /etc/apache2
-ln -ns $LJHOME/.devcontainer/config/etc/apache2 /etc/apache2 || true
-
 # Install Go if not already present (baked into image on next rebuild)
 if ! command -v go &>/dev/null; then
     curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -
@@ -56,3 +59,7 @@ echo 'export PATH="/usr/local/go/bin:$PATH"' > /etc/profile.d/golang.sh
 
 # Build devtool TUI
 (cd $LJHOME/src/devtool && go build -buildvcs=false -o /usr/local/bin/devtool .)
+
+# Seed a fixed set of test accounts/content (idempotent). Non-fatal: a seeding
+# failure shouldn't break container setup (set -e is active).
+perl $LJHOME/bin/dev/seed-testdata || echo "WARNING: seed-testdata failed (continuing)"

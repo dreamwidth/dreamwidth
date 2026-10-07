@@ -1,4 +1,8 @@
 ;; -*- coding: utf-8 -*-
+.addaccount.text=You're signed in as [[username]]. Sign in to another account to switch between them without logging out.
+
+.addaccount.title=Sign in to another account
+
 .createaccount.button=Create an Account
 
 .createaccount.header=Not a [[sitename]] member?

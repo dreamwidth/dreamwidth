@@ -23,6 +23,7 @@
 package DW::Controller::Create;
 
 use strict;
+use DW::AccountSwitcher;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -273,7 +274,8 @@ sub create_handler {
             # note that this user needs to be reviewed for spam content
             $nu->set_prop( not_approved => 1 ) if LJ::is_enabled('approvenew');
 
-            # we're all done
+            # we're all done; keep the account we were logged in as switchable
+            DW::AccountSwitcher->demote_current;
             $nu->make_login_session;
 
             if ($code) {
@@ -428,7 +430,7 @@ sub setup_handler {
 
         # name
         $errors->add( 'name', '/manage/profile.tt.error.noname' )
-            unless LJ::trim( $post->{name} ) || defined $post->{name_absent};
+            unless LJ::trim( $post->{name} );
 
         $errors->add( 'name', '/manage/profile.tt.error.name.toolong' )
             if length $post->{name} > 80;
@@ -566,7 +568,7 @@ sub setup_handler {
             $u->set_interests( \@valid_ints );
 
             # bio
-            $u->set_bio( $post->{bio}, $post->{bio_absent} );
+            $u->set_bio( $post->{bio} );
 
             $u->invalidate_directory_record;
 
@@ -641,11 +643,6 @@ sub setup_handler {
         country_list => LJ::Widget::Location->country_options,
         state_list   => undef,                                   # set later
         countries_with_regions => join( " ", LJ::Widget::Location->countries_with_regions ) || "",
-
-        is_utf8 => {
-            name => LJ::text_in( $u->name_orig ),
-            bio  => LJ::text_in( $u->bio ),
-        },
 
         formdata => $post || {
             name   => $u->name_orig      || "",

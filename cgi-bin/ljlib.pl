@@ -77,7 +77,7 @@ use Carp;
 use DBI;
 use DBI::Role;
 use HTTP::Date ();
-use LJ::Utils qw(rand_chars);
+use LJ::Utils;
 use LJ::Hooks;
 use LJ::MemCache;
 use LJ::Error;
@@ -118,6 +118,7 @@ use LJ::Global::Img;        # defines LJ::Img
 use LJ::Global::Secrets;    # defines LJ::Secrets
 use DW::Media;
 use DW::Stats;
+use DW::Cache;
 use DW::Proxy;
 use DW::TaskQueue;
 use DW::BlobStore;
@@ -261,16 +262,8 @@ if ( $LJ::STATS{host} && $LJ::STATS{port} ) {
 }
 
 sub locker {
-    return $LJ::LOCKER_OBJ if $LJ::LOCKER_OBJ;
-    eval "use DDLockClient ();";
-    die "Couldn't load locker client: $@" if $@;
-
-    $LJ::LOCKER_OBJ = new DDLockClient(
-        servers => [@LJ::LOCK_SERVERS],
-        lockdir => $LJ::LOCKDIR || "$LJ::HOME/locks",
-    );
-
-    return $LJ::LOCKER_OBJ;
+    require DW::Locker;
+    return $LJ::LOCKER_OBJ ||= DW::Locker->new;
 }
 
 sub gearman_client {
@@ -459,17 +452,9 @@ sub handle_caches {
 
     $LJ::DBIRole->flush_cache();
 
-    %LJ::CACHE_PROP       = ();
-    %LJ::CACHE_STYLE      = ();
-    $LJ::CACHED_MOODS     = 0;
-    $LJ::CACHED_MOOD_MAX  = 0;
-    %LJ::CACHE_MOODS      = ();
-    %LJ::CACHE_MOOD_THEME = ();
-    %LJ::CACHE_USERID     = ();
-    %LJ::CACHE_USERNAME   = ();
-    %LJ::CACHE_CODES      = ();
-    %LJ::CACHE_USERPROP   = ();    # {$prop}->{ 'upropid' => ... , 'indexed' => 0|1 };
-    %LJ::CACHE_ENCODINGS  = ();
+    # wipe the process-lifetime caches (props, moods, codes, users, ...) --
+    # everything registered with the process scope, in one call
+    DW::Cache->process->clear;
 
     return 1;
 }
@@ -484,45 +469,18 @@ sub handle_caches {
 sub start_request {
     handle_caches();
 
-    # TODO: check process growth size
+    # Sample process RSS and the size of our in-process caches before we clear
+    # the request scope below, so each measurement reflects a request's peak.
+    # Both are sampled no-ops unless enabled in config.
+    DW::Stats::report_rss();
+    DW::Cache->report_sizes;
 
-    # clear per-request caches
-    LJ::unset_remote();    # clear cached remote
-    $LJ::ACTIVE_JOURNAL         = undef;    # for LJ::{get,set}_active_journal
-    %LJ::CACHE_USERPIC          = ();       # picid -> hashref
-    %LJ::CACHE_USERPIC_INFO     = ();       # uid -> { ... }
-    %LJ::CACHE_S2THEME          = ();
-    %LJ::REQ_CACHE_USER_NAME    = ();       # users by name
-    %LJ::REQ_CACHE_USER_ID      = ();       # users by id
-    %LJ::REQ_CACHE_REL          = ();       # relations from LJ::check_rel()
-    %LJ::REQ_LANGDATFILE        = ();       # caches language files
-    %LJ::S2::REQ_CACHE_STYLE_ID = ();       # styleid -> hashref of s2 layers for style
-    %LJ::S2::REQ_CACHE_LAYER_ID =
-        ();    # layerid -> hashref of s2 layer info (from LJ::S2::load_layer)
-    %LJ::S2::REQ_CACHE_LAYER_INFO =
-        ();    # layerid -> hashref of s2 layer info (from LJ::S2::load_layer_info)
-    %LJ::REQ_HEAD_HAS = ();   # avoid code duplication for js
-    %LJ::NEEDED_RES   = ();   # needed resources (css/js/etc):
-    @LJ::NEEDED_RES   = ();   # needed resources, in order requested (implicit dependencies)
-                              #  keys are relative from htdocs, values 1 or 2 (1=external, 2=inline)
-
-    %LJ::REQ_GLOBAL       = ();    # per-request globals
-    %LJ::_ML_USED_STRINGS = ();    # strings looked up in this web request
-    %LJ::REQ_CACHE_USERTAGS =
-        ();    # uid -> { ... }; populated by get_usertags, so we don't load it twice
-    $LJ::ACTIVE_RES_GROUP = undef;    # use whatever is current site default
-
-    %LJ::PAID_STATUS = ();            # per-request paid status
-
-    %LJ::REQUEST_CACHE = ();    # request cached items ( longterm goal, store everything in here )
-
-    $LJ::CACHE_REMOTE_BOUNCE_URL = undef;
-    LJ::Userpic->reset_singletons;
-    LJ::Comment->reset_singletons;
-    LJ::Entry->reset_singletons;
-    LJ::Message->reset_singletons;
-
-    LJ::UniqCookie->clear_request_cache;
+    # Clear every request-scoped cache in one call. Anything routed through
+    # DW::Cache->request -- its KV store plus the vars/resets registered in
+    # DW::Cache and in owning modules (e.g. LJ::UniqCookie, the per-class
+    # singletons) -- is wiped here, so a request cache can never leak across
+    # requests or background jobs.
+    DW::Cache->request->clear;
 
     # clear the handle request cache (like normal cache, but verified already for
     # this request to be ->ping'able).
@@ -882,6 +840,13 @@ sub get_useragent {
 
             # also needed for LWP::Protocol::https < 6.06
             SSL_verify_mode => 0,
+
+            # LWP does not support HTTP/2, but IO::Socket::SSL on
+            # Ubuntu 22.04+ advertises h2 via ALPN by default.
+            # Servers that honor ALPN then speak HTTP/2, which LWP
+            # can't parse, causing "500 Server closed connection"
+            # errors.  Force HTTP/1.1 only.
+            SSL_alpn_protocols => ['http/1.1'],
 
             #ca_file => Mozilla::CA::SSL_ca_file()
         }

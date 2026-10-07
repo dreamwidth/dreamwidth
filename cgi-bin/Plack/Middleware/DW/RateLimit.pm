@@ -31,6 +31,17 @@ sub call {
     my $remote = LJ::get_remote();
     my $ip     = LJ::get_remote_ip();
 
+    # Stash the auth state for the per-request metrics tags (read by DW::AccessLog).
+    $env->{'dw.stats.auth'} = $remote ? 'user' : 'anon';
+
+    # Internal infrastructure (e.g. load-balancer health checks) connects without a
+    # trusted X-Forwarded-For, so its resolved IP is private. Skip rate limiting for
+    # those entirely, regardless of auth state.
+    if ( $ip && DW::RateLimit->ip_is_excluded($ip) ) {
+        $env->{'dw.stats.ratelimit'} = 'excluded';
+        return $self->app->($env);
+    }
+
     # Get the appropriate rate limit based on whether user is logged in
     my $limit;
     if ($remote) {
@@ -46,6 +57,8 @@ sub call {
             userid => $remote ? $remote->userid : undef,
             ip     => $remote ? undef           : $ip
         );
+
+        $env->{'dw.stats.ratelimit'} = $result->{exceeded} ? 'blocked' : 'allowed';
 
         if ( $result->{exceeded} ) {
             my $retry_after = $result->{time_remaining};

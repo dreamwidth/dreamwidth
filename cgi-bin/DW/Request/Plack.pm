@@ -173,9 +173,18 @@ sub status_line {
 
 # append to the body
 sub print {
+    my DW::Request::Plack $self = shift;
+    my $data = join( '', @_ );
+    push @{ $self->{res_body} ||= [] }, $data;
+    $self->{res_length} += length($data);
+}
+
+# number of body bytes appended via print() so far; lets callers tell whether a
+# handler has actually produced any output (e.g. to decide whether to render a
+# stock error page over an otherwise-empty 404 response)
+sub response_bytes_written {
     my DW::Request::Plack $self = $_[0];
-    push @{ $self->{res_body} ||= [] }, $_[1];
-    $self->{res_length} += length( $_[1] );
+    return $self->{res_length};
 }
 
 # flatten out the body and return the response
@@ -245,6 +254,27 @@ sub content_type {
 sub content {
     my DW::Request::Plack $self = $_[0];
     return $self->{req}->content;
+}
+
+# read: copy up to $_[2] bytes of the request body into the buffer $_[1] (at the
+# optional offset $_[3]), returning the number of bytes read or 0 at EOF. Reads
+# straight from the PSGI input stream rather than slicing $self->content, so a
+# large body isn't pre-materialized into a scalar -- this mirrors Apache2's
+# $r->read and preserves the streaming intent of callers like the large
+# icon-upload parser in DW::Controller::EditIcons.
+# IMPORTANT: Do not pull out $_[1] to a variable in this sub.
+sub read {
+    my DW::Request::Plack $self = $_[0];
+    die "missing required arguments"   if scalar(@_) < 3;
+    die "Length cannot be negative"    if $_[2] < 0;
+    die "Negative offsets not allowed" if defined $_[3] && $_[3] < 0;
+
+    my $input = $self->{env}->{'psgi.input'};
+    return 0 unless $input;
+
+    # CORE::read writes into the caller's buffer (via the $_[1] alias) at the
+    # given offset, growing it as needed, and returns the bytes read (0 at EOF).
+    return CORE::read( $input, $_[1], $_[2], $_[3] // 0 ) // 0;
 }
 
 # pnote: per-request notes hash (used by routing)

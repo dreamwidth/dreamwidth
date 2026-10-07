@@ -4,7 +4,6 @@ Authen::Passphrase::Clear
 Business::CreditCard
 CGI
 Cache::Memcached
-Captcha::reCAPTCHA@0.99
 Class::Autouse
 Class::Data::Inheritable
 Class::Trigger
@@ -13,6 +12,7 @@ Convert::Base32
 CryptX@0.080
 Danga::Socket
 Data::ObjectDriver
+Devel::Size
 Digest::HMAC_SHA1
 Digest::SHA1
 File::Type
@@ -56,8 +56,8 @@ Plack
 Plack::Middleware::Options
 Proc::ProcessTable
 RPC::XML
+Regexp::IPv6
 SOAP::Lite@1.27
-Sphinx::Search@0.28
 Starman
 String::CRC32
 Sys::Syscall

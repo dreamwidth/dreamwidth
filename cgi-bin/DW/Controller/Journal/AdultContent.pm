@@ -22,13 +22,23 @@ use DW::Controller;
 use DW::Template;
 use DW::Routing;
 use DW::Request;
+use DW::Logic::AdultContent;
 
-DW::Routing->register_string( "/journal/adult_concepts", \&adult_concepts_handler, app => 1 );
-DW::Routing->register_string( "/journal/adult_explicit", \&adult_explicit_handler, app => 1 );
+DW::Routing->register_string(
+    "/journal/adult_concepts", \&adult_concepts_handler,
+    app      => 1,
+    no_cache => 1
+);
+DW::Routing->register_string(
+    "/journal/adult_explicit", \&adult_explicit_handler,
+    app      => 1,
+    no_cache => 1
+);
 DW::Routing->register_string(
     "/journal/adult_explicit_blocked",
     \&adult_explicit_blocked_handler,
-    app => 1
+    app      => 1,
+    no_cache => 1
 );
 
 sub _init_vars {
@@ -106,6 +116,11 @@ sub adult_explicit_handler {
 
     my ( $returl, $entry, $journal ) = _extract_from_request($r);
     my $type = "explicit";
+
+    if ( $remote && $remote->is_minor ) {
+        $r->status(403);
+        return error_ml('error.nopermission');
+    }
 
     # reload this entry if the user is logged in, has an age, and is not
     # choosing to hide adult content since otherwise, the user shouldn't be here

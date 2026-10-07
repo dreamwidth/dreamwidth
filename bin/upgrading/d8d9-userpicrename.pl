@@ -127,7 +127,7 @@ foreach my $cid (@cluster) {
             }
             else {
                 # lock while upgrading
-                my $lock = LJ::locker()->trylock("d8d9-$userid");
+                my $lock = LJ::locker()->trylock( "d8d9-$userid", class => 'd8d9' );
                 unless ($lock) {
                     print STDERR "Could not get a lock for user " . $u->user . ".\n";
                     next;

@@ -16,14 +16,14 @@ use strict;
 
 use LJ::Global::Constants;
 use LJ::Lang;
+use DW::Cache;
 
 # <LJFUNC>
 # name: LJ::Tags::get_usertagsmulti
 # class: tags
 # des: Gets a bunch of tags for the specified list of users.
 # args: opts?, uobj*
-# des-opts: Optional hashref with options. Keys can be 'no_gearman' to skip gearman
-#           task dispatching.
+# des-opts: Optional hashref with options (currently unused).
 # des-uobj: One or more user ids or objects to load the tags for.
 # returns: Hashref; { userid => *tagref*, userid => *tagref*, ... } where *tagref* is the
 #          return value of LJ::Tags::get_usertags -- undef on failure
@@ -48,7 +48,7 @@ sub get_usertagsmulti {
     foreach my $u (@uobjs) {
 
         # don't load if we've previously gotten this one
-        if ( my $cached = $LJ::REQ_CACHE_USERTAGS{ $u->{userid} } ) {
+        if ( my $cached = DW::Cache->request->get( 'usertags', $u->{userid} ) ) {
             $res->{ $u->{userid} } = $cached;
             next;
         }
@@ -66,47 +66,14 @@ sub get_usertagsmulti {
             my $jid = $1;
 
             # set this up in our return hash and mark unneeded
-            $LJ::REQ_CACHE_USERTAGS{$jid} = $memc->{$key};
+            DW::Cache->request->set( 'usertags', $jid, $memc->{$key} );
             $res->{$jid} = $memc->{$key};
             delete $need{$jid};
         }
     }
     return $res unless %need;
 
-    # if we're not using gearman, or we're not in web context (implies that we're
-    # in gearman context?) then we need to use the loader to get the data
-    my $gc = LJ::gearman_client();
-    return LJ::Tags::_get_usertagsmulti( $res, values %need )
-        unless LJ::conf_test( $LJ::LOADTAGS_USING_GEARMAN, values %need )
-        && $gc
-        && !$opts->{no_gearman};
-
-    # spawn gearman jobs to get each of the users
-    my $ts = $gc->new_task_set();
-    foreach my $u ( values %need ) {
-        $ts->add_task(
-            Gearman::Task->new(
-                "load_usertags",
-                \"$u->{userid}",
-                {
-                    uniq        => '-',
-                    on_complete => sub {
-                        my $resp = shift;
-                        my $tags = Storable::thaw($$resp);
-                        return unless $tags;
-
-                        $LJ::REQ_CACHE_USERTAGS{ $u->{userid} } = $tags;
-                        $res->{ $u->{userid} } = $tags;
-                        delete $need{ $u->{userid} };
-                    },
-                }
-            )
-        );
-    }
-
-    # now wait for gearman to finish, then we're done
-    $ts->wait( timeout => 15 );
-    return $res;
+    return LJ::Tags::_get_usertagsmulti( $res, values %need );
 }
 
 # internal sub used by get_usertagsmulti
@@ -273,7 +240,7 @@ sub _get_usertagsmulti {
             $res->{$jid} ||= {};
             $res->{$jid}->{$_}->{security_level} ||= 'private' foreach keys %{ $res->{$jid} };
 
-            $LJ::REQ_CACHE_USERTAGS{$jid} = $res->{$jid};
+            DW::Cache->request->set( 'usertags', $jid, $res->{$jid} );
             LJ::MemCache::add( [ $jid, "tags:$jid" ], $res->{$jid} );
         }
     }
@@ -1131,7 +1098,7 @@ sub reset_cache {
 
         # standard user tags cleanup
         unless ($jitemid) {
-            delete $LJ::REQ_CACHE_USERTAGS{ $u->{userid} };
+            DW::Cache->request->remove( 'usertags', $u->{userid} );
             LJ::MemCache::delete( [ $u->{userid}, "tags:$u->{userid}" ] );
         }
 

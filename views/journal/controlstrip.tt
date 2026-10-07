@@ -18,8 +18,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF remote -%]
   <div id='lj_controlstrip_user'>
-    <form id='Greeting' class='nopic' action='[%- site.root -%]/logout' method='post'>
-      <div>
+    <div id='Greeting' class='nopic'>
+      [% INCLUDE "components/account-switcher.tt" %]
+      <form action='[%- site.root -%]/logout' method='post'>
         [%- dw.form_auth -%]
         [%- form.hidden( name = "user", value = remote.user ) -%]
         [%- form.hidden( name = "returnto", value = returnto ) -%]
@@ -28,7 +29,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- END -%]
         [%- form.hidden( name = "ret", value = 1 ) -%]
 
-        [% remote.display %]
         [% form.submit(
             id = "Logout",
             name = "logout_one",
@@ -37,8 +37,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- UNLESS remote.is_validated -%]
           &nbsp;&nbsp; [% links.confirm %]
         [%- END -%]
-      </div>
-    </form>
+      </form>
+    </div>
     [%- UNLESS remote.is_identity -%]
       [%- links.home -%]&nbsp;&nbsp; [%- links.post_journal -%]&nbsp;&nbsp;
     [%- END -%]

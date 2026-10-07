@@ -644,7 +644,7 @@ note("post to community by various journaltypes");
     my $admin = temp_user();
     $admin->join_community( $comm, 1, 1 );
     LJ::set_rel( $comm->userid, $admin->userid, "A" );
-    delete $LJ::REQ_CACHE_REL{ $comm->userid . "-" . $admin->userid . "-A" };    # to be safe
+    DW::Cache->request->remove( 'rel', $comm->userid . "-" . $admin->userid . "-A" );   # to be safe
 
     $comm->set_comm_settings( $admin, { membership => "open", postlevel => "members" } );
     $comm->set_prop( nonmember_posting => 1 );
@@ -730,7 +730,7 @@ note("editing an entry with existing tags, when only admins can edit tags");
     ## SETUP
     $admin->join_community( $comm, 1, 1 );
     LJ::set_rel( $comm->userid, $admin->userid, "A" );
-    delete $LJ::REQ_CACHE_REL{ $comm->userid . "-" . $admin->userid . "-A" };    # to be safe
+    DW::Cache->request->remove( 'rel', $comm->userid . "-" . $admin->userid . "-A" );   # to be safe
 
     $comm->set_comm_settings( $admin, { membership => "open", postlevel => "members" } );
     $comm->set_prop( nonmember_posting => 1 );
