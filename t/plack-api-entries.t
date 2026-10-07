@@ -127,13 +127,9 @@ subtest 'posting' => sub {
     ( $res, $body ) = api_request( POST => $base, key => $skey, json => { text => 'intrusion' } );
     is( $res->code, 403, "cannot post to someone else's journal" );
 
-TODO: {
-        local $TODO = 'tag validation runs before the arrayref is joined';
-
-        ( $res, $body ) =
-            api_request( POST => $base, key => $okey, json => { text => 'x', tags => ['<b>'] } );
-        is( $res->code, 400, 'invalid tag in the array is rejected' );
-    }
+    ( $res, $body ) =
+        api_request( POST => $base, key => $okey, json => { text => 'x', tags => ['<b>'] } );
+    is( $res->code, 400, 'invalid tag in the array is rejected' );
 };
 
 subtest 'community posting and editing' => sub {
@@ -172,16 +168,9 @@ subtest 'editing: tags' => sub {
     is( entry_state($entry)->{tags}, 'a, b', 'tags given as an array replace the old tags' );
     unlike( $entry->prop('taglist') // '', qr/ARRAY\(/, 'taglist prop is not a stringified ref' );
 
-TODO: {
-        local $TODO = 'tag validation runs before the arrayref is joined';
-
-        ( $res, $body ) = api_request(
-            POST => "$base/$id",
-            key  => $okey,
-            json => { text => 'e', tags => ['<b>'] }
-        );
-        is( $res->code, 400, 'invalid tag in the array is rejected' );
-    }
+    ( $res, $body ) =
+        api_request( POST => "$base/$id", key => $okey, json => { text => 'e', tags => ['<b>'] } );
+    is( $res->code, 400, 'invalid tag in the array is rejected' );
 
     ( $res, $body ) = api_request( POST => "$base/$id", key => $okey, json => { text => 'e2' } );
     is( entry_state( fresh_entry( $owner, $id ) )->{tags}, 'a, b', 'omitted tags are kept' );

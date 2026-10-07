@@ -1009,6 +1009,11 @@ sub getdaycounts {
 sub common_event_validation {
     my ( $req, $err, $flags ) = @_;
 
+    # the API sends tags as an arrayref; join it before anything (including the
+    # tag validation below) looks at the taglist
+    $req->{props}->{taglist} = join( ", ", @{ $req->{props}->{taglist} } )
+        if $req->{props} && ref $req->{props}->{taglist} eq 'ARRAY';
+
     # clean up event whitespace
     # remove surrounding whitespace
     $req->{event} =~ s/^\s+//;
@@ -1689,24 +1694,14 @@ sub postevent {
     # Entry tags
     if ( $req->{props} && defined $req->{props}->{taglist} && $req->{props}->{taglist} ne '' ) {
 
-        # slightly misnamed, the taglist is/was normally a string, but now can also be an arrayref.
-        my $taginput = $req->{props}->{taglist};
-
         my $tagerr      = "";
         my $logtag_opts = {
             remote     => $u,
             ignore_max => $flags->{ignore_tags_max} ? 1 : 0,
             force      => $importer_bypass,
             err_ref    => \$tagerr,
+            set_string => $req->{props}->{taglist},
         };
-
-        if ( ref $taginput eq 'ARRAY' ) {
-            $logtag_opts->{set} = [@$taginput];
-            $req->{props}->{taglist} = join( ", ", @$taginput );
-        }
-        else {
-            $logtag_opts->{set_string} = $taginput;
-        }
 
         # Do not fail here; worst case we lose tags, but if we fail here we don't perform
         # half of the processing below
@@ -2068,10 +2063,6 @@ sub editevent {
     $security = $req->{security}
         if $req->{security}
         && $req->{security} =~ /^(?:public|private|usemask)$/;
-
-    # the API sends tags as an arrayref, as postevent already allows
-    $req->{props}->{taglist} = join( ", ", @{ $req->{props}->{taglist} } )
-        if $req->{props} && ref $req->{props}->{taglist} eq 'ARRAY';
 
     my $do_tags = $req->{props} && defined $req->{props}->{taglist};
     my $do_tags_security;

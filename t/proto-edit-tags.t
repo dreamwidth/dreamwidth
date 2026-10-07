@@ -75,17 +75,13 @@ is_deeply( tags($id), [], 'empty arrayref clears tags' );
 ( $res, $err ) = req( 'editevent', itemid => $id, event => 'bad', props => { taglist => '<b>' } );
 is( $err, 211, 'editevent rejects an invalid tag string' );
 
-TODO: {
-    local $TODO = 'tag validation runs before the arrayref is joined';
+( $res, $err ) =
+    req( 'editevent', itemid => $id, event => 'bad', props => { taglist => ['<b>'] } );
+is( $err, 211, 'editevent rejects an invalid tag in an arrayref' );
 
-    ( $res, $err ) =
-        req( 'editevent', itemid => $id, event => 'bad', props => { taglist => ['<b>'] } );
-    is( $err, 211, 'editevent rejects an invalid tag in an arrayref' );
+( $res, $err ) = req( 'postevent', event => 'bad', props => { taglist => ['<b>'] } );
+is( $err, 211, 'postevent rejects an invalid tag in an arrayref' );
 
-    ( $res, $err ) = req( 'postevent', event => 'bad', props => { taglist => ['<b>'] } );
-    is( $err, 211, 'postevent rejects an invalid tag in an arrayref' );
-
-    is( entry($id)->event_raw, 'z2', 'rejected edit did not change the entry' );
-}
+is( entry($id)->event_raw, 'z2', 'rejected edit did not change the entry' );
 
 done_testing;
