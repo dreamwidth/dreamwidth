@@ -46,6 +46,7 @@ paths:
     post:
       description: Create a new entry accesslist for the journal
       requestBody:
+        required: true
         content:
           application/json:
             schema:

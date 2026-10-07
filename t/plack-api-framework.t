@@ -64,18 +64,14 @@ subtest 'key authentication' => sub {
     ( $res, $body ) = api_request( GET => $path, auth => "Basic $key" );
     is( $res->code, 401, 'other auth schemes are rejected' );
 
-TODO: {
-        local $TODO = 'Bearer scheme parsing is loose';
+    ( $res, $body ) = api_request( GET => $path, auth => "bearer $key" );
+    is( $res->code, 200, 'auth scheme is case-insensitive' );
 
-        ( $res, $body ) = api_request( GET => $path, auth => "bearer $key" );
-        is( $res->code, 200, 'auth scheme is case-insensitive' );
+    ( $res, $body ) = api_request( GET => $path, auth => "BEARER  $key" );
+    is( $res->code, 200, 'auth scheme in capitals with extra whitespace' );
 
-        ( $res, $body ) = api_request( GET => $path, auth => "BEARER  $key" );
-        is( $res->code, 200, 'auth scheme in capitals with extra whitespace' );
-
-        ( $res, $body ) = api_request( GET => $path, auth => $key );
-        is( $res->code, 401, 'key without the Bearer scheme is rejected' );
-    }
+    ( $res, $body ) = api_request( GET => $path, auth => $key );
+    is( $res->code, 401, 'key without the Bearer scheme is rejected' );
 
     my $old = DW::API::Key->new_for_user($u);
     ( $res, $body ) = api_request( GET => $path, key => $old->hash );
@@ -102,29 +98,20 @@ subtest 'API key validation' => sub {
 };
 
 subtest 'request bodies' => sub {
-    my ( $res, $body );
-TODO: {
-        local $TODO = 'unsupported or missing bodies die in body validation';
+    my ( $res, $body ) =
+        api_request( POST => $path, key => $key, json => 'x', content_type => 'text/plain' );
+    is( $res->code, 415, 'text/plain body is rejected as unsupported' );
 
-        ( $res, $body ) =
-            api_request( POST => $path, key => $key, json => 'x', content_type => 'text/plain' );
-        is( $res->code, 415, 'text/plain body is rejected as unsupported' );
+    ( $res, $body ) =
+        api_request( POST => $path, key => $key, json => '["a"]', content_type => '' );
+    is( $res->code, 415, 'body with no content type is rejected as unsupported' );
 
-        ( $res, $body ) =
-            api_request( POST => $path, key => $key, json => '["a"]', content_type => '' );
-        is( $res->code, 415, 'body with no content type is rejected as unsupported' );
-
-        ( $res, $body ) = api_request( POST => $path, key => $key );
-        is( $res->code, 400, 'missing required body is a 400' );
-    }
+    ( $res, $body ) = api_request( POST => $path, key => $key );
+    is( $res->code, 400, 'missing required body is a 400' );
 
     ( $res, $body ) = api_request( POST => $path, key => $key, json => '{"broken' );
     is( $res->code, 400, 'malformed JSON is a 400' );
-TODO: {
-        local $TODO = 'body errors have an empty message';
-
-        like( $body->{error}, qr/JSON/, 'malformed JSON error says why' );
-    }
+    like( $body->{error}, qr/JSON/, 'malformed JSON error says why' );
 
     ( $res, $body ) = api_request(
         POST => "/journals/$user/entries",
@@ -132,11 +119,7 @@ TODO: {
         json => { text => 'x', tags => 'not-an-array' }
     );
     is( $res->code, 400, 'schema violation is a 400' );
-TODO: {
-        local $TODO = 'body errors have an empty message';
-
-        like( $body->{error}, qr/tags/, 'schema violation error names the field' );
-    }
+    like( $body->{error}, qr/tags/, 'schema violation error names the field' );
 };
 
 subtest 'routing and parameters' => sub {
@@ -154,12 +137,8 @@ subtest 'routing and parameters' => sub {
     is( $res->code, 400, 'over-long username fails parameter validation' );
     like( $body->{error}, qr/username/, 'parameter error names the parameter' );
 
-TODO: {
-        local $TODO = 'route regexes are not anchored at the start';
-
-        ( $res, $body ) = api_request( GET => '/extra/prefix/spec' );
-        is( $res->code, 404, 'route does not match with a prefix' );
-    }
+    ( $res, $body ) = api_request( GET => '/extra/prefix/spec' );
+    is( $res->code, 404, 'route does not match with a prefix' );
 };
 
 subtest 'static comment endpoints' => sub {

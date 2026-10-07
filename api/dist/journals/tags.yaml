@@ -78,6 +78,7 @@ paths:
     post:
       description: Add new tags for a given journal
       requestBody:
+        required: true
         content:
           application/json:
             schema:

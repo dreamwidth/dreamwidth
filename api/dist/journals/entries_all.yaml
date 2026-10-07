@@ -83,6 +83,7 @@ paths:
     post:
       description: Post a new journal entry.
       requestBody:
+        required: true
         content:
           application/json:
             schema:
