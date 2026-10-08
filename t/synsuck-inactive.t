@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 47;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -69,6 +69,15 @@ is( $LJ::SYNSUCK_INACTIVE_INTERVAL,    7 * 24 * 60, "default inactive interval i
 is( $LJ::SYNSUCK_ACTIVE_READER_PROBES, 50,          "default probe cap is 50" );
 
 my $week = $LJ::SYNSUCK_INACTIVE_INTERVAL;
+
+note("jitter");
+{
+    my @got = map { LJ::SynSuck::jitter($week) } 1 .. 200;
+    ok( !( grep { $_ < $week || $_ >= $week * 1.1 + 1 } @got ),
+        "jitter stays within [m, m + 10% + 1)" );
+    ok( ( grep { $_ != $week } @got ), "jitter actually moves the delay" );
+    is( LJ::SynSuck::jitter(0), 0, "zero delay stays zero" );
+}
 
 note("no watchers");
 {
@@ -234,26 +243,37 @@ note("not-modified response on a feed with no readers");
 
 note("fetched feed with no readers");
 {
-    @stats = ();
     my $rss = q{<?xml version="1.0"?><rss version="2.0"><channel><title>t</title>
         <link>http://example.com/</link><description>d</description>
         <item><title>one</title><link>http://example.com/1</link><guid>g1</guid>
         <description>hi</description></item></channel></rss>};
 
-    my $feed = temp_feed();
-    my $dbh  = LJ::get_db_writer();
-    my $urow = $dbh->selectrow_hashref(
-        "SELECT u.user, s.userid, s.synurl, s.lastmod, s.etag, s.numreaders, s.checknext "
-            . "FROM user u, syndicated s WHERE u.userid=s.userid AND s.userid=?",
-        undef, $feed->id
-    );
-    my $res = HTTP::Response->new(200);
-    $res->header( 'Content-Type' => 'application/rss+xml' );
-    ok( LJ::SynSuck::process_content( $urow, [ $res, $rss ] ), "feed processed" );
+    my $fetch = sub {
+        my $feed = temp_feed();
+        my $urow = LJ::get_db_writer()->selectrow_hashref(
+            "SELECT u.user, s.userid, s.synurl, s.lastmod, s.etag, s.numreaders, s.checknext "
+                . "FROM user u, syndicated s WHERE u.userid=s.userid AND s.userid=?",
+            undef, $feed->id
+        );
+        my $res = HTTP::Response->new(200);
+        $res->header( 'Content-Type' => 'application/rss+xml' );
+        ok( LJ::SynSuck::process_content( $urow, [ $res, $rss ] ), "feed processed" );
+        return minutes_until_check($feed);
+    };
 
-    my $mins = minutes_until_check($feed);
-    ok( $mins >= $week - 1 && $mins <= $week + 1, "fetch path uses the inactive interval ($mins)" );
+    @stats = ();
+    my $mins = $fetch->();
+    ok(
+        $mins >= $week - 1 && $mins < $week * 1.1 + 1,
+        "fetch path uses the jittered inactive interval ($mins)"
+    );
     ok( stats_seen('dw.synsuck.check outcome:ok'), "check outcome metric emitted" );
+
+    # pin the jitter so we can tell it was applied rather than the bare interval
+    no warnings 'redefine';
+    local *LJ::SynSuck::jitter = sub { $_[0] + 120 };
+    $mins = $fetch->();
+    ok( $mins >= $week + 119 && $mins <= $week + 120, "fetch path applies jitter ($mins)" );
 }
 
 note("failure paths");

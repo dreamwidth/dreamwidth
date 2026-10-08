@@ -107,6 +107,12 @@ sub reader_interval {
 # transient conditions on our side that say nothing about the feed.
 my %NO_READER_CHECK = map { $_ => 1 } qw(ok nonew notmodified non_statusvis_v nodb);
 
+# Adds up to 10% to a delay so feeds checked together don't stay in lockstep.
+sub jitter {
+    my ($minutes) = @_;
+    return $minutes + int( rand( $minutes * 0.1 + 1 ) );
+}
+
 sub delay {
     my ( $userid, $minutes, $status, $synurl, $opts ) = @_;
     $opts //= {};
@@ -145,8 +151,7 @@ sub delay {
         $minutes = reader_interval( $su, $minutes ) if $su;
     }
 
-    # add jitter proportional to delay (up to 10%) to stagger retries
-    $minutes += int( rand( $minutes * 0.1 + 1 ) );
+    $minutes = jitter($minutes);
 
     DW::Stats::increment( 'dw.synsuck.check', 1, ["outcome:$status"] );
     $log->info(
@@ -655,8 +660,9 @@ sub process_content {
         $readers = $su->watched_by_userids;
     }
 
-    # nobody active is reading this feed: check far less often
-    $int = reader_interval( $su, $int );
+    # nobody active is reading this feed: check far less often; jitter keeps
+    # feeds fetched together from coming due together again
+    $int = jitter( reader_interval( $su, $int ) );
 
     DW::Stats::increment( 'dw.synsuck.check', 1, ["outcome:$status"] );
     $log->info("userid=$userid: status=$status failcount=0 (reset) delay=${int}m");
