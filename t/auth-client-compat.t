@@ -48,15 +48,6 @@ my $server = Plack::Test::Server->new($app);
 my $backup = "$ENV{HOME}/" . $u->user . '.jbak';
 BAIL_OUT('Refusing to overwrite an existing backup') if -e $backup;
 
-# Seed a prior sync date: the legacy server's zero-date default is rejected by
-# strict MySQL, independently of authentication. Exercise an incremental backup.
-{
-    my %seed;
-    tie %seed, 'GDBM_File', $backup, &GDBM_NEWDB, 0600 or die $!;
-    $seed{'event:lastsync'} = '2000-01-01 00:00:00';
-    $seed{'event:lastgrab'} = '2000-01-01 00:00:00';
-    untie %seed;
-}
 my $stderr = gensym;
 my $pid    = open3(
     undef,                                 my $stdout,

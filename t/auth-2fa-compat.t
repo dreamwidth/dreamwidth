@@ -52,6 +52,7 @@ use MIME::Base64 qw(encode_base64);
     sub header_out     { }
     sub header_out_add { }
     sub note           { undef }
+    sub pnote          { undef }
     sub cookie         { $_[0]->{cookies}{ $_[1] } }
     sub add_cookie     { my ( $self, %args ) = @_; $self->{cookies}{ $args{name} } = $args{value} }
 

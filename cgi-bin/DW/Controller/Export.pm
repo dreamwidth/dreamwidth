@@ -266,6 +266,18 @@ sub _dump_entry {
     return $entry;
 }
 
+# /export_comments (also /export_comments.bml): XML export of a journal's
+# comments, used by jbackup, ljdump and the content importer. Authenticated by
+# the session cookie; authas= selects a community. Arguments:
+#
+#   get=comment_meta  ids, posters and states for jtalkids in
+#                     [startid, startid + numitems); numitems defaults to and
+#                     is capped at 10000. Returns <maxid>, and <nextid> (the
+#                     next startid) while more comments remain.
+#   get=comment_body  the comments themselves for the same kind of window;
+#                     numitems defaults to and is capped at 1000. props=1 adds
+#                     comment properties. There is no <maxid> or <nextid>;
+#                     clients step through windows up to comment_meta's maxid.
 sub comment_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
     return $rv unless $ok;
@@ -326,23 +338,20 @@ sub comment_handler {
         $posterids{ $r->[3] } = 1 if $r->[3];    # don't include 0 (anonymous)
     }
 
-    # load posterids
-    my $us = LJ::load_userids( keys %posterids );
-
     my $userid = $u->userid;
 
+    # If the poster is suspended, we treat the comment as if it was deleted.
+    # This comment may have children, so it must still seem to exist.
     my $filter = sub {
-        my $data = $_[0];
+        my ( $data, $us ) = @_;
         return unless $data->{posterid};
         return if $data->{posterid} == $userid;
-
-        # If the poster is suspended, we treat the comment as if it was deleted
-        # This comment may have children, so it must still seem to exist.
         $data->{state} = 'D' if $us->{ $data->{posterid} }->is_suspended;
     };
 
     # now we have two choices: comments themselves or metadata
     if ( $mode eq 'comment_meta' ) {
+        my $us = LJ::load_userids( keys %posterids );
 
         # meta data is easy :)
         my $max = $dbcr->selectrow_array(
@@ -356,7 +365,7 @@ sub comment_handler {
         # now spit out the metadata
         $r->print("<comments>\n");
         while ( my ( $id, $data ) = each %comments ) {
-            $filter->($data);
+            $filter->( $data, $us );
 
             my $ret = "<comment id='$id'";
             $ret .= " posterid='$data->{posterid}'" if $data->{posterid};
@@ -378,60 +387,62 @@ sub comment_handler {
         # comment data also presented in glorious XML:
     }
     elsif ( $mode eq 'comment_body' ) {
-
-        # get real comments from startid to a limit of 10k data, however far that takes us
         my @ids = sort { $a <=> $b } keys %comments;
 
-        # call a load to get comment text
-        my $texts = LJ::get_talktext2( $u, @ids );
-
-        # get props if we need to
-        my $props = {};
-        LJ::load_talk_props2( $userid, \@ids, $props ) if $args->{props};
-
-        # now start spitting out data
+        # Load posters, text and props a batch at a time rather than for the whole
+        # window at once, which can be tens of megabytes for long comments.
         $r->print("<comments>\n");
-        foreach my $id (@ids) {
+        while ( my @batch = splice( @ids, 0, 250 ) ) {
+            my $us = LJ::load_userids(
+                grep { $_ && $_ != $userid }
+                map  { $comments{$_}->{posterid} } @batch
+            );
+            $filter->( $comments{$_}, $us ) foreach @batch;
 
-            # get text for this comment
-            my $data = $comments{$id};
-            my $text = $texts->{$id};
-            my ( $subject, $body ) = @{ $text || [] };
+            # deleted comments are printed without text
+            my @live  = grep { $comments{$_}->{state} ne 'D' } @batch;
+            my $texts = @live ? LJ::get_talktext2( $u, @live ) : {};
+            my $props = {};
+            LJ::load_talk_props2( $userid, \@live, $props ) if $args->{props} && @live;
 
-            # only spit out valid UTF8, and make sure it fits in XML, and uncompress it
-            LJ::text_uncompress( \$body );
-            LJ::text_out( \$subject );
-            LJ::text_out( \$body );
-            $subject = LJ::exml($subject);
-            $body    = LJ::exml($body);
+            foreach my $id (@batch) {
 
-            # setup the date to be GMT and formatted per W3C specs
-            my $date = LJ::mysqldate_to_time( $data->{datepost} );
-            $date = LJ::time_to_w3c( $date, 'Z' );
-
-            $filter->($data);
-
-            # print the data
-            my $ret = "<comment id='$id' jitemid='$data->{nodeid}'";
-            $ret .= " posterid='$data->{posterid}'"     if $data->{posterid};
-            $ret .= " state='$data->{state}'"           if $data->{state} ne 'A';
-            $ret .= " parentid='$data->{parenttalkid}'" if $data->{parenttalkid};
-            if ( $data->{state} eq 'D' ) {
-                $ret .= " />\n";
-            }
-            else {
-                $ret .= ">\n";
-                $ret .= "<subject>$subject</subject>\n" if $subject;
-                $ret .= "<body>$body</body>\n" if $body;
-                $ret .= "<date>$date</date>\n";
-                foreach my $propkey ( keys %{ $props->{$id} || {} } ) {
-                    $ret .= "<property name='$propkey'>";
-                    $ret .= LJ::exml( $props->{$id}->{$propkey} );
-                    $ret .= "</property>\n";
+                # print the data
+                my $data = $comments{$id};
+                my $ret  = "<comment id='$id' jitemid='$data->{nodeid}'";
+                $ret .= " posterid='$data->{posterid}'"     if $data->{posterid};
+                $ret .= " state='$data->{state}'"           if $data->{state} ne 'A';
+                $ret .= " parentid='$data->{parenttalkid}'" if $data->{parenttalkid};
+                if ( $data->{state} eq 'D' ) {
+                    $ret .= " />\n";
                 }
-                $ret .= "</comment>\n";
+                else {
+                    my ( $subject, $body ) = @{ $texts->{$id} || [] };
+
+                    # only spit out valid UTF8, and make sure it fits in XML, and uncompress it
+                    LJ::text_uncompress( \$body );
+                    LJ::text_out( \$subject );
+                    LJ::text_out( \$body );
+                    $subject = LJ::exml($subject);
+                    $body    = LJ::exml($body);
+
+                    # setup the date to be GMT and formatted per W3C specs
+                    my $date = LJ::mysqldate_to_time( $data->{datepost} );
+                    $date = LJ::time_to_w3c( $date, 'Z' );
+
+                    $ret .= ">\n";
+                    $ret .= "<subject>$subject</subject>\n" if $subject;
+                    $ret .= "<body>$body</body>\n" if $body;
+                    $ret .= "<date>$date</date>\n";
+                    foreach my $propkey ( keys %{ $props->{$id} || {} } ) {
+                        $ret .= "<property name='$propkey'>";
+                        $ret .= LJ::exml( $props->{$id}->{$propkey} );
+                        $ret .= "</property>\n";
+                    }
+                    $ret .= "</comment>\n";
+                }
+                $r->print($ret);
             }
-            $r->print($ret);
         }
         $r->print("</comments>\n");
     }

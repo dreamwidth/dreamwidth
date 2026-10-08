@@ -25,8 +25,10 @@ COPY doc/dependencies-system /tmp/dependencies-system
 RUN apt-get install -y $(cat /tmp/dependencies-system | grep -v '^#' | grep -v '^$' | tr '\n' ' ') && \
     rm /tmp/dependencies-system
 
-# Install dependencies for local development full-stack
-RUN apt-get install -y mysql-server mysql-client memcached htop
+# Install dependencies for local development full-stack. Term::ReadKey is only
+# needed by src/jbackup, which t/auth-client-compat.t runs; it isn't a site
+# dependency, so it lives here rather than in doc/dependencies-*.
+RUN apt-get install -y mysql-server mysql-client memcached htop libterm-readkey-perl
 
 # Install Manticore Search (opt-in — not auto-started by start.sh).
 # Developers working on search uncomment @LJ::MANTICORE in config-local.pl

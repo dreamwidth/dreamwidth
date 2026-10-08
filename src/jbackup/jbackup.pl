@@ -382,7 +382,14 @@ sub do_sync {
         my $tag = pop @tags;
         $lasttag = $tags[0];
     };
+    my $body_next_id;
     my $body_content = sub {
+        # a server may cut a window short and say where to resume (DW doesn't today)
+        if ($lasttag eq 'nextid') {
+            $body_next_id .= $_[1];
+            return;
+        }
+
         # this grabs data inside of comments: body, subject, date
         return unless $curid;
         return unless $lasttag =~ /(?:body|subject|date)/;
@@ -398,11 +405,16 @@ sub do_sync {
         die "Some sort of error fetching body data from server" unless $content;
 
         # now we want to XML parse this
+        $body_next_id = '';
         my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
         $parser->parse($content);
 
         # now at this point what we have to decide whether we should loop again for more metadata
-        $lastid += $COMMENTS_FETCH_BODY;
+        if ($body_next_id =~ /^\d+$/ && $body_next_id > $lastid + 1) {
+            $lastid = $body_next_id - 1;
+        } else {
+            $lastid += $COMMENTS_FETCH_BODY;
+        }
         last unless $lastid < $server_max_id;
     }
 

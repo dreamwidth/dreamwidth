@@ -121,7 +121,7 @@ jobs:
 
       - name: Test - rate limiting
         if: ${{ !cancelled() }}
-        run: prove -v t/rate-limit.t
+        run: prove -v t/rate-limit.t t/rate-limit-protocol.t
 
       # The user-facing flows and access control a random PR is most likely to
       # break, grouped so failures are attributable at a glance.
@@ -131,11 +131,11 @@ jobs:
 
       - name: Test - posting
         if: ${{ !cancelled() }}
-        run: prove t/post.t t/proto-post-edit-roundtrip.t t/proto-edit-tags.t t/entry-lookup.t t/entry-to-json.t t/draftset.t
+        run: prove t/post.t t/proto-post-edit-roundtrip.t t/proto-edit-tags.t t/protocol-sync-floor.t t/entry-lookup.t t/entry-to-json.t t/draftset.t
 
       - name: Test - commenting
         if: ${{ !cancelled() }}
-        run: prove t/comment-create.t t/entrycomment-create.t t/talkpost-*.t
+        run: prove t/comment-create.t t/entrycomment-create.t t/talkpost-*.t t/export-comments.t
 
       - name: Test - access control & captcha
         if: ${{ !cancelled() }}

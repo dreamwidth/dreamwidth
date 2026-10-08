@@ -26,6 +26,8 @@ use XMLRPC::Transport::HTTP;
 use HTTP::Request;
 use HTTP::Headers;
 
+use DW::RateLimit;
+
 our @ISA = qw(SOAP::Transport::HTTP::Server);
 
 sub DESTROY { SOAP::Trace::objects('()') }
@@ -60,6 +62,12 @@ sub handler {
     $self->request($req);
 
     $self->SUPER::handle;
+
+    # the method was refused for exceeding the caller's rate limit
+    if ( my $retry_after = DW::RateLimit->protocol_retry_after ) {
+        DW::RateLimit->print_blocked( $r, $retry_after );
+        return $self;
+    }
 
     $r->status_line( $self->response->code );
 

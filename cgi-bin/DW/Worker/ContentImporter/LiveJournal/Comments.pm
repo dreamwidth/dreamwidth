@@ -518,7 +518,7 @@ sub try_work {
     };
 
     # body handling section now
-    my ( $lastid, $curid, $lastprop, @tags ) = ( 0, 0, undef );
+    my ( $lastid, $curid, $lastprop, $body_nextid, @tags ) = ( 0, 0, undef, '' );
 
     # setup our handlers for body XML info
     my $body_handler = sub {
@@ -554,6 +554,13 @@ sub try_work {
     };
     my $body_content = sub {
 
+        # A server may cut a body window short and say where to resume (none
+        # does today). It would follow </comments>, so check before $curid.
+        if ( $lasttag eq 'nextid' ) {
+            $body_nextid .= $_[1];
+            return;
+        }
+
         # this grabs data inside of comments: body, subject, date, properties
         return unless $curid;
 
@@ -580,6 +587,7 @@ sub try_work {
             $server_max_id || 0 );
 
         my ( $reset_lastid, $reset_curid ) = ( $lastid, $curid );
+        $body_nextid = '';
 
         $title->( 'body-fetch from id %d', $lastid + 1 );
         my $content = $class->do_authed_comment_fetch( $data, 'comment_body', $lastid + 1,
@@ -609,7 +617,8 @@ sub try_work {
                 eval {
                     # reset for another body pass
                     ( $lastid, $curid ) = ( $reset_lastid, $reset_curid );
-                    @tags = ();
+                    @tags        = ();
+                    $body_nextid = '';
 
                     # reset all text so we don't get it double posted
                     $log->('Resetting comment bodies of in-flight data.');
@@ -627,10 +636,18 @@ sub try_work {
 
         # We increment lastid during our fetches so we should walk nicely, but
         # if we didn't move at least N comments forward, then increment by
-        # that value so we can keep walking.
-        $log->( 'lastid = %d, reset_lastid = %d', $lastid, $reset_lastid );
-        $lastid = $reset_lastid + $COMMENTS_FETCH_BODY
-            if $lastid - $reset_lastid < $COMMENTS_FETCH_BODY;
+        # that value so we can keep walking. If the server cut the window short
+        # and sent <nextid>, resume there instead; jumping ahead would skip comments.
+        $log->(
+            'lastid = %d, reset_lastid = %d, nextid = %s',
+            $lastid, $reset_lastid, $body_nextid || '-'
+        );
+        if ( $body_nextid =~ /^\d+$/ && $body_nextid > $reset_lastid + 1 ) {
+            $lastid = $body_nextid - 1;
+        }
+        elsif ( $lastid - $reset_lastid < $COMMENTS_FETCH_BODY ) {
+            $lastid = $reset_lastid + $COMMENTS_FETCH_BODY;
+        }
 
         # now we've got some body text, try to post these comments. if we can do that, we can clear
         # them from memory to reduce how much we're storing.

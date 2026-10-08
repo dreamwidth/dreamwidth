@@ -40,6 +40,7 @@ use DW::API::Key;
 use DW::Auth;
 use DW::Auth::TOTP;
 use DW::Auth::Challenge;
+use DW::RateLimit;
 use LJ::Tags;
 use LJ::Feed;
 use LJ::EmbedModule;
@@ -58,6 +59,11 @@ use constant E_PERM => 1;
 
 # maximum items for get_friends_page function
 use constant FRIEND_ITEMS_LIMIT => 50;
+
+# Lower bound for sync queries when the client has no lastsync yet. This is
+# MySQL's minimum valid DATETIME: strict sql_mode (NO_ZERO_DATE) rejects
+# '0000-00-00 00:00:00' with an error, which DBI turns into an empty result.
+use constant SYNC_FLOOR => '1000-01-01 00:00:00';
 
 my %e = (
 
@@ -132,6 +138,7 @@ my %e = (
     "409" => [ E_PERM, "Post too large." ],
     "411" => [ E_PERM, "Subject too long." ],
     "412" => [ E_PERM, "Maximum number of comments reached" ],
+    "413" => [ E_TEMP, "Too many requests. Please try again later." ],
 
     # Server Errors
     "500" => [ E_TEMP, "Internal server error" ],
@@ -2414,9 +2421,10 @@ sub getevents {
     }
     elsif ( $req->{'selecttype'} eq "syncitems" ) {
         return fail( $err, 506 ) unless LJ::is_enabled('syncitems');
-        my $date = $req->{'lastsync'} || "0000-00-00 00:00:00";
+        my $date = $req->{'lastsync'} || SYNC_FLOOR;
         return fail( $err, 203, "Invalid syncitems date format" )
             unless ( $date =~ /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/ );
+        my $since = $date =~ /^0000-00-00/ ? SYNC_FLOOR : $date;
 
         my $now = time();
 
@@ -2450,7 +2458,7 @@ sub getevents {
         my %item;
         $sth = $dbcr->prepare(
             "SELECT jitemid, logtime FROM log2 WHERE " . "journalid=? and logtime > ?" );
-        $sth->execute( $ownerid, $date );
+        $sth->execute( $ownerid, $since );
         while ( my ( $id, $dt ) = $sth->fetchrow_array ) {
             $item{$id} = $dt;
         }
@@ -2461,7 +2469,7 @@ sub getevents {
                 . "FROM logprop2 WHERE journalid=? "
                 . "AND propid=$p_revtime->{'id'} "
                 . "AND value+0 > UNIX_TIMESTAMP(?)" );
-        $sth->execute( $ownerid, $date );
+        $sth->execute( $ownerid, $since );
         while ( my ( $id, $dt ) = $sth->fetchrow_array ) {
             $item{$id} = $dt;
         }
@@ -3173,9 +3181,7 @@ sub syncitems {
         return fail( $err, 203, "Invalid date format" )
             unless ( $date =~ /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/ );
     }
-    else {
-        $date = "0000-00-00 00:00:00";
-    }
+    $date = SYNC_FLOOR if !$date || $date =~ /^0000-00-00/;
 
     my $LIMIT = 500;
 
@@ -3259,6 +3265,8 @@ sub consolecommand {
 
 sub getchallenge {
     my ( $req, $err, $flags ) = @_;
+    return fail( $err, 413 ) if DW::RateLimit->charge_protocol_request( challenge => 1 );
+
     my $res   = {};
     my $now   = time();
     my $etime = 60;
@@ -3617,10 +3625,15 @@ sub authenticate {
         || $flags->{noauth}
         || $auth_check->() )
     {
+        DW::RateLimit->charge_protocol_request;
         return fail( $err, 402 ) if $ip_banned;
         return fail( $err, 105 ) if $chal_expired;
         return fail( $err, 101 );
     }
+
+    # XML-RPC and flat requests are rate limited per user, now that we know who
+    # is calling; no-op for every other caller.
+    return fail( $err, 413 ) if DW::RateLimit->charge_protocol_request( user => $u );
 
     # remember the user record for later.
     $flags->{u} = $u;
