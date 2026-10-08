@@ -59,6 +59,10 @@
 # comment:body:<jtalkid>        Text of the comment.  May not be present for deleted comments.
 # comment:date:<jtalkid>        Date of the comment.  In W3C date format.
 #       As with events.  Contains various bits of information about the comments.
+#
+# skipped:windows
+#       Comma separated list of comment_body:<startid>:<numitems> ranges whose comments could
+#       not be downloaded (the server kept failing).  --backfill fetches them again.
 ###################################################################################################
 
 ## the program ##
@@ -117,28 +121,28 @@ $opts{verbose} = $opts{quiet} ? 0 : 1;
 
 # set some constants that should never need to change.
 my $COMMENTS_FETCH_META = 10000;   # up to 10000 comments, the maximum for comment_meta
-# comment_body batch size: the server max is 1000, but heavy windows (big threads) can blow
-# past DW's gateway timeout and 504. Lower this (e.g. comment_body_fetch=250 in ~/.jbackup)
-# to make each request lighter and far less likely to time out, at the cost of more requests.
-my $COMMENTS_FETCH_BODY = defined $opts{comment_body_fetch} ? $opts{comment_body_fetch}+0 : 1000;
-$COMMENTS_FETCH_BODY = 1000 if $COMMENTS_FETCH_BODY > 1000;   # server ceiling
+# the rest can be tuned in ~/.jbackup (e.g. a line "comment_body_fetch=250"); see --help
+sub opt_num {
+    my ($name, $default) = @_;
+    return defined $opts{$name} ? $opts{$name} + 0 : $default;
+}
+my $COMMENTS_FETCH_BODY = opt_num('comment_body_fetch', 1000);   # comments per comment_body request
+$COMMENTS_FETCH_BODY = 1000 if $COMMENTS_FETCH_BODY > 1000;       # the maximum for comment_body
 $COMMENTS_FETCH_BODY = 1    if $COMMENTS_FETCH_BODY < 1;
-
-# --- resilience knobs (override in ~/.jbackup, e.g. a line "xmlrpc_delay=3") ---
-my $XMLRPC_DELAY      = defined $opts{xmlrpc_delay} ? $opts{xmlrpc_delay}+0 : 2;   # sec before each XML-RPC call
-my $FETCH_DELAY       = defined $opts{fetch_delay}  ? $opts{fetch_delay}+0  : 1;   # sec before each comment HTTP fetch
-my $HTTP_TIMEOUT      = defined $opts{http_timeout} ? $opts{http_timeout}+0 : 120; # sec per request before it's an error (not a hang)
-my $MAX_BACKOFF_TRIES = defined $opts{max_tries}    ? $opts{max_tries}+0    : 6;   # retries w/ exponential backoff before giving up/skipping
-my $META_MAX_TRIES    = defined $opts{meta_max_tries} ? $opts{meta_max_tries}+0 : 9; # meta windows get more patience (a meta skip is high-stakes)
-my $MAX_BACKOFF_WAIT  = defined $opts{max_backoff}   ? $opts{max_backoff}+0   : 300; # cap on a single backoff sleep (sec)
+my $XMLRPC_DELAY      = opt_num('xmlrpc_delay', 2);   # sec before each XML-RPC call
+my $FETCH_DELAY       = opt_num('fetch_delay', 1);    # sec before each comment request
+my $HTTP_TIMEOUT      = opt_num('http_timeout', 120); # sec a request may stall before it's an error
+my $MAX_BACKOFF_TRIES = opt_num('max_tries', 6);      # retries before skipping a window or giving up
+my $MAX_BACKOFF_WAIT  = opt_num('max_backoff', 300);  # cap on a single backoff sleep (sec)
+my $META_MAX_TRIES    = $MAX_BACKOFF_TRIES + 3;       # a failed metadata window stops the comment phase
 
 # adaptive pacing: extra delay carried across comment windows, ramps up on errors, decays
 # only after a clean streak -- so a struggling server gets sustained relief, not fresh poking.
-my $ADAPT_STEP        = defined $opts{adapt_step}  ? $opts{adapt_step}+0  : 5;   # first bump (sec) on the first error
-my $ADAPT_MAX         = defined $opts{adapt_max}   ? $opts{adapt_max}+0   : 60;  # ceiling for the carried-over delay
-my $ADAPT_DECAY_AFTER = defined $opts{adapt_decay} ? $opts{adapt_decay}+0 : 10;  # clean windows needed before easing off
-my $ADAPT_DELAY       = 0;   # current carried-over delay (state)
-my $ADAPT_OK          = 0;   # consecutive clean windows (state)
+my $ADAPT_STEP        = 5;    # first bump (sec) on the first error
+my $ADAPT_MAX         = 60;   # ceiling for the carried-over delay
+my $ADAPT_DECAY_AFTER = 10;   # clean windows needed before easing off
+my $ADAPT_DELAY       = 0;    # current carried-over delay (state)
+my $ADAPT_OK          = 0;    # consecutive clean windows (state)
 
 # now figure out what we're doing
 if ($opts{help} || !($opts{sync} || $opts{dumptype} || $opts{alter_security} || $opts{backfill})) {
@@ -163,6 +167,8 @@ jbackup.pl -- journal database generator and formatter
   Data update options:
     --sync          Update or create the database.
     --no-comments   Do not update comment information.  (Much faster.)
+    --backfill      Only download again the comments that a previous --sync had
+                    to skip because the server kept failing.  (It lists them.)
 
   Journal modification options:
     --alter-security=X  Change the security setting of your public entries.
@@ -192,6 +198,17 @@ put options into it like this:
 user=test
 password=test
 publiconly=1
+
+To be gentler on the server or survive a busy one, these can also go in
+~/.jbackup (defaults shown):
+
+comment_body_fetch=1000  Comments per request; lower it if requests time out.
+fetch_delay=1            Seconds to wait before each comment request.
+xmlrpc_delay=2           Seconds to wait before each entry/login request.
+http_timeout=120         Seconds a request may stall before it's retried.
+max_tries=6              Retries, with growing waits, before skipping/giving up.
+max_backoff=300          Longest single wait between retries, in seconds,
+                         unless the server asks for a longer one.
 HELP
     exit 1;
 }
@@ -204,7 +221,7 @@ unless ($opts{user}) {
     $opts{user} = $user;
     die "Need a username" unless $opts{user};
 }
-if (!$opts{password} && !$opts{md5password} && $opts{sync}) {
+if (!$opts{password} && !$opts{md5password} && ($opts{sync} || $opts{backfill})) {
     print "Password: ";
     ReadMode('noecho');
     my $pass = ReadLine(0);
@@ -248,7 +265,7 @@ sub parse_skips {
     my %w;
     foreach my $e (split /,/, ($bak{"skipped:windows"} || '')) {
         my ($mode, $startid, $numitems) = split /:/, $e;
-        next unless defined $numitems;
+        next unless $mode eq 'comment_body' && $numitems;   # metadata failures aren't recorded
         $w{"$mode:$startid"} = $numitems;
     }
     return %w;
@@ -277,90 +294,90 @@ sub report_skipped {
         my ($mode, $startid) = split /:/, $k;
         print STDERR "      $mode startid=$startid numitems=$w{$k}\n";
     }
-    print STDERR "    Re-run with --backfill (set a lower comment_body_fetch first) to recover them.\n\n";
+    print STDERR "    Re-run with --backfill (perhaps with a lower comment_body_fetch) to recover them.\n\n";
 }
 
 sub do_sync {
 ### ENTRY DOWNLOADING ###
-  unless ($opts{backfill}) {   # --backfill skips the entry sweep; it only re-pulls comment gaps
-    # see if we have any sync data saved
-    my %sync;
-    my $lastsync = $bak{"event:lastsync"};
-    my $synccount = 0;
+    unless ($opts{backfill}) {   # --backfill skips the entry sweep; it only re-pulls comment gaps
+        # see if we have any sync data saved
+        my %sync;
+        my $lastsync = $bak{"event:lastsync"};
+        my $synccount = 0;
 
-    # get sync data
-    my @usejournal = $opts{usejournal} ? ('usejournal', $opts{usejournal}) : ();
-    while (1) {
-        # contact server for list of items
-        d("do_sync: calling syncitems with lastsync = " . ($lastsync || 'none yet'));
-        my $hash = call_xmlrpc('syncitems', { lastsync => $lastsync, @usejournal });
+        # get sync data
+        my @usejournal = $opts{usejournal} ? ('usejournal', $opts{usejournal}) : ();
+        while (1) {
+            # contact server for list of items
+            d("do_sync: calling syncitems with lastsync = " . ($lastsync || 'none yet'));
+            my $hash = call_xmlrpc('syncitems', { lastsync => $lastsync, @usejournal });
 
-        # push this info, set lastsync
-        foreach my $item (@{$hash->{syncitems} || []}) {
-            $lastsync = $item->{'time'}
-                if $item->{'time'} gt $lastsync;
-            next unless $item->{item} =~ /L-(\d+)/;
-            $synccount++;
-            $sync{$1} = [ $item->{action}, $item->{'time'} ];
-            $bak{"event:realtime:$1"} = $item->{'time'};
+            # push this info, set lastsync
+            foreach my $item (@{$hash->{syncitems} || []}) {
+                $lastsync = $item->{'time'}
+                    if $item->{'time'} gt $lastsync;
+                next unless $item->{item} =~ /L-(\d+)/;
+                $synccount++;
+                $sync{$1} = [ $item->{action}, $item->{'time'} ];
+                $bak{"event:realtime:$1"} = $item->{'time'};
+            }
+            $bak{'event:lastsync'} = $lastsync;
+            do_flush();
+
+            # last if necessary
+            d("do_sync: got $hash->{count} of $hash->{total} syncitems.");
+            last if $hash->{count} == $hash->{total};
         }
+        print "$synccount total new and/or updated entries.\n";
         $bak{'event:lastsync'} = $lastsync;
-        do_flush();
 
-        # last if necessary
-        d("do_sync: got $hash->{count} of $hash->{total} syncitems.");
-        last if $hash->{count} == $hash->{total};
-    }
-    print "$synccount total new and/or updated entries.\n";
-    $bak{'event:lastsync'} = $lastsync;
+        # helper sub
+        my $realtime = sub {
+            my $id = shift;
+            return $sync{$id}->[1] if @{$sync{$id} || []};
+            return $bak{"event:realtime:$id"};
+        };
 
-    # helper sub
-    my $realtime = sub {
-        my $id = shift;
-        return $sync{$id}->[1] if @{$sync{$id} || []};
-        return $bak{"event:realtime:$id"};
-    };
+        # get list of ids so far
+        my %eventids = ( map { $_, 1 } split(',', $bak{"event:ids"}) );
 
-    # get list of ids so far
-    my %eventids = ( map { $_, 1 } split(',', $bak{"event:ids"}) );
+        # setup our download hash
+        my $lastgrab = $bak{"event:lastgrab"};
+        my %data;
 
-    # setup our download hash
-    my $lastgrab = $bak{"event:lastgrab"};
-    my %data;
+        while (1) {
+            # shortcut to maybe not have to hit getvents
+            last if $lastgrab eq $lastsync;
 
-    while (1) {
-        # shortcut to maybe not have to hit getvents
-        last if $lastgrab eq $lastsync;
+            # get newest item we have cached
+            my $count = 0;
+            d("do_sync: calling getevents with lastgrab = " . ($lastgrab || 'none yet'));
+            my $hash = call_xmlrpc('getevents', { selecttype => 'syncitems',
+                                                  lastsync => $lastgrab,
+                                                  ver => 1,
+                                                  lineendings => 'unix',
+                                                  @usejournal, });
 
-        # get newest item we have cached
-        my $count = 0;
-        d("do_sync: calling getevents with lastgrab = " . ($lastgrab || 'none yet'));
-        my $hash = call_xmlrpc('getevents', { selecttype => 'syncitems',
-                                              lastsync => $lastgrab,
-                                              ver => 1,
-                                              lineendings => 'unix',
-                                              @usejournal, });
+            # parse incoming data one event at a time
+            foreach my $evt (@{$hash->{events} || []}) {
+                # got an event
+                $count++;
+                $eventids{$evt->{itemid}} = 1;
+                $evt->{realtime} = $realtime->($evt->{itemid});
+                $lastgrab = $evt->{realtime}
+                    if $evt->{realtime} gt $lastgrab;
+                save_event($evt);
+            }
+            $bak{"event:lastgrab"} = $lastgrab;
+            $bak{"event:ids"} = join ',', keys %eventids;
+            do_flush();
 
-        # parse incoming data one event at a time
-        foreach my $evt (@{$hash->{events} || []}) {
-            # got an event
-            $count++;
-            $eventids{$evt->{itemid}} = 1;
-            $evt->{realtime} = $realtime->($evt->{itemid});
-            $lastgrab = $evt->{realtime}
-                if $evt->{realtime} gt $lastgrab;
-            save_event($evt);
+            # do we all be done here?
+            d("do_sync: got $count items.");
+            last unless $count && $lastgrab;
         }
-        $bak{"event:lastgrab"} = $lastgrab;
-        $bak{"event:ids"} = join ',', keys %eventids;
-        do_flush();
 
-        # do we all be done here?
-        d("do_sync: got $count items.");
-        last unless $count && $lastgrab;
     }
-
-  }  # end entry sweep (skipped in --backfill mode)
 
 ### COMMENT DOWNLOADING ###
     # see if we shouldn't be doing this
@@ -425,7 +442,6 @@ sub do_sync {
             print STDERR "    Your entries and any previously-saved comments are intact. Wait for the\n";
             print STDERR "    server to recover, then re-run --sync -- the metadata pass rebuilds from\n";
             print STDERR "    scratch (it is not checkpointed), so nothing here needs --backfill.\n\n";
-            report_skipped();
             return;
         }
 
@@ -434,15 +450,6 @@ sub do_sync {
         # now we want to XML parse this
         my $parser = new XML::Parser(Handlers => { Start => $meta_handler, Char => $meta_content, End => $meta_closer });
         $parser->parse($content);
-    }
-    # the metadata pass completed in full, so any comment_meta skip marker from a prior aborted
-    # run is now stale -- clear it.
-    {
-        my %w = parse_skips();
-        foreach my $k (grep { /^comment_meta:/ } keys %w) {
-            my (undef, $sid) = split /:/, $k;
-            remove_skip('comment_meta', $sid);
-        }
     }
     $bak{"comment:ids"} = join ',', keys %meta;
     $bak{"usermap:userids"} = join ',', @userids;
@@ -490,78 +497,84 @@ sub do_sync {
         # gotten some data
     };
 
-    # at this point we have a fully regenerated metadata cache and we want to grab comment bodies
-    if ($opts{backfill}) {
-        # --backfill: re-pull only the windows recorded as skipped (reusing the meta rebuilt
-        # above), splitting each into sub-windows of the current comment_body_fetch size -- so a
-        # window that 504'd at 1000 can come through at e.g. 250. Recovered comments are saved;
-        # any sub-window that still fails re-records a finer skip marker for a later attempt.
-        my %w = parse_skips();
-        my @windows = sort grep { /^comment_body:/ } keys %w;
-        unless (@windows) {
-            print "No skipped comment_body windows to backfill.\n";
-            report_skipped();
-            return;
-        }
-        print scalar(@windows) . " skipped window(s) to backfill (sub-batch = $COMMENTS_FETCH_BODY).\n";
-        my $recovered = 0;
-        foreach my $k (@windows) {
-            my (undef, $startid) = split /:/, $k;
-            my $numitems = $w{$k};
-            remove_skip('comment_body', $startid);   # drop the wide marker; sub-failures re-mark finer
-            $tied->sync();
-            for (my $s = $startid; $s < $startid + $numitems; $s += $COMMENTS_FETCH_BODY) {
-                my $n = ($s + $COMMENTS_FETCH_BODY > $startid + $numitems) ? ($startid + $numitems - $s) : $COMMENTS_FETCH_BODY;
-                @window_ids = ();
-                my $content = do_authed_fetch('comment_body', $s, $n, $ljsession);
-                next if !$content || $content eq '__SKIP__';   # finer marker auto-recorded on re-skip
-                my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
-                $parser->parse($content);
-                foreach my $id (@window_ids) {
-                    next unless $meta{$id}{jitemid};
-                    $recovered++;
-                    save_comment($meta{$id});
-                }
-                $tied->sync();
-            }
-            print "backfill: processed window startid=$startid numitems=$numitems.\n";
-        }
-        print "Backfill done: recovered $recovered comment bodies.\n";
-        report_skipped();   # report any finer gaps that still remain
-        return;
-    }
-
+    # fetch and save the comment bodies for one window of ids.  returns where the next window
+    # starts, or undef if the server kept failing and the window was skipped.
     my $count = 0;
-    while (1) {
+    my $fetch_window = sub {
+        my ($startid, $numitems) = @_;
         @window_ids = ();
-        my $content = do_authed_fetch('comment_body', $lastid+1, $COMMENTS_FETCH_BODY, $ljsession);
-        die "Some sort of error fetching body data from server" unless $content;
+        $body_next_id = '';
+        my $content = do_authed_fetch('comment_body', $startid, $numitems, $ljsession);
+        return undef if $content eq '__SKIP__';
 
         # now we want to XML parse this
-        $body_next_id = '';
-        unless ($content eq '__SKIP__') {
-            my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
-            $parser->parse($content);
-        }
+        my $parser = new XML::Parser(Handlers => { Start => $body_handler, Char => $body_content, End => $body_closer });
+        $parser->parse($content);
 
-        # INCREMENTAL SAVE: persist this window's comments, advance the checkpoint, and flush
-        # to disk immediately. This turns the comment phase from all-or-nothing into resumable:
-        # if the server blocks us mid-run, everything pulled so far is already saved, and the
-        # next --sync picks up from comment:lastid instead of restarting bodies from scratch.
+        # save this window's comments right away, so an interruption doesn't lose them
         foreach my $id (@window_ids) {
             next unless $meta{$id}{jitemid}; # jitemid == 0 means we didn't get body info
             $count++;
             save_comment($meta{$id});
         }
 
-        # now at this point what we have to decide whether we should loop again for more metadata
-        if ($body_next_id =~ /^\d+$/ && $body_next_id > $lastid + 1) {
-            $lastid = $body_next_id - 1;
-        } else {
-            $lastid += $COMMENTS_FETCH_BODY;
+        # resume at the server's <nextid> if it cut the window short
+        return $body_next_id if $body_next_id =~ /^\d+$/ && $body_next_id > $startid;
+        return $startid + $numitems;
+    };
+
+    # at this point we have a fully regenerated metadata cache and we want to grab comment bodies
+    if ($opts{backfill}) {
+        # --backfill: fetch only the windows a previous sync skipped, comment_body_fetch ids at
+        # a time.  each window's marker is moved forward as its comments are saved, so it always
+        # covers whatever is still missing, even if we're interrupted; a part that still fails
+        # gets a marker of its own for next time.
+        my %w = parse_skips();
+        my @windows = sort { $a <=> $b } map { (split /:/)[1] } keys %w;
+        unless (@windows) {
+            print "No skipped comment windows to backfill.\n";
+            return;
         }
-        $bak{"comment:lastid"} = $lastid;   # checkpoint advances EVERY window (even empty ones)
-        $tied->sync();                       # flush so progress survives an interruption
+        d(scalar(@windows) . " skipped window(s) to backfill.");
+        foreach my $startid (@windows) {
+            my $end = $startid + $w{"comment_body:$startid"};
+            my $s = $startid;
+            while ($s < $end) {
+                my $n = $end - $s < $COMMENTS_FETCH_BODY ? $end - $s : $COMMENTS_FETCH_BODY;
+                my $next = $fetch_window->($s, $n);
+                my $ok = defined $next;
+                $next = $s + $n unless $ok;
+                $next = $end if $next > $end;
+
+                # record what's left before giving up the marker for what we just did
+                record_skip('comment_body', $next, $end - $next) if $next < $end;
+                if ($ok) {
+                    remove_skip('comment_body', $s);
+                } else {
+                    record_skip('comment_body', $s, $next - $s);
+                }
+                $tied->sync();
+                $s = $next;
+            }
+        }
+        print "$count comments recovered.\n";
+        report_skipped();   # report any gaps that still remain
+        return;
+    }
+
+    while (1) {
+        my $startid = $lastid + 1;
+        my $next = $fetch_window->($startid, $COMMENTS_FETCH_BODY);
+        unless (defined $next) {
+            # the server kept failing on this window: note it for --backfill and move on
+            record_skip('comment_body', $startid, $COMMENTS_FETCH_BODY);
+            $next = $startid + $COMMENTS_FETCH_BODY;
+        }
+
+        # checkpoint every window and flush, so the next --sync picks up from here
+        $lastid = $next - 1;
+        $bak{"comment:lastid"} = $lastid;
+        $tied->sync();
 
         last unless $lastid < $server_max_id;
     }
@@ -648,66 +661,75 @@ sub load_comment {
     return \%hash;
 }
 
+# how long to wait before retry number $tries (counting from 0): doubling from $base, capped at
+# max_backoff, but never shorter than a Retry-After the server sent with $response
+sub backoff_wait {
+    my ($tries, $base, $response) = @_;
+    my $wait = $base * (2 ** $tries);
+    $wait = $MAX_BACKOFF_WAIT if $wait > $MAX_BACKOFF_WAIT;
+    my $retry_after = $response ? $response->header('Retry-After') : undef;
+    $wait = $retry_after if defined $retry_after && $retry_after =~ /^\d+$/ && $retry_after > $wait;
+    return $wait;
+}
+
 sub do_authed_fetch {
-    my ($mode, $startid, $numitems, $sess, $tries) = @_;
-    $tries ||= 0;
-    # adaptive pacing: $ADAPT_DELAY is extra delay carried ACROSS windows. It ramps up when
-    # the server is unhappy (504s/etc) and decays only after a run of clean successes, so we
-    # stay slowed for a while instead of slamming a struggling server fresh on every window.
-    sleep($FETCH_DELAY + $ADAPT_DELAY) if ($FETCH_DELAY + $ADAPT_DELAY) > 0;
-    d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems, sess = $sess");
+    my ($mode, $startid, $numitems, $sess) = @_;
 
-    # hit up the server with the specified information and return the raw content.
-    # use a cookie jar so the ljsession cookie survives any redirects
-    # (e.g. dreamwidth.org -> www.dreamwidth.org)
-    my $ua = LWP::UserAgent->new;
-    $ua->agent('JBackup/1.0');
-    $ua->timeout($HTTP_TIMEOUT);   # a stalled connection becomes an error instead of a forever-hang
-    $ua->cookie_jar({});
-    $ua->cookie_jar->set_cookie(0, 'ljsession', $sess, '/', $opts{server}, undef, 0, 0, 86400, 0);
-    my $authas = $opts{usejournal} ? "&authas=$opts{usejournal}" : '';
-    my $request = HTTP::Request->new(GET => "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
-    my $response = $ua->request($request);
+    # metadata windows get more retry patience than body windows: a failed meta window stops
+    # the comment phase, whereas a failed body window is a gap that --backfill can fill.
+    my $cap = ($mode eq 'comment_meta') ? $META_MAX_TRIES : $MAX_BACKOFF_TRIES;
 
-    if ($response->is_error()) {
+    for (my $tries = 0; ; $tries++) {
+        # adaptive pacing: $ADAPT_DELAY is extra delay carried ACROSS windows. It ramps up when
+        # the server is unhappy (504s/etc) and decays only after a run of clean successes, so we
+        # stay slowed for a while instead of slamming a struggling server fresh on every window.
+        sleep($FETCH_DELAY + $ADAPT_DELAY) if ($FETCH_DELAY + $ADAPT_DELAY) > 0;
+        d("do_authed_fetch: mode = $mode, startid = $startid, numitems = $numitems, sess = $sess");
+
+        # hit up the server with the specified information and return the raw content.
+        # use a cookie jar so the ljsession cookie survives any redirects
+        # (e.g. dreamwidth.org -> www.dreamwidth.org)
+        my $ua = LWP::UserAgent->new;
+        $ua->agent('JBackup/1.0');
+        $ua->timeout($HTTP_TIMEOUT);   # a stalled connection becomes an error instead of a forever-hang
+        $ua->cookie_jar({});
+        $ua->cookie_jar->set_cookie(0, 'ljsession', $sess, '/', $opts{server}, undef, 0, 0, 86400, 0);
+        my $authas = $opts{usejournal} ? "&authas=$opts{usejournal}" : '';
+        my $request = HTTP::Request->new(GET => "$opts{baseurl}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems$authas");
+        my $response = $ua->request($request);
+
+        my $xml = $response->is_error() ? '' : $response->content();
+        if ($xml) {
+            # success: only decay the carried-over delay after several clean windows in a row.
+            if ($ADAPT_DELAY > 0 && ++$ADAPT_OK >= $ADAPT_DECAY_AFTER) {
+                $ADAPT_OK = 0;
+                $ADAPT_DELAY = int($ADAPT_DELAY / 2);
+                d("do_authed_fetch: clean streak; easing pace to ${ADAPT_DELAY}s");
+            }
+            return $xml;
+        }
+
+        # being throttled (429) or a server-side failure (5xx, which includes our own timeout)
+        # is worth waiting out; any other error won't get better by asking again
         my $code = $response->code;
-        # an error means the server is struggling: bump the carried-over delay (capped) and
-        # reset the clean-streak counter so it doesn't decay back immediately.
-        $ADAPT_DELAY = $ADAPT_DELAY < $ADAPT_MAX ? ($ADAPT_DELAY ? $ADAPT_DELAY * 2 : $ADAPT_STEP) : $ADAPT_MAX;
+        die "Error fetching $mode from server: " . $response->status_line . "\n"
+            if $response->is_error() && $code != 429 && $code < 500;
+
+        # the server is struggling: bump the carried-over delay (capped) and reset the
+        # clean-streak counter so it doesn't decay back immediately.
+        $ADAPT_DELAY = $ADAPT_DELAY ? $ADAPT_DELAY * 2 : $ADAPT_STEP;
         $ADAPT_DELAY = $ADAPT_MAX if $ADAPT_DELAY > $ADAPT_MAX;
         $ADAPT_OK = 0;
-        # metadata windows get more retry patience than body windows: a skipped meta window is
-        # high-stakes (it truncates the meta pass), whereas a skipped body window is a clean,
-        # backfillable gap.
-        my $cap = ($mode eq 'comment_meta') ? $META_MAX_TRIES : $MAX_BACKOFF_TRIES;
-        if ($tries < $cap) {
-            my $wait = 15 * (2 ** $tries);
-            $wait = $MAX_BACKOFF_WAIT if $wait > $MAX_BACKOFF_WAIT;   # don't let a single backoff run away
-            d("do_authed_fetch: HTTP $code; backing off ${wait}s (try " . ($tries+1) . "/$cap); pace now ${ADAPT_DELAY}s");
-            sleep $wait;
-            return do_authed_fetch($mode, $startid, $numitems, $sess, $tries + 1);
+
+        my $what = $response->is_error() ? "HTTP $code" : "empty response";
+        if ($tries >= $cap) {
+            warn "do_authed_fetch: giving up on $mode startid=$startid after repeated $what; skipping this window\n";
+            return '__SKIP__';
         }
-        warn "do_authed_fetch: giving up on $mode startid=$startid after repeated HTTP $code; skipping this window\n";
-        record_skip($mode, $startid, $numitems);   # persist the gap for end-of-run report + --backfill
-        $tied->sync();
-        return '__SKIP__';
+        my $wait = backoff_wait($tries, 15, $response);
+        d("do_authed_fetch: $what; backing off ${wait}s (try " . ($tries+1) . "/$cap); pace now ${ADAPT_DELAY}s");
+        sleep $wait;
     }
-
-    # success: only decay the carried-over delay after several clean windows in a row.
-    if ($ADAPT_DELAY > 0) {
-        if (++$ADAPT_OK >= $ADAPT_DECAY_AFTER) {
-            $ADAPT_OK = 0;
-            $ADAPT_DELAY = int($ADAPT_DELAY / 2);
-            d("do_authed_fetch: clean streak; easing pace to ${ADAPT_DELAY}s");
-        }
-    }
-
-    my $xml = $response->content();
-    return $xml if $xml;
-
-    # 200 but empty body: transient, retry (no try increment, matches original intent)
-    d("do_authed_fetch: empty response; retrying");
-    return do_authed_fetch($mode, $startid, $numitems, $sess, $tries);
 }
 
 sub do_dump {
@@ -1101,40 +1123,30 @@ sub dump_xml {
 
 sub xmlrpc_call_helper {
     # helper function that makes life easier on folks that call xmlrpc stuff.  this handles
-    # running the actual request and checking for errors, as well as handling the cases where
-    # we hit a problem and need to do something about it.  (back off, retry, skip or abort.)
-    my ($xmlrpc, $method, $req, $mode, $hash, $tries) = @_;
-    $tries ||= 0;
+    # running the actual request and checking for errors.  returns the result, or undef if the
+    # request failed in a way that's worth retrying; aborts on any other error.
+    my ($xmlrpc, $method, $req) = @_;
     sleep $XMLRPC_DELAY if $XMLRPC_DELAY;
     d("\t\txmlrpc_call_helper: $method");
     my $res;
     eval { $res = $xmlrpc->call($method, $req); };
     if ($res && $res->fault) {
-        # a server-side fault (e.g. throttle/abuse "Denied access to method"). Back off and
-        # retry a few times in case it's transient; only abort if it persists.
-        if ($tries < $MAX_BACKOFF_TRIES) {
-            my $wait = 30 * (2 ** $tries);   # 30,60,120,240,480,960s
-            print STDERR "xmlrpc_call_helper: fault '" . $res->faultstring . "'; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)\n";
-            sleep $wait;
-            return call_xmlrpc($mode, $hash, $tries + 1);
+        # read-only mode (306), too many requests (413) and server errors (5xx) are temporary.
+        # anything else (bad password, no access, ...) won't get better by asking again.
+        if ($res->faultcode =~ /^(?:306|413|50\d)$/) {
+            d("\t\txmlrpc_call_helper: temporary error: " . $res->faultstring);
+            return undef;
         }
         # fatal error, so don't use d() as we want to print even in case of non-verbosity
         print STDERR "xmlrpc_call_helper error:\n\tString: " . $res->faultstring . "\n\tCode: " . $res->faultcode . "\n";
-        print STDERR "\t(persisted after $MAX_BACKOFF_TRIES backoffs -- you are likely rate/abuse blocked; wait and re-run --sync)\n";
+        print STDERR "\tPlease wait an hour before trying again.\n" if $res->faultcode == 406;
         do_abort();
         exit 1;
     }
     unless ($res) {
-        # no response: server timeout / transport error. back off and retry (bounded).
-        if ($tries < $MAX_BACKOFF_TRIES) {
-            my $wait = 15 * (2 ** $tries);
-            d("\t\txmlrpc_call_helper: no response; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)");
-            sleep $wait;
-            return call_xmlrpc($mode, $hash, $tries + 1);
-        }
-        print STDERR "xmlrpc_call_helper: giving up after repeated timeouts on $method\n";
-        do_abort();
-        exit 1;
+        # when server times out, is throttling us, or otherwise doesn't answer properly
+        d("\t\txmlrpc_call_helper: no response");
+        return undef;
     }
     return $res->result;
 }
@@ -1143,30 +1155,38 @@ sub call_xmlrpc {
     # also a way to help people do xmlrpc stuff easily.  this method actually does the
     # challenge response stuff so we never send the user's password or md5 digest over
     # the intarweb.  of course, we say nothing about the user's password security anyway...
-    my ($mode, $hash, $tries) = @_;
+    my ($mode, $hash) = @_;
     $hash ||= {};
-    $tries ||= 0;
 
     my $xmlrpc = new XMLRPC::Lite;
     $xmlrpc->proxy("$opts{baseurl}/interface/xmlrpc");
     eval { $xmlrpc->transport->timeout($HTTP_TIMEOUT); };   # don't hang forever on a dead socket
-    my $chal;
-    while (!$chal) {
-        my $get_chal = xmlrpc_call_helper($xmlrpc, 'LJ.XMLRPC.getchallenge', undef, $mode, $hash, $tries);
-        $chal = $get_chal->{'challenge'};
-    }
-    #d("\tcall_xmlrpc: challenge obtained: $chal");
 
-    my $response = md5_hex($chal . ($opts{md5password} ? $opts{md5password} : md5_hex($opts{password})));
-    #d("\tcall_xmlrpc: calling LJ.XMLRPC.$mode");
-    my $res = xmlrpc_call_helper($xmlrpc, "LJ.XMLRPC.$mode", {
-        'username' => $opts{user},
-        'auth_method' => 'challenge',
-        'auth_challenge' => $chal,
-        'auth_response' => $response,
-        %$hash, # interpolate $hash into our hash here...isn't Perl great?
-    }, $mode, $hash, $tries);
-    return $res;
+    # challenges can only be used once, so each try starts over with a new one
+    for (my $tries = 0; ; $tries++) {
+        my $get_chal = xmlrpc_call_helper($xmlrpc, 'LJ.XMLRPC.getchallenge');
+        my $chal = $get_chal ? $get_chal->{'challenge'} : undef;
+        if ($chal) {
+            my $response = md5_hex($chal . ($opts{md5password} ? $opts{md5password} : md5_hex($opts{password})));
+            my $res = xmlrpc_call_helper($xmlrpc, "LJ.XMLRPC.$mode", {
+                'username' => $opts{user},
+                'auth_method' => 'challenge',
+                'auth_challenge' => $chal,
+                'auth_response' => $response,
+                %$hash, # interpolate $hash into our hash here...isn't Perl great?
+            });
+            return $res if $res;
+        }
+
+        if ($tries >= $MAX_BACKOFF_TRIES) {
+            print STDERR "call_xmlrpc: giving up on $mode after $MAX_BACKOFF_TRIES retries; wait a while and re-run.\n";
+            do_abort();
+            exit 1;
+        }
+        my $wait = backoff_wait($tries, 15, eval { $xmlrpc->transport->http_response });
+        d("\tcall_xmlrpc: $mode failed; backing off ${wait}s (try " . ($tries+1) . "/$MAX_BACKOFF_TRIES)");
+        sleep $wait;
+    }
 }
 
 sub do_flush {
