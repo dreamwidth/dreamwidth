@@ -131,7 +131,7 @@ jobs:
 
       - name: Test - posting
         if: ${{ !cancelled() }}
-        run: prove t/post.t t/proto-post-edit-roundtrip.t t/proto-edit-tags.t t/entry-lookup.t t/entry-to-json.t t/draftset.t
+        run: prove t/post.t t/proto-post-edit-roundtrip.t t/proto-edit-tags.t t/protocol-sync-floor.t t/entry-lookup.t t/entry-to-json.t t/draftset.t
 
       - name: Test - commenting
         if: ${{ !cancelled() }}
