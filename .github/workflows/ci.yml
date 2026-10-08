@@ -140,3 +140,7 @@ jobs:
       - name: Test - access control & captcha
         if: ${{ !cancelled() }}
         run: prove t/privs.t t/caps.t t/media-security.t t/captcha-request.t t/settings.t
+
+      - name: Test - syndicated feeds
+        if: ${{ !cancelled() }}
+        run: prove t/synsuck*.t t/console-syn*.t

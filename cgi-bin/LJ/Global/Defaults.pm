@@ -309,6 +309,17 @@ no strict "vars";
     # default to limit to 50,000 watch or trust edges to load
     $LJ::MAX_WT_EDGES_LOAD ||= 50_000;
 
+    # syndicated feeds with no active readers are checked rarely (see LJ::SynSuck).
+    # a reader is active if seen within this many days
+    $LJ::SYNSUCK_INACTIVE_READER_DAYS ||= 180;
+
+    # minutes between checks of a feed with no active readers; 1440 is the
+    # old behaviour for feeds with no watchers at all
+    $LJ::SYNSUCK_INACTIVE_INTERVAL ||= 7 * 24 * 60;
+
+    # watchers examined looking for an active one before assuming there is one
+    $LJ::SYNSUCK_ACTIVE_READER_PROBES ||= 50;
+
     # to avoid S2 error "Excessive recursion detected and stopped."
     $S2::MAX_RECURSION ||= 500;
 

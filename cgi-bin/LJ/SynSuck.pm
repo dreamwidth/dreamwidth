@@ -22,6 +22,7 @@ use LJ::Protocol;
 use LJ::ParseFeed;
 use LJ::CleanHTML;
 use DW::FeedCanonicalizer;
+use DW::Stats;
 
 sub update_feed {
     my ($urow) = @_;
@@ -49,6 +50,62 @@ sub _backoff_multiplier {
     my ($failcount) = @_;
     return 2**( $failcount > 4 ? 4 : $failcount );
 }
+
+# Classifies a feed's readership so the scheduler can stop polling feeds nobody
+# is looking at. Returns one of:
+#   active     - at least one watcher is a visible account active recently
+#   no_watchers
+#   all_inactive - every watcher is deleted/suspended/expunged or idle too long
+#   probe_cap  - gave up after $LJ::SYNSUCK_ACTIVE_READER_PROBES watchers without
+#                finding an active one; treated as active so big feeds stay live
+sub readership {
+    my ($su) = @_;
+
+    my @ids = $su->watched_by_userids;
+    return 'no_watchers' unless @ids;
+
+    my $cap   = $LJ::SYNSUCK_ACTIVE_READER_PROBES;
+    my @probe = @ids > $cap ? @ids[ 0 .. $cap - 1 ] : @ids;
+
+    my $cutoff  = time() - $LJ::SYNSUCK_INACTIVE_READER_DAYS * 86400;
+    my $readers = LJ::load_userids(@probe);
+    foreach my $id (@probe) {
+        my $ru = $readers->{$id} or next;
+        next if $ru->is_inactive;
+
+        # no clustertrack2 row means they've never logged in since the account
+        # was created, so creation time is the best "last active" we have
+        my $active = $ru->get_timeactive || $ru->timecreate;
+        return 'active' if $active && $active >= $cutoff;
+    }
+
+    return @ids > $cap ? 'probe_cap' : 'all_inactive';
+}
+
+# Picks the number of minutes until the next check. $active_minutes is what the
+# caller would use when someone is reading the feed; feeds with no active
+# readers get the (much longer) inactive interval instead. A new watch resets
+# checknext (see DW::User::Edges::WatchTrust), so waiting that long is safe.
+sub reader_interval {
+    my ( $su, $active_minutes ) = @_;
+
+    my $class    = readership($su);
+    my $inactive = $class eq 'no_watchers' || $class eq 'all_inactive';
+    my $minutes  = $inactive ? $LJ::SYNSUCK_INACTIVE_INTERVAL : $active_minutes;
+
+    DW::Stats::increment( 'dw.synsuck.readership', 1, ["class:$class"] );
+    DW::Stats::increment( 'dw.synsuck.interval', 1,
+        [ 'bucket:' . ( $inactive ? 'inactive' : 'normal' ) ] );
+    $log->info( "userid=" . $su->id . ": no active readers ($class), delay=${minutes}m" )
+        if $inactive;
+
+    return $minutes;
+}
+
+# Statuses where delay() must not look at readership: the success paths have
+# already chosen their interval with reader_interval, and the other two are
+# transient conditions on our side that say nothing about the feed.
+my %NO_READER_CHECK = map { $_ => 1 } qw(ok nonew notmodified non_statusvis_v nodb);
 
 sub delay {
     my ( $userid, $minutes, $status, $synurl, $opts ) = @_;
@@ -81,9 +138,17 @@ sub delay {
         $minutes = $max_minutes if $minutes > $max_minutes;
     }
 
+    # a failing feed nobody is reading shouldn't be retried more often than a
+    # healthy one; failcount bookkeeping above is unaffected
+    if ( !$NO_READER_CHECK{$status} && $minutes < $LJ::SYNSUCK_INACTIVE_INTERVAL ) {
+        my $su = LJ::load_userid($userid);
+        $minutes = reader_interval( $su, $minutes ) if $su;
+    }
+
     # add jitter proportional to delay (up to 10%) to stagger retries
     $minutes += int( rand( $minutes * 0.1 + 1 ) );
 
+    DW::Stats::increment( 'dw.synsuck.check', 1, ["outcome:$status"] );
     $log->info(
         "userid=$userid: status=$status backoff=$backoff failcount=$failcount delay=${minutes}m");
 
@@ -175,7 +240,8 @@ sub get_content {
     # check if not modified
     if ( $res->code() == RC_NOT_MODIFIED ) {
         $log->debug("$user: not modified");
-        return delay( $userid, $readers ? 60 : 24 * 60,
+        my $su = LJ::load_userid($userid);
+        return delay( $userid, $su ? reader_interval( $su, 60 ) : 60,
             "notmodified", $synurl, { backoff => 'reset' } );
     }
 
@@ -589,9 +655,10 @@ sub process_content {
         $readers = $su->watched_by_userids;
     }
 
-    # if readers are gone, don't check for a whole day
-    $int = 60 * 24 unless $readers;
+    # nobody active is reading this feed: check far less often
+    $int = reader_interval( $su, $int );
 
+    DW::Stats::increment( 'dw.synsuck.check', 1, ["outcome:$status"] );
     $log->info("userid=$userid: status=$status failcount=0 (reset) delay=${int}m");
 
     $dbh->do(
