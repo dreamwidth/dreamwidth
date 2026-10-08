@@ -15,6 +15,7 @@ package LJ;
 
 use strict;
 use LJ::Hooks;
+use LJ::Location;
 
 LJ::Hooks::register_setter(
     'synlevel',

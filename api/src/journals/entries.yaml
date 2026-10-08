@@ -32,7 +32,7 @@ paths:
         500:
           $ref: ../components/errors/500.yaml
     post:
-      description: Edit a specified journal entry.
+      description: Edit a specified journal entry. Fields left out of the request keep their current values.
       requestBody:
         content:
           application/json:
@@ -51,7 +51,7 @@ paths:
                   description: Keyword of icon to use
                 datetime:
                   type: string
-                  description: The date and time of the entry in the format `FIXME`. If omitted, the server time will be used instead.
+                  description: The date and time of the entry in the format `YYYY-MM-DD hh:mm`. If omitted, the entry's current date and time are kept.
                 security:
                   type: string
                   description: Security level to use. Can be `public`, `private`, or `access`.
@@ -61,7 +61,7 @@ paths:
                     - access
                 age_restriction:
                   type: string
-                  description: Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the journal default will be used.
+                  description: Age restriction flag. `none` puts no flags on the entry, `discretion` marks it as "viewer discretion advised", and `restricted` marks it inacessible to users under eighteen. If omitted, the current setting is kept.
                   enum:
                     - none
                     - discretion
@@ -71,7 +71,7 @@ paths:
                   description: A optional description of why you chose the age-restriction setting you did.
                 comment_settings:
                   type: string
-                  description: Comment settings for the new entry. `nocomments` disables comments, and `noemail` disables notifications. If omitted, the journal default will be used.
+                  description: Comment settings for the new entry. `nocomments` disables comments, and `noemail` disables notifications. If omitted, the current setting is kept.
                 tags:
                   description: An array of tags to apply to the entry.
                   type: array
@@ -96,8 +96,8 @@ paths:
                   type: boolean
                   description: Schedule for crosspost, using the account's default crosspost accounts.
       responses:
-        204:
-          description: The entry has been updated.
+        200:
+          description: A link to the updated entry.
         400:
           $ref: ../components/errors/400.yaml
         404:

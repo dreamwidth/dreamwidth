@@ -458,7 +458,12 @@ sub update_userpics {
         }
 
         # we're only going to modify keywords/comments on active pictures
-        if ( $up->inactive || $POST->{"pic_inactive_$picid"} ) {
+        # (suspended pics are read-only for the owner, like inactive ones)
+        if (   $up->inactive
+            || $up->suspended
+            || $POST->{"pic_inactive_$picid"}
+            || $POST->{"pic_suspended_$picid"} )
+        {
 
             # use 'orig' because we don't POST disabled fields
             $count_keywords->( $POST->{"kw_orig_$picid"} );
@@ -525,8 +530,8 @@ sub update_userpics {
     if ( $new_default && $new_default != $u->{'defaultpicid'} ) {
         my ($up) = grep { $_->id == $new_default } @userpics;
 
-        # see if they are trying to make an inactive userpic their default
-        if ( $up && !$up->inactive ) {
+        # see if they are trying to make an inactive or suspended userpic their default
+        if ( $up && !$up->inactive && !$up->suspended ) {
             $up->make_default;
         }
     }
@@ -575,10 +580,11 @@ sub parse_post_uploads {
         }
 
         # uploaded pics
-        if ( $userpic_key =~ /userpic_.*/ ) {
+        if ( $userpic_key =~ /^userpic_(\d+)$/ ) {
 
-            # only use userpic_0 if we selected file for the source
-            next if $userpic_key eq "userpic_0" && $POST->{"src"} ne "file";
+            # each upload row carries its own source selector (src_N); only use
+            # the file input for a row whose source is "file"
+            next if ( $POST->{"src_$1"} // "file" ) ne "file";
 
             # Some callers to the function pass data, others pass
             # a reference to data.  Figure out which type we got.
@@ -698,10 +704,10 @@ sub parse_post_uploads {
             push @uploads, \%current_upload;
 
         }
-        elsif ( $userpic_key =~ /urlpic_.*/ ) {
+        elsif ( $userpic_key =~ /^urlpic_(\d+)$/ ) {
 
-            # go through the URL uploads
-            next if $userpic_key eq "urlpic_0" && $POST->{src} ne "url";
+            # only use the URL input for a row whose source is "url"
+            next if ( $POST->{"src_$1"} // "url" ) ne "url";
 
             if ( !$POST->{$userpic_key} ) {
                 $current_upload{error} = LJ::Lang::ml('error.editicons.empty.url');

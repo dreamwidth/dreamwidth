@@ -259,15 +259,10 @@ sub edit_entry {
     my $ditemid    = $args->{path}{entry_id};
     my $remote     = $args->{user};
 
-    my $post = $args->{body};
+    my $post = $args->{body} // {};
 
     return $self->rest_error('401') unless $remote;
     return $self->rest_error('404') unless $usejournal;
-
-    # we can always trust this value:
-    # it either came straight from the entry
-    # or it's from the user's POST
-    my $trust_datetime_value = 1;
 
     my $entry_obj = LJ::Entry->new( $usejournal, ditemid => $ditemid );
 
@@ -280,14 +275,19 @@ sub edit_entry {
         && $anum == $entry_obj->anum
         && $itemid == $entry_obj->jitemid;
 
-    return $self->rest_error('400')
-        unless $post->{text} ne '';
-
     # so at this point, we know that we are authorized to edit this entry
     # but we need to handle things differently if we're an admin
     # FIXME: handle communities
-    return $self->rest_error( 'POST', 401, "Admin override not implemented yet" )
+    return $self->rest_error( '403', "Editing other people's entries is not supported yet." )
         unless $entry_obj->poster->equals($remote);
+
+    # an omitted datetime keeps the entry's current date
+    if ( $post->{datetime} ) {
+        my ( $date, $time ) = split( / /, $post->{datetime} );
+        $post->{entrytime_date} = $date;
+        $post->{entrytime_time} = $time;
+        $post->{trust_datetime} = 1;
+    }
 
     my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
     DW::Entry::_form_to_backend( 1, $form_req, $post );
@@ -298,10 +298,9 @@ sub edit_entry {
     my $edit_res = _do_edit( $ditemid, $form_req, { poster => $remote, journal => $usejournal }, );
     return $self->rest_ok($edit_res) if $edit_res->{success} == 1;
 
-    # oops errors when posting: show specific error if we have one.
-    my $error = $edit_res->{errors} || "Unknown error while editing entry.";
-
-    return $self->rest_error( 500, $error );
+    # protocol errors are about the request (bad tags, bad date, etc), as when posting
+    return $self->rest_error( '400', $edit_res->{errors} ) if $edit_res->{errors};
+    return $self->rest_error( '500', "Unknown error while editing entry." );
 }
 
 sub _do_edit {

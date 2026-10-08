@@ -413,10 +413,6 @@ textarea, input {
     border: 1px solid #888;
 }
 
-.recaptchatable input {
-    color: #fff;
-}
-
 /* generic classes */
 .disabled {
     color: #999 !important;

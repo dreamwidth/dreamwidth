@@ -20,7 +20,7 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
-use DW::CacheStats;
+use DW::Cache;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -68,9 +68,6 @@ LJ::Comment
 
 my %singletons = ();    # journalid->jtalkid->singleton
 
-# instrument this per-request cache's byte size for memory metrics
-DW::CacheStats::register( 'comment_singletons', sub { \%singletons } );
-
 # singletons still to be loaded
 my %unloaded_singletons      = ();
 my %unloaded_text_singletons = ();
@@ -82,6 +79,18 @@ sub reset_singletons {
     %unloaded_text_singletons = ();
     %unloaded_prop_singletons = ();
 }
+
+# file-scoped lexicals, so they self-register: cleared between requests/jobs,
+# with the main registry's byte size measured for memory metrics
+DW::Cache->request->register_var( 'comment_singletons', \%singletons );
+DW::Cache->request->register_reset(
+    'comment_unloaded_singletons',
+    sub {
+        %unloaded_singletons      = ();
+        %unloaded_text_singletons = ();
+        %unloaded_prop_singletons = ();
+    }
+);
 
 # <LJFUNC>
 # name: LJ::Comment::new

@@ -45,6 +45,8 @@ collapsible.collapsed=Expand
 
 collapsible.expanded=Collapse
 
+comment.rpc.notloggedin=You must be logged in to post a comment.
+
 comment.rpc.posted=Your comment has been posted.
 
 commlist.actinfo2=Profile
@@ -2097,6 +2099,8 @@ menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
 
+menunav.organize.manageaccounts=Account Switcher
+
 menunav.organize.managecommunities=Manage Communities
 
 menunav.organize.managefilters=Manage Filters
@@ -2313,8 +2317,6 @@ profile.service.github=GitHub
 
 profile.service.hangouts=Google Chat
 
-profile.service.icq=ICQ
-
 profile.service.insanejournal=InsaneJournal
 
 profile.service.instagram=Instagram
@@ -2378,8 +2380,6 @@ redirect.defaultbody=No parameters given.
 redirect.defaulttitle=Error
 
 redirect.error.nocomment=No such comment exists.
-
-redirect.error.noentry=No such entry exists.
 
 redirect.error.noentry.next2=There is no entry following this one. Go back to [[journal]].
 
@@ -2528,14 +2528,6 @@ setting.birthday.question=What's your birthday?
 setting.birthdaydisplay.error.invalid=Invalid option
 
 setting.birthdaydisplay.question=Birthday display options:
-
-setting.captcha.label=Anti-Spam Type
-
-setting.captcha.option=Commenters will see
-
-setting.captcha.option.select.image=graphical/image anti-spam tests
-
-setting.captcha.option.select.text=text-based anti-spam tests
 
 setting.commentcaptcha.label=Anti-Spam
 
@@ -4445,6 +4437,8 @@ userpic.inactive=Inactive
 
 userpic.link=userpic
 
+userpic.suspended=Suspended
+
 userpic.text=[[user]], this is what you currently look like to your friends: [[empty]]<br />Boooring. Be classy and upload a [[link]].
 
 vgift.display.cost.free=Free
@@ -4680,6 +4674,12 @@ web.controlstrip.status.yourjournal=You're viewing your journal
 web.controlstrip.status.yournetworkpage=You're viewing your Network Page.
 
 web.controlstrip.status.yourreadingpage=You're viewing your Reading Page.
+
+web.controlstrip.switch.go=Switch
+
+web.controlstrip.switch.label=Switch account
+
+web.controlstrip.switch.signedout=Signed out — log in
 
 web.controlstrip.userpic.alt=Icon
 

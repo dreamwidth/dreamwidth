@@ -168,7 +168,6 @@ body<=
                 LJ::Setting::EnableComments
                 LJ::Setting::CommentScreening
                 LJ::Setting::CommentCaptcha
-                DW::Setting::Captcha
                 LJ::Setting::CommentIP
                 LJ::Setting::Display::BanUsers
                 DW::Setting::AllowVgiftsFrom

@@ -52,7 +52,6 @@ on:
         - ses-email-events
         - ses-incoming-email
         - shop-creditcard-charge
-        - spellcheck-gm
         - support-notify
         - web-autoscaler
       tag:
@@ -443,15 +442,6 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
-      - name: (spellcheck-gm) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
-        id: render-worker-container-spellcheck-gm
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-spellcheck-gm-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
       - name: (support-notify) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'
         id: render-worker-container-support-notify
@@ -789,14 +779,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-shop-creditcard-charge.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-shop-creditcard-charge-service"
-
-      - name: (spellcheck-gm) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-spellcheck-gm.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-spellcheck-gm-service"
 
       - name: (support-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'

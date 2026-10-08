@@ -24,6 +24,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::BML;
 use DW::Captcha;
+use DW::Logic::AdultContent;
 use DW::Request;
 use DW::Routing;
 use DW::Template;
@@ -86,9 +87,11 @@ sub determine_view {
 
         my $date = $1;
         $ljentry = LJ::Entry->new( $u, slug => $2 );
+
+        # a slug under the wrong date names no entry, so it gets the missing-entry answer
         if ( defined $ljentry ) {
             my $dt = join( '/', split( '-', substr( $ljentry->eventtime_mysql, 0, 10 ) ) );
-            return 404 unless $dt eq $date;
+            undef $ljentry unless $dt eq $date;
         }
 
         if ( ( $GET{'mode'} // '' ) eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
@@ -195,6 +198,40 @@ sub determine_view {
     };
 }
 
+# entry_hidden( $entry, $remote, %GET )
+#
+# True if an entry URL must be answered as not found: the entry doesn't exist,
+# the anum is wrong, or the viewer can't see it or the comment it names. A
+# public entry can only be hidden by suspension, so it goes on to make_journal
+# for the suspension notice.
+sub entry_hidden {
+    my ( $class, $entry, $remote, %GET ) = @_;
+
+    return 1 unless $entry && $entry->correct_anum;
+
+    my $canview = $GET{viewall} && $remote && $remote->has_priv('canview');
+    return $entry->security ne 'public' unless $entry->visible_to( $remote, $canview );
+
+    # the reply page shows or edits the comment these name
+    for my $dtalkid ( grep { $_ } @GET{qw( replyto edit )} ) {
+        return 1 unless $entry->visible_comment( $dtalkid, $remote );
+    }
+    return 0;
+}
+
+# entry_not_found( $u )
+#
+# The single response for entries that are missing or hidden from the viewer.
+# It may depend on the journal and the viewer, never on the entry.
+sub entry_not_found {
+    my ( $class, $u ) = @_;
+
+    my $r = DW::Request->get;
+    $r->note( journalid => $u->userid );
+    $r->note( returnto  => LJ::create_url( undef, keep_args => 1 ) );
+    return DW::Routing->call( uri => '/protected' );
+}
+
 # render( user => $username, uri => $path, args => $query_string )
 #
 # Main entry point for journal rendering under Plack. Combines the logic from
@@ -291,6 +328,31 @@ sub render {
     # off to get captchaed
     if ( DW::Captcha->should_captcha_view($remote) ) {
         return $r->redirect( DW::Captcha->redirect_url );
+    }
+
+    # Runs before the adult interstitial, which is itself a sign that an entry exists.
+    if (   ( $mode eq 'entry' || $mode eq 'reply' )
+        && !$u->is_inactive
+        && $class->entry_hidden( $ljentry, $remote, %GET ) )
+    {
+        return $class->entry_not_found($u);
+    }
+
+    my %adult_views = map { $_ => 1 } qw(read archive month day tag entry reply lastn);
+    if ( !$mode || $adult_views{$mode} ) {
+        my $type = DW::Logic::AdultContent->interstitial_type(
+            user    => $remote,
+            journal => $u,
+            entry   => $ljentry
+        );
+        if ($type) {
+            LJ::set_active_journal($u);
+            $r->pnote( user  => $u );
+            $r->pnote( entry => $ljentry ) if $ljentry;
+            $r->note( returl => LJ::create_url( undef, keep_args => 1 ) );
+            return DW::Routing->call(
+                uri => DW::Logic::AdultContent->adult_interstitial_path( type => $type ) );
+        }
     }
 
     # Main journal rendering via LJ::make_journal

@@ -19,17 +19,17 @@ use Carp qw(croak);
 
 sub cmd { "suspend" }
 
-sub desc { "Suspend an account or entry. Requires priv: suspend." }
+sub desc { "Suspend an account, entry, or userpic. Requires priv: suspend." }
 
 sub args_desc {
     [
-        'username or email address or entry url' =>
-"The username of the account to suspend, or an email address to suspend all accounts at that address, or an entry URL to suspend a single entry within an account",
-        'reason' => "Why you're suspending the account or entry.",
+        'username, email address, entry url, or userpic url' =>
+"The username of the account to suspend, or an email address to suspend all accounts at that address, or an entry URL to suspend a single entry, or a userpic URL to suspend a single icon",
+        'reason' => "Why you're suspending the account, entry, or userpic.",
     ]
 }
 
-sub usage { '<username or email address or entry url> <reason>' }
+sub usage { '<username, email address, entry url, or userpic url> <reason>' }
 
 sub can_execute {
     my $remote = LJ::get_remote();
@@ -76,6 +76,33 @@ sub execute {
             unless $journal->equals($poster);
 
         return $self->print( "Entry " . $entry->url . " suspended." );
+    }
+
+    my $userpic = LJ::Userpic->new_from_url($user);
+    if ($userpic) {
+        my $pic_u = $userpic->owner;
+
+        return $self->error("You are not authorized to suspend userpics.")
+            if $openid_only;
+
+        return $self->error("Userpic is expunged.")
+            if $userpic->expunged;
+
+        return $self->error("Userpic is already suspended.")
+            if $userpic->suspended;
+
+        my ( $rv, @hookval ) = $pic_u->suspend_userpic( $userpic->id );
+        return $self->error("Error suspending userpic.") unless $rv;
+
+        foreach my $hv (@hookval) {
+            my ( $type, $msg ) = @$hv;
+            $self->$type($msg);
+        }
+
+        $reason = "userpic: " . $userpic->url . "; reason: $reason";
+        LJ::statushistory_add( $pic_u, $remote, "suspend", $reason );
+
+        return $self->print( "Userpic " . $userpic->url . " suspended." );
     }
 
     my @users;

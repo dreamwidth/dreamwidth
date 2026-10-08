@@ -19,12 +19,14 @@ no warnings 'uninitialized';
 use Digest::MD5;
 use Encode     ();
 use SOAP::Lite ();
+use Log::Log4perl;
 
 use LJ::Global::Constants;
 use LJ::Console;
 use LJ::Event::JournalNewEntry;
 use LJ::Event::AddedToCircle;
 use LJ::Entry;
+use LJ::Location;
 use LJ::Poll;
 use LJ::Config;
 use LJ::Comment;
@@ -35,13 +37,18 @@ use DW::Task::XPost;
 LJ::Config->load;
 
 use DW::API::Key;
+use DW::Auth;
+use DW::Auth::TOTP;
 use DW::Auth::Challenge;
+use DW::RateLimit;
 use LJ::Tags;
 use LJ::Feed;
 use LJ::EmbedModule;
 
 #### New interface (meta handler) ... other handlers should call into this.
 package LJ::Protocol;
+
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 # global declaration of this text since we use it in two places
 our $CannotBeShown = '(cannot be shown)';
@@ -52,6 +59,11 @@ use constant E_PERM => 1;
 
 # maximum items for get_friends_page function
 use constant FRIEND_ITEMS_LIMIT => 50;
+
+# Lower bound for sync queries when the client has no lastsync yet. This is
+# MySQL's minimum valid DATETIME: strict sql_mode (NO_ZERO_DATE) rejects
+# '0000-00-00 00:00:00' with an error, which DBI turns into an empty result.
+use constant SYNC_FLOOR => '1000-01-01 00:00:00';
 
 my %e = (
 
@@ -126,6 +138,7 @@ my %e = (
     "409" => [ E_PERM, "Post too large." ],
     "411" => [ E_PERM, "Subject too long." ],
     "412" => [ E_PERM, "Maximum number of comments reached" ],
+    "413" => [ E_TEMP, "Too many requests. Please try again later." ],
 
     # Server Errors
     "500" => [ E_TEMP, "Internal server error" ],
@@ -1003,6 +1016,11 @@ sub getdaycounts {
 sub common_event_validation {
     my ( $req, $err, $flags ) = @_;
 
+    # the API sends tags as an arrayref; join it before anything (including the
+    # tag validation below) looks at the taglist
+    $req->{props}->{taglist} = join( ", ", @{ $req->{props}->{taglist} } )
+        if $req->{props} && ref $req->{props}->{taglist} eq 'ARRAY';
+
     # clean up event whitespace
     # remove surrounding whitespace
     $req->{event} =~ s/^\s+//;
@@ -1139,6 +1157,12 @@ sub common_event_validation {
         if ( $p->{ownership} eq 'system' && !( $allow_system == 1 || $allow_system->{$pname} ) ) {
             $pname =~ s/[^\w]//g;
             return fail( $err, 205, $pname );
+        }
+
+        if ( $pname eq 'adult_content'
+            && ( $req->{props}->{$pname} // '' ) !~ /\A(?:none|concepts|explicit)?\z/ )
+        {
+            return fail( $err, 204, 'Property "adult_content" has invalid value' );
         }
 
         # don't validate its type if it's 0 or undef (deleting)
@@ -1677,24 +1701,14 @@ sub postevent {
     # Entry tags
     if ( $req->{props} && defined $req->{props}->{taglist} && $req->{props}->{taglist} ne '' ) {
 
-        # slightly misnamed, the taglist is/was normally a string, but now can also be an arrayref.
-        my $taginput = $req->{props}->{taglist};
-
         my $tagerr      = "";
         my $logtag_opts = {
             remote     => $u,
             ignore_max => $flags->{ignore_tags_max} ? 1 : 0,
             force      => $importer_bypass,
             err_ref    => \$tagerr,
+            set_string => $req->{props}->{taglist},
         };
-
-        if ( ref $taginput eq 'ARRAY' ) {
-            $logtag_opts->{set} = [@$taginput];
-            $req->{props}->{taglist} = join( ", ", @$taginput );
-        }
-        else {
-            $logtag_opts->{set_string} = $taginput;
-        }
 
         # Do not fail here; worst case we lose tags, but if we fail here we don't perform
         # half of the processing below
@@ -2407,9 +2421,10 @@ sub getevents {
     }
     elsif ( $req->{'selecttype'} eq "syncitems" ) {
         return fail( $err, 506 ) unless LJ::is_enabled('syncitems');
-        my $date = $req->{'lastsync'} || "0000-00-00 00:00:00";
+        my $date = $req->{'lastsync'} || SYNC_FLOOR;
         return fail( $err, 203, "Invalid syncitems date format" )
             unless ( $date =~ /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/ );
+        my $since = $date =~ /^0000-00-00/ ? SYNC_FLOOR : $date;
 
         my $now = time();
 
@@ -2443,7 +2458,7 @@ sub getevents {
         my %item;
         $sth = $dbcr->prepare(
             "SELECT jitemid, logtime FROM log2 WHERE " . "journalid=? and logtime > ?" );
-        $sth->execute( $ownerid, $date );
+        $sth->execute( $ownerid, $since );
         while ( my ( $id, $dt ) = $sth->fetchrow_array ) {
             $item{$id} = $dt;
         }
@@ -2454,7 +2469,7 @@ sub getevents {
                 . "FROM logprop2 WHERE journalid=? "
                 . "AND propid=$p_revtime->{'id'} "
                 . "AND value+0 > UNIX_TIMESTAMP(?)" );
-        $sth->execute( $ownerid, $date );
+        $sth->execute( $ownerid, $since );
         while ( my ( $id, $dt ) = $sth->fetchrow_array ) {
             $item{$id} = $dt;
         }
@@ -2910,7 +2925,75 @@ sub sessiongenerate {
     # do not let locked people do this
     return fail( $err, 308 ) if $u->is_locked;
 
-    my $sess = LJ::Session->create( $u, %$sess_opts );
+    my $sess;
+    if ( DW::Auth::TOTP->is_enabled($u) ) {
+
+        # Existing API keys retain sessiongenerate capability. A cookie exchange
+        # inherits only proof already held by its authenticated source session.
+        my $source = $u->session;
+        my $dbh    = LJ::get_db_writer() or return fail( $err, 502 );
+        my $stage  = 'begin_transaction';
+        my $ok     = eval {
+            $dbh->begin_work or die $dbh->errstr;
+            $stage = 'lock_credentials';
+            $dbh->selectrow_array( 'SELECT userid FROM password2 WHERE userid=? FOR UPDATE',
+                undef, $u->id );
+            die $dbh->errstr if $dbh->err;
+            $stage = 'validate_credentials';
+            my $factor = DW::Auth::TOTP->_factor_state($u)->{factor};
+            die 'Authentication changed' unless $factor;
+            unless ( $flags->{api_key_authenticated} ) {
+                die 'Second factor required'
+                    unless ( $req->{auth_method} // '' ) eq 'cookie'
+                    && $source
+                    && $source->valid;
+                my $proof = DW::Auth::TOTP->_session_proof($source);
+                die 'Second factor required' unless $proof->{factor} eq $factor;
+            }
+            $stage = 'create_session';
+            $sess  = LJ::Session->create( $u, %$sess_opts ) or die 'Unable to create session';
+            $stage = 'authorize_session';
+            DW::Auth::TOTP->mark_session( $u, $sess, $factor ) or die 'Unable to authorize session';
+            $stage = 'commit';
+            $dbh->commit or die $dbh->errstr;
+            1;
+        };
+        unless ($ok) {
+            my $error = $@;
+            my $context =
+                  ' userid='
+                . $u->id
+                . ' cluster='
+                . $u->clusterid . ' ip='
+                . ( LJ::get_remote_ip() // 'unknown' );
+
+            # Keep request credentials and SQL parameter values out of logs.
+            if ( $error =~ /\A(?:Authentication changed|Second factor required)\b/ ) {
+                $log->debug( 'event=mfa_api_session_rejected', $context, ' stage=', $stage );
+            }
+            else {
+                $log->error(
+                    'event=mfa_api_session_failed',
+                    $context, ' stage=', $stage, ' db_errno=',
+                    $dbh->err // 0,
+                    ' cluster_errno=',
+                    $u->{_dbcm} ? ( $u->{_dbcm}->err // 0 ) : 0
+                );
+            }
+            $dbh->rollback unless $dbh->{AutoCommit};
+            if ($sess) {
+                my $destroyed = eval { $sess->destroy };
+                $log->error( 'event=mfa_session_cleanup_failed',
+                    $context, ' operation=api_session' )
+                    unless $destroyed;
+            }
+            $u->{_session} = $source;
+            return fail( $err, 300 );
+        }
+    }
+    else {
+        $sess = LJ::Session->create( $u, %$sess_opts );
+    }
 
     # return our hash
     return { ljsession => $sess->master_cookie_string, };
@@ -3098,9 +3181,7 @@ sub syncitems {
         return fail( $err, 203, "Invalid date format" )
             unless ( $date =~ /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/ );
     }
-    else {
-        $date = "0000-00-00 00:00:00";
-    }
+    $date = SYNC_FLOOR if !$date || $date =~ /^0000-00-00/;
 
     my $LIMIT = 500;
 
@@ -3184,6 +3265,8 @@ sub consolecommand {
 
 sub getchallenge {
     my ( $req, $err, $flags ) = @_;
+    return fail( $err, 413 ) if DW::RateLimit->charge_protocol_request( challenge => 1 );
+
     my $res   = {};
     my $now   = time();
     my $etime = 60;
@@ -3503,6 +3586,16 @@ sub authenticate {
 
         my $auth_meth = $req->{auth_method} || 'clear';
         if ( $auth_meth eq 'clear' ) {
+            if ( DW::Auth::TOTP->is_enabled($u) ) {
+                return 0 if $ip_banned = LJ::login_ip_banned($u);
+                my $ok = DW::Auth->api_key_authenticate(
+                    $u,
+                    $req->{password} // $req->{hpassword},
+                    !defined $req->{password}
+                );
+                $flags->{api_key_authenticated} = $ok;
+                return $ok;
+            }
             return LJ::auth_okay(
                 $u, $req->{password} // $req->{hpassword},
                 is_ip_banned    => \$ip_banned,
@@ -3515,6 +3608,7 @@ sub authenticate {
             my $chal_ok   = check_login( $u, $req->{auth_challenge},
                 $req->{auth_response}, \$ip_banned, $chal_opts );
             $chal_expired = 1 if $chal_opts->{expired};
+            $flags->{api_key_authenticated} = $chal_ok;
             return $chal_ok;
         }
         if ( $auth_meth eq 'cookie' ) {
@@ -3531,10 +3625,15 @@ sub authenticate {
         || $flags->{noauth}
         || $auth_check->() )
     {
+        DW::RateLimit->charge_protocol_request;
         return fail( $err, 402 ) if $ip_banned;
         return fail( $err, 105 ) if $chal_expired;
         return fail( $err, 101 );
     }
+
+    # XML-RPC and flat requests are rate limited per user, now that we know who
+    # is calling; no-op for every other caller.
+    return fail( $err, 413 ) if DW::RateLimit->charge_protocol_request( user => $u );
 
     # remember the user record for later.
     $flags->{u} = $u;

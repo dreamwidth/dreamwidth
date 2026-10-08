@@ -1,0 +1,41 @@
+[%# error/unavailable.tt
+
+The page for an entry that does not exist or that the visitor cannot see. It
+is the same for both, so that it does not reveal which.
+
+Authors:
+    Dreamwidth contributors
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( { group => "foundation" }
+    'stc/widgets/protected.css'
+
+    "js/components/jquery.select-all.js"
+    "stc/css/components/select-all.css"
+) -%]
+
+[% IF message %]
+    <p>[% message | ml %]</p>
+[% END %]
+
+<div class="alert-box alert">
+[% '.message' | ml %]
+</div>
+
+[% IF join_url %]
+<p id="join-community">[% '.join' | ml( url = join_url ) %]</p>
+[% END %]
+
+[% IF !remote %]
+[% dw.scoped_include( "login.tt" ); %]
+[% END %]
+[%- sections.windowtitle = '.title' | ml -%]
+[%- sections.title = '.title' | ml -%]

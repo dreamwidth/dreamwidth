@@ -19,31 +19,42 @@ use warnings;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use Test::More;
-use LJ::Directories;
+use File::Find;
 
 my %check;
 
-# bit of a hack. We assume that everything we care about is in a git repo
-# which could be under $LJHOME, or $LJHOME/ext
-foreach my $repo ( LJ::get_all_directories(".git") ) {
-    my @files =
-        eval { split( /\n/, qx`git --git-dir "$repo" ls-tree -r --full-tree --name-only HEAD` ) };
-    next unless @files;
+# Walk the tree for Perl source instead of asking git. This has to run in any
+# checkout, including devcontainer worktrees where $LJHOME/.git is a pointer file
+# to a path that doesn't exist inside the container -- there git ls-tree fails, we
+# find zero files, and the test dies on an empty plan.
+find(
+    {
+        no_chdir => 1,
+        wanted   => sub {
+            my $path = $File::Find::name;
 
-    $repo =~ s!/\.git!!;
-    foreach my $line (@files) {
-        chomp $line;
-        $line =~ s!//!/!g;
-        my $path = "$repo/$line";
-        next unless $path =~ /\.(pl|pm)$/;
+            # Prune trees we don't own or care about; also keeps us out of the
+            # extlib symlink and other large vendored/generated directories.
+            if ( -d $path ) {
+                $File::Find::prune = 1
+                    if $path =~
+                    m!/(?:\.git|\.claude|node_modules|extlib|build|_build|logs|var|locks|temp)$!;
+                return;
+            }
 
-        # skip stuff we're less concerned about or don't control
-        next if $path =~ m:\b(doc|etc|fck|miscperl|src|s2|extlib)/:;
-        next if $path =~ m/config-test\.pl$/;
-        next if $path =~ m/config-test-private\.pl$/;
-        $check{$path} = 1;
-    }
-}
+            return unless $path =~ /\.(pl|pm)$/;
+
+            # skip stuff we're less concerned about or don't control
+            return if $path =~ m:\b(doc|etc|fck|miscperl|src|s2|extlib)/:;
+            return if $path =~ m/config-test\.pl$/;
+            return if $path =~ m/config-test-private\.pl$/;
+
+            $check{$path} = 1;
+        },
+    },
+    $ENV{LJHOME}
+);
+
 plan tests => scalar keys %check;
 
 my @bad;

@@ -1,5 +1,5 @@
 paths:
-  "/journals/{username}/accesslists":
+  /journals/{username}/accesslists:
     parameters:
       - name: username
         in: path
@@ -16,13 +16,11 @@ paths:
       responses:
         "200":
           description: A list of accesslists.
-        "401":
-          &a2
+        "401": &a2
           description: Missing or invalid API key.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:
@@ -34,14 +32,12 @@ paths:
         "403":
           description: You cannot view accesslists on that journal.
           schema: *a1
-        "404":
-          &a3
+        "404": &a3
           description: Username specified does not exist.
           content:
             application/json:
               schema: *a1
-        "500":
-          &a4
+        "500": &a4
           description: Server error, please try again later. If it persists, open a
             support ticket.
           content:
@@ -50,6 +46,7 @@ paths:
     post:
       description: Create a new entry accesslist for the journal
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -69,8 +66,7 @@ paths:
       responses:
         "200":
           description: The id of the newly created accesslist.
-        "400":
-          &a5
+        "400": &a5
           description: Bad or missing request parameters.
           content:
             application/json:
@@ -90,6 +86,8 @@ paths:
           description: ID of accesslist to delete.
           schema:
             type: integer
+            minimum: 1
+            maximum: 60
       responses:
         "204":
           description: Successfully deleted accesslist.

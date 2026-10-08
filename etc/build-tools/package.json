@@ -1,0 +1,9 @@
+{
+  "name": "dw-build-tools",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "sass": "1.105.1"
+  }
+}

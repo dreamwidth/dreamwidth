@@ -1,5 +1,5 @@
 paths:
-  "/journals/{username}/tags":
+  /journals/{username}/tags:
     parameters:
       - name: username
         in: path
@@ -51,13 +51,11 @@ paths:
                         public:
                           type: integer
                           description: The number of times the tag has been used on public entries
-        "401":
-          &a2
+        "401": &a2
           description: Missing or invalid API key.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:
@@ -66,14 +64,12 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
-        "404":
-          &a3
+        "404": &a3
           description: Username specified does not exist.
           content:
             application/json:
               schema: *a1
-        "500":
-          &a4
+        "500": &a4
           description: Server error, please try again later. If it persists, open a
             support ticket.
           content:
@@ -82,6 +78,7 @@ paths:
     post:
       description: Add new tags for a given journal
       requestBody:
+        required: true
         content:
           application/json:
             schema:

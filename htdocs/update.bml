@@ -23,6 +23,8 @@ _c?>
     use strict;
     use vars qw(%GET %POST %ML);
     use DW::External::Page;
+    use DW::Auth::Login;
+    use DW::Auth::TOTP;
     BML::decl_params(_default => qr/./);
 
     # $_[1] is a pre-request scratch area
@@ -286,6 +288,12 @@ _c?>
 
             # Verify entered password, if it is present.
             my $ok = LJ::auth_okay($u, $POST{password});
+            if ($ok && DW::Auth::TOTP->is_enabled($u)) {
+                $errors->{auth} = DW::Auth::Login->required_message;
+                $POST{password} = '';
+                $print_entry_form->();
+                return;
+            }
             $flags = { 'noauth' => 1, 'u' => $u } if $ok;
 
         } elsif ($remote && LJ::check_referer()) {
