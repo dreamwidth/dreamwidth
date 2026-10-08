@@ -1,53 +1,50 @@
-var Settings = new Object();
+var Settings = window.Settings || {};
 
 Settings.init = function () {
-    if (!$('settings_form')) return;
+    var form = document.getElementById('settings_form');
+    if (!form) return;
 
     Settings.form_changed = false;
 
-    // capture onclicks on all links to confirm form saving
+    // Capture navigation before the browser follows the link.  The legacy
+    // handler submitted without cancelling the click, racing the save against
+    // navigation; modern settings pages must make that choice deterministic.
     var links = document.getElementsByTagName('a');
     for (var i = 0; i < links.length; i++) {
-        if (links[i].href != "") {
-            DOM.addEventListener(links[i], "click", function (evt) { Settings.navclick_save(evt) })
+        if (links[i].href) {
+            links[i].addEventListener('click', Settings.navclick_save, false);
         }
     }
 
-    // register all form changes to confirm them later
-    var selects = $('settings_form').getElementsByTagName('select');
-    for (var i = 0; i < selects.length; i++) {
-        DOM.addEventListener(selects[i], "change", function (evt) { Settings.form_change() });
+    var fields = form.querySelectorAll('select, input, textarea');
+    for (var j = 0; j < fields.length; j++) {
+        fields[j].addEventListener('change', Settings.form_change, false);
     }
-    var inputs = $('settings_form').getElementsByTagName('input');
-    for (var i = 0; i < inputs.length; i++) {
-        DOM.addEventListener(inputs[i], "change", function (evt) { Settings.form_change() });
-    }
-    var textareas = $('settings_form').getElementsByTagName('textarea');
-    for (var i = 0; i < textareas.length; i++) {
-        DOM.addEventListener(textareas[i], "change", function (evt) { Settings.form_change() });
-    }
-}
+};
 
 Settings.navclick_save = function (evt) {
-    var confirmed = false;
+    if (!Settings.form_changed) return true;
 
-    if (Settings.form_changed == false) {
-        return true;
-    } else {
-        var confirm_msg = "Save your changes?";
-        if (Settings.confirm_msg) { confirm_msg = Settings.confirm_msg };
-
-        confirmed = confirm(confirm_msg);
+    var confirmMsg = Settings.confirm_msg || window.SettingsConfirmMsg || 'Save your changes?';
+    // Always consume the navigation once a dirty form has been detected.  On
+    // cancel we stay on the page; on accept the form submission is the only
+    // navigation, so a tab click cannot discard the submitted values.
+    evt.preventDefault();
+    evt.stopPropagation();
+    if (window.confirm(confirmMsg)) {
+        document.getElementById('settings_form').submit();
     }
-
-    if (confirmed) {
-        $('settings_form').submit();
-    }
-}
+    return false;
+};
 
 Settings.form_change = function () {
-    if (Settings.form_changed == true) { return; }
     Settings.form_changed = true;
-}
+};
 
-LiveJournal.register_hook("page_load", Settings.init);
+if (window.LiveJournal && LiveJournal.register_hook) {
+    LiveJournal.register_hook('page_load', Settings.init);
+} else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', Settings.init, false);
+} else {
+    Settings.init();
+}

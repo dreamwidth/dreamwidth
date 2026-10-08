@@ -243,8 +243,8 @@ $LJ::CLEAR_CACHES = 0;
 my $GTop;
 my %SecretCache;
 
-## if this library is used in a BML page, we don't want to destroy BML's
-## HUP signal handler.
+## chain onto any HUP handler a caller already installed, rather than
+## clobbering it, in case something embedding this library needs its own.
 if ( $SIG{'HUP'} ) {
     my $oldsig = $SIG{'HUP'};
     $SIG{'HUP'} = sub {
@@ -491,9 +491,6 @@ sub start_request {
     # to validate master db connection, instead of selecting
     # the connection ID... just as fast, but with a point!)
     $LJ::DBIRole->trigger_weight_reload();
-
-    # reset BML's cookies
-    eval { BML::reset_cookies() };
 
     # reload config if necessary
     LJ::Config->start_request_reload;

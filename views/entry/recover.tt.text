@@ -1,0 +1,12 @@
+;; -*- coding: utf-8 -*-
+.title=Recover Your Text
+
+.notice=Nothing here was posted or saved. Copy the text below into the entry form, then choose your journal, privacy, and other options there before posting.
+
+.link=Go to the entry form
+
+.subject.label=Subject
+
+.body.label=Entry body
+
+.body.missing=No entry body was submitted with this request.

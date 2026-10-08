@@ -35,11 +35,9 @@ sub call {
 
     my $r = DW::Request->get;
 
-    # Resolve authenticated user from session cookies. We do this directly
-    # rather than calling LJ::get_remote() because that function uses
-    # BML::get_request() for its web context check, which doesn't work
-    # under Plack. By resolving the session here and calling set_remote(),
-    # subsequent calls to LJ::get_remote() will hit the cache and work.
+    # Resolve authenticated user from session cookies here so this middleware
+    # owns bounce handling and downstream LJ::get_remote() calls retain their
+    # cached fast path.
     my $sessobj =
         LJ::Session->session_from_cookies( redirect_ref => \$LJ::CACHE_REMOTE_BOUNCE_URL, );
 

@@ -582,9 +582,7 @@ sub get_timezone {
 # class: component
 # name: LJ::ljuser
 # des: Make link to profile/journal of user.
-# info: Returns the HTML for a profile/journal link pair for a given user
-#       name, just like LJUSER does in BML.  This is for files like cleanhtml.pl
-#       and ljpoll.pl which need this functionality too, but they aren't run as BML.
+# info: Returns the HTML for a profile/journal link pair for a given user name.
 # args: user, opts?
 # des-user: Username to link to, or user hashref.
 # des-opts: Optional hashref to control output.  Key 'full' when true causes

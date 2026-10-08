@@ -5,7 +5,7 @@
 <p>[% '.intro'| ml %] </p>
 [% IF ent.prop('xpost') && remote.can_post_to(u) %]
     <p>[% dw.ml( 'xpost.notrespected', { aopts => "href='${site.root}/manage/settings/?cat=othersites'" } ) %]
-        [% dw.ml( '.xpost.notrespected.editentry', { aopts => "href='${site.root}/editjournal?journal=$journal&amp;itemid=$ditemid'" } ) %]
+        [% dw.ml( '.xpost.notrespected.editentry', { aopts => "href='${site.root}/entry/$journal/$ditemid/edit'" } ) %]
         </p><br />
 [% END %]
 

@@ -17,6 +17,7 @@
 package LJ::Event::RemovedFromCircle;
 
 use strict;
+use LJ::Lang;
 use Scalar::Util qw( blessed );
 use Carp qw( croak );
 use base 'LJ::Event';
@@ -94,7 +95,7 @@ sub _as_email {
                     !$u->trusts( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
                 ],
-                'esn.post_entry'   => [ 3, "$LJ::SITEROOT/update" ],
+                'esn.post_entry'   => [ 3, "$LJ::SITEROOT/entry/new" ],
                 'esn.edit_friends' => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
                 'esn.edit_groups'  => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
             }
@@ -110,7 +111,7 @@ sub _as_email {
                     !$u->watches( $self->fromuser ) ? 0 : 2,
                     "$LJ::SITEROOT/circle/$postername/edit"
                 ],
-                'esn.post_entry'   => [ 3, "$LJ::SITEROOT/update" ],
+                'esn.post_entry'   => [ 3, "$LJ::SITEROOT/entry/new" ],
                 'esn.edit_friends' => [ 4, "$LJ::SITEROOT/manage/circle/edit" ],
                 'esn.edit_groups'  => [ 5, "$LJ::SITEROOT/manage/circle/editfilters" ],
             }
@@ -199,11 +200,11 @@ sub subscription_as_html {
     my $journal_is_owner = $journal->equals( $subscr->owner );
 
     if ($journal_is_owner) {
-        return BML::ml('event.removedfromcircle.me');    # "Someone removes me from their circle";
+        return LJ::Lang::ml('event.removedfromcircle.me'); # "Someone removes me from their circle";
     }
     else {
         my $user = $journal->ljuser_display;
-        return BML::ml( 'event.removedfromcircle.user', { user => $user } )
+        return LJ::Lang::ml( 'event.removedfromcircle.user', { user => $user } )
             ;    # "Someone removes $user from their circle";
     }
 }

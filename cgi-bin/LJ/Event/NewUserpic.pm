@@ -13,6 +13,7 @@
 
 package LJ::Event::NewUserpic;
 use strict;
+use LJ::Lang;
 use base 'LJ::Event';
 use LJ::Entry;
 use Carp qw(croak);
@@ -178,8 +179,8 @@ sub subscription_as_html {
     # "One of the accounts I subscribe to uploads a new userpic"
     # or "$ljuser uploads a new userpic";
     return $journal
-        ? BML::ml( 'event.userpic_upload.user', { user => $journal->ljuser_display } )
-        : BML::ml('event.userpic_upload.me');
+        ? LJ::Lang::ml( 'event.userpic_upload.user', { user => $journal->ljuser_display } )
+        : LJ::Lang::ml('event.userpic_upload.me');
 }
 
 # only users with the track_user_newuserpic cap can use this
