@@ -18,6 +18,7 @@ package DW::Controller::Interface::Flat;
 
 use strict;
 use DW::Routing;
+use DW::RateLimit;
 
 DW::Routing->register_string(
     '/interface/flat', \&interface_handler,
@@ -35,6 +36,12 @@ sub interface_handler {
     %post = %{ $post_args->as_hashref } if $post_args;
 
     LJ::do_request( \%post, \%out );
+
+    # the request was refused for exceeding the caller's rate limit
+    if ( my $retry_after = DW::RateLimit->protocol_retry_after ) {
+        DW::RateLimit->print_blocked( $r, $retry_after );
+        return $r->OK;
+    }
 
     if ( "urlenc" eq ( $post{responseenc} || "" ) ) {
         foreach ( sort keys %out ) {

@@ -121,7 +121,7 @@ jobs:
 
       - name: Test - rate limiting
         if: ${{ !cancelled() }}
-        run: prove -v t/rate-limit.t
+        run: prove -v t/rate-limit.t t/rate-limit-protocol.t
 
       # The user-facing flows and access control a random PR is most likely to
       # break, grouped so failures are attributable at a glance.

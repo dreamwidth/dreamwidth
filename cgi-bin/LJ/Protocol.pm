@@ -40,6 +40,7 @@ use DW::API::Key;
 use DW::Auth;
 use DW::Auth::TOTP;
 use DW::Auth::Challenge;
+use DW::RateLimit;
 use LJ::Tags;
 use LJ::Feed;
 use LJ::EmbedModule;
@@ -137,6 +138,7 @@ my %e = (
     "409" => [ E_PERM, "Post too large." ],
     "411" => [ E_PERM, "Subject too long." ],
     "412" => [ E_PERM, "Maximum number of comments reached" ],
+    "413" => [ E_TEMP, "Too many requests. Please try again later." ],
 
     # Server Errors
     "500" => [ E_TEMP, "Internal server error" ],
@@ -3263,6 +3265,8 @@ sub consolecommand {
 
 sub getchallenge {
     my ( $req, $err, $flags ) = @_;
+    return fail( $err, 413 ) if DW::RateLimit->charge_protocol_request( challenge => 1 );
+
     my $res   = {};
     my $now   = time();
     my $etime = 60;
@@ -3621,10 +3625,15 @@ sub authenticate {
         || $flags->{noauth}
         || $auth_check->() )
     {
+        DW::RateLimit->charge_protocol_request;
         return fail( $err, 402 ) if $ip_banned;
         return fail( $err, 105 ) if $chal_expired;
         return fail( $err, 101 );
     }
+
+    # XML-RPC and flat requests are rate limited per user, now that we know who
+    # is calling; no-op for every other caller.
+    return fail( $err, 413 ) if DW::RateLimit->charge_protocol_request( user => $u );
 
     # remember the user record for later.
     $flags->{u} = $u;
