@@ -135,7 +135,7 @@ jobs:
 
       - name: Test - commenting
         if: ${{ !cancelled() }}
-        run: prove t/comment-create.t t/entrycomment-create.t t/talkpost-*.t
+        run: prove t/comment-create.t t/entrycomment-create.t t/talkpost-*.t t/export-comments.t
 
       - name: Test - access control & captcha
         if: ${{ !cancelled() }}
