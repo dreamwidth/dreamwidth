@@ -12,6 +12,17 @@ $('.action_button').click(function(e) {
     var allow = false;
     if(action == 'delete_all') {
         allow = window.confirm("Delete all Inbox messages in the current folder except flagged?");
+    } else if (action == 'delete') {
+        var has_bookmark = false;
+        $('.item_checkbox:checked').each(function() {
+            var qid = $(this).val();
+            if ($(`.item_bookmark_action[data-qid=${qid}]`).data('action') == 'bookmark_on') {
+                has_bookmark = true;
+            }
+        });
+        allow = has_bookmark
+            ? window.confirm("Are you sure you want to delete one or more bookmarked items?")
+            : true;
     } else {
         allow = true;
     }

@@ -102,6 +102,37 @@ ok( !LJ::Lang::is_missing_string('a real value'),        "a real value is not mi
 }
 
 # ---------------------------------------------------------------------------
+# remove_text must invalidate every warmed language row it removes, whether
+# the caller supplies a language code or not.
+# ---------------------------------------------------------------------------
+{
+    local $LJ::IS_DEV_SERVER = 0;
+    my $code = fresh_code("zzz.mltest.remove.all");
+    LJ::Lang::set_text( $dmid, 'en', $code, "Delete Me", {} );
+    is( LJ::Lang::get_text( 'en', $code, $dmid ), "Delete Me", "warm DB-only root text" );
+    LJ::Lang::remove_text( $dmid, $code );
+    ok( LJ::Lang::is_missing_string( LJ::Lang::get_text( 'en', $code, $dmid ) ),
+        "remove_text without lncode clears warmed root cache" );
+}
+
+SKIP: {
+    skip "no child language available", 3 unless $child;
+    local $LJ::IS_DEV_SERVER = 0;
+    my $code = fresh_code("zzz.mltest.remove.child");
+    LJ::Lang::set_text( $dmid, 'en', $code, "Delete Child", { childrenlatest => 1 } );
+    is( LJ::Lang::get_text( $child, $code, $dmid ), "Delete Child", "warm child fallback text" );
+    LJ::Lang::remove_text( $dmid, $code, 'en' );
+    ok(
+        LJ::Lang::is_missing_string( LJ::Lang::get_text( 'en', $code, $dmid ) ),
+        "root cache clears when remove_text names root language"
+    );
+    ok(
+        LJ::Lang::is_missing_string( LJ::Lang::get_text( $child, $code, $dmid ) ),
+        "child fallback cache clears when remove_text names root language"
+    );
+}
+
+# ---------------------------------------------------------------------------
 # parent/child fallback: setting en with childrenlatest materializes a row
 # for each descendant language
 # ---------------------------------------------------------------------------

@@ -38,6 +38,7 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 use DW::Captcha;
+use DW::Controller::SettingsHub;
 
 =head1 NAME
 

@@ -1,0 +1,88 @@
+[%# Access-filter editor. Derived from the LiveJournal/Dreamwidth BML page.
+    This code and its modifications are provided under the GNU General Public
+    License; see LICENSE and the controller's inherited license notice.
+    Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+    Legacy (non-Foundation) chrome: the old list/button layout is a table so
+    the move/add/remove controls sit between the select lists. The client-side
+    behaviour lives in js/access-filters.js, bound via the [data-action]
+    buttons and the data-* attributes on form[name=fg]. %]
+[%- sections.title = '.title2' | ml -%]
+[%- CALL dw.need_res('js/access-filters.js') -%]
+
+[% IF saved %]
+    <h1>[% '.saved.header' | ml %]</h1>
+    <p>[% '.saved.text' | ml %]</p>
+    <ul>
+        <li><a href="[% site.root %]/entry/new">[% '.saved.action.post' | ml %]</a></li>
+        <li><a href="[% site.root %]/manage/subscriptions/filters">[% '.saved.action.subscription' | ml %]</a></li>
+    </ul>
+[% ELSE %]
+    <div class="highlight-box">[% '.subfilters' | ml(aopts = "href='" _ site.root _ "/manage/subscriptions/filters'") %]</div>
+    [%# Legacy inline switcher (hidden when there are no other journals to work as). %]
+    <p><form method="get" action="[% site.root %]/manage/circle/editfilters">[% authas_html %]</form></p>
+    [% IF u.is_community %]
+        <p>[% '.comm.nofilters' | ml %]</p>
+    [% ELSE %]
+        <p>[% '.text' | ml %]</p>
+        <p>[% '.text.sec' | ml %]</p>
+        <form method="post" name="fg" action="[% self_uri | html %]"
+            data-public="[% '.group.public' | ml | html %]"
+            data-rename="[% '.prompt.rename' | ml | html %]"
+            data-newname="[% '.prompt.newname' | ml | html %]"
+            data-delete="[% '.confirm.delete' | ml | html %]"
+            data-max60="[% '.error.max60' | ml | html %]"
+            data-comma="[% '.error.comma' | ml | html %]">
+            [% dw.form_auth %]
+            [% form.hidden(name = 'mode', value = 'save') %]
+            [% FOREACH group IN group_fields %]
+                [% form.hidden(name = 'efg_set_' _ group.id _ '_name', value = group.name) %]
+                [% form.hidden(name = 'efg_set_' _ group.id _ '_sort', value = group.sort) %]
+                [% form.hidden(name = 'efg_set_' _ group.id _ '_public', value = group.public) %]
+                [% form.hidden(name = 'efg_delete_' _ group.id, value = 0) %]
+            [% END %]
+            [% FOREACH member IN members %]
+                [% form.hidden(name = 'editfriend_maskhi_' _ member.user, value = member.maskhi) %]
+                [% form.hidden(name = 'editfriend_masklo_' _ member.user, value = member.masklo) %]
+                [% IF member.identity %]
+                    [% form.hidden(name = 'nameremap_' _ member.user, id = 'nameremap_' _ member.user, value = member.display) %]
+                [% END %]
+            [% END %]
+            <table summary='' class="editfilters"><tr style="vertical-align: bottom;">
+                <td colspan="2"><strong>[% '.yourgroups' | ml %]</strong></td>
+                <td colspan="2"><strong>[% '.ingroup.not' | ml %]</strong></td>
+                <td><strong>[% '.ingroup' | ml %]</strong></td>
+            </tr>
+            <tr style="vertical-align: top;">
+                <td><select name="list_groups" id="list_groups" style="width: 150px;" size="15">
+                    [% FOREACH group IN groups %]
+                        <option value="[% group.groupnum %]">[% group.groupname | html %][% IF group.is_public %] [% '.group.public' | ml %][% END %]</option>
+                    [% END %]
+                </select></td>
+                <td style="vertical-align: middle;">
+                    [% INCLUDE button action='up' label='.btn.mv.up' %]<br><br>
+                    [% INCLUDE button action='down' label='.btn.mv.down' %]
+                </td>
+                <td><select name="list_out" id="list_out" multiple size="15"><option value="">---------------</option></select></td>
+                <td style="vertical-align: middle;">
+                    [% INCLUDE button action='add' label='.btn.add' %]<br><br>
+                    [% INCLUDE button action='remove' label='.btn.remove' %]
+                </td>
+                <td><select name="list_in" id="list_in" multiple size="15"><option value="">---------------</option></select></td>
+            </tr>
+            <tr><td colspan="2">
+                [% INCLUDE button action='create' label='.btn.ge.new' %]
+                [% INCLUDE button action='delete' label='.btn.ge.del' %]
+                [% INCLUDE button action='rename' label='.btn.ge.ren' %]
+            </td><td></td><td></td><td></td></tr>
+            </table>
+            <h1>[% '.done.header' | ml %]</h1>
+            <p>[% '.done.text' | ml %]</p>
+            [% form.submit(value = dw.ml('.done.btn')) %]
+        </form>
+    [% END %]
+[% END %]
+
+[% BLOCK button %]
+    <input type="button" data-action="[% action %]" value="[% label | ml %]">
+[% END %]

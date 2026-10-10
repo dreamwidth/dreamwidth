@@ -214,7 +214,7 @@ sub ehtml {
     $a =~ s/>/&gt;/g;
     return $a;
 }
-*eall = \&ehtml;    # old BML syntax required eall to also escape BML.  not anymore.
+*eall = \&ehtml;
 
 # <LJFUNC>
 # name: LJ::dhtml

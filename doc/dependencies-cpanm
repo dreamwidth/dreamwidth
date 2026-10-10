@@ -21,6 +21,7 @@ GTop?
 Gearman::Client
 GnuPG::Interface
 Hash::MultiValue@0.16
+HTML::Form
 IO::WrapTie
 Image::ExifTool
 Image::Size

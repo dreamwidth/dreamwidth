@@ -14,6 +14,7 @@
 # part of this distribution.
 
 use strict;
+use LJ::Lang;
 
 package LJ::S2;
 
@@ -41,10 +42,10 @@ sub DayPage {
         lastn       => 1
     );
 
-    my $collapsed   = BML::ml('widget.cuttag.collapsed');
-    my $expanded    = BML::ml('widget.cuttag.expanded');
-    my $collapseAll = BML::ml('widget.cuttag.collapseAll');
-    my $expandAll   = BML::ml('widget.cuttag.expandAll');
+    my $collapsed   = LJ::Lang::ml('widget.cuttag.collapsed');
+    my $expanded    = LJ::Lang::ml('widget.cuttag.expanded');
+    my $collapseAll = LJ::Lang::ml('widget.cuttag.collapseAll');
+    my $expandAll   = LJ::Lang::ml('widget.cuttag.expandAll');
     $p->{'head_content'} .= qq[
   <script type='text/javascript'>
   expanded = '$expanded';

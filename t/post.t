@@ -345,7 +345,7 @@ note("Post - lacking required info");
     );
     my $error_list = $errors->get_all;
     is( scalar @$error_list, 1, "one error returned" );
-    is( $error_list->[0]->{'ml_key'}, '.error.noentry', "no entry text" );
+    is( $error_list->[0]->{'ml_key'}, '/entry/form.tt.error.noentry', "no entry text" );
 
     is_deeply(
         $res,

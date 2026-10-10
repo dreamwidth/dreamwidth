@@ -22,7 +22,7 @@ LJ::Setting::NavStrip - Settings for navigation strip display
 
 =head1 SYNOPSIS
 
-  Add it to the proper category under /manage/settings/index.bml
+  Add it to the proper category in DW::Controller::SettingsHub
 
 =cut
 

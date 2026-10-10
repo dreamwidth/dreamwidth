@@ -13,6 +13,7 @@
 
 package LJ::Event::PollVote;
 use strict;
+use LJ::Lang;
 use base 'LJ::Event';
 use LJ::Poll;
 use Carp qw(croak);
@@ -174,8 +175,8 @@ sub subscription_as_html {
 
     my $pollid = $subscr->arg1;
 
-    return $pollid ? BML::ml('event.poll_vote.id') :    # "Someone votes in poll #$pollid";
-        BML::ml('event.poll_vote.me');    # "Someone votes in a poll I posted" unless $pollid;
+    return $pollid ? LJ::Lang::ml('event.poll_vote.id') :    # "Someone votes in poll #$pollid";
+        LJ::Lang::ml('event.poll_vote.me');    # "Someone votes in a poll I posted" unless $pollid;
 }
 
 # only users with the track_pollvotes cap can use this
