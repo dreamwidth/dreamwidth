@@ -181,7 +181,7 @@ sub js {
         initWidget: function () {
             var self = this;
 
-            // confirmation when reseting the form
+            // confirmation when resetting the form
             DOM.addEventListener($('reset_btn_top'), "click", function (evt) { self.confirmReset(evt) });
             DOM.addEventListener($('reset_btn_bottom'), "click", function (evt) { self.confirmReset(evt) });
 
