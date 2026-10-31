@@ -2303,6 +2303,8 @@ post.security.public=The entry is visible to everyone (public).
 
 profile.service.ao3=Archive of Our Own
 
+profile.service.bsky=Bluesky
+
 profile.service.deviantart=DeviantArt
 
 profile.service.diigo=Diigo

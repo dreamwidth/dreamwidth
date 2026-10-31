@@ -397,3 +397,5 @@ INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_form
 UPDATE profile_services SET userprop=NULL, imgfile='spotify.png', title_ml='profile.service.spotify', url_format='//open.spotify.com/user/%s', maxlen=32 WHERE name='spotify';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('squidgeworld', NULL, 'squidgeworld.png', 'profile.service.squidgeworld', '//squidgeworld.org/users/%s', 40);
 UPDATE profile_services SET userprop=NULL, imgfile='squidgeworld.png', title_ml='profile.service.squidgeworld', url_format='//squidgeworld.org/users/%s', maxlen=40 WHERE name='squidgeworld';
+INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('bsky', NULL, 'bsky.png', 'profile.service.bsky', '//bsky.app/profile/%s', 253);
+UPDATE profile_services SET userprop=NULL, imgfile='bsky.png', title_ml='profile.service.bsky', url_format='//bsky.app/profile/%s', maxlen=253 WHERE name='bsky';
