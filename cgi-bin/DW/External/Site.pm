@@ -49,7 +49,7 @@ $domaintosite{"dreamwidth.org"} =
     DW::External::Site->new( "7", "www.dreamwidth.org", "dreamwidth.org", "Dreamwidth", "lj" );
 $domaintosite{"archiveofourown.org"} =
     DW::External::Site->new( "8", "www.archiveofourown.org", "archiveofourown.org",
-    "ArchiveofOurOwn", "AO3" );
+    "ArchiveofOurOwn", "otwarchive" );
 $domaintosite{"x.com"} = DW::External::Site->new( "9", "x.com", "x.com", "X", "X" );
 $domaintosite{"tumblr.com"} =
     DW::External::Site->new( "10", "tumblr.com", "tumblr.com", "Tumblr", "Tumblr" );
@@ -117,6 +117,9 @@ $domaintosite{"bsky.app"} =
 $domaintosite{"bsky.social"} =
     DW::External::Site->new( "36", "bsky.app", "bsky.social", "BlueskySocial", "atproto" );
 
+$domaintosite{"squidgeworld.org"} =
+    DW::External::Site->new( "37", "www.squidgeworld.org", "squidgeworld.org",
+    "Squidgeworld", "otwarchive" );
 @all_sites_without_alias = values %domaintosite;
 
 # without tld
@@ -170,6 +173,9 @@ $domaintosite{"bsky"}            = $domaintosite{"bsky.app"};
 $domaintosite{"x"}               = $domaintosite{"x.com"};
 $domaintosite{"twitter.com"}     = $domaintosite{"x.com"};
 $domaintosite{"twitter"}         = $domaintosite{"x.com"};
+$domaintosite{"squidgeworld"}    = $domaintosite{"squidgeworld.org"};
+$domaintosite{"squidge"}         = $domaintosite{"squidgeworld.org"};
+$domaintosite{"sqwa"}            = $domaintosite{"squidgeworld.org"};
 
 foreach my $value (@all_sites_without_alias) {
     $idtosite{ $value->{siteid} } = $value;
