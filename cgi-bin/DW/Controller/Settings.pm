@@ -429,7 +429,12 @@ sub changepassword_handler {
     if ( $r->did_post && $r->post_args->{mode} eq 'submit' ) {
         $post = $r->post_args;
 
-        my $user     = $authu ? $authu->user : LJ::canonical_username( $post->{user} );
+        # Logged-in users change their own password; browsers may autofill
+        # the username with another saved account.
+        my $user =
+              $authu  ? $authu->user
+            : $remote ? $remote->user
+            :           LJ::canonical_username( $post->{user} );
         my $password = $post->{password};
         my $newpass1 = LJ::trim( $post->{newpass1} );
         my $newpass2 = LJ::trim( $post->{newpass2} );
