@@ -3901,6 +3901,11 @@ sub Comment__expand_link {
 
     my $onclick = "";
 
+    # JS string literals inside a double-quoted attribute: escape for JS, then HTML.
+    my $js_url    = LJ::ehtml( LJ::ejs( $this->{js_expand_url} ) );
+    my $js_talkid = LJ::ehtml( LJ::ejs( $this->{talkid} ) );
+    my $href      = LJ::ehtml( $this->{expand_url} );
+
     # if we're in top-only mode, then we display the expand link as
     # the unhide ('show x comments') message
 
@@ -3910,14 +3915,12 @@ sub Comment__expand_link {
         $text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_unhide" ) );
         my $remote = LJ::get_remote();
 
-        $onclick =
-" onClick=\"Expander.make(this,'$this->{js_expand_url}','$this->{talkid}', true); return false;\"";
+        $onclick = " onClick=\"Expander.make(this,'$js_url','$js_talkid', true); return false;\"";
     }
     else {
-        $onclick =
-" onClick=\"Expander.make(this,'$this->{js_expand_url}','$this->{talkid}'); return false;\"";
+        $onclick = " onClick=\"Expander.make(this,'$js_url','$js_talkid'); return false;\"";
     }
-    return "<a href='$this->{expand_url}'$title$class$onclick>$text</a>";
+    return "<a href='$href'$title$class$onclick>$text</a>";
 }
 
 sub Comment__print_expand_link {
