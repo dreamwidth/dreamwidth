@@ -32,8 +32,7 @@ my %sitescheme_data = (
     'gradation-horizontal' => { parent => 'common', title    => "Gradation Horizontal" },
     'gradation-vertical'   => { parent => 'common', title    => "Gradation Vertical" },
     lynx                   => { parent => 'common', title    => "Lynx (light mode)" },
-    global                 => { engine => 'current' },
-    tt_runner              => { engine => 'bml',    internal => 1 },
+    global                 => {},
 );
 
 my $data_loaded = 0;
@@ -82,11 +81,7 @@ sub engine {
 }
 
 sub supports_tt {
-    return $_[0]->engine eq 'tt' || $_[0]->engine eq 'current';
-}
-
-sub supports_bml {
-    return $_[0]->engine eq 'bml' || $_[0]->engine eq 'current';
+    return $_[0]->engine eq 'tt';
 }
 
 =head2 C<< DW::SiteScheme->inheritance( $scheme ) >>
@@ -218,8 +213,7 @@ sub default {
 
 Set the sitescheme for the request.
 
-Note: this must be called early enough in a request
-before calling into bml_handler for BML, or before render_template for TT
+Note: this must be called early enough in a request, before render_template,
 otherwise has no action.
 
 =cut

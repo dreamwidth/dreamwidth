@@ -49,11 +49,11 @@ sub cutexpander_handler {
         my $entry   = $uid ? LJ::Entry->new( $uid, ditemid => $ditemid ) : undef;
 
         # FIXME: This returns 200 due to old library, Make return proper when we are jQuery only.
-        return $error_out->( 200, BML::ml("error.nopermission") ) unless $entry;
+        return $error_out->( 200, LJ::Lang::ml("error.nopermission") ) unless $entry;
 
         # make sure the user can read the entry
         if ( $entry->visible_to($remote) ) {
-            return $error_out->( 403, BML::ml("error.nopermission") )
+            return $error_out->( 403, LJ::Lang::ml("error.nopermission") )
                 if DW::Logic::AdultContent->interstitial_type(
                 user    => $remote,
                 journal => $entry->journal,
@@ -71,7 +71,7 @@ sub cutexpander_handler {
     }
 
     # FIXME: This returns 200 due to old library, Make return proper when we are jQuery only.
-    return $error_out->( 200, BML::ml("error.nopermission") );
+    return $error_out->( 200, LJ::Lang::ml("error.nopermission") );
 }
 
 # loads the cutttext for the given entry

@@ -15,6 +15,7 @@ package LJ::Setting::Birthday;
 use base 'LJ::Setting';
 use strict;
 use warnings;
+use LJ::Lang;
 
 sub as_html {
     my ( $class, $u, $errs, $args ) = @_;
@@ -72,30 +73,28 @@ sub error_check {
     my $year  = $class->get_arg( $args, "year" )  || 0;
     my $this_year = ( localtime() )[5] + 1900;
     my $err_count = 0;
-    local $BML::ML_SCOPE = "/manage/profile/index.bml";
-
     if ( $year && $year < 100 ) {
-        $class->errors( "year" => LJ::Lang::ml('.error.year.notenoughdigits') );
+        $class->errors( "year" => LJ::Lang::ml('/manage/profile.tt.error.year.notenoughdigits') );
         $err_count++;
     }
 
     if ( $year && $year >= 100 && ( $year < 1890 || $year > $this_year ) ) {
-        $class->errors( "year" => LJ::Lang::ml('.error.year.outofrange') );
+        $class->errors( "year" => LJ::Lang::ml('/manage/profile.tt.error.year.outofrange') );
         $err_count++;
     }
 
     if ( $month && ( $month < 1 || $month > 12 ) ) {
-        $class->errors( "month" => LJ::Lang::ml('.error.month.outofrange') );
+        $class->errors( "month" => LJ::Lang::ml('/manage/profile.tt.error.month.outofrange') );
         $err_count++;
     }
 
     if ( $day && ( $day < 1 || $day > 31 ) ) {
-        $class->errors( "day" => LJ::Lang::ml('.error.day.outofrange') );
+        $class->errors( "day" => LJ::Lang::ml('/manage/profile.tt.error.day.outofrange') );
         $err_count++;
     }
 
     if ( $err_count == 0 && $day > LJ::days_in_month( $month, $year ) ) {
-        $class->errors( "day" => LJ::Lang::ml('.error.day.notinmonth') );
+        $class->errors( "day" => LJ::Lang::ml('/manage/profile.tt.error.day.notinmonth') );
     }
 
     return 1;

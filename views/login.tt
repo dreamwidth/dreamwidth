@@ -33,7 +33,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         <div style='float: left; padding: 1em 0.5em 0;'>
         [% dw.img( 'post', '' ) %]</div>
         <div style='margin-left: 36px;'>
-        <h2><a href='[% site.root %]/update'>[% dw.ml('.loggedin.suggesthead1') %]</a></h2>
+        <h2><a href='[% site.root %]/entry/new'>[% dw.ml('.loggedin.suggesthead1') %]</a></h2>
         [% dw.ml('.loggedin.suggest1') %]<br />&nbsp;
         </div>
     [% END %]

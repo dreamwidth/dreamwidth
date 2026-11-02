@@ -15,6 +15,7 @@
 package LJ::Config;
 
 use strict;
+use DW::Request;
 use warnings;
 
 use LJ::Directories;
@@ -133,7 +134,7 @@ sub start_request_reload {
                 #
                 # only print when we're in web-context
                 print STDERR "[$$] Configuration file(s) reloaded.\n"
-                    if eval { BML::get_request() };
+                    if DW::Request->get;
             }
         }
 

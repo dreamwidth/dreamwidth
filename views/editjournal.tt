@@ -1,0 +1,82 @@
+[%#
+This code was forked from the LiveJournal project owned and operated by Live
+Journal, Inc. The code has been modified and expanded by Dreamwidth Studios,
+LLC. These files were originally licensed under the terms of the license
+supplied by Live Journal, Inc, which can currently be found at:
+
+http://code.livejournal.org/trac/livejournal/browser/trunk/LICENSE-LiveJournal.txt
+
+In accordance with the original license, this code and all its modifications
+are provided under the GNU General Public License. A copy of that license can
+be found in the LICENSE file included as part of this distribution.
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+%]
+[%- sections.title = '.title' | ml -%]
+
+[%# The whole picker sits in one full-width table cell, as on the old page, so
+    the intro and form inherit the cell's spacing. authas_html is the legacy
+    inline switcher (hidden when there are no other journals to work as). %]
+<table summary='' style="width: 100%;"><tr><td>
+<form action="[% site.root %]/editjournal" method="get">[% authas_html %]</form>
+
+<p>[% '.desc' | ml %]
+[% IF remote.can_use_mass_privacy %] [% '.massprivacy' | ml(aopts = "href='" _ site.root _ "/editprivacy'") %][% END %]</p>
+
+<form action="[% self_uri | html %]" method="post" class="entry-picker">
+    [% form.hidden(name = 'mode', value = 'edit') %]
+    <table summary='' class="highlight-box">
+        <tr valign="top">
+            <td>[% '.viewwhat' | ml %]</td>
+            <td>
+                [% form.radio(name = 'selecttype', id = 'selecttype-last', value = 'last', selected = (formdata.selecttype == 'last')) %]
+                <label for="selecttype-last">[% '.recententry' | ml %]</label><br>
+                [% form.radio(name = 'selecttype', id = 'selecttype-lastn', value = 'lastn', selected = (formdata.selecttype == 'lastn')) %]
+                [% form.textbox(name = 'howmany', size = 3, maxlength = 2, value = formdata.howmany, onchange = "document.getElementById('selecttype-lastn').checked = true") %]
+                <label for="selecttype-lastn">[% '.recententries' | ml %]</label><br>
+                [% form.radio(name = 'selecttype', id = 'selecttype-day', value = 'day', selected = (formdata.selecttype == 'day')) %]
+                <label for="selecttype-day">[% '.certainday' | ml %]</label>
+                [% form.textbox(name = 'year', size = 5, maxlength = 4, value = formdata.year, onchange = "document.getElementById('selecttype-day').checked = true") %]-
+                [% form.textbox(name = 'month', size = 3, maxlength = 2, value = formdata.month, onchange = "document.getElementById('selecttype-day').checked = true") %]-
+                [% form.textbox(name = 'day', size = 3, maxlength = 2, value = formdata.day, onchange = "document.getElementById('selecttype-day').checked = true") %]
+            </td>
+        </tr>
+        <tr valign="top">
+            <td align="right">[% '.in' | ml %]</td>
+            <td>[% form.textbox(name = 'usejournal', size = 20, maxlength = 25, value = formdata.usejournal) %] [% 'optional' | ml %]</td>
+        </tr>
+        <tr><td>&nbsp;</td><td>[% form.submit(value = dw.ml('.btn.proceed')) %]</td></tr>
+    </table>
+</form>
+
+[% IF message %]
+    <h1>[% '.no.entries.found' | ml %]</h1>
+    <p>[% message | ml %]</p>
+[% END %]
+
+[% IF entries.size %]
+<table summary='' style="width: 100%;"><tr><td>
+[% FOREACH entry IN entries %]
+    <hr />
+    <table summary=''><tr valign="top">
+        <td align="center">
+            [%# A GET to the native editor: a POST to /editjournal with an itemid is
+                treated as a stale old-editor submission. %]
+            <form method="get" action="[% entry.edit_url | html %]">
+                <input type="submit" id="itemid-[% entry.ditemid %]" value="[% dw.ml('.edit.this.entry') | html %]">
+            </form>
+        </td>
+        <td>
+            <b><label for="itemid-[% entry.ditemid %]">[% entry.eventtime | html %]</label></b>
+            [% IF usejournal %] <span class="entry-picker-poster">[% '.auth.poster' | ml %] [% entry.poster.ljuser_display %]</span>[% END %]
+            [% IF entry.security %]
+                <span class="entry-picker-security entry-picker-security-[% entry.security | html %]">[% dw.img('security-' _ entry.security, '', { alt = dw.ml('.security.' _ entry.security) }) %]</span>
+            [% END %]
+            [% IF entry.subject %] <i>[% entry.subject %]</i>[% END %]
+            <br>
+            [% IF entry.summary %][% entry.summary %][% ELSE %][% '.htmlonly' | ml %][% END %]
+        </td>
+    </tr></table>
+[% END %]
+</td></tr></table>
+[% END %]
+</td></tr></table>

@@ -26,18 +26,84 @@ use DW::Template;
 use DW::FormErrors;
 use LJ::Hooks;
 
-DW::Routing->register_string( '/inbox/new',          \&index_handler,    app => 1 );
-DW::Routing->register_string( '/inbox/new/compose',  \&compose_handler,  app => 1 );
-DW::Routing->register_string( '/inbox/new/markspam', \&markspam_handler, app => 1 );
+# Canonical native inbox URLs. /inbox and /inbox/ are registered separately
+# (like /poll and /poll/ in DW::Controller::Poll) so neither auto-redirects
+# to the other; /inbox/index covers the .bml-suffix-stripped form of the
+# retained /inbox/index.bml link.
+DW::Routing->register_string( '/inbox',       \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( '/inbox/',      \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( '/inbox/index', \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( '/inbox/compose',  \&compose_handler,  app => 1 );
+DW::Routing->register_string( '/inbox/markspam', \&markspam_handler, app => 1 );
+
+# Retained old links are routed to the same handlers (not register_redirect):
+# a GET there still redirects to the canonical URL (see _redirect_old_get
+# below), but a POST must never hit a redirect, since a 303/302 turns a
+# browser's POST into a bodyless GET and silently discards the submission.
+# The trailing-slash form is registered explicitly with no_redirects too,
+# since register_string's own default page/ -> page redirect is just as
+# body-dropping for a POST as the register_redirect it replaces.
+DW::Routing->register_string( '/inbox/new',  \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string( '/inbox/new/', \&index_handler, app => 1, no_redirects => 1 );
+DW::Routing->register_string(
+    '/inbox/new/compose', \&compose_handler,
+    app          => 1,
+    no_redirects => 1
+);
+DW::Routing->register_string(
+    '/inbox/new/compose/', \&compose_handler,
+    app          => 1,
+    no_redirects => 1
+);
+DW::Routing->register_string(
+    '/inbox/new/markspam', \&markspam_handler,
+    app          => 1,
+    no_redirects => 1
+);
+DW::Routing->register_string(
+    '/inbox/new/markspam/', \&markspam_handler,
+    app          => 1,
+    no_redirects => 1
+);
+
 DW::Routing->register_rpc( 'inbox_actions', \&action_handler, format => 'json' );
 
 my $PAGE_LIMIT = 15;
+
+# A GET to a retained /inbox/new* link still redirects to its canonical URL;
+# a POST there must fall through and be handled natively by the caller
+# instead, since a redirect response would silently drop the submitted body.
+# $r->uri is the raw request path: routing strips a trailing ".bml" only for
+# matching purposes, so an explicit old-link.bml hit (or a trailing slash)
+# must be matched here too, or it would render natively without ever
+# canonicalizing.
+sub _redirect_old_get {
+    my ( $r, $old_uri, $canonical ) = @_;
+    return undef unless $r->method eq 'GET';
+    return undef unless $r->uri =~ m{^\Q$old_uri\E(?:\.bml)?/?$};
+    return $r->redirect( LJ::create_url( $canonical, keep_args => 1 ) );
+}
+
+# Take a supplied filter but default it to 'all' unless it is a real,
+# callable NotificationInbox view method. This is the only validation that
+# makes items_by_view's method-name lookup below safe to call.
+sub _validated_view {
+    my ($view) = @_;
+    return 'all' unless defined $view && length $view;
+    $view = undef if $view              && $view =~ /\W/;
+    $view = undef if $view eq 'archive' && !LJ::is_enabled('esn_archive');
+    $view = undef if $view              && !LJ::NotificationInbox->can("${view}_items");
+    return $view || 'all';
+}
 
 sub index_handler {
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
 
-    my $r      = $rv->{r};
+    my $r = $rv->{r};
+    if ( my $redirect = _redirect_old_get( $r, '/inbox/new', '/inbox' ) ) {
+        return $redirect;
+    }
     my $POST   = $r->post_args;
     my $GET    = $r->get_args;
     my $remote = $rv->{remote};
@@ -50,12 +116,7 @@ sub index_handler {
     my $inbox = $remote->notification_inbox
         or return error_ml( "$scope.error.couldnt_retrieve_inbox", { user => $remote->{user} } );
 
-    # Take a supplied filter but default it to undef unless it is valid
-    my $view = $GET->{view} || $POST->{view} || undef;
-    $view = undef if $view              && $view =~ /\W/;
-    $view = undef if $view eq 'archive' && !LJ::is_enabled('esn_archive');
-    $view = undef if $view              && !LJ::NotificationInbox->can("${view}_items");
-    $view ||= 'all';
+    my $view = _validated_view( $GET->{view} || $POST->{view} );
 
     my $itemid = $view eq "singleentry" ? int( $POST->{itemid} || $GET->{itemid} || 0 ) : 0;
     my $expand = $GET->{expand};
@@ -87,19 +148,39 @@ sub index_handler {
         my $res = handle_post( $remote, $action, $view, $itemid, \@item_ids );
         unless ( $res->{success} ) {
             for my $error ( @{ $res->{errors} } ) {
-                $errors->add( undef, $error );
+                $errors->add_string( undef, $error );
             }
         }
     }
 
-    # Allow bookmarking to work without Javascript
-    # or before JS events are bound
-    if ( $GET->{bookmark_off} && $GET->{bookmark_off} =~ /^\d+$/ ) {
-        $errors->add( undef, "$scope.error.max_bookmarks" )
-            unless $inbox->add_bookmark( $GET->{bookmark_off} );
+    # Allow bookmarking to work without Javascript or before JS events are
+    # bound. This mutates state via a plain GET, so (unlike a POST) it is
+    # not covered by controller's automatic form_auth check above and needs
+    # its own token, validated against msg_list.tt's rendered links.
+    my $bookmark_link_auth = LJ::check_form_auth( $GET->{lj_form_auth} );
+    my $bookmark_toggled;
+    if ( $GET->{bookmark_off} && $GET->{bookmark_off} =~ /^\d+$/ && $bookmark_link_auth ) {
+        if ( $inbox->add_bookmark( $GET->{bookmark_off} ) ) {
+            $bookmark_toggled = 1;
+        }
+        else {
+            $errors->add( undef, "$scope.error.max_bookmarks" );
+        }
     }
-    if ( $GET->{bookmark_on} && $GET->{bookmark_on} =~ /^\d+$/ ) {
+    if ( $GET->{bookmark_on} && $GET->{bookmark_on} =~ /^\d+$/ && $bookmark_link_auth ) {
         $inbox->remove_bookmark( $GET->{bookmark_on} );
+        $bookmark_toggled = 1;
+    }
+
+    # Once the one-time token has done its job, drop it (and the toggle
+    # params) from the address bar/history rather than leave a live CSRF
+    # token sitting in a bookmarked or shared URL.
+    if ($bookmark_toggled) {
+        my %clean_args;
+        $clean_args{page}   = $page   if $GET->{page};
+        $clean_args{view}   = $view   if $view && $view ne 'all';
+        $clean_args{itemid} = $itemid if $itemid;
+        return $r->redirect( LJ::create_url( '/inbox', args => \%clean_args ) );
     }
 
     # Pagination
@@ -148,9 +229,6 @@ sub index_handler {
     $vars->{mark_all}   = $mark_all_text;
     $vars->{delete_all} = $delete_all_text;
     $vars->{errors}     = $errors;
-
-    # TODO: Remove this when beta is over
-    $vars->{dw_beta} = LJ::load_user('dw_beta');
 
     return DW::Template->render_template( 'inbox/index.tt', $vars );
 }
@@ -212,7 +290,12 @@ sub render_items {
     my $vars = {
         messages => \@cleaned_items,
         page     => $page,
-        view     => $view
+        view     => $view,
+
+        # These no-JS bookmark toggle links mutate state via a plain GET, so
+        # they need their own CSRF token; index_handler validates it. Escape
+        # it here since it is embedded directly into a query string.
+        form_auth_token => LJ::eurl( LJ::form_auth(1) ),
     };
 
     return DW::Template->template_string( 'inbox/msg_list.tt', $vars );
@@ -295,7 +378,7 @@ sub action_handler {
     my $args      = $r->json;
     my $action    = $args->{action};
     my $ids       = $args->{'ids'};
-    my $view      = $args->{view} || 'all';
+    my $view      = _validated_view( $args->{view} );
     my $page      = $args->{page} || 1;
     my $itemid    = $args->{itemid} || 0;
     my $remote    = $rv->{remote};
@@ -336,7 +419,7 @@ sub action_handler {
         $page = $last_page if $page > $last_page;
 
         my $items_html = render_items( $page, $view, $remote, $display_items, $expand );
-        my $path       = "/inbox/new";
+        my $path       = "/inbox";
         my $pages_html = DW::Template->template_string( 'components/pagination.tt',
             { current => $page, total_pages => $last_page, path => $path, cur_args => $getextra } );
 
@@ -418,7 +501,8 @@ sub items_by_view {
             @all_items = $inbox->singleentry_items($itemid);
         }
         else {
-            @all_items = eval "\$inbox->${view}_items";
+            my $method = $inbox->can("${view}_items");
+            @all_items = $method ? $inbox->$method() : ();
         }
     }
     else {
@@ -433,19 +517,30 @@ sub compose_handler {
     return $rv unless $ok;
 
     # gets the request and args
-    my $r      = $rv->{r};
+    my $r = $rv->{r};
+    if ( my $redirect = _redirect_old_get( $r, '/inbox/new/compose', '/inbox/compose' ) ) {
+        return $redirect;
+    }
     my $POST   = $r->post_args;
     my $GET    = $r->get_args;
     my $remote = $rv->{remote};
     my $errors = DW::FormErrors->new;
 
+    my $scope = '/inbox/compose.tt';
+
+    return $r->msg_redirect( LJ::Lang::ml("$scope.messaging.disabled"),
+        $r->ERROR, "$LJ::SITEROOT/inbox" )
+        unless LJ::is_enabled('user_messaging');
+
+    # Legacy (htdocs/inbox/compose.bml) required a validated sender before
+    # allowing composition; this was dropped in the native port.
     return $r->msg_redirect(
         LJ::Lang::ml(
             'protocol.not_validated', { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT }
         ),
         $r->ERROR,
         "$LJ::SITEROOT/inbox"
-    ) unless LJ::is_enabled('user_messaging');
+    ) unless $remote->is_validated;
 
     return $r->msg_redirect( LJ::Lang::ml('.suspended.cannot.send'), $r->ERROR,
         "$LJ::SITEROOT/inbox" )
@@ -460,8 +555,7 @@ sub compose_handler {
     my $msg_parent  = '';    # Hidden msg field containing id of parent message
     my $msg_limit     = $remote->count_usermessage_length;
     my $subject_limit = 255;
-    my $force = 0;                     # flag for if user wants to force an empty PM
-    my $scope = '/inbox/compose.tt';
+    my $force = 0;           # flag for if user wants to force an empty PM
 
     # Submitted message
     if ( $r->did_post ) {
@@ -548,7 +642,7 @@ sub compose_handler {
                 # Will target user accept messages from sender
                 unless ( $tou->can_receive_message($remote) ) {
 
-                    errors->add( 'msg_to', 'error.message.canreceive',
+                    $errors->add( 'msg_to', 'error.message.canreceive',
                         { ljuser => $tou->ljuser_display } );
                     next;
                 }
@@ -591,7 +685,7 @@ sub compose_handler {
                     $msg->can_send( \@errors );
                 }
                 foreach my $error (@errors) {
-                    $error->add( undef, $error );
+                    $errors->add_string( undef, $error );
                 }
             }
 
@@ -602,7 +696,7 @@ sub compose_handler {
                     $msg->send( \@errors );
                 }
                 foreach my $error (@errors) {
-                    $error->add( undef, $error );
+                    $errors->add_string( undef, $error );
                 }
                 return $r->msg_redirect( LJ::Lang::ml("$scope.message.sent"),
                     $r->SUCCESS, "$LJ::SITEROOT/inbox" )
@@ -655,22 +749,28 @@ sub compose_handler {
     # Are we sending a copy of the message to the user?
     my $cc_msg_option = $remote->cc_msg;
 
+    my $current_icon_kw = $POST->{prop_picture_keyword};
+    my $current_icon    = LJ::Userpic->new_from_keyword( $remote, $current_icon_kw );
+
     my $vars = {
-        errors        => $errors,
-        msg_to        => ( $POST->{msg_to} || $GET->{'user'} || undef ),
-        msg_body      => $msg_body,
-        msg_subject   => $msg_subject,
-        msg_parent    => $msg_parent,
-        reply_u       => $reply_u,
-        reply_to      => $reply_to,
-        autocomplete  => \@flist,
-        cc_msg_option => $cc_msg_option,
-        disabled_to   => $disabled_to,
-        folder_html   => render_folders($remote),
-        commafy       => \&LJ::commafy,
-        remote        => $remote,
-        msg_limit     => $msg_limit,
-        force         => $force
+        errors          => $errors,
+        msg_to          => ( $POST->{msg_to} || $GET->{'user'} || undef ),
+        msg_body        => $msg_body,
+        msg_subject     => $msg_subject,
+        msg_parent      => $msg_parent,
+        reply_u         => $reply_u,
+        reply_to        => $reply_to,
+        autocomplete    => \@flist,
+        cc_msg_option   => $cc_msg_option,
+        disabled_to     => $disabled_to,
+        folder_html     => render_folders($remote),
+        commafy         => \&LJ::commafy,
+        remote          => $remote,
+        msg_limit       => $msg_limit,
+        subject_limit   => $subject_limit,
+        current_icon_kw => $current_icon_kw,
+        current_icon    => $current_icon,
+        force           => $force
     };
 
     return DW::Template->render_template( 'inbox/compose.tt', $vars );
@@ -682,7 +782,10 @@ sub markspam_handler {
     return $rv unless $ok;
 
     # gets the request and args
-    my $r      = $rv->{r};
+    my $r = $rv->{r};
+    if ( my $redirect = _redirect_old_get( $r, '/inbox/new/markspam', '/inbox/markspam' ) ) {
+        return $redirect;
+    }
     my $POST   = $r->post_args;
     my $GET    = $r->get_args;
     my $remote = $rv->{remote};
@@ -706,8 +809,12 @@ sub markspam_handler {
     if ( $r->did_post && $POST->{'confirm'} ) {
 
         # Some action must be selected
-        $errors->add( undef, 'No action selected' )
+        $errors->add_string( undef, 'No action selected' )
             unless ( $POST->{spam} || $POST->{'ban'} );
+
+        return DW::Template->render_template( 'inbox/markspam.tt',
+            { errors => $errors, msg_user => $msg->other_u, msgid => $msg_id } )
+            if $errors->exist;
 
         # Mark as spam
         if ( $POST->{spam} ) {

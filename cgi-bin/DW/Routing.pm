@@ -2,7 +2,7 @@
 #
 # DW::Routing
 #
-# Module to allow calling non-BML controller/views.
+# Module to route requests to controller/views.
 #
 # Authors:
 #      Andrea Nall <anall@andreanall.com>
@@ -57,7 +57,7 @@ LJ::ModuleLoader->require_subclasses('DW::Controller')
 
 =head1 NAME
 
-DW::Routing - Module to allow calling non-BML controller/views.
+DW::Routing - Module to route requests to controller/views.
 
 =head1 Page Call API
 

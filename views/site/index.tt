@@ -39,7 +39,7 @@
  <dl>
   <dt>[% '.maplinks.title.manage-journal' | ml( sitename = site.nameshort ) %]</dt>
   <dd><ul>
-   <li><a href='/update'>[% '.maplinks.post-entry' | ml %]</a></li>
+   <li><a href='/entry/new'>[% '.maplinks.post-entry' | ml %]</a></li>
    <li><a href='/editjournal'>[% '.maplinks.edit-entries' | ml %]</a></li>
    <li><a href='/comments/recent'>[% '.maplinks.manage-comments' | ml %]</a></li>
    <li><a href='/manage/tags'>[% '.maplinks.manage-tags' | ml %]</a></li>

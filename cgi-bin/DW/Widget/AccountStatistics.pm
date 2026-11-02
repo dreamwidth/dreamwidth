@@ -20,6 +20,7 @@ use strict;
 use base qw/ LJ::Widget /;
 use DW::Template;
 use LJ::Memories;
+use LJ::Lang;
 
 sub should_render { 1; }
 
@@ -38,7 +39,7 @@ sub render_body {
         my $expire_time = DW::Pay::get_account_expiration_time($remote);
         $accttype_string =
             $expire_time > 0
-            ? BML::ml( 'widget.accountstatistics.expires_on',
+            ? LJ::Lang::ml( 'widget.accountstatistics.expires_on',
             { type => $accttype, date => DateTime->from_epoch( epoch => $expire_time )->date } )
             : $accttype;
     }

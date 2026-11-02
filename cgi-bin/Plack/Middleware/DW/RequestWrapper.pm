@@ -50,9 +50,11 @@ sub call {
         # above, so start_request's resource registration was skipped.
         LJ::register_standard_resources();
 
-        # Initialize BML language getter so LJ::Lang::ml / BML::ml work everywhere
+        # Establish the starting request language for LJ::Lang::ml(); each
+        # controller/S2 path that knows the visitor's negotiated language
+        # re-establishes it later with another set_request_context call.
         my $lang = $LJ::DEFAULT_LANG || $LJ::LANGS[0];
-        BML::set_language( $lang, \&LJ::Lang::get_text );
+        LJ::Lang::set_request_context( lang => $lang, getter => \&LJ::Lang::get_text );
 
         # Pass on down.
         $self->app->($env);

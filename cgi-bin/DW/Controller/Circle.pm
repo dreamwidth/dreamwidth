@@ -239,8 +239,7 @@ sub individual_edit_handler {
 
                         my $show_join_post_link = $target_u->hide_join_post_link ? 0 : 1;
                         my $post_url;
-                        $post_url =
-                            LJ::create_url( "/update", args => { usejournal => $target_u->user } )
+                        $post_url = "$LJ::SITEROOT/entry/" . $target_u->user . "/new"
                             if $show_join_post_link && $remote->can_post_to($target_u);
                         my $posting_guidelines_entry_url;
                         if ( $target_u->posting_guidelines_location eq "E" ) {

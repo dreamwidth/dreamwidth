@@ -486,21 +486,9 @@ sub block {
 
     note( $userid, $notes, $vars );
 
-    my $msg = <<'EOM';
-<html>
-<head>
-<title>503 Service Unavailable</title>
-</head>
-<body>
-<h1>503 Service Unavailable</h1>
-The service you have requested is temporarily unavailable.
-</body>
-</html>
-EOM
-
-    # may not run from web context (e.g. mailgated.pl -> supportlib -> ..)
-    eval { BML::http_response( 200, $msg ); };
-
+    # Response construction is the caller's responsibility (see
+    # DW::Controller::Community, DW::Controller::Create, which build their
+    # own response after calling this).
     return;
 }
 

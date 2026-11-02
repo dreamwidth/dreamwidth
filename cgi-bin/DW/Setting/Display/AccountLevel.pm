@@ -16,6 +16,7 @@ package DW::Setting::Display::AccountLevel;
 use base 'LJ::Setting';
 use strict;
 use warnings;
+use LJ::Lang;
 
 sub should_render {
     my ( $class, $u ) = @_;
@@ -60,7 +61,7 @@ sub option {
         if $paidstatus && !$paidstatus->{permanent};
 
     if ( $paidstatus && $paidstatus->{expiresin} > 0 && !$paidstatus->{permanent} ) {
-        return BML::ml( 'setting.display.accounttype.status',
+        return LJ::Lang::ml( 'setting.display.accounttype.status',
             { status => $paidtype, exptime => $expiretime } );
     }
     else {

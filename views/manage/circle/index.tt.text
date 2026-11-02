@@ -3,6 +3,8 @@
 
 .edit.about=Add people or communities to your Circle or modify existing relationships.
 
+.edit.title=Manage Circle
+
 .editgroups.about=Create, edit, or delete filters for your Circle.
 
 .filter=You can use access filters to control who has access to custom-security entries, and use reading filters to show subsets of your Reading Page.

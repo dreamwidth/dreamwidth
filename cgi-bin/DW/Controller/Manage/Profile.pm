@@ -272,13 +272,14 @@ sub profile_handler {
 
         # FIXME: validation AND POSTING are handled by widgets' handle_post()
         # methods (introduce validate_post()?). The Location widget's own errors
-        # accumulate in @BMLCodeBlock::errors rather than being returned, so
+        # accumulate in the widget error list rather than being returned, so
         # capture them and surface them through $errors.
-        @BMLCodeBlock::errors = ();
+        my $widget_errors = LJ::Widget->errors;
+        @$widget_errors = ();
         my $save_search_index = $POST->{'opt_showlocation'} =~ /^[YR]$/;
         LJ::Widget->handle_post( $POST, 'Location' => { save_search_index => $save_search_index } );
-        if (@BMLCodeBlock::errors) {
-            foreach my $e (@BMLCodeBlock::errors) {
+        if (@$widget_errors) {
+            foreach my $e (@$widget_errors) {
                 my $eo = LJ::errobj($e);
                 $errors->add_string( '', $eo ? $eo->as_string : "$e" );
             }

@@ -296,6 +296,10 @@ sub ctxpopup_handler {
     return DW::RPC->out(%ret);
 }
 
+# Retained only as the nav unread-count poll (dw-core.js $.update_inbox,
+# livejournal.js LiveJournal.updateInbox); every mutating mode here was
+# esn_inbox.js's, and esn_inbox.js is gone along with the legacy inbox pages
+# it belonged to. Read-only, so it deliberately takes no CSRF token.
 sub esn_inbox_handler {
     my $r    = DW::Request->get;
     my $post = $r->post_args;
@@ -304,110 +308,17 @@ sub esn_inbox_handler {
     return DW::RPC->err("Sorry, you must be logged in to use this feature.")
         unless $remote;
 
-    my $authas = delete $post->{authas};
-
     my $action = $post->{action};
     return DW::RPC->err("No action specified") unless $action;
+    return DW::RPC->err("Invalid action $action") unless $action eq 'get_unread_items';
 
-    my $success = 0;
-    my %ret;
-
-    # do authas
-    my $u = LJ::get_authas_user($authas) || $remote;
+    my $u = LJ::get_authas_user( $post->{authas} ) || $remote;
     return DW::RPC->err("You could not be authenticated as the specified user.")
         unless $u;
 
-    # get qids
-    my @qids;
-    @qids = split( ',', $post->{qids} ) if $post->{qids};
-
-    my @items;
-
-    if ( scalar @qids ) {
-        foreach my $qid (@qids) {
-            my $item = eval { LJ::NotificationItem->new( $u, $qid ) };
-            push @items, $item if $item;
-        }
-    }
-
-    $ret{items} = [];
-    my $inbox      = $u->notification_inbox;
-    my $cur_folder = $post->{cur_folder} || 'all';
-    my $itemid     = $post->{itemid} && $post->{itemid} =~ /^\d+$/ ? $post->{itemid} + 0 : 0;
-
-    # do actions
-    if ( $action eq 'mark_read' ) {
-        $_->mark_read foreach @items;
-        $success = 1;
-    }
-    elsif ( $action eq 'mark_unread' ) {
-        $_->mark_unread foreach @items;
-        $success = 1;
-    }
-    elsif ( $action eq 'delete' ) {
-        foreach my $item (@items) {
-            push @{ $ret{items} }, { qid => $item->qid, deleted => 1 };
-            $item->delete;
-        }
-
-        $success = 1;
-    }
-    elsif ( $action eq 'delete_all' ) {
-        @items = $inbox->delete_all( $cur_folder, itemid => $itemid );
-
-        foreach my $item (@items) {
-            push @{ $ret{items} }, { qid => $item->{qid}, deleted => 1 };
-        }
-
-        $success = 1;
-    }
-    elsif ( $action eq 'mark_all_read' ) {
-        $inbox->mark_all_read( $cur_folder, itemid => $itemid );
-
-        $success = 1;
-    }
-    elsif ( $action eq 'set_default_expand_prop' ) {
-        $u->set_prop( 'esn_inbox_default_expand', $post->{default_expand} eq 'Y' ? 'Y' : 'N' );
-    }
-    elsif ( $action eq 'get_unread_items' ) {
-        $ret{unread_count} = $u->notification_inbox->unread_count;
-    }
-    elsif ( $action eq 'toggle_bookmark' ) {
-        my $up;
-        $up = LJ::Hooks::run_hook( 'upgrade_message', $u, 'bookmark' );
-        $up = "<br />$up" if ($up);
-
-        foreach my $item (@items) {
-            my $ret = $u->notification_inbox->toggle_bookmark( $item->qid );
-            return DW::RPC->err("Max number of bookmarks reached.$up") unless $ret;
-        }
-        $success = 1;
-    }
-    else {
-        return DW::RPC->err("Invalid action $action");
-    }
-
-    foreach my $item ( $u->notification_inbox->items ) {
-        my $class = $item->event->class;
-        $class =~ s/LJ::Event:://;
-        push @{ $ret{items} },
-            {
-            read       => $item->read,
-            qid        => $item->qid,
-            bookmarked => $u->notification_inbox->is_bookmark( $item->qid ),
-            category   => $class,
-            };
-    }
-
     return DW::RPC->out(
-        success              => $success,
-        unread_all           => $inbox->all_event_count,
-        unread_usermsg_recvd => $inbox->usermsg_recvd_event_count,
-        unread_friend        => $inbox->circle_event_count,
-        unread_entrycomment  => $inbox->entrycomment_event_count,
-        unread_pollvote      => $inbox->pollvote_event_count,
-        unread_usermsg_sent  => $inbox->usermsg_sent_event_count,
-        %ret,
+        success      => 1,
+        unread_count => $u->notification_inbox->unread_count,
     );
 }
 
@@ -750,18 +661,17 @@ sub widget_handler {
 
         # just a normal post request, handle it and then return status
 
-        local $LJ::WIDGET_NO_AUTH_CHECK = 1
-            if LJ::Auth->check_ajax_auth_token( $remote, "/_widget",
+        local $LJ::WIDGET_NO_AUTH_CHECK = LJ::Auth->check_ajax_auth_token( $remote, "/_widget",
             auth_token => delete $post->{auth_token} );
 
         my %res;
 
-        # set because LJ::Widget->handle_post uses this global variable
-        @BMLCodeBlock::errors = ();
+        my $widget_errors = LJ::Widget->errors;
+        @$widget_errors = ();
         eval { %res = LJ::Widget->handle_post( $post, $widget_class ); };
 
         $ret{res}          = \%res;
-        $ret{errors}       = $@ ? [$@] : \@BMLCodeBlock::errors;
+        $ret{errors}       = $@ ? [$@] : $widget_errors;
         $ret{_widget_post} = 1;
 
         # generate new auth token for future requests if succesfully checked auth token

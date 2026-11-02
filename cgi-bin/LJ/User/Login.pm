@@ -14,6 +14,7 @@
 package LJ::User;
 
 use strict;
+use DW::Request;
 use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
@@ -146,7 +147,8 @@ sub make_login_session {
     $exptype ||= 'short';
     return 0 unless $u;
 
-    eval { BML::get_request()->notes->{ljuser} = $u->user; };
+    my $r = DW::Request->get;
+    $r->note( ljuser => $u->user ) if $r && $r->can('note');
 
     # create session and log user in
     my $sess_opts = {
@@ -294,7 +296,8 @@ sub redirect_rename {
     my $renamedto = $u->prop('renamedto')     or return undef;
     my $ru        = LJ::load_user($renamedto) or return undef;
     $uri ||= '';
-    return BML::redirect( $ru->journal_base . $uri );
+    my $r = DW::Request->get or return undef;
+    return $r->redirect( $ru->journal_base . $uri );
 }
 
 # my $sess = $u->session           (returns current session)
@@ -328,7 +331,6 @@ sub _logout_common {
         name   => 'BMLschemepref',
         domain => ".$LJ::DOMAIN",
     );
-    eval { BML::set_scheme(undef); };
 }
 
 ########################################################################
@@ -423,12 +425,8 @@ sub get_effective_remote {
     my $remote = LJ::get_remote();
     return undef unless $remote;
 
-    my $authas = $BMLCodeBlock::GET{authas} || $BMLCodeBlock::POST{authas};
-
-    unless ($authas) {
-        my $r = DW::Request->get;
-        $authas = $r->get_args->{authas} || $r->post_args->{authas};
-    }
+    my $r      = DW::Request->get;
+    my $authas = $r->get_args->{$authas_arg} || $r->post_args->{$authas_arg};
 
     $authas ||= $remote->user;
     return $remote if $authas eq $remote->user;
@@ -458,8 +456,8 @@ sub get_remote {
     };
 
     # can't have a remote user outside of web context
-    my $apache_r = eval { BML::get_request(); };
-    return $no_remote->() unless $apache_r;
+    my $r = DW::Request->get;
+    return $no_remote->() unless $r;
 
     my $criterr = $opts->{criterr} || do { my $d; \$d; };
     $$criterr = 0;
@@ -501,7 +499,7 @@ sub get_remote {
     }
 
     LJ::User->set_remote($u);
-    $apache_r->notes->{ljuser} = $u->user;
+    $r->note( ljuser => $u->user );
     return $u;
 }
 
