@@ -242,7 +242,7 @@ sub work {
     $log->debug('Email sent successfully.');
     DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:smtp' ] );
 
-    # Now perform memcache duplicant recording
+    # Now perform memcache duplicate recording
     foreach my $key ( values %recipients ) {
         LJ::MemCache::set( $key, 1, 86400 );
     }

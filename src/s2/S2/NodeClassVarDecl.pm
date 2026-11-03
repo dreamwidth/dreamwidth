@@ -36,7 +36,7 @@ sub parse {
 
     my $n = new S2::NodeClassVarDecl;
 
-    # get the function keyword
+    # get the var keyword
     $n->setStart($n->requireToken($toker, $S2::TokenKeyword::VAR));
 
     if ($toker->peek() == $S2::TokenKeyword::READONLY) {

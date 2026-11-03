@@ -38,7 +38,7 @@ sub parse {
     my ($class, $toker, $isDecl) = @_;
     my $n = new S2::NodeClass;
 
-    # get the function keyword
+    # get the class keyword
     $n->setStart($n->requireToken($toker, $S2::TokenKeyword::CLASS));
 
     $n->{'name'} = $n->getIdent($toker);
