@@ -240,5 +240,6 @@ if (@images) {
 }
 print "Theme also needs a preview screenshot. Resize to 150x114px and put in:\n";
 print "$ENV{LJHOME}/htdocs/img/customize/previews/$layout_name/$theme_name.png\n\n";
-print "(for additional reference on cleaning themes, see https://github.com/dreamwidth/dreamwidth/wiki/Newbie-Guide:-How-to-Patch-Styles-and-Themes )\n";
+print
+"(for additional reference on cleaning themes, see https://github.com/dreamwidth/dreamwidth/wiki/Newbie-Guide:-How-to-Patch-Styles-and-Themes )\n";
 
