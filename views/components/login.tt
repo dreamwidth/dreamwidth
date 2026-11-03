@@ -31,7 +31,6 @@
         labelclass => (short ? "invisible" : ""),
         placeholder => (short ? dw.ml('/components/login.tt.login.username' ): ""),
         id => "login_user",
-        maxlength => 27,
         tabindex => (short ? "1" : "0")
         size => (short ? 7 : 20),
         'aria-required'=> "true"

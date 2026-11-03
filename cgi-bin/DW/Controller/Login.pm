@@ -45,8 +45,7 @@ sub login_handler {
     my $post   = $r->post_args;
     my $remote = $rv->{remote};
 
-    # Set ML scope early so LJ::Lang::ml calls with relative codes (e.g.,
-    # '.error.notuser') resolve correctly before render_template runs.
+    # Set the page scope for request helpers before rendering.
     $r->note( ml_scope => '/login.tt' );
 
     # The page to send the user back to after a successful login. Prefer the
@@ -82,7 +81,7 @@ sub login_handler {
     my $cursess    = $remote ? $remote->session : undef;
     my $old_remote = $remote;
 
-    return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
+    return error_ml("/login.tt.login.dbreadonly") if $remote && $remote->readonly;
 
     my $set_cache = sub {
 
@@ -113,7 +112,8 @@ sub login_handler {
             $post->{bindip} = 'yes'   if index( $1, "<" ) >= 0;
         }
 
-        my $user         = LJ::canonical_username( $post->{'user'} );
+        my $user_input   = $post->{user} // '';
+        my $user         = LJ::canonical_username($user_input);
         my $password     = $post->{'password'};
         my $form_auth_ok = LJ::check_form_auth( $post->{lj_form_auth} );
 
@@ -166,17 +166,26 @@ sub login_handler {
         }
 
         if ($do_login) {
-            my $u = LJ::load_user($user);
+            my $is_email = index( $user_input, '@' ) >= 0;
+            my $u        = $is_email ? undef : LJ::load_user($user);
 
-            if ( !$u ) {
+            if ($is_email) {
+                push @errors,
+                    [
+                    email_as_username => LJ::Lang::ml(
+                        '/login.tt.error.email', { aopts => "href='$LJ::SITEROOT/lostinfo'" }
+                    )
+                    ];
+            }
+            elsif ( !$u ) {
                 my $euser = LJ::eurl($user);
                 push @errors,
                     [
                     unknown_user => LJ::Lang::ml(
-                        '.error.notuser', { 'aopts' => "href='$LJ::SITEROOT/create?user=$euser'" }
+                        '/login.tt.error.notuser',
+                        { 'aopts' => "href='$LJ::SITEROOT/create?user=$euser'" }
                     )
-                    ]
-                    unless $u;
+                    ];
             }
             else {
                 push @errors, [ purged_user => LJ::Lang::ml('error.purged.text') ]
@@ -190,7 +199,7 @@ sub login_handler {
             if ( $u && $u->is_readonly ) {
                 DW::Stats::increment( 'dw.action.session.login_failed',
                     1, ['reason:database_readonly'] );
-                return error_ml("/login.tt.dbreadonly");
+                return error_ml("/login.tt.login.dbreadonly");
             }
 
             my ( $banned, $ok );
@@ -200,7 +209,7 @@ sub login_handler {
 
             if ($banned) {
                 DW::Stats::increment( 'dw.action.session.login_failed', 1, ['reason:banned_ip'] );
-                return error_ml('login.tt.tempfailban');
+                return error_ml('/login.tt.login.tempfailban');
             }
 
             if ( $u && !$ok ) {
