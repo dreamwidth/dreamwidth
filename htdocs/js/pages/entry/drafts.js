@@ -69,7 +69,9 @@ LJDraft.saveBody = function () {
     LJDraft.saveInProg = true;
     let curBody;
 
-    if ($("#entry-body").css('display') == 'none') { // Need to check this to deal with hitting the back button
+    if (window.DWEditor && DWEditor.isActive('entry-body')) { // New rich text editor (rte1)
+        curBody = DWEditor.getHTML('entry-body');
+    } else if ($("#entry-body").css('display') == 'none') { // Need to check this to deal with hitting the back button
         // Since they may start using the RTE in the middle of writing their
         // entry, we should just get the editor each time.
         if (! FCKeditorAPI) return;
