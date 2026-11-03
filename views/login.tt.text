@@ -17,6 +17,8 @@
 
 .createaccount.whylogin.benefit5=Use features that are only visible when you're logged in.
 
+.error.email=Please enter your account name rather than your email address. If you've forgotten your account name, you can <a [[aopts]]>recover it here</a>.
+
 .error.notuser=This account name was not found.  Would you like to <a [[aopts]]>create an account</a> using this account name?
 
 .loggedin.continueto=Continue to [[continue_url]]
