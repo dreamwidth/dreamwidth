@@ -70,7 +70,7 @@ window.onload = function() {
 [% END %]
 </p>
 [% IF maxpage > 1 %]
-    <div class="action-box">
+    <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
         current => page,
         total_pages => maxpage, -%]
@@ -146,7 +146,7 @@ window.onload = function() {
 </div>
 [% END %]
 [% IF maxpage > 1 %]
-    <div class="action-box">
+    <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
         current => page,
         total_pages => maxpage, -%]
