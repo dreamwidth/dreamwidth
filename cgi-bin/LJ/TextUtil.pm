@@ -95,7 +95,10 @@ sub auto_link_urls {
         while ( $unmatched > 0 && substr( $url, $length - 1, 1 ) eq ')' ) {
             $unmatched--;
             $length--;
-            $length-- while $length > 0 && substr( $url, $length - 1, 1 ) !~ $end;
+            while ( $length > 0 && substr( $url, $length - 1, 1 ) !~ $end ) {
+                $unmatched++ if substr( $url, $length - 1, 1 ) eq '(';
+                $length--;
+            }
 
             # The URL pattern needs two characters after the scheme; if fewer
             # are left, link nothing rather than a bare "https://".
