@@ -32,6 +32,7 @@ paths:
                   - username
                   - url
                   - keywords
+                  - default
                 properties:
                   comment:
                     type: string
@@ -46,6 +47,9 @@ paths:
                     type: array
                     items:
                       type: string
+                  default:
+                    type: boolean
+                    description: Whether this is the default icon of the journal it belongs to.
         "400":
           description: Bad or missing request parameters.
           content:

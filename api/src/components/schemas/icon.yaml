@@ -5,6 +5,7 @@ required:
 - username
 - url
 - keywords
+- default
 properties:
   comment:
     type: string
@@ -19,3 +20,6 @@ properties:
     type: array
     items:
       type: string
+  default:
+    type: boolean
+    description: Whether this is the default icon of the journal it belongs to.
