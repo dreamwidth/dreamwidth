@@ -82,25 +82,29 @@ sub auto_link_urls {
 
     my $replace = sub {
         my ($match) = @_;
-        my ( $url, $tail ) = ( $match, '' );
+        my $url = $match;
 
         # An escaped quote or angle bracket ends the URL.
-        ( $url, $tail ) = ( $1, $2 ) if $url =~ /^(.*?)(&(?:#39|quot|lt|gt)(?:;.*)?)$/;
+        $url = $1 if $url =~ /^(.*?)(&(?:#39|quot|lt|gt)(?:;.*)?)$/;
 
         # So does a closing paren that no opening paren in the URL matches,
         # along with any punctuation just before it.
+        my $minimum   = index( $url, "://" ) + 5;
+        my $length    = length $url;
         my $unmatched = ( $url =~ tr/)// ) - ( $url =~ tr/(// );
-        while ( $unmatched > 0 && substr( $url, -1 ) eq ')' ) {
+        while ( $unmatched > 0 && substr( $url, $length - 1, 1 ) eq ')' ) {
             $unmatched--;
-            $tail = chop($url) . $tail;
-            $tail = chop($url) . $tail while substr( $url, -1 ) !~ $end;
+            $length--;
+            $length-- while $length > 0 && substr( $url, $length - 1, 1 ) !~ $end;
 
             # The URL pattern needs two characters after the scheme; if fewer
             # are left, link nothing rather than a bare "https://".
-            return $match unless $url =~ m!^https?://..!;
+            return $match if $length < $minimum;
         }
 
-        return $linker->($url) . $tail;
+        # All removed characters form one suffix. Slice it once rather than
+        # repeatedly copying a growing string for long runs of closing parens.
+        return $linker->( substr( $url, 0, $length ) ) . substr( $match, $length );
     };
 
     $text =~ s!(https?://[^\s\'\"\<\>]+$end)!$replace->( $1 )!ge;
