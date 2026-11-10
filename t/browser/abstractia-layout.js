@@ -16,7 +16,7 @@
 //   node t/browser/abstractia-layout.js BASE.css CANDIDATE.css [SIDEBAR_PERCENT MARGIN_PERCENT BREAKPOINT_PX]
 // Defaults: sidebar_width=20, margins_size=5, medium breakpoint=640px.
 // Uses bin/dev/screenshot's existing dependencies; never installs or starts anything.
-// This isolated fixture tests the core2 container structure, not entry content fit.
+// Includes a real title and native-size archive calendar; arbitrary entry content can still overflow.
 
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -32,16 +32,34 @@ const base = fs.readFileSync(baseFile, "utf8");
 const candidate = fs.readFileSync(candidateFile, "utf8");
 const reset = fs.readFileSync(path.resolve(__dirname, "../../htdocs/stc/reset.css"), "utf8");
 // Model declaration rejection only. This does not establish support in an old browser.
-const fallback = candidate.replace(/[-\w]+\s*:[^;{}]*\bmax\s*\([^;{}]*;/g, "");
+const fallback = candidate
+    .replace(/[-\w]+\s*:[^;{}]*\bmax\s*\([^;{}]*;/g, "")
+    .replace(/@media[^{}]*\bmax\s*\([^{}]*\{/g, "@media not all {");
 const fits = Math.ceil(20000 / Number(sidebar));
-const widths = [...new Set([bp - 1, bp, Math.max(bp, 800), Math.max(bp, fits), Math.max(bp, 1400)])];
+function stackThreshold(layout, pageKind) {
+    const count = layout.startsWith("two-") ? 1 : 2;
+    const available = Math.max(1, 97 - 2 * Number(margins) - (layout === "three-columns-sides" ? 1 : 0));
+    const percent = Math.max(1, available - count * Number(sidebar));
+    const minimum = (pageKind === "archive" ? 35 : 20) * 16;
+    return Math.max((count * 200 + minimum) * 100 / available, minimum * 100 / percent);
+}
+const widths = [...new Set([bp - 1, bp, 640, 800, Math.max(bp, fits), Math.max(bp, 1400),
+    ...["two-columns-left", "three-columns-left", "three-columns-sides"].flatMap(layout =>
+        ["recent", "archive"].flatMap(kind => {
+            const threshold = stackThreshold(layout, kind);
+            return [Math.floor(threshold), Math.ceil(threshold) + 1];
+        }))])].sort((a, b) => a - b);
 const layouts = ["one-column", "two-columns-left", "two-columns-right",
     "three-columns-left", "three-columns-sides", "three-columns-right"];
 const html = `<!doctype html><html><head></head><body>
 <div id="canvas"><div class="inner">
 <div id="header"><div class="inner">Journal title</div></div>
 <div id="content"><div class="inner">
-<div id="primary"><div class="inner" style="height:600px">Entry</div></div>
+<div id="primary"><div class="inner" style="height:600px">
+<div class="entry"><div class="header"><h3 class="entry-title">Stress content: long URL, table and preformatted text</h3></div></div>
+<table id="native-calendar"><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr>
+<tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr></table>
+</div></div>
 <div id="secondary"><div class="inner" style="height:120px">Modules</div></div>
 <div id="invisible-separator" style="float:left;width:1px"></div>
 <div id="tertiary"><div class="inner" style="height:100px">More modules</div></div>
@@ -70,16 +88,23 @@ function separate(a, b, why) {
         await page.setRequestInterception(true);
         page.on("request", (request) => request.abort());
         for (const layout of layouts) {
+            for (const pageKind of ["recent", "archive"]) {
             const multiple = layout !== "one-column";
             const count = layout.startsWith("two-") ? "two-columns" : "three-columns";
-            const classes = `page-recent any-column ${layout} ${multiple ? "multiple-columns " + count : ""}`;
+            const classes = `page-${pageKind} any-column ${layout} ${multiple ? "multiple-columns " + count : ""}`;
             for (const width of widths) {
                 await page.setViewport({ width, height: 1000 });
                 const measurements = {};
                 for (const [label, css] of Object.entries({ base, candidate, fallback })) {
                     await page.setContent(html);
-                    await page.evaluate((value) => { document.body.className = value; }, classes);
-                    await page.addStyleTag({ content: reset + "\n" + css });
+                    await page.evaluate((value) => {
+                        document.body.className = value;
+                        // Archive pages contain the calendar, rather than entry-title headers.
+                        if (document.body.classList.contains("page-archive")) {
+                            document.querySelector(".entry").remove();
+                        }
+                    }, classes);
+                    await page.addStyleTag({ content: reset + "\n" + css + "\nbody:not(.page-archive) #native-calendar {display:none}" });
                     measurements[label] = await page.evaluate(() => {
                         const result = {};
                         for (const id of ["header", "primary", "secondary", "tertiary", "footer .page-top"]) {
@@ -87,17 +112,37 @@ function separate(a, b, why) {
                             result[id] = { left: r.left, right: r.right, top: r.top,
                                 bottom: r.bottom, width: r.width };
                         }
+                        const title = document.querySelector(".entry-title");
+                        result.titleClips = title ? title.scrollWidth > title.clientWidth + 1 : false;
+                        const calendar = document.querySelector("#native-calendar").getBoundingClientRect();
+                        result.calendar = { left: calendar.left, right: calendar.right,
+                            top: calendar.top, bottom: calendar.bottom, width: calendar.width };
                         return result;
                     });
                 }
-                const why = `${layout} at ${width}px`;
+                const why = `${pageKind} ${layout} at ${width}px`;
+                const threshold = stackThreshold(layout, pageKind);
+                const responsive = multiple && layout !== "three-columns-right";
+                const stacked = responsive && width <= threshold;
                 const before = measurements.base;
                 const after = measurements.candidate;
                 equalBoxes(measurements.fallback, before, `${why}: fallback`);
-                if (!multiple || width < bp || width >= fits || layout === "three-columns-right") {
+                if (!multiple || width < bp || width >= Math.max(fits, threshold) || layout === "three-columns-right") {
                     equalBoxes(after, before, `${why}: unchanged geometry`);
                 }
-                if (multiple && width >= bp) {
+                if (responsive && width >= bp) {
+                    assert(!after.titleClips, `${why}: title text must remain visible`);
+                    if (pageKind === "archive") {
+                        separate(after.calendar, after.secondary, `${why}: calendar/secondary`);
+                        separate(after.calendar, after.tertiary, `${why}: calendar/tertiary`);
+                    }
+                }
+                if (stacked && width >= bp) {
+                    near(after.primary.left, width * Number(margins) / 100, `${why}: stacked main left`);
+                    assert(after.secondary.top >= after.primary.bottom - 1, `${why}: secondary stacks`);
+                    assert(after.tertiary.top >= after.secondary.bottom - 1, `${why}: tertiary stacks`);
+                }
+                if (multiple && width >= bp && !stacked) {
                     const p = after.primary, s = after.secondary, t = after.tertiary;
                     near(s.width, Math.max(200, width * Number(sidebar) / 100), `${why}: sidebar minimum`);
                     separate(p, s, `${why}: primary/secondary`);
@@ -118,10 +163,11 @@ function separate(a, b, why) {
                         near(after["footer .page-top"].left, p.left, `${why}: footer left`);
                     }
                 }
-                console.log(JSON.stringify({ layout, width, ...measurements }));
+                console.log(JSON.stringify({ pageKind, layout, width, stacked, ...measurements }));
             }
         }
-        console.error("Abstractia column geometry passed.");
+            }
+        console.error("Abstractia column geometry and content constraints passed.");
     } finally {
         await browser.close();
     }
