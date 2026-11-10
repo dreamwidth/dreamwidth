@@ -59,6 +59,54 @@ sub get_urls {
     return ( $_[0] =~ m!https?://[^\s\"\'\<\>]+!g );
 }
 
+# <LJFUNC>
+# name: LJ::auto_link_urls
+# class: text
+# des: Finds plain-text URLs that should be auto-linked, and replaces each one
+#      with the result of a callback.
+# info: Text that usually belongs to the surrounding prose is left outside the
+#       link: trailing punctuation, an escaped quote or angle bracket, and any
+#       closing paren that has no opening paren to match it in the URL. Balanced
+#       parens are kept, so https://en.wikipedia.org/wiki/Function_(mathematics)
+#       links in full, while "(see https://example.com/)" leaves its paren alone.
+# args: text, linker
+# des-text: Text to search. It may contain HTML entities, but not tags.
+# des-linker: Subref called with each URL; returns the text to replace it with.
+# returns: The text with URLs replaced, or undef if text is undef.
+# </LJFUNC>
+sub auto_link_urls {
+    my ( $text, $linker ) = @_;
+    return $text unless defined $text;
+
+    my $end = qr![a-zA-Z0-9_/&=\-)]!;
+
+    my $replace = sub {
+        my ($match) = @_;
+        my ( $url, $tail ) = ( $match, '' );
+
+        # An escaped quote or angle bracket ends the URL.
+        ( $url, $tail ) = ( $1, $2 ) if $url =~ /^(.*?)(&(?:#39|quot|lt|gt)(?:;.*)?)$/;
+
+        # So does a closing paren that no opening paren in the URL matches,
+        # along with any punctuation just before it.
+        my $unmatched = ( $url =~ tr/)// ) - ( $url =~ tr/(// );
+        while ( $unmatched > 0 && substr( $url, -1 ) eq ')' ) {
+            $unmatched--;
+            $tail = chop($url) . $tail;
+            $tail = chop($url) . $tail while substr( $url, -1 ) !~ $end;
+
+            # The URL pattern needs two characters after the scheme; if fewer
+            # are left, link nothing rather than a bare "https://".
+            return $match unless $url =~ m!^https?://..!;
+        }
+
+        return $linker->($url) . $tail;
+    };
+
+    $text =~ s!(https?://[^\s\'\"\<\>]+$end)!$replace->( $1 )!ge;
+    return $text;
+}
+
 # similar to decode_url_string below, but a nicer calling convention.  returns
 # a hash of items parsed from the string passed in as the only argument.
 
