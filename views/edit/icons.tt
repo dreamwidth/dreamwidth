@@ -198,7 +198,7 @@
                                       name = "rename_keyword_$pid", value = 1,
                                       class = 'checkbox',
                                       id = "rename_keyword_$pid",
-                                      disabled = uploads_disabled ) %]
+                                      disabled = uploads_disabled || pic.inactive || pic.suspended ) %]
                   [%- ELSE -%]
                     [% 'error.iconkw.rename.disabled' | ml %]
                   [%- END -%]

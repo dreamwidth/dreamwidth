@@ -18,6 +18,7 @@
 //   DW_ICON_TEST_COOKIES=/tmp/icon-test-cookies.json node t/browser/editicons-rename.js
 // The cookie file is a JSON array of Puppeteer cookies for the target origin.
 // DW_ICON_TEST_URL can override the default local management-page URL.
+// DW_ICON_TEST_DISABLED_PICID can require a fixture icon to be non-editable.
 // This test changes only unsaved checkbox state; it never submits a form.
 
 "use strict";
@@ -37,6 +38,29 @@ async function checkPage(browser, cookies, javaScriptEnabled, width) {
             { waitUntil: "networkidle2", timeout: 30000 }
         );
         assert.equal(response.status(), 200, "management page loads");
+
+        // Non-editable icons must not offer a rename that the save handler ignores.
+        const controls = await page.$$eval(
+            '#current_userpics input[name^="rename_keyword_"]',
+            inputs => inputs.map(input => ({
+                id: input.id,
+                disabled: input.disabled,
+                keywordsDisabled: document.getElementById(
+                    "kw_" + input.id.slice("rename_keyword_".length)
+                ).disabled,
+                submitted: new FormData(input.form).get(input.name)
+            }))
+        );
+        for (const control of controls.filter(control => control.keywordsDisabled)) {
+            assert.equal(control.disabled, true, control.id + " follows disabled Keywords");
+            assert.equal(control.submitted, null, control.id + " is not submitted");
+        }
+        if (process.env.DW_ICON_TEST_DISABLED_PICID) {
+            const expected = controls.find(control => control.id ===
+                "rename_keyword_" + process.env.DW_ICON_TEST_DISABLED_PICID);
+            assert.ok(expected && expected.keywordsDisabled && expected.disabled,
+                "fixture includes the expected non-editable icon");
+        }
 
         const ids = await page.$$eval(
             '#current_userpics input[name^="rename_keyword_"]:not(:disabled)',
