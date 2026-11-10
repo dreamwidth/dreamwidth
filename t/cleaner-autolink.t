@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -85,3 +85,22 @@ is(
 );
 is( LJ::auto_linkify('https://.)'), 'https://.)', "no link is made to a bare scheme" );
 is( LJ::auto_linkify(undef),        undef,        "undef input returns undef" );
+
+my $nested = 'https://example.com/f((x))';
+is(
+    LJ::auto_linkify($nested),
+    "<a href='$nested'>$nested</a>",
+    "nested balanced parens are linked"
+);
+my $extra = 'https://example.com/f(x).))&quot;';
+is(
+    LJ::auto_linkify($extra),
+    "<a href='https://example.com/f(x)'>https://example.com/f(x)</a>.))&quot;",
+    "punctuation, excess parens and an entity remain in their original order"
+);
+my $long_tail = ')' x 16384;
+is(
+    LJ::auto_linkify( 'https://example.com/a' . $long_tail ),
+    "<a href='https://example.com/a'>https://example.com/a</a>" . $long_tail,
+    "a long run of excess closing parens stays outside the link"
+);
