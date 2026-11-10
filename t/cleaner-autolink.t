@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -103,4 +103,15 @@ is(
     LJ::auto_linkify( 'https://example.com/a' . $long_tail ),
     "<a href='https://example.com/a'>https://example.com/a</a>" . $long_tail,
     "a long run of excess closing parens stays outside the link"
+);
+
+is(
+    $comment->('https://ex.com/a)()'),
+    link_to('https://ex.com/a') . ')()',
+    "dropping an opening paren also unmatches an earlier closing paren"
+);
+is(
+    LJ::auto_linkify('(https://example.com/page)(:)'),
+    "(<a href='https://example.com/page'>https://example.com/page</a>)(:)",
+    "punctuation between trailing parens does not leave an unmatched linked paren"
 );
