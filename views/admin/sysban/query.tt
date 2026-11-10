@@ -45,17 +45,17 @@
     <th>[% '.col.action' | ml %]</th>
   </tr></thead>
 
-[%- FOREACH bankey IN existing_bans.keys -%]
+[%- FOREACH ban IN existing_bans -%]
 
   <tr>
-    <td>[% bankey %]</td>
-    <td>[% localtime( existing_bans.$bankey.expire ) %]</td>
+    <td>[% ban.value | html %]</td>
+    <td>[% localtime( ban.expire ) %]</td>
 
     <form method='post' action='sysban'>
       [% dw.form_auth %]
-      [% form.hidden( name = 'expire', value = existing_bans.$bankey.expire ) %]
-      [% form.hidden( name = 'banid',  value = existing_bans.$bankey.banid  ) %]
-      [% form.hidden( name = 'value',  value = bankey ) %]
+      [% form.hidden( name = 'expire', value = ban.expire ) %]
+      [% form.hidden( name = 'banid',  value = ban.banid  ) %]
+      [% form.hidden( name = 'value',  value = ban.value  ) %]
       [% form.hidden( name = 'bantype' ); # from formdata %]
       <td>
         [% form.select( name = 'bandays', selected = 'E',
@@ -67,7 +67,7 @@
                                   '0',  dw.ml( '.select.0'  ) ] ) %]
       </td>
       <td>
-        [% enote = existing_bans.$bankey.note | html %]
+        [% enote = ban.note | html %]
         [% form.textarea( name = 'note', rows = 3, cols = 40,
                           value = enote ) %]
       </td>
@@ -81,7 +81,7 @@
 
 </table>
 
-[%- IF existing_bans.keys.size >= limit -%]
+[%- IF existing_bans.size >= limit -%]
 <form method='post' action='sysban'>
   [% dw.form_auth %]
   [% form.hidden( name = 'query', value = dw.ml( '.btn.query' ) ) %]
