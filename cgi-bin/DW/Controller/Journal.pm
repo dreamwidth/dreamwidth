@@ -105,6 +105,16 @@ sub determine_view {
     # Date views: /2026/, /2026/02/, /2026/02/01/
     elsif ( $uuri =~ m#^/(\d\d\d\d)(?:/(\d\d)(?:/(\d\d))?)?(/?)$# ) {
         my ( $year, $mon, $day, $slash ) = ( $1, $2, $3, $4 );
+
+        # Impossible calendar days should use the normal missing-page response.
+        if ( defined $day ) {
+            return 404
+                if $mon < 1
+                || $mon > 12
+                || $day < 1
+                || $day > LJ::days_in_month( $mon, $year );
+        }
+
         unless ($slash) {
             my $u = LJ::load_user($user)
                 or return 404;
