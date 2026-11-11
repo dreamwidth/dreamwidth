@@ -4759,7 +4759,7 @@ widget.createaccount.error.password.needsnonletter=Your password must contain at
 
 widget.createaccount.error.password.nomatch=Your passwords don't match.
 
-widget.createaccount.error.password.toolong=Password must not be longer than 30 characters.
+widget.createaccount.error.password.toolong=Password must not be longer than [[maxlength]] characters.
 
 widget.createaccount.error.password.tooshort=Your password must be at least 6 characters for security reasons.
 
