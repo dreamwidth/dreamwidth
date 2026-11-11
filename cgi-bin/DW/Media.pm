@@ -27,6 +27,7 @@ use Image::Size;
 
 use DW::BlobStore;
 use DW::Media::Photo;
+use DW::Security;
 
 use constant TYPE_PHOTO => 1;
 
@@ -110,20 +111,9 @@ sub upload_media {
 
     # set the security
     my $sec = $opts{security} || 'public';
-    if ( $sec =~ /^(?:friends|access)$/ ) {
-        $sec = 'usemask';
-        $opts{allowmask} = 1;
-    }
+    ( $sec, $opts{allowmask} ) = DW::Security->normalize( $sec, $opts{allowmask} );
     croak 'Invalid security for uploaded file.'
         unless $sec =~ /^(?:public|private|usemask)$/;
-    if ( $sec eq 'usemask' ) {
-
-        # default allowmask of 0 unless defined otherwise
-        $opts{allowmask} //= 0;
-    }
-    else {
-        $opts{allowmask} = 0;
-    }
 
     # now we can cook -- allocate an id and upload
     my $id = LJ::alloc_user_counter( $opts{user}, 'A' )
