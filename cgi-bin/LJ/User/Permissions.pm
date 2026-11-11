@@ -971,7 +971,9 @@ sub posting_guidelines_entry {
             $ditemid = $1;
         }
         else {
-            return 0;
+            my $entry = LJ::Entry->new_from_url($args);
+            return 0 unless $entry && $entry->valid && $entry->journalid == $u->id;
+            $ditemid = $entry->ditemid;
         }
 
         my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
