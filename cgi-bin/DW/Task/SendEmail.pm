@@ -128,13 +128,13 @@ sub work {
         unless ($domain) {
             $log->error( 'Invalid email address: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:smtp' ] );
-            continue;
+            next;
         }
 
         if ( exists $LJ::DISALLOW_EMAIL_DOMAIN{$domain} ) {
             $log->info( 'Disallowing email to: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:smtp' ] );
-            continue;
+            next;
         }
 
         # Stupid hack to prevent spamming people, check memcache to see if we've sent this
