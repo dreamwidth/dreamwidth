@@ -26,7 +26,7 @@ Image::ExifTool
 Image::Size
 Imager::File::PNG
 Imager::QRCode
-JSON::Validator@3.25
+JSON::Validator@5.19
 JSON@2.90
 LWP::UserAgent::Paranoid
 List::Util
