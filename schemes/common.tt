@@ -141,7 +141,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <a href="[% site.root %]/login" class="button radius" data-reveal-id="nav-login-form">[% 'sitescheme.accountlinks.btn.login' | ml %]</a>
     <div id='nav-login-form' class="reveal-modal" data-reveal>
       <div class="row"><div class="columns">
-      [% PROCESS 'login.tt' %]
+      [% PROCESS 'login.tt' remember_me_id='nav_login_remember_me' %]
 
       </div></div>
     <button type="button" class="fi-icon--with-fallback close-reveal-modal">
