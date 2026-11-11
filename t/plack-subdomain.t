@@ -29,7 +29,7 @@ BEGIN {
     };
 }
 
-plan tests => 32;
+plan tests => 34;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -464,3 +464,28 @@ test_psgi $app, sub {
 
     like( $res->content, qr/^routed:/, "main domain root URI routes to homepage" );
 };
+
+for my $limit ( 25, 10 ) {
+    subtest "journal boundaries at configured username limit $limit" => sub {
+        local $LJ::USERNAME_MAXLENGTH = $limit;
+        local $LJ::SUBDOMAIN_FUNCTION{users} = 'journal';
+        for my $length ( $limit - 1, $limit, $limit + 1 ) {
+            my $user     = 'u' x $length;
+            my $expected = $length <= $limit ? $user : undef;
+            for my $url ( "http://$user.example.org/entry", "http://users.example.org/$user/entry" )
+            {
+                $journal_render_user = undef;
+                test_psgi $app, sub {
+                    my $cb = shift;
+                    $cb->( GET $url );
+                    is( $journal_render_user, $expected, "journal routing: $url" );
+                };
+            }
+            is(
+                LJ::check_referer( '/entry', "http://$user.example.org/entry" ) ? 1 : 0,
+                $length <= $limit ? 1 : 0,
+                "journal referer with $length characters"
+            );
+        }
+    };
+}

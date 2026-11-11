@@ -258,7 +258,7 @@ sub new_handler {
         elsif ( !$new_user ) {
             $errors->add( "user", "error.usernameinvalid" );
         }
-        elsif ( length $new_user > 25 ) {
+        elsif ( length $new_user > $LJ::USERNAME_MAXLENGTH ) {
             $errors->add( "user", "error.usernamelong" );
         }
 

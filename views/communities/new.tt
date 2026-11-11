@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 [%- form.textbox(
                     name = "user"
                     id   = "js-user"
-                    maxlength = 25
+                    maxlength = site.maxlength_user
                     class = "journaltype-textbox community-textbox"
                 ) -%]
                 </div>
