@@ -2274,6 +2274,10 @@ sub editevent {
     $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security},
         $qallowmask || $security );
 
+    # Equal security values skip invalidation, but moving the date still changes counts.
+    $uowner->clear_daycounts( $qallowmask || $security )
+        if substr( $eventtime, 0, 10 ) ne substr( $oldevent->{eventtime}, 0, 10 );
+
     # Update the slug (try to, this will fail if this slug is already used). To
     # delete or change the slug, you must pass this parameter in. If it is not
     # present, we leave the slug alone.
