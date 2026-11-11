@@ -150,6 +150,14 @@ userproplist.customtext_title:
   multihomed: 0
   prettyname: Text for the 'Custom Text' heading
 
+userproplist.customtext_title_blank:
+  cldversion: 4
+  datatype: bool
+  des: The custom text module heading was deliberately left blank.
+  indexed: 0
+  multihomed: 0
+  prettyname: Blank custom text module heading
+
 userproplist.customtext_url:
   cldversion: 4
   datatype: char
