@@ -18,6 +18,8 @@ package DW::Controller::Admin::UserViews;
 
 use strict;
 
+use POSIX qw( strftime );
+
 use DW::Controller;
 use DW::Controller::Admin;
 use DW::Routing;
@@ -136,7 +138,8 @@ sub recent_comments_controller {
     }
 
     my $now = time();
-    $vars->{num_hours} = sub { sprintf( "%.1f", ( $now - $_[0] ) / 3600 ) };
+    $vars->{num_hours}     = sub { sprintf( "%.1f", ( $now - $_[0] ) / 3600 ) };
+    $vars->{timestamp_utc} = sub { strftime( "%Y-%m-%d %H%M UTC", gmtime( $_[0] ) ) };
 
     $vars->{get_journal} = sub { LJ::load_userid( $_[0]->{journalid} ) };
     $vars->{get_comment} = sub { LJ::get_log2_row( $_[1], $_[0]->{nodeid} ) };
