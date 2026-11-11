@@ -271,10 +271,9 @@ sub _process_queue {
             && $entry->journal->include_in_latest_feed;
         return 0 if $entry->is_backdated;
 
-        foreach ( $entry->journal, $entry ) {
-            my $ac = $_->adult_content_calculated;
-            return 0 if $ac && $ac ne 'none';
-        }
+        # An explicit entry rating overrides the journal default, including all ages.
+        my $ac = $entry->adult_content_calculated || $entry->journal->adult_content_calculated;
+        return 0 if $ac && $ac ne 'none';
 
         return 1;
     };
