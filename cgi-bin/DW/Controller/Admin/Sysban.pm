@@ -30,11 +30,11 @@ DW::Controller::Admin->register_admin_page(
     '/',
     path     => 'sysban',
     ml_scope => '/admin/sysban/index.tt',
-    privs    => ['sysban']
+    privs    => [ 'sysban', 'sysbanview' ]
 );
 
 sub sysban_controller {
-    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => ['sysban'] );
+    my ( $ok, $rv ) = controller( form_auth => 1, privcheck => [ 'sysban', 'sysbanview' ] );
     return $rv unless $ok;
 
     my $scope = '/admin/sysban/index.tt';
@@ -43,27 +43,16 @@ sub sysban_controller {
     my $form_args = $r->post_args;
     my $vars      = {};
 
-    {    # construct sorted list of sysban privs visible to remote
+    my $remote = $rv->{remote};
+    my %read_args = ( $remote->priv_args('sysban'), $remote->priv_args('sysbanview') );
+    my %write_args = $remote->priv_args('sysban');
+    my @all_sb_args = LJ::list_valid_args('sysban');
+    my @sysban_privs = sort grep { length } ( $read_args{'*'} ? @all_sb_args : keys %read_args );
+    my @write_privs = sort grep { length } ( $write_args{'*'} ? @all_sb_args : keys %write_args );
 
-        my $remote = $rv->{remote};
-        my @sysban_privs;
-
-        my @all_sb_args = LJ::list_valid_args('sysban');
-        my %priv_args   = $remote->priv_args('sysban');
-
-        foreach my $arg ( sort keys %priv_args ) {
-            if ( $arg eq '*' ) {
-                @sysban_privs = sort @all_sb_args;
-                last;
-            }
-            else {
-                push @sysban_privs, $arg;
-            }
-        }
-
-        $vars->{sysban_privs} = \@sysban_privs;
-        $vars->{sysban_menu}  = [ map { $_, $_ } @sysban_privs ];
-    }
+    $vars->{sysban_privs} = \@sysban_privs;
+    $vars->{sysban_menu} = [ map { $_, $_ } @sysban_privs ];
+    $vars->{can_add} = scalar @write_privs;
 
     return DW::Template->render_template( 'admin/sysban/index.tt', $vars )
         unless $r->did_post;
@@ -78,8 +67,25 @@ sub sysban_controller {
 
     $vars->{localtime} = sub { scalar localtime( $_[0] ) };
 
+    my $bantype = $form_args->{bantype};
+    if ( $vars->{action} eq 'query' ) {
+        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
+            unless length( $bantype || '' )
+            && ( $remote->has_priv( 'sysban', $bantype )
+                || $remote->has_priv( 'sysbanview', $bantype ) );
+        $vars->{can_modify} = $remote->has_priv( 'sysban', $bantype );
+    }
+    elsif ( $vars->{action} eq 'addnew' ) {
+        return error_ml( "$scope.error.nopriv", { bantype => $bantype } ) unless @write_privs;
+    }
+    elsif ( $vars->{action} ne 'queryone' ) {
+        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
+            unless length( $bantype || '' ) && $remote->has_priv( 'sysban', $bantype );
+    }
+
     if ( $vars->{action} eq 'addnew' ) {
 
+        $vars->{sysban_menu} = [ map { $_, $_ } @write_privs ];
         return DW::Template->render_template( 'admin/sysban/addnew.tt', $vars );
     }
 
@@ -100,6 +106,13 @@ sub sysban_controller {
 
     if ( $vars->{action} eq 'modify' ) {    # this action comes from the query form
 
+        # The hidden type is not authoritative: the ban ID must belong to that type.
+        my $stored_type = LJ::get_db_writer()->selectrow_array(
+            "SELECT what FROM sysban WHERE banid = ?", undef, $form_args->{banid}
+        );
+        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
+            unless defined $stored_type && $stored_type eq $bantype;
+
         my $modify = LJ::Sysban::modify(
             banid   => $form_args->{banid},
             expire  => $form_args->{expire},
@@ -117,12 +130,6 @@ sub sysban_controller {
     }
 
     if ( $vars->{action} eq 'add' ) {    # this action comes from the addnew form
-
-        my $bantype = $form_args->{bantype};
-        my $remote  = $rv->{remote};
-
-        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
-            unless $remote->has_priv( 'sysban', $bantype );
 
         return error_ml("$scope.error.nonote") unless $form_args->{note};
 
@@ -150,6 +157,9 @@ sub sysban_controller {
     }
 
     if ( $vars->{action} eq 'queryone' ) {
+
+        # An empty type list means all types to the lookup helper, so fail closed.
+        return error_ml( "$scope.error.nopriv", { bantype => '' } ) unless @sysban_privs;
 
         # these results are displayed within the index form
 
