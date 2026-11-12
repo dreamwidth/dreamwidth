@@ -20,7 +20,7 @@ use LJ::CSS::Cleaner;
 use HTML::TokeParser;
 use LJ::EmbedModule;
 use LJ::Config;
-use Text::Markdown;
+use DW::Markdown;
 use LJ::TextUtil;
 use DW::Formats;
 use DW::External::Site;
@@ -199,7 +199,7 @@ sub clean {
 
     # Second, convert Markdown; from here on, we can process it as raw HTML (no autoformatting)
     if ( $formatting eq 'markdown' ) {
-        $$data     = Text::Markdown::markdown($$data);
+        $$data     = DW::Markdown->new->markdown($$data);
         $addbreaks = 0;
     }
 
