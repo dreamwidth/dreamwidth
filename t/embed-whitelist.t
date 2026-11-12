@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 123;
+use Test::More tests => 128;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -93,7 +93,6 @@ note("misc");
     test_good_url(
 "https://player.bilibili.com/player.html?aid=593134119&bvid=BV1Dq4y1y7Zj&cid=483765371&page=1"
     );
-    test_good_url("http://blip.tv/play/x11Xx11Xx.html");
     test_good_url(
         "https://percolate.blogtalkradio.com/offsiteplayer?hostId=123456&episodeId=12345678");
     test_good_url("https://app.box.com/embed/s/eqbvgyrj6uqftb6k8vz2wcdzu4wx7yy4");
@@ -274,7 +273,6 @@ note("misc");
     test_good_url("https://player.twitch.tv/?autoplay=false&video=v582773417");
 
     # V
-    test_good_url("https://vid.me/e/v63?stats=1&amp;tools=1");
     test_good_url("https://vk.com/video_ext.php?oid=-49280571&id=165718332&hash=5eb26e7a4cd9982d");
 
     test_good_url("http://player.vimeo.com/video/123123123?title=0&byline=0&portrait=0");
@@ -305,4 +303,19 @@ note("misc");
     # Z
     test_good_url("//www.zippcast.com/videoview.php?vplay=6c91dae3fc1bc909db0&auto=no");
 
+}
+
+note("retired providers");
+{
+    foreach my $scheme ( 'http:', 'https:', '' ) {
+        test_bad_url( "$scheme//blip.tv/play/x11Xx11Xx.html", "blip.tv is no longer supported" );
+        test_bad_url( "$scheme//vid.me/e/v63?stats=1&amp;tools=1", "vid.me is no longer supported" );
+    }
+
+    subtest "supported domain list excludes retired providers", sub {
+        my $domains = LJ::Hooks::run_hook('list_iframe_embed_domains');
+        ok( !grep( { $_ eq 'blip.tv' } @$domains ), "blip.tv is not advertised" );
+        ok( !grep( { $_ eq 'vid.me' } @$domains ), "vid.me is not advertised" );
+        ok( grep( { $_ eq 'player.vimeo.com' } @$domains ), "supported provider is still listed" );
+    };
 }
