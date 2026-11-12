@@ -42,7 +42,9 @@
 [% form.select( label = dw.ml( '.label.type' ),
                 name = 'bantype', items = sysban_menu );
 
-   form.submit( name = 'addnew', value = dw.ml( '.btn.addnew' ) );
+   IF can_add;
+       form.submit( name = 'addnew', value = dw.ml( '.btn.addnew' ) );
+   END;
    form.submit( name = 'query',  value = dw.ml( '.btn.query'  ) ) %]
 </form>
 </p>
