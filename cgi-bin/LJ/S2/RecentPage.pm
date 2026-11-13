@@ -275,14 +275,18 @@ ENTRY:
     my %valid_modes = ( all => 'all', and => 'all' );
     my $tagmode     = $valid_modes{ $get->{mode} || '' };
 
+    # Encode colons in tag data so scheme-like names survive S2 output cleaning.
+    my $tag = LJ::eurl( $get->{tag} ) || "";
+    $tag =~ s/:/%3A/g;
+
     # these are the same for both previous and next links
     my %linkattrs = (
-        style    => $mine                        || "",
-        mode     => $tagmode                     || "",
-        s2id     => LJ::eurl( $get->{s2id} )     || "",
-        tag      => LJ::eurl( $get->{tag} )      || "",
+        style => $mine                    || "",
+        mode  => $tagmode                 || "",
+        s2id  => LJ::eurl( $get->{s2id} ) || "",
+        tag   => $tag,
         security => LJ::eurl( $get->{security} ) || "",
-        poster => $posteru_filter ? $posteru_filter->user : "",
+        poster   => $posteru_filter ? $posteru_filter->user : "",
     );
 
     # if we've skipped down, then we can skip back up
