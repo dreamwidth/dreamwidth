@@ -964,7 +964,17 @@ sub posting_guidelines_entry {
             return 1;
         }
         my $ditemid;
-        if ( $args =~ m!/(\d+)\.html! ) {
+
+        # Journal routing reads a dated path as a slug even when the slug is all
+        # digits, so check it before the entry-ID patterns, which would otherwise
+        # take /YYYY/MM/DD/12345.html as entry 12345.
+        if ( $args =~ m!/\d{4}/\d\d/\d\d/[a-z0-9_-]+\.html(?:[?#]|$)! ) {
+            ( my $url = $args ) =~ s/[?#].*\z//s;
+            my $entry = LJ::Entry->new_from_url($url);
+            return 0 unless $entry && $entry->valid && $entry->journalid == $u->id;
+            $ditemid = $entry->ditemid;
+        }
+        elsif ( $args =~ m!/(\d+)\.html! ) {
             $ditemid = $1;
         }
         elsif ( $args =~ m!^(\d+)$! ) {
