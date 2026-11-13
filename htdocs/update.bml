@@ -25,6 +25,7 @@ _c?>
     use DW::External::Page;
     use DW::Auth::Login;
     use DW::Auth::TOTP;
+    use LJ::Talk;
     BML::decl_params(_default => qr/./);
 
     # $_[1] is a pre-request scratch area
@@ -191,6 +192,7 @@ _c?>
         my $getextra = '?';
         $getextra .= "altlogin=1&" if $GET{'altlogin'};
         chop $getextra;
+        $getextra = LJ::Talk::talkargs($getextra, LJ::viewing_style_args(%GET));
 
         # if crossposter values were checked, remember them
         my %xpost_vals;
@@ -424,15 +426,17 @@ _c?>
                         $updatemessage = '.update.success2.community';
                     }
 
-                    $$body .= BML::ml( $updatemessage, {'aopts' => "href='" . $ju->journal_base . "/'"} );
+                    my $style_args = LJ::viewing_style_args(%GET);
+                    my $journal_url = LJ::Talk::talkargs($ju->journal_base . "/", $style_args);
+                    $$body .= BML::ml( $updatemessage, {'aopts' => "href='" . LJ::ehtml($journal_url) . "'"} );
                     $$body .= "<br />$protocol_message" if $protocol_message;
                     my $juser = $ju->{'user'};
                     my ($itemid, $anum) = ($res{'itemid'}, $res{'anum'});
-                    $itemlink = LJ::item_link($ju, $itemid, $anum);
+                    $itemlink = LJ::Talk::talkargs(LJ::item_link($ju, $itemid, $anum), $style_args);
                     my $orig_itemid = $itemid;
                     $itemid = $itemid * 256 + $anum;
 
-                    my $edititemlink = "/editjournal?journal=$juser&itemid=$itemid";
+                    my $edititemlink = LJ::Talk::talkargs("/editjournal?journal=$juser&itemid=$itemid", $style_args);
 
                     # crosspost if we're posting to our own journal and have
                     # selected crosspost.
