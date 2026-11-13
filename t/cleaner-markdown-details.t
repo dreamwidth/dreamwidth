@@ -246,26 +246,18 @@ MARKDOWN
         # A Markdown block is hashed before paragraph processing. A comment
         # terminator inside it must not hide later visible paragraphs.
         foreach my $case (
-            [ "* item one\n* item two -->", 'Visible after.' ],
-            [ '> quoted --> visible text', 'Body' ],
+            [ "* item one\n* item two -->",          'Visible after.' ],
+            [ '> quoted --> visible text',           'Body' ],
             [ '<!-- another standalone comment -->', 'Para two' ]
             )
         {
             my ( $block, $visible ) = @$case;
-            my $html = $clean->(
-                      "<details>\n<summary>Notes</summary>\n\nIntro <!-- note\n\n"
-                    . "$block\n\n$visible\n\n</details>"
-            );
-            like(
-                $html,
-                qr/\Q$visible\E/,
-                'a comment ending in a stored Markdown block cannot drop later text'
-            );
-            unlike(
-                $html,
-                qr/\b[0-9a-f]{32}\b/,
-                'stored block placeholders cannot leak from a cross-block comment'
-            );
+            my $html = $clean->( "<details>\n<summary>Notes</summary>\n\nIntro <!-- note\n\n"
+                    . "$block\n\n$visible\n\n</details>" );
+            like( $html, qr/\Q$visible\E/,
+                'a comment ending in a stored Markdown block cannot drop later text' );
+            unlike( $html, qr/\b[0-9a-f]{32}\b/,
+                'stored block placeholders cannot leak from a cross-block comment' );
         }
 
         my $commented = "Before <!-- comment begins inline\n\n<details><summary> -->\n\n";
