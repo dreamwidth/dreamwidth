@@ -29,7 +29,7 @@ sub _FormParagraphs {
 
     my @paragraphs;
     my $in_summary = 0;
-    my $protect = sub {
+    my $protect    = sub {
         my ($html) = @_;
         my $key = Text::Markdown::_md5_utf8($html);
         $self->{_html_blocks}{$key} = $html;
@@ -46,11 +46,11 @@ sub _FormParagraphs {
 
         # Process spans first so code spans and escaped tags remain literal.
         # Existing raw HTML blocks have already been protected by Text::Markdown.
-        my $html = $self->_RunSpanGamut($paragraph);
-        my $parser = HTML::TokeParser->new( \$html );
+        my $html     = $self->_RunSpanGamut($paragraph);
+        my $parser   = HTML::TokeParser->new( \$html );
         my $fragment = '';
         my $rendered = '';
-        my $flush = sub {
+        my $flush    = sub {
             if ( $fragment =~ /\S/ ) {
                 $fragment =~ s/^[ \t]*//;
                 $fragment = "<p>$fragment</p>" if $options->{wrap_in_p_tags} && !$in_summary;
@@ -61,9 +61,9 @@ sub _FormParagraphs {
 
         while ( my $token = $parser->get_token ) {
             my $type = $token->[0];
-            my $raw = $token->[ $type eq 'S' ? 4 : $type eq 'E' || $type eq 'PI' ? 2 : 1 ];
+            my $raw  = $token->[ $type eq 'S' ? 4 : $type eq 'E' || $type eq 'PI' ? 2 : 1 ];
 
-            if ( ( $type eq 'S' || $type eq 'E' )
+            if (   ( $type eq 'S' || $type eq 'E' )
                 && ( $token->[1] eq 'details' || $token->[1] eq 'summary' ) )
             {
                 $flush->();
