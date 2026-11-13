@@ -22,3 +22,11 @@
 
 .view.grid=Grid View
 
+.order.label=Upload date:
+
+.order.newest=Newest first
+
+.order.oldest=Oldest first
+
+.order.submit=Sort
+
