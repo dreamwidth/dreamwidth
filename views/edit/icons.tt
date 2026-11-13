@@ -187,22 +187,18 @@
               </div>
               <div class="columns small-9">
               [% form.textbox( name = "kw_$pid", id = "kw_$pid", class = "text",
-                               value = pic.scalar.keywords, disabled = pic.inactive || pic.suspended,
-                               onfocus = display_rename ? "document.getElementById(\'rename_div_$pid\').style.display = \'block\';" : "" ) %]
+                               value = pic.scalar.keywords, disabled = pic.inactive || pic.suspended ) %]
               [% form.hidden( name = "kw_orig_$pid", value = pic.scalar.keywords ) %]
               </div>
               [%- IF display_rename -%]
                 <div id='rename_div_[% pid %]' class='userpic_rename row'>
                 <div class="columns small-9 small-offset-3">
-                  <script type='text/javascript'>
-                    document.getElementById('rename_div_[% pid %]').style.display = 'none';
-                  </script>
                   [%- IF u.userpic_have_mapid -%]
                     [% form.checkbox( label = dw.ml( ".edit.label.rename" ),
                                       name = "rename_keyword_$pid", value = 1,
                                       class = 'checkbox',
                                       id = "rename_keyword_$pid",
-                                      disabled = uploads_disabled ) %]
+                                      disabled = uploads_disabled || pic.inactive || pic.suspended ) %]
                   [%- ELSE -%]
                     [% 'error.iconkw.rename.disabled' | ml %]
                   [%- END -%]
