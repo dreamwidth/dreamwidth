@@ -49,6 +49,7 @@ sub mangle_email_address {
 #        'cleancss' => 1,
 #        'extractlinks' => 1, # remove a hrefs; implies noautolinks
 #        'noautolinks' => 1, # do not auto linkify
+#        'ugc_links' => 1, # mark user-authored hyperlinks, including autolinks
 #        'extractimages' => 1, # placeholder images
 #        'transform_embed_nocheck' => 1, # do not do checks on object/embed tag transforming
 #        'transform_embed_wmode' => <value>, # define a wmode value for videos (usually 'transparent' is the value you want)
@@ -884,6 +885,16 @@ TOKEN:
                     unless ( $hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei ) {
                         $hash->{href} = canonical_url( $hash->{href}, 1 );
                     }
+
+                    # Add metadata only after unsafe attributes have been removed.
+                    # The serializer uses the original attribute list, including
+                    # names whose values were removed, so do not add a second rel.
+                    if ( $opts->{ugc_links} && ( $tag eq 'a' || $tag eq 'area' ) ) {
+                        push @$attrs, 'rel' unless grep { $_ eq 'rel' } @$attrs;
+                        $hash->{rel} //= '';
+                        $hash->{rel} .= ( length $hash->{rel} ? ' ' : '' ) . 'ugc'
+                            unless $hash->{rel} =~ /(?:^|\s)ugc(?:\s|$)/i;
+                    }
                 }
 
                 if ( $tag eq "img" ) {
@@ -1294,7 +1305,8 @@ TOKEN:
                 if ( !$opencount{'a'} ) {
 
                     # Restore any auto-linked URLs as real HTML links
-                    $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
+                    my $rel = $opts->{ugc_links} ? ' rel="ugc"' : '';
+                    $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\"$rel>$2<\/a>/g;
                 }
             }
 
@@ -1709,6 +1721,7 @@ sub clean_event {
         {
             %formatting_args,
 
+            ugc_links               => $opts->{ugc_links} // 1,
             cuturl                  => $opts->{cuturl},
             cutpreview              => $opts->{cutpreview},
             eat                     => $event_eat,
@@ -1819,6 +1832,7 @@ sub clean_comment {
         {
             %formatting_args,
 
+            ugc_links          => 1,
             eat                => $opts->{anon_comment} ? \@comment_anon_eat : \@comment_eat,
             mode               => 'deny',
             allow              => \@comment_all,
@@ -1842,6 +1856,7 @@ sub clean_userbio {
     clean(
         $ref,
         {
+            ugc_links    => 1,
             addbreaks    => 1,
             attrstrip    => [qw[style]],
             mode         => 'allow',

@@ -179,8 +179,9 @@ sub profile_handler {
 
         if ( $l->{text} ) {
             my $ret = "";
+            my $rel = $l->{ugc} ? 'nofollow ugc' : 'nofollow';
             $ret .= $l->{secimg} if $l->{secimg};
-            $ret .= $l->{url} ? qq(<a href="$l->{url}" rel="nofollow">$l->{text}</a>) : $l->{text};
+            $ret .= $l->{url} ? qq(<a href="$l->{url}" rel="$rel">$l->{text}</a>) : $l->{text};
             return $ret;
         }
         elsif ( $l->{email} ) {

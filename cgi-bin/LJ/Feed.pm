@@ -231,6 +231,9 @@ ENTRY:
                     cuturl           => $u->{opt_synlevel} eq 'cut' ? $entry_url : "",
                     to_external_site => 1,
                     editor           => $logprops{$itemid}->{editor},
+                    # Feed bodies can include the generated truncation link above.
+                    # Keep this mixed content out of user-link tagging for now.
+                    ugc_links        => 0,
                 }
             );
 
