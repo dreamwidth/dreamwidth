@@ -29,6 +29,8 @@ sub cookie        { $_[0]->{jar}{ $_[1] } }
 sub get_args      { $_[0]->{args} }
 sub get_remote_ip { '127.0.0.1' }
 sub header_in     { '' }
+sub host          { 'localhost' }
+sub uri           { '/' }
 
 sub note {
     my ( $self, $name, $value ) = @_;
