@@ -56,12 +56,23 @@ window.onload = function() {
 [%- IF user -%]
     <p>[% '.intro.admin' | ml(user => user) %]</p>
 [%- ELSE -%]
-    <p>[% '.intro2' | ml(aopts1 => '/file/edit', aopts2 => '/file/new') %]</p>
+    <p>[% '.intro2' | ml(aopts1 => dw.create_url('/file/edit', args => { order => order }), aopts2 => '/file/new') %]</p>
 
     <p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
 [%- END -%]
 
 [% IF media.size %]
+<form method="GET">
+    [% form.hidden( name = 'page', value = page ) %]
+    [% form.hidden( name = 'view', value = view_type ) %]
+    [% form.hidden( name = 'user', value = user ) IF user %]
+    [% form.select( name = 'order', id = 'media-order', label = dw.ml('.order.label'),
+        selected = order, items = [
+            { value = 'newest', text = dw.ml('.order.newest') },
+            { value = 'oldest', text = dw.ml('.order.oldest') }
+        ] ) %]
+    [% form.submit( value = dw.ml('.order.submit') ) %]
+</form>
 <p>
 [% IF view_type == 'grid' %]
     <a href="[% dw.create_url( undef, keep_args => 1, args => { view => 'list' } ) %]">[% '.view.list' | ml %]</a> | [% '.view.grid' | ml %]

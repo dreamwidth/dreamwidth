@@ -23,7 +23,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) %]
 
 [% IF media.size %]
-    <p>[% dw.ml(".intro2", { aopts1 => '/file/list',
+    <p>[% dw.ml(".intro2", { aopts1 => dw.create_url('/file/list', args => { order => order }),
                              aopts2 => '/file/new',
                                  } ) %]</p>
 
@@ -37,6 +37,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% END %]
 
 [% IF media.size %]
+<form method="GET">
+    [% form.hidden( name = 'page', value = page ) %]
+    [% form.select( name = 'order', id = 'media-order', label = dw.ml('.order.label'),
+        selected = order, items = [
+            { value = 'newest', text = dw.ml('.order.newest') },
+            { value = 'oldest', text = dw.ml('.order.oldest') }
+        ] ) %]
+    [% form.submit( value = dw.ml('.order.submit') ) %]
+</form>
 [% IF maxpage > 1 %]
     <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
@@ -44,7 +53,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         total_pages => maxpage, -%]
     </div>
 [% END %]
-<form id="media-manage" method="POST" action="[%site.root%]/file/edit">
+<form id="media-manage" method="POST" action="[% dw.create_url('/file/edit', args => { order => order, page => page }) | html %]">
 [%- dw.form_auth -%]
 <div id="media-list">
     [% first_index = (page - 1) * 20 %]
