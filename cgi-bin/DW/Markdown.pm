@@ -28,8 +28,8 @@ sub _FormParagraphs {
     $text =~ s/\n+\z//;
 
     my @paragraphs;
-    my $details_depth = 0;
-    my $in_summary    = 0;
+    my $details_depth  = 0;
+    my $in_summary     = 0;
     my $disclosure_tag = sub {
         my ( $type, $tag ) = @_;
         if ( $tag eq 'details' ) {
