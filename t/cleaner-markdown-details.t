@@ -187,7 +187,8 @@ MARKDOWN
         foreach my $prefix ( '', '<details><summary>Title</summary>Body</details>' . "\n\n" ) {
             like(
                 $clean->(
-                          $prefix . "Use the <summary> element for titles.\n\n"
+                          $prefix
+                        . "Use the <summary> element for titles.\n\n"
                         . "Second paragraph.\n\nThird paragraph."
                 ),
                 qr{<p>Second[ ]paragraph\.</p>\s*<p>Third[ ]paragraph\.</p>\z},

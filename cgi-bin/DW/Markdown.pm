@@ -29,8 +29,8 @@ sub _FormParagraphs {
 
     my @paragraphs;
     my $details_depth = 0;
-    my $in_summary = 0;
-    my $protect    = sub {
+    my $in_summary    = 0;
+    my $protect       = sub {
         my ($html) = @_;
         my $key = Text::Markdown::_md5_utf8($html);
         $self->{_html_blocks}{$key} = $html;
@@ -64,9 +64,11 @@ sub _FormParagraphs {
             my $type = $token->[0];
             my $raw  = $token->[ $type eq 'S' ? 4 : $type eq 'E' || $type eq 'PI' ? 2 : 1 ];
 
-            if (   ( $type eq 'S' || $type eq 'E' )
+            if (
+                ( $type eq 'S' || $type eq 'E' )
                 && ( $token->[1] eq 'details'
-                    || ( $details_depth && $token->[1] eq 'summary' ) ) )
+                    || ( $details_depth && $token->[1] eq 'summary' ) )
+                )
             {
                 $flush->();
                 $rendered .= $raw;
