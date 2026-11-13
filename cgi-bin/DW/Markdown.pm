@@ -28,6 +28,7 @@ sub _FormParagraphs {
     $text =~ s/\n+\z//;
 
     my @paragraphs;
+    my $details_depth = 0;
     my $in_summary = 0;
     my $protect    = sub {
         my ($html) = @_;
@@ -64,12 +65,19 @@ sub _FormParagraphs {
             my $raw  = $token->[ $type eq 'S' ? 4 : $type eq 'E' || $type eq 'PI' ? 2 : 1 ];
 
             if (   ( $type eq 'S' || $type eq 'E' )
-                && ( $token->[1] eq 'details' || $token->[1] eq 'summary' ) )
+                && ( $token->[1] eq 'details'
+                    || ( $details_depth && $token->[1] eq 'summary' ) ) )
             {
                 $flush->();
                 $rendered .= $raw;
-                $in_summary = $type eq 'S' if $token->[1] eq 'summary';
-                $in_summary = 0            if $token->[1] eq 'details';
+                if ( $token->[1] eq 'details' ) {
+                    $details_depth++ if $type eq 'S';
+                    $details_depth-- if $type eq 'E' && $details_depth;
+                    $in_summary = 0;
+                }
+                else {
+                    $in_summary = $type eq 'S';
+                }
             }
             else {
                 $fragment .= $raw;
