@@ -263,6 +263,20 @@ edges.watch.error.usernotvisible=Your account must be visible.
 
 Email=Email
 
+email.check.bad_domain=The email address domain is invalid.
+
+email.check.bad_form=You did not give a valid email address.  An email address looks like username@some.domain
+
+email.check.bad_spelling=You gave [[email]] as the email address. Are you sure you didn't mean [[domain]]?
+
+email.check.bad_username=You have invalid characters in the email address username.
+
+email.check.confirm=Yes I'm sure this is correct
+
+email.check.empty=The email address cannot be blank.
+
+email.check.web_address=You gave [[email]] as the email address, but it looks more like a web address to me.
+
 email.emailreset.body<<
 The email address for your [[sitename]] account '[[user]]' has
 been reset. To validate the change, please go to this address:
