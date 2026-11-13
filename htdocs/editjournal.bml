@@ -194,7 +194,8 @@ body<=
                 $disabled_save++;
             }
 
-            return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
+            return BML::redirect( LJ::Talk::talkargs(
+                "/entry/" . $u_for_entry->user . "/$ditemid/edit", LJ::viewing_style_args(%GET) ) )
                     if ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
@@ -312,7 +313,7 @@ body<=
                                           map {"<li><div style='color: red;'><strong>"
                                                . BML::ml('xpost.request.failed',
                                                          {account => $_->displayname,
-                                                          'editurl' => $edititemlink})
+                                                          'editurl' => $edit_url})
                                                . " </strong></div></li>"}
                                               @{$xpost_failures});
                     $xpost_result .= "</ul>\n";
