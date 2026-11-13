@@ -37,6 +37,7 @@ with_fake_memcache {
 
         subtest 'entry search is offered only when configured' => sub {
             for my $enabled ( 0, 1 ) {
+
                 # Rendering and prefilling need no search-engine connection.
                 local @LJ::MANTICORE = $enabled ? ( '127.0.0.1', 9312, 9306 ) : ();
                 my $res = $cb->( GET 'http://localhost/tools/search?skin=gradation-vertical' );
@@ -61,16 +62,21 @@ with_fake_memcache {
                 $url->query_form( type => 'CoNtEnT', q => $query );
                 for my $request (
                     GET($url),
-                    POST( 'http://localhost/multisearch',
-                        Content => [ type => 'content', q => $query ] )
+                    POST(
+                        'http://localhost/multisearch',
+                        Content => [ type => 'content', q => $query ]
+                    )
                     )
                 {
                     my $res = $cb->($request);
                     is( $res->code, 303, 'multisearch redirects to the search form' );
                     my $location = URI->new( $res->header('Location') );
                     is( $location->path, '/search', 'destination is content search' );
-                    is_deeply( { $location->query_form }, { query => $query },
-                        'query retains case and cannot inject another argument' );
+                    is_deeply(
+                        { $location->query_form },
+                        { query => $query },
+                        'query retains case and cannot inject another argument'
+                    );
                     ok( !$location->fragment, 'query cannot inject a fragment' );
                 }
             }
@@ -79,15 +85,17 @@ with_fake_memcache {
         subtest 'the destination prefills without executing a search' => sub {
             local @LJ::MANTICORE = ( '127.0.0.1', 9312, 9306 );
             my $query = 'Mixed Case "Exact phrase" & plus+';
-            my $url = URI->new('http://localhost/search');
+            my $url   = URI->new('http://localhost/search');
             $url->query_form( query => $query, as => $u->user );
             my $res = $cb->( GET $url );
             is( $res->code, 200, 'existing search form renders for a signed-in user' );
-            my $tree = HTML::TreeBuilder->new_from_content( $res->content );
+            my $tree  = HTML::TreeBuilder->new_from_content( $res->content );
             my $field = $tree->look_down( _tag => 'input', name => 'query' );
             is( $field ? $field->attr('value') : undef, $query, 'query is prefilled' );
-            ok( $tree->look_down( _tag => 'input', name => 'lj_form_auth' ),
-                'search still uses its existing form-auth control' );
+            ok(
+                $tree->look_down( _tag => 'input', name => 'lj_form_auth' ),
+                'search still uses its existing form-auth control'
+            );
             $tree->delete;
         };
 
@@ -95,12 +103,15 @@ with_fake_memcache {
             my $url = URI->new('http://localhost/multisearch');
             $url->query_form( type => 'nav_and_user', q => uc $u->user );
             my $res = $cb->( GET $url );
-            is( $res->code, 303, 'account lookup redirects' );
+            is( $res->code,               303,             'account lookup redirects' );
             is( $res->header('Location'), $u->profile_url, 'account opens its profile' );
 
             $res = $cb->( GET 'http://localhost/multisearch?type=unknown&q=example' );
-            is( URI->new( $res->header('Location') )->path, '/tools/search',
-                'unknown types still open the search tools' );
+            is(
+                URI->new( $res->header('Location') )->path,
+                '/tools/search',
+                'unknown types still open the search tools'
+            );
         };
     };
 };

@@ -187,6 +187,7 @@ sub multisearch_handler {
         email        => $f_email,
         region       => $f_region,
         faq          => $f_faq,
+
         # The search page accepts a GET query to prefill its authenticated form.
         content => sub {
             return $r->redirect( "$LJ::SITEROOT/search?query=" . LJ::eurl( $args->{q} // '' ) );
