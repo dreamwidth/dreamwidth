@@ -24,6 +24,7 @@ sub _FormParagraphs {
     return $self->SUPER::_FormParagraphs( $text, $options )
         unless $text =~ m{</?(?:details|summary)(?:\s|>)}i;
 
+    my $original_text = $text;
     $text =~ s/\A\n+//;
     $text =~ s/\n+\z//;
 
@@ -101,7 +102,25 @@ sub _FormParagraphs {
         }
     };
 
+    my @tokens;
     while ( my $token = $parser->get_token ) {
+        my $type = $token->[0];
+        my $raw  = $token->[ $type eq 'S' ? 4 : $type eq 'E' || $type eq 'PI' ? 2 : 1 ];
+
+        # Stored blocks are opaque here. If a comment or tag swallows a block
+        # key, its real terminator may be hidden inside that block. Preserve
+        # upstream paragraph handling rather than silently hiding later text.
+        if ( $type ne 'T' ) {
+            my @keys = $raw =~ /(?<![0-9a-f])([0-9a-f]{32})(?![0-9a-f])/g;
+            return $self->SUPER::_FormParagraphs( $original_text, $options )
+                if grep { exists $self->{_html_blocks}{$_} } @keys;
+            return $self->SUPER::_FormParagraphs( $original_text, $options )
+                if $type eq 'C' && $raw !~ /-->\z/;
+        }
+        push @tokens, $token;
+    }
+
+    foreach my $token (@tokens) {
         my $type = $token->[0];
         my $raw  = $token->[ $type eq 'S' ? 4 : $type eq 'E' || $type eq 'PI' ? 2 : 1 ];
         if ( $type eq 'T' ) {
