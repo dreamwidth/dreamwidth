@@ -27,12 +27,12 @@
 
 .nocomms2=There are no communities matching the [[?num|interest|interests]] you specified, but you can <a [[aopts]]>create one</a>!
 
-.nomatch=No matching users for the specified account type. <a href="[[link]]">View all accounts with this interest.</a>
+.nomatch=No matching accounts for the specified account type. <a href="[[link]]">View all accounts with this interest.</a>
 
 .noshown=No accounts with this interest are currently visible on the site.
 
-.notall=There are no users matching all of the interests you specified.  You may want to modify your search.
+.notall=There are no accounts matching all of the interests you specified.  You may want to modify your search.
 
-.nousers3=No one currently has [[num]] of the interests you're searching for. If you're interested, <a [[aopts]]>click here to add "[[interests]]" to your profile</a>.
+.nousers3=No accounts currently list [[num]] of the interests you're searching for. If you're interested, <a [[aopts]]>click here to add "[[interests]]" to your profile</a>.
 
 .title=Interests

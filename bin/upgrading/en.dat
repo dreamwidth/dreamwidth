@@ -1920,7 +1920,7 @@ interests.enmasse.btn=Show List
 
 interests.enmasse.intro=Modify your interests based on those of:
 
-interests.error.ignored=Sorry, we're unable to help you find users matching the interests you've provided.
+interests.error.ignored=Sorry, we're unable to help you find accounts matching the interests you've provided.
 
 interests.error.longinterest=As [[sitename]] does not support interests longer than [[maxlen]] characters, your search for <b>[[old_int]]</b> was converted into a search for <b>[[new_int]]</b> instead.
 
@@ -1930,13 +1930,13 @@ interests.error.toomany=You can't search for more than [[num]] interests at a ti
 
 interests.findsim_do.account.notallowed=Your account type doesn't let you use this tool.
 
-interests.findsim_do.nomatch=Nobody similar to [[user]].
+interests.findsim_do.nomatch=No accounts have interests similar to those of [[user]].
 
 interests.findsim_do.notdefined=[[user]] has no interests defined.
 
 interests.interested.btn=Find
 
-interests.interested.in=Find people interested in:
+interests.interested.in=Find accounts interested in:
 
 interests.popular.disabled=The popular interests feature is unavailable.
 

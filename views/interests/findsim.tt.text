@@ -5,7 +5,7 @@
 
 .accounts.person=Personal Accounts
 
-.circle.exclude=This listing includes accounts you already subscribe to. <a href="[[aopts]]">Exclude users in your circle?</a>
+.circle.exclude=This listing includes accounts you already subscribe to. <a href="[[aopts]]">Exclude accounts in your circle?</a>
 
 .circle.include=This listing does not include accounts in your circle. <a href="[[aopts]]">Include them?</a>
 
