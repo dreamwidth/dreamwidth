@@ -99,7 +99,8 @@ $poster->join_community( $community, 1, 1 );
                 BAIL_OUT('created entry not found') unless $jitemid;
                 my $ditemid = $jitemid * 256 + $anum;
                 my $entry = LJ::Entry->new( $journal, ditemid => $ditemid );
-                is( $entry->event_raw, $form->{event}, 'created entry body persisted' );
+                is( stored_event( $journal, $jitemid ), $form->{event},
+                    'created entry body persisted' );
                 check_links( $posted{render}, $journal, $entry, $expected, 'posted' );
 
                 $form->{event} = 'Edited viewing-style regression entry';
@@ -107,7 +108,8 @@ $poster->join_community( $community, 1, 1 );
                 is( $edited{status}, 'ok', 'real entry edit succeeds' );
                 BAIL_OUT('entry edit failed') unless $edited{status} && $edited{status} eq 'ok';
                 my $updated = LJ::Entry->new( $journal, ditemid => $ditemid );
-                is( $updated->event_raw, $form->{event}, 'edited entry body persisted' );
+                is( stored_event( $journal, $jitemid ), $form->{event},
+                    'edited entry body persisted' );
                 check_links( $edited{render}, $journal, $updated, $expected, 'edited' );
 
                 $form->{event} = '';
@@ -136,6 +138,16 @@ $poster->join_community( $community, 1, 1 );
 }
 
 done_testing;
+
+sub stored_event {
+    my ( $journal, $jitemid ) = @_;
+    # Both mutations run in one process; an already-loaded LJ::Entry singleton
+    # can retain its old text until request teardown. Check durable state here.
+    return scalar $journal->selectrow_array(
+        'SELECT event FROM logtext2 WHERE journalid=? AND jitemid=?',
+        undef, $journal->id, $jitemid
+    );
+}
 
 sub check_url {
     my ( $actual, $destination, $expected, $label ) = @_;
