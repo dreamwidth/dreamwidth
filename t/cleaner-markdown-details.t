@@ -228,9 +228,7 @@ MARKDOWN
 
         foreach my $block ( "- one\n- two", "1. one\n2. two", "> quotation" ) {
             like(
-                $clean->(
-                    "$block\n<details><summary>Spoilers\n\nBody A.\n\nBody B.\n\n</details>"
-                ),
+                $clean->("$block\n<details><summary>Spoilers\n\nBody A.\n\nBody B.\n\n</details>"),
                 qr{<p>Body[ ]A\.</p>\s*<p>Body[ ]B\.</p>},
                 'a summary opened inside a Markdown block cannot suppress later paragraphs'
             );
@@ -253,8 +251,7 @@ MARKDOWN
         );
         like(
             $clean->(
-                      $commented
-                    . "<details><summary>Actual</summary>Body one.\n\nBody two.</details>"
+                $commented . "<details><summary>Actual</summary>Body one.\n\nBody two.</details>"
             ),
             qr{<details>\s*<summary>Actual</summary>\s*<p>Body[ ]one\.</p>
                 \s*<p>Body[ ]two\.</p>\s*</details>\z}x,
