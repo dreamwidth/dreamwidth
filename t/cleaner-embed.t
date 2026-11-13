@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 189;
+use Test::More tests => 191;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -87,6 +87,18 @@ qq{<object width="640" height="385"><param name="movie" value="http://www.exampl
     $clean_post = qq{};
     $clean->();
     is( $orig_post, $clean_post, "<iframe> tag" );
+
+    foreach my $provider ( 'blip.tv/play/x11Xx11Xx.html', 'vid.me/e/v63?stats=1&amp;tools=1' ) {
+        subtest "remove retired provider $provider", sub {
+            foreach my $scheme ( 'http:', 'https:', '' ) {
+                foreach my $display ( 0, 1 ) {
+                    my $html = qq{before<iframe src="$scheme//$provider"></iframe>after};
+                    LJ::CleanHTML::clean_embed( \$html, { display_as_content => $display } );
+                    is( $html, 'beforeafter', "$scheme URL, display_as_content=$display" );
+                }
+            }
+        };
+    }
 
     my $id = "ABC123abc-_";
     note("trusted site: youtube");
