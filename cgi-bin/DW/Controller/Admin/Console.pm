@@ -17,6 +17,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
+use DW::Auth::Challenge;
 use LJ::Console;
 
 =head1 NAME
@@ -52,7 +53,7 @@ sub reference_handler {
 sub console_handler {
     my ($opts) = @_;
 
-    # Recover submitted commands on an auth failure without executing them.
+    # Check form auth here so trusted expired forms can recover their input.
     my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
@@ -68,6 +69,18 @@ sub console_handler {
             $commands_output = LJ::Console->run_commands_html($commands);
         }
         else {
+            # Do not turn a forged POST into commands an administrator might run.
+            # A signed token for this user can outlive its session or expire.
+            my $token = $post->{lj_form_auth} || '';
+            my ( undef, $userid ) =
+                split /-/, DW::Auth::Challenge->get_attributes($token) || '';
+            return error_ml('error.invalidform')
+                unless defined $userid && $userid =~ /\A[0-9]+\z/ && $userid == $rv->{remote}->id;
+
+            my $check = { dont_check_count => 1 };
+            DW::Auth::Challenge->check( $token, $check );
+            return error_ml('error.invalidform') unless $check->{valid};
+
             $invalid_form       = 1;
             $submitted_commands = $commands;
         }
