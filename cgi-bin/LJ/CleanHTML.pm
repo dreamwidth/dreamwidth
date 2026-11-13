@@ -939,7 +939,7 @@ TOKEN:
                         push @$attrs, 'rel' unless grep { $_ eq 'rel' } @$attrs;
                         $hash->{rel} //= '';
                         $hash->{rel} .= ( length $hash->{rel} ? ' ' : '' ) . 'ugc'
-                            unless $hash->{rel} =~ /(?:^|\s)ugc(?:\s|$)/i;
+                            unless $hash->{rel} =~ /(?:^|[ \t\n\f\r])ugc(?:[ \t\n\f\r]|$)/i;
                     }
                 }
 
