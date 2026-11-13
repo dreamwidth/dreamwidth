@@ -1494,7 +1494,7 @@ MOODS
         my $comment_settings_selected = sub {
             return "nocomments_maintainer"
                 if $opts->{prop_opt_nocomments_maintainer} && !$opts->{prop_opt_nocomments};
-            return "noemail" if $opts->{'prop_opt_noemail'};
+            return "noemail"    if $opts->{'prop_opt_noemail'};
             return "nocomments" if $opts->{prop_opt_nocomments};
             return $opts->{'comment_settings'};
         };
@@ -2220,6 +2220,7 @@ sub entry_form_decode {
         $POST->{comment_settings} && $POST->{comment_settings} eq "nocomments" ? 1 : 0;
     $req->{"prop_opt_noemail"} ||=
         $POST->{comment_settings} && $POST->{comment_settings} eq "noemail" ? 1 : 0;
+
     # An unchanged administrator override must not become the poster's preference.
     # Omitting these properties also keeps editevent from clearing the override.
     if ( $POST->{comment_settings} && $POST->{comment_settings} eq "nocomments_maintainer" ) {

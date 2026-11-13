@@ -106,11 +106,9 @@ foreach my $case (@cases) {
 
         my %stored;
         LJ::load_log_props2( $comm, [ $entry->jitemid ], \%stored );
-        is_deeply(
-            [ map { $stored{ $entry->jitemid }{$_} ? 1 : 0 } @props ],
+        is_deeply( [ map { $stored{ $entry->jitemid }{$_} ? 1 : 0 } @props ],
             $case->{expected},
-            'stored poster, administrator and email preferences remain distinct'
-        );
+            'stored poster, administrator and email preferences remain distinct' );
     };
 }
 
