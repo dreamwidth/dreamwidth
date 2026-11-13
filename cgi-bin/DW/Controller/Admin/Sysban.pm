@@ -69,17 +69,17 @@ sub sysban_controller {
 
     my $bantype = $form_args->{bantype};
     if ( $vars->{action} eq 'query' ) {
-        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
             unless length( $bantype || '' )
             && ( $remote->has_priv( 'sysban', $bantype )
                 || $remote->has_priv( 'sysbanview', $bantype ) );
         $vars->{can_modify} = $remote->has_priv( 'sysban', $bantype );
     }
     elsif ( $vars->{action} eq 'addnew' ) {
-        return error_ml( "$scope.error.nopriv", { bantype => $bantype } ) unless @write_privs;
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } ) unless @write_privs;
     }
     elsif ( $vars->{action} ne 'queryone' ) {
-        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
             unless length( $bantype || '' ) && $remote->has_priv( 'sysban', $bantype );
     }
 
@@ -110,7 +110,7 @@ sub sysban_controller {
         my $stored_type = LJ::get_db_writer()->selectrow_array(
             "SELECT what FROM sysban WHERE banid = ?", undef, $form_args->{banid}
         );
-        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
             unless defined $stored_type && $stored_type eq $bantype;
 
         my $modify = LJ::Sysban::modify(
