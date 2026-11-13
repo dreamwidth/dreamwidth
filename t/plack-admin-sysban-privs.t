@@ -356,6 +356,21 @@ with_fake_memcache {
                 'denied type cannot create an image element' );
         };
 
+        subtest 'unknown query types render as text for wildcard readers' => sub {
+            my $reader = temp_user();
+            ok( $reader->grant_priv( 'sysbanview', '*' ), 'grant wildcard reader' );
+            my $markup = '<img src=x onerror=window.__sysbanXss=3>';
+            my $query  = $request->( $reader, '/admin/sysban', { query => 1, bantype => $markup } );
+            is( $query->code, 200, 'wildcard query of an unknown type renders' );
+            like(
+                $query->content,
+                qr/&lt;img src=x onerror=window\.__sysbanXss=3&gt;/,
+                'unknown type is escaped in the no-results message'
+            );
+            unlike( $query->content, qr/<img\b[^>]*onerror=/i,
+                'unknown query type cannot create an image element' );
+        };
+
         subtest 'anonymous and invalid form-auth requests cannot mutate' => sub {
             my $before    = $snapshot->();
             my $anonymous = $cb->( GET 'http://localhost/admin/sysban' );
