@@ -69,6 +69,7 @@ sub _FormParagraphs {
                 $flush->();
                 $rendered .= $raw;
                 $in_summary = $type eq 'S' if $token->[1] eq 'summary';
+                $in_summary = 0 if $token->[1] eq 'details';
             }
             else {
                 $fragment .= $raw;
