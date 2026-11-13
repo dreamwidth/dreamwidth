@@ -45,6 +45,12 @@ the same terms as Perl itself.  For a copy of the license, please reference
     # page-specific
     "js/pages/entry/new.js"
 
+    # rich text editor (rte1) — editor.js must load before rte.js so its
+    # format-change handler runs first (see js/pages/entry/editor.js)
+    "js/vendor/dw-editor.js"
+    "js/pages/entry/editor.js"
+    "stc/css/components/dw-editor.css"
+
     # code required for old RTE
     "js/6alib/httpreq.js"
     "js/6alib/core.js"
@@ -109,6 +115,51 @@ postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
 postFormInitData.strings = {
   "delete_confirm" : [%- "entryform.delete.confirm" | ml | js -%],
   "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
+};
+
+postFormInitData.dwEditor = {
+  "circleUrl": "/__rpc_general?mode=list_circle",
+  "strings": {
+    "toolbarLabel":     [%- ".rte.toolbar" | ml | js -%],
+    "undo":             [%- ".rte.undo" | ml | js -%],
+    "redo":             [%- ".rte.redo" | ml | js -%],
+    "blockLabel":       [%- ".rte.block" | ml | js -%],
+    "blockParagraph":   [%- ".rte.block.paragraph" | ml | js -%],
+    "blockHeading":     [%- ".rte.block.heading" | ml | js -%],
+    "blockCode":        [%- ".rte.block.code" | ml | js -%],
+    "blockHtml":        [%- ".rte.block.html" | ml | js -%],
+    "bold":             [%- ".rte.bold" | ml | js -%],
+    "italic":           [%- ".rte.italic" | ml | js -%],
+    "underline":        [%- ".rte.underline" | ml | js -%],
+    "strike":           [%- ".rte.strike" | ml | js -%],
+    "codeMark":         [%- ".rte.code" | ml | js -%],
+    "link":             [%- ".rte.link" | ml | js -%],
+    "image":            [%- ".rte.image" | ml | js -%],
+    "user":             [%- ".rte.user" | ml | js -%],
+    "bulletList":       [%- ".rte.list.bullet" | ml | js -%],
+    "orderedList":      [%- ".rte.list.ordered" | ml | js -%],
+    "blockquote":       [%- ".rte.blockquote" | ml | js -%],
+    "cut":              [%- ".rte.cut" | ml | js -%],
+    "hr":               [%- ".rte.hr" | ml | js -%],
+    "outdent":          [%- ".rte.outdent" | ml | js -%],
+    "cutEdit":          [%- ".rte.cut.edit" | ml | js -%],
+    "cutCaption":       [%- ".rte.cut.caption" | ml | js -%],
+    "cutDefault":       [%- ".rte.cut.default" | ml | js -%],
+    "htmlBlockLabel":   [%- ".rte.htmlblock" | ml | js -%],
+    "cancel":           [%- ".rte.cancel" | ml | js -%],
+    "ok":               [%- ".rte.ok" | ml | js -%],
+    "linkTitle":        [%- ".rte.link.title" | ml | js -%],
+    "linkUrl":          [%- ".rte.link.url" | ml | js -%],
+    "imageTitle":       [%- ".rte.image.title" | ml | js -%],
+    "imageUrl":         [%- ".rte.image.url" | ml | js -%],
+    "imageAlt":         [%- ".rte.image.alt" | ml | js -%],
+    "userTitle":        [%- ".rte.user.title" | ml | js -%],
+    "userName":         [%- ".rte.user.name" | ml | js -%],
+    "userSite":         [%- ".rte.user.site" | ml | js -%],
+    "userSiteHint":     [%- ".rte.user.site.hint" | ml | js -%],
+    "mentionLiteral":   [%- ".rte.mention.literal" | ml | js -%],
+    "mentionCommunity": [%- ".rte.mention.community" | ml | js -%]
+  }
 };
 
 [%- IF remote && remote.can_use_userpic_select -%]
