@@ -55,13 +55,27 @@ for my $surface (@surfaces) {
             is( $a->{target}, '_blank', 'target preserved' );
             is( $a->{title}, 'A & B', 'escaped title preserved' );
             like( $out, qr/>chosen link<\/a>/, 'link text preserved' );
-            my @tokens = split /\s+/, $a->{rel} || '';
+            my @tokens = split /[ \t\n\f\r]+/, $a->{rel} || '';
             is( scalar( grep { lc $_ eq 'ugc' } @tokens ), 1, 'exactly one UGC token' );
-            for my $token ( split /\s+/, $rel ) {
+            for my $token ( split /[ \t\n\f\r]+/, $rel ) {
                 next if $token eq '&#117;gc';
                 ok( scalar( grep { $_ eq $token } @tokens ), "$token preserved" );
             }
             is( $clean->($out), $out, 'cleaning again is stable' );
+        }
+
+        for my $separator ( [ '&#160;', "\x{a0}" ], [ '&#8195;', "\x{2003}" ] ) {
+            my ( $entity, $character ) = @$separator;
+            my $out = $clean->(
+                qq{<a href="https://example.test/space" rel="ugc${entity}nofollow">link</a>}
+            );
+            my $rel = links($out)->[0]{rel} || '';
+            is( $rel, LJ::no_utf8_flag("ugc${character}nofollow") . ' ugc',
+                "$entity stays within its token and a separate UGC token is added" );
+            my @tokens = split /[ \t\n\f\r]+/, $rel;
+            is( scalar( grep { lc $_ eq 'ugc' } @tokens ), 1,
+                "$entity does not separate HTML rel tokens" );
+            is( $clean->($out), $out, 'non-ASCII rel token stays stable when cleaned again' );
         }
 
         my $out = $clean->(q{Visit https://example.test/plain?a=1&amp;b=2});
@@ -111,7 +125,8 @@ for my $surface ( @surfaces[ 0, 1 ] ) {
             my $out = $clean->( $input, { editor => 'markdown0' } );
             my $anchors = links($out);
             is( scalar @$anchors, 1, 'Markdown produces a link' );
-            like( $anchors->[0]{rel} || '', qr/(?:^|\s)ugc(?:\s|$)/, 'Markdown link marked' );
+            like( $anchors->[0]{rel} || '', qr/(?:^|[ \t\n\f\r])ugc(?:[ \t\n\f\r]|$)/,
+                'Markdown link marked' );
         }
         my $out = $clean->( 'https://example.test/raw', { preformatted => 1 } );
         is( scalar @{ links($out) }, 0, 'raw formatting still disables autolinks' );
