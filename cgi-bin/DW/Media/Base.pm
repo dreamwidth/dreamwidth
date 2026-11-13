@@ -21,6 +21,7 @@ use strict;
 use Carp qw/ croak confess /;
 
 use DW::BlobStore;
+use DW::Security;
 
 sub new_from_row {
     croak "Children must override this method.";
@@ -187,18 +188,9 @@ sub set_security {
     confess 'Invalid argument hash passed to set_security.'
         unless defined $security;
 
-    my $mask = 0;
-    if ( $security eq 'usemask' ) {
-
-        # default allowmask of 0 unless defined otherwise
-        $opts{allowmask} //= 0;
-        $mask = int $opts{allowmask};
-    }
-
-    if ( $security =~ /^(?:friends|access)$/ ) {
-        $security = 'usemask';
-        $mask     = 1;
-    }
+    my $mask;
+    ( $security, $mask ) = DW::Security->normalize( $security, $opts{allowmask} );
+    $mask = int $mask;
     confess 'Invalid security type passed to set_security.'
         unless $security =~ /^(?:private|public|usemask)$/;
 
