@@ -34,7 +34,7 @@
 
         <input type="button" value="Save & Compile" id="compilelink" />
 
-        [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers'>" _ dw.ml('.advancedlayerlink') _ "</a>"}) %]
+        [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers$authas'>" _ dw.ml('.advancedlayerlink') _ "</a>"}) %]
     </div>
 
     <div class="main" id="maindiv">
