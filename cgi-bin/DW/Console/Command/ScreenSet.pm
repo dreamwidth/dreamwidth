@@ -63,6 +63,17 @@ sub execute {
     return $self->error("Unknown account: $user")
         unless $screenuser;
 
+    # Only personal and OpenID accounts can comment, so screening any other account
+    # type does nothing. This also stops "screen_set anonymous" from quietly screening
+    # the community of that name instead of anonymous comments.
+    unless ( $screenuser->is_individual ) {
+        my $type = $screenuser->journaltype_readable;
+        return $self->error( $screenuser->user
+                . " is a $type account and cannot leave comments.\n"
+                . "Only personal and OpenID accounts can be selectively screened.\n"
+                . "To screen anonymous comments, use the Comment Screening setting." );
+    }
+
     my $screenlist = LJ::load_rel_user( $journal, 'S' ) || [];
     return $self->error(
 "You have reached the maximum number of users to automatically screen. Remove a user and try again."
