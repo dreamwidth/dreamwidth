@@ -53,7 +53,7 @@ my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
 my $u = temp_user();
-local $LJ::IS_DEV_SERVER = 1;
+local $LJ::IS_DEV_SERVER              = 1;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'multisearchTest';
 
 with_fake_memcache {
