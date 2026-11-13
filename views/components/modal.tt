@@ -20,8 +20,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div id="[%- id -%]" class="reveal-modal [%- class.join(" ") -%]" [% IF options %]data-options="[%- options.dquote -%]" [% END %]data-reveal>
 [%- content -%]
-<button type="button" class="fi-icon--with-fallback close-reveal-modal">
-    <span class="fi-icon fi-x" aria-hidden="true"></span>
-    <span class="fi-icon--fallback">Close</span>
+<button type="button" class="close-reveal-modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
 </button>
 </div>
