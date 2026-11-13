@@ -107,7 +107,7 @@ with_fake_memcache {
                 my $resubmit = $post->($auth, $fresh, 'print CONSOLE_RESUBMITTED');
                 is($resubmit->code, 200, 'explicit resubmission succeeds');
                 is($executions, $before + 1, 'explicit valid resubmission executes once');
-                like($resubmit->content, qr/console_success[^>]*>CONSOLE_RESUBMITTED/,
+                like($resubmit->content, qr/<span[^>]*>CONSOLE_RESUBMITTED<\/span>/,
                     'the real console command returns its result');
                 is(commands_value($resubmit), '', 'success clears input to avoid accidental repetition');
             };
