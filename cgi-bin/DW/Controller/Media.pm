@@ -88,6 +88,8 @@ sub media_manage_handler {
     $rv->{page}           = $r->get_args->{page} || '1';
     $rv->{view_type}      = $r->get_args->{view} || '';
     $rv->{maxpage}        = POSIX::ceil( scalar @media / 20 );
+    $rv->{page} = 1 unless $rv->{maxpage} && $rv->{page} =~ /\A[1-9][0-9]*\z/;
+    $rv->{page} = $rv->{maxpage} if $rv->{maxpage} && $rv->{page} > $rv->{maxpage};
     $rv->{valid_sizes}    = [%VALID_SIZES];
     $rv->{convert_time}   = \&LJ::mysql_time;
     $rv->{adminmode}      = $adminmode ? 1 : 0;
@@ -200,6 +202,9 @@ sub media_bulkedit_handler {
     $rv->{media}   = \@media;
     $rv->{page}    = $r->get_args->{page} || '1';
     $rv->{maxpage} = POSIX::ceil( scalar @media / 20 );
+    # A bulk deletion can remove the current page while retaining the sort order.
+    $rv->{page} = 1 unless $rv->{maxpage} && $rv->{page} =~ /\A[1-9][0-9]*\z/;
+    $rv->{page} = $rv->{maxpage} if $rv->{maxpage} && $rv->{page} > $rv->{maxpage};
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }
 
