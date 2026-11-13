@@ -13,30 +13,24 @@
 // the same terms as Perl itself. For a copy of the license, please reference
 // 'perldoc perlartistic' or 'perldoc perlgpl'.
 //
-// Run inside the devcontainer against a disposable account with an active icon,
-// icon renames enabled, and mapped keywords (dversion >= 9):
-//   DW_ICON_TEST_COOKIES=/tmp/icon-test-cookies.json node t/browser/editicons-rename.js
-// The cookie file is a JSON array of Puppeteer cookies for the target origin.
-// DW_ICON_TEST_URL can override the default local management-page URL.
-// DW_ICON_TEST_DISABLED_PICID can require a fixture icon to be non-editable.
-// This test changes only unsaved checkbox state; it never submits a form.
+// Run inside the devcontainer (see t/browser/README.md):
+//   node t/browser/editicons-rename.js
+// It creates its own account with an active and a suspended icon, and removes
+// it afterwards. It changes only unsaved checkbox state; it never submits a form.
 
 "use strict";
 
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const puppeteer = require("/opt/dw-screenshot/node_modules/puppeteer-core");
+const { BASE, launch, createFixture, deleteFixture, login } = require("./lib/browser");
 
-async function checkPage(browser, cookies, javaScriptEnabled, width) {
+async function checkPage(browser, cookies, fixture, javaScriptEnabled, width) {
     const page = await browser.newPage();
     try {
         await page.setViewport({ width, height: 1000 });
         await page.setJavaScriptEnabled(javaScriptEnabled);
         await page.setCookie(...cookies);
-        const response = await page.goto(
-            process.env.DW_ICON_TEST_URL || "http://127.0.0.1:8080/manage/icons",
-            { waitUntil: "networkidle2", timeout: 30000 }
-        );
+        const response = await page.goto(BASE + "/manage/icons",
+            { waitUntil: "networkidle2", timeout: 30000 });
         assert.equal(response.status(), 200, "management page loads");
 
         // Non-editable icons must not offer a rename that the save handler ignores.
@@ -55,12 +49,10 @@ async function checkPage(browser, cookies, javaScriptEnabled, width) {
             assert.equal(control.disabled, true, control.id + " follows disabled Keywords");
             assert.equal(control.submitted, null, control.id + " is not submitted");
         }
-        if (process.env.DW_ICON_TEST_DISABLED_PICID) {
-            const expected = controls.find(control => control.id ===
-                "rename_keyword_" + process.env.DW_ICON_TEST_DISABLED_PICID);
-            assert.ok(expected && expected.keywordsDisabled && expected.disabled,
-                "fixture includes the expected non-editable icon");
-        }
+        const expected = controls.find(control => control.id ===
+            "rename_keyword_" + fixture.disabled_picid);
+        assert.ok(expected && expected.keywordsDisabled && expected.disabled,
+            "fixture includes the expected non-editable icon");
 
         const ids = await page.$$eval(
             '#current_userpics input[name^="rename_keyword_"]:not(:disabled)',
@@ -113,22 +105,18 @@ async function checkPage(browser, cookies, javaScriptEnabled, width) {
 }
 
 (async () => {
-    assert.ok(process.env.DW_ICON_TEST_COOKIES, "set DW_ICON_TEST_COOKIES to a private cookie file");
-    const cookies = JSON.parse(fs.readFileSync(process.env.DW_ICON_TEST_COOKIES, "utf8"));
-    assert.ok(Array.isArray(cookies) && cookies.length, "cookie file contains a signed-in session");
-    const browser = await puppeteer.launch({
-        executablePath: "/usr/bin/google-chrome-stable",
-        args: ["--no-sandbox", "--disable-gpu"],
-        defaultViewport: { width: 1280, height: 1000 }
-    });
+    const fixture = createFixture("editicons");
+    const browser = await launch();
     try {
+        const cookies = await login(browser, fixture.user, fixture.password);
         for (const javaScriptEnabled of [true, false]) {
             for (const width of [1280, 390]) {
-                await checkPage(browser, cookies, javaScriptEnabled, width);
+                await checkPage(browser, cookies, fixture, javaScriptEnabled, width);
             }
         }
     } finally {
         await browser.close();
+        deleteFixture("editicons", fixture.user);
     }
 })().catch(error => {
     console.error(error);
