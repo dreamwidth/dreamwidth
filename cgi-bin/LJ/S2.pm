@@ -2406,9 +2406,12 @@ sub Page {
     unless ( $u->prop('customtext_url') ) {
         $u->set_prop( 'customtext_url', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );
     }
-    if (   !defined $u->prop('customtext_title')
-        || $u->prop('customtext_title') eq ''
-        || $u->prop('customtext_title') eq "Custom Text" )
+    if (
+        !$u->prop('customtext_title_blank')
+        && (   !defined $u->prop('customtext_title')
+            || $u->prop('customtext_title') eq ''
+            || $u->prop('customtext_title') eq "Custom Text" )
+        )
     {
         $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
     }
@@ -2437,9 +2440,9 @@ sub Page {
             tags     => LJ::create_url( "/tag/", viewing_style => 1 ),
             memories => "$LJ::SITEROOT/tools/memories?user=$u->{user}",
         },
-        'linklist'            => $linklist,
-        'customtext_title'    => escape_prop_value_ret( $u->prop('customtext_title'), 'plain' ),
-        'customtext_url'      => escape_prop_value_ret( $u->prop('customtext_url'), 'plain' ),
+        'linklist'         => $linklist,
+        'customtext_title' => escape_prop_value_ret( $u->prop('customtext_title') // '', 'plain' ),
+        'customtext_url'   => escape_prop_value_ret( $u->prop('customtext_url'), 'plain' ),
         'customtext_content'  => escape_prop_value_ret( $u->prop('customtext_content'), 'html' ),
         'views_order'         => [ 'recent', 'archive', 'read', 'tags', 'memories', 'userinfo' ],
         'global_title'        => LJ::ehtml( $u->{'journaltitle'} || $u->{'name'} ),
