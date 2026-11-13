@@ -7,7 +7,7 @@
 
 .success.message=File [[file]] saved successfully.
 
-.success.title=Success
+.success.title=Edit File - Success
 
 .title=Edit File Content
 
