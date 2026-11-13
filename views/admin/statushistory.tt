@@ -65,6 +65,10 @@
     END %]
 </b></p>
 
+[% INCLUDE components/pagination.tt
+     current => pages.current, total_pages => pages.total_pages,
+     cur_args => page_args, path => '/admin/statushistory' %]
+
 <table border='1' cellpadding='5' width='100%'>
   <thead><tr>
   [% FOREACH col IN [ 'user', 'admin', 'shtype', 'shdate', 'notes' ];
@@ -93,9 +97,12 @@
      END %]
 
   <tr><td colspan='5'><b>
-    [% '.txt.rowcount' | ml( count = count );
-       IF rows.size >= 1000; '&nbsp;'; '.txt.truncated' | ml; END %]
+    [% '.txt.rowcount' | ml( count = count ) %]
   </b></td></tr>
 
 </table>
+
+[% INCLUDE components/pagination.tt
+     current => pages.current, total_pages => pages.total_pages,
+     cur_args => page_args, path => '/admin/statushistory' %]
 [% END %]
