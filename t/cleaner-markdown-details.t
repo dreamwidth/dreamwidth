@@ -226,6 +226,49 @@ MARKDOWN
             );
         }
 
+        foreach my $block ( "- one\n- two", "1. one\n2. two", "> quotation" ) {
+            like(
+                $clean->(
+                    "$block\n<details><summary>Spoilers\n\nBody A.\n\nBody B.\n\n</details>"
+                ),
+                qr{<p>Body[ ]A\.</p>\s*<p>Body[ ]B\.</p>},
+                'a summary opened inside a Markdown block cannot suppress later paragraphs'
+            );
+            like(
+                $clean->(
+                          "$block\n<details><summary>Spoilers</summary>\n\n"
+                        . "Use the <summary> element for titles.\n\n"
+                        . "Second paragraph.\n\nThird paragraph."
+                ),
+                qr{<p>Second[ ]paragraph\.</p>\s*<p>Third[ ]paragraph\.</p>\z},
+                'a disclosure opened inside a Markdown block cannot legitimize a later summary'
+            );
+        }
+
+        my $commented = "Before <!-- comment begins inline\n\n<details><summary> -->\n\n";
+        like(
+            $clean->( $commented . "After paragraph one.\n\nAfter paragraph two." ),
+            qr{<p>After[ ]paragraph[ ]one\.</p>\s*<p>After[ ]paragraph[ ]two\.</p>\z},
+            'disclosure-looking text in a multiline comment cannot change paragraph state'
+        );
+        like(
+            $clean->(
+                      $commented
+                    . "<details><summary>Actual</summary>Body one.\n\nBody two.</details>"
+            ),
+            qr{<details>\s*<summary>Actual</summary>\s*<p>Body[ ]one\.</p>
+                \s*<p>Body[ ]two\.</p>\s*</details>\z}x,
+            'a multiline comment does not disable paragraph grouping in a real disclosure'
+        );
+        like(
+            $clean->(
+                      "Use `<!--` and `<details><summary>` for examples.\n\n"
+                    . "Second paragraph.\n\nThird paragraph."
+            ),
+            qr{<p>Second[ ]paragraph\.</p>\s*<p>Third[ ]paragraph\.</p>\z},
+            'code spans with comment and disclosure syntax remain literal'
+        );
+
         my $unsafe = $clean->(<<'MARKDOWN');
 <details open ontoggle="alert(1)"><summary onclick="alert(2)">Summary</summary>
 Safe
