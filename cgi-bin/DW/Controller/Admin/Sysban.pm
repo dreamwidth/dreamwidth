@@ -43,16 +43,16 @@ sub sysban_controller {
     my $form_args = $r->post_args;
     my $vars      = {};
 
-    my $remote = $rv->{remote};
-    my %read_args = ( $remote->priv_args('sysban'), $remote->priv_args('sysbanview') );
-    my %write_args = $remote->priv_args('sysban');
-    my @all_sb_args = LJ::list_valid_args('sysban');
+    my $remote       = $rv->{remote};
+    my %read_args    = ( $remote->priv_args('sysban'), $remote->priv_args('sysbanview') );
+    my %write_args   = $remote->priv_args('sysban');
+    my @all_sb_args  = LJ::list_valid_args('sysban');
     my @sysban_privs = sort grep { length } ( $read_args{'*'} ? @all_sb_args : keys %read_args );
-    my @write_privs = sort grep { length } ( $write_args{'*'} ? @all_sb_args : keys %write_args );
+    my @write_privs  = sort grep { length } ( $write_args{'*'} ? @all_sb_args : keys %write_args );
 
     $vars->{sysban_privs} = \@sysban_privs;
-    $vars->{sysban_menu} = [ map { $_, $_ } @sysban_privs ];
-    $vars->{can_add} = scalar @write_privs;
+    $vars->{sysban_menu}  = [ map { $_, $_ } @sysban_privs ];
+    $vars->{can_add}      = scalar @write_privs;
 
     return DW::Template->render_template( 'admin/sysban/index.tt', $vars )
         unless $r->did_post;
@@ -72,11 +72,12 @@ sub sysban_controller {
         return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
             unless length( $bantype || '' )
             && ( $remote->has_priv( 'sysban', $bantype )
-                || $remote->has_priv( 'sysbanview', $bantype ) );
+            || $remote->has_priv( 'sysbanview', $bantype ) );
         $vars->{can_modify} = $remote->has_priv( 'sysban', $bantype );
     }
     elsif ( $vars->{action} eq 'addnew' ) {
-        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } ) unless @write_privs;
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
+            unless @write_privs;
     }
     elsif ( $vars->{action} ne 'queryone' ) {
         return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
@@ -107,9 +108,9 @@ sub sysban_controller {
     if ( $vars->{action} eq 'modify' ) {    # this action comes from the query form
 
         # The hidden type is not authoritative: the ban ID must belong to that type.
-        my $stored_type = LJ::get_db_writer()->selectrow_array(
-            "SELECT what FROM sysban WHERE banid = ?", undef, $form_args->{banid}
-        );
+        my $stored_type =
+            LJ::get_db_writer()->selectrow_array( "SELECT what FROM sysban WHERE banid = ?",
+            undef, $form_args->{banid} );
         return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
             unless defined $stored_type && $stored_type eq $bantype;
 
