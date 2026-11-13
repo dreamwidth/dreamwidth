@@ -57,6 +57,44 @@ subtest 'invalid references preserve the saved entry' => sub {
     }
 };
 
+subtest 'numeric slugs follow journal routing' => sub {
+    my $decoy     = $admin->t_post_fake_comm_entry( $comm, body => 'not the guidelines' );
+    my $colliding = $admin->t_post_fake_comm_entry( $comm, body => 'colliding guidelines' );
+    my $absent    = $admin->t_post_fake_comm_entry( $comm, body => 'absent-id guidelines' );
+    my $absent_id = ( $absent->jitemid + 1000 ) << 8;
+    $colliding->slug( $decoy->ditemid );
+    $absent->slug($absent_id);
+    ok( LJ::Entry->new( $comm, ditemid => $decoy->ditemid )->valid, 'colliding ID names an entry' );
+    ok( !LJ::Entry->new( $comm, ditemid => $absent_id )->valid, 'absent ID names no entry' );
+
+    for my $target ( $colliding, $absent ) {
+        like( $target->url, qr!/\d{4}/\d\d/\d\d/\d+\.html$!, 'permalink uses a numeric slug' );
+        for my $input ( $target->url, $target->url . '?style=mine', $target->url . '#comments' ) {
+            $comm->posting_guidelines_entry($id);
+            is( $comm->posting_guidelines_entry($input), $target->ditemid, "accept $input" );
+            is( $comm->posting_guidelines_entry, $target->ditemid, 'store the slug entry id' );
+        }
+    }
+
+    $comm->posting_guidelines_entry($id);
+    my $wrong_date = $colliding->url;
+    $wrong_date =~ s!/\d{4}/\d{2}/\d{2}/!/1900/01/01/!;
+    ok( !$comm->posting_guidelines_entry($wrong_date), 'reject numeric slug with wrong date' );
+    is( $comm->posting_guidelines_entry, $id, 'keep previous entry' );
+
+    my $class = 'DW::Setting::CommunityGuidelinesEntry';
+    my $key   = $class->pkgkey . 'communityguidelinesentry';
+    $comm->posting_guidelines_location('E');
+    ok( eval { $class->save( $comm, { $key => $colliding->url } ); 1 },
+        'save a numeric slug URL through the setting' );
+    is( $comm->posting_guidelines_entry, $colliding->ditemid, 'setting stores the slug entry' );
+
+    for my $input ( $decoy->ditemid, $comm->journal_base . '/' . $decoy->ditemid . '.html' ) {
+        is( $comm->posting_guidelines_entry($input), $decoy->ditemid, "keep entry ID $input" );
+    }
+    $comm->posting_guidelines_entry($id);
+};
+
 subtest 'settings save and redisplay' => sub {
     my $class = 'DW::Setting::CommunityGuidelinesEntry';
     my $key   = $class->pkgkey . 'communityguidelinesentry';
