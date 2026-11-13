@@ -1445,6 +1445,8 @@ sub preview_handler {
 
         # Include required CSS and really fundamental JS like Site object (most
         # other JS gets loaded at end of page by s2_run)
+        # Preview bypasses LJ::S2::make_journal, which normally requests the canary CSS.
+        LJ::need_res("stc/canary.css");
         $p->{head_content} .= LJ::res_includes_head();
 
         # Don't show the navigation strip or invisible content
