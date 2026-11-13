@@ -17,6 +17,8 @@
 
 .form.label.cc=Send me a copy of my own message
 
+.form.label.message=Message:
+
 .link.home=Return Home
 
 .link.inbox=Return to Inbox
@@ -36,4 +38,6 @@
 .suspended.cannot.send=Suspended accounts can't send private messages.
 
 .warning.empty.message=Warning: You are trying to send a message with no text. Please resubmit if this is correct.
+
+.warning.message.length=Your message is too long. Shorten it to [[msg_limit]] characters or fewer before sending.
 
