@@ -1284,8 +1284,6 @@ my @_ml_strings_en = (
     'esn.edit_comment',         # '[[openlink]]Edit the comment[[closelink]]',
     'esn.delete_comment',       # '[[openlink]]Delete the comment[[closelink]]',
     'esn.view_comments',        # '[[openlink]]View all comments[[closelink]] to this entry',
-    'esn.view_threadroot'
-    ,    # '[[openlink]]Go to the top of the thread[[closelink]] this comment is part of',
     'esn.view_thread',    # '[[openlink]]View the thread[[closelink]] beginning with this comment',
 
     'esn.if_suport_form', # 'If your mail client supports it, you can also reply here:',
@@ -1740,8 +1738,7 @@ sub _format_mail_both {
             'esn.edit_comment'     => [ $self->user_can_edit($targetu) ? 3 : 0, $self->edit_url ],
             'esn.delete_comment' => [ $self->user_can_delete($targetu) ? 4 : 0, $self->delete_url ],
             'esn.view_comments'  => [ 5, $commentsurl ],
-            'esn.view_threadroot' => [ $self->parenttalkid != 0 ? 6 : 0, $self->threadroot_url ],
-            'esn.view_thread'     => [ 7, $self->thread_url ],
+            'esn.view_thread'    => [ 7, $self->thread_url ],
         }
     );
 
