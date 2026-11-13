@@ -42,3 +42,36 @@ is(
 
 is( $all->("This is a <b>test</b>"), "This is a test", "only text" );
 
+my $subj = sub {
+    my $raw = shift;
+    LJ::CleanHTML::clean_subject( \$raw );
+    return $raw;
+};
+
+# Strikeout markup in entry subjects (issue #2360).
+is( $subj->("all gone! <s>milk</s>"), "all gone! <s>milk</s>", "<s> kept in subjects" );
+
+is( $subj->("all gone! <del>milk</del>"), "all gone! <del>milk</del>", "<del> kept in subjects" );
+
+# Archive views wrap the cleaned subject in a permalink anchor, so malformed
+# strikeout must come out balanced and must not be able to close that anchor.
+is( $subj->("all gone! <s>milk"), "all gone! <s>milk</s>", "unclosed <s> is closed" );
+
+is( $subj->("all gone!</s> milk"), "all gone! milk", "stray </s> is dropped" );
+
+is( $subj->("<s>a <b>b</s> c</b>"), "<s>a <b>b</b></s> c", "misnested <s> is rebalanced" );
+
+is( $subj->("</a></del>x <del>y"), "x <del>y</del>", "stray closers cannot end the permalink" );
+
+# Attributes on the new tags go through the same filtering as other tags.
+is( $subj->(q{<s onmouseover="alert(1)">x</s>}), "<s>x</s>", "event handler stripped from <s>" );
+
+is(
+    $subj->(q{<del cite="javascript:alert(1)" datetime="2018-08-16">x</del>}),
+    q{<del datetime="2018-08-16">x</del>},
+    "script URL stripped from <del cite>"
+);
+
+# Plain-text consumers (RSS/Atom titles, email subject lines) keep the struck
+# words without markup, the same as for the other allowed subject tags.
+is( $all->("all gone! <s>milk</s>"), "all gone! milk", "<s> flattened in plain-text subjects" );
