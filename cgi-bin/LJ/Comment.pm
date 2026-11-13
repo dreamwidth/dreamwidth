@@ -1738,7 +1738,7 @@ sub _format_mail_both {
             'esn.edit_comment'     => [ $self->user_can_edit($targetu) ? 3 : 0, $self->edit_url ],
             'esn.delete_comment' => [ $self->user_can_delete($targetu) ? 4 : 0, $self->delete_url ],
             'esn.view_comments'  => [ 5, $commentsurl ],
-            'esn.view_thread'     => [ 7, $self->thread_url ],
+            'esn.view_thread'    => [ 7, $self->thread_url ],
         }
     );
 

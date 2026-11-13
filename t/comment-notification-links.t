@@ -23,11 +23,11 @@ use LJ::Comment;
 use LJ::Event;
 use LJ::Test qw( temp_user );
 
-my $owner  = temp_user();
-my $poster = temp_user();
-my $entry  = $owner->t_post_fake_entry;
-my $root   = $entry->t_enter_comment( u => $poster );
-my $reply  = $root->t_reply( u => $poster );
+my $owner    = temp_user();
+my $poster   = temp_user();
+my $entry    = $owner->t_post_fake_entry;
+my $root     = $entry->t_enter_comment( u => $poster );
+my $reply    = $root->t_reply( u => $poster );
 my $screened = $root->t_reply( u => $poster, state => 'S' );
 
 for my $case ( [ 'top-level', $root ], [ 'nested', $reply ], [ 'screened', $screened ] ) {
@@ -37,12 +37,12 @@ for my $case ( [ 'top-level', $root ], [ 'nested', $reply ], [ 'screened', $scre
             my $method = "format_${format}_mail";
             my $body   = $comment->$method($owner);
 
-            unlike( $body, qr/redir_type=threadroot/, "no thread-root redirect URL" );
+            unlike( $body, qr/redir_type=threadroot/,       "no thread-root redirect URL" );
             unlike( $body, qr/Go to the top of the thread/, "no redundant thread-root action" );
 
             for my $link (
-                [ 'reply', $comment->reply_url ],
-                [ 'thread', $comment->thread_url ],
+                [ 'reply',        $comment->reply_url ],
+                [ 'thread',       $comment->thread_url ],
                 [ 'all comments', $entry->url . '#comments' ]
                 )
             {
