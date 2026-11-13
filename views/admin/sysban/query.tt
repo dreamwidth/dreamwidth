@@ -48,7 +48,7 @@
 [%- FOREACH bankey IN existing_bans.keys -%]
 
   <tr>
-    <td>[% bankey %]</td>
+    <td>[% bankey | html %]</td>
     <td>[% localtime( existing_bans.$bankey.expire ) %]</td>
 
     [% IF can_modify %]
