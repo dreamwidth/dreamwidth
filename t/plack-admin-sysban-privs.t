@@ -217,6 +217,48 @@ with_fake_memcache {
             };
         }
 
+        subtest 'stored values and denied types render as text' => sub {
+            my $writer = temp_user();
+            my $reader = temp_user();
+            ok( $writer->grant_priv( 'sysban', 'email_domain' ), 'grant domain writer' );
+            ok( $reader->grant_priv( 'sysbanview', 'email_domain' ), 'grant domain reader' );
+            my $markup = 'example.<img src=x onerror=window.__sysbanXss=1>';
+            my $note = $prefix . 'html-value';
+            my $added = $request->( $writer, '/admin/sysban',
+                { add => 1, bantype => 'email_domain', value => $markup,
+                    bandays => 0, note => $note } );
+            isnt( $added->code, 500, 'normal domain add does not fail internally' );
+            my ($id) = $dbh->selectrow_array(
+                'SELECT banid FROM sysban WHERE what=? AND value=? AND note=?',
+                undef, 'email_domain', $markup, $note
+            );
+            ok( $id, 'normal authorized add stores the markup-bearing domain' );
+            return unless $id;
+
+            # Listing requires NOW() > bandate, even immediately after creation.
+            $dbh->do( 'UPDATE sysban SET bandate=NOW() - INTERVAL 1 SECOND WHERE banid=?',
+                undef, $id );
+            for my $u ( $reader, $writer ) {
+                my $query = $request->( $u, '/admin/sysban',
+                    { query => 1, bantype => 'email_domain' } );
+                is( $query->code, 200, 'authorized domain query renders' );
+                like( $query->content, qr/\Q$note\E/, 'query includes the stored fixture' );
+                like( $query->content,
+                    qr/example\.&lt;img src=x onerror=window\.__sysbanXss=1&gt;/,
+                    'stored markup is visible as escaped text' );
+                unlike( $query->content, qr/<img\b[^>]*onerror=/i,
+                    'stored value cannot create an image element' );
+            }
+
+            my $denied = $request->( $reader, '/admin/sysban',
+                { query => 1, bantype => '<img src=x onerror=window.__sysbanXss=2>' } );
+            like( $denied->content,
+                qr/&lt;img src=x onerror=window\.__sysbanXss=2&gt;/,
+                'denied type is escaped in the privilege error' );
+            unlike( $denied->content, qr/<img\b[^>]*onerror=/i,
+                'denied type cannot create an image element' );
+        };
+
         subtest 'anonymous and invalid form-auth requests cannot mutate' => sub {
             my $before = $snapshot->();
             my $anonymous = $cb->( GET 'http://localhost/admin/sysban?as=nobody_exists' );
