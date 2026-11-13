@@ -99,21 +99,52 @@ sub statushistory_controller {
         return DW::Template->render_template( 'admin/statushistory.tt', $vars );
     }
 
+    # Page only the rows this viewer can see, including in the page count.
+    unless ( $LJ::IS_DEV_SERVER || $rv->{remote}->has_priv( 'historyview', '' ) ) {
+        my %types = $rv->{remote}->priv_args('historyview');
+        my @types = map { $dbr->quote($_) } sort keys %types;
+        push @where, @types ? 'BINARY s.shtype IN (' . join( ',', @types ) . ')' : '0';
+    }
+
     my $where = "";
     $where = "WHERE " . join( " AND ", @where ) . " " if @where;
 
-    my $orderby = 's.shdate';
-    $orderby = {
+    my $sort_columns = {
         user   => "u.user",
-        admin  => "admin",
+        admin  => "ua.user",
         shdate => "s.shdate",
         shtype => "s.shtype",
         notes  => "s.notes",
-    }->{ $form_args->{'orderby'} }
-        if $form_args->{'orderby'};
+    };
+    my $sort = $form_args->{'orderby'} || 'shdate';
+    $sort = 'shdate' unless exists $sort_columns->{$sort};
+    my $orderby = $sort_columns->{$sort};
 
     my $flow = 'DESC';
     $flow = 'ASC' if $form_args->{'flow'} && $form_args->{'flow'} eq 'asc';
+
+    my $page_size = 1000;
+    my ($count) = $dbr->selectrow_array( "SELECT COUNT(*) FROM statushistory s " . $where );
+    return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
+
+    my $pages = int( ( $count + $page_size - 1 ) / $page_size ) || 1;
+    my $page  = $form_args->{'page'} || '';
+
+    # Validate before arithmetic, and never let an arbitrary offset exceed the result set.
+    $page = 1 unless $page =~ /\A[1-9][0-9]{0,8}\z/ && $page <= $pages;
+    my $offset = ( $page - 1 ) * $page_size;
+
+    $vars->{pages} = { current => $page, total_pages => $pages };
+    $vars->{page_args} = {
+        ( map { $_ => $form_args->{$_} } qw(user admin type) ),
+        orderby => $sort,
+        flow    => lc $flow,
+    };
+
+    # There is no unique key in statushistory. Break timestamp/collation ties with
+    # stored values; hash the full notes because MySQL sorts TEXT by a limited prefix.
+    # Completely identical rows are interchangeable. New records can shift offsets.
+    my $ties = 's.shdate, s.userid, s.adminid, BINARY s.shtype, SHA2(s.notes, 256)';
 
     $vars->{rows} = $dbr->selectall_arrayref(
         "SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes "
@@ -121,7 +152,7 @@ sub statushistory_controller {
             . "LEFT JOIN useridmap ua ON s.adminid=ua.userid "
             . "LEFT JOIN useridmap u ON s.userid=u.userid "
             . $where
-            . "ORDER BY $orderby $flow LIMIT 1000",
+            . "ORDER BY $orderby $flow, $ties LIMIT $offset, $page_size",
         { Slice => {} }
     );
 
