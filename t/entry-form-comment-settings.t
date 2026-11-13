@@ -33,9 +33,12 @@ die $@ unless ref $app eq 'CODE';
 
 my $poster = temp_user();
 $poster->update_self( { status => 'A' } );
-my $comm = temp_comm();
+my $comm    = temp_comm();
 my $session = LJ::Session->create( $poster, nolog => 1 );
-my $cookie = 'ljmastersession=' . $session->master_cookie_string . '; ljloggedin='
+my $cookie =
+      'ljmastersession='
+    . $session->master_cookie_string
+    . '; ljloggedin='
     . $session->loggedin_cookie_string;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'entryCommentSettings';
 
@@ -121,20 +124,20 @@ test_psgi $app, sub {
 
                 my $url = 'http://localhost/entry/' . $comm->user . '/' . $entry->ditemid . '/edit';
                 $url .= '?mode=simple' if $layout eq 'simple';
-                my $html = $request->( GET $url )->content;
+                my $html        = $request->( GET $url )->content;
                 my ($form_auth) = $html =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
-                my $selected = selected_comment_settings($html);
+                my $selected    = selected_comment_settings($html);
                 ok( $form_auth && defined $selected, 'native edit form renders' ) or return;
 
-                my $subject = 'Edited through the native form';
+                my $subject  = 'Edited through the native form';
                 my $response = $request->(
                     POST $url,
                     [
-                        'action:post' => 1,
-                        lj_form_auth => $form_auth,
-                        subject => $subject,
-                        event => 'Entry body',
-                        security => 'public',
+                        'action:post'    => 1,
+                        lj_form_auth     => $form_auth,
+                        subject          => $subject,
+                        event            => 'Entry body',
+                        security         => 'public',
                         comment_settings => $case->{selected} // $selected,
                     ]
                 );
@@ -143,11 +146,9 @@ test_psgi $app, sub {
                 LJ::Entry::reset_singletons();
                 my $saved = LJ::Entry->new( $comm, ditemid => $entry->ditemid );
                 is( $saved->subject_raw, $subject, 'the edit was saved' );
-                is_deeply(
-                    [ map { $saved->prop($_) ? 1 : 0 } @props ],
+                is_deeply( [ map { $saved->prop($_) ? 1 : 0 } @props ],
                     $case->{expected},
-                    'stored poster, administrator and email preferences remain distinct'
-                );
+                    'stored poster, administrator and email preferences remain distinct' );
             };
         }
     }

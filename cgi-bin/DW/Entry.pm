@@ -242,7 +242,7 @@ sub _form_to_backend {
     my $comment_settings = $post->{comment_settings} // '';
     if ( $is_api || $comment_settings ne 'nocomments_maintainer' ) {
         $props->{opt_nocomments} = $comment_settings eq 'nocomments' ? 1 : 0;
-        $props->{opt_noemail} = $comment_settings eq 'noemail' ? 1 : 0;
+        $props->{opt_noemail}    = $comment_settings eq 'noemail'    ? 1 : 0;
     }
 
     # see if an "other" mood they typed in has an equivalent moodid
