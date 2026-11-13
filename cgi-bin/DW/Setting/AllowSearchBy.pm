@@ -20,7 +20,7 @@ use strict;
 use warnings;
 
 sub should_render {
-    return $_[1] && $_[1]->is_person;
+    return $_[1] && ( $_[1]->is_person || $_[1]->is_community );
 }
 
 sub label {
@@ -31,10 +31,11 @@ sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    # the selection values are opposite the text, since the property is an
-    # opt-out property, it basically negates what we're trying to display to
-    # the user ... yes, it's confusing, sorry
-    my $sel = $class->get_arg( $args, "allowsearchby" ) || $u->prop('opt_allowsearchby') || 'F';
+    # Communities have historically allowed all logged-in users to search.
+    my $iscomm  = $u->is_community ? '.comm' : '';
+    my $default = $u->is_community ? 'A'     : 'F';
+    my $sel =
+        $class->get_arg( $args, "allowsearchby" ) || $u->prop('opt_allowsearchby') || $default;
 
     my $ret .= LJ::html_select(
         {
@@ -43,9 +44,9 @@ sub option {
             selected => $sel,
         },
 
-        'A' => $class->ml('setting.allowsearchby.sel.a'),
-        'F' => $class->ml('setting.allowsearchby.sel.f'),
-        'N' => $class->ml('setting.allowsearchby.sel.n'),
+        'A' => $class->ml("setting.allowsearchby.sel.a$iscomm"),
+        'F' => $class->ml("setting.allowsearchby.sel.f$iscomm"),
+        'N' => $class->ml("setting.allowsearchby.sel.n$iscomm"),
     );
 
     my $errdiv = $class->errdiv( $errs, 'allowsearchby' );
@@ -57,7 +58,7 @@ sub option {
 sub save {
     my ( $class, $u, $args ) = @_;
 
-    # must be defined and Y or N
+    # Only the three supported search restrictions can be saved.
     my $val = $class->get_arg( $args, 'allowsearchby' ) || 0;
     return unless defined $val && $val =~ /^[AFN]$/;
 

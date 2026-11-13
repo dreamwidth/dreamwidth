@@ -2473,9 +2473,15 @@ setting.allowsearchby.label=Searching Your Journal
 
 setting.allowsearchby.sel.a=Allow any logged-in user to search my journal
 
+setting.allowsearchby.sel.a.comm=Allow any logged-in user to search this community (default)
+
 setting.allowsearchby.sel.f=Allow people on my access list to search my journal (default)
 
+setting.allowsearchby.sel.f.comm=Allow only members to search this community
+
 setting.allowsearchby.sel.n=Allow nobody else (only me) to search my journal
+
+setting.allowsearchby.sel.n.comm=Allow only administrators to search this community
 
 setting.allowvgiftsfrom.anon=Allow sender to remain anonymous
 

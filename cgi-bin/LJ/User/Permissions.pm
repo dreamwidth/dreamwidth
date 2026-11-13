@@ -49,13 +49,13 @@ sub allow_search_by {
     # someone in the equation has to be a paid account
     return 0 unless $u->is_paid || $by->is_paid;
 
-    # allow searches if this is a community or it's us
-    return 1 if $u->is_community || $u->equals($by);
+    # Journal owners and community administrators can always search.
+    return 1 if $u->equals($by) || ( $u->is_community && $by->can_manage($u) );
 
     # check the userprop for security access
-    my $whocan = $u->prop('opt_allowsearchby') || 'F';
+    my $whocan = $u->prop('opt_allowsearchby') || ( $u->is_community ? 'A' : 'F' );
     return 1 if $whocan eq 'A';
-    return 1 if $whocan eq 'F' && $u->trusts($by);
+    return 1 if $whocan eq 'F' && $u->trusts_or_has_member($by);
     return 1 if $whocan eq 'N' && $u->equals($by);
 
     # failing the above, sorry, no search for you
