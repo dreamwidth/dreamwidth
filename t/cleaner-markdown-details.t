@@ -172,6 +172,18 @@ MARKDOWN
             'raw HTML blocks still suppress Markdown'
         );
 
+        foreach my $summary ( '<summary>Unclosed', '<summary>Title<summary>' ) {
+            like(
+                $clean->(
+                          "<details>$summary\n\nHidden</details>\n\n"
+                        . "Later paragraph one.\n\nLater paragraph two."
+                ),
+                qr{</details>\s*<p>Later[ ]paragraph[ ]one\.</p>
+                    \s*<p>Later[ ]paragraph[ ]two\.</p>\z}x,
+                'an unclosed summary cannot remove paragraph wrapping after its disclosure'
+            );
+        }
+
         my $unsafe = $clean->(<<'MARKDOWN');
 <details open ontoggle="alert(1)"><summary onclick="alert(2)">Summary</summary>
 Safe
