@@ -310,8 +310,8 @@ _c?>
         $p->{'head_content'} .= '<meta http-equiv="Content-Type" content="text/html; charset='.$opts->{'saycharset'}."\" />\n";
 
         # Preview bypasses LJ::S2::make_journal, which normally requests the canary CSS.
-        LJ::need_res("stc/canary.css");
-        $p->{'head_content'} .= LJ::res_includes( nojs => 1, no_scripttags => 1 );
+        $p->{'head_content'} .=
+            qq{<link rel="stylesheet" type="text/css" href="$LJ::STATPREFIX/canary.css" />\n};
 
         # Don't show the navigation strip or invisible content
         $p->{'head_content'} .= qq{
