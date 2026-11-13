@@ -309,13 +309,14 @@ note("retired providers");
 {
     foreach my $scheme ( 'http:', 'https:', '' ) {
         test_bad_url( "$scheme//blip.tv/play/x11Xx11Xx.html", "blip.tv is no longer supported" );
-        test_bad_url( "$scheme//vid.me/e/v63?stats=1&amp;tools=1", "vid.me is no longer supported" );
+        test_bad_url( "$scheme//vid.me/e/v63?stats=1&amp;tools=1",
+            "vid.me is no longer supported" );
     }
 
     subtest "supported domain list excludes retired providers", sub {
         my $domains = LJ::Hooks::run_hook('list_iframe_embed_domains');
-        ok( !grep( { $_ eq 'blip.tv' } @$domains ), "blip.tv is not advertised" );
-        ok( !grep( { $_ eq 'vid.me' } @$domains ), "vid.me is not advertised" );
-        ok( grep( { $_ eq 'player.vimeo.com' } @$domains ), "supported provider is still listed" );
+        ok( !grep( { $_ eq 'blip.tv' } @$domains ),          "blip.tv is not advertised" );
+        ok( !grep( { $_ eq 'vid.me' } @$domains ),           "vid.me is not advertised" );
+        ok( grep(  { $_ eq 'player.vimeo.com' } @$domains ), "supported provider is still listed" );
     };
 }
