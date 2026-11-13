@@ -41,7 +41,7 @@ my @surfaces = (
 for my $surface (@surfaces) {
     my ( $name, $clean ) = @$surface;
     subtest $name => sub {
-        for my $rel ( '', 'nofollow', 'noreferrer noopener sponsored', 'UGC nofollow',
+        for my $rel ( '', '0', 'nofollow', 'noreferrer noopener sponsored', 'UGC nofollow',
             'not-ugc', 'ugc-extra', 'nofollow &#117;gc' )
         {
             my $out = $clean->(
@@ -138,6 +138,11 @@ ok( !links($cut)->[0]{rel}, 'generated cut control is not marked' );
 my $platform = '<a href="https://example.test/platform">platform</a>';
 LJ::CleanHTML::clean( \$platform, { mode => 'allow' } );
 ok( !links($platform)->[0]{rel}, 'generic cleaner does not mark platform HTML' );
+
+my $mixed = '<a href="https://example.test/readmore">Read more</a> https://example.test/plain';
+LJ::CleanHTML::clean_event( \$mixed, { ugc_links => 0 } );
+is( scalar @{ links($mixed) }, 2, 'mixed-content caller keeps explicit and automatic links' );
+ok( !scalar( grep { $_->{rel} } @{ links($mixed) } ), 'mixed-content caller can omit UGC metadata' );
 
 my ($mail) = LJ::format_mail('[Site help](https://example.test/help)');
 ok( scalar @{ links($mail) }, 'site email still contains links' );
