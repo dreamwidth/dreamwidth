@@ -217,6 +217,7 @@ sub get_active_for_user {
             warn "Failed to load media: $@";
         }
     }
+
     # Break equal-second ties by ID so images keep their place across pages.
     return $oldest_first
         ? sort { $a->logtime <=> $b->logtime || $a->id <=> $b->id } @media

@@ -44,7 +44,7 @@ sub upload_at {
     return $media->id;
 }
 
-my @ids = map { upload_at( $owner, $_ ) } ( 100, (200) x 20, 300 );
+my @ids     = map { upload_at( $owner, $_ ) } ( 100, (200) x 20, 300 );
 my $deleted = upload_at( $owner, 400 );
 $uploaded[-1]->delete;
 upload_at( $other, 500 );
@@ -56,18 +56,25 @@ for my $case (
     [ 'default', {}, \@newest ],
     [ 'newest first', { oldest_first => 0 }, \@newest ],
     [ 'oldest first', { oldest_first => 1 }, \@oldest ],
-) {
+    )
+{
     my ( $name, $opts, $expected ) = @$case;
     my @media = DW::Media->get_active_for_user( $owner, %$opts, width => 200, height => 200 );
-    is_deeply( [ map { $_->id } @media ], $expected,
-        "$name orders by upload date and ID, excluding deleted and other-owner images" );
-    is_deeply( [ map { $_->id } @media[0..19] ], [ @$expected[0..19] ],
-        "$name has a stable first page across equal upload times" );
-    is_deeply( [ map { $_->id } @media[20..21] ], [ @$expected[20..21] ],
-        "$name keeps the remaining images on the second page" );
+    is_deeply( [ map { $_->id } @media ],
+        $expected, "$name orders by upload date and ID, excluding deleted and other-owner images" );
+    is_deeply(
+        [ map { $_->id } @media[ 0 .. 19 ] ],
+        [ @$expected[ 0 .. 19 ] ],
+        "$name has a stable first page across equal upload times"
+    );
+    is_deeply(
+        [ map { $_->id } @media[ 20 .. 21 ] ],
+        [ @$expected[ 20 .. 21 ] ],
+        "$name keeps the remaining images on the second page"
+    );
     my @again = DW::Media->get_active_for_user( $owner, %$opts );
-    is_deeply( [ map { $_->id } @again ], $expected,
-        "$name is repeatable without thumbnail options" );
+    is_deeply( [ map { $_->id } @again ],
+        $expected, "$name is repeatable without thumbnail options" );
 }
 
 done_testing();
