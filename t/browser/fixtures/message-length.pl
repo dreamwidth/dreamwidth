@@ -40,6 +40,7 @@ until ($u) {
         email    => 'message-length-test@example.invalid',
         password => $password,
         name     => 'Message length browser test',
+        bdate    => '2000-01-01',
     );
 }
 $u->update_self( { status => 'A', statusvis => 'V' } );
