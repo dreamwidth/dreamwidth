@@ -52,16 +52,25 @@ sub reference_handler {
 sub console_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1 );
+    # Recover submitted commands on an auth failure without executing them.
+    my ( $ok, $rv ) = controller( form_auth => 0 );
     return $rv unless $ok;
 
     my $r = $rv->{r};
 
     my $commands_output;
+    my $submitted_commands;
+    my $invalid_form;
     if ( $r->did_post ) {
         my $post     = $r->post_args;
         my $commands = $post->{commands};
-        $commands_output = LJ::Console->run_commands_html($commands);
+        if ( LJ::check_form_auth( $post->{lj_form_auth} ) ) {
+            $commands_output = LJ::Console->run_commands_html($commands);
+        }
+        else {
+            $invalid_form       = 1;
+            $submitted_commands = $commands;
+        }
     }
 
     my $vars = {
@@ -70,6 +79,8 @@ sub console_handler {
 
         show_extended_description => !$r->did_post,
         commands                  => $commands_output,
+        submitted_commands        => $submitted_commands // '',
+        invalid_form              => $invalid_form,
     };
     return DW::Template->render_template( "admin/console/index.tt", $vars );
 }
