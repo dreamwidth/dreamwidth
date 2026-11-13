@@ -14,6 +14,7 @@
     "stc/css/components/autocompletewithunknown.css"
 
     "js/jquery.inbox.js"
+    "js/message-length.js"
 ) %]
 
 [% sections.title = "Compose Message" %]
@@ -58,8 +59,12 @@
 
                     </p>
                         <div class='msg_txt'>
-                            [% form.textarea( name = 'msg_body', rows = 6, cols = 55, wrap = 'soft', value = msg_body) %]
-                            <span class='helper'>Up to [% commafy(msg_limit) %] characters. Plain text, no HTML.</span>
+                            [% form.textarea( name = 'msg_body', id = 'msg_body', label = dw.ml('.form.label.message'), rows = 6, cols = 55, wrap = 'soft', value = msg_body,
+                                'aria-describedby' = 'msg_body_hint msg_body_warning',
+                                'data-message-limit' = msg_limit,
+                                'data-message-warning' = dw.ml('.warning.message.length', { msg_limit = commafy(msg_limit) })) %]
+                            <span class='helper' id='msg_body_hint'>Up to [% commafy(msg_limit) %] characters. Plain text, no HTML.</span>
+                            <div id='msg_body_warning' role='status' aria-live='polite' aria-atomic='true'><strong></strong></div>
                         </div>
 
                     </div>
