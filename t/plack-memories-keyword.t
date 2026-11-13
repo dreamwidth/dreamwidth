@@ -83,6 +83,7 @@ with_fake_memcache {
         is( $categories->code, 200, 'Category listing still renders' );
         like( $categories->content, qr/Known public/, 'Public category remains listed' );
 
+        my $failure_code;
         {
             no warnings 'redefine';
             local *LJ::Memories::get_by_keyword = sub { return undef };
@@ -90,6 +91,7 @@ with_fake_memcache {
             like( $res->content, $database_error,
                 'A failed known-category lookup retains the database error' );
             isnt( $res->code, 404, 'A lookup failure is not classified as an unknown category' );
+            $failure_code = $res->code;
         }
         {
             no warnings 'redefine';
@@ -100,7 +102,97 @@ with_fake_memcache {
             isnt( $res->code, 404,
                 'A category-map failure is not classified as an unknown category' );
         }
+
+        # Fail each real keyword-map SELECT on the database handle itself, so the
+        # helper sees the same nonthrowing DBI error a lost connection produces.
+        my $memkey     = [ $u->id, 'memkwid:' . $u->id ];
+        my $def_reader = \&LJ::get_cluster_def_reader;
+        my $reader     = \&LJ::get_cluster_reader;
+        for my $spec (
+            [ 'category ID query',   qr/^SELECT DISTINCT kwid FROM memkeyword2 / ],
+            [ 'category name query', qr/^SELECT kwid, keyword FROM userkeywords / ],
+            )
+        {
+            my ( $label, $query ) = @$spec;
+            LJ::Memories::clear_memcache($u);
+            {
+                no warnings 'redefine';
+                local *LJ::get_cluster_def_reader = failing_reader( $def_reader, $query );
+                local *LJ::get_cluster_reader     = failing_reader( $reader,     $query );
+
+                ok( !defined LJ::Memories::get_keywords($u), "A failed $label returns an error" );
+                ok( !defined LJ::MemCache::get($memkey),     "A failed $label is not cached" );
+
+                my $res = $cb->( GET $base . '&keyword=' . LJ::eurl('Known public') );
+                is( $res->code, $failure_code, "A failed $label keeps the lookup-failure status" );
+                like( $res->content, $database_error, "A failed $label reports a database error" );
+                unlike( $res->content, qr/find that page/i, "A failed $label is not missing" );
+
+                my $list = $cb->( GET $base );
+                like( $list->content, $database_error, "A failed $label fails the category list" );
+            }
+
+            my $res = $cb->( GET $base . '&keyword=' . LJ::eurl('Known public') );
+            is( $res->code, 200, "The category renders once the $label recovers" );
+            like( $res->content, qr/Public memory example/, 'Its memory is visible again' );
+            my $cached = LJ::MemCache::get($memkey);
+            ok( $cached && scalar( grep { $_ eq 'Known public' } values %$cached ),
+                'Only the successful map is cached' );
+        }
+
+        {
+            no warnings 'redefine';
+            LJ::Memories::clear_memcache($u);
+            local *LJ::get_cluster_def_reader = failing_reader($def_reader);
+            local *LJ::get_cluster_reader     = failing_reader($reader);
+            my $map = eval { LJ::Memories::get_keywords($u) };
+            ok( !$@ && !defined $map, 'No database handle returns an error instead of dying' );
+            my $res = $cb->( GET $base . '&keyword=' . LJ::eurl('Known public') );
+            is( $res->code, $failure_code, 'No database handle keeps the lookup-failure status' );
+            like( $res->content, $database_error, 'No database handle reports the database error' );
+        }
     };
 };
+
+# Wraps a cluster-handle getter for LJ::Memories::get_keywords only. With a query
+# pattern, matching SQL gains an unknown column so MySQL rejects it; without one,
+# the getter reports that no handle is available.
+sub failing_reader {
+    my ( $getter, $query ) = @_;
+    return sub {
+        my $dbh = $getter->(@_);
+        return $dbh  unless ( ( caller(1) )[3] // '' ) eq 'LJ::Memories::get_keywords';
+        return undef unless $query;
+        return FailingQueryHandle->new( $dbh, $query );
+    };
+}
+
+package FailingQueryHandle;
+
+our $AUTOLOAD;
+
+sub new {
+    my ( $class, $dbh, $query ) = @_;
+    return bless { dbh => $dbh, query => $query }, $class;
+}
+
+sub selectcol_arrayref { return $_[0]->_select( 'selectcol_arrayref', @_[ 1 .. $#_ ] ) }
+sub selectall_arrayref { return $_[0]->_select( 'selectall_arrayref', @_[ 1 .. $#_ ] ) }
+
+sub _select {
+    my ( $self, $method, $sql, @args ) = @_;
+    $sql .= ' AND no_such_column = 1' if $sql =~ $self->{query};
+    return $self->{dbh}->$method( $sql, @args );
+}
+
+sub AUTOLOAD {
+    my $self = shift;
+    ( my $method = $AUTOLOAD ) =~ s/.*:://;
+    return $self->{dbh}->$method(@_);
+}
+
+sub DESTROY { }
+
+package main;
 
 done_testing;
