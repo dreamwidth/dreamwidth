@@ -72,8 +72,8 @@ sub next_request {
 
 package main;
 
-my $u = temp_user();
-my $v = temp_user();
+my $u       = temp_user();
+my $v       = temp_user();
 my $request = SiteSchemeRequest->new;
 no warnings 'redefine';
 local *DW::Request::get               = sub { $request };
