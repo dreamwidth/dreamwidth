@@ -35,7 +35,8 @@ my $error;
 
 my $from = shift @ARGV;
 my $to   = shift @ARGV;
-usage() unless $from =~ /^\w{1,25}$/ && $to =~ /^\w{1,25}$/;
+usage()
+    unless $from =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/ && $to =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/;
 
 my $dbh = LJ::get_db_writer() or die "Could not get DB handle";
 

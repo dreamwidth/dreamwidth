@@ -22,7 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF adminmode %]
 <form method='GET'>
-    <p><label for='user'>[% '.user' | ml %]</label> <input name='user' id='user' value='[% user | html %]' maxlength="25" size="15"/>
+    <p><label for='user'>[% '.user' | ml %]</label> <input name='user' id='user' value='[% user | html %]' maxlength="[% site.maxlength_user %]" size="15"/>
     <input type='submit' value='[% '.user.submit' | ml | html %]'></p></form>
 [%- END %]
 
