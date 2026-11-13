@@ -196,6 +196,27 @@ MARKDOWN
             );
         }
 
+        foreach my $block ( "- one\n- two", "1. one\n2. two", "> quotation" ) {
+            like(
+                $clean->(
+                          "<details><summary>Title</summary>\n\n$block\n</details>\n\n"
+                        . "Use the <summary> element for titles.\n\n"
+                        . "Second paragraph.\n\nThird paragraph."
+                ),
+                qr{</details>.*<p>Second[ ]paragraph\.</p>\s*<p>Third[ ]paragraph\.</p>\z}s,
+                'a disclosure ending in a Markdown block does not legitimize a later stray summary'
+            );
+            like(
+                $clean->(
+                          "<details><summary>Unclosed\n\n$block\n</details>\n\n"
+                        . "Later paragraph one.\n\nLater paragraph two."
+                ),
+                qr{</details>\s*<p>Later[ ]paragraph[ ]one\.</p>
+                    \s*<p>Later[ ]paragraph[ ]two\.</p>\z}x,
+                'a Markdown block closing a disclosure clears an unclosed summary'
+            );
+        }
+
         my $unsafe = $clean->(<<'MARKDOWN');
 <details open ontoggle="alert(1)"><summary onclick="alert(2)">Summary</summary>
 Safe
