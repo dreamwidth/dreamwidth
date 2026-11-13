@@ -771,7 +771,8 @@ sub render {
             || $env->{'ForceScheme'}
             || $BMLCodeBlock::GET{skin}
             || $BMLCodeBlock::GET{'usescheme'}
-            || $BML::COOKIE{'BMLschemepref'};
+            || $BML::COOKIE{'BMLschemepref'}
+            || $BML::COOKIE{'BMLschemeprefanon'};
 
         if ( exists $env->{'HOOK-alt_default_scheme'} ) {
             $scheme ||= eval { $env->{'HOOK-alt_default_scheme'}->($env); };

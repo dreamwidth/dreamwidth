@@ -173,7 +173,9 @@ Get the user's current sitescheme, using the following in order:
 
 =item skin / usescheme GET argument
 
-=item BMLschemepref cookie
+=item BMLschemepref cookie (account preference)
+
+=item BMLschemeprefanon cookie (anonymous preference)
 
 =item Default sitescheme ( first sitescheme in sitescheme_order )
 
@@ -194,7 +196,8 @@ sub current {
                $r->note('bml_use_scheme')
             || $r->get_args->{skin}
             || $r->get_args->{usescheme}
-            || $r->cookie('BMLschemepref');
+            || $r->cookie('BMLschemepref')
+            || $r->cookie('BMLschemeprefanon');
     }
 
     return $rv if defined $rv and defined $sitescheme_data{$rv};
@@ -238,7 +241,8 @@ sub set_for_request {
 Set the sitescheme for the user.
 
 If $u does not exist, this will default to remote
-if $u ( or remote ) is undef, this will only set the cookie.
+if $u ( or remote ) is undef, this will only set the anonymous preference cookie.
+Account preferences do not replace the anonymous preference.
 
 Note: If done early enough in the process this will affect the current request.
 See the note on set_for_request
@@ -252,10 +256,18 @@ sub set_for_user {
     my $u      = exists $_[2] ? $_[2] : LJ::get_remote();
 
     return 0 unless exists $sitescheme_data{$scheme};
+    my $cookie = $u ? 'BMLschemepref' : 'BMLschemeprefanon';
     my $cval = $scheme;
-    if ( $scheme eq $sitescheme_order[0] && !$LJ::SAVE_SCHEME_EXPLICITLY ) {
-        $cval = undef;
+
+    # An account default needs a cookie to override a different anonymous preference.
+    unless ($u) {
+
+        # An anonymous choice replaces any preference left by an older cookie.
         $r->delete_cookie( domain => ".$LJ::DOMAIN", name => 'BMLschemepref' );
+        if ( $scheme eq $sitescheme_order[0] && !$LJ::SAVE_SCHEME_EXPLICITLY ) {
+            $cval = undef;
+            $r->delete_cookie( domain => ".$LJ::DOMAIN", name => $cookie );
+        }
     }
 
     my $expires = undef;
@@ -269,7 +281,7 @@ sub set_for_user {
     }
 
     $r->add_cookie(
-        name    => 'BMLschemepref',
+        name    => $cookie,
         value   => $cval,
         expires => $expires,
         domain  => ".$LJ::DOMAIN",
