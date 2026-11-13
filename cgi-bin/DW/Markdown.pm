@@ -36,7 +36,7 @@ sub _FormParagraphs {
         $details_depth-- if $type eq 'E' && $details_depth;
         $in_summary = 0;
     };
-    my $protect       = sub {
+    my $protect = sub {
         my ($html) = @_;
         my $key = Text::Markdown::_md5_utf8($html);
         $self->{_html_blocks}{$key} = $html;
@@ -45,9 +45,10 @@ sub _FormParagraphs {
 
     foreach my $paragraph ( split /\n{2,}/, $text ) {
         if ( exists $self->{_html_blocks}{$paragraph} ) {
+
             # Lists and blockquotes can absorb a lazy continuation containing
             # </details>. Keep their HTML intact, but account for its boundaries.
-            my $block = $self->{_html_blocks}{$paragraph};
+            my $block  = $self->{_html_blocks}{$paragraph};
             my $parser = HTML::TokeParser->new( \$block );
             while ( my $token = $parser->get_token ) {
                 $details_tag->( $token->[0] )
