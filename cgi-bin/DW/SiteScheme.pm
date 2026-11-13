@@ -257,7 +257,7 @@ sub set_for_user {
 
     return 0 unless exists $sitescheme_data{$scheme};
     my $cookie = $u ? 'BMLschemepref' : 'BMLschemeprefanon';
-    my $cval = $scheme;
+    my $cval   = $scheme;
 
     # An account default needs a cookie to override a different anonymous preference.
     unless ($u) {

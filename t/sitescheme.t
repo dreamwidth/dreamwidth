@@ -25,10 +25,10 @@ use LJ::Test qw(temp_user);
 package SiteSchemeRequest;
 
 sub new { bless { jar => {}, sent => [], notes => {}, args => {} }, $_[0] }
-sub cookie { $_[0]->{jar}{ $_[1] } }
-sub get_args { $_[0]->{args} }
+sub cookie        { $_[0]->{jar}{ $_[1] } }
+sub get_args      { $_[0]->{args} }
 sub get_remote_ip { '127.0.0.1' }
-sub header_in { '' }
+sub header_in     { '' }
 
 sub note {
     my ( $self, $name, $value ) = @_;
@@ -63,21 +63,21 @@ sub next_request {
             delete $self->{jar}{ $cookie->{name} };
         }
     }
-    $self->{sent} = [];
+    $self->{sent}  = [];
     $self->{notes} = {};
-    $self->{args} = {};
+    $self->{args}  = {};
 }
 
 package main;
 
 my $request = SiteSchemeRequest->new;
 no warnings 'redefine';
-local *DW::Request::get = sub { $request };
+local *DW::Request::get               = sub { $request };
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'sitescheme12345';
-local $LJ::SAVE_SCHEME_EXPLICITLY = 0;
+local $LJ::SAVE_SCHEME_EXPLICITLY     = 0;
 
 my $default = DW::SiteScheme->default;
-my @other = grep { $_ ne $default } qw(celerity lynx blueshift);
+my @other   = grep { $_ ne $default } qw(celerity lynx blueshift);
 my ( $anonymous, $account ) = @other;
 
 subtest 'legacy cookie remains readable' => sub {
@@ -114,8 +114,11 @@ subtest 'login and account changes preserve the anonymous preference' => sub {
         ok( !$request->last_cookie('BMLschemeprefanon'), 'login leaves anonymous cookie alone' );
         my $cookie = $request->last_cookie('BMLschemepref');
         is( $cookie->{value}, $scheme, 'account preference issued' );
-        is( $cookie->{expires}, LJ::time_to_cookie( $session->expiration_time ),
-            'account preference expires with the login cookies' );
+        is(
+            $cookie->{expires},
+            LJ::time_to_cookie( $session->expiration_time ),
+            'account preference expires with the login cookies'
+        );
         $request->next_request;
         is( DW::SiteScheme->current, $scheme, 'account preference takes precedence' );
         is( $request->cookie('BMLschemeprefanon'), $anonymous, 'anonymous preference retained' );
@@ -125,7 +128,8 @@ subtest 'login and account changes preserve the anonymous preference' => sub {
 subtest 'an account with no saved choice uses the anonymous preference' => sub {
     $v->set_prop( schemepref => '' );
     $sessions[1]->update_master_cookie;
-    ok( !$request->last_cookie('BMLschemeprefanon'), 'login does not replace anonymous preference' );
+    ok( !$request->last_cookie('BMLschemeprefanon'),
+        'login does not replace anonymous preference' );
     $request->next_request;
     ok( !$request->cookie('BMLschemepref'), 'no account preference cookie remains' );
     is( DW::SiteScheme->current, $anonymous, 'anonymous preference supplies the fallback' );
@@ -140,7 +144,7 @@ subtest 'account selection of the default overrides an anonymous choice' => sub 
     ok( !$request->last_cookie('BMLschemeprefanon'), 'account save leaves anonymous cookie alone' );
     $request->next_request;
     is( DW::SiteScheme->current, $default, 'anonymous choice does not override account default' );
-    is( $u->prop('schemepref'), $default, 'account userprop saved' );
+    is( $u->prop('schemepref'),  $default, 'account userprop saved' );
 };
 
 subtest 'logout clears authentication and restores the anonymous choice' => sub {
@@ -166,7 +170,7 @@ subtest 'anonymous default does not change the account preference' => sub {
     $request->next_request;
     ok( !$request->cookie('BMLschemeprefanon'), 'implicit anonymous default has no cookie' );
     is( DW::SiteScheme->current, $default, 'site default used' );
-    is( $u->prop('schemepref'), $default, 'anonymous choice does not change account preference' );
+    is( $u->prop('schemepref'),  $default, 'anonymous choice does not change account preference' );
     local $LJ::SAVE_SCHEME_EXPLICITLY = 1;
     ok( DW::SiteScheme->set_for_user( $default, undef ), 'explicit anonymous default saved' );
     $request->next_request;
@@ -175,7 +179,7 @@ subtest 'anonymous default does not change the account preference' => sub {
 
 subtest 'request overrides still take precedence' => sub {
     $request->{jar}{BMLschemeprefanon} = $anonymous;
-    $request->{args}{usescheme} = $account;
+    $request->{args}{usescheme}        = $account;
     is( DW::SiteScheme->current, $account, 'usescheme overrides cookie' );
     $request->{args}{skin} = $default;
     is( DW::SiteScheme->current, $default, 'skin overrides usescheme' );
