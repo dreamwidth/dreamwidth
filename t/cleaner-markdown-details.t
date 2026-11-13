@@ -215,6 +215,15 @@ MARKDOWN
                     \s*<p>Later[ ]paragraph[ ]two\.</p>\z}x,
                 'a Markdown block closing a disclosure clears an unclosed summary'
             );
+            like(
+                $clean->(
+                          "<details><summary>Title\n\n$block\n</summary>\n\n"
+                        . "Body paragraph one.\n\nBody paragraph two.\n\n</details>"
+                ),
+                qr{</summary>\s*<p>Body[ ]paragraph[ ]one\.</p>
+                    \s*<p>Body[ ]paragraph[ ]two\.</p>\s*</details>\z}x,
+                'a Markdown block closing a summary restores body paragraph wrapping'
+            );
         }
 
         my $unsafe = $clean->(<<'MARKDOWN');

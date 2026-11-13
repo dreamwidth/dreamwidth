@@ -30,11 +30,16 @@ sub _FormParagraphs {
     my @paragraphs;
     my $details_depth = 0;
     my $in_summary    = 0;
-    my $details_tag   = sub {
-        my ($type) = @_;
-        $details_depth++ if $type eq 'S';
-        $details_depth-- if $type eq 'E' && $details_depth;
-        $in_summary = 0;
+    my $disclosure_tag = sub {
+        my ( $type, $tag ) = @_;
+        if ( $tag eq 'details' ) {
+            $details_depth++ if $type eq 'S';
+            $details_depth-- if $type eq 'E' && $details_depth;
+            $in_summary = 0;
+        }
+        elsif ( $details_depth && $tag eq 'summary' ) {
+            $in_summary = $type eq 'S';
+        }
     };
     my $protect = sub {
         my ($html) = @_;
@@ -47,13 +52,12 @@ sub _FormParagraphs {
         if ( exists $self->{_html_blocks}{$paragraph} ) {
 
             # Lists and blockquotes can absorb a lazy continuation containing
-            # </details>. Keep their HTML intact, but account for its boundaries.
+            # disclosure tags. Keep their HTML intact, but account for boundaries.
             my $block  = $self->{_html_blocks}{$paragraph};
             my $parser = HTML::TokeParser->new( \$block );
             while ( my $token = $parser->get_token ) {
-                $details_tag->( $token->[0] )
-                    if ( $token->[0] eq 'S' || $token->[0] eq 'E' )
-                    && $token->[1] eq 'details';
+                $disclosure_tag->( $token->[0], $token->[1] )
+                    if $token->[0] eq 'S' || $token->[0] eq 'E';
             }
             push @paragraphs, $paragraph;
             next;
@@ -90,12 +94,7 @@ sub _FormParagraphs {
             {
                 $flush->();
                 $rendered .= $raw;
-                if ( $token->[1] eq 'details' ) {
-                    $details_tag->($type);
-                }
-                else {
-                    $in_summary = $type eq 'S';
-                }
+                $disclosure_tag->( $type, $token->[1] );
             }
             else {
                 $fragment .= $raw;
