@@ -826,6 +826,21 @@ q {
         min-width: $sidebar_min_width;
     }
 
+    /* Keep wide images and preformatted text in their own scroll area, and wrap long
+       URLs, so they cannot paint over the sidebar beside the entries. The inner box
+       also holds the floated userpic, so text still wraps around it. */
+    .multiple-columns .entry .contents > .inner,
+    .multiple-columns .comment .contents > .inner {
+        overflow-x: auto;
+        overflow-wrap: break-word;
+    }
+
+    /* Static indentation sits outside the comment's minimum-width wrapper.
+       Scroll the thread as a whole when it no longer fits beside a sidebar. */
+    .multiple-columns #comments {
+        overflow-x: auto;
+    }
+
     .two-columns #primary {
         width: $two_column_main_width%;
         width: calc($two_column_main_width% - $sidebar_extra);
