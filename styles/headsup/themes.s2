@@ -68,9 +68,9 @@ function Page::print_theme_stylesheet() { """
     
     table.month td {border:none;}
     
-    h1#title {font-size:1.5em; text-align:right;}
-    h2#subtitle {font-size:1.2em; text-align:right;}
-    h2#pagetitle {font-size:1em; text-align:right;}    
+    #title {font-size:1.5em; text-align:right;}
+    #subtitle {font-size:1.2em; text-align:right;}
+    #pagetitle {font-size:1em; text-align:right;}
     
 """; }
 
