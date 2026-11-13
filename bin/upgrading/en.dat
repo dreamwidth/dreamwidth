@@ -2087,7 +2087,7 @@ menunav.explore.randomcommunity=Random Community
 
 menunav.explore.randomjournal=Random Journal
 
-menunav.explore.sitesearch=Site and Journal Search
+menunav.explore.sitesearch=Entry Search
 
 menunav.organize=Organize
 
@@ -5309,13 +5309,15 @@ widget.search.btn.go=Go
 
 widget.search.email=Email
 
+widget.search.entries=Entry Search
+
 widget.search.faq=FAQ
 
 widget.search.interest=Interest
 
 widget.search.region=Region
 
-widget.search.siteuser=Site and Account
+widget.search.siteuser=Site Pages and Accounts
 
 widget.search.title=Search
 
