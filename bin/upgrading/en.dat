@@ -4517,6 +4517,8 @@ web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
+web.controlstrip.links.acceptinvite=Accept invitation
+
 web.controlstrip.links.addfeed=Subscribe
 
 web.controlstrip.links.addtocircle=Add to Your Circle

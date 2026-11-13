@@ -3100,6 +3100,14 @@ sub control_strip {
             my $haspostingaccess  = $remote->can_post_to($journal);
             my $isclosedcommunity = $journal->is_closed_membership;
 
+            unless ( $memberof || $isclosedcommunity ) {
+                my $pending = $remote->get_pending_invites || [];
+                if ( grep { $_->[0] == $journal->id } @$pending ) {
+                    $links{join_community} =
+"<a href='$LJ::SITEROOT/manage/invites'>$BML::ML{'web.controlstrip.links.acceptinvite'}</a>";
+                }
+            }
+
             if ( $remote->can_manage_other($journal) ) {
                 $template_args->{'statustext'} = "$statustext{maintainer}";
                 push( @$actionlinks, $links{post_to_community} )
