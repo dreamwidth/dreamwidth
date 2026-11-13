@@ -72,6 +72,8 @@ sub next_request {
 
 package main;
 
+my $u = temp_user();
+my $v = temp_user();
 my $request = SiteSchemeRequest->new;
 no warnings 'redefine';
 local *DW::Request::get               = sub { $request };
@@ -100,8 +102,6 @@ subtest 'anonymous selection has its own session cookie' => sub {
     is( DW::SiteScheme->current, $anonymous, 'anonymous selection is used' );
 };
 
-my $u = temp_user();
-my $v = temp_user();
 $u->set_prop( schemepref => $account );
 $v->set_prop( schemepref => $default );
 my @sessions;
