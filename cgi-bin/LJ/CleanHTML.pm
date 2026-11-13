@@ -1266,18 +1266,11 @@ TOKEN:
             # placeholders that can survive the next few escaping steps. We'll
             # restore the URLs later as links.
             if ( $auto_format && $auto_links && !$opencount{'a'} ) {
-                my $match = sub {
-                    my $str = shift;
-                    if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
-                        $url{ ++$urlcount } = $1;
-                        return "&url$urlcount;$1&urlend;$2";
-                    }
-                    else {
-                        $url{ ++$urlcount } = $str;
-                        return "&url$urlcount;$str&urlend;";
-                    }
+                my $placeholder = sub {
+                    $url{ ++$urlcount } = $_[0];
+                    return "&url$urlcount;$_[0]&urlend;";
                 };
-                $token->[1] =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge;
+                $token->[1] = LJ::auto_link_urls( $token->[1], $placeholder );
             }
 
             # escape tags in text tokens.  shouldn't belong here!
