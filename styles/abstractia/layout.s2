@@ -628,6 +628,16 @@ function Page::print_default_stylesheet() {
     var int three_column_main_width_sides = $three_column_main_width - 1;
     var int three_column_margin_sides = $three_column_main_width_sides + 4;
 
+    # Sidebars are never narrower than $sidebar_min_width, so on a narrow screen each one
+    # takes up more room than its percentage width. The space reserved for the sidebars
+    # has to grow by the same amount, or the columns overlap.
+    # Keep percentage fallbacks for browsers without max(). The three-column right-sidebar
+    # layout keeps its original width so the sidebars can wrap instead of squeezing entries.
+    var string sidebar_min_width = "200px";
+    var int sidebar_width_percent = int($*sidebar_width);
+    var string sidebar_extra = "max(0px, $sidebar_min_width - $sidebar_width_percent%)";
+    var string sidebar_extra_doubled = "2 * $sidebar_extra";
+
      var string entry_poster_display = "";
          if ($*entry_poster_alignment == "right") {
              $entry_poster_display = """text-align: right;""";
@@ -775,11 +785,13 @@ q {
 @media $medium_media_query {
     .two-columns-right #header {
         margin-right: $two_column_margin_header_right%;
+        margin-right: calc($two_column_margin_header_right% + $sidebar_extra);
         margin-left: $*margins_size%;
     }
     .two-columns-left #header {
         margin-right: $two_column_margin_header_left%;
         margin-left: $two_column_margin%;
+        margin-left: calc($two_column_margin% + $sidebar_extra);
     }
 
     .three-columns-sides #header {
@@ -811,11 +823,27 @@ q {
 @media $medium_media_query {
     .multiple-columns #secondary {
         width: $*sidebar_width%;
-        min-width: 200px;
+        min-width: $sidebar_min_width;
+    }
+
+    /* Keep wide images and preformatted text in their own scroll area, and wrap long
+       URLs, so they cannot paint over the sidebar beside the entries. The inner box
+       also holds the floated userpic, so text still wraps around it. */
+    .multiple-columns .entry .contents > .inner,
+    .multiple-columns .comment .contents > .inner {
+        overflow-x: auto;
+        overflow-wrap: break-word;
+    }
+
+    /* Static indentation sits outside the comment's minimum-width wrapper.
+       Scroll the thread as a whole when it no longer fits beside a sidebar. */
+    .multiple-columns #comments {
+        overflow-x: auto;
     }
 
     .two-columns #primary {
         width: $two_column_main_width%;
+        width: calc($two_column_main_width% - $sidebar_extra);
     }
     .two-columns #tertiary {
         text-align: center;
@@ -824,9 +852,11 @@ q {
     .two-columns #tertiary,
     .two-columns #footer .page-top {
         width: $two_column_main_width%;
+        width: calc($two_column_main_width% - $sidebar_extra);
     }
     .two-columns-left #primary {
         margin-left: $two_column_margin%;
+        margin-left: calc($two_column_margin% + $sidebar_extra);
         margin-right: -100%;
     }
     .two-columns-left #secondary, .three-columns-left #secondary {
@@ -835,6 +865,7 @@ q {
     .two-columns-left #tertiary,
     .two-columns-left #footer .page-top {
         margin-left: $two_column_margin%;
+        margin-left: calc($two_column_margin% + $sidebar_extra);
         margin-right: $*margins_size%;
     }
     .two-columns-right #primary {
@@ -857,14 +888,17 @@ q {
     }
     .three-columns #tertiary {
         width: $*sidebar_width%;
-        min-width: 200px;
+        min-width: $sidebar_min_width;
     }
     .three-columns-left #primary {
+        width: calc($three_column_main_width% - $sidebar_extra_doubled);
         margin-left: $three_column_margin%;
+        margin-left: calc($three_column_margin% + $sidebar_extra_doubled);
         margin-right: -100%;
     }
     .three-columns-left #footer .page-top {
         margin-left: $three_column_margin%;
+        margin-left: calc($three_column_margin% + $sidebar_extra_doubled);
     }
     .three-columns-left #tertiary {
         margin-left: 1%;
@@ -883,7 +917,9 @@ q {
     }
     .three-columns-sides #primary {
         width: $three_column_main_width_sides%;
+        width: calc($three_column_main_width_sides% - $sidebar_extra_doubled);
         margin-left: $two_column_margin%;
+        margin-left: calc($two_column_margin% + $sidebar_extra);
         margin-right: -100%;
     }
     .three-columns-sides #secondary {
@@ -891,14 +927,58 @@ q {
     }
     .three-columns-sides #tertiary {
         margin-left: $three_column_margin_sides%;
+        margin-left: calc($three_column_margin_sides% - $sidebar_extra_doubled);
     }
     .three-columns-sides #footer .page-top {
         margin-left: $two_column_margin%;
+        margin-left: calc($two_column_margin% + $sidebar_extra);
     }
     .three-columns .page-reply #postform {
         width: $three_column_main_width%;
     }
 }
+
+""";
+    # A separated column is not useful if its titles and reply form no longer fit.
+    # Stack before the available main width falls below 20em; native archive calendars
+    # need 35em. Account for both the fixed sidebar minima and their percentage widths.
+    # max() in the media condition keeps the percentage layout as the legacy fallback.
+    foreach var string stack_layout ([ "two-columns", "three-columns-left", "three-columns-sides" ]) {
+        var int sidebar_count = $stack_layout == "two-columns" ? 1 : 2;
+        var int main_available = 97 - (2 * int($*margins_size));
+        if ($stack_layout == "three-columns-sides") { $main_available = $main_available - 1; }
+        var int main_percent = $main_available - ($sidebar_count * int($*sidebar_width));
+        if ($main_available < 1) { $main_available = 1; }
+        if ($main_percent < 1) { $main_percent = 1; }
+        var string minimum_sidebars = "" + ($sidebar_count * 200) + "px";
+        foreach var string minimum_main ([ "20em", "35em" ]) {
+            var string selector = ".$stack_layout";
+            if ($minimum_main == "35em") { $selector = $selector + ".page-archive"; }
+            """
+@media $medium_media_query and (max-width: max(calc(($minimum_sidebars + $minimum_main) * 100 / $main_available), calc($minimum_main * 100 / $main_percent))) {
+    $selector #primary,
+    $selector #secondary,
+    $selector #tertiary {
+        clear: both;
+        width: $one_column_main_width%;
+        min-width: 0;
+        margin-left: $*margins_size%;
+        margin-right: 0;
+    }
+    $selector #header {
+        margin-left: $*margins_size%;
+        margin-right: $two_column_margin_header_left%;
+    }
+    $selector #footer .page-top {
+        width: $one_column_main_width%;
+        margin-left: $*margins_size%;
+        margin-right: $*margins_size%;
+    }
+}
+""";
+        }
+    }
+    """
 
 /************************************************
 * #Header *
