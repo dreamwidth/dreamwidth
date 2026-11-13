@@ -37,7 +37,11 @@ my $execute    = \&LJ::Console::Command::Print::execute;
 
 sub form_token {
     my ($response) = @_;
-    return ( $response->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/ )[0];
+    for my $form ( $response->content =~ m{(<form\b[^>]*>.*?</form>)}sg ) {
+        next unless $form =~ /<textarea\b[^>]*name=['"]commands['"]/;
+        return ( $form =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/ )[0];
+    }
+    return undef;
 }
 
 sub commands_value {
@@ -89,16 +93,43 @@ with_fake_memcache {
             DW::Auth::Challenge->generate( -1, DW::Auth::Challenge->get_attributes($valid) );
         my $bad_signature = $valid;
         substr( $bad_signature, -1, 1 ) = substr( $valid, -1, 1 ) eq '0' ? '1' : '0';
+        my $other_token = form_token( $get->($other_auth) );
+        my $forged_user = $other_token;
+        my $attributes = DW::Auth::Challenge->get_attributes($forged_user);
+        my @attributes = split /-/, $attributes;
+        $attributes[1] = $user->id;
+        substr( $forged_user, index( $forged_user, $attributes ), length($attributes) ) =
+            join '-', @attributes;
         my @rejected = (
-            [ 'expired',           $expired ],
             [ 'missing',           '' ],
             [ 'invalid signature', $bad_signature ],
-            [ 'different user',    form_token( $get->($other_auth) ) ],
-            [ 'different session', form_token( $get->($second_session) ) ],
+            [ 'different user',    $other_token ],
+            [ 'forged user ID',    $forged_user ],
         );
         my $commands = qq{print "</textarea><script>CONSOLE_MARKER</script> & text"\nprint second};
 
         for my $case (@rejected) {
+            my ( $name, $token ) = @$case;
+            subtest $name => sub {
+                my $before = $executions;
+                my $response = $post->( $auth, $token, $commands );
+                is( $executions, $before, 'untrusted commands never execute' );
+                is( commands_value($response), undef, 'untrusted input is not refilled' );
+                is( form_token($response), undef, 'untrusted POST does not receive a console form' );
+                unlike( $response->content, qr/CONSOLE_MARKER|Your commands were not run/,
+                    'untrusted POST keeps the generic invalid-form error' );
+            };
+        }
+
+        my $old_session_token = form_token( $get->($second_session) );
+        my @recoverable = (
+            [ 'expired', $expired ],
+            [ 'different session', $old_session_token ],
+            [ 'expired old session',
+              DW::Auth::Challenge->generate(
+                  -1, DW::Auth::Challenge->get_attributes($old_session_token) ) ],
+        );
+        for my $case (@recoverable) {
             my ( $name, $token ) = @$case;
             subtest $name => sub {
                 my $before   = $executions;
@@ -112,6 +143,8 @@ with_fake_memcache {
                     qr/Your commands were not run/,
                     'rejection explains no execution'
                 );
+                like( $response->content, qr/class="alert-box alert" role="alert"/,
+                    'recovery explanation uses the Foundation alert styling' );
                 unlike( $response->content, qr/<script>CONSOLE_MARKER/,
                     'submitted markup stays text' );
                 my $fresh = form_token($response);
