@@ -28,6 +28,13 @@ use DW::Controller::Admin::UserHistory;
 use DW::Request::Standard;
 use DW::Template;
 
+# Prime the real config-modtime cache before the local privilege policy below.
+# A first periodic reload after fixture setup would restore the test dev flag.
+{
+    local $LJ::CACHE_CONFIG_MODTIME_LASTCHECK = 0;
+    LJ::Config->start_request_reload;
+}
+
 my $dbh = LJ::get_db_writer();
 my @fixture_users;
 
@@ -105,7 +112,10 @@ with_fake_memcache {
     my $request = sub {
         my ( $args, %opts ) = @_;
         $remote = exists $opts{remote} ? $opts{remote} : $viewer;
+        my $expected_dev = 0 + $LJ::IS_DEV_SERVER;
         LJ::start_request();
+        is( 0 + $LJ::IS_DEV_SERVER, $expected_dev,
+            'request startup retains the intended controller privilege policy' );
         my $uri = URI->new('http://localhost/admin/statushistory');
         $uri->query_form(%$args) unless $opts{post};
         my $http = $opts{post} ? POST( $uri, $args ) : GET($uri);
