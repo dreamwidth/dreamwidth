@@ -108,6 +108,7 @@
 [%- END -%]
 
 [%- ELSE -%]
-<p>[% '.txt.noresults' | ml( what = html( formdata.bantype ) ) %]</p>
+[% querytype = formdata.bantype | html %]
+<p>[% '.txt.noresults' | ml( what = querytype ) %]</p>
 [%- END -%]
 <p><b><a href="sysban">[% '.link.back' | ml %]</a></b></p>
