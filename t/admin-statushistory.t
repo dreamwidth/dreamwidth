@@ -51,11 +51,11 @@ with_fake_memcache {
 
     # Authentication is supplied at the controller boundary; permission checks,
     # MySQL queries, request parsing and TT rendering all use production code.
-    local $LJ::IS_DEV_SERVER = 0;
-    local *LJ::remote_bounce_url = sub { undef };
+    local $LJ::IS_DEV_SERVER                = 0;
+    local *LJ::remote_bounce_url            = sub { undef };
     local *DW::Captcha::should_captcha_view = sub { 0 };
-    local *LJ::get_db_reader = sub { $dbh };    # no test replica lag
-    local *LJ::send_mail = sub { die 'Status history tests must not send mail' };
+    local *LJ::get_db_reader                = sub { $dbh };    # no test replica lag
+    local *LJ::send_mail                  = sub { die 'Status history tests must not send mail' };
     local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = '2815abcdef012345';
 
     my ( $viewer, $limited, $plain, $subject, $other, $actor, $other_actor ) =
@@ -69,8 +69,7 @@ with_fake_memcache {
     ok( $limited->grant_priv( 'historyview', $type ), 'type-restricted history viewer' );
 
     my $insert = $dbh->prepare(
-        'INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) VALUES (?,?,?,?,?)'
-    );
+        'INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) VALUES (?,?,?,?,?)');
     my @notes = map { ( 'x' x 1100 ) . sprintf( ' synthetic row %04d', $_ ) } 1 .. 2005;
     push @notes, $notes[0], '<b>synthetic</b>' . "\n" . 'second line';
 
@@ -81,32 +80,49 @@ with_fake_memcache {
         $insert->execute( $subject->id, $actor->id, $type, '2001-01-01 00:00:00', $note );
         die $dbh->errstr if $dbh->err;
     }
-    $insert->execute( $other->id, $actor->id, 'other_type', '2001-01-02 00:00:00',
-        'same actor, different user and type' );
-    $insert->execute( $subject->id, $other_actor->id, 'other_type', '2001-01-03 00:00:00',
-        'same user, different actor and type' );
-    $insert->execute( $other->id, $other_actor->id, $type, '2001-01-04 00:00:00',
-        'same type, different user and actor' );
-    $insert->execute( $subject->id, $actor->id, uc($type), '2001-01-05 00:00:00',
-        'case-sensitive privilege must hide this' );
+    $insert->execute(
+        $other->id, $actor->id, 'other_type',
+        '2001-01-02 00:00:00',
+        'same actor, different user and type'
+    );
+    $insert->execute(
+        $subject->id, $other_actor->id, 'other_type',
+        '2001-01-03 00:00:00',
+        'same user, different actor and type'
+    );
+    $insert->execute(
+        $other->id, $other_actor->id, $type,
+        '2001-01-04 00:00:00',
+        'same type, different user and actor'
+    );
+    $insert->execute(
+        $subject->id, $actor->id, uc($type),
+        '2001-01-05 00:00:00',
+        'case-sensitive privilege must hide this'
+    );
     my $boundary_type = 'b' . $other->id;
     for my $size ( 1000, 1001 ) {
         for my $i ( 1 .. $size ) {
             $insert->execute( $other->id, $other_actor->id, "$boundary_type-$size",
-                '2001-01-01 00:00:00', "boundary $i" );
+                '2001-01-01 00:00:00',
+                "boundary $i" );
             die $dbh->errstr if $dbh->err;
         }
     }
     my $sort_type = 's' . $other->id;
     for my $i ( 1 .. 4 ) {
-        $insert->execute( $i % 2 ? $subject->id : $other->id,
-            $i <= 2 ? $actor->id : $other_actor->id, $sort_type,
-            "2001-01-0$i 00:00:00", ( 'a', 'b', 'c', 'd' )[ $i - 1 ] );
+        $insert->execute(
+            $i % 2  ? $subject->id : $other->id,
+            $i <= 2 ? $actor->id   : $other_actor->id,
+            $sort_type,
+            "2001-01-0$i 00:00:00",
+            ( 'a', 'b', 'c', 'd' )[ $i - 1 ]
+        );
     }
     die $dbh->errstr if $dbh->err;
 
     my $remote;
-    local *LJ::get_remote = sub { $remote };
+    local *LJ::get_remote        = sub { $remote };
     local *LJ::statushistory_add = sub { die 'Viewing history must not add history' };
 
     my $request = sub {
@@ -114,8 +130,8 @@ with_fake_memcache {
         $remote = exists $opts{remote} ? $opts{remote} : $viewer;
         my $expected_dev = 0 + $LJ::IS_DEV_SERVER;
         LJ::start_request();
-        is( 0 + $LJ::IS_DEV_SERVER, $expected_dev,
-            'request startup retains the intended controller privilege policy' );
+        is( 0 + $LJ::IS_DEV_SERVER,
+            $expected_dev, 'request startup retains the intended controller privilege policy' );
         my $uri = URI->new('http://localhost/admin/statushistory');
         $uri->query_form(%$args) unless $opts{post};
         my $http = $opts{post} ? POST( $uri, $args ) : GET($uri);
@@ -130,8 +146,13 @@ with_fake_memcache {
             return $r->OK;
         };
         my $status = DW::Controller::Admin::UserHistory::statushistory_controller();
-        return { vars => $vars, html => $html || '', template => $template,
-            status => $status, r => $r };
+        return {
+            vars     => $vars,
+            html     => $html || '',
+            template => $template,
+            status   => $status,
+            r        => $r
+        };
     };
 
     my $history = sub {
@@ -145,6 +166,7 @@ with_fake_memcache {
     my $before = $history->();
 
     my %query = ( user => $subject->user, admin => $actor->user, type => $type );
+
     # The existing type search is case insensitive; restrict this traversal to
     # the exact type via the viewer's real privilege, as well as all three filters.
     my @expected = sort { sha256_hex($a) cmp sha256_hex($b) } @notes;
@@ -154,8 +176,11 @@ with_fake_memcache {
         for my $page ( 1 .. 3 ) {
             my $res = $request->( { %query, page => $page }, remote => $limited );
             is( $res->{template}, 'admin/statushistory.tt', 'renders the history template' );
-            is_deeply( $res->{vars}{pages}, { current => $page, total_pages => 3 },
-                "page $page of three" );
+            is_deeply(
+                $res->{vars}{pages},
+                { current => $page, total_pages => 3 },
+                "page $page of three"
+            );
             my $rows = $res->{vars}{rows};
             is( scalar @$rows, $page == 3 ? 7 : 1000, 'bounded page with exact last boundary' );
             push @seen, map { $_->{notes} } @$rows;
@@ -163,43 +188,63 @@ with_fake_memcache {
             is( scalar @rendered_cells, 5 * @$rows, 'all permitted rows really render' );
             unlike( $res->{html}, qr/\[truncated\]/, 'no obsolete truncation warning' );
         }
-        is_deeply( \@seen, \@expected, 'every record appears in deterministic order, including duplicates' );
+        is_deeply( \@seen, \@expected,
+            'every record appears in deterministic order, including duplicates' );
         my $first = $request->( { %query, page => 1 }, remote => $limited );
-        is_deeply( [ map { $_->{notes} } @{ $first->{vars}{rows} } ],
-            [ @expected[ 0 .. 999 ] ], 'revisiting a page preserves its contents' );
-        my $all_html = join '', map {
-            $request->( { %query, page => $_ }, remote => $limited )->{html}
-        } 1 .. 3;
-        like( $all_html, qr/&lt;b&gt;synthetic&lt;\/b&gt;<br \/>/,
-            'history notes retain escaping and newline formatting' );
+        is_deeply(
+            [ map { $_->{notes} } @{ $first->{vars}{rows} } ],
+            [ @expected[ 0 .. 999 ] ],
+            'revisiting a page preserves its contents'
+        );
+        my $all_html = join '',
+            map { $request->( { %query, page => $_ }, remote => $limited )->{html} } 1 .. 3;
+        like(
+            $all_html,
+            qr/&lt;b&gt;synthetic&lt;\/b&gt;<br \/>/,
+            'history notes retain escaping and newline formatting'
+        );
         unlike( $all_html, qr/<b>synthetic<\/b>/, 'history notes cannot inject HTML' );
     };
 
     subtest 'pager and sort links retain filters without retaining POST secrets' => sub {
-        my $res = $request->( { %query, page => 2, orderby => 'notes', flow => 'asc',
-                lj_form_auth => 'must-not-propagate', unexpected => 'must-not-propagate' },
-            remote => $limited );
+        my $res = $request->(
+            {
+                %query,
+                page         => 2,
+                orderby      => 'notes',
+                flow         => 'asc',
+                lj_form_auth => 'must-not-propagate',
+                unexpected   => 'must-not-propagate'
+            },
+            remote => $limited
+        );
         my @bars = $res->{html} =~ /<ul class="pagination">(.*?)<\/ul>/sg;
         is( scalar @bars, 2, 'pager above and below the table' );
         for my $bar (@bars) {
             my @links = $bar =~ /href="([^"]+)"/g;
             ok( @links, 'pager has real navigation links' );
             for my $link (@links) {
-                my $url = URI->new($link);
+                my $url  = URI->new($link);
                 my %args = $url->query_form;
                 is( $url->path, '/admin/statushistory', 'correct destination' );
-                is_deeply( { map { $_ => $args{$_} } qw(user admin type orderby flow) },
-                    { %query, orderby => 'notes', flow => 'asc' }, 'filters and sort round-trip' );
-                ok( !exists $args{lj_form_auth} && !exists $args{unexpected}, 'only search arguments retained' );
+                is_deeply(
+                    { map { $_ => $args{$_} } qw(user admin type orderby flow) },
+                    { %query, orderby => 'notes', flow => 'asc' },
+                    'filters and sort round-trip'
+                );
+                ok( !exists $args{lj_form_auth} && !exists $args{unexpected},
+                    'only search arguments retained' );
                 my $dest = $request->( \%args, remote => $limited );
-                is( $dest->{vars}{pages}{current}, $args{page}, 'following pager reaches requested page' );
+                is( $dest->{vars}{pages}{current},
+                    $args{page}, 'following pager reaches requested page' );
             }
         }
         my @sort_links = $res->{html} =~ /<th><a href='([^']+)'/g;
         is( scalar @sort_links, 5, 'each column still sorts' );
         for my $link (@sort_links) {
             my %args = URI->new($link)->query_form;
-            is_deeply( { map { $_ => $args{$_} } qw(user admin type) }, \%query, 'sort retains filters' );
+            is_deeply( { map { $_ => $args{$_} } qw(user admin type) },
+                \%query, 'sort retains filters' );
             ok( !exists $args{page}, 'sorting restarts at the first page' );
         }
     };
@@ -209,11 +254,22 @@ with_fake_memcache {
             for my $flow (qw(asc desc)) {
                 my @seen;
                 for my $page ( 1 .. 3 ) {
-                    my $res = $request->( { %query, page => $page, orderby => $column,
-                            flow => $flow }, remote => $limited );
+                    my $res = $request->(
+                        {
+                            %query,
+                            page    => $page,
+                            orderby => $column,
+                            flow    => $flow
+                        },
+                        remote => $limited
+                    );
                     push @seen, map { $_->{notes} } @{ $res->{vars}{rows} };
                 }
-                is_deeply( [ sort @seen ], [ sort @notes ], "$column $flow keeps the complete multiset" );
+                is_deeply(
+                    [ sort @seen ],
+                    [ sort @notes ],
+                    "$column $flow keeps the complete multiset"
+                );
             }
         }
         for my $column (qw(user admin shdate notes)) {
@@ -232,8 +288,11 @@ with_fake_memcache {
         for my $size ( 1000, 1001 ) {
             my $res = $request->( { type => "$boundary_type-$size" } );
             is( scalar @{ $res->{vars}{rows} }, 1000, 'first page has exactly 1000 rows' );
-            is( $res->{vars}{pages}{total_pages}, $size == 1000 ? 1 : 2,
-                'page count handles exact and one-over boundaries' );
+            is(
+                $res->{vars}{pages}{total_pages},
+                $size == 1000 ? 1 : 2,
+                'page count handles exact and one-over boundaries'
+            );
             if ( $size == 1000 ) {
                 unlike( $res->{html}, qr/class="pagination"/, 'no phantom page at the boundary' );
             }
@@ -247,13 +306,15 @@ with_fake_memcache {
 
     subtest 'user, admin and type searches are independent intersections' => sub {
         for my $filter (qw(user admin type)) {
-            my $res = $request->( { $filter => $query{$filter} } );
+            my $res   = $request->( { $filter => $query{$filter} } );
             my $field = $filter eq 'type' ? 'shtype' : $filter;
             ok( !grep( { lc( $_->{$field} ) ne lc( $query{$filter} ) } @{ $res->{vars}{rows} } ),
                 "$filter search excludes disjoint values" );
-            is( $res->{vars}{pages}{total_pages}, 3, "$filter search includes its larger result set" );
+            is( $res->{vars}{pages}{total_pages},
+                3, "$filter search includes its larger result set" );
         }
-        my $res = $request->( { user => $other->user, admin => $other_actor->user, type => 'other_type' } );
+        my $res = $request->(
+            { user => $other->user, admin => $other_actor->user, type => 'other_type' } );
         is_deeply( $res->{vars}{rows}, [], 'disjoint combination has no matches' );
         unlike( $res->{html}, qr/class="pagination"/, 'empty result has no pager' );
         $res = $request->( { user => $other->user, admin => $actor->user, type => 'other_type' } );
@@ -262,36 +323,60 @@ with_fake_memcache {
     };
 
     subtest 'invalid inputs and permission gates' => sub {
-        for my $page ( '', 0, -1, 'abc', '1.5', '1e2', '01', "2\n", '2 OR 1=1',
-            4, 999999999, '999999999999999999999999999999999999' ) {
-            my $res = $request->( { %query, page => $page, orderby => 'invalid', flow => 'invalid' },
-                remote => $limited );
-            is( $res->{vars}{pages}{current}, 1, "invalid/out-of-range page '$page' uses page one" );
-            is_deeply( [ map { $_->{notes} } @{ $res->{vars}{rows} } ],
-                [ @expected[ 0 .. 999 ] ], 'invalid sort safely uses date descending' );
+        for my $page ( '', 0, -1, 'abc', '1.5', '1e2', '01', "2\n", '2 OR 1=1', 4, 999999999,
+            '999999999999999999999999999999999999' )
+        {
+            my $res = $request->(
+                { %query, page => $page, orderby => 'invalid', flow => 'invalid' },
+                remote => $limited
+            );
+            is( $res->{vars}{pages}{current}, 1,
+                "invalid/out-of-range page '$page' uses page one" );
+            is_deeply(
+                [ map { $_->{notes} } @{ $res->{vars}{rows} } ],
+                [ @expected[ 0 .. 999 ] ],
+                'invalid sort safely uses date descending'
+            );
         }
         my $res = $request->( { page => 2 } );
-        ok( !$res->{vars}{showtable} && !$res->{vars}{rows}, 'page alone does not search all history' );
+        ok(
+            !$res->{vars}{showtable} && !$res->{vars}{rows},
+            'page alone does not search all history'
+        );
         for my $filter (qw(user admin)) {
             $res = $request->( { %query, $filter => 'no_such_user_2815', page => 2 } );
-            ok( $res->{vars}{errors}->exist && !$res->{vars}{showtable}, 'invalid user/admin still shows error' );
+            ok( $res->{vars}{errors}->exist && !$res->{vars}{showtable},
+                'invalid user/admin still shows error' );
         }
-        $res = $request->( { user => $subject->user, type => 'other_type', page => 2 }, remote => $limited );
+        $res = $request->(
+            { user => $subject->user, type => 'other_type', page => 2 },
+            remote => $limited
+        );
         is_deeply( $res->{vars}{rows}, [], 'limited viewer cannot query another type' );
         is( $res->{vars}{pages}{total_pages}, 1, 'hidden rows do not affect page count' );
-        unlike( $res->{html}, qr/class="pagination"|different actor|must hide/, 'no hidden data or pager leak' );
-        $res = $request->( { user => $other->user, type => "$boundary_type-1001", page => 2 },
-            remote => $limited );
+        unlike(
+            $res->{html},
+            qr/class="pagination"|different actor|must hide/,
+            'no hidden data or pager leak'
+        );
+        $res = $request->(
+            { user => $other->user, type => "$boundary_type-1001", page => 2 },
+            remote => $limited
+        );
         is_deeply( $res->{vars}{rows}, [], 'more than 1000 hidden rows stay hidden' );
-        is( $res->{vars}{pages}{total_pages}, 1, 'hidden multi-page result does not leak its size' );
-        unlike( $res->{html}, qr/class="pagination"/, 'hidden multi-page result has no navigation' );
+        is( $res->{vars}{pages}{total_pages}, 1,
+            'hidden multi-page result does not leak its size' );
+        unlike( $res->{html}, qr/class="pagination"/,
+            'hidden multi-page result has no navigation' );
         $res = $request->( { %query, page => 2 }, remote => $plain );
-        is( $res->{template}, 'error.tt', 'unprivileged viewer is rejected before history rendering' );
+        is( $res->{template}, 'error.tt',
+            'unprivileged viewer is rejected before history rendering' );
         ok( !$res->{vars}{rows}, 'no history rows returned to unprivileged viewer' );
         {
             local $LJ::IS_DEV_SERVER = 1;
             $res = $request->( { %query, page => 2 }, remote => $plain );
-            is( $res->{template}, 'admin/statushistory.tt', 'existing development-server exemption remains' );
+            is( $res->{template}, 'admin/statushistory.tt',
+                'existing development-server exemption remains' );
             is( scalar @{ $res->{vars}{rows} }, 1000, 'development viewer can page' );
         }
         ok( $plain->grant_priv( 'historyview', '*' ), 'wildcard viewer' );
@@ -310,7 +395,8 @@ with_fake_memcache {
         $res = $request->( { %query, lj_form_auth => $token }, post => 1 );
         is( $res->{template}, 'admin/statushistory.tt', 'valid POST search remains supported' );
         like( $res->{html}, qr/class="pagination"/, 'POST search renders a pager' );
-        unlike( $res->{html}, qr/href=[^>]*lj_form_auth/, 'POST authentication token stays out of links' );
+        unlike( $res->{html}, qr/href=[^>]*lj_form_auth/,
+            'POST authentication token stays out of links' );
     };
 
     is_deeply( $history->(), $before, 'searching, sorting and pagination never change history' );

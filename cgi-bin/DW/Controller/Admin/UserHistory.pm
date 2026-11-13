@@ -128,13 +128,13 @@ sub statushistory_controller {
     return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
 
     my $pages = int( ( $count + $page_size - 1 ) / $page_size ) || 1;
-    my $page  = $form_args->{'page'} || '';
+    my $page = $form_args->{'page'} || '';
 
     # Validate before arithmetic, and never let an arbitrary offset exceed the result set.
     $page = 1 unless $page =~ /\A[1-9][0-9]{0,8}\z/ && $page <= $pages;
     my $offset = ( $page - 1 ) * $page_size;
 
-    $vars->{pages} = { current => $page, total_pages => $pages };
+    $vars->{pages}     = { current => $page, total_pages => $pages };
     $vars->{page_args} = {
         ( map { $_ => $form_args->{$_} } qw(user admin type) ),
         orderby => $sort,
