@@ -36,7 +36,12 @@ sub profile_page {
     my $viewall = $opts{viewall} ? $opts{viewall} : 0;
 
     # sprinkle holy water
-    my $self = { u => $u, remote => $remote, viewall => $viewall };
+    my $self = {
+        u           => $u,
+        remote      => $remote,
+        viewall     => $viewall,
+        public_only => $opts{public_only} ? 1 : 0
+    };
     bless $self, __PACKAGE__;
     return $self;
 }
@@ -428,6 +433,7 @@ sub _basic_info_birthday {
     my $ret = [];
 
     return $ret unless $u->is_personal || $u->is_identity;
+    return $ret if $self->{public_only} && $u->opt_sharebday ne 'A';
 
     if ( $u->bday_string && ( $u->can_share_bday || $self->{viewall} ) ) {
         my $bdate = $u->prop('bdate');
@@ -461,6 +467,7 @@ sub _basic_info_location {
     my $ret = [];
 
     return $ret if $u->is_syndicated;
+    return $ret if $self->{public_only} && $u->opt_showlocation ne 'Y';
 
     my ( $city, $state, $country ) = ( $u->prop('city'), $u->prop('state'), $u->prop('country') );
     my ( $city_ret, $state_ret, $country_ret );
@@ -698,9 +705,12 @@ sub contact_rows {
             };
     }
 
+    # The restricted suspended/deleted view may expose only public contact data.
+    my $contact_remote = $self->{public_only} ? undef : $remote;
+
     # email
-    if ( ( !$u->is_syndicated && $u->share_contactinfo($remote) ) || $self->{viewall} ) {
-        my @emails = $u->emails_visible($remote);
+    if ( ( !$u->is_syndicated && $u->share_contactinfo($contact_remote) ) || $self->{viewall} ) {
+        my @emails = $u->emails_visible($contact_remote);
         my $secimg = $self->security_image( $u->opt_showcontact )
             if @emails;
         foreach my $email (@emails) {
@@ -778,7 +788,7 @@ sub external_services {
     my $self = $_[0];
 
     my $u      = $self->{u};
-    my $remote = $self->{remote};
+    my $remote = $self->{public_only} ? undef : $self->{remote};
     my @ret;
 
     return [] unless $u->is_personal && ( $u->share_contactinfo($remote) || $self->{viewall} );
