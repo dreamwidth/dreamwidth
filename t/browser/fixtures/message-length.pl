@@ -19,6 +19,7 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use Carp qw(croak);
 use JSON;
+use LJ::Subscription;
 
 my $prefix = 'tbrowser_';
 if ( @ARGV == 2 && $ARGV[0] eq '--delete' ) {
@@ -27,6 +28,8 @@ if ( @ARGV == 2 && $ARGV[0] eq '--delete' ) {
     my $u = LJ::load_user( $ARGV[1] ) or exit 0;
     croak 'not a message-length fixture'
         unless $u->name_orig eq 'Message length browser test';
+    $u->kill_all_sessions;
+    LJ::Subscription->delete_all_subs($u);
     $u->delete_and_purge_completely;
     exit 0;
 }

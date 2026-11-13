@@ -43,9 +43,10 @@ async function checkComposer(browser, cookies, fixture, route) {
         assert.ok(fixture.limit > 4, "fixture has a usable account limit");
         const semantics = await page.$eval('textarea[name="msg_body"]', body => ({
             labelled: Array.from(body.labels).some(label => label.textContent.trim()),
-            described: body.getAttribute("aria-describedby").split(/\s+/)
+            described: Boolean(body.getAttribute("aria-describedby")) &&
+                body.getAttribute("aria-describedby").split(/\s+/)
                 .every(id => document.getElementById(id)),
-            live: document.getElementById("msg_body_warning").getAttribute("aria-live"),
+            live: document.getElementById("msg_body_warning")?.getAttribute("aria-live") || null,
             limit: Number(body.dataset.messageLimit),
         }));
         assert.deepEqual(semantics, {
@@ -123,9 +124,16 @@ async function checkComposer(browser, cookies, fixture, route) {
     try {
         browser = await launch();
         const cookies = await login(browser, fixture.user, fixture.password);
+        const failures = [];
         for (const route of ["/inbox/new/compose", "/inbox/compose"]) {
-            await checkComposer(browser, cookies, fixture, route);
+            try {
+                await checkComposer(browser, cookies, fixture, route);
+            } catch (error) {
+                error.message = route + ": " + error.message;
+                failures.push(error);
+            }
         }
+        if (failures.length) throw new AggregateError(failures, "Composer checks failed");
     } finally {
         if (browser) await browser.close();
         deleteFixture("message-length", fixture.user);
