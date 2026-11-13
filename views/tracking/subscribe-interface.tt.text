@@ -14,6 +14,8 @@
 
 .category.track-user=Track This User
 
+.check_all=Check all
+
 .nosubs.text=Track entries, comments, and account updates by clicking the [[img]] icon or the "Track This" link that appears on entries, comments, and the Profile page.
 
 .nosubs.title=You aren't tracking any items
@@ -21,6 +23,8 @@
 .notify_me=Notify me in my [[sitenameabbrev]] Inbox when:
 
 .notify_me.by=Also notify me by
+
+.notify_me.by2=Also notify me by email
 
 .special_subs.note=These notification options are only available by email and won't show in your [[sitenameabbrev]] Inbox.
 
