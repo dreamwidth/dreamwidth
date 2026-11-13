@@ -184,6 +184,17 @@ MARKDOWN
             );
         }
 
+        foreach my $prefix ( '', '<details><summary>Title</summary>Body</details>' . "\n\n" ) {
+            like(
+                $clean->(
+                          $prefix . "Use the <summary> element for titles.\n\n"
+                        . "Second paragraph.\n\nThird paragraph."
+                ),
+                qr{<p>Second[ ]paragraph\.</p>\s*<p>Third[ ]paragraph\.</p>\z},
+                'a stray summary outside a disclosure cannot remove later paragraph wrapping'
+            );
+        }
+
         my $unsafe = $clean->(<<'MARKDOWN');
 <details open ontoggle="alert(1)"><summary onclick="alert(2)">Summary</summary>
 Safe
