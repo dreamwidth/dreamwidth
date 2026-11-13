@@ -123,9 +123,8 @@ the table based way can be removed when the entire site is Foundation-based.
 </ul>
 </div></div>
 
-<button type="button" class="fi-icon--with-fallback close-reveal-modal">
-    <span class="fi-icon fi-x" aria-hidden="true"></span>
-    <span class="fi-icon--fallback">Close</span>
+<button type="button" class="close-reveal-modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
 </button>
 </div><!-- end #account-links-text -->
 </div>
