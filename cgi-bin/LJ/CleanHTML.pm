@@ -1972,6 +1972,9 @@ sub convert_user_mentions {
     my $usertag = sub {
         my ( $orig, $user, $site ) = ( $_[0], $_[1], $_[2] || $LJ::DOMAIN );
 
+        # A fediverse handle is text, not two separate user mentions.
+        return $orig if index( $orig, '@', 1 ) >= 0;
+
         # atproto sites use FQDNs as usernames, so if the final segment of $site
         # refers to one, the rest of $site is actually a part of the username.
         my ( $atuser, $atsitename ) = split /\.([^.]+)$/, ( $orig =~ tr/@//dr );
@@ -1983,19 +1986,18 @@ sub convert_user_mentions {
         return user_link_html( $user, $site, $opts );
     };
 
-    # First pass is just to look for an edge case where an unescaped
-    # username that needs to be converted is the first item in the string.
-    $$ref =~ s!^(\@([\w\-]+)(?:\.([\w\-\.]*[\w\-]))?)(?=$|\W)!$usertag->($1, $2, $3)!mge;
+    # Consume a complete fediverse handle so neither component is converted.
+    my $mention = qr/(\@([\w\-]+)(?:\.([\w\-\.]*[\w\-]))?(?:\@[\w\-\.]+)?)/;
 
-    # Second pass is to look for all other occurrences of unescaped usernames.
+    # A negative lookbehind also matches at the start of the string.
     # If we find an escaped username, remove the escape sequence and continue.
     # We also have to look for (and explicitly ignore) Markdown-supported escape
     # sequences here, to avoid parsing edge cases like '\\@foo' incorrectly
     # (note that's two user-supplied backslashes).  That's why the (\\.) case is
     # actually (\\.) and not (\\\@).
-    $$ref =~ s!(\\.)|(?<=[^\w/])(\@([\w\-]+)(?:\.([\w\-\.]*[\w\-]))?)(?=$|\W)!
+    $$ref =~ s{(\\.)|(?<![\w/])$mention(?=$|\W)}{
         defined($1) ? ( $1 eq '\@' ? '@' : $1 ) : $usertag->($2, $3, $4)
-        !mge;
+        }mge;
 }
 
 # Keys available in opts hashref:
