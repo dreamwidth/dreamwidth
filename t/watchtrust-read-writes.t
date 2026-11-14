@@ -23,6 +23,7 @@ use LJ::Test qw( temp_user );
 use DW::Cache;
 
 {
+
     package WatchTrustLaggingReader;
 
     sub selectrow_array {
@@ -38,6 +39,7 @@ use DW::Cache;
     sub err { return 0 }
 
     our $AUTOLOAD;
+
     sub AUTOLOAD {
         my $self = shift;
         ( my $method = $AUTOLOAD ) =~ s/.*:://;
@@ -47,10 +49,10 @@ use DW::Cache;
 }
 
 my $owner = temp_user();
-my $peer = temp_user();
+my $peer  = temp_user();
 my $other = temp_user();
-my $dbh = LJ::get_db_writer();
-my $pair = $owner->id . ':' . $peer->id;
+my $dbh   = LJ::get_db_writer();
+my $pair  = $owner->id . ':' . $peer->id;
 my $watch = 1 << 61;
 
 sub clear_pair_cache {
@@ -76,9 +78,12 @@ sub saved_mask {
 sub with_lagging_reader {
     my ( $mask, $code ) = @_;
     my $original = \&LJ::get_db_reader;
-    my $reader = bless {
-        reader => $original->(), stale => { $pair => $mask }, reads => {},
-    }, 'WatchTrustLaggingReader';
+    my $reader   = bless {
+        reader => $original->(),
+        stale  => { $pair => $mask },
+        reads  => {},
+        },
+        'WatchTrustLaggingReader';
     no warnings 'redefine';
     local *LJ::get_db_reader = sub {
         return $reader if caller eq 'DW::User::Edges::WatchTrust::Loader';
@@ -89,87 +94,117 @@ sub with_lagging_reader {
 
 subtest 'grant followed immediately by access-filter update' => sub {
     reset_pair();
-    with_lagging_reader( 0, sub {
-        my $reader = shift;
-        ok( !$owner->trusts($peer), 'prime the negative lookup before granting' );
-        ok( $reader->{reads}{$pair}, 'the negative lookup really used the stale reader' );
-        ok( $owner->add_edge( $peer, trust => { nonotify => 1 } ), 'grant succeeds' );
-        ok( $owner->trusts($peer), 'grant is visible in the same request' );
-        is( $owner->trustmask($peer), 1, 'new grant has the default access mask' );
-        my $mask = eval { $owner->trustmask( $peer, 21 ) };
-        is( $@, '', 'immediate filter update does not reject the newly trusted edge' );
-        is( $mask, 21, 'updated mask is returned' );
-        is( saved_mask(), 21, 'writer has the selected access filters' );
-        ok( !$owner->trusts($other), 'grant does not leak to another pair' );
-        ok( $owner->trusts($owner), 'self trust still works' );
-    } );
+    with_lagging_reader(
+        0,
+        sub {
+            my $reader = shift;
+            ok( !$owner->trusts($peer),  'prime the negative lookup before granting' );
+            ok( $reader->{reads}{$pair}, 'the negative lookup really used the stale reader' );
+            ok( $owner->add_edge( $peer, trust => { nonotify => 1 } ), 'grant succeeds' );
+            ok( $owner->trusts($peer), 'grant is visible in the same request' );
+            is( $owner->trustmask($peer), 1, 'new grant has the default access mask' );
+            my $mask = eval { $owner->trustmask( $peer, 21 ) };
+            is( $@,    '', 'immediate filter update does not reject the newly trusted edge' );
+            is( $mask, 21, 'updated mask is returned' );
+            is( saved_mask(), 21, 'writer has the selected access filters' );
+            ok( !$owner->trusts($other), 'grant does not leak to another pair' );
+            ok( $owner->trusts($owner),  'self trust still works' );
+        }
+    );
 };
 
 subtest 'watch updates preserve trust and hide the watch bit from callers' => sub {
     reset_pair();
-    with_lagging_reader( 0, sub {
-        ok( $owner->add_edge( $peer, trust => { mask => 21, nonotify => 1 },
-            watch => { nonotify => 1 } ), 'add both edges' );
-        ok( $owner->watches($peer), 'watch is immediately visible' );
-        ok( $owner->trusts($peer), 'trust is immediately visible' );
-        is( $owner->trustmask($peer), 21, 'public mask excludes the watch bit' );
-        is( saved_mask(), $watch | 21, 'writer stores both kinds of edge' );
-        ok( $owner->add_edge( $peer, watch => { nonotify => 1 } ), 'update watch alone' );
-        is( $owner->trustmask($peer), 21, 'watch update keeps access filters' );
-        is( saved_mask(), $watch | 21, 'writer keeps the existing trust mask' );
-    } );
+    with_lagging_reader(
+        0,
+        sub {
+            ok(
+                $owner->add_edge(
+                    $peer,
+                    trust => { mask     => 21, nonotify => 1 },
+                    watch => { nonotify => 1 }
+                ),
+                'add both edges'
+            );
+            ok( $owner->watches($peer), 'watch is immediately visible' );
+            ok( $owner->trusts($peer),  'trust is immediately visible' );
+            is( $owner->trustmask($peer), 21,          'public mask excludes the watch bit' );
+            is( saved_mask(),             $watch | 21, 'writer stores both kinds of edge' );
+            ok( $owner->add_edge( $peer, watch => { nonotify => 1 } ), 'update watch alone' );
+            is( $owner->trustmask($peer), 21,          'watch update keeps access filters' );
+            is( saved_mask(),             $watch | 21, 'writer keeps the existing trust mask' );
+        }
+    );
 };
 
 subtest 'remove watch then trust while the reader still has both' => sub {
     reset_pair();
-    $owner->add_edge( $peer, trust => { mask => 21, nonotify => 1 },
-        watch => { nonotify => 1 } );
+    $owner->add_edge(
+        $peer,
+        trust => { mask     => 21, nonotify => 1 },
+        watch => { nonotify => 1 }
+    );
     clear_pair_cache();
-    with_lagging_reader( $watch | 21, sub {
-        ok( $owner->watches($peer) && $owner->trusts($peer), 'stale reader has both edges' );
-        ok( $owner->remove_edge( $peer, watch => { nonotify => 1 } ), 'remove watch' );
-        ok( !$owner->watches($peer), 'removed watch stays absent in this request' );
-        ok( $owner->trusts($peer), 'trust remains' );
-        is( $owner->trustmask($peer), 21, 'remaining access filters are unchanged' );
-        is( saved_mask(), 21, 'writer has only trust' );
-        ok( $owner->remove_edge( $peer, trust => { nonotify => 1 } ), 'remove trust' );
-        ok( !$owner->trusts($peer) && !$owner->watches($peer), 'both edges are absent' );
-        is( saved_mask(), undef, 'writer row is deleted' );
-        eval { $owner->trustmask( $peer, 21 ) };
-        like( $@, qr/attempted to set trustmask on non-trusted edge/,
-            'setter still rejects a non-trusted edge' );
-    } );
+    with_lagging_reader(
+        $watch | 21,
+        sub {
+            ok( $owner->watches($peer) && $owner->trusts($peer), 'stale reader has both edges' );
+            ok( $owner->remove_edge( $peer, watch => { nonotify => 1 } ), 'remove watch' );
+            ok( !$owner->watches($peer), 'removed watch stays absent in this request' );
+            ok( $owner->trusts($peer),   'trust remains' );
+            is( $owner->trustmask($peer), 21, 'remaining access filters are unchanged' );
+            is( saved_mask(),             21, 'writer has only trust' );
+            ok( $owner->remove_edge( $peer, trust => { nonotify => 1 } ), 'remove trust' );
+            ok( !$owner->trusts($peer) && !$owner->watches($peer), 'both edges are absent' );
+            is( saved_mask(), undef, 'writer row is deleted' );
+            eval { $owner->trustmask( $peer, 21 ) };
+            like(
+                $@,
+                qr/attempted to set trustmask on non-trusted edge/,
+                'setter still rejects a non-trusted edge'
+            );
+        }
+    );
 };
 
 subtest 'remove trust then watch while the reader still has both' => sub {
     reset_pair();
-    $owner->add_edge( $peer, trust => { mask => 21, nonotify => 1 },
-        watch => { nonotify => 1 } );
+    $owner->add_edge(
+        $peer,
+        trust => { mask     => 21, nonotify => 1 },
+        watch => { nonotify => 1 }
+    );
     clear_pair_cache();
-    with_lagging_reader( $watch | 21, sub {
-        ok( $owner->trusts($peer), 'stale reader still trusts the peer' );
-        ok( $owner->remove_edge( $peer, trust => { nonotify => 1 } ), 'remove trust' );
-        ok( !$owner->trusts($peer), 'revoked trust is immediately absent' );
-        ok( $owner->watches($peer), 'watch remains' );
-        is( $owner->trustmask($peer), 0, 'remaining watch grants no access filters' );
-        is( saved_mask(), $watch, 'writer has only watch' );
-        ok( $owner->remove_edge( $peer, watch => { nonotify => 1 } ), 'remove watch' );
-        ok( !$owner->watches($peer), 'last edge is immediately absent' );
-        is( saved_mask(), undef, 'writer row is deleted' );
-    } );
+    with_lagging_reader(
+        $watch | 21,
+        sub {
+            ok( $owner->trusts($peer), 'stale reader still trusts the peer' );
+            ok( $owner->remove_edge( $peer, trust => { nonotify => 1 } ), 'remove trust' );
+            ok( !$owner->trusts($peer), 'revoked trust is immediately absent' );
+            ok( $owner->watches($peer), 'watch remains' );
+            is( $owner->trustmask($peer), 0,      'remaining watch grants no access filters' );
+            is( saved_mask(),             $watch, 'writer has only watch' );
+            ok( $owner->remove_edge( $peer, watch => { nonotify => 1 } ), 'remove watch' );
+            ok( !$owner->watches($peer), 'last edge is immediately absent' );
+            is( saved_mask(), undef, 'writer row is deleted' );
+        }
+    );
 };
 
 subtest 'write-through ends with the request' => sub {
     reset_pair();
-    with_lagging_reader( 0, sub {
-        my $reader = shift;
-        ok( $owner->add_edge( $peer, trust => { mask => 21, nonotify => 1 } ), 'grant access' );
-        ok( $owner->trusts($peer), 'this request sees its own write' );
-        DW::Cache->request->clear();
-        ok( !$owner->trusts($peer), 'next request reads the deliberately lagging replica' );
-        ok( $reader->{reads}{$pair}, 'request reset causes a real reader lookup' );
-        is( saved_mask(), 21, 'request reset does not change the writer row' );
-    } );
+    with_lagging_reader(
+        0,
+        sub {
+            my $reader = shift;
+            ok( $owner->add_edge( $peer, trust => { mask => 21, nonotify => 1 } ), 'grant access' );
+            ok( $owner->trusts($peer), 'this request sees its own write' );
+            DW::Cache->request->clear();
+            ok( !$owner->trusts($peer),  'next request reads the deliberately lagging replica' );
+            ok( $reader->{reads}{$pair}, 'request reset causes a real reader lookup' );
+            is( saved_mask(), 21, 'request reset does not change the writer row' );
+        }
+    );
 };
 
 reset_pair();
