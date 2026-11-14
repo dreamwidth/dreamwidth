@@ -677,6 +677,8 @@ function Page::print_default_stylesheet () {
 
     .entry-title, .comment-title {
         padding: .2em;
+        word-wrap: break-word;
+        overflow-wrap: anywhere;
     }
     .entry .entry-title {
         $entry_title_font
