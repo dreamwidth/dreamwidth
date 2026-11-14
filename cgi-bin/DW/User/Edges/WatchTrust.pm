@@ -143,7 +143,8 @@ sub _add_wt_edge {
     # delete friend-of memcache keys for anyone who was added
     my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
     LJ::MemCache::delete( [ $from_userid, "trustmask:$from_userid:$to_userid" ] );
-    DW::Cache->request->remove( 'trustmask', "$from_userid:$to_userid" );
+    # A following filter update must see this write even if the reader is behind.
+    DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $mask );
     LJ::memcache_kill( $to_userid,   'wt_edges_rev' );
     LJ::memcache_kill( $from_userid, 'wt_edges' );
     LJ::memcache_kill( $from_userid, 'wt_list' );
@@ -210,6 +211,8 @@ sub _del_wt_edge {
     my $dbh = LJ::get_db_writer()
         or return 0;
 
+    my $mask = 0;
+
     # deletes are easy, these are cases where we're removing both edges,
     # or removing the only remaining edge
     if (   ( $de_watch && $de_trust )
@@ -225,7 +228,7 @@ sub _del_wt_edge {
     }
     else {
 
-        my $mask = $de_trust ? 1 << 61 : $from_u->trustmask($to_u);
+        $mask = $de_trust ? 1 << 61 : $from_u->trustmask($to_u);
 
         $dbh->do( 'UPDATE wt_edges SET groupmask = ? WHERE from_userid = ? AND to_userid = ?',
             undef, $mask, $from_u->id, $to_u->id );
@@ -241,7 +244,7 @@ sub _del_wt_edge {
     LJ::memcache_kill( $to_u,   'watched_by' );
     LJ::memcache_kill( $to_u,   'trusted_by' );
     LJ::MemCache::delete( [ $from_u->id, "trustmask:" . $from_u->id . ":" . $to_u->id ] );
-    DW::Cache->request->remove( 'trustmask', $from_u->id . ":" . $to_u->id );
+    DW::Cache->request->set( 'trustmask', $from_u->id . ":" . $to_u->id, $mask );
 
     # fire notifications if we have theschwartz
     my $notify =
