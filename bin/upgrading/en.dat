@@ -27,6 +27,8 @@ captcha.button=Continue
 
 captcha.invalid=Incorrect response in the antispam field. Please try again.
 
+captcha.journal_setting=This journal's settings require you to complete a CAPTCHA before commenting.
+
 captcha.loading=Loading anti-spam test...
 
 captcha.title=Please fill out the CAPTCHA as an anti-spam measure

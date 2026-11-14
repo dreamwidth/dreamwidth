@@ -426,10 +426,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
     ) -%]
   [%- END -%]
 
-  [%- IF captcha -%]
-    <br />
-    [%- captcha.html -%]
-  [%- END -%]
+  [%- INCLUDE 'journal/captcha.tt' -%]
 
   [%- IF comment.editid -%]
     <br />
@@ -909,10 +906,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         ) -%]
       [%- END -%]
 
-      [%- IF captcha -%]
-        <br />
-        [%- captcha.html -%]
-      [%- END -%]
+      [%- INCLUDE 'journal/captcha.tt' -%]
     </td>
   </tr>
 
