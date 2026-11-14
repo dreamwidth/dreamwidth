@@ -603,12 +603,13 @@ h2#pagetitle {
     margin-bottom: 0;
 }
 
-/* To prevent overlapping when icon's on the left */
-/* and list is the first thing in content */
-.entry-content li,
-.comment-content li {
-    list-style-position: inside;
-    }
+/* Keep lists clear of floated userpics without moving markers into the text. */
+.entry-content ul,
+.entry-content ol,
+.comment-content ul,
+.comment-content ol {
+    display: flow-root;
+}
 
 .metadata ul {
     display: inline;
