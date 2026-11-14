@@ -143,6 +143,7 @@ sub _add_wt_edge {
     # delete friend-of memcache keys for anyone who was added
     my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
     LJ::MemCache::delete( [ $from_userid, "trustmask:$from_userid:$to_userid" ] );
+
     # A following filter update must see this write even if the reader is behind.
     DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $mask );
     LJ::memcache_kill( $to_userid,   'wt_edges_rev' );
