@@ -23,24 +23,26 @@ use LJ::Talk;
 use DW::Template;
 
 {
+
     package Local::CaptchaAccount;
     our @ISA = ('LJ::User');
-    sub new { my ( $class, %args ) = @_; return bless { %args }, $class; }
-    sub identity { return $_[0]{identity}; }
-    sub is_validated { return $_[0]{validated}; }
-    sub equals { return defined $_[1] && $_[0] == $_[1]; }
-    sub prop { return $_[0]{setting}; }
-    sub trusts_or_has_member { return $_[1] && $_[1]{trusted}; }
+    sub new { my ( $class, %args ) = @_; return bless {%args}, $class; }
+    sub identity                         { return $_[0]{identity}; }
+    sub is_validated                     { return $_[0]{validated}; }
+    sub equals                           { return defined $_[1] && $_[0] == $_[1]; }
+    sub prop                             { return $_[0]{setting}; }
+    sub trusts_or_has_member             { return $_[1] && $_[1]{trusted}; }
     sub count_maxcomments_before_captcha { return 10; }
 
     package Local::CaptchaEntry;
-    sub ditemid { return 257; }
+    sub ditemid      { return 257; }
     sub logtime_unix { return time() - $_[0]{age_days} * 86400; }
 
     package Local::CaptchaImplementation;
     sub enabled { return $_[0]{enabled}{ $_[1] || '' }; }
 
     package Local::CaptchaRequest;
+
     sub note {
         my ( $self, $key, $value ) = @_;
         $self->{$key} = $value if @_ > 2;
@@ -49,22 +51,24 @@ use DW::Template;
 }
 
 my $journal = Local::CaptchaAccount->new;
-my @actors = (
+my @actors  = (
     undef,
     Local::CaptchaAccount->new,
-    Local::CaptchaAccount->new( trusted => 1 ),
+    Local::CaptchaAccount->new( trusted  => 1 ),
     Local::CaptchaAccount->new( identity => 1 ),
     Local::CaptchaAccount->new( identity => 1, validated => 1 ),
     $journal,
 );
-my @names = ( 'anonymous', 'outsider', 'trusted or member', 'unvalidated identity',
-    'validated identity', 'owner' );
+my @names = (
+    'anonymous',          'outsider', 'trusted or member', 'unvalidated identity',
+    'validated identity', 'owner'
+);
 
 subtest 'journal policy preserves exemptions' => sub {
     my %expected = (
-        N => [ '', '', '', '', '', 'owner' ],
-        R => [ 'required', '', '', 'required', '', 'owner' ],
-        F => [ 'required', 'required', '', 'required', 'required', 'owner' ],
+        N => [ '',         '',         '',         '',         '',         'owner' ],
+        R => [ 'required', '',         '',         'required', '',         'owner' ],
+        F => [ 'required', 'required', '',         'required', 'required', 'owner' ],
         A => [ 'required', 'required', 'required', 'required', 'required', 'owner' ],
     );
     no warnings qw(redefine once);
@@ -87,18 +91,18 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
     my ( $rate_ok, $sysban, $replycount ) = ( 1, 0, 0 );
     my @bypasses;
     my $trusted = 0;
-    my $entry = bless { age_days => 1 }, 'Local::CaptchaEntry';
+    my $entry   = bless { age_days => 1 }, 'Local::CaptchaEntry';
     no warnings qw(redefine once);
     local *DW::Captcha::site_enabled = sub { return 1; };
-    local *DW::Captcha::new = sub {
+    local *DW::Captcha::new          = sub {
         return bless { enabled => \%enabled }, 'Local::CaptchaImplementation';
     };
-    local *DW::Captcha::record_bypass = sub { push @bypasses, [@_]; };
+    local *DW::Captcha::record_bypass     = sub { push @bypasses, [@_]; };
     local *LJ::Session::trusted_anon_user = sub { return $trusted; };
-    local *LJ::Talk::Post::check_rate = sub { return $rate_ok; };
-    local *LJ::sysban_check = sub { return $sysban; };
-    local *LJ::get_remote_ip = sub { return '198.51.100.10'; };
-    local *LJ::Talk::get_replycount = sub { return $replycount; };
+    local *LJ::Talk::Post::check_rate     = sub { return $rate_ok; };
+    local *LJ::sysban_check               = sub { return $sysban; };
+    local *LJ::get_remote_ip              = sub { return '198.51.100.10'; };
+    local *LJ::Talk::get_replycount       = sub { return $replycount; };
 
     my $check = sub {
         my ( $actor, $body ) = @_;
@@ -109,23 +113,23 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
     is( $check->(undef), 'journal_setting', 'journal policy supplies the reason' );
     $enabled{anonpost} = 1;
     $rate_ok = 0;
-    is( $check->(undef), 'rate_limited', 'rate limit has priority over journal setting' );
+    is( $check->(undef),    'rate_limited', 'rate limit has priority over journal setting' );
     is( $check->($journal), 'rate_limited', 'rate limit still applies to owner' );
     $rate_ok = 1;
-    $sysban = 1;
+    $sysban  = 1;
     is( $check->(undef), 'ip_sysban', 'IP check has priority over journal setting' );
-    $sysban = 0;
-    $replycount = 10;
+    $sysban            = 0;
+    $replycount        = 10;
     $entry->{age_days} = 31;
     is( $check->($journal), 'maxcomments', 'old-entry check still applies to owner' );
     $replycount = 0;
     is( $check->($journal), '', 'owner remains exempt from journal setting' );
-    %enabled = ( comment_html_anon => 1 );
+    %enabled            = ( comment_html_anon => 1 );
     $journal->{setting} = 'R';
-    $trusted = 1;
-    is( $check->(undef), '', 'trusted anonymous R bypass remains allowed' );
-    is( scalar @bypasses, 1, 'one bypass metric' );
-    ok( scalar(grep { $_ eq 'reason:journal_setting' } @{ $bypasses[0] }),
+    $trusted            = 1;
+    is( $check->(undef),  '', 'trusted anonymous R bypass remains allowed' );
+    is( scalar @bypasses, 1,  'one bypass metric' );
+    ok( scalar( grep { $_ eq 'reason:journal_setting' } @{ $bypasses[0] } ),
         'bypass retains journal setting reason' );
     $enabled{comment_html_auth} = 1;
     is( $check->( undef, '<a href="https://example.test/">link</a>' ),
@@ -145,9 +149,11 @@ subtest 'shared form fragment explains only visible journal challenges' => sub {
                 like( $rendered, qr/id="local-captcha"/, 'real challenge markup retained' );
             }
             if ( length($html) && $policy ) {
-                like( $rendered,
+                like(
+                    $rendered,
                     qr/<p class="captcha-journal-setting">captcha\.journal_setting<\/p>/,
-                    'renders localized journal explanation beside challenge' );
+                    'renders localized journal explanation beside challenge'
+                );
             }
             else {
                 unlike( $rendered, qr/captcha-journal-setting/,

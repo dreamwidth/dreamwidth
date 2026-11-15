@@ -350,9 +350,11 @@ sub talkpost_do_handler {
     # Use the authenticated commenter, not posted form fields or the session
     # viewer, to explain a journal setting that independently still applies.
     my $captcha_journal_setting = $need_captcha
-        && ( $need_captcha eq 'journal_setting'
+        && (
+        $need_captcha eq 'journal_setting'
         || ( $need_captcha eq '1'
-            && LJ::Talk::Post::journal_captcha_policy( $commenter, $journalu ) eq 'required' ) );
+            && LJ::Talk::Post::journal_captcha_policy( $commenter, $journalu ) eq 'required' )
+        );
 
     # If there's anything in @errors at the end of prepare_and_validate_comment,
     # it returns undef instead of a $comment, even if it wasn't the one to
@@ -412,14 +414,14 @@ sub talkpost_do_handler {
 
         my $talkform = LJ::Talk::talkform(
             {
-                journalu   => $journalu,
-                parpost    => $comment->{parent},
-                replyto    => $comment->{parent}->{talkid},
-                ditemid    => $comment->{entry}->ditemid,
-                do_captcha => $need_captcha,
+                journalu                => $journalu,
+                parpost                 => $comment->{parent},
+                replyto                 => $comment->{parent}->{talkid},
+                ditemid                 => $comment->{entry}->ditemid,
+                do_captcha              => $need_captcha,
                 captcha_journal_setting => $captcha_journal_setting,
-                errors     => @errors ? \@errors : undef,
-                form       => $POST,
+                errors                  => @errors ? \@errors : undef,
+                form                    => $POST,
             }
         );
 
@@ -455,14 +457,14 @@ sub talkpost_do_handler {
 
         my $talkform = LJ::Talk::talkform(
             {
-                journalu   => $journalu,
-                parpost    => $parpost,
-                replyto    => $POST->{replyto} || $POST->{parenttalkid},
-                ditemid    => $POST->{itemid},
-                do_captcha => $need_captcha,
+                journalu                => $journalu,
+                parpost                 => $parpost,
+                replyto                 => $POST->{replyto} || $POST->{parenttalkid},
+                ditemid                 => $POST->{itemid},
+                do_captcha              => $need_captcha,
                 captcha_journal_setting => $captcha_journal_setting,
-                errors     => \@errors,
-                form       => $POST,
+                errors                  => \@errors,
+                form                    => $POST,
             }
         );
         $vars->{title} = '.title.error';
