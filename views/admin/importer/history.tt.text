@@ -42,6 +42,8 @@
 
 .error.queueunknown=Not retried: the queue could not be read, so it is not known whether a job is still there.
 
+.error.settling=Not retried: this import changed less than a minute ago. Try again shortly.
+
 .error.unknown=That did not work.
 
 .form.submit=View Import History
@@ -75,5 +77,7 @@
 .retry.inflight=Items are still waiting or running.
 
 .retry.notlatest=Not the latest import; it can't be retried.
+
+.retry.settling=Changed in the last minute; it can be retried shortly.
 
 .title=User Import History

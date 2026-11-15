@@ -74,7 +74,10 @@ sub body {
     ok( defined $logger->logid, 'the log was started' );
 
     $logger->log( 'line %d', $_ ) foreach 1 .. 60;
+
+    # a string of characters, and one already UTF-8 bytes (as most of the site's text is)
     $logger->log("a wide character: \x{2603} and e-acute \x{e9}");
+    $logger->log( Encode::encode( 'UTF-8', "bytes: \x{2603} \x{e9}" ) );
     $logger->close;
 
     my ( $text, $missing, $row ) = stored($impid);
@@ -84,7 +87,7 @@ sub body {
     is( $row->{userid}, $u->id,         'and whose it is' );
     is( $row->{pid},    $$,             'and the process that wrote it' );
     ok( $row->{chunks} > 3, 'which took several chunks' );
-    is( $row->{bytes}, length( Encode::encode( 'UTF-8', $text ) ), 'with the bytes recorded' );
+    is( $row->{bytes}, length($text), 'with the bytes recorded' );
 
     my @lines = split /^/, body($text);
     like( $lines[0], qr/^Log started at /, 'the first line says when it started' );
@@ -93,10 +96,20 @@ sub body {
         [ map { "line $_\n" } 1 .. 60 ],
         'the lines are all there, in order'
     );
-    is( $lines[61], "a wide character: \x{2603} and e-acute \x{e9}\n", 'wide characters survive' );
-    is( scalar @lines, 62, 'and nothing else' );
+    ok( !utf8::is_utf8($text), 'the log comes back as bytes' );
+    is(
+        $lines[61],
+        Encode::encode( 'UTF-8', "a wide character: \x{2603} and e-acute \x{e9}\n" ),
+        'a string of characters is stored as UTF-8'
+    );
+    is(
+        $lines[62],
+        Encode::encode( 'UTF-8', "bytes: \x{2603} \x{e9}\n" ),
+        'and UTF-8 bytes are stored as they are, not encoded twice'
+    );
+    is( scalar @lines, 63, 'and nothing else' );
 
-    is( scalar @{ $job->{lines} }, 61, 'every line still went to the job\'s debug output' );
+    is( scalar @{ $job->{lines} }, 62, 'every line still went to the job\'s debug output' );
 
     is_deeply( DW::Importer::LogStore->log( $row->{logid} ), $row, 'the log can be fetched by id' );
     is( DW::Importer::LogStore->log(0), undef, 'a log that does not exist is undef' );

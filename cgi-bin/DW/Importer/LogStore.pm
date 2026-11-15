@@ -52,7 +52,6 @@ because a log must never fail the import it describes.
 use strict;
 use warnings;
 
-use Encode qw( decode encode );
 use Log::Log4perl;
 use Sys::Hostname qw( hostname );
 
@@ -105,8 +104,8 @@ Stores C<$text> as the log's next chunk, then records it in the row. Returns tru
 stored; otherwise warns and returns false, and the log is as it was (storing the same text
 again is safe).
 
-The text is stored as UTF-8 and C<content> decodes it, so what was logged comes back as it
-went in.
+C<$text> should be UTF-8 bytes, as L<DW::Importer::Logger> buffers it; a string of
+characters is encoded to UTF-8 first. C<content> returns the bytes as they were stored.
 
 =cut
 
@@ -128,7 +127,8 @@ sub append_chunk {
         return 0;
     }
 
-    my $bytes  = encode( 'UTF-8', $$textref );
+    my $bytes = $$textref;
+    utf8::encode($bytes) if utf8::is_utf8($bytes);
     my $key    = _chunk_key( $userid, $import_data_id, $logid, $n );
     my $stored = eval { DW::BlobStore->store( $NAMESPACE => $key, \$bytes ) };
     unless ($stored) {
@@ -190,7 +190,7 @@ sub log {
 =head2 C<< DW::Importer::LogStore->content( $log ) >>
 
 C<< ( $text, $missing ) >> for a log as C<logs_for> or C<log> returned it: its chunks in
-order as one string of characters, and how many of them could not be retrieved (typically
+order as one string of UTF-8 bytes, and how many of them could not be retrieved (typically
 because the bucket expired them). A missing chunk is left out of C<$text>.
 
 =cut
@@ -203,7 +203,7 @@ sub content {
         my $key  = _chunk_key( @{$row}{qw( userid import_data_id logid )}, $n );
         my $blob = eval { DW::BlobStore->retrieve( $NAMESPACE => $key ) };
         if ($blob) {
-            $text .= decode( 'UTF-8', $$blob );
+            $text .= $$blob;
         }
         else {
             $missing++;

@@ -184,6 +184,10 @@ sub DESTROY {
 sub _buffer {
     my ( $self, $line ) = @_;
 
+    # the stored log is UTF-8 bytes. most of the site passes text around as UTF-8 bytes
+    # already, so only a string of characters is encoded; appending one to a buffer of
+    # bytes would otherwise re-encode every high byte in it
+    utf8::encode($line) if utf8::is_utf8($line);
     $self->{buffer} .= $line;
     $self->_shed if length $self->{buffer} > $MAX_BUFFER;
 

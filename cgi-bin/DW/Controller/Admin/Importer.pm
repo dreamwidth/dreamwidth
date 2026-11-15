@@ -23,8 +23,6 @@ use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
 
-use Encode ();
-
 use DW::Importer::Control;
 use DW::Importer::LogStore;
 use DW::Importer::Queue;
@@ -247,12 +245,12 @@ sub log_controller {
     return error_ml("$LOG_SCOPE.error.nolog")
         unless $log && $log->{userid} == $u->id;
 
+    # UTF-8 bytes, which is what the templates and the response both take
     my ( $text, $missing ) = DW::Importer::LogStore->content($log);
-    $text = Encode::decode( 'UTF-8', $text // '', Encode::FB_DEFAULT );
 
     if ( ( $args->{format} // '' ) eq 'text' ) {
         $r->content_type('text/plain; charset=utf-8');
-        $r->print( Encode::encode( 'UTF-8', $text ) );
+        $r->print($text);
         return $r->OK;
     }
 

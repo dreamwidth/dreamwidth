@@ -21,6 +21,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user );
+use Encode;
 use HTTP::Request;
 use HTTP::Request::Common;
 
@@ -141,6 +142,9 @@ sub act {
 
 # an administrator with a valid form can cancel and retry
 {
+    # retry right after cancel, without waiting for the import to settle
+    local $LJ::IMPORTER_RETRY_SETTLE_SECONDS = 0;
+
     my $u = temp_user();
     setup( $u, first => 'queued', second => 'init' );
     act( $admin, $u, 'cancel' );
@@ -220,6 +224,24 @@ sub act {
         qr/zzmarker/, 'nor to someone without the privilege' );
     unlike( $get->( $admin, $u, 'x' ), qr/zzmarker/,
         'a log id that is not a number shows nothing' );
+
+    # a log holds UTF-8 bytes, which reach the page and the download as they were stored
+    my $snowman = Encode::encode( 'UTF-8', "zzsnow \x{2603} caf\x{e9}\n" );
+    my $wide    = DW::Importer::LogStore->start( $u->id, 1, 'at_first' );
+    DW::Importer::LogStore->append_chunk( $wide, $u->id, 1, \$snowman );
+    my $page = $get->( $admin, $u, $wide );
+    ok( index( $page, $snowman =~ s/\n//r ) >= 0, 'non-ASCII text is shown intact' );
+
+    my $download = visit(
+        'log_controller',
+        $admin,
+        sub {
+            GET "http://www.dw.test/admin/importer/log?user="
+                . $u->user
+                . "&logid=$wide&format=text";
+        }
+    );
+    is( $download, $snowman, 'and downloads as the same bytes' );
 }
 
 done_testing();

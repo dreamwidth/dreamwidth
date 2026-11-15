@@ -82,12 +82,20 @@ sub cancel {
     my $dbh = LJ::get_db_writer()
         or die "no global master database handle available\n";
 
-    my $status = $class->_statuses( $dbh, $u, $import_data_id );
+    # each update takes whichever cancellable status the item has when it runs, not the one
+    # read here: the scheduler can move an item from ready to queued in between
+    my $status       = $class->_statuses( $dbh, $u, $import_data_id );
+    my $placeholders = join ',', map { '?' } @CANCELLABLE;
     my @aborted;
     foreach my $item ( sort keys %$status ) {
-        next unless grep { $status->{$item} eq $_ } @CANCELLABLE;
-        push @aborted, $item
-            if $class->_move( $dbh, $u, $import_data_id, $item, $status->{$item}, 'aborted' );
+        my $changed = $dbh->do(
+            "UPDATE import_items SET status = 'aborted', last_touch = UNIX_TIMESTAMP() "
+                . "WHERE userid = ? AND import_data_id = ? AND item = ? "
+                . "AND status IN ($placeholders)",
+            undef, $u->id, $import_data_id, $item, @CANCELLABLE
+        );
+        die $dbh->errstr . "\n" if $dbh->err;
+        push @aborted, $item if $changed && $changed > 0;
     }
 
     my $jobs = DW::Importer::Queue->remove_idle_jobs( $u, $import_data_id );
@@ -119,7 +127,13 @@ sub cancel {
 Why this import can't be retried now, or undef if it can. Retrying is only for the user's
 latest import, because the scheduler abandons older ones, and only when nothing is in
 flight, so that a rerun can't overlap a job that is still going. The reasons are
-C<notlatest> and C<inflight> (an item is C<ready> or C<queued>).
+C<notlatest>, C<inflight> (an item is C<ready> or C<queued>) and C<settling>.
+
+C<settling> means an item of the import changed in the last
+C<$LJ::IMPORTER_RETRY_SETTLE_SECONDS> (default 60). The scheduler marks an item C<queued>
+before it inserts the item's job; if the import is cancelled in between, the job arrives
+after the cancel. Waiting until things have been still for a while lets that job reach
+the queue, where C<retry> sees it, instead of colliding with the rerun's own job.
 
 =cut
 
@@ -137,6 +151,15 @@ sub retry_refusal {
 
     my $status = $class->_statuses( $dbh, $u, $import_data_id );
     return 'inflight' if grep { $_ eq 'ready' || $_ eq 'queued' } values %$status;
+
+    my $settle = $LJ::IMPORTER_RETRY_SETTLE_SECONDS // 60;
+    my $recent = $dbh->selectrow_array(
+        'SELECT COUNT(*) FROM import_items WHERE userid = ? AND import_data_id = ? '
+            . 'AND last_touch > UNIX_TIMESTAMP() - ?',
+        undef, $u->id, $import_data_id, $settle
+    );
+    die $dbh->errstr . "\n" if $dbh->err;
+    return 'settling' if $recent;
 
     return undef;
 }

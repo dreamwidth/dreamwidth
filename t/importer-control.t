@@ -333,4 +333,45 @@ sub history {
     ok( !( grep { $_ eq 'ct_b' } @{ $res->{reset} } ), 'and not reported as reset' );
 }
 
+# cancel aborts an item the scheduler claims between cancel reading it and changing it
+{
+    my $u = temp_user();
+    setup( $u, 1, a => 'succeeded', b => 'ready' );
+
+    my $read = \&DW::Importer::Control::_statuses;
+    no warnings 'redefine';
+    local *DW::Importer::Control::_statuses = sub {
+        my $status = $read->(@_);
+        LJ::get_db_writer()
+            ->do( "UPDATE import_items SET status = 'queued' WHERE userid = ? AND item = 'ct_b'",
+            undef, $u->id );
+        return $status;
+    };
+    my $res = DW::Importer::Control->cancel( $u, 1, actor => $actor );
+
+    is( statuses($u)->{b}, 'aborted', 'an item claimed after cancel read it is still aborted' );
+    is_deeply( $res->{aborted}, ['ct_b'], 'and reported' );
+}
+
+# retry waits for an import to settle: right after a cancel, a job the scheduler had
+# claimed an item for may still be on its way into the queue
+{
+    my $u = temp_user();
+    setup( $u, 1, a => 'failed', b => 'queued' );
+    DW::Importer::Control->cancel( $u, 1, actor => $actor );
+
+    is_deeply(
+        DW::Importer::Control->retry( $u, 1, actor => $actor ),
+        { error => 'settling' },
+        'an import that has just changed is not retried'
+    );
+    is_deeply( statuses($u), { a => 'failed', b => 'aborted' }, 'and not changed' );
+
+    LJ::get_db_writer()
+        ->do( 'UPDATE import_items SET last_touch = UNIX_TIMESTAMP() - 120 WHERE userid = ?',
+        undef, $u->id );
+    is_deeply( DW::Importer::Control->retry( $u, 1, actor => $actor )->{ready},
+        ['ct_a'], 'once it has been still for a while it is' );
+}
+
 done_testing();
