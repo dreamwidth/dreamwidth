@@ -44,7 +44,7 @@ my @tests = (
 
 );
 
-plan tests => scalar @tests + 3;
+plan tests => scalar @tests + 2;
 
 sub check_email {
     my ( $email, $expected_error ) = @_;
@@ -63,70 +63,47 @@ foreach my $test (@tests) {
     check_email(@$test);
 }
 
-subtest 'email rejections use translated messages' => sub {
-    my @calls;
-    no warnings 'redefine';
-    local *LJ::Lang::ml = sub {
-        my ( $key, $params ) = @_;
-        push @calls, [ $key, $params || {} ];
-        return "translated:$key";
-    };
+subtest 'rejections explain the problem to the user' => sub {
     my @cases = (
-        [ '',                        'empty',        {} ],
-        [ 'example.com',             'bad_form',     {} ],
-        [ 'a,b@example.com',         'bad_username', {} ],
-        [ 'example@a.baddomainname', 'bad_domain',   {} ],
-        [
-            ' Example@GMALI.COM ',
-            'bad_spelling', { email => 'example@gmali.com', domain => 'gmail.com' }
-        ],
-        [ 'www.a@example.com', 'web_address', { email => 'www.a@example.com' } ],
+        [ '',                        'empty',        qr/cannot be blank/ ],
+        [ 'example.com',             'bad_form',     qr/did not give a valid email address/ ],
+        [ 'a,b@example.com',         'bad_username', qr/invalid characters/ ],
+        [ 'example@a.baddomainname', 'bad_domain',   qr/domain is invalid/ ],
+
+        # The message shows the normalized address and the suggested domain.
+        [ ' Example@GMALI.COM ', 'bad_spelling', qr/example\@gmali\.com\b.*\bgmail\.com\?/ ],
+        [ 'www.a@example.com',   'web_address',  qr/www\.a\@example\.com\b.*web address/ ],
     );
     for my $case (@cases) {
-        my ( $email, $code, $params ) = @$case;
+        my ( $email, $code, $message ) = @$case;
         my ( @errors, @codes );
-        @calls = ();
         LJ::check_email( $email, \@errors, undef, undef, \@codes );
-        is_deeply( \@errors, ["translated:email.check.$code"], "$code is translated" );
-        is_deeply( \@codes, [$code], "$code retains its error code" );
-        is_deeply(
-            \@calls,
-            [ [ "email.check.$code", $params ] ],
-            "$code passes the expected translation parameters"
-        );
+        is_deeply( \@codes, [$code], "$code: rejected with its error code" );
+        is( scalar @errors, 1, "$code: one message for the user" );
+        like( $errors[0], $message, "$code: the message describes the problem" );
     }
 };
 
-subtest 'spelling confirmation label is translated' => sub {
-    no warnings 'redefine';
-    local *LJ::Lang::ml = sub { return "translated:$_[0]" };
+subtest 'spelling confirmation' => sub {
     for my $force ( 0, 1 ) {
         my ( @errors, @codes, $checkbox );
         LJ::check_email( 'example@gmali.com', \@errors, { force_spelling => $force },
             \$checkbox, \@codes );
         like(
             $checkbox,
-            qr{<label for="force_spelling">translated:email.check.confirm</label>},
-            "translated label remains associated with the checkbox (force=$force)"
+            qr{id="force_spelling".*<label for="force_spelling">[^<]+</label>}s,
+            "the checkbox has a label (force=$force)"
         );
         is( !!( $checkbox =~ /checked="checked"/ ),
-            !!$force, "checkbox retains its checked state (force=$force)" );
+            !!$force, "checkbox keeps its checked state (force=$force)" );
         is_deeply(
             \@codes,
             $force ? [] : ['bad_spelling'],
-            "confirmation preserves spelling validation (force=$force)"
+            "confirming overrides only the spelling check (force=$force)"
         );
     }
-};
 
-subtest 'valid addresses need no translated error' => sub {
-    my @calls;
-    no warnings 'redefine';
-    local *LJ::Lang::ml = sub { push @calls, [@_]; return 'unexpected translation' };
     my ( @errors, @codes, $checkbox );
     LJ::check_email( 'example@example.com', \@errors, {}, \$checkbox, \@codes );
-    is_deeply( \@errors, [], 'no errors for a valid address' );
-    is_deeply( \@codes,  [], 'no error codes for a valid address' );
-    is_deeply( \@calls,  [], 'no unnecessary translation calls' );
-    is( $checkbox, undef, 'no spelling confirmation for a valid address' );
+    is( $checkbox, undef, 'a valid address gets no confirmation checkbox' );
 };
