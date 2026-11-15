@@ -27,6 +27,10 @@ use DW::Captcha;
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
+# Match production form-auth binding across in-process dev impersonation requests.
+local $LJ::IS_DEV_SERVER = 1;
+local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'captchaJournalTest';
+
 my $owner    = temp_user();
 my $stranger = temp_user();
 $_->update_self( { status => 'A' } ) for ( $owner, $stranger );
@@ -64,7 +68,8 @@ with_fake_memcache {
             subtest $legacy ? 'legacy form' : 'Foundation form' => sub {
                 for my $who ( 'nobody_exists', $stranger->user, $owner->user ) {
                     my $login = $cb->( GET "http://localhost/login?as=$who" );
-                    my ($token) = $login->content =~ /name="lj_form_auth" value="([^"]+)"/;
+                    my ($token) = $login->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+                    is( $login->code, 200, "$who opens the real login form" );
                     ok( $token, "$who obtains a genuine form token" ) or next;
                     for my $setting ( 'N', 'A' ) {
                         $owner->set_prop( opt_show_captcha_to => $setting );
@@ -76,6 +81,7 @@ with_fake_memcache {
                                 POST "http://localhost/talkpost_do?as=$who",
                                 [
                                     lj_form_auth => $token,
+                                    chrp1 => LJ::Talk::generate_chrp1( $owner->id, $entry->ditemid ),
                                     journal      => $owner->user,
                                     itemid       => $entry->ditemid,
                                     usertype     => $who eq 'nobody_exists'
@@ -139,6 +145,7 @@ with_fake_memcache {
                         POST "http://localhost/talkpost_do?as=$who",
                         [
                             lj_form_auth            => $token,
+                            chrp1 => LJ::Talk::generate_chrp1( $owner->id, $entry->ditemid ),
                             journal                 => $owner->user,
                             itemid                  => $entry->ditemid,
                             usertype                => 'anonymous',
