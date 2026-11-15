@@ -23,6 +23,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Controller;
+use DW::Importer::Registry;
 use DW::Logic::Importer;
 use DW::Request;
 use DW::Routing;
@@ -30,6 +31,7 @@ use DW::Task::ImportEraser;
 use DW::TaskQueue;
 use DW::Template;
 use LJ::Hooks;
+use LJ::JSON;
 
 DW::Routing->register_string( '/tools/importer/erase', \&erase_handler,    app => 1 );
 DW::Routing->register_string( '/tools/importer',       \&importer_handler, app => 1 );
@@ -100,83 +102,49 @@ sub importer_handler {
                 usejournal => $uj
             );
             return error_ml($error) if $error;
-            $vars->{widget} = render_choose_data($vars);
+            $vars->{widget} =
+                render_choose_data( $vars, DW::Importer::Registry->source_for_hostname($hn) );
         }
         elsif ( $POST->{'choose_data'} ) {
-            my $has_items = 0;
-            foreach my $key ( keys %$POST ) {
-                if ( $key =~ /^lj_/ && $POST->{$key} ) {
-                    $has_items = 1;
-                    last;
-                }
-            }
+            my $source = current_source($u)
+                or return error_ml('widget.importchoosesource.error.nohostname');
+
+            my @chosen = grep { $POST->{$_} } selectable_fields($source);
             return error_ml('widget.importchoosedata.error.noitemsselected')
-                unless $has_items;
+                unless @chosen;
 
-            # if we're doing the suboption, turn on the parent option
-            $POST->{lj_entries} = 1
-                if $POST->{lj_entries_remap_icon};
-
-            # if comments are on, turn entries on
-            $POST->{lj_entries} = 1
-                if $POST->{lj_comments};
-
-            # okay, this is kinda hacky but turn on the right things so we can do
-            # a proper entry import...
-            if ( $POST->{lj_entries} ) {
-                $POST->{lj_tags}         = 1;
-                $POST->{lj_friendgroups} = 1;
-            }
-
-            # if friends are on, turn on groups
-            $POST->{lj_friendgroups} = 1
-                if $POST->{lj_friends};
-
-            # everybody needs a verifier
-            $POST->{lj_verify} = 1;
-
-            # and finally, make sure modes that make no sense for communities are off
-            if ( $u->is_community ) {
-                $POST->{lj_friends}      = 0;
-                $POST->{lj_friendgroups} = 0;
-            }
-
-            $vars->{widget} = render_confirm( $vars, $POST );
+            $vars->{widget} = render_confirm( $vars, $source, \@chosen );
 
         }
         elsif ( $POST->{'confirm'} ) {
 
-            # default job status
-            my @jobs = (
-                [ 'lj_verify',       'ready' ],
-                [ 'lj_userpics',     'init' ],
-                [ 'lj_bio',          'init' ],
-                [ 'lj_tags',         'init' ],
-                [ 'lj_friendgroups', 'init' ],
-                [ 'lj_friends',      'init' ],
-                [ 'lj_entries',      'init' ],
-                [ 'lj_comments',     'init' ],
-            );
-
-            my %suboptions = ( lj_entries => ['lj_entries_remap_icon'], );
-
             # get import_data_id for the user
             my $imports = DW::Logic::Importer->get_import_data_for_user($u);
+            my $source  = current_source($u)
+                or return error_ml('widget.importchoosesource.error.nohostname');
 
             my $id = $imports->[0]->[0];
             my $error;
 
-            # schedule userpic, bio, and tag imports
-            foreach my $item (@jobs) {
-                next unless $POST->{ $item->[0] };
+            # schedule everything that was chosen, plus what it needs
+            my @chosen = grep { $POST->{$_} } selectable_fields($source);
+            my %wanted =
+                map { $_ => 1 }
+                DW::Importer::Registry->expand_selection( $source->{name}, \@chosen,
+                DW::Importer::Registry->journaltype($u) );
 
-                my $suboption = $suboptions{ $item->[0] } || [];
+            foreach my $item ( DW::Importer::Registry->items( $source->{name} ) ) {
+                next unless $wanted{ $item->{name} };
+
                 my %opts;
-                foreach (@$suboption) {
+                foreach ( @{ $item->{suboptions} } ) {
                     $opts{$_} = 1 if $POST->{$_};
                 }
-                $error =
-                    DW::Logic::Importer->set_import_items_for_user( $u, item => $item, id => $id );
+                $error = DW::Logic::Importer->set_import_items_for_user(
+                    $u,
+                    item => [ $item->{name}, $item->{initial_status} ],
+                    id   => $id
+                );
                 return error_ml($error) if $error;
 
                 $error = DW::Logic::Importer->set_import_data_options_for_user(
@@ -203,77 +171,59 @@ sub importer_handler {
     return DW::Template->render_template( 'tools/importer/index.tt', $vars );
 }
 
+# the source (kind of site) of the user's most recent import setup, or undef
+sub current_source {
+    my ($u) = @_;
+
+    my $imports = DW::Logic::Importer->get_import_data_for_user($u);
+    return undef unless $imports && $imports->[0];
+    return DW::Importer::Registry->source_for_hostname( $imports->[0]->[1] );
+}
+
+# the form fields that mean something on the choose-data page: the items users can pick
+# and the options belonging to them
+sub selectable_fields {
+    my ($source) = @_;
+
+    return map { ( $_->{name}, @{ $_->{suboptions} } ) }
+        grep { $_->{selectable} } DW::Importer::Registry->items( $source->{name} );
+}
+
 sub render_choose_data {
-    my $vars    = shift;
-    my $options = [
-        {
-            name         => 'lj_bio',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_bio'),
-            desc         => LJ::Lang::ml('widget.importchoosedata.item.lj_bio.desc'),
-            selected     => 0,
-            comm_okay    => 1,
-        },
-        {
-            name         => 'lj_friends',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_friends'),
-            desc         => LJ::Lang::ml('widget.importchoosedata.item.lj_friends.desc'),
-            selected     => 0,
-            comm_okay    => 0,
-        },
-        {
-            name         => 'lj_friendgroups',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_friendgroups'),
-            desc         => LJ::Lang::ml(
-                'widget.importchoosedata.item.lj_friendgroups.desc',
-                { sitename => $LJ::SITENAMESHORT }
-            ),
-            selected  => 0,
-            comm_okay => 0,
-        },
-        {
-            name         => 'lj_entries',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_entries'),
-            desc         => LJ::Lang::ml('widget.importchoosedata.item.lj_entries.desc'),
-            selected     => 0,
-            comm_okay    => 1,
-        },
-        {
-            name         => 'lj_comments',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_comments'),
-            desc         => LJ::Lang::ml('widget.importchoosedata.item.lj_comments.desc'),
-            selected     => 0,
-            comm_okay    => 1,
-        },
-        {
-            name         => 'lj_tags',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_tags'),
-            desc         => LJ::Lang::ml('widget.importchoosedata.item.lj_tags.desc'),
-            selected     => 0,
-            comm_okay    => 1,
-        },
-        {
-            name         => 'lj_userpics',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_userpics'),
-            desc         => LJ::Lang::ml(
-                'widget.importchoosedata.item.lj_userpics.desc',
-                { sitename => $LJ::SITENAMESHORT }
-            ),
-            selected  => 0,
-            comm_okay => 1,
-        },
+    my ( $vars, $source ) = @_;
+
+    my @items =
+        sort { $a->{display_order} <=> $b->{display_order} }
+        grep { $_->{selectable} } DW::Importer::Registry->items( $source->{name} );
+
+    my $sitename = { sitename => $LJ::SITENAMESHORT };
+    my $options  = [
+        map {
+            {
+                name         => $_->{name},
+                display_name => LJ::Lang::ml("widget.importstatus.item.$_->{name}"),
+                desc => LJ::Lang::ml( "widget.importchoosedata.item.$_->{name}.desc", $sitename ),
+                selected  => 0,
+                comm_okay => $_->{comm_okay},
+            }
+        } @items
     ];
 
     my $fixup_options = [
-        {
-            name         => 'lj_entries_remap_icon',
-            display_name => LJ::Lang::ml('widget.importstatus.item.lj_entries_remap_icon'),
-            desc         => LJ::Lang::ml('widget.importchoosedata.item.lj_entries_remap_icon.desc'),
-            selected     => 0,
-        },
+        map {
+            {
+                name         => $_,
+                display_name => LJ::Lang::ml("widget.importstatus.item.$_"),
+                desc         => LJ::Lang::ml( "widget.importchoosedata.item.$_.desc", $sitename ),
+                selected     => 0,
+            }
+        } map { @{ $_->{suboptions} } } @items
     ];
 
     $vars->{options}       = $options;
     $vars->{fixup_options} = $fixup_options;
+    $vars->{dependencies_json} =
+        to_json( DW::Importer::Registry->dependency_map( $source->{name} ) );
 
     return DW::Template->template_string( 'tools/importer/choose_data.tt', $vars );
 }
@@ -291,16 +241,24 @@ sub render_choose_source {
 }
 
 sub render_confirm {
-    my ( $vars, $opts ) = @_;
+    my ( $vars, $source, $chosen ) = @_;
 
-    my @items_fields;
-    my @items_display;
-    foreach my $item ( keys %$opts ) {
-        next unless $item =~ /^lj_/ && $opts->{$item};
-        push @items_fields, $item unless $item eq 'lj_form_auth';
-        push @items_display, LJ::Lang::ml("widget.importstatus.item.$item")
-            unless ( $item eq 'lj_verify' )
-            or ( $item eq 'lj_form_auth' );
+    # everything that will be imported, in order, with the chosen options after their item
+    my %chosen   = map { $_ => 1 } @$chosen;
+    my @selected = DW::Importer::Registry->expand_selection( $source->{name}, $chosen,
+        DW::Importer::Registry->journaltype( $vars->{u} ) );
+
+    my ( @items_fields, @items_display );
+    foreach my $name (@selected) {
+        my $item = DW::Importer::Registry->item($name);
+        push @items_fields,  $name;
+        push @items_display, LJ::Lang::ml("widget.importstatus.item.$name")
+            unless $item->{always};
+
+        foreach my $option ( grep { $chosen{$_} } @{ $item->{suboptions} } ) {
+            push @items_fields,  $option;
+            push @items_display, LJ::Lang::ml("widget.importstatus.item.$option");
+        }
     }
     my $imports = DW::Logic::Importer->get_import_data_for_user( $vars->{u} );
 
@@ -312,19 +270,8 @@ sub render_confirm {
 }
 
 sub render_status {
-    my $vars             = shift;
-    my $items            = DW::Logic::Importer->get_import_items_for_user( $vars->{u} );
-    my $item_to_funcname = {
-        lj_bio          => 'DW::Worker::ContentImporter::LiveJournal::Bio',
-        lj_tags         => 'DW::Worker::ContentImporter::LiveJournal::Tags',
-        lj_entries      => 'DW::Worker::ContentImporter::LiveJournal::Entries',
-        lj_comments     => 'DW::Worker::ContentImporter::LiveJournal::Comments',
-        lj_userpics     => 'DW::Worker::ContentImporter::LiveJournal::Userpics',
-        lj_friends      => 'DW::Worker::ContentImporter::LiveJournal::Friends',
-        lj_friendgroups => 'DW::Worker::ContentImporter::LiveJournal::FriendGroups',
-        lj_verify       => 'DW::Worker::ContentImporter::LiveJournal::Verify',
-    };
-
+    my $vars  = shift;
+    my $items = DW::Logic::Importer->get_import_items_for_user( $vars->{u} );
     my $color = {
         init      => '#333',
         ready     => '#33a',
@@ -347,9 +294,10 @@ sub render_status {
                 $i->{status_txt} = LJ::Lang::ml("widget.importstatus.status.$i->{status}");
 
                 # an aborted item may just be waiting behind an older job for the same item
-                $dupect = _queued_job_count( $item_to_funcname->{$item},
-                    join( "-", ( $item, $vars->{u}->id ) ) )
-                    if $i->{status} eq "aborted";
+                $dupect = _queued_job_count(
+                    DW::Importer::Registry->item($item)->{class},
+                    join( "-", ( $item, $vars->{u}->id ) )
+                ) if $i->{status} eq "aborted";
             }
 
             $i->{dupe} =
@@ -418,6 +366,7 @@ sub get_queue {
     # FIXME: we don't have ddlockd, maybe we should
 
     # get the counts of jobs in queue (active or not)
+    my %registered = map { $_ => 1 } DW::Importer::Registry->classes;
     my %cts;
     my $reached = _each_schwartz_dbh(
         sub {
@@ -427,7 +376,7 @@ sub get_queue {
                 or return;
 
             foreach my $funcname ( keys %$funcmap ) {
-                next unless $funcname =~ /^DW::Worker::ContentImporter::LiveJournal::/;
+                next unless $registered{$funcname};
 
                 my ($ct) =
                     $dbh->selectrow_array(

@@ -23,6 +23,7 @@ use DW::Routing;
 use DW::Template;
 use DW::Controller::Admin;
 
+use DW::Importer::Registry;
 use DW::Logic::Importer;
 
 # viewing the queue and details for a specific import
@@ -52,21 +53,7 @@ sub queue_controller {
 
     my $vars    = {};
     my $sclient = LJ::theschwartz();
-    my @joblist = $sclient->list_jobs(
-        {
-            funcname => [
-                qw(   DW::Worker::ContentImporter::LiveJournal::Bio
-                    DW::Worker::ContentImporter::LiveJournal::Tags
-                    DW::Worker::ContentImporter::LiveJournal::Entries
-                    DW::Worker::ContentImporter::LiveJournal::Comments
-                    DW::Worker::ContentImporter::LiveJournal::Userpics
-                    DW::Worker::ContentImporter::LiveJournal::Friends
-                    DW::Worker::ContentImporter::LiveJournal::FriendGroups
-                    DW::Worker::ContentImporter::LiveJournal::Verify
-                    )
-            ]
-        }
-    );
+    my @joblist = $sclient->list_jobs( { funcname => [ DW::Importer::Registry->classes ] } );
 
     my @latest;
     my @jobs;

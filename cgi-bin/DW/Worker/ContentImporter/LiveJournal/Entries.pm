@@ -344,15 +344,6 @@ sub try_work {
         return unless $fetch_events->(@toload);
     }
 
-    # mark the comments mode as ready to schedule
-    my $dbh = LJ::get_db_writer();
-    $dbh->do(
-        q{UPDATE import_items SET status = 'ready'
-          WHERE userid = ? AND item IN ('lj_comments')
-          AND import_data_id = ? AND status = 'init'},
-        undef, $u->id, $opts->{import_data_id}
-    );
-
     # Kick off a indexing job for this user
     if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(

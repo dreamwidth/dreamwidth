@@ -23,9 +23,13 @@ BEGIN {
 }
 
 use LJ::Worker::TheSchwartz;
-use DW::Worker::ContentImporter::LiveJournal::Verify;
+use DW::Importer::Registry;
 
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Verify" );
+# the registry says which worker classes this process runs
+foreach my $class ( DW::Importer::Registry->classes_for_process( 'content-importer-verify' ) ) {
+    eval "require $class; 1" or die $@;
+    schwartz_decl( $class );
+}
 
 $0 = 'content-importer [bored]';
 

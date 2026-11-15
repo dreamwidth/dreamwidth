@@ -53,9 +53,6 @@ sub try_work {
         or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
     $0 = sprintf( 'content-importer [tags: %s(%d)]', $u->user, $u->id );
 
-    my $dbh = LJ::get_db_writer()
-        or return $temp_fail->('Unable to get global master database handle');
-
     # get tags
     my $r           = $class->call_xmlrpc( $data, 'getusertags' );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
@@ -63,16 +60,6 @@ sub try_work {
     return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
 
     DW::Worker::ContentImporter::Local::Tags->merge_tags( $u, $r->{tags} );
-
-    # if this is a community, it is now our job to schedule the entry import
-    if ( $u->is_community ) {
-        $dbh->do(
-            q{UPDATE import_items SET status = 'ready'
-              WHERE userid = ? AND item = 'lj_entries'
-                  AND import_data_id = ? AND status = 'init'},
-            undef, $u->id, $opts->{import_data_id}
-        );
-    }
 
     return $ok->();
 }
