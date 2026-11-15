@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# DW::Controller::Importer
+# DW::Controller::Admin::Importer
 #
 # This controller is to view details about the import queue
 #
@@ -14,7 +14,7 @@
 # 'perldoc perlartistic' or 'perldoc perlgpl'.
 #
 
-package DW::Controller::Importer;
+package DW::Controller::Admin::Importer;
 
 use strict;
 

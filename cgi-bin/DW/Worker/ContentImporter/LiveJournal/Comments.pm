@@ -237,7 +237,7 @@ sub try_work {
     # parameters for below
     my ( %meta, %identity_map, %was_external_user );
     my ( $maxid, $server_max_id, $server_next_id, $nextid, $lasttag ) = ( 0, undef, 1, 0, '' );
-    my @fail_errors;
+    my ( @fail_errors, $orphaned );
 
     # setup our parsing function
     my $meta_handler = sub {
@@ -410,6 +410,21 @@ sub try_work {
             grep { defined $_->[C_done] && $_->[C_done] == 0 && $_->[C_body_fixed] == 1 }
             map  { $meta{$_} }
             keys %in_flight;
+
+        # a new comment whose entry was never imported has nowhere to go; posting it would
+        # create a comment attached to entry 0, so skip it and tell the user at the end.
+        # (comments we already have go through the updater below, which needs no entry.)
+        my $is_orphan = sub { !$_->[C_local_jitemid] && !$jtalkid_map->{ $_->[C_orig_id] } };
+        foreach my $comment ( grep { $is_orphan->() } @to_import ) {
+            $log->(
+                'Skipping remote comment %d: remote entry %d is not imported.',
+                $comment->[C_orig_id], $comment->[C_remote_jitemid]
+            );
+            $orphaned++;
+            $comment->[$_] = undef foreach ( C_props, C_body, C_subject );
+            $comment->[C_done] = 1;
+        }
+        @to_import = grep { !$is_orphan->() } @to_import;
         $title->( 'posting %d comments', scalar(@to_import) );
 
         # let's do some batch loads of the users and entries we're going to need
@@ -658,6 +673,13 @@ sub try_work {
     return unless $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
+    $status->(
+        text =>
+            sprintf(
+            '%d comments were not imported because the entries they belong to are not imported.',
+            $orphaned )
+    ) if $orphaned;
+
     # Kick off an indexing job for this user
     if ( DW::Search::enabled() ) {
         DW::TaskQueue->dispatch(
@@ -677,11 +699,14 @@ sub do_authed_comment_fetch {
     # of comments, to avoid possibly using one that was idle too long without testing it.
     $LJ::DBIRole->clear_req_cache();
 
-    # see if the file is cached and recent. this is mostly a hack useful for debugging
-    # when something goes bad, or if we somehow get stuck in a loop. at least we won't
-    # unintentionally DoS the target.
+    # see if the file is cached. the cache belongs to one import (import_data_id is part of the
+    # key): retries of a job reuse what was already downloaded, which stops a stuck job from
+    # hammering the target, but a new import always fetches fresh data.
     my $md5 =
-        md5_hex( $url . ( $data->{user} || $data->{username} ) . ( $data->{usejournal} || '' ) );
+        md5_hex( $url
+            . ( $data->{user} || $data->{username} )
+            . ( $data->{usejournal} || '' ) . '#'
+            . ( $data->{import_data_id} // 0 ) );
     my $fn = "$LJ::HOME/logs/imports/$data->{userid}/$md5.xml";
     my $rv = open FILE, "<$fn";
     if ($rv) {

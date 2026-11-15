@@ -156,7 +156,7 @@ sub try_work {
         );
     }
 
-    my ( $duplicates_map, %has ) = $class->find_prunable_items(
+    my %has = $class->find_prunable_items(
         $u, $entry_map, $xpost_map,
         hostname       => $data->{hostname},
         username       => $data->{username},
@@ -215,20 +215,7 @@ sub try_work {
             || $xpost_map->{ $evt->{itemid} }
             || $has{ $evt->{itemid} };
 
-        # try to detect suspiciously similar entries
-        # but first clean subject to make sure it matches what we actually inserted into the db
-        # separate condition from above so that we can log that we guessed these are similar
         $evt->{subject} = $class->remap_lj_user( $data, $evt->{subject} || "" );
-        my $dupecheck_key = $evt->{eventtime} . '-' . $evt->{subject};
-        if ( $duplicates_map->{$dupecheck_key} ) {
-            $log->(
-                "Skipping entry on %s. Remote entry jitemid %d similar to local jitemid %d.",
-                $evt->{eventtime}, $evt->{itemid}, $duplicates_map->{$dupecheck_key}
-            );
-            $has{ $evt->{itemid} } = 1;
-
-            return;
-        }
 
         # clean up event for LJ and remap friend groups
         my @item_errors;
@@ -423,12 +410,7 @@ sub find_prunable_items {
     $log->( 'Identified %d items we already know about (second pass).', scalar( keys %has ) );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
-    my $duplicates_map =
-        DW::Worker::ContentImporter::Local::Entries->get_duplicates_map( $u, \%has ) || {};
-    $log->( 'Found %d items to check for duplicates.', scalar( keys %$duplicates_map ) );
-    $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
-
-    return ( $duplicates_map, %has );
+    return %has;
 }
 
 1;

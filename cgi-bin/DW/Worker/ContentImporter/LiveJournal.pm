@@ -72,7 +72,7 @@ sub remap_groupmask {
 
     # trust/friends hasn't changed bits so just copy that over
     $newmask = 1
-        if $allowmask & 1 == 1;
+        if ( $allowmask & 1 ) == 1;
 
     foreach my $oid ( keys %{ $MAPS{fg_map} } ) {
         my $nid     = $MAPS{fg_map}->{$oid};
@@ -292,7 +292,7 @@ sub remap_username_friend {
                 foreach my $token (@$tokens) {
                     if ( $token->fromuser eq $username ) {
                         my $u = LJ::load_user( $token->touser );
-                        return $u if defined $u;
+                        return $u->id if defined $u;
 
                         # it is technically possible for there to be a second rename and
                         # there to be a chain of renames, but wow. die for now.

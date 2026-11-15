@@ -144,4 +144,28 @@ sub identity_of {
     is( remap('ext_1004'), undef, 'an unmappable local identity yields no user' );
 }
 
+# when the identity is the old name of a renamed local user, the mapping returns that user's id
+{
+    local $LJ::DOMAIN      = 'local.test';
+    local $LJ::USER_DOMAIN = 'local.test';
+    my $new = temp_user();
+    my $old = 'old_' . lc LJ::rand_chars(8);
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do(
+        'INSERT INTO renames (auth, ownerid, renuserid, fromuser, touser, rendate, status) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
+        undef, 'abcdefghijklm', $new->id, $new->id, $old, $new->user, time(), 'A'
+    );
+    my $renid = $dbh->{mysql_insertid};
+
+    local %Test::CannedUA::RESPONSES =
+        ( "http://$host/tools/opml.bml?user=ext_1005" => opml("$old.local.test") );
+    my $got = remap('ext_1005');
+    $dbh->do( 'DELETE FROM renames WHERE renid = ?', undef, $renid );
+
+    ok( !ref $got, 'a userid, not an object' );
+    is( $got, $new->id, 'the renamed user is found through the rename history' );
+}
+
 done_testing();

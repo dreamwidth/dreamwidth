@@ -65,8 +65,7 @@ sub try_work {
     # abstract out sites?
     my $un = $data->{usejournal} || $data->{username};
     $un =~ s/_/-/g;    # URLs use hyphens, not underscores
-    my ( $items, $interests, $schools ) =
-        $class->get_foaf_from("http://$un.$data->{hostname}/data/foaf");
+    my ( $items, $interests, $schools ) = $class->get_foaf_from("http://$un.$data->{hostname}");
     return $temp_fail->("Unable to load FOAF data for $un.$data->{hostname}.")
         unless $items;
 

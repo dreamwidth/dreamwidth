@@ -188,4 +188,45 @@ my $top;
     );
 }
 
+# a failed insert says why in the caller's error variable
+{
+    my $err = '';
+    my $id = $comments->insert_comment( $u, comment( orig_id => 20, date => 'not a date' ), \$err );
+    ok( !$id, 'an insert the database rejects returns false' );
+    like( $err, qr/Database Error/, 'and the reason reaches the caller' );
+    ok( !exists $comments->get_comment_map($u)->{ "$entry_key/" . ( 20 << 8 ) },
+        'nothing is keyed' );
+}
+
+# updating a comment must not replace the text of comments that already have one
+{
+    local %LJ::FIX_COMMENT_IMPORT = ( $u->user => 1 );
+    my $err = '';
+
+    my $kept =
+        $comments->insert_comment( $u, comment( orig_id => 21, body => 'original words' ), \$err );
+    my $blank =
+        $comments->insert_comment( $u, comment( orig_id => 22, body => 'to be blanked' ), \$err );
+    $u->do( 'UPDATE talktext2 SET body = ? WHERE journalid = ? AND jtalkid = ?',
+        undef, '', $u->id, $blank );
+
+    $comments->clear_caches;
+    foreach my $id ( $kept, $blank ) {
+        $comments->update_comment( $u,
+            { id => $id, subject => 'remote subject', body => 'remote body', props => {} }, \$err );
+    }
+
+    my $body = sub {
+        my ($id) = @_;
+        return LJ::text_uncompress(
+            $u->selectrow_array(
+                'SELECT body FROM talktext2 WHERE journalid = ? AND jtalkid = ?',
+                undef, $u->id, $id
+            )
+        );
+    };
+    is( $body->($kept),  'original words', 'a comment with text keeps it' );
+    is( $body->($blank), 'remote body',    'an empty comment gets the remote text' );
+}
+
 done_testing();
