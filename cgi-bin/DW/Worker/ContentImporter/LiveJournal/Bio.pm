@@ -54,12 +54,6 @@ sub try_work {
 
     $0 = sprintf( 'content-importer [bio: %s(%d)]', $u->user, $u->id );
 
-    my $ua = LJ::get_useragent(
-        role     => 'importer',
-        max_size => 524288,       # half meg, this should be plenty
-        timeout  => 20,           # 20 seconds, might need tuning for slow sites
-    ) or return $temp_fail->('Unable to allocate useragent.');
-
     # FIXME: have to flip this back to using the user_path value instead of hardcoded
     # livejournal.com ... this should probably be part of the import_data structure?
     # abstract out sites?
