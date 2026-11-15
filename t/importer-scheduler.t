@@ -67,8 +67,9 @@ sub run_for {
     my ($u) = @_;
     @scheduler_log = ();
     DW::Importer::Scheduler->run_once(
-        userid => $u->id,
-        log    => sub { push @scheduler_log, sprintf( shift, @_ ) }
+        userid           => $u->id,
+        recover_interval => 0,
+        log              => sub { push @scheduler_log, sprintf( shift, @_ ) }
     );
 }
 
@@ -198,6 +199,131 @@ sub run_with_insert_hook {
     );
 
     is( statuses( $u, 1 )->{lj_verify}, 'succeeded', 'the finished status is not overwritten' );
+}
+
+# a job insert that throws is handled like one that clashes: the claimed row must not be left
+# queued with no job, since nothing would ever pick it up
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio lj_userpics ) );
+
+    {
+        no warnings 'redefine';
+        local *TheSchwartz::insert = sub { die "database went away\n" };
+        run_for($u);
+    }
+
+    like(
+        join( "\n", @scheduler_log ),
+        qr/inserting the job for lj_verify failed: database went away/,
+        'the error is logged'
+    );
+    is_deeply(
+        statuses( $u, 1 ),
+        { lj_verify => 'aborted', lj_bio => 'aborted', lj_userpics => 'aborted' },
+        'the row and what waited for it are aborted'
+    );
+}
+
+# an item queued long ago with no job (the scheduler died after claiming it) is made ready
+# again and scheduled; one that is fresh, or still has its job, is not touched
+sub set_queued {
+    my ( $u, $item, $age ) = @_;
+    LJ::get_db_writer()->do(
+        q{UPDATE import_items SET status = 'queued', last_touch = UNIX_TIMESTAMP() - ?
+          WHERE userid = ? AND import_data_id = 1 AND item = ?},
+        undef, $age, $u->id, $item
+    );
+}
+
+sub touched {
+    my ( $u, $item ) = @_;
+    return LJ::get_db_writer()->selectrow_array(
+        'SELECT last_touch FROM import_items WHERE userid = ? AND import_data_id = 1 AND item = ?',
+        undef, $u->id, $item
+    );
+}
+
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio ) );
+    set_queued( $u, 'lj_verify', 7200 );
+
+    run_for($u);
+    like(
+        join( "\n", @scheduler_log ),
+        qr/1:lj_verify of user @{[ $u->id ]} was queued with no job/,
+        'the recovery is logged'
+    );
+    is( statuses( $u, 1 )->{lj_verify}, 'queued', 'the stale item is queued again' );
+    is_deeply(
+        [ queued($u) ],
+        [ $reg->item('lj_verify')->{class} . ' lj_verify-' . $u->id . ' 1' ],
+        'and now has a job'
+    );
+    ok( touched( $u, 'lj_verify' ) > time() - 100, 'with a fresh claim time' );
+}
+
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio ) );
+    set_queued( $u, 'lj_verify', 7200 );
+    my $before = touched( $u, 'lj_verify' );
+
+    LJ::theschwartz()->insert(
+        TheSchwartz::Job->new(
+            funcname => $reg->item('lj_verify')->{class},
+            uniqkey  => 'lj_verify-' . $u->id,
+            arg      => { userid => $u->id, import_data_id => 1 },
+        )
+    ) or die 'could not seed the queue';
+
+    run_for($u);
+    is( statuses( $u, 1 )->{lj_verify}, 'queued', 'a stale item whose job exists stays queued' );
+    is( touched( $u, 'lj_verify' ), $before, 'and is not touched' );
+    is( scalar( () = queued($u) ), 1, 'no second job was added' );
+}
+
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio ) );
+    set_queued( $u, 'lj_verify', 60 );
+
+    run_for($u);
+    is( statuses( $u, 1 )->{lj_verify},
+        'queued', 'a recently queued item with no job is left alone' );
+    is_deeply( [ queued($u) ], [], 'and nothing is scheduled for it' );
+    is_deeply( \@scheduler_log, ['nothing to do'], 'as there is nothing to do' );
+}
+
+# if the queue can't be read, "no job found" means nothing and nothing is changed
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio ) );
+    set_queued( $u, 'lj_verify', 7200 );
+
+    {
+        no warnings 'redefine';
+        local *LJ::theschwartz = sub { return undef };
+        run_for($u);
+    }
+    is( statuses( $u, 1 )->{lj_verify}, 'queued', 'an unreadable queue does not reset anything' );
+    is( touched( $u, 'lj_verify' ) < time() - 7000, 1, 'and does not touch the row' );
+}
+
+# the age after which a claim is stale can be configured
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio ) );
+    set_queued( $u, 'lj_verify', 300 );
+
+    local $LJ::IMPORTER_STALE_CLAIM_SECONDS = 120;
+    run_for($u);
+    is_deeply(
+        [ queued($u) ],
+        [ $reg->item('lj_verify')->{class} . ' lj_verify-' . $u->id . ' 1' ],
+        'a claim older than the configured age is recovered'
+    );
 }
 
 done_testing();

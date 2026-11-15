@@ -23,6 +23,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::Controller;
+use DW::Importer::Queue;
 use DW::Importer::Registry;
 use DW::Logic::Importer;
 use DW::Request;
@@ -294,10 +295,8 @@ sub render_status {
                 $i->{status_txt} = LJ::Lang::ml("widget.importstatus.status.$i->{status}");
 
                 # an aborted item may just be waiting behind an older job for the same item
-                $dupect = _queued_job_count(
-                    DW::Importer::Registry->item($item)->{class},
-                    join( "-", ( $item, $vars->{u}->id ) )
-                ) if $i->{status} eq "aborted";
+                $dupect = DW::Importer::Queue->job_count( $vars->{u}, $item )
+                    if $i->{status} eq "aborted";
             }
 
             $i->{dupe} =
@@ -307,53 +306,6 @@ sub render_status {
         $vars->{time_ago} = \&LJ::diff_ago_text;
     }
     return DW::Template->template_string( 'tools/importer/status.tt', $vars );
-}
-
-# calls $code with a handle for each database holding the TheSchwartz job queue, via the
-# shared client so that anything configured (or faked) for LJ::theschwartz applies here
-# too. returns how many databases were reachable. the driver owns the handle, so it has to
-# stay alive while the callback runs.
-sub _each_schwartz_dbh {
-    my ($code) = @_;
-
-    my $client = LJ::theschwartz()
-        or return 0;
-
-    my $reached = 0;
-    foreach my $hashdsn ( $client->shuffled_databases ) {
-        my $driver = eval            { $client->driver_for($hashdsn) };
-        my $dbh    = $driver && eval { $driver->rw_handle };
-        unless ($dbh) {
-            $log->error(
-                'Unable to connect to a TheSchwartz database: ' . ( $@ || 'unknown error' ) );
-            next;
-        }
-
-        $reached++;
-        $code->($dbh);
-    }
-    return $reached;
-}
-
-# how many jobs of this function and uniqkey are in the queue
-sub _queued_job_count {
-    my ( $funcname, $uniqkey ) = @_;
-
-    my $count = 0;
-    _each_schwartz_dbh(
-        sub {
-            my ($dbh)    = @_;
-            my ($funcid) = $dbh->selectrow_array( 'SELECT funcid FROM funcmap WHERE funcname = ?',
-                undef, $funcname );
-            return unless $funcid;
-
-            my ($ct) =
-                $dbh->selectrow_array( 'SELECT COUNT(*) FROM job WHERE funcid = ? AND uniqkey = ?',
-                undef, $funcid, $uniqkey );
-            $count += $ct || 0;
-        }
-    );
-    return $count;
 }
 
 # returns a hashref of lowercased worker name => jobs due, or an empty hashref if the
@@ -368,7 +320,7 @@ sub get_queue {
     # get the counts of jobs in queue (active or not)
     my %registered = map { $_ => 1 } DW::Importer::Registry->classes;
     my %cts;
-    my $reached = _each_schwartz_dbh(
+    my $reached = DW::Importer::Queue->each_dbh(
         sub {
             my ($dbh) = @_;
             my $funcmap =

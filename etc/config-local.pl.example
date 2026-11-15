@@ -122,6 +122,13 @@
     $COMMENT_IMPORT_MAX = undef;
     $COMMENT_IMPORT_ERROR = "Importing more than 10,000 comments is currently disabled.";
 
+    # The import scheduler marks an import item queued just before it adds its job to the
+    # queue. An item that has been queued this many seconds with no job in the queue (the
+    # scheduler died in between) is made ready again so that it runs. Items whose job is
+    # still in the queue, however long it runs, are not touched.
+    # $IMPORTER_STALE_CLAIM_SECONDS = 3600;
+
+
     # privileges for various email aliases in /admin/sendmail
     # make sure these map to existing support categories on your site
     %SENDMAIL_ACCOUNTS = (

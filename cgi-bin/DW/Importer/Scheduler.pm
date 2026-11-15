@@ -33,18 +33,86 @@ use strict;
 use warnings;
 
 use DW::Importer::Items;
+use DW::Importer::Queue;
 use DW::Importer::Registry;
 use TheSchwartz::Job;
+
+=head2 C<< DW::Importer::Scheduler->recover_stale_claims( dbh => $dbh, log => $log, [ userid => $uid ] ) >>
+
+The scheduler claims an item (C<ready> to C<queued>) before it inserts the TheSchwartz
+job. If the scheduler died in between, the item is C<queued> with no job and nothing
+would ever run it, or select it again, so everything waiting for it would wait forever.
+
+This finds items that have been C<queued> for longer than
+C<$LJ::IMPORTER_STALE_CLAIM_SECONDS> (default 3600) and puts the ones that have no
+TheSchwartz job back to C<ready>, so the next pass schedules them. An item whose job
+is still in the queue is left alone, however long it has run: a running job keeps its
+row (grab_for is hours for entries and comments) and so does a job waiting to be
+retried. If the queue can't be read nothing is changed. A job that finished but whose
+worker died before it recorded the result is run again; imports are idempotent so that
+only repeats work.
+
+Returns the number of items put back.
+
+=cut
+
+sub recover_stale_claims {
+    my ( $class, %opts ) = @_;
+    my ( $dbh, $log ) = ( $opts{dbh}, $opts{log} || sub { } );
+
+    my $age = $LJ::IMPORTER_STALE_CLAIM_SECONDS // 3600;
+    my ( $where, @bind ) = ( "status = 'queued' AND last_touch < UNIX_TIMESTAMP() - ?", $age );
+    if ( $opts{userid} ) {
+        $where .= ' AND userid = ?';
+        push @bind, $opts{userid};
+    }
+    my $rows =
+        $dbh->selectall_arrayref(
+        "SELECT userid, import_data_id, item, last_touch FROM import_items WHERE $where",
+        undef, @bind );
+    die $dbh->errstr . "\n" if $dbh->err;
+
+    my $recovered = 0;
+    foreach my $row ( @{ $rows || [] } ) {
+        my ( $userid, $impid, $item, $touched ) = @$row;
+
+        my $u = LJ::load_userid($userid) or next;
+        next unless DW::Importer::Registry->item($item);
+
+        my $jobs = DW::Importer::Queue->job_count( $u, $item, import_data_id => $impid );
+        next unless defined $jobs && $jobs == 0;
+
+        # only if nobody has touched the row since we looked
+        my $reset = $dbh->do(
+            q{UPDATE import_items SET status = 'ready'
+              WHERE userid = ? AND import_data_id = ? AND item = ?
+              AND status = 'queued' AND last_touch = ?},
+            undef, $userid, $impid, $item, $touched
+        );
+        die $dbh->errstr . "\n" if $dbh->err;
+        next unless $reset > 0;
+
+        $log->(
+            '%d:%s of user %d was queued with no job since %d, making it ready again',
+            $impid, $item, $userid, $touched
+        );
+        $recovered++;
+    }
+    return $recovered;
+}
 
 =head2 C<< DW::Importer::Scheduler->run_once( %opts ) >>
 
 Finds one user with a ready item (highest priority first) and queues all of their
-ready items. Options: C<log>, a coderef called with C<sprintf> arguments, and
-C<userid> to only consider one user's items.
+ready items. Options: C<log>, a coderef called with C<sprintf> arguments,
+C<userid> to only consider one user's items, and C<recover_interval>, the least number
+of seconds between looks for stale claims (default 60; see C<recover_stale_claims>).
 
 Dies if something is wrong that the caller should see.
 
 =cut
+
+my $last_recovery = 0;
 
 sub run_once {
     my ( $class, %opts ) = @_;
@@ -54,6 +122,12 @@ sub run_once {
 
     my $dbh = LJ::get_db_writer()
         or die "no global master database handle available";
+
+    my $interval = $opts{recover_interval} // 60;
+    if ( time() - $last_recovery >= $interval ) {
+        $last_recovery = time();
+        $class->recover_stale_claims( dbh => $dbh, log => $log, userid => $opts{userid} );
+    }
 
     my ( $where, @bind ) = ("status = 'ready'");
     if ( $opts{userid} ) {
@@ -149,11 +223,17 @@ sub run_once {
             next;
         }
 
-        my $h = $sh->insert($job);
+        my $h            = eval { $sh->insert($job) };
+        my $insert_error = $@;
         unless ($h) {
 
             # best guess is that this is a dupe, so abort it, along with whatever was
-            # waiting for it, which can no longer run
+            # waiting for it, which can no longer run. (an insert that throws is treated
+            # the same: leaving the row queued would strand it, as nothing selects it.)
+            if ($insert_error) {
+                $insert_error =~ s/\s+\z//;
+                $log->( 'inserting the job for %s failed: %s', $item->{item}, $insert_error );
+            }
             $log->( 'looks like they already have %s queued, aborting this one', $item->{item} );
             $dbh->do(
                 q{UPDATE import_items SET status = 'aborted'
