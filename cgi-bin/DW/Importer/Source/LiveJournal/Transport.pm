@@ -57,13 +57,16 @@ use Digest::MD5 qw( md5_hex );
 use LWP::UserAgent;
 use XMLRPC::Lite;
 
-=head2 C<< DW::Importer::Source::LiveJournal::Transport->new( data => $import_data ) >>
+=head2 C<< DW::Importer::Source::LiveJournal::Transport->new( data => $import_data, [ dry_run => 1 ] ) >>
+
+In a dry run the transport reads the comment export cache if there is one but never writes
+it: a cache file made by a dry run would be trusted by the real import that follows.
 
 =cut
 
 sub new {
     my ( $class, %args ) = @_;
-    return bless { data => $args{data} }, $class;
+    return bless { data => $args{data}, dry_run => $args{dry_run} }, $class;
 }
 
 # XML-RPC ---------------------------------------------------------------------------
@@ -199,13 +202,12 @@ sub comment_export {
             . ( $data->{usejournal} || '' ) . '#'
             . ( $data->{import_data_id} // 0 ) );
     my $fn = "$LJ::HOME/logs/imports/$data->{userid}/$md5.xml";
-    my $rv = open FILE, "<$fn";
-    if ($rv) {
+    if ( open my $cache, '<', $fn ) {
         $log->( 'Using cached file %s.xml', $md5 );
 
         local $/ = undef;
-        my $ret = <FILE>;
-        close FILE;
+        my $ret = <$cache>;
+        close $cache;
         return $ret;
     }
 
@@ -255,11 +257,17 @@ sub comment_export {
     # now get the content, ensure it's actually XML
     my $xml = $response->content;
     if ( $xml && $xml =~ m!^<\?xml ! ) {
-        $log->( 'Writing cache file %s.xml', $md5 );
-
-        open FILE, ">$fn";
-        print FILE $xml;
-        close FILE;
+        if ( $self->{dry_run} ) {
+            $log->( 'Not writing cache file %s.xml in a dry run', $md5 );
+        }
+        elsif ( open my $cache, '>', $fn ) {
+            $log->( 'Writing cache file %s.xml', $md5 );
+            print $cache $xml;
+            close $cache or $log->( 'Could not finish cache file %s.xml: %s', $md5, $! );
+        }
+        else {
+            $log->( 'Could not write cache file %s.xml: %s', $md5, $! );
+        }
         return $xml;
     }
 

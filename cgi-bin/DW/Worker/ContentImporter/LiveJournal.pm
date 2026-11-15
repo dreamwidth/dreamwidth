@@ -41,15 +41,15 @@ sub retry_delay {
     return ( 10, 30, 60, 300, 600 )[$fails];
 }
 
-=head2 C<< $class->transport_for( $data ) >>
+=head2 C<< $class->transport_for( $data, [ dry_run => 1 ] ) >>
 
 The transport a job talks to the remote site through: the real one.
 
 =cut
 
 sub transport_for {
-    my ( $class, $data ) = @_;
-    return DW::Importer::Source::LiveJournal::Transport->new( data => $data );
+    my ( $class, $data, %opts ) = @_;
+    return DW::Importer::Source::LiveJournal::Transport->new( data => $data, %opts );
 }
 
 =head2 C<< $class->source_for( $ctx ) >>
@@ -63,7 +63,8 @@ sub source_for {
 
     return $ctx->cache->{source} ||= DW::Importer::Source::LiveJournal->new(
         data      => $ctx->data,
-        transport => $ctx->transport || $class->transport_for( $ctx->data ),
+        transport => $ctx->transport
+            || $class->transport_for( $ctx->data, dry_run => $ctx->dry_run ),
     );
 }
 

@@ -144,7 +144,7 @@ sub logger_for {
     return DW::Importer::Logger->for_job(%args);
 }
 
-=head2 C<< $class->transport_for( $data ) >>
+=head2 C<< $class->transport_for( $data, [ dry_run => 1 ] ) >>
 
 The object the job's source adapter does its network I/O through. Returns undef, so the
 adapter's own default is used; a source's worker base class overrides it. Setting
@@ -336,7 +336,7 @@ sub _dry_run {
         item      => $item,
         u         => $u,
         logger    => $args{logger} || DW::Importer::Logger->in_memory,
-        transport => $args{transport} || $TRANSPORT || $class->transport_for($data),
+        transport => $args{transport} || $TRANSPORT || $class->transport_for( $data, dry_run => 1 ),
         sink      => DW::Importer::Sink::DryRun->new(
             live   => $live,
             report => $report,
