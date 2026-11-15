@@ -67,6 +67,7 @@ with_fake_memcache {
         for $legacy ( 0, 1 ) {
             subtest $legacy ? 'legacy form' : 'Foundation form' => sub {
                 for my $who ( 'nobody_exists', $stranger->user, $owner->user ) {
+
                     # Bind a genuine signed token to this dev-impersonated viewer,
                     # as in plack-talkpost.t; /login has independent view-CAPTCHA gates.
                     my $viewer = $who eq 'nobody_exists' ? undef : LJ::load_user($who);
