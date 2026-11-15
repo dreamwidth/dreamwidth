@@ -19,7 +19,6 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use HTTP::Response;
-use File::Path qw( remove_tree );
 use LJ::Test qw( temp_user );
 
 use DW::Worker::ContentImporter::LiveJournal::Bio;
@@ -90,5 +89,4 @@ is_deeply(
     'the profile was fetched from the user\'s journal, once'
 );
 
-remove_tree( "$LJ::HOME/logs/imports/" . $u->id );
 done_testing();

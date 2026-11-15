@@ -1,9 +1,9 @@
 # t/importer-dryrun-files.t
 #
-# A dry run must not write files either: the comment export cache it would fill
-# is trusted by the real import that follows, and the failure note is for real
-# failures. This drives the production transport (with the HTTP agent stubbed)
-# and checks what lands on disk, for a dry run and for a real run.
+# A dry run must not fill the comment export cache: the real import that follows
+# trusts it. This drives the production transport (with the HTTP agent stubbed)
+# and checks what the cache holds, for a dry run and for a real run, and that a
+# failure reaches the job's log.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -22,13 +22,11 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use lib "$ENV{LJHOME}/t/lib";
-use File::Find;
-use File::Path qw( make_path );
-use File::Temp qw( tempdir );
 use HTTP::Response;
 use LJ::Test qw( temp_user );
 
 use DW::Importer::Job;
+use DW::Importer::LogStore;
 use DW::Importer::Logger;
 use DW::Importer::Registry;
 use DW::Importer::Source::LiveJournal::Transport;
@@ -67,22 +65,13 @@ my ( $requests, $explode ) = ( 0, 0 );
     *Test::NotFound::get = sub { HTTP::Response->new( 404, 'Not Found' ) };
 }
 
-# an import for a user, with a scratch directory standing in for $LJ::HOME/logs
+# an import for a user
 my $u = temp_user();
 LJ::get_db_writer()->do(
 'INSERT INTO import_data (userid, import_data_id, hostname, username, password_md5) VALUES (?, 1, ?, ?, ?)',
     undef, $u->id, 'livejournal.com', 'someone', 'x'
 );
 DW::Logic::Importer->set_import_items_for_user( $u, item => [ $item, 'queued' ], id => 1 );
-
-my $home = tempdir( CLEANUP => 1 );
-make_path( "$home/logs/imports/" . $u->id );
-
-sub files {
-    my @found;
-    find( { wanted => sub { push @found, $File::Find::name if -f }, no_chdir => 1 }, $home );
-    return map { s/^\Q$home\E\///r } sort @found;
-}
 
 {
 
@@ -102,8 +91,7 @@ sub files {
 }
 
 sub dry_run {
-    my $logger = DW::Importer::Logger->in_memory;
-    local $LJ::HOME = $home;
+    my $logger  = DW::Importer::Logger->in_memory;
     my $outcome = DW::Importer::Job->dry_run(
         item           => $item,
         userid         => $u->id,
@@ -114,55 +102,62 @@ sub dry_run {
 }
 
 sub live_run {
-    local $LJ::HOME = $home;
     my $job =
         Test::FakeJob->new( arg => { userid => $u->id, import_data_id => 1 }, funcname => $class );
     $class->work($job);
     return $job;
 }
 
-# a dry run fetches the export but leaves no cache file behind
+# a dry run fetches the export but caches nothing: a second dry run has to fetch again
 {
     my ( $outcome, $logger ) = dry_run();
     is( $outcome->status, 'ok', 'the comments job of a dry run succeeds' )
         or diag( $outcome->message );
     ok( $requests >= 2, 'having fetched the export through the production transport' );
-    is_deeply( [ files() ], [], 'and wrote no file' );
-    ok( ( grep { /^Not writing cache file/ } $logger->messages ), 'it says it did not' );
+    ok( ( grep { /^Not writing cache file/ } $logger->messages ), 'it says it did not cache it' );
+
+    my $first = $requests;
+    ( $outcome, $logger ) = dry_run();
+    is( $outcome->status, 'ok',       'a second dry run succeeds' );
+    is( $requests,        $first * 2, 'and fetched everything again, as nothing was cached' );
+    ok( !( grep { /^Using cached file/ } $logger->messages ), 'it did not use a cache' );
 }
 
-# a failure in a dry run leaves no failure note
+# a failure in a dry run still reaches its log
 {
     $explode = 1;
     my ( $outcome, $logger ) = dry_run();
     $explode = 0;
     is( $outcome->status, 'temp_fail', 'a failure is still a failure in a dry run' );
-    is_deeply( [ files() ], [], 'but writes no .failure file' );
-    ok( ( grep { /^FAILURE: the network went away/ } $logger->messages ),
+    ok( ( grep { /^ERROR: the network went away/ } $logger->messages ),
         'its reason goes to the log' );
 }
 
-# a real run caches the export and keeps failure notes
+# a real run that fails is retried, and its reason is in the stored log
+{
+    $explode = 1;
+    my $job = live_run();
+    $explode = 0;
+    is( $job->{state}, 'failed', 'a real run that fails is retried' );
+
+    my ($log) = grep { $_->{item} eq $item } @{ DW::Importer::LogStore->logs_for( $u->id, 1 ) };
+    ok( $log, 'it left a log' );
+    my ($text) = DW::Importer::LogStore->content($log);
+    like( $text, qr/ERROR: the network went away/, 'whose text has the reason' );
+}
+
+# a real run caches the export, and a dry run after it may read that cache
 {
     $requests = 0;
     my $job = live_run();
     is( $job->{state}, 'completed', 'the real run completes' ) or diag( $job->{message} );
-    my @cached = grep { m{/[0-9a-f]{32}\.xml$} } files();
-    is( scalar @cached, 2, 'and caches the two export windows' );
+    ok( $requests >= 2, 'having fetched the two export windows' );
 
-    # a dry run after it may read the cache, and still writes nothing
     my $before = $requests;
-    my ($outcome) = dry_run();
+    my ( $outcome, $logger ) = dry_run();
     is( $outcome->status, 'ok',    'a dry run after it succeeds' );
     is( $requests,        $before, 'from the cache, without asking the remote again' );
-    is( scalar( () = grep { m{\.xml$} } files() ), 2, 'and adds no file' );
-
-    unlink map { "$home/$_" } @cached;
-    $explode = 1;
-    $job     = live_run();
-    $explode = 0;
-    is( $job->{state}, 'failed', 'a real run that fails is retried' );
-    ok( ( grep { m{\.lj_comments\.\d+\.failure$} } files() ), 'and leaves its failure note' );
+    ok( ( grep { /^Using cached file/ } $logger->messages ), 'and says so' );
 }
 
 done_testing();

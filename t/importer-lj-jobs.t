@@ -20,7 +20,6 @@ use warnings;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use File::Path qw( remove_tree );
 use HTTP::Response;
 use LJ::Comment;
 use LJ::Test qw( temp_user );
@@ -274,5 +273,4 @@ sub events {
     is( status_of('lj_comments'), 'succeeded', 'the item succeeded' );
 }
 
-remove_tree( "$LJ::HOME/logs/imports/" . $u->id );
 done_testing();
