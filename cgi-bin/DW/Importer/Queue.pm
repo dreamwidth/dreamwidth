@@ -40,19 +40,35 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 =head2 C<< DW::Importer::Queue->each_dbh( $code ) >>
 
-Calls C<$code> with a handle for each TheSchwartz database. Returns how many databases
-were reachable. The driver owns the handle, so it is kept alive while the callback runs.
+Calls C<$code> with a handle for each TheSchwartz database that can be reached. Returns
+how many were. The driver owns the handle, so it is kept alive while the callback runs.
+See C<all_dbhs> for when every database matters.
 
 =cut
 
 sub each_dbh {
     my ( $class, $code ) = @_;
+    my ($reached) = $class->all_dbhs($code);
+    return $reached;
+}
+
+=head2 C<< DW::Importer::Queue->all_dbhs( $code ) >>
+
+Like C<each_dbh>, and returns C<( $reached, $configured )>: how many databases were
+connected to and how many there are. Something that wants to know a job does not exist
+has to see every database, so it needs both.
+
+=cut
+
+sub all_dbhs {
+    my ( $class, $code ) = @_;
 
     my $client = LJ::theschwartz()
-        or return 0;
+        or return ( 0, 0 );
 
-    my $reached = 0;
-    foreach my $hashdsn ( $client->shuffled_databases ) {
+    my @databases = $client->shuffled_databases;
+    my $reached   = 0;
+    foreach my $hashdsn (@databases) {
         my $driver = eval            { $client->driver_for($hashdsn) };
         my $dbh    = $driver && eval { $driver->rw_handle };
         unless ($dbh) {
@@ -64,7 +80,7 @@ sub each_dbh {
         $reached++;
         $code->($dbh);
     }
-    return $reached;
+    return ( $reached, scalar @databases );
 }
 
 =head2 C<< DW::Importer::Queue->job_count( $u, $item, [ import_data_id => $id ] ) >>
@@ -74,8 +90,11 @@ class with the uniqkey the scheduler gives it (C<item-userid>). With C<import_da
 only jobs for that import count. A job stays in the table while it runs and while it
 waits to be retried, and is removed when it completes.
 
-Returns undef, not 0, if the queue could not be read, so that callers don't mistake
-"don't know" for "no job".
+Returns undef, not 0, unless the answer is known. A job that was seen is a count even if
+something else could not be read, but "no job" needs every configured queue database to
+have been connected to and every query on them to have succeeded: a running job could be
+in the one that wasn't. A function name that is not in a database's C<funcmap> does mean
+there are no jobs of it there.
 
 =cut
 
@@ -86,18 +105,33 @@ sub job_count {
         or return undef;
     my $uniqkey = join( '-', $item, $u->id );
 
-    my $count   = 0;
-    my $reached = $class->each_dbh(
+    my ( $count, $failed ) = ( 0, 0 );
+    my ( $reached, $configured ) = $class->all_dbhs(
         sub {
-            my ($dbh)    = @_;
-            my ($funcid) = $dbh->selectrow_array( 'SELECT funcid FROM funcmap WHERE funcname = ?',
-                undef, $def->{class} );
-            return unless $funcid;
+            my ($dbh) = @_;
 
-            my $rows =
+            my $funcs = eval {
+                $dbh->selectall_arrayref( 'SELECT funcid FROM funcmap WHERE funcname = ?',
+                    undef, $def->{class} );
+            };
+            unless ( $funcs && !$dbh->err ) {
+                $log->error( 'Unable to read a TheSchwartz funcmap: ' . ( $@ || $dbh->errstr ) );
+                $failed++;
+                return;
+            }
+            return unless @$funcs;    # it has never had a job of this kind
+            my $funcid = $funcs->[0]->[0];
+
+            my $rows = eval {
                 $dbh->selectall_arrayref( 'SELECT arg FROM job WHERE funcid = ? AND uniqkey = ?',
-                undef, $funcid, $uniqkey )
-                || [];
+                    undef, $funcid, $uniqkey );
+            };
+            unless ( $rows && !$dbh->err ) {
+                $log->error( 'Unable to read TheSchwartz jobs: ' . ( $@ || $dbh->errstr ) );
+                $failed++;
+                return;
+            }
+
             foreach my $row (@$rows) {
                 if ( defined $opts{import_data_id} ) {
                     my $arg = eval { Storable::thaw( $row->[0] ) };
@@ -110,7 +144,10 @@ sub job_count {
             }
         }
     );
-    return $reached ? $count : undef;
+
+    return $count if $count;
+    return undef  if $failed || !$configured || $reached < $configured;
+    return 0;
 }
 
 =head1 AUTHORS
