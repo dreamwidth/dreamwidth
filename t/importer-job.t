@@ -300,6 +300,57 @@ sub events {
         foreach @maintainers;
 }
 
+# an import that is cancelled is left cancelled, whether the job had not started or is running
+sub cancel_item {
+    my ( $u, $item ) = @_;
+    LJ::get_db_writer()
+        ->do( "UPDATE import_items SET status = 'aborted' WHERE userid = ? AND item = ?",
+        undef, $u->id, $item );
+}
+
+{
+    my $u = temp_user();
+    setup($u);
+    cancel_item( $u, 'jt_first' );
+
+    my $ran = 0;
+    my $job = run_job( $u, 'jt_first', sub { $ran++; $_[1]->ok } );
+    ok( !$ran, 'a job whose item was cancelled before it ran does no work' );
+    is( $job->{state}, 'completed', 'and is completed, so it leaves the queue' );
+    is( status_of( $u, 'jt_first' ),  'aborted', 'the item stays cancelled' );
+    is( status_of( $u, 'jt_second' ), 'init',    'and nothing waiting for it moves' );
+    is( scalar( () = events($u) ), 0, 'the user is not notified' );
+
+    # importadm runs items whatever their status, so only a cancel stops a job
+    my $v = temp_user();
+    setup($v);
+    LJ::get_db_writer()
+        ->do( "UPDATE import_items SET status = 'init' WHERE userid = ?", undef, $v->id );
+    run_job( $v, 'jt_first', sub { $ran++; $_[1]->ok } );
+    is( $ran, 1, 'an item that is not queued still runs' );
+}
+
+foreach my $how (qw( ok fail temp_fail )) {
+    my $u = temp_user();
+    setup($u);
+
+    my $job = run_job(
+        $u,
+        'jt_first',
+        sub {
+            cancel_item( $u, 'jt_first' );    # an administrator cancels while it works
+            return $_[1]->ok if $how eq 'ok';
+            return $_[1]->fail('Broke') if $how eq 'fail';
+            return $_[1]->temp_fail('Try later');
+        }
+    );
+
+    is( status_of( $u, 'jt_first' ), 'aborted', "$how: a cancel while running is not overwritten" );
+    is( status_of( $u, 'jt_second' ), 'init', "$how: and nothing waiting for it moves" );
+    is( $job->{state}, 'completed', "$how: the job is completed, not failed or retried" );
+    is( scalar( () = events($u) ), 0, "$how: the user is not notified" );
+}
+
 # a source that is switched off declines the job without touching the item
 {
     my $u = temp_user();

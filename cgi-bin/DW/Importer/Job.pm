@@ -66,6 +66,11 @@ escalation of a temporary failure to a permanent one after C<max_retries>, and t
 chaining that readies or aborts the items waiting for this one
 (L<DW::Importer::Items>).
 
+=item *
+
+honours a cancel (L<DW::Importer::Control>): a job whose item is C<aborted> does not run, and
+one cancelled while it ran does not record its outcome, notify the user or retry.
+
 =back
 
 =cut
@@ -190,6 +195,16 @@ sub work {
             ? "$class is not a registered importer item."
             : "Import $opts->{import_data_id} for user $opts->{userid} not found."
         );
+        return;
+    }
+
+    # cancelled while it waited in the queue. This comes before the source check so a cancelled
+    # job is dropped, not put off for a day. Only 'aborted' counts: importadm runs jobs of
+    # items in any status.
+    if ( $class->_status_of( $data, $item->{name} ) eq 'aborted' ) {
+        $log->info( "$item->{name} of import $data->{import_data_id} for user $data->{userid} "
+                . 'was cancelled before it ran' );
+        $job->completed;
         return;
     }
 
@@ -508,9 +523,74 @@ sub _advance {
     DW::Importer::Items->advance( $u, $imp->{import_data_id}, $item, $outcome );
 }
 
+=head2 C<< $class->_status_of( $import_data, $item ) >>
+
+The item's status for this import, or an empty string if it can't be read.
+
+=cut
+
+sub _status_of {
+    my ( $class, $imp, $item ) = @_;
+
+    my $dbh = LJ::get_db_writer()
+        or return '';
+    my $status = $dbh->selectrow_array(
+        'SELECT status FROM import_items WHERE userid = ? AND item = ? AND import_data_id = ?',
+        undef, $imp->{userid}, $item, $imp->{import_data_id} );
+    return $status // '';
+}
+
+=head2 C<< $class->_set_status( $import_data, $item, $status ) >>
+
+Records the item's new status unless the import was cancelled in the meantime. The check
+is part of the UPDATE, so a cancel that lands while the job runs can't be overwritten.
+Returns false if the item is C<aborted>; what the caller was about to do for the user (or
+for the items waiting for this one) must not happen then.
+
+=cut
+
+sub _set_status {
+    my ( $class, $imp, $item, $status ) = @_;
+
+    my $dbh = LJ::get_db_writer()
+        or return 1;
+    my @where = ( $imp->{userid}, $item, $imp->{import_data_id} );
+
+    my $changed = $dbh->do(
+        "UPDATE import_items SET status = ?, last_touch = UNIX_TIMESTAMP() "
+            . "WHERE userid = ? AND item = ? AND import_data_id = ? AND status <> 'aborted'",
+        undef, $status, @where
+    );
+    warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
+
+    # nothing matched: the row is missing (importadm can run an item that has none), or aborted
+    return 1 if $changed && $changed > 0;    # ('0E0' is a true string)
+    return $class->_status_of( $imp, $item ) ne 'aborted';
+}
+
+=head2 C<< $class->_cancelled( $import_data, $item, $job ) >>
+
+Ends a job whose item was cancelled while it ran: the job is completed, so it is not
+retried, and nothing else about the item changes.
+
+=cut
+
+sub _cancelled {
+    my ( $class, $imp, $item, $job ) = @_;
+
+    $log->info( "$item of import $imp->{import_data_id} for user $imp->{userid} "
+            . 'was cancelled while it ran, so its result was not recorded' );
+    DW::Stats::increment( 'dw.worker.importer.job_completed',
+        1, [ "item:$item", 'result:cancelled', "hostname:" . ( $imp->{hostname} || 'unknown' ) ] );
+
+    $job->completed;
+    return;
+}
+
 =head2 C<< $class->fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
-Permanently fail this import job.
+Permanently fail this import job. If the item was cancelled meanwhile this only completes
+the job.
 
 =cut
 
@@ -522,14 +602,8 @@ sub fail {
     # has been idle during a long import
     $LJ::DBIRole->clear_req_cache();
 
-    if ( my $dbh = LJ::get_db_writer() ) {
-        $dbh->do(
-            "UPDATE import_items SET status = 'failed', last_touch = UNIX_TIMESTAMP() "
-                . "WHERE userid = ? AND item = ? AND import_data_id = ?",
-            undef, $imp->{userid}, $item, $imp->{import_data_id}
-        );
-        warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
-    }
+    return $class->_cancelled( $imp, $item, $job )
+        unless $class->_set_status( $imp, $item, 'failed' );
 
     # whatever was waiting for this item can never run now
     $class->_advance( $imp, $item, 'failure' );
@@ -560,6 +634,7 @@ sub fail {
 =head2 C<< $class->temp_fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
 Temporarily fail this import job, it will get retried if it hasn't failed too many times.
+If the item was cancelled meanwhile it is not retried: the job is completed.
 
 =cut
 
@@ -570,6 +645,11 @@ sub temp_fail {
     # clear "request" cache of db handles to force revalidation in case one we need now
     # has been idle during a long import
     $LJ::DBIRole->clear_req_cache();
+
+    # No status is written here, so this can't be made atomic. A cancel that lands after this
+    # check leaves a job that will be retried, and work() drops it when it sees the status.
+    return $class->_cancelled( $imp, $item, $job )
+        if $class->_status_of( $imp, $item ) eq 'aborted';
 
     # Check if we are out of failures
     my $max_fails = $class->max_retries;
@@ -609,7 +689,8 @@ sub temp_fail {
 
 =head2 C<< $class->ok( $import_data, $item, $job, $show ) >>
 
-Successfully end this import job. The user is told unless C<$show> is defined and 0.
+Successfully end this import job. The user is told unless C<$show> is defined and 0. If
+the item was cancelled meanwhile this only completes the job.
 
 =cut
 
@@ -621,14 +702,8 @@ sub ok {
     # has been idle during a long import
     $LJ::DBIRole->clear_req_cache();
 
-    if ( my $dbh = LJ::get_db_writer() ) {
-        $dbh->do(
-            "UPDATE import_items SET status = 'succeeded', last_touch = UNIX_TIMESTAMP() "
-                . "WHERE userid = ? AND item = ? AND import_data_id = ?",
-            undef, $imp->{userid}, $item, $imp->{import_data_id}
-        );
-        warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
-    }
+    return $class->_cancelled( $imp, $item, $job )
+        unless $class->_set_status( $imp, $item, 'succeeded' );
 
     # start whatever was waiting for this item
     $class->_advance( $imp, $item, 'success' );

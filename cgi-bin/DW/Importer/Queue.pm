@@ -150,6 +150,157 @@ sub job_count {
     return 0;
 }
 
+# Calls $code->( $dbh, $item_name, $job_row ) for each job of an import: a job of an item's
+# worker class, with the uniqkey the scheduler gives it, whose arg names this import. $job_row
+# is a hashref of the job table's columns. Returns ( $complete ), which is true only if every
+# configured database was read without error, since a job that wasn't seen could be in one that
+# wasn't.
+sub _each_import_job {
+    my ( $class, $u, $import_data_id, $code ) = @_;
+
+    my $failed = 0;
+    my ( $reached, $configured ) = $class->all_dbhs(
+        sub {
+            my ($dbh) = @_;
+
+            my $funcs = eval { $dbh->selectall_arrayref('SELECT funcid, funcname FROM funcmap') };
+            unless ( $funcs && !$dbh->err ) {
+                $log->error( 'Unable to read a TheSchwartz funcmap: ' . ( $@ || $dbh->errstr ) );
+                $failed++;
+                return;
+            }
+
+            my %item_of_func;
+            foreach my $func (@$funcs) {
+                my $item = DW::Importer::Registry->item_for_class( $func->[1] ) or next;
+                $item_of_func{ $func->[0] } = $item->{name};
+            }
+            return unless %item_of_func;
+
+            my @funcids = sort { $a <=> $b } keys %item_of_func;
+            my $rows    = eval {
+                $dbh->selectall_arrayref(
+                    'SELECT jobid, funcid, arg, uniqkey, insert_time, run_after, grabbed_until '
+                        . 'FROM job WHERE funcid IN ('
+                        . join( ',', map { '?' } @funcids ) . ')',
+                    { Slice => {} },
+                    @funcids
+                );
+            };
+            unless ( $rows && !$dbh->err ) {
+                $log->error( 'Unable to read TheSchwartz jobs: ' . ( $@ || $dbh->errstr ) );
+                $failed++;
+                return;
+            }
+
+            foreach my $row (@$rows) {
+                my $item = $item_of_func{ $row->{funcid} };
+                next unless ( $row->{uniqkey} // '' ) eq join( '-', $item, $u->id );
+
+                my $arg = eval { Storable::thaw( $row->{arg} ) };
+                next
+                    unless ref $arg eq 'HASH'
+                    && defined $arg->{import_data_id}
+                    && $arg->{import_data_id} == $import_data_id;
+
+                $code->( $dbh, $item, $row );
+            }
+        }
+    );
+
+    return !$failed && $configured && $reached == $configured ? 1 : 0;
+}
+
+=head2 C<< DW::Importer::Queue->jobs_for_import( $u, $import_data_id ) >>
+
+The TheSchwartz jobs that exist for the items of one import, for showing to an
+administrator. Returns C<( \%jobs, $complete )>: C<%jobs> maps an item's name to an
+arrayref of its jobs (there should be at most one), each a hashref of C<jobid>,
+C<insert_time>, C<run_after>, C<grabbed_until>, C<running> (it is being worked on now),
+C<failures> (how many failures TheSchwartz has recorded for it) and C<errors> (the last few
+messages, newest first). C<$complete> is false if some queue database could not be read,
+in which case a job may be missing from the answer.
+
+=cut
+
+sub jobs_for_import {
+    my ( $class, $u, $import_data_id ) = @_;
+
+    my %jobs;
+    my $now      = time();
+    my $complete = $class->_each_import_job(
+        $u,
+        $import_data_id,
+        sub {
+            my ( $dbh, $item, $row ) = @_;
+
+            my %job = map { $_ => $row->{$_} } qw( jobid insert_time run_after grabbed_until );
+            $job{running} = $row->{grabbed_until} > $now ? 1 : 0;
+
+            # the details are not worth failing over; the page shows what it has
+            my $failures = eval {
+                $dbh->selectrow_array( 'SELECT COUNT(*) FROM error WHERE jobid = ?',
+                    undef, $row->{jobid} );
+            };
+            my $errors = eval {
+                $dbh->selectcol_arrayref(
+                    'SELECT message FROM error WHERE jobid = ? ORDER BY error_time DESC LIMIT 3',
+                    undef, $row->{jobid} );
+            };
+            $job{failures} = $failures || 0;
+            $job{errors}   = $errors   || [];
+
+            push @{ $jobs{$item} }, \%job;
+        }
+    );
+
+    return ( \%jobs, $complete );
+}
+
+=head2 C<< DW::Importer::Queue->remove_idle_jobs( $u, $import_data_id ) >>
+
+Removes the import's jobs that no worker has grabbed, so they never run. A job that is
+being worked on (C<grabbed_until> in the future) is left in place for its worker to finish,
+and each job is deleted only if it is still idle at that moment, so a worker that grabs
+one meanwhile is not cut off. Returns a hashref of how many jobs were C<removed> and how
+many were left C<running>; C<errors> counts deletes that failed, and C<complete> is false
+if some queue database could not be read or a delete failed.
+
+=cut
+
+sub remove_idle_jobs {
+    my ( $class, $u, $import_data_id ) = @_;
+
+    my %result = ( removed => 0, running => 0, errors => 0 );
+    my $now    = time();
+    $result{complete} = $class->_each_import_job(
+        $u,
+        $import_data_id,
+        sub {
+            my ( $dbh, $item, $row ) = @_;
+
+            my $deleted = eval {
+                $dbh->do( 'DELETE FROM job WHERE jobid = ? AND grabbed_until <= ?',
+                    undef, $row->{jobid}, $now );
+            };
+            if ( $dbh->err || !defined $deleted ) {
+                $log->error( 'Unable to remove a TheSchwartz job: ' . ( $@ || $dbh->errstr ) );
+                $result{errors}++;
+            }
+            elsif ( $deleted > 0 ) {
+                $result{removed}++;
+            }
+            else {
+                $result{running}++;
+            }
+        }
+    );
+
+    $result{complete} = 0 if $result{errors};
+
+    return \%result;
+}
+
 =head1 AUTHORS
 
 =over
