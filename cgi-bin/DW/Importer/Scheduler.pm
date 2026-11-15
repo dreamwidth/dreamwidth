@@ -135,35 +135,37 @@ sub run_once {
             }
         ) or die "can't create job\n";
 
+        # Claim the row before inserting the job. Only one scheduler can move it out of
+        # 'ready', so a competing scheduler skips it here instead of clashing on the
+        # insert, and the job cannot finish (and set 'succeeded') before we mark it.
+        my $claimed = $dbh->do(
+            q{UPDATE import_items SET status = 'queued', last_touch = UNIX_TIMESTAMP()
+                  WHERE userid = ? AND import_data_id = ? AND item = ? AND status = 'ready'},
+            undef, $u->id, $item->{impid}, $item->{item}
+        );
+        die $dbh->errstr . "\n" if $dbh->err;
+        unless ( $claimed > 0 ) {
+            $log->( '%d:%s was claimed by another scheduler', $item->{impid}, $item->{item} );
+            next;
+        }
+
         my $h = $sh->insert($job);
         unless ($h) {
 
             # best guess is that this is a dupe, so abort it, along with whatever was
             # waiting for it, which can no longer run
             $log->( 'looks like they already have %s queued, aborting this one', $item->{item} );
-            my $aborted = $dbh->do(
+            $dbh->do(
                 q{UPDATE import_items SET status = 'aborted'
-                      WHERE userid = ? AND import_data_id = ? AND item = ? AND status = 'ready'},
+                      WHERE userid = ? AND import_data_id = ? AND item = ? AND status = 'queued'},
                 undef, $u->id, $item->{impid}, $item->{item}
             );
             die $dbh->errstr . "\n" if $dbh->err;
-
-            # Another scheduler may have queued this same item between our read and our
-            # insert. The row is then no longer 'ready', nothing was aborted here, and its
-            # dependents must keep waiting for that job.
-            DW::Importer::Items->advance( $u, $item->{impid}, $item->{item}, 'failure' )
-                if $aborted > 0;
+            DW::Importer::Items->advance( $u, $item->{impid}, $item->{item}, 'failure' );
             return;
         }
 
         $u->set_prop( import_job => $item->{impid} );
-
-        $dbh->do(
-            "UPDATE import_items SET status = 'queued', last_touch = UNIX_TIMESTAMP() "
-                . "WHERE userid = ? AND item = ? AND import_data_id = ?",
-            undef, $u->id, $item->{item}, $item->{impid}
-        );
-        die $dbh->errstr . "\n" if $dbh->err;
     }
 }
 

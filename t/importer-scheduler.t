@@ -147,30 +147,57 @@ sub run_for {
     );
 }
 
-# two schedulers racing on the same ready item: the other one queues it first, so our
-# insert clashes, but the item is live and what waits for it must not be aborted
+# run the scheduler for $u, calling the 'before' and 'after' subs around its first job
+# insert, to interleave other work with it
+sub run_with_insert_hook {
+    my ( $u, %hooks ) = @_;
+    my $orig = \&TheSchwartz::insert;
+    my $in_hook;
+    no warnings 'redefine';
+    local *TheSchwartz::insert = sub {
+        return $orig->(@_) if $in_hook;
+        $in_hook = 1;
+        $hooks{before}->() if $hooks{before};
+        my $rv = $orig->(@_);
+        $hooks{after}->() if $hooks{after};
+        return $rv;
+    };
+    run_for($u);
+}
+
+# a second scheduler running just after the first inserted the job must leave the item
+# alone: it is already claimed, so nothing is aborted and only one job exists
 {
     my $u = temp_user();
     start_import( $u, 1, qw( lj_verify lj_bio lj_userpics ) );
 
-    {
-        no warnings 'redefine';
-        local *TheSchwartz::insert = sub {
-            LJ::get_db_writer()->do(
-                q{UPDATE import_items SET status = 'queued'
-                  WHERE userid = ? AND import_data_id = 1 AND item = 'lj_verify'},
-                undef, $u->id
-            );
-            return undef;
-        };
-        run_for($u);
-    }
+    run_with_insert_hook( $u, after => sub { run_for($u) } );
 
     is_deeply(
         statuses( $u, 1 ),
         { lj_verify => 'queued', lj_bio => 'init', lj_userpics => 'init' },
-        'the item queued by the other scheduler keeps its dependents waiting'
+        'the claimed item keeps its dependents waiting'
     );
+    is( scalar( grep { /^\S+ lj_verify-/ } queued($u) ), 1, 'and only one job was queued' );
+}
+
+# a job that runs and finishes as soon as it is inserted keeps its result
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio ) );
+
+    run_with_insert_hook(
+        $u,
+        after => sub {
+            LJ::get_db_writer()->do(
+                q{UPDATE import_items SET status = 'succeeded'
+                  WHERE userid = ? AND import_data_id = 1 AND item = 'lj_verify'},
+                undef, $u->id
+            );
+        }
+    );
+
+    is( statuses( $u, 1 )->{lj_verify}, 'succeeded', 'the finished status is not overwritten' );
 }
 
 done_testing();
