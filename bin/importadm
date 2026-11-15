@@ -48,7 +48,7 @@ if ( defined $log_id ) {
     my $row = DW::Importer::LogStore->log( $log_id )
         or croak "No import log $log_id";
     my ( $text, $missing ) = DW::Importer::LogStore->content( $row );
-    binmode STDOUT, ':encoding(UTF-8)';
+    binmode STDOUT, ':raw';    # the log is UTF-8 bytes already
     print $text;
     warn "$missing of $row->{chunks} chunks could not be retrieved (expired?)\n" if $missing;
     exit 0;
