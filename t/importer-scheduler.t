@@ -147,4 +147,30 @@ sub run_for {
     );
 }
 
+# two schedulers racing on the same ready item: the other one queues it first, so our
+# insert clashes, but the item is live and what waits for it must not be aborted
+{
+    my $u = temp_user();
+    start_import( $u, 1, qw( lj_verify lj_bio lj_userpics ) );
+
+    {
+        no warnings 'redefine';
+        local *TheSchwartz::insert = sub {
+            LJ::get_db_writer()->do(
+                q{UPDATE import_items SET status = 'queued'
+                  WHERE userid = ? AND import_data_id = 1 AND item = 'lj_verify'},
+                undef, $u->id
+            );
+            return undef;
+        };
+        run_for($u);
+    }
+
+    is_deeply(
+        statuses( $u, 1 ),
+        { lj_verify => 'queued', lj_bio => 'init', lj_userpics => 'init' },
+        'the item queued by the other scheduler keeps its dependents waiting'
+    );
+}
+
 done_testing();

@@ -141,12 +141,18 @@ sub run_once {
             # best guess is that this is a dupe, so abort it, along with whatever was
             # waiting for it, which can no longer run
             $log->( 'looks like they already have %s queued, aborting this one', $item->{item} );
-            $dbh->do(
+            my $aborted = $dbh->do(
                 q{UPDATE import_items SET status = 'aborted'
                       WHERE userid = ? AND import_data_id = ? AND item = ? AND status = 'ready'},
                 undef, $u->id, $item->{impid}, $item->{item}
             );
-            DW::Importer::Items->advance( $u, $item->{impid}, $item->{item}, 'failure' );
+            die $dbh->errstr . "\n" if $dbh->err;
+
+            # Another scheduler may have queued this same item between our read and our
+            # insert. The row is then no longer 'ready', nothing was aborted here, and its
+            # dependents must keep waiting for that job.
+            DW::Importer::Items->advance( $u, $item->{impid}, $item->{item}, 'failure' )
+                if $aborted > 0;
             return;
         }
 
