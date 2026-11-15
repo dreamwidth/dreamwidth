@@ -19,8 +19,15 @@ package DW::Controller::Importer;
 use strict;
 use warnings;
 
+use Log::Log4perl;
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
+
+use DW::Controller;
+use DW::Logic::Importer;
+use DW::Request;
 use DW::Routing;
 use DW::Task::ImportEraser;
+use DW::TaskQueue;
 use DW::Template;
 use LJ::Hooks;
 
@@ -318,10 +325,7 @@ sub render_status {
         lj_verify       => 'DW::Worker::ContentImporter::LiveJournal::Verify',
     };
 
-    my $dbr;
-    my $funcmap;
-    my $dupect = 0;
-    my $color  = {
+    my $color = {
         init      => '#333',
         ready     => '#33a',
         queued    => '#3a3',
@@ -332,7 +336,8 @@ sub render_status {
     foreach my $importid ( sort { $b <=> $a } keys %$items ) {
         my $import_item = $items->{$importid};
         foreach my $item ( sort keys %{ $import_item->{items} } ) {
-            my $i = $import_item->{items}->{$item};
+            my $i      = $import_item->{items}->{$item};
+            my $dupect = 0;
             $i->{color} = $color->{ $i->{status} };
             $i->{ago}   = $i->{last_touch} ? LJ::diff_ago_text( $i->{last_touch} ) : "";
             if ( $i->{status} eq 'init' ) {
@@ -341,30 +346,10 @@ sub render_status {
             else {
                 $i->{status_txt} = LJ::Lang::ml("widget.importstatus.status.$i->{status}");
 
-                if ( $i->{status} eq "aborted" ) {
-                    unless ($dbr) {
-
-                        # do manual connection
-                        my $db = $LJ::THESCHWARTZ_DBS[0];
-                        $dbr = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} );
-                    }
-
-                    if ($dbr) {
-
-                        # get the ids for the function map
-                        $funcmap ||=
-                            $dbr->selectall_hashref( 'SELECT funcid, funcname FROM funcmap',
-                            'funcname' );
-
-                        $dupect = $dbr->selectrow_array(
-                            q{SELECT COUNT(*) from job
-                                    WHERE funcid  = ?
-                                      AND uniqkey = ? },
-                            undef, $funcmap->{ $item_to_funcname->{$item} }->{funcid},
-                            join( "-", ( $item, $vars->{u}->id ) )
-                        );
-                    }
-                }
+                # an aborted item may just be waiting behind an older job for the same item
+                $dupect = _queued_job_count( $item_to_funcname->{$item},
+                    join( "-", ( $item, $vars->{u}->id ) ) )
+                    if $i->{status} eq "aborted";
             }
 
             $i->{dupe} =
@@ -376,41 +361,91 @@ sub render_status {
     return DW::Template->template_string( 'tools/importer/status.tt', $vars );
 }
 
-sub get_queue {
-    my $depth = LJ::MemCache::get('importer_queue_depth');
-    unless ($depth) {
+# calls $code with a handle for each database holding the TheSchwartz job queue, via the
+# shared client so that anything configured (or faked) for LJ::theschwartz applies here
+# too. returns how many databases were reachable. the driver owns the handle, so it has to
+# stay alive while the callback runs.
+sub _each_schwartz_dbh {
+    my ($code) = @_;
 
-        # FIXME: don't make this slam the db with people asking the same question, use a lock
-        # FIXME: we don't have ddlockd, maybe we should
+    my $client = LJ::theschwartz()
+        or return 0;
 
-        # do manual connection
-        my $db  = $LJ::THESCHWARTZ_DBS[0];
-        my $dbr = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} )
-            or return "Unable to manually connect to TheSchwartz database.";
-
-        # get the ids for the function map
-        my $tmpmap = $dbr->selectall_hashref( 'SELECT funcid, funcname FROM funcmap', 'funcname' );
-
-        # get the counts of jobs in queue (active or not)
-        my %cts;
-        foreach my $map ( keys %$tmpmap ) {
-            next unless $map =~ /^DW::Worker::ContentImporter::LiveJournal::/;
-
-            my $ct = $dbr->selectrow_array(
-                q{SELECT COUNT(*) FROM job
-                  WHERE funcid = ?
-                    AND run_after < UNIX_TIMESTAMP()},
-                undef, $tmpmap->{$map}->{funcid}
-            ) + 0;
-
-            $map =~ s/^.+::(\w+)$/$1/;
-            $cts{ lc $map } = $ct;
+    my $reached = 0;
+    foreach my $hashdsn ( $client->shuffled_databases ) {
+        my $driver = eval            { $client->driver_for($hashdsn) };
+        my $dbh    = $driver && eval { $driver->rw_handle };
+        unless ($dbh) {
+            $log->error(
+                'Unable to connect to a TheSchwartz database: ' . ( $@ || 'unknown error' ) );
+            next;
         }
 
-        LJ::MemCache::set( 'importer_queue_depth', \%cts, 300 );
-        $depth = \%cts;
+        $reached++;
+        $code->($dbh);
     }
-    return $depth;
+    return $reached;
+}
+
+# how many jobs of this function and uniqkey are in the queue
+sub _queued_job_count {
+    my ( $funcname, $uniqkey ) = @_;
+
+    my $count = 0;
+    _each_schwartz_dbh(
+        sub {
+            my ($dbh)    = @_;
+            my ($funcid) = $dbh->selectrow_array( 'SELECT funcid FROM funcmap WHERE funcname = ?',
+                undef, $funcname );
+            return unless $funcid;
+
+            my ($ct) =
+                $dbh->selectrow_array( 'SELECT COUNT(*) FROM job WHERE funcid = ? AND uniqkey = ?',
+                undef, $funcid, $uniqkey );
+            $count += $ct || 0;
+        }
+    );
+    return $count;
+}
+
+# returns a hashref of lowercased worker name => jobs due, or an empty hashref if the
+# queue can't be read
+sub get_queue {
+    my $depth = LJ::MemCache::get('importer_queue_depth');
+    return $depth if $depth;
+
+    # FIXME: don't make this slam the db with people asking the same question, use a lock
+    # FIXME: we don't have ddlockd, maybe we should
+
+    # get the counts of jobs in queue (active or not)
+    my %cts;
+    my $reached = _each_schwartz_dbh(
+        sub {
+            my ($dbh) = @_;
+            my $funcmap =
+                $dbh->selectall_hashref( 'SELECT funcid, funcname FROM funcmap', 'funcname' )
+                or return;
+
+            foreach my $funcname ( keys %$funcmap ) {
+                next unless $funcname =~ /^DW::Worker::ContentImporter::LiveJournal::/;
+
+                my ($ct) =
+                    $dbh->selectrow_array(
+                    'SELECT COUNT(*) FROM job WHERE funcid = ? AND run_after < ?',
+                    undef, $funcmap->{$funcname}->{funcid}, time() );
+
+                ( my $name = $funcname ) =~ s/^.+::(\w+)$/$1/;
+                $cts{ lc $name } += $ct || 0;
+            }
+        }
+    );
+    unless ($reached) {
+        $log->error('No TheSchwartz database available to read the importer queue depth.');
+        return {};
+    }
+
+    LJ::MemCache::set( 'importer_queue_depth', \%cts, 300 );
+    return \%cts;
 }
 
 sub erase_handler {

@@ -260,7 +260,8 @@ sub set_import_data_options_for_user {
     my $dbh = LJ::get_db_writer()
         or return "Unable to connect to database.";
 
-    $dbh->do( "UPDATE import_data SET options = ? WHERE import_data_id = ?", undef, $data, $id );
+    $dbh->do( "UPDATE import_data SET options = ? WHERE userid = ? AND import_data_id = ?",
+        undef, $data, $u->id, $id );
 
     return $dbh->errstr if $dbh->err;
 

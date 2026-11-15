@@ -72,7 +72,7 @@ sub remap_groupmask {
 
     # trust/friends hasn't changed bits so just copy that over
     $newmask = 1
-        if $allowmask & 1 == 1;
+        if ( $allowmask & 1 ) == 1;
 
     foreach my $oid ( keys %{ $MAPS{fg_map} } ) {
         my $nid     = $MAPS{fg_map}->{$oid};
@@ -84,70 +84,6 @@ sub remap_groupmask {
     }
 
     return $newmask;
-}
-
-=head2 C<< $class->get_feed_account_from_url( $data, $url, $acct ) >>
-=cut
-
-sub get_feed_account_from_url {
-    my ( $class, $data, $url, $acct ) = @_;
-    return undef unless $acct;
-
-    # FIXME: have to do something to pass the errors up
-    my $errors = [];
-
-    # canonicalize url
-    $url =~ s!^feed://!http://!;    # eg, feed://www.example.com/
-    $url =~ s/^feed://;             # eg, feed:http://www.example.com/
-    return undef unless $url;
-
-    # check for validity here
-    if ( $acct ne '' ) {
-
-        # canonicalize the username
-        $acct = LJ::canonical_username($acct);
-        $acct = substr( $acct, 0, 20 );
-        return undef unless $acct;
-
-        # since we're creating, let's validate this against the deny list
-        # FIXME: probably need to error nicely here, as we're not creating
-        # the feed that the user is expecting...
-        return undef
-            if LJ::User->is_protected_username($acct);
-
-        # append _feed here, username should be valid by this point.
-        $acct .= "_feed";
-    }
-
-    # see if it looks like a valid URL
-    return undef
-        unless $url =~ m!^https?://([^:/]+)(?::(\d+))?!;
-
-    # Try to figure out if this is a local user.
-    my ( $hostname, $port ) = ( $1, $2 );
-    if ( $hostname =~ /\Q$LJ::DOMAIN\E/i ) {
-
-        # TODO: have to map this.. :(
-        # FIXME: why submit a patch that has incomplete code? :|
-    }
-
-    # disallow ports (do we ever see this in the wild and care to support it?)
-    return undef
-        if defined $port;
-
-    # see if we already know about this account
-    my $dbh = LJ::get_db_writer();
-    my $su =
-        $dbh->selectrow_hashref( 'SELECT userid FROM syndicated WHERE synurl = ?', undef, $url );
-    return $su->{userid} if $su;
-
-    # we assume that it's safe to create accounts that exist on other services.  if they
-    # don't work, we won't care, the syndication system should handle that ok
-    my $u = LJ::User->create_syndicated( user => $acct, feedurl => $url );
-    return $u->id if $u;
-
-    # failed somehow...
-    return undef;
 }
 
 =head2 C<< $class->get_remapped_userids( $data, $user ) >>
@@ -187,15 +123,6 @@ sub get_remapped_userids {
             unless $oid;
     }
 
-    # FIXME: this is temporarily disabled while we hash out exactly how we want
-    # this functionality to work.
-    #    unless ( $fid ) {
-    #        $log->( "[$$] Remapping feed userid of $data->{hostname}:$user" );
-    #        $fid = $class->remap_username_feed( $data, $user );
-    #        $log->( "     FEED USERID STILL DOESN'T EXIST" )
-    #            unless $fid;
-    #    }
-
     $dbh->do(
 'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
         undef, $data->{hostname}, $user, $oid, $fid
@@ -212,30 +139,6 @@ sub get_remapped_userids {
 
     $MAPS{ $data->{hostname} }->{$user} = [ $oid, $fid ];
     return ( $oid, $fid );
-}
-
-=head2 C<< $class->remap_username_feed( $data, $username ) >>
-
-Remaps a remote user to a local feed.
-
-=cut
-
-sub remap_username_feed {
-    my ( $class, $data, $username ) = @_;
-
-    # canonicalize username and try to return
-    $username =~ s/-/_/g;
-
-    # don't allow identity accounts (they're not feeds by default)
-    return undef
-        if $username =~ m/^ext_/;
-
-    # fall back to getting it from the ATOM data
-    my $url  = "http://www.$data->{hostname}/~$username/data/atom";
-    my $acct = $class->get_feed_account_from_url( $data, $url, $username )
-        or return undef;
-
-    return $acct;
 }
 
 =head2 C<< $class->remap_username_friend( $data, $username ) >>
@@ -292,7 +195,7 @@ sub remap_username_friend {
                 foreach my $token (@$tokens) {
                     if ( $token->fromuser eq $username ) {
                         my $u = LJ::load_user( $token->touser );
-                        return $u if defined $u;
+                        return $u->id if defined $u;
 
                         # it is technically possible for there to be a second rename and
                         # there to be a chain of renames, but wow. die for now.

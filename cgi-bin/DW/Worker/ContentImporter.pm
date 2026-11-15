@@ -149,6 +149,18 @@ sub _should_exit {
     return 0;
 }
 
+=head2 C<< $class->_format_message( "text", [arguments, ...] ) >>
+
+Builds a failure message. With arguments the text is a C<sprintf> format; without, it is
+used as is, because callers pass error strings from remote sites that may contain C<%>.
+
+=cut
+
+sub _format_message {
+    my ( $class, $msgt, @args ) = @_;
+    return @args ? sprintf( $msgt, @args ) : $msgt;
+}
+
 =head2 C<< $class->fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
 Permanently fail this import job.
@@ -172,7 +184,7 @@ sub fail {
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
-    my $msg = sprintf( $msgt, @args );
+    my $msg = $class->_format_message( $msgt, @args );
     warn "Permanent failure: $msg\n"
         if $LJ::IS_DEV_SERVER;
 
@@ -214,7 +226,7 @@ sub temp_fail {
     my $this_fail = $job->failures + 1;    # Add this failure on.
     return $class->fail( $imp, $item, $job, $msgt, @args ) if $this_fail >= $max_fails;
 
-    my $msg = sprintf( $msgt, @args );
+    my $msg = $class->_format_message( $msgt, @args );
     warn "Temporary failure: $msg\n"
         if $LJ::IS_DEV_SERVER;
 

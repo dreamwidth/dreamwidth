@@ -100,7 +100,7 @@ $errref is a scalar reference to put any error text in.
 
 sub update_comment {
     my ( $class, $u, $cmt, $errref ) = @_;
-    $errref ||= '';
+    $errref ||= \my $discarded_error;
 
     # FIXME: we should try to do more than just update the picture keyword, this should handle
     # edits and such.  for now, I'm just trying to get the icons to update...
@@ -110,7 +110,7 @@ sub update_comment {
     # so we don't load the bodies of every comment ever
     # (most of the time, we don't need to)
     # empty body of a nondeleted comment indicates something went wrong with the import process
-    if ( $LJ::FIX_COMMENT_IMPORT{ $u->user } && !$c->is_deleted && $c->body_raw == "" ) {
+    if ( $LJ::FIX_COMMENT_IMPORT{ $u->user } && !$c->is_deleted && $c->body_raw eq "" ) {
         $c->set_subject_and_body( $cmt->{subject}, $cmt->{body} );
     }
 
@@ -148,7 +148,7 @@ $errref is a scalar reference to put any error text in.
 
 sub insert_comment {
     my ( $class, $u, $cmt, $errref ) = @_;
-    $errref ||= '';
+    $errref ||= \my $discarded_error;
 
     # load the data we need to make this comment
     my $jitem = $EntryCache->{ $cmt->{jitemid} }
@@ -205,7 +205,7 @@ sub insert_comment {
     my $parent = { talkid => $cmt->{parentid}, };
 
     # now try to import it and return this as the error code
-    return LJ::Talk::Post::enter_imported_comment( $u, $parent, $item, $comment, $date, \$errref );
+    return LJ::Talk::Post::enter_imported_comment( $u, $parent, $item, $comment, $date, $errref );
 }
 
 =head1 AUTHORS

@@ -22,10 +22,8 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
-use Storable qw/ freeze /;
 use Time::HiRes qw/ tv_interval gettimeofday /;
 
-use DW::BlobStore;
 use DW::Worker::ContentImporter::Local::Userpics;
 use DW::XML::Parser;
 
@@ -99,16 +97,6 @@ sub try_work {
         $log );
     my $num_imported = scalar(@imported);
     my $to_import    = scalar(@pics);
-
-    # Save extra pics to storage temporarily so we can get at them later
-    if ( scalar(@imported) != scalar(@pics) ) {
-        $opts->{userpics_later} = 1;
-        my $data = freeze {
-            imported => \@imported,
-            pics     => \@pics,
-        };
-        DW::BlobStore->store( temp => 'import_upi:' . $u->id, \$data );
-    }
 
     # FIXME: Link to "select userpics later" (once it is created) if we have the backup.
     my $message =
