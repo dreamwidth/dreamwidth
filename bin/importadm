@@ -92,23 +92,12 @@ if ( $run ) {
     }
     croak "No imports found for user"
         unless $tmpdata && scalar @$tmpdata == 1;
-    my $data = {
-        userid         => $u->id,
-        import_data_id => $tmpdata->[0]->[0],
-        hostname       => $tmpdata->[0]->[1],
-        username       => $tmpdata->[0]->[2],
-        usejournal     => $tmpdata->[0]->[3],
-        password_md5   => $tmpdata->[0]->[4],
-        options        => $tmpdata->[0]->[5],
-    };
-
-    my $opts = {
-        userid         => $u->id,
-        import_data_id => $tmpdata->[0]->[0],
-    };
 
     # Attempt to actually run the import now
-    $class->try_work( FakeJob->new, $opts, $data );
+    $class->work( FakeJob->new( arg => {
+        userid         => $u->id,
+        import_data_id => $tmpdata->[0]->[0],
+    } ) );
     exit 0;
 }
 
@@ -134,13 +123,15 @@ sub ago {
 package FakeJob;
 
 sub new {
-    my $class = $_[0];
-    my %self = ( @_ );
+    my ( $class, %self ) = @_;
     return bless \%self, $class;
 }
 
+sub arg { $_[0]->{arg} }
 sub grabbed_until {}
 sub save {}
+sub run_after {}
+sub declined {}
 sub completed {}
 sub failures { 0 }
 sub funcname { $_[0] }

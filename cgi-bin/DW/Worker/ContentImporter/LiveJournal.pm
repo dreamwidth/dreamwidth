@@ -38,9 +38,6 @@ use Digest::MD5 qw/ md5_hex /;
 use DW::External::Account;
 use DW::RenameToken;
 
-# storage for import related stuff
-our %MAPS;
-
 sub keep_exit_status_for { 0 }
 sub grab_for             { 600 }
 sub max_retries          { 5 }
@@ -50,32 +47,36 @@ sub retry_delay {
     return ( 10, 30, 60, 300, 600 )[$fails];
 }
 
-=head2 C<< $class->remap_groupmask( $data, $allowmask ) >>
+=head2 C<< $class->remap_groupmask( $ctx, $allowmask ) >>
 
-Converts a remote groupmask into a local groupmask.
+Converts a remote groupmask into a local groupmask, using the group map the friend
+groups job saved for this import. The map is read once per job and kept in the
+job's context.
 
 =cut
 
 sub remap_groupmask {
-    my ( $class, $data, $allowmask ) = @_;
+    my ( $class, $ctx, $allowmask ) = @_;
+    my $data = $ctx->data;
 
     my $newmask = 0;
 
-    unless ( $MAPS{fg_map} ) {
+    unless ( $ctx->cache->{fg_map} ) {
         my $dbh = LJ::get_db_writer()
             or croak 'unable to get global database handle';
         my $row = $dbh->selectrow_array(
             'SELECT groupmap FROM import_data WHERE userid = ? AND import_data_id = ?',
             undef, $data->{userid}, $data->{import_data_id} );
-        $MAPS{fg_map} = $row ? thaw($row) : {};
+        $ctx->cache->{fg_map} = $row ? thaw($row) : {};
     }
+    my $fg_map = $ctx->cache->{fg_map};
 
     # trust/friends hasn't changed bits so just copy that over
     $newmask = 1
         if ( $allowmask & 1 ) == 1;
 
-    foreach my $oid ( keys %{ $MAPS{fg_map} } ) {
-        my $nid     = $MAPS{fg_map}->{$oid};
+    foreach my $oid ( keys %$fg_map ) {
+        my $nid     = $fg_map->{$oid};
         my $old_bit = ( 2**$oid );
 
         if ( ( $allowmask & $old_bit ) == $old_bit ) {
@@ -86,16 +87,19 @@ sub remap_groupmask {
     return $newmask;
 }
 
-=head2 C<< $class->get_remapped_userids( $data, $user ) >>
+=head2 C<< $class->get_remapped_userids( $ctx, $user, $log ) >>
 
 Remaps a remote user to local userids.
 
 ( $access_uid, $read_uid )
 
+Answers are kept in the job's context, so each remote user is looked up once per job.
+
 =cut
 
 sub get_remapped_userids {
-    my ( $class, $data, $user, $log ) = @_;
+    my ( $class, $ctx, $user, $log ) = @_;
+    my $data = $ctx->data;
 
     $log ||= sub {
         warn @_;
@@ -106,8 +110,9 @@ sub get_remapped_userids {
     return ( undef, undef )
         if $user eq 'status';
 
-    return @{ $MAPS{ $data->{hostname} }->{$user} }
-        if exists $MAPS{ $data->{hostname} }->{$user};
+    my $mapped = $ctx->cache->{remapped_users} ||= {};
+    return @{ $mapped->{$user} }
+        if exists $mapped->{$user};
 
     my $dbh = LJ::get_db_writer()
         or return;
@@ -137,7 +142,7 @@ sub get_remapped_userids {
         }
     }
 
-    $MAPS{ $data->{hostname} }->{$user} = [ $oid, $fid ];
+    $mapped->{$user} = [ $oid, $fid ];
     return ( $oid, $fid );
 }
 
@@ -549,23 +554,6 @@ sub get_foaf_from {
     }
 
     return ( \%items, \@interests, \@schools );
-}
-
-sub start_log {
-    my ( $class, $import_type, %opts ) = @_;
-
-    my $userid         = $opts{userid};
-    my $import_data_id = $opts{import_data_id};
-
-    my $logfile;
-
-    mkdir "$LJ::HOME/logs/imports";
-    mkdir "$LJ::HOME/logs/imports/$userid";
-    open $logfile, ">>$LJ::HOME/logs/imports/$userid/$import_data_id.$import_type.$$"
-        or return undef;
-    print $logfile "[0.00s 0.00s] Log started at " . LJ::mysql_time( undef, 1 ) . ".\n";
-
-    return $logfile;
 }
 
 =head1 AUTHORS

@@ -128,6 +128,13 @@
     # still in the queue, however long it runs, are not touched.
     # $IMPORTER_STALE_CLAIM_SECONDS = 3600;
 
+    # Ed25519 public keys used to verify the signature on export files that users upload to
+    # be imported, listed per source so a new key can be added before the old one is removed.
+    # A key is the 32 raw bytes as base64 (standard or URL-safe), or a PEM "PUBLIC KEY"
+    # block. With no key for a source, uploads from it are never accepted.
+    # %IMPORTER_SIGNING_KEYS = (
+    #    pillowfort => [ '<base64 of the 32-byte public key>' ],
+    #);
 
     # privileges for various email aliases in /admin/sendmail
     # make sure these map to existing support categories on your site

@@ -20,38 +20,9 @@ package DW::Worker::ContentImporter::LiveJournal::Verify;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
-
-sub work {
-
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_verify', $job, 'Failure running job: %s', $msg );
-    }
-}
-
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
-
-    # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_verify', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_verify', $job, @_ ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_verify', $job, @_ ); };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $0 = sprintf( 'content-importer [verify: %s(%d)]', $u->user, $u->id );
+sub run {
+    my ( $class, $ctx ) = @_;
+    my $data = $ctx->data;
 
     # we verify by doing a simple tags call.  yes, this means that we end up
     # getting a user's tags twice... but I'm okay with that, we'll live
@@ -62,11 +33,12 @@ sub try_work {
 
         # this is a permanent failure.  if the password is bad, we're not going to ever
         # bother retrying.  that's life. (the rest of the import is aborted with it.)
-        return $fail->("Username or password for $data->{username} rejected by $data->{hostname}.");
+        return $ctx->fail(
+            "Username or password for $data->{username} rejected by $data->{hostname}.");
     }
 
     # if we got any other type of failure, call it temporary...
-    return $temp_fail->( 'XMLRPC failure: ' . $r->{faultString} )
+    return $ctx->temp_fail( 'XMLRPC failure: ' . $r->{faultString} )
         if !$r || $r->{fault};
 
     # If this is a community import, we have to do a second step now to make sure
@@ -83,17 +55,17 @@ sub try_work {
 
         my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
         $xmlrpc_fail .= " (community: $data->{usejournal})";
-        return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
-        return $fail->( 'You are not an administrator/maintainer of the remote'
+        return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
+        return $ctx->fail( 'You are not an administrator/maintainer of the remote'
                 . ' community named '
                 . $data->{usejournal}
                 . '.' )
             unless $r->{results}->[0]->{output}->[0]->[0] eq 'success';
     }
 
-    # okay, but don't fire off a message to say it's done, this job doesn't matter to
-    # the user unless it fails
-    return $ok->(0);
+    # the user is not told that this passed (the item doesn't notify on success), it
+    # doesn't matter to them unless it fails
+    return $ctx->ok;
 }
 
 1;

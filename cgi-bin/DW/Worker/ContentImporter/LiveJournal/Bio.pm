@@ -19,40 +19,11 @@ package DW::Worker::ContentImporter::LiveJournal::Bio;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
 use DW::Worker::ContentImporter::Local::Bio;
 
-sub work {
-
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_bio', $job, 'Failure running job: %s', $msg );
-    }
-}
-
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
-
-    # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_bio', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_bio', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_bio', $job, @_ ); };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-
-    $0 = sprintf( 'content-importer [bio: %s(%d)]', $u->user, $u->id );
+sub run {
+    my ( $class, $ctx ) = @_;
+    my ( $u, $data ) = ( $ctx->u, $ctx->data );
 
     # FIXME: have to flip this back to using the user_path value instead of hardcoded
     # livejournal.com ... this should probably be part of the import_data structure?
@@ -60,7 +31,7 @@ sub try_work {
     my $un = $data->{usejournal} || $data->{username};
     $un =~ s/_/-/g;    # URLs use hyphens, not underscores
     my ( $items, $interests, $schools ) = $class->get_foaf_from("http://$un.$data->{hostname}");
-    return $temp_fail->("Unable to load FOAF data for $un.$data->{hostname}.")
+    return $ctx->temp_fail("Unable to load FOAF data for $un.$data->{hostname}.")
         unless $items;
 
     DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $interests );
@@ -68,7 +39,7 @@ sub try_work {
     $items->{bio} = $class->remap_lj_user( $data, $items->{bio} );
     DW::Worker::ContentImporter::Local::Bio->merge_bio_items( $u, $items );
 
-    return $ok->();
+    return $ctx->ok;
 }
 
 1;

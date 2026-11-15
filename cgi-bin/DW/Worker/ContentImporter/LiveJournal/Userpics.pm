@@ -22,65 +22,14 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
 use Encode qw/ encode_utf8 /;
-use Time::HiRes qw/ tv_interval gettimeofday /;
 
 use DW::Worker::ContentImporter::Local::Userpics;
 use DW::XML::Parser;
 
-sub work {
-
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_userpics', $job, 'Failure running job: %s', $msg );
-    }
-}
-
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
-    my $begin_time = [ gettimeofday() ];
-
-    # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_userpics', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_userpics', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_userpics', $job, @_ ); };
-    my $status    = sub { return $class->status( $data, 'lj_userpics', {@_} ); };
-
-    # logging sub
-    my ( $logfile, $last_log_time );
-    $logfile = $class->start_log(
-        "lj_userpics",
-        userid         => $opts->{userid},
-        import_data_id => $opts->{import_data_id}
-    ) or return $temp_fail->('Internal server error creating log.');
-
-    my $log = sub {
-        $last_log_time ||= [ gettimeofday() ];
-
-        my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
-        my $msg = sprintf( $fmt, tv_interval($last_log_time), tv_interval($begin_time), @_ );
-
-        print $logfile $msg;
-        $job->debug($msg);
-
-        $last_log_time = [ gettimeofday() ];
-
-        return undef;
-    };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $0 = sprintf( 'content-importer [userpics: %s(%d)]', $u->user, $u->id );
+sub run {
+    my ( $class, $ctx ) = @_;
+    my ( $u, $data ) = ( $ctx->u, $ctx->data );
+    my $log = sub { return $ctx->log(@_) };
 
     # FIXME: URL may not be accurate here for all sites
     my $fetch_error = "";
@@ -88,7 +37,7 @@ sub try_work {
     my ( $default, @pics ) = $class->get_lj_userpic_data( "http://$data->{hostname}/users/$un/",
         $data, $log, \$fetch_error );
 
-    return $temp_fail->("Could not import icons for $un: $fetch_error")
+    return $ctx->temp_fail("Could not import icons for $un: $fetch_error")
         if $fetch_error;
 
     my $errs = [];
@@ -121,8 +70,8 @@ sub try_work {
         $text = $message;
     }
 
-    $status->( text => $text );
-    return $ok->();
+    $ctx->status( text => $text );
+    return $ctx->ok;
 }
 
 sub get_lj_userpic_data {

@@ -19,6 +19,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use HTTP::Response;
+use File::Path qw( remove_tree );
 use LJ::Test qw( temp_user );
 
 use DW::Worker::ContentImporter::LiveJournal::Bio;
@@ -52,7 +53,8 @@ my @asked;
 {
 
     package Test::FakeJob;
-    sub new { return bless { result => undef }, shift }
+    sub new { my ( $class, %args ) = @_; return bless { result => undef, %args }, $class }
+    sub arg               { $_[0]->{arg} }
     sub failures          { 0 }
     sub funcname          { 'DW::Worker::ContentImporter::LiveJournal::Bio' }
     sub debug             { }
@@ -67,23 +69,26 @@ $remote{'http://some-user.remote.example/data/foaf'} = q{<?xml version="1.0"?>
 <foaf:Person><foaf:name>Some User</foaf:name><ya:bio>Imported from afar</ya:bio><foaf:interest dc:title="knitting"/></foaf:Person>
 </rdf:RDF>};
 
-my $data = {
-    userid         => $u->id,
-    import_data_id => 1,
-    hostname       => 'remote.example',
-    username       => 'some_user',
-};
+LJ::get_db_writer()->do(
+    'INSERT INTO import_data (userid, import_data_id, hostname, username, password_md5) '
+        . 'VALUES (?, 1, ?, ?, ?)',
+    undef, $u->id, 'remote.example', 'some_user', 'x'
+);
 
-my $job = Test::FakeJob->new;
-$class->try_work( $job, { userid => $u->id, import_data_id => 1 }, $data );
+my $job = Test::FakeJob->new( arg => { userid => $u->id, import_data_id => 1 } );
+$class->work($job);
 
-is( $job->{result}, 'completed',          'the job completes' ) or diag("@asked");
-is( $u->bio,        'Imported from afar', 'the remote bio is saved' );
-is_deeply( [ keys %{ $u->interests } ], ['knitting'], 'and the remote interests' );
+is( $job->{result}, 'completed', 'the job completes' ) or diag("@asked");
+
+# the job works on its own copy of the user, so look at the saved state
+my $saved = LJ::load_userid( $u->id, 'force' );
+is( $saved->bio, 'Imported from afar', 'the remote bio is saved' );
+is_deeply( [ keys %{ $saved->interests } ], ['knitting'], 'and the remote interests' );
 is_deeply(
     \@asked,
     ['http://some-user.remote.example/data/foaf'],
     'the profile was fetched from the user\'s journal, once'
 );
 
+remove_tree( "$LJ::HOME/logs/imports/" . $u->id );
 done_testing();
