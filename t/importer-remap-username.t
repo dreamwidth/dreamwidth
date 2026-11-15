@@ -23,6 +23,8 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user );
 
 use HTTP::Response;
+use DW::Importer::Context;
+use DW::Importer::Sink::Live;
 use DW::Worker::ContentImporter::LiveJournal;
 
 my $class = 'DW::Worker::ContentImporter::LiveJournal';
@@ -69,7 +71,12 @@ qq{<?xml version="1.0"?><opml version="1.0"><head><ownerName>$owner</ownerName><
 
 sub remap {
     my ($username) = @_;
-    return $class->remap_username_friend( { hostname => $host }, $username );
+    my $data       = { hostname => $host };
+    my $ctx        = DW::Importer::Context->new(
+        data => $data,
+        sink => DW::Importer::Sink::Live->new( data => $data )
+    );
+    return $class->remap_username_friend( $ctx, $username );
 }
 
 sub identity_of {

@@ -85,6 +85,29 @@ sub job    { $_[0]->{job} }
 sub logger { $_[0]->{logger} }
 sub cache  { $_[0]->{cache} }
 
+=head2 C<< $ctx->transport >>
+
+The object a source adapter does its network I/O through, if the job was given one
+(see L<DW::Importer::Source::LiveJournal::Transport>); undef means the adapter's default.
+
+=cut
+
+sub transport { $_[0]->{transport} }
+
+=head2 C<< $ctx->sink >>
+
+The L<DW::Importer::Sink> the job writes through.
+
+=head2 C<< $ctx->dry_run >>
+
+True if this is a dry run: the sink only records what it would write, and the runner
+leaves the item's status, notifications and stats alone.
+
+=cut
+
+sub sink    { $_[0]->{sink} }
+sub dry_run { $_[0]->{dry_run} }
+
 =head2 C<< $ctx->options >>
 
 The options the user chose for this import.
@@ -113,6 +136,7 @@ C<content-importer [entries: someone(123) getevents - 1 to 100]>.
 
 sub title {
     my ( $self, $format, @args ) = @_;
+    return if $self->{dry_run};
 
     my $msg = defined $format ? sprintf( $format, @args ) : '';
     $msg = " $msg" if $msg;
@@ -135,6 +159,13 @@ what the notification shows, such as C<text>.
 
 sub status {
     my ( $self, %args ) = @_;
+
+    # nobody is told anything in a dry run; the report says what they would be
+    if ( $self->{dry_run} ) {
+        $self->{sink}->report->add_status( item => $self->{item}->{name}, %args )
+            if $self->{sink}->can('report');
+        return;
+    }
     return $self->{class}->status( $self->{data}, $self->{item}->{name}, {%args} );
 }
 

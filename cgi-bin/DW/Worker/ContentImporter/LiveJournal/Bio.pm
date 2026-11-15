@@ -19,25 +19,22 @@ package DW::Worker::ContentImporter::LiveJournal::Bio;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use DW::Worker::ContentImporter::Local::Bio;
+use DW::Importer::Transform::LJMarkup qw( remap_user_tags );
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
+    my $data = $ctx->data;
 
-    # FIXME: have to flip this back to using the user_path value instead of hardcoded
-    # livejournal.com ... this should probably be part of the import_data structure?
-    # abstract out sites?
-    my $un = $data->{usejournal} || $data->{username};
-    $un =~ s/_/-/g;    # URLs use hyphens, not underscores
-    my ( $items, $interests, $schools ) = $class->get_foaf_from("http://$un.$data->{hostname}");
-    return $ctx->temp_fail("Unable to load FOAF data for $un.$data->{hostname}.")
-        unless $items;
+    my $bio = $class->source_for($ctx)->bio;
+    unless ($bio) {
+        ( my $un = $data->{usejournal} || $data->{username} ) =~ s/_/-/g;
+        return $ctx->temp_fail("Unable to load FOAF data for $un.$data->{hostname}.");
+    }
 
-    DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $interests );
+    $ctx->sink->merge_interests( $bio->{interests} );
 
-    $items->{bio} = $class->remap_lj_user( $data, $items->{bio} );
-    DW::Worker::ContentImporter::Local::Bio->merge_bio_items( $u, $items );
+    $bio->{bio} = remap_user_tags( $bio->{bio}, $data->{hostname} );
+    $ctx->sink->merge_bio($bio);
 
     return $ctx->ok;
 }

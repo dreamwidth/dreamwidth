@@ -18,8 +18,6 @@
 package DW::Worker::ContentImporter::Local::Comments;
 use strict;
 
-our ( $EntryCache, $UserCache );
-
 =head1 NAME
 
 DW::Worker::ContentImporter::Local::Comments - Local data utilities for comments
@@ -28,34 +26,23 @@ DW::Worker::ContentImporter::Local::Comments - Local data utilities for comments
 
 These functions are part of the Saving API for comments.
 
-=head2 C<< $class->clear_caches() >>
-
-This needs to be called between each import. This ensures we clear out the local caches
-so we don't bleed data from one import to the next.
-
-=cut
-
-sub clear_caches {
-    $EntryCache = undef;
-    $UserCache  = undef;
-}
-
-=head2 C<< $class->precache( $u, $jitemid_hash, $userid_hash ) >>
+=head2 C<< $class->precache( $u, $jitemid_hash, $userid_hash, $cache ) >>
 
 Given a user and two hashrefs (keys are jitemids and then userids respectively), this
-will do a bulk load of those items and precache them. This is designed to be used
-right before we import a bunch of comments to give us some performance and save all
-the roundtrips.
+will do a bulk load of those items and precache them in C<$cache>, a hashref the caller
+keeps and passes to C<insert_comment> (so nothing is shared between imports). This is
+designed to be used right before we import a bunch of comments to give us some performance
+and save all the roundtrips.
 
 =cut
 
 sub precache {
-    my ( $class, $u, $jitemids, $userids ) = @_;
+    my ( $class, $u, $jitemids, $userids, $cache ) = @_;
 
-    $UserCache = LJ::load_userids(@$userids);
+    $cache->{users} = LJ::load_userids(@$userids);
 
     foreach my $jitemid (@$jitemids) {
-        $EntryCache->{$jitemid} = LJ::Entry->new( $u, jitemid => $jitemid );
+        $cache->{entries}->{$jitemid} = LJ::Entry->new( $u, jitemid => $jitemid );
     }
     LJ::Entry->preload_props_all();
 }
@@ -114,17 +101,22 @@ sub update_comment {
         $c->set_subject_and_body( $cmt->{subject}, $cmt->{body} );
     }
 
+    # (only what would change: setting a property to what it already is, or to nothing on a
+    # comment that has none, would still write a row)
     my $pu = $c->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
-        $c->set_prop( picture_mapid =>
-                $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
+        my $mapid = $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 );
+        $c->set_prop( picture_mapid => $mapid )
+            if ( $c->prop('picture_mapid') // 0 ) != ( $mapid // 0 );
     }
     else {
-        $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
+        my $keyword = $cmt->{props}->{picture_keyword};
+        $c->set_prop( picture_keyword => $keyword )
+            if ( $c->prop('picture_keyword') // '' ) ne ( $keyword // '' );
     }
 }
 
-=head2 C<< $class->insert_comment( $u, $comment, $errref ) >>
+=head2 C<< $class->insert_comment( $u, $comment, $errref, [ $cache ] ) >>
 
 $comment is a hashref representation of a single comment, with the following format:
 
@@ -142,22 +134,23 @@ $comment is a hashref representation of a single comment, with the following for
     state => 'A',
   }
 
-$errref is a scalar reference to put any error text in.
+$errref is a scalar reference to put any error text in. $cache is what C<precache> filled.
 
 =cut
 
 sub insert_comment {
-    my ( $class, $u, $cmt, $errref ) = @_;
+    my ( $class, $u, $cmt, $errref, $cache ) = @_;
     $errref ||= \my $discarded_error;
+    $cache  ||= {};
 
     # load the data we need to make this comment
-    my $jitem = $EntryCache->{ $cmt->{jitemid} }
+    my $jitem = $cache->{entries}->{ $cmt->{jitemid} }
         || LJ::Entry->new( $u, jitemid => $cmt->{jitemid} );
     my $source =
         ( $cmt->{entry_source} || $jitem->prop("import_source") ) . "/" . ( $cmt->{orig_id} << 8 );
     my $user =
         $cmt->{posterid}
-        ? ( $UserCache->{ $cmt->{posterid} } || LJ::load_userid( $cmt->{posterid} ) )
+        ? ( $cache->{users}->{ $cmt->{posterid} } || LJ::load_userid( $cmt->{posterid} ) )
         : undef;
 
     # fix the XML timestamp to a useful timestamp

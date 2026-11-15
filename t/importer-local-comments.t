@@ -55,7 +55,6 @@ my $jitemid = $res->{itemid};
 
 sub comment {
     my (%over) = @_;
-    $comments->clear_caches;
     return {
         orig_id  => 5,
         jitemid  => $jitemid,
@@ -210,7 +209,6 @@ my $top;
     $u->do( 'UPDATE talktext2 SET body = ? WHERE journalid = ? AND jtalkid = ?',
         undef, '', $u->id, $blank );
 
-    $comments->clear_caches;
     foreach my $id ( $kept, $blank ) {
         $comments->update_comment( $u,
             { id => $id, subject => 'remote subject', body => 'remote body', props => {} }, \$err );

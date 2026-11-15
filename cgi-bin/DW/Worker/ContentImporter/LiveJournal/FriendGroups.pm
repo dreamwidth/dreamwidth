@@ -19,30 +19,15 @@ package DW::Worker::ContentImporter::LiveJournal::FriendGroups;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Storable qw/ nfreeze /;
-use DW::Worker::ContentImporter::Local::TrustGroups;
-
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
+    my $sink = $ctx->sink;
 
-    my $dbh = LJ::get_db_writer()
-        or return $ctx->temp_fail('Unable to get global master database handle');
-
-    my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
-    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
-
-    my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u,
-        $r->{friendgroups} );
+    my @groups = $class->source_for($ctx)->trust_groups;
+    my $map    = $sink->merge_trust_groups( \@groups );
 
     # store the merged map; the friends and entries jobs read it
-    $dbh->do(
-        q{UPDATE import_data SET groupmap = ?
-          WHERE userid = ? AND import_data_id = ?},
-        undef, nfreeze($map), $u->id, $data->{import_data_id}
-    );
+    $sink->save_groupmap($map);
 
     return $ctx->ok;
 }

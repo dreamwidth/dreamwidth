@@ -25,6 +25,7 @@ use LJ::Test qw( temp_user );
 use Storable qw( nfreeze );
 
 use DW::Importer::Context;
+use DW::Importer::Sink::Live;
 use DW::Worker::ContentImporter::LiveJournal;
 use DW::Worker::ContentImporter::Local::Tags;
 use DW::Worker::ContentImporter::Local::TrustGroups;
@@ -106,7 +107,11 @@ my $lj = 'DW::Worker::ContentImporter::LiveJournal';
     # the map is read once per job and kept in its context, so each call here is a new job
     sub remap {
         my ( $data, $mask ) = @_;
-        return $lj->remap_groupmask( DW::Importer::Context->new( data => $data ), $mask );
+        my $ctx = DW::Importer::Context->new(
+            data => $data,
+            sink => DW::Importer::Sink::Live->new( data => $data )
+        );
+        return $lj->remap_groupmask( $ctx, $mask );
     }
 
     is( remap( $data, 0 ), 0,      'no access stays no access' );
@@ -127,26 +132,6 @@ my $lj = 'DW::Worker::ContentImporter::LiveJournal';
         undef, $u->id, $impid );
     is( remap( $data, 1 | 2 ), 1, 'without a groupmap, group bits are lost and trust remains' );
     is( remap( $data, 2 ),     0, 'and a group-only mask grants nothing' );
-}
-
-# <lj> markup is rewritten to <user> tags pointing at the remote site
-{
-    my $data = { hostname => 'remote.example' };
-    is(
-        $lj->remap_lj_user( $data, 'hi <lj user="bob"> and <lj user=\'alice\'/>' ),
-        'hi <user site="remote.example" user="bob"> and <user site="remote.example" user="alice">',
-        'user tags are rewritten, quoted either way'
-    );
-    is(
-        $lj->remap_lj_user( $data, '<lj comm="club"><LJ SYN="feed">' ),
-        '<user site="remote.example" comm="club"><user site="remote.example" SYN="feed">',
-        'community and syndicated tags are rewritten, whatever the case'
-    );
-    is(
-        $lj->remap_lj_user( $data, '<lj-cut text="x">more</lj-cut>' ),
-        '<lj-cut text="x">more</lj-cut>',
-        'other lj tags are left alone'
-    );
 }
 
 done_testing();

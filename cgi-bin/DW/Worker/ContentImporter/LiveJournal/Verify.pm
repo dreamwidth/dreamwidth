@@ -22,45 +22,26 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my $data = $ctx->data;
+    my $source = $class->source_for($ctx);
 
     # we verify by doing a simple tags call.  yes, this means that we end up
-    # getting a user's tags twice... but I'm okay with that, we'll live
-    my $r = $class->call_xmlrpc( $data, 'getusertags' );
-
-    # now, we have to see if the error contains 'Invalid password' or something else
-    if ( $r && $r->{fault} && $r->{faultString} =~ /Invalid password/ ) {
-
-        # this is a permanent failure.  if the password is bad, we're not going to ever
-        # bother retrying.  that's life. (the rest of the import is aborted with it.)
-        return $ctx->fail(
-            "Username or password for $data->{username} rejected by $data->{hostname}.");
-    }
-
-    # if we got any other type of failure, call it temporary...
-    return $ctx->temp_fail( 'XMLRPC failure: ' . $r->{faultString} )
-        if !$r || $r->{fault};
+    # getting a user's tags twice... but I'm okay with that, we'll live. a rejected password
+    # is a permanent failure (and the rest of the import is aborted with it).
+    $source->login_check;
 
     # If this is a community import, we have to do a second step now to make sure
-    # that the user is an administrator of the remote community. The best way I can
-    # come up with is try to unban the owner -- if it works, you're an admin.
-    if ( $data->{usejournal} ) {
-        $r = $class->call_xmlrpc(
-            $data,
-            'consolecommand',
-            {
-                commands => ["ban_unset $data->{username} from $data->{usejournal}"],
-            }
-        );
+    # that the user is an administrator of the remote community.
+    if ( $ctx->data->{usejournal} ) {
 
-        my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-        $xmlrpc_fail .= " (community: $data->{usejournal})";
-        return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
-        return $ctx->fail( 'You are not an administrator/maintainer of the remote'
-                . ' community named '
-                . $data->{usejournal}
-                . '.' )
-            unless $r->{results}->[0]->{output}->[0]->[0] eq 'success';
+        # this is a command run on the remote site, which a dry run must not do
+        if ( $ctx->dry_run ) {
+            $ctx->sink->note(
+                warning => text => 'Not run in a dry run: checking that you administer the '
+                    . "remote community by unbanning yourself in it ($ctx->{data}->{usejournal})" );
+        }
+        else {
+            $source->community_admin_check;
+        }
     }
 
     # the user is not told that this passed (the item doesn't notify on success), it

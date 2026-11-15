@@ -21,18 +21,14 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
+    my $data = $ctx->data;
 
     # if this is a usejournal request, we have no friends (it's a comm or something) so
     # bail very early
     return $ctx->ok if $data->{usejournal};
 
-    my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
-
     my ( @friends, @feeds );
-    foreach my $friend ( @{ $r->{friends} || [] } ) {
+    foreach my $friend ( $class->source_for($ctx)->friends ) {
 
         # if we have no type, or type is identity, allow it
         next if $friend->{type} && $friend->{type} ne 'identity';
@@ -59,7 +55,7 @@ sub run {
         #        } if $local_fid;
     }
 
-    DW::Worker::ContentImporter->merge_trust( $u, $ctx->options, \@friends );
+    $ctx->sink->merge_trust( \@friends );
 
     #    DW::Worker::ContentImporter->merge_watch( $u, $opts, \@feeds );
 
