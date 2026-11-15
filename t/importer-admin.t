@@ -195,20 +195,8 @@ sub act {
 {
     my $u     = temp_user();
     my $other = temp_user();
-    my %meta  = ( import_data_id => 1, item => 'at_first', started => time, updated => time );
-
-    $DW::Importer::LogStore::LOGS{9001} = {
-        meta => {
-            %meta,
-            logid  => 9001,
-            userid => $u->id,
-            chunks => 1,
-            bytes  => 11,
-            host   => 'h',
-            pid    => 1
-        },
-        text => "zzmarker <one>\n",
-    };
+    my $logid = DW::Importer::LogStore->start( $u->id, 1, 'at_first' );
+    DW::Importer::LogStore->append_chunk( $logid, $u->id, 1, \"zzmarker <one>\n" );
 
     my $get = sub {
         my ( $remote, $user, $logid ) = @_;
@@ -222,12 +210,14 @@ sub act {
     };
 
     like(
-        $get->( $admin, $u, 9001 ),
+        $get->( $admin, $u, $logid ),
         qr/zzmarker &lt;one&gt;/,
         'the owner\'s log is shown, escaped'
     );
-    unlike( $get->( $admin, $other, 9001 ), qr/zzmarker/, 'a log is not shown under another user' );
-    unlike( $get->( temp_user(), $u, 9001 ), qr/zzmarker/, 'nor to someone without the privilege' );
+    unlike( $get->( $admin, $other, $logid ),
+        qr/zzmarker/, 'a log is not shown under another user' );
+    unlike( $get->( temp_user(), $u, $logid ),
+        qr/zzmarker/, 'nor to someone without the privilege' );
     unlike( $get->( $admin, $u, 'x' ), qr/zzmarker/,
         'a log id that is not a number shows nothing' );
 }
