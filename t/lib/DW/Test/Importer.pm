@@ -91,7 +91,8 @@ sub snapshot {
     $snap{import_data} = md5_hex(
         join "\0",
         map {
-            map { $_ // '' } @$_
+            map { $_ // '' }
+                @$_
         } @$rows
     );
 
@@ -103,7 +104,8 @@ sub snapshot {
     $snap{import_items_state} = md5_hex(
         join "\0",
         map {
-            map { $_ // '' } @$_
+            map { $_ // '' }
+                @$_
         } @$rows
     );
 
