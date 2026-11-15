@@ -23,10 +23,6 @@ use Encode qw/ encode_utf8 /;
 use DW::Importer::Source::LiveJournal::Keys qw( index_entries index_comments crosspost_source );
 use DW::Importer::Threading;
 use DW::Importer::Transform::LJMarkup qw( comment_text );
-use DW::Task::SearchCopier;
-use DW::Search;
-use DW::Worker::ContentImporter::Local::Comments;
-use DW::Worker::ContentImporter::Local::Entries;
 
 # importing comments leaks memory, so the worker process exits afterwards to reclaim it
 sub exit_after_job { 1 }
@@ -44,12 +40,9 @@ sub on_exception {
 }
 
 sub run {
-    my ( $class, $ctx ) = @_;
-    my ( $u, $data, $job ) = ( $ctx->u, $ctx->data, $ctx->job );
-    my $source = $class->source_for($ctx);
-
-    # the comment caches are per process, not per job
-    DW::Worker::ContentImporter::Local::Comments->clear_caches();
+    my ( $class,  $ctx )  = @_;
+    my ( $data,   $job )  = ( $ctx->data, $ctx->job );
+    my ( $source, $sink ) = ( $class->source_for($ctx), $ctx->sink );
 
     # we know that we can potentially take a while, so budget a few hours for
     # the import job before someone else comes in to snag it
@@ -61,7 +54,7 @@ sub run {
 
     # the entries we have, from the remote entry id to the local jitemid, and the key each
     # was stored under, which its comments' keys are built from
-    my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map($u) || {};
+    my $entry_map = $sink->entry_map;
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
     $log->(
         'Filtering parameters: hostname=[%s], username=[%s].',
@@ -75,7 +68,7 @@ sub run {
     $log->( 'Entry map has %d entries post-prune.', scalar( keys %jitemid_map ) );
 
     # now prepare the xpost map
-    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
+    my $xpost_map = $sink->xpost_map( $data->{hostname}, $data->{username} ) || {};
     $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
 
     foreach my $jitemid ( keys %$xpost_map ) {
@@ -85,7 +78,7 @@ sub run {
     }
 
     # the comments we already have, from the remote comment id to the local jtalkid
-    my $talk_map = DW::Worker::ContentImporter::Local::Comments->get_comment_map($u) || {};
+    my $talk_map = $sink->comment_map;
     $log->( 'Loaded comment map with %d entries.', scalar( keys %$talk_map ) );
     my $threads = DW::Importer::Threading->new(
         entries => \%jitemid_map,
@@ -96,7 +89,6 @@ sub run {
     # for large imports, the maps are big (they contain keys), so let's drop them
     # since we're never going to use them again.
     undef $talk_map;
-    undef $entry_map;
     undef $entries;
     undef $xpost_map;
 
@@ -177,11 +169,7 @@ sub run {
             $jitemids{$local_entry} = 1 if $local_entry;
             $userids{ $comment->{posterid} } = 1 if $comment->{posterid};
         }
-        DW::Worker::ContentImporter::Local::Comments->precache(
-            $u,
-            [ keys %jitemids ],
-            [ keys %userids ]
-        );
+        $sink->precache( [ keys %jitemids ], [ keys %userids ] );
 
         foreach my $comment (@comments) {
             my ( $what, $local_id ) = $threads->add($comment);
@@ -196,6 +184,10 @@ sub run {
                     $comment->{remote_id}, $comment->{entry_id}
                 );
                 $unmapped++;
+                $sink->note(
+                    unmapped => remote_id => $comment->{remote_id},
+                    entry_id => $comment->{entry_id}
+                );
             }
             elsif ( $what eq 'existing' ) {
 
@@ -208,8 +200,7 @@ sub run {
                     $log->('Comment already exists, passing to updater.');
 
                     my $err = "";
-                    DW::Worker::ContentImporter::Local::Comments->update_comment(
-                        $u,
+                    $sink->update_comment(
                         {
                             %$comment,
                             id       => $local_id,
@@ -222,6 +213,11 @@ sub run {
                 else {
                     $log->('Comment exists but is deleted, skipping.');
                 }
+                $sink->note(
+                    skip   => type => 'comment',
+                    target => $comment->{remote_id},
+                    reason => 'already imported'
+                );
             }
         }
 
@@ -242,8 +238,7 @@ sub run {
 
                 # if we get here we're good to insert into the database
                 my $err    = "";
-                my $talkid = DW::Worker::ContentImporter::Local::Comments->insert_comment(
-                    $u,
+                my $talkid = $sink->insert_comment(
                     {
                         %$comment,
                         orig_id      => $comment->{remote_id},
@@ -293,6 +288,8 @@ sub run {
         'ERROR: Failed to map remote parent %d of comment %d.',
         $_->{parent_id}, $_->{remote_id}
     ) foreach @orphans;
+    $sink->note( orphan => remote_id => $_->{remote_id}, parent_id => $_->{parent_id} )
+        foreach @orphans;
 
     my @notes;
     push @notes,
@@ -308,10 +305,7 @@ sub run {
     $ctx->status( text => join( "\n\n", @notes ) ) if @notes;
 
     # Kick off an indexing job for this user
-    if ( DW::Search::enabled() ) {
-        DW::TaskQueue->dispatch(
-            DW::Task::SearchCopier->new( { userid => $u->id, source => "importcm" } ) );
-    }
+    $sink->dispatch_search_copy('importcm');
 
     return $ctx->ok;
 }

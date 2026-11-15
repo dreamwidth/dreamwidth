@@ -86,6 +86,7 @@ use DW::Importer::Items;
 use DW::Importer::Logger;
 use DW::Importer::Outcome;
 use DW::Importer::Registry;
+use DW::Importer::Sink::Live;
 use DW::Stats;
 
 use base 'TheSchwartz::Worker';
@@ -205,6 +206,8 @@ sub work {
             item           => $item->{name},
         ),
     );
+
+    $ctx->{sink} = DW::Importer::Sink::Live->new( u => $ctx->u, data => $data );
 
     my $outcome = $class->_execute($ctx);
     $class->_record( $ctx, $outcome );

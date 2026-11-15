@@ -29,9 +29,6 @@ DW::Worker::ContentImporter::LiveJournal - Importer worker for LiveJournal-based
 use strict;
 use base 'DW::Worker::ContentImporter';
 
-use Carp qw/ croak confess /;
-use Storable qw/ thaw /;
-use DW::External::Account;
 use DW::Importer::Source::LiveJournal;
 use DW::Importer::Source::LiveJournal::Transport;
 
@@ -79,17 +76,7 @@ for this import (empty if it hasn't run). Read once per job.
 
 sub groupmap {
     my ( $class, $ctx ) = @_;
-
-    unless ( $ctx->cache->{fg_map} ) {
-        my $data = $ctx->data;
-        my $dbh  = LJ::get_db_writer()
-            or croak 'unable to get global database handle';
-        my $row = $dbh->selectrow_array(
-            'SELECT groupmap FROM import_data WHERE userid = ? AND import_data_id = ?',
-            undef, $data->{userid}, $data->{import_data_id} );
-        $ctx->cache->{fg_map} = $row ? thaw($row) : {};
-    }
-    return $ctx->cache->{fg_map};
+    return $ctx->cache->{fg_map} ||= $ctx->sink->groupmap;
 }
 
 =head2 C<< $class->remap_groupmask( $ctx, $allowmask ) >>
@@ -149,24 +136,17 @@ sub get_remapped_userids {
     return @{ $mapped->{$user} }
         if exists $mapped->{$user};
 
-    my $dbh = LJ::get_db_writer()
-        or return;
-    my ( $oid, $fid ) = $dbh->selectrow_array(
-'SELECT identity_userid, feed_userid FROM import_usermap WHERE hostname = ? AND username = ?',
-        undef, $data->{hostname}, $user
-    );
+    my ( $oid, $fid ) = $ctx->sink->usermap_lookup( $data->{hostname}, $user );
 
     unless ($oid) {
         $log->("[$$] Remapping identity userid of $data->{hostname}:$user");
         $oid = $class->remap_username_friend( $ctx, $user );
         $log->("     IDENTITY USERID STILL DOESN'T EXIST")
             unless $oid;
-    }
 
-    $dbh->do(
-'REPLACE INTO import_usermap (hostname, username, identity_userid, feed_userid) VALUES (?, ?, ?, ?)',
-        undef, $data->{hostname}, $user, $oid, $fid
-    );
+        # remember who this is, so we don't have to ask the remote site again
+        $ctx->sink->save_usermap( $data->{hostname}, $user, $oid, $fid );
+    }
 
     # load this user and determine if they've been claimed. if so, we want to post
     # all content as from the claimant.
@@ -196,86 +176,7 @@ sub remap_username_friend {
     return $identity->{local_user} if $identity->{local_user};
 
     # build the identity account (or return it if it exists)
-    my $iu = LJ::User::load_identity_user( 'O', $identity->{openid}, undef )
-        or return undef;
-    return $iu->id;
-}
-
-=head2 C<< $class->get_xpost_map( $user, $hashref ) >>
-
-Returns a hashref mapping jitemids to crossposted entries.
-
-=cut
-
-sub get_xpost_map {
-    my ( $class, $u, $data ) = @_;
-
-    # see if the account we're importing from is configured to crosspost
-    my $acct = $class->find_matching_acct( $u, $data );
-    return {} unless $acct;
-
-    # connect to the database and ready the sql
-    my $p = LJ::get_prop( log => 'xpost' )
-        or croak 'unable to get xpost logprop';
-    my $dbcr = LJ::get_cluster_reader($u)
-        or croak 'unable to get user cluster reader';
-    my $sth =
-        $dbcr->prepare("SELECT jitemid, value FROM logprop2 WHERE journalid = ? AND propid = ?")
-        or croak 'unable to prepare statement';
-
-    # now look up the values we need
-    $sth->execute( $u->id, $p->{id} );
-    croak 'database error: ' . $sth->errstr
-        if $sth->err;
-
-    # ( remote jitemid => local ditemid )
-    my %map;
-
-    # put together the mapping above
-    while ( my ( $jitemid, $value ) = $sth->fetchrow_array ) {
-
-        # decompose the xposter data
-        my $data  = DW::External::Account->xpost_string_to_hash($value);
-        my $xpost = $data->{ $acct->acctid }
-            or next;
-
-        # this item was crossposted, record it
-        $map{$xpost} = $jitemid;
-    }
-
-    return \%map;
-}
-
-=head2 C<< $class->find_matching_acct( $u, $data ) >>
-
-Finds the External Account ID, if this user is set up to xpost.
-
-=cut
-
-sub find_matching_acct {
-    my ( $class, $u, $data ) = @_;
-
-    my @accts = DW::External::Account->get_external_accounts($u);
-
-    my $dh = lc( $data->{hostname} );
-    $dh =~ s/^www\.//;
-
-    my $duser = lc( $data->{username} );
-    $duser =~ s/-/_/g;
-
-    foreach my $acct (@accts) {
-        my $sh = lc( $acct->serverhost );
-        $sh =~ s/^www\.//;
-
-        my $suser = lc( $acct->username );
-        $suser =~ s/-/_/g;
-
-        next unless $sh eq $dh;
-        next unless $suser eq $duser;
-        return $acct;
-    }
-
-    return undef;
+    return $ctx->sink->identity_user( $identity->{openid} );
 }
 
 =head1 AUTHORS

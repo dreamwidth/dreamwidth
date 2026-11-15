@@ -21,22 +21,19 @@ use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use DW::Importer::Transform::LJMarkup qw( remap_user_tags );
-use DW::Worker::ContentImporter::Local::Userpics;
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
-    my $log = sub { return $ctx->log(@_) };
+    my $data = $ctx->data;
+    my $log  = sub { return $ctx->log(@_) };
 
     my ( $default, @pics ) = $class->source_for($ctx)->userpics($log);
 
     # (the default icon is one of the list, so it is rewritten with them)
     $_->{comment} = remap_user_tags( $_->{comment}, $data->{hostname} ) foreach @pics;
 
-    my $errs = [];
-    my @imported =
-        DW::Worker::ContentImporter::Local::Userpics->import_userpics( $u, $errs, $default, \@pics,
-        $log );
+    my $errs         = [];
+    my @imported     = $ctx->sink->import_userpics( $errs, $default, \@pics, $log );
     my $num_imported = scalar(@imported);
     my $to_import    = scalar(@pics);
 

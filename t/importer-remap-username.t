@@ -24,6 +24,7 @@ use LJ::Test qw( temp_user );
 
 use HTTP::Response;
 use DW::Importer::Context;
+use DW::Importer::Sink::Live;
 use DW::Worker::ContentImporter::LiveJournal;
 
 my $class = 'DW::Worker::ContentImporter::LiveJournal';
@@ -70,7 +71,11 @@ qq{<?xml version="1.0"?><opml version="1.0"><head><ownerName>$owner</ownerName><
 
 sub remap {
     my ($username) = @_;
-    my $ctx = DW::Importer::Context->new( data => { hostname => $host } );
+    my $data       = { hostname => $host };
+    my $ctx        = DW::Importer::Context->new(
+        data => $data,
+        sink => DW::Importer::Sink::Live->new( data => $data )
+    );
     return $class->remap_username_friend( $ctx, $username );
 }
 

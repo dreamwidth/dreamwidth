@@ -20,11 +20,10 @@ use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use DW::Importer::Transform::LJMarkup qw( remap_user_tags );
-use DW::Worker::ContentImporter::Local::Bio;
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
+    my $data = $ctx->data;
 
     my $bio = $class->source_for($ctx)->bio;
     unless ($bio) {
@@ -32,10 +31,10 @@ sub run {
         return $ctx->temp_fail("Unable to load FOAF data for $un.$data->{hostname}.");
     }
 
-    DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $bio->{interests} );
+    $ctx->sink->merge_interests( $bio->{interests} );
 
     $bio->{bio} = remap_user_tags( $bio->{bio}, $data->{hostname} );
-    DW::Worker::ContentImporter::Local::Bio->merge_bio_items( $u, $bio );
+    $ctx->sink->merge_bio($bio);
 
     return $ctx->ok;
 }

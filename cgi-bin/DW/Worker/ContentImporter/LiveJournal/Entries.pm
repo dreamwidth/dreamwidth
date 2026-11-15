@@ -22,17 +22,14 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 use DW::Importer::Source::LiveJournal::Keys qw( index_entries );
 use DW::Importer::Transform::LJMarkup qw( remap_user_tags entry_text );
 use DW::Importer::Transform::Security qw( map_security );
-use DW::Task::SearchCopier;
-use DW::Search;
-use DW::Worker::ContentImporter::Local::Entries;
 
 # importing entries leaks memory, so the worker process exits afterwards to reclaim it
 sub exit_after_job { 1 }
 
 sub run {
-    my ( $class, $ctx ) = @_;
-    my ( $u, $data, $job ) = ( $ctx->u, $ctx->data, $ctx->job );
-    my $source = $class->source_for($ctx);
+    my ( $class,  $ctx )  = @_;
+    my ( $data,   $job )  = ( $ctx->data, $ctx->job );
+    my ( $source, $sink ) = ( $class->source_for($ctx), $ctx->sink );
 
     # we know that we can potentially take a while, so budget some hours for
     # the import job before someone else comes in to snag it
@@ -43,11 +40,11 @@ sub run {
     my $title = sub { return $ctx->title(@_); };
 
     # load entry map
-    my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map($u) || {};
+    my $entry_map = $sink->entry_map;
     $log->( 'Loaded entry map with %d entries.', scalar( keys %$entry_map ) );
 
     # and xpost map
-    my $xpost_map = $class->get_xpost_map( $u, $data ) || {};
+    my $xpost_map = $sink->xpost_map( $data->{hostname}, $data->{username} ) || {};
     $log->( 'Loaded xpost map with %d entries.', scalar( keys %$xpost_map ) );
 
     # get the itemid of the most recent entry (just so we know how many entries there have
@@ -73,6 +70,11 @@ sub run {
         log_sub        => $log,
         force_reimport => $data->{options}->{lj_entries_remap_icon}
     );
+    $sink->note(
+        skip   => type => 'entry',
+        count  => scalar( keys %has ),
+        reason => 'already imported, so not fetched again'
+    ) if %has;
     $title->('post-prune');
 
     my $groupmap = $class->groupmap($ctx);
@@ -92,21 +94,23 @@ sub run {
         # user come back to fix their keywords.  this forcefully overwrites their
         # local picture keyword
         if ( my $jitemid = $entry_map->{ $evt->{key} } ) {
-            my $entry = LJ::Entry->new( $u, jitemid => $jitemid );
-            my $kw    = $evt->{props}->{picture_keyword};
-            if ( $u->userpic_have_mapid ) {
-                $entry->set_prop( picture_mapid => $u->get_mapid_from_keyword( $kw, create => 1 ) );
-            }
-            else {
-                $entry->set_prop( picture_keyword => $kw );
-            }
+            $sink->update_entry_icon( $jitemid, $evt->{props}->{picture_keyword} );
         }
 
         # now try to skip it if we already have it
-        return
-               if $entry_map->{ $evt->{key} }
+        if (   $entry_map->{ $evt->{key} }
             || $xpost_map->{ $evt->{itemid} }
-            || $has{ $evt->{itemid} };
+            || $has{ $evt->{itemid} } )
+        {
+            $sink->note(
+                skip   => type => 'entry',
+                target => $evt->{key},
+                reason => $xpost_map->{ $evt->{itemid} }
+                ? 'crossposted from here'
+                : 'already imported'
+            );
+            return;
+        }
 
         $evt->{subject} = remap_user_tags( $evt->{subject} || "", $data->{hostname} );
 
@@ -123,9 +127,10 @@ sub run {
         push @item_errors, @{ $security->{warnings} };
 
         # now try to determine if we need to post this as a user
-        my $posteru;
+        my $posterid;
         if ( $data->{usejournal} ) {
-            my ( $posterid, $fid ) = $class->get_remapped_userids( $ctx, $evt->{poster}, $log );
+            my $fid;
+            ( $posterid, $fid ) = $class->get_remapped_userids( $ctx, $evt->{poster}, $log );
 
             unless ($posterid) {
 
@@ -138,8 +143,6 @@ sub run {
                 );
                 return;
             }
-
-            $posteru = LJ::load_userid($posterid);
         }
 
         # polls, embeds and templates, and the user tags
@@ -149,8 +152,8 @@ sub run {
 
         # actually post it
         my ( $ok, $res ) =
-            DW::Worker::ContentImporter::Local::Entries->post_event( $data, $entry_map, $u,
-            $posteru, $evt, \@item_errors );
+            $sink->post_entry( $evt, posterid => $posterid, errors => \@item_errors );
+        $sink->note( warning => target => $evt->{key}, text => $_ ) foreach @item_errors;
 
         # we don't need this text anymore, so nuke it to try to save memory
         delete $evt->{event};
@@ -197,10 +200,7 @@ sub run {
     $fetch_events->(@toload) if scalar @toload > 0;
 
     # Kick off a indexing job for this user
-    if ( DW::Search::enabled() ) {
-        DW::TaskQueue->dispatch(
-            DW::Task::SearchCopier->new( { userid => $u->id, source => "importen" } ) );
-    }
+    $sink->dispatch_search_copy('importen');
 
     return $ctx->ok;
 }

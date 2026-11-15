@@ -21,7 +21,7 @@ use base 'DW::Worker::ContentImporter::LiveJournal';
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
+    my $data = $ctx->data;
 
     # if this is a usejournal request, we have no friends (it's a comm or something) so
     # bail very early
@@ -55,7 +55,7 @@ sub run {
         #        } if $local_fid;
     }
 
-    DW::Worker::ContentImporter->merge_trust( $u, $ctx->options, \@friends );
+    $ctx->sink->merge_trust( \@friends );
 
     #    DW::Worker::ContentImporter->merge_watch( $u, $opts, \@feeds );
 

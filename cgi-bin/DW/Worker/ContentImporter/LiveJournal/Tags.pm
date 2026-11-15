@@ -19,13 +19,11 @@ package DW::Worker::ContentImporter::LiveJournal::Tags;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use DW::Worker::ContentImporter::Local::Tags;
-
 sub run {
     my ( $class, $ctx ) = @_;
 
     my @tags = $class->source_for($ctx)->tags;
-    DW::Worker::ContentImporter::Local::Tags->merge_tags( $ctx->u, \@tags );
+    $ctx->sink->merge_tags( \@tags );
 
     return $ctx->ok;
 }
