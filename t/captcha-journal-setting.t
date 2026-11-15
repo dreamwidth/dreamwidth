@@ -42,6 +42,7 @@ use DW::Template;
     sub enabled { return $_[0]{enabled}{ $_[1] || '' }; }
 
     package Local::CaptchaRequest;
+    sub did_post { return 0; }
 
     sub note {
         my ( $self, $key, $value ) = @_;
