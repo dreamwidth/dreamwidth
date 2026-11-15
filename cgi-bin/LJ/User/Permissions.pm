@@ -974,8 +974,13 @@ sub posting_guidelines_entry {
             return 0 unless $entry && $entry->valid && $entry->journalid == $u->id;
             $ditemid = $entry->ditemid;
         }
-        elsif ( $args =~ m!/(\d+)\.html! ) {
-            $ditemid = $1;
+        elsif ( $args =~ m!^([^?#]*)/(\d+)\.html! ) {
+
+            # As with slugs above, a URL naming another journal is rejected,
+            # rather than read as this community's entry with that ID.
+            my $owner = LJ::User->new_from_url($1);
+            return 0 if $owner && $owner->id != $u->id;
+            $ditemid = $2;
         }
         elsif ( $args =~ m!^(\d+)$! ) {
             $ditemid = $1;

@@ -51,7 +51,10 @@ subtest 'invalid references preserve the saved entry' => sub {
     $wrong_date =~ s!/\d{4}/\d{2}/\d{2}/!/1900/01/01/!;
     my $missing = $entry->url;
     $missing =~ s!posting-guidelines\.html$!missing-guidelines.html!;
-    for my $input ( $wrong_date, $missing, $foreign->url, 'not an entry' ) {
+
+    # The ID is valid in this community, but the URL names another journal.
+    my $other_journal = $other->journal_base . "/$id.html";
+    for my $input ( $wrong_date, $missing, $foreign->url, $other_journal, 'not an entry' ) {
         ok( !$comm->posting_guidelines_entry($input), "reject $input" );
         is( $comm->posting_guidelines_entry, $id, 'keep previous entry' );
     }
