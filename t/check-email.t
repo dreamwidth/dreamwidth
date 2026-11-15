@@ -103,7 +103,14 @@ subtest 'spelling confirmation' => sub {
         );
     }
 
+    {
+        my ( @errors, @codes, $checkbox );
+        LJ::check_email( 'example.com', \@errors, { force_spelling => 1 }, \$checkbox, \@codes );
+        is_deeply( \@codes, ['bad_form'], 'confirming spelling does not bypass other checks' );
+    }
+
     my ( @errors, @codes, $checkbox );
     LJ::check_email( 'example@example.com', \@errors, {}, \$checkbox, \@codes );
+    is_deeply( \@errors, [], 'a valid address gets no message' );
     is( $checkbox, undef, 'a valid address gets no confirmation checkbox' );
 };
