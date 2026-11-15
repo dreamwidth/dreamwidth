@@ -467,7 +467,7 @@ sub _basic_info_location {
     my $ret = [];
 
     return $ret if $u->is_syndicated;
-    return $ret if $self->{public_only} && $u->opt_showlocation ne 'Y';
+    return $ret if $self->{public_only} && ( $u->opt_showlocation // 'Y' ) ne 'Y';
 
     my ( $city, $state, $country ) = ( $u->prop('city'), $u->prop('state'), $u->prop('country') );
     my ( $city_ret, $state_ret, $country_ret );
