@@ -218,6 +218,22 @@ sub merge_trust_groups {
         }
         $map{ $group->{id} } = $id;
 
+        # a group we have that already says what the source's does isn't written again
+        my $have = $by_name{$name} && $current->{ $by_name{$name} };
+        if (
+            (
+                   $have
+                && $have->{sortorder} == $group->{sortorder}
+                && !$have->{is_public} == !$group->{public}
+            )
+            || ( $verb eq 'update' && !$have )
+            )
+        {
+            $self->{report}
+                ->add_skip( type => 'trust_group', target => $name, reason => 'already exists' );
+            next;
+        }
+
         $self->_record(
             type    => 'trust_group',
             target  => $name,

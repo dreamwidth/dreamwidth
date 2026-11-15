@@ -42,6 +42,9 @@ never widened to something else.
 and the warning C<Could not determine groups to post to.> is returned. An empty mask is
 private.
 
+=item A mask with both the trusted bit and groups left in it can't be posted (an entry is
+for friends or for groups, not both), so it becomes private with a warning.
+
 =item Anything else, including a missing or unrecognised security or a mask that isn't
 a number, becomes private with a warning.
 
@@ -121,6 +124,14 @@ sub map_security {
     # we can't tell who this was meant for, so no one but the owner
     if ( $newmask == 0 || ( $newmask == 1 && $mask != 1 ) ) {
         return $private->("Could not determine groups to post to.");
+    }
+
+    # the site doesn't accept a mask that has both the trusted bit and groups in it (an entry
+    # is for friends or for chosen groups), and we can't say which was meant
+    if ( $newmask > 1 && $newmask & 1 ) {
+        return $private->(
+                  'This entry was visible to friends and to groups at once, which can not be'
+                . ' represented here, so it was made private.' );
     }
 
     return { security => 'usemask', allowmask => $newmask, warnings => [], dropped => \@dropped };

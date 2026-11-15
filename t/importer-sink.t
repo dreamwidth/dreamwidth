@@ -193,7 +193,7 @@ sub comment {
             entry          => 1,
             comment        => 2,
             tag            => 1,
-            trust_group    => 3,
+            trust_group    => 2,
             groupmap       => 1,
             identity       => 1,
             usermap        => 1,

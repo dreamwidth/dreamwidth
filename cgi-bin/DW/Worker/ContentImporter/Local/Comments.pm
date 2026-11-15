@@ -101,13 +101,18 @@ sub update_comment {
         $c->set_subject_and_body( $cmt->{subject}, $cmt->{body} );
     }
 
+    # (only what would change: setting a property to what it already is, or to nothing on a
+    # comment that has none, would still write a row)
     my $pu = $c->poster;
     if ( $pu && $pu->userpic_have_mapid ) {
-        $c->set_prop( picture_mapid =>
-                $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 ) );
+        my $mapid = $pu->get_mapid_from_keyword( $cmt->{props}->{picture_keyword}, create => 1 );
+        $c->set_prop( picture_mapid => $mapid )
+            if ( $c->prop('picture_mapid') // 0 ) != ( $mapid // 0 );
     }
     else {
-        $c->set_prop( picture_keyword => $cmt->{props}->{picture_keyword} );
+        my $keyword = $cmt->{props}->{picture_keyword};
+        $c->set_prop( picture_keyword => $keyword )
+            if ( $c->prop('picture_keyword') // '' ) ne ( $keyword // '' );
     }
 }
 

@@ -136,6 +136,7 @@ C<content-importer [entries: someone(123) getevents - 1 to 100]>.
 
 sub title {
     my ( $self, $format, @args ) = @_;
+    return if $self->{dry_run};
 
     my $msg = defined $format ? sprintf( $format, @args ) : '';
     $msg = " $msg" if $msg;

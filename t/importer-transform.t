@@ -124,11 +124,7 @@ my $host = 'remote.example';
         { security => 'usemask', allowmask => 1 << 5, warnings => [], dropped => [] },
         'another group'
     );
-    is(
-        $map->( 1 | 2 | 4 )->{allowmask},
-        1 | ( 1 << 3 ) | ( 1 << 5 ),
-        'friends and several groups'
-    );
+    is( $map->( 2 | 4 )->{allowmask}, ( 1 << 3 ) | ( 1 << 5 ), 'several groups' );
     is( $map->( 1 << 30 )->{allowmask}, 1 << 60, 'the highest groups on both sides' );
 
     # mixed: unmapped groups are dropped, never widened
@@ -138,12 +134,22 @@ my $host = 'remote.example';
     is_deeply( $mixed->{dropped},  [3], 'and says which group was dropped' );
     is_deeply( $mixed->{warnings}, [],  'without a warning' );
 
-    $mixed = $map->( 1 | 2 | 8 );
-    is(
-        $mixed->{allowmask},
-        1 | ( 1 << 3 ),
-        'friends and a mapped group keep both when another is dropped'
-    );
+    # friends and groups together can't be posted, so that is private too
+    foreach my $both ( 1 | 2, 1 | 2 | 4, 1 | 2 | 8 ) {
+        is_deeply(
+            $map->($both),
+            {
+                security  => 'private',
+                allowmask => 0,
+                warnings  => [
+                    'This entry was visible to friends and to groups at once, which can not be'
+                        . ' represented here, so it was made private.'
+                ],
+                dropped => [],
+            },
+            "friends and groups together (mask $both) are private, with a warning"
+        );
+    }
 
     # unmappable: private, with a warning
     for my $case (

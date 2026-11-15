@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+<entry><id>urn:lj:livejournal.com:atom1:someone:100</id><title>default userpic</title><summary>Smiling</summary><category term="happy"/><content src="http://icons.example/good.png"/></entry>
+<entry><id>urn:lj:livejournal.com:atom1:someone:101</id><title>other</title><category term="sad"/><content src="http://icons.example/good2.jpg"/></entry>
+</feed>

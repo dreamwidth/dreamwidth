@@ -84,8 +84,11 @@ use Time::HiRes qw/ time /;
 use DW::Importer::Context;
 use DW::Importer::Items;
 use DW::Importer::Logger;
+use DW::Importer::NullJob;
 use DW::Importer::Outcome;
 use DW::Importer::Registry;
+use DW::Importer::Report;
+use DW::Importer::Sink::DryRun;
 use DW::Importer::Sink::Live;
 use DW::Stats;
 
@@ -269,6 +272,152 @@ sub _record {
     else {
         $class->fail( $data, $item, $job, $outcome->message );
     }
+}
+
+=head1 Dry runs
+
+=head2 C<< DW::Importer::Job->dry_run( item => $name, userid => $uid, import_data_id => $id, %opts ) >>
+
+Runs one item of an import in this process, writing nothing. Everything a job would
+write is recorded in a L<DW::Importer::Report> instead (see L<DW::Importer::Sink::DryRun>),
+and the runner leaves out everything that isn't the job's own work: the item's status
+and what it unblocks, notifications to the user, stats, TheSchwartz job state, per-import
+log files, the process title, memcache writes, and asking the process to exit.
+
+Options: C<report> (a report to add to), C<world> (state shared with other dry runs of the
+same import, see C<dry_run_chain>), C<transport> (the network, if not the real one) and
+C<logger> (in memory by default). Returns the job's L<DW::Importer::Outcome>, which is also
+in the report.
+
+=cut
+
+# the cache writes a read can cause are still writes, so a dry run makes none
+sub _without_cache_writes {
+    my ($code) = @_;
+
+    no warnings qw( redefine once );
+    local ( *LJ::MemCache::set,    *LJ::MemCache::add,  *LJ::MemCache::replace );
+    local ( *LJ::MemCache::delete, *LJ::MemCache::incr, *LJ::MemCache::decr );
+    my $nothing = sub { 1 };
+    *LJ::MemCache::set     = $nothing;
+    *LJ::MemCache::add     = $nothing;
+    *LJ::MemCache::replace = $nothing;
+    *LJ::MemCache::delete  = $nothing;
+    *LJ::MemCache::incr    = $nothing;
+    *LJ::MemCache::decr    = $nothing;
+
+    return $code->();
+}
+
+sub dry_run {
+    my ( $self, %args ) = @_;
+    return _without_cache_writes( sub { $self->_dry_run(%args) } );
+}
+
+sub _dry_run {
+    my ( $self, %args ) = @_;
+
+    my $item = DW::Importer::Registry->item( $args{item} )
+        or croak "unknown importer item '$args{item}'";
+    my $class = $item->{class};
+    eval "require $class; 1" or die $@;
+
+    my $data = $class->import_data( $args{userid}, $args{import_data_id} )
+        or croak "import $args{import_data_id} of user $args{userid} not found";
+
+    my $report = $args{report} ||= DW::Importer::Report->new;
+    my $u      = LJ::load_userid( $data->{userid} );
+    my $live   = DW::Importer::Sink::Live->new( u => $u, data => $data );
+
+    my $ctx = DW::Importer::Context->new(
+        class     => $class,
+        job       => DW::Importer::NullJob->new,
+        data      => $data,
+        item      => $item,
+        u         => $u,
+        logger    => $args{logger} || DW::Importer::Logger->in_memory,
+        transport => $args{transport} || $TRANSPORT || $class->transport_for($data),
+        sink      => DW::Importer::Sink::DryRun->new(
+            live   => $live,
+            report => $report,
+            world  => $args{world}
+        ),
+        dry_run => 1,
+    );
+
+    LJ::start_request();
+    my $outcome = $class->_execute($ctx);
+    $report->add_outcome( $item->{name}, $outcome );
+    return $outcome;
+}
+
+=head2 C<< DW::Importer::Job->dry_run_chain( userid => $uid, import_data_id => $id, %opts ) >>
+
+Dry runs the import's items in dependency order, in this process, each seeing what the
+ones before it would have written (groups before entries before comments). An item whose
+dependency did not succeed is not run. C<items> limits it to some items; by default it
+is the import's own items, or all the items of its source if it has none yet. Returns the
+report.
+
+=cut
+
+sub dry_run_chain {
+    my ( $self, %args ) = @_;
+    return _without_cache_writes( sub { $self->_dry_run_chain(%args) } );
+}
+
+sub _dry_run_chain {
+    my ( $self, %args ) = @_;
+
+    my $data = DW::Importer::Job->import_data( $args{userid}, $args{import_data_id} )
+        or croak "import $args{import_data_id} of user $args{userid} not found";
+    my $source = DW::Importer::Registry->source_for_hostname( $data->{hostname} )
+        or croak "no importer source for $data->{hostname}";
+    my $u           = LJ::load_userid( $data->{userid} );
+    my $journaltype = DW::Importer::Registry->journaltype($u);
+
+    my %wanted;
+    if ( $args{items} ) {
+        %wanted = map { $_ => 1 } @{ $args{items} };
+    }
+    else {
+        my $rows =
+            LJ::get_db_writer()
+            ->selectcol_arrayref(
+            'SELECT item FROM import_items WHERE userid = ? AND import_data_id = ?',
+            undef, $args{userid}, $args{import_data_id} );
+        %wanted = map { $_         => 1 } @{ $rows || [] };
+        %wanted = map { $_->{name} => 1 } DW::Importer::Registry->items( $source->{name} )
+            unless %wanted;
+    }
+
+    my $report = $args{report} || DW::Importer::Report->new;
+    my $world  = DW::Importer::Sink::DryRun->new_world;
+
+    my %failed;
+    foreach my $item ( DW::Importer::Registry->items( $source->{name} ) ) {
+        my $name = $item->{name};
+        next unless $wanted{$name};
+
+        my @blocked =
+            grep { $failed{$_} } DW::Importer::Registry->depends_on( $name, $journaltype );
+        if (@blocked) {
+            $failed{$name} = 1;
+            $report->add_warning(
+                "$name was not run: " . join( ', ', @blocked ) . ' did not succeed' );
+            next;
+        }
+
+        my $outcome = $self->dry_run(
+            %args,
+            item   => $name,
+            report => $report,
+            world  => $world
+        );
+        $failed{$name} = 1 unless $outcome->status eq 'ok';
+    }
+
+    return $report;
 }
 
 =head1 Outcome handling

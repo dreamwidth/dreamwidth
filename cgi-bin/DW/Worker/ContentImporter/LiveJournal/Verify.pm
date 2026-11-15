@@ -31,7 +31,18 @@ sub run {
 
     # If this is a community import, we have to do a second step now to make sure
     # that the user is an administrator of the remote community.
-    $source->community_admin_check if $ctx->data->{usejournal};
+    if ( $ctx->data->{usejournal} ) {
+
+        # this is a command run on the remote site, which a dry run must not do
+        if ( $ctx->dry_run ) {
+            $ctx->sink->note(
+                warning => text => 'Not run in a dry run: checking that you administer the '
+                    . "remote community by unbanning yourself in it ($ctx->{data}->{usejournal})" );
+        }
+        else {
+            $source->community_admin_check;
+        }
+    }
 
     # the user is not told that this passed (the item doesn't notify on success), it
     # doesn't matter to them unless it fails
