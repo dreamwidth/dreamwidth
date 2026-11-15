@@ -67,11 +67,13 @@ with_fake_memcache {
         for $legacy ( 0, 1 ) {
             subtest $legacy ? 'legacy form' : 'Foundation form' => sub {
                 for my $who ( 'nobody_exists', $stranger->user, $owner->user ) {
-                    my $login = $cb->( GET "http://localhost/login?as=$who" );
-                    my ($token) =
-                        $login->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
-                    is( $login->code, 200, "$who opens the real login form" );
-                    ok( $token, "$who obtains a genuine form token" ) or next;
+                    # Bind a genuine signed token to this dev-impersonated viewer,
+                    # as in plack-talkpost.t; /login has independent view-CAPTCHA gates.
+                    my $viewer = $who eq 'nobody_exists' ? undef : LJ::load_user($who);
+                    LJ::set_remote($viewer);
+                    delete $LJ::REQ_GLOBAL{form_auth_chal};
+                    my $token = LJ::form_auth(1);
+                    LJ::set_remote(undef);
                     for my $setting ( 'N', 'A' ) {
                         $owner->set_prop( opt_show_captcha_to => $setting );
                         for my $preview ( 0, 1 ) {
