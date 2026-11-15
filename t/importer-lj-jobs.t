@@ -93,17 +93,6 @@ my @remote_events = (
 my $xmlrpc_fault;    # set to make the remote fail
 my @xmlrpc_calls;
 
-sub fake_xmlrpc {
-    my ( $class, $opts, $mode, $hash ) = @_;
-    push @xmlrpc_calls, $hash->{selecttype} // $mode;
-
-    return { fault => 1, faultString => $xmlrpc_fault } if $xmlrpc_fault;
-    return { events => [ $remote_events[1] ] } if $hash->{selecttype} eq 'lastn';
-
-    my %wanted = map { $_ => 1 } split /,/, $hash->{itemids};
-    return { events => [ grep { $wanted{ $_->{itemid} } } @remote_events ] };
-}
-
 # comments: 1 and 2 are on imported entries (2 replies to 1), 3 is on an entry that wasn't
 my $meta_xml = q{<?xml version="1.0" encoding="utf-8"?>
 <livejournal>
@@ -125,17 +114,28 @@ my $body_xml = q{<?xml version="1.0" encoding="utf-8"?>
 </comments>
 </livejournal>};
 
-sub fake_comment_fetch {
-    my ( $class, $data, $mode ) = @_;
-    return $mode eq 'comment_meta' ? $meta_xml : $body_xml;
-}
-
+# the remote site, which the jobs are given in place of the network
 {
-    no warnings qw( redefine once );
-    *DW::Worker::ContentImporter::LiveJournal::call_xmlrpc = \&fake_xmlrpc;
-    *DW::Worker::ContentImporter::LiveJournal::Comments::do_authed_comment_fetch =
-        \&fake_comment_fetch;
+
+    package Test::Remote;
+    sub new { return bless {}, shift }
+
+    sub xmlrpc {
+        my ( $self, $mode, $hash ) = @_;
+        push @xmlrpc_calls, $hash->{selecttype} // $mode;
+        return $self->{answer}->( $mode, $hash ) if $self->{answer};
+
+        return { fault => 1, faultString => $xmlrpc_fault } if $xmlrpc_fault;
+        return { events => [ $remote_events[1] ] } if $hash->{selecttype} eq 'lastn';
+
+        my %wanted = map { $_ => 1 } split /,/, $hash->{itemids};
+        return { events => [ grep { $wanted{ $_->{itemid} } } @remote_events ] };
+    }
+
+    sub comment_export { return $_[1] eq 'comment_meta' ? $meta_xml : $body_xml }
 }
+my $remote = Test::Remote->new;
+$DW::Importer::Job::TRANSPORT = $remote;
 
 my $u   = temp_user();
 my $dbh = LJ::get_db_writer();
@@ -192,11 +192,11 @@ sub events {
 
 # the remote failing part way through is too
 {
-    my $calls = 0;
-    no warnings 'redefine';
-    local *DW::Worker::ContentImporter::LiveJournal::call_xmlrpc = sub {
-        return $_[2] eq 'getevents' && ++$calls == 1
-            ? fake_xmlrpc(@_)
+    my $calls  = 0;
+    my $normal = Test::Remote->new;
+    local $remote->{answer} = sub {
+        return $_[0] eq 'getevents' && ++$calls == 1
+            ? $normal->xmlrpc(@_)
             : { fault => 1, faultString => 'Gone away' };
     };
     my $job = run_job($entries_class);

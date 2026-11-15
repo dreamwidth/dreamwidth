@@ -29,13 +29,8 @@ sub run {
     my $dbh = LJ::get_db_writer()
         or return $ctx->temp_fail('Unable to get global master database handle');
 
-    my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
-    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
-
-    my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u,
-        $r->{friendgroups} );
+    my @groups = $class->source_for($ctx)->trust_groups;
+    my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u, \@groups );
 
     # store the merged map; the friends and entries jobs read it
     $dbh->do(

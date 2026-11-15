@@ -23,19 +23,18 @@ use File::Path qw( make_path remove_tree );
 use HTTP::Response;
 use LJ::Test qw( temp_user );
 
-use DW::Worker::ContentImporter::LiveJournal::Comments;
+use DW::Importer::Source::LiveJournal::Transport;
 
-my $class = 'DW::Worker::ContentImporter::LiveJournal::Comments';
-my $u     = temp_user();
-my $dir   = "$LJ::HOME/logs/imports/" . $u->id;
+my $u   = temp_user();
+my $dir = "$LJ::HOME/logs/imports/" . $u->id;
 make_path($dir);
 
 # the remote site: whatever $current_xml holds, and a count of how often it was asked
 my ( $current_xml, $requests ) = ( '', 0 );
 {
     no warnings qw( redefine once );
-    *DW::Worker::ContentImporter::LiveJournal::Comments::get_lj_session = sub { return 'session' };
-    *LWP::UserAgent::request                                            = sub {
+    *DW::Importer::Source::LiveJournal::Transport::session = sub { return 'session' };
+    *LWP::UserAgent::request                               = sub {
         $requests++;
         my $r = HTTP::Response->new( 200, 'OK' );
         $r->content($current_xml);
@@ -51,7 +50,8 @@ sub fetch {
         hostname       => 'remote.example',
         username       => 'someone',
     };
-    return $class->do_authed_comment_fetch( $data, 'comment_meta', 1, 10000, sub { } );
+    return DW::Importer::Source::LiveJournal::Transport->new( data => $data )
+        ->comment_export( 'comment_meta', 1, 10000, sub { } );
 }
 
 $current_xml = qq{<?xml version="1.0"?><livejournal><maxid>1</maxid></livejournal>};

@@ -23,15 +23,9 @@ use DW::Worker::ContentImporter::Local::Tags;
 
 sub run {
     my ( $class, $ctx ) = @_;
-    my ( $u, $data ) = ( $ctx->u, $ctx->data );
 
-    # get tags
-    my $r           = $class->call_xmlrpc( $data, 'getusertags' );
-    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
-    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
-
-    DW::Worker::ContentImporter::Local::Tags->merge_tags( $u, $r->{tags} );
+    my @tags = $class->source_for($ctx)->tags;
+    DW::Worker::ContentImporter::Local::Tags->merge_tags( $ctx->u, \@tags );
 
     return $ctx->ok;
 }

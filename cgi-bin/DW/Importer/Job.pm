@@ -140,6 +140,19 @@ sub logger_for {
     return DW::Importer::Logger->for_job(%args);
 }
 
+=head2 C<< $class->transport_for( $data ) >>
+
+The object the job's source adapter does its network I/O through. Returns undef, so the
+adapter's own default is used; a source's worker base class overrides it. Setting
+C<$DW::Importer::Job::TRANSPORT> (with C<local>) replaces it for every job, which is how
+tests replay a canned site through the real workers.
+
+=cut
+
+our $TRANSPORT;
+
+sub transport_for { return undef }
+
 =head2 C<< $class->on_exception( $ctx, $message ) >>
 
 Called when C<run> dies with something other than an outcome, before the job is
@@ -179,12 +192,13 @@ sub work {
     return $class->decline($job) unless $class->enabled($data);
 
     my $ctx = DW::Importer::Context->new(
-        class  => $class,
-        job    => $job,
-        data   => $data,
-        item   => $item,
-        u      => LJ::load_userid( $data->{userid} ),
-        logger => $class->logger_for(
+        class     => $class,
+        job       => $job,
+        data      => $data,
+        item      => $item,
+        u         => LJ::load_userid( $data->{userid} ),
+        transport => $TRANSPORT || $class->transport_for($data),
+        logger    => $class->logger_for(
             job            => $job,
             userid         => $data->{userid},
             import_data_id => $data->{import_data_id},

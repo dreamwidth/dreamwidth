@@ -25,6 +25,7 @@ use LJ::Tags;
 use LJ::Test qw( temp_user temp_comm );
 use Storable qw( thaw );
 
+use DW::Importer::Job;
 use DW::Importer::Registry;
 use DW::Logic::Importer;
 use DW::Worker::ContentImporter::LiveJournal::FriendGroups;
@@ -34,17 +35,22 @@ use DW::Worker::ContentImporter::LiveJournal::Verify;
 my $reg = 'DW::Importer::Registry';
 my $lj  = 'DW::Worker::ContentImporter::LiveJournal';
 
-# the remote site: what each XML-RPC mode answers, or a fault
+# the remote site: what each XML-RPC mode answers, or a fault. The jobs are given it as their
+# transport, in place of the network.
 my %remote;
 {
-    no warnings qw( redefine once );
-    *DW::Worker::ContentImporter::LiveJournal::call_xmlrpc = sub {
-        my ( $class, $opts, $mode ) = @_;
+
+    package Test::Remote;
+    sub new { return bless {}, shift }
+
+    sub xmlrpc {
+        my ( $self, $mode ) = @_;
         my $answer = $remote{$mode};
         return $answer->() if ref $answer eq 'CODE';
         return $answer || { fault => 1, faultString => "no canned answer for $mode" };
-    };
+    }
 }
+$DW::Importer::Job::TRANSPORT = Test::Remote->new;
 
 {
 

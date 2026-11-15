@@ -85,6 +85,15 @@ sub job    { $_[0]->{job} }
 sub logger { $_[0]->{logger} }
 sub cache  { $_[0]->{cache} }
 
+=head2 C<< $ctx->transport >>
+
+The object a source adapter does its network I/O through, if the job was given one
+(see L<DW::Importer::Source::LiveJournal::Transport>); undef means the adapter's default.
+
+=cut
+
+sub transport { $_[0]->{transport} }
+
 =head2 C<< $ctx->options >>
 
 The options the user chose for this import.

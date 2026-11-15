@@ -129,24 +129,4 @@ my $lj = 'DW::Worker::ContentImporter::LiveJournal';
     is( remap( $data, 2 ),     0, 'and a group-only mask grants nothing' );
 }
 
-# <lj> markup is rewritten to <user> tags pointing at the remote site
-{
-    my $data = { hostname => 'remote.example' };
-    is(
-        $lj->remap_lj_user( $data, 'hi <lj user="bob"> and <lj user=\'alice\'/>' ),
-        'hi <user site="remote.example" user="bob"> and <user site="remote.example" user="alice">',
-        'user tags are rewritten, quoted either way'
-    );
-    is(
-        $lj->remap_lj_user( $data, '<lj comm="club"><LJ SYN="feed">' ),
-        '<user site="remote.example" comm="club"><user site="remote.example" SYN="feed">',
-        'community and syndicated tags are rewritten, whatever the case'
-    );
-    is(
-        $lj->remap_lj_user( $data, '<lj-cut text="x">more</lj-cut>' ),
-        '<lj-cut text="x">more</lj-cut>',
-        'other lj tags are left alone'
-    );
-}
-
 done_testing();

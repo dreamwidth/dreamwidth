@@ -27,12 +27,8 @@ sub run {
     # bail very early
     return $ctx->ok if $data->{usejournal};
 
-    my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
-    my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
-    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
-
     my ( @friends, @feeds );
-    foreach my $friend ( @{ $r->{friends} || [] } ) {
+    foreach my $friend ( $class->source_for($ctx)->friends ) {
 
         # if we have no type, or type is identity, allow it
         next if $friend->{type} && $friend->{type} ne 'identity';
