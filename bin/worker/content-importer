@@ -21,6 +21,7 @@ BEGIN {
 }
 
 use LJ::Worker::TheSchwartz;
+use DW::Importer::Job;
 use DW::Importer::Registry;
 
 # the registry says which worker classes this process runs
@@ -28,6 +29,9 @@ foreach my $class ( DW::Importer::Registry->classes_for_process( 'content-import
     eval "require $class; 1" or die $@;
     schwartz_decl( $class );
 }
+
+# some jobs leak memory and ask for the process to be replaced once they are done
+schwartz_on_afterwork( sub { exit 0 if DW::Importer::Job->exit_requested } );
 
 $0 = 'content-importer [bored]';
 

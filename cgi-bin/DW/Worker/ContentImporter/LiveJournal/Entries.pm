@@ -20,36 +20,16 @@ use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
 use Carp qw/ croak confess /;
-use Time::HiRes qw/ tv_interval gettimeofday /;
 use DW::Task::SearchCopier;
 use DW::Search;
 use DW::Worker::ContentImporter::Local::Entries;
 
-sub work {
+# importing entries leaks memory, so the worker process exits afterwards to reclaim it
+sub exit_after_job { 1 }
 
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-    LJ::start_request();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_entries', $job, 'Failure running job: %s', $msg );
-    }
-
-    # FIXME: temporary hack to reclaim memory when we have imported entries
-    exit 0;
-}
-
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
-    my $begin_time = [ gettimeofday() ];
+sub run {
+    my ( $class, $ctx ) = @_;
+    my ( $u, $data, $job ) = ( $ctx->u, $ctx->data, $ctx->job );
 
     # we know that we can potentially take a while, so budget some hours for
     # the import job before someone else comes in to snag it
@@ -57,45 +37,13 @@ sub try_work {
     $job->save;
 
     # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_entries', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_entries', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_entries', $job, @_ ); };
-    my $status    = sub { return $class->status( $data, 'lj_entries', {@_} ); };
+    my $fail      = sub { return $ctx->fail(@_); };
+    my $temp_fail = sub { return $ctx->temp_fail(@_); };
+    my $status    = sub { return $ctx->status(@_); };
+    my $log       = sub { return $ctx->log(@_); };
+    my $title     = sub { return $ctx->title(@_); };
 
-    # logging sub
-    my ( $logfile, $last_log_time );
-    $logfile = $class->start_log(
-        "lj_entries",
-        userid         => $opts->{userid},
-        import_data_id => $opts->{import_data_id}
-    ) or return $temp_fail->('Internal server error creating log.');
-
-    my $log = sub {
-        $last_log_time ||= [ gettimeofday() ];
-
-        my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
-        my $msg = sprintf( $fmt, tv_interval($last_log_time), tv_interval($begin_time), @_ );
-
-        print $logfile $msg;
-        $job->debug($msg);
-
-        $last_log_time = [ gettimeofday() ];
-    };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
-
-    # title munging
-    my $title = sub {
-        my $msg = sprintf( shift(), @_ );
-        $msg = " $msg" if $msg;
-
-        $0 = sprintf( 'content-importer [entries: %s(%d)%s]', $u->user, $u->id, $msg );
-    };
-    $title->();
 
     # load entry map
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map($u) || {};
@@ -220,7 +168,7 @@ sub try_work {
         # clean up event for LJ and remap friend groups
         my @item_errors;
         my $allowmask = $evt->{allowmask};
-        my $newmask   = $class->remap_groupmask( $data, $allowmask );
+        my $newmask   = $class->remap_groupmask( $ctx, $allowmask );
 
         # if we are unable to determine a good groupmask, then fall back to making
         # the entry private and mark the error.
@@ -233,7 +181,7 @@ sub try_work {
         # now try to determine if we need to post this as a user
         my $posteru;
         if ( $data->{usejournal} ) {
-            my ( $posterid, $fid ) = $class->get_remapped_userids( $data, $evt->{poster}, $log );
+            my ( $posterid, $fid ) = $class->get_remapped_userids( $ctx, $evt->{poster}, $log );
 
             unless ($posterid) {
 
@@ -290,8 +238,7 @@ sub try_work {
 
     };
 
-    # helper to load some events -- if this function does not return a true value,
-    # the caller must exit (errors were encountered).
+    # helper to load some events -- dies with a failure outcome if errors were encountered.
     my $fetch_events = sub {
 
         # let them know we're still working
@@ -320,14 +267,10 @@ sub try_work {
         # if we get an error, then we have to abort the import
         my $xmlrpc_fail = 'XMLRPC failure: ' . ( $hash ? $hash->{faultString} : '[unknown]' );
         $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
-        if ( !$hash || $hash->{fault} ) {
-            $temp_fail->($xmlrpc_fail);
-            return 0;
-        }
+        die $temp_fail->($xmlrpc_fail) if !$hash || $hash->{fault};
 
         # good, import this event
         $process_entry->($_) foreach @{ $hash->{events} || [] };
-        return 1;
     };
 
     # now get the actual events
@@ -336,13 +279,11 @@ sub try_work {
         push @toload, $jid
             unless exists $has{$jid} && $has{$jid};
         if ( scalar @toload == 100 ) {
-            return unless $fetch_events->(@toload);
+            $fetch_events->(@toload);
             @toload = ();
         }
     }
-    if ( scalar @toload > 0 ) {
-        return unless $fetch_events->(@toload);
-    }
+    $fetch_events->(@toload) if scalar @toload > 0;
 
     # Kick off a indexing job for this user
     if ( DW::Search::enabled() ) {
@@ -350,7 +291,7 @@ sub try_work {
             DW::Task::SearchCopier->new( { userid => $u->id, source => "importen" } ) );
     }
 
-    return $ok->();
+    return $ctx->ok;
 }
 
 sub find_prunable_items {

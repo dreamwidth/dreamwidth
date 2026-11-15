@@ -19,48 +19,20 @@ package DW::Worker::ContentImporter::LiveJournal::FriendGroups;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
 use Storable qw/ nfreeze /;
 use DW::Worker::ContentImporter::Local::TrustGroups;
 
-sub work {
-
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_friendgroups', $job, 'Failure running job: %s', $msg );
-    }
-}
-
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
-
-    # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_friendgroups', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_friendgroups', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_friendgroups', $job, @_ ); };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $0 = sprintf( 'content-importer [friendgroups: %s(%d)]', $u->user, $u->id );
+sub run {
+    my ( $class, $ctx ) = @_;
+    my ( $u, $data ) = ( $ctx->u, $ctx->data );
 
     my $dbh = LJ::get_db_writer()
-        or return $temp_fail->('Unable to get global master database handle');
+        or return $ctx->temp_fail('Unable to get global master database handle');
 
     my $r           = $class->call_xmlrpc( $data, 'getfriends', { includegroups => 1 } );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
     $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
-    return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
+    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
 
     my $map = DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $u,
         $r->{friendgroups} );
@@ -69,10 +41,10 @@ sub try_work {
     $dbh->do(
         q{UPDATE import_data SET groupmap = ?
           WHERE userid = ? AND import_data_id = ?},
-        undef, nfreeze($map), $u->id, $opts->{import_data_id}
+        undef, nfreeze($map), $u->id, $data->{import_data_id}
     );
 
-    return $ok->();
+    return $ctx->ok;
 }
 
 1;

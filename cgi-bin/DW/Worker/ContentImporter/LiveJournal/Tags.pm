@@ -19,49 +19,21 @@ package DW::Worker::ContentImporter::LiveJournal::Tags;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
 use DW::Worker::ContentImporter::Local::Tags;
 
-sub work {
-
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_tags', $job, 'Failure running job: %s', $msg );
-    }
-}
-
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
-
-    # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_tags', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_tags', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_tags', $job, @_ ); };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $0 = sprintf( 'content-importer [tags: %s(%d)]', $u->user, $u->id );
+sub run {
+    my ( $class, $ctx ) = @_;
+    my ( $u, $data ) = ( $ctx->u, $ctx->data );
 
     # get tags
     my $r           = $class->call_xmlrpc( $data, 'getusertags' );
     my $xmlrpc_fail = 'XMLRPC failure: ' . ( $r ? $r->{faultString} : '[unknown]' );
     $xmlrpc_fail .= " (community: $data->{usejournal})" if $data->{usejournal};
-    return $temp_fail->($xmlrpc_fail) if !$r || $r->{fault};
+    return $ctx->temp_fail($xmlrpc_fail) if !$r || $r->{fault};
 
     DW::Worker::ContentImporter::Local::Tags->merge_tags( $u, $r->{tags} );
 
-    return $ok->();
+    return $ctx->ok;
 }
 
 1;

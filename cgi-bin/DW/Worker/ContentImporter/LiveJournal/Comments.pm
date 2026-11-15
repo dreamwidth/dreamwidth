@@ -54,33 +54,19 @@ our $COMMENTS_FETCH_BODY = 500;
 # if we add more encoding maps, update this!
 our @ENCODINGS = ( 'UTF-8', 'ISO-8859-1', 'UTF-16' );
 
-sub work {
+# importing comments leaks memory, so the worker process exits afterwards to reclaim it
+sub exit_after_job { 1 }
 
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-    DW::Worker::ContentImporter::Local::Comments->clear_caches();
-    LJ::start_request();
+# keep the reason where someone debugging the import can find it
+sub on_exception {
+    my ( $class, $ctx, $msg ) = @_;
+    my $data = $ctx->data;
 
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-
-        open FILE,
-">$LJ::HOME/logs/imports/$opts->{userid}/$opts->{import_data_id}.lj_comments.$$.failure";
-        print FILE "FAILURE: $msg";
-        close FILE;
-
-        return $class->temp_fail( $data, 'lj_comments', $job, 'Failure running job: %s', $msg );
-    }
-
-    # FIXME: We leak memory, so exit to reclaim it. Hack.
-    exit 0;
+    open FILE,
+        ">$LJ::HOME/logs/imports/$data->{userid}/$data->{import_data_id}.lj_comments.$$.failure"
+        or return;
+    print FILE "FAILURE: $msg";
+    close FILE;
 }
 
 sub new_comment {
@@ -111,9 +97,13 @@ sub hashify {
     };
 }
 
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
+sub run {
+    my ( $class, $ctx ) = @_;
+    my ( $u, $data, $job ) = ( $ctx->u, $ctx->data, $ctx->job );
     my $begin_time = [ gettimeofday() ];
+
+    # the comment caches are per process, not per job
+    DW::Worker::ContentImporter::Local::Comments->clear_caches();
 
     # we know that we can potentially take a while, so budget a few hours for
     # the import job before someone else comes in to snag it
@@ -121,45 +111,13 @@ sub try_work {
     $job->save;
 
     # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_comments', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_comments', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_comments', $job, @_ ); };
-    my $status    = sub { return $class->status( $data, 'lj_comments', {@_} ); };
+    my $fail      = sub { return $ctx->fail(@_); };
+    my $temp_fail = sub { return $ctx->temp_fail(@_); };
+    my $status    = sub { return $ctx->status(@_); };
+    my $log       = sub { return $ctx->log(@_); };
+    my $title     = sub { return $ctx->title(@_); };
 
-    # logging sub
-    my ( $logfile, $last_log_time );
-    $logfile = $class->start_log(
-        "lj_comments",
-        userid         => $opts->{userid},
-        import_data_id => $opts->{import_data_id}
-    ) or return $temp_fail->('Internal server error creating log.');
-
-    my $log = sub {
-        $last_log_time ||= [ gettimeofday() ];
-
-        my $fmt = "[%0.4fs %0.1fs] " . shift() . "\n";
-        my $msg = sprintf( $fmt, tv_interval($last_log_time), tv_interval($begin_time), @_ );
-
-        print $logfile $msg;
-        $job->debug($msg);
-
-        $last_log_time = [ gettimeofday() ];
-    };
-
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-    $log->( 'Import begun for %s(%d).', $u->user, $u->userid );
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
-
-    # title munging
-    my $title = sub {
-        my $msg = sprintf( shift(), @_ );
-        $msg = " $msg" if $msg;
-
-        $0 = sprintf( 'content-importer [comments: %s(%d)%s]', $u->user, $u->id, $msg );
-    };
-    $title->();
 
 # this will take a entry_map (old URL -> new jitemid) and convert it into a jitemid map (old jitemid -> new jitemid)
     my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map($u) || {};
@@ -261,7 +219,7 @@ sub try_work {
         }
         elsif ( $lasttag eq 'usermap' && !exists $identity_map{ $temp{id} } ) {
             my ( $local_oid, $local_fid ) =
-                $class->get_remapped_userids( $data, $temp{user}, $log );
+                $class->get_remapped_userids( $ctx, $temp{user}, $log );
 
 # we want to fail if we weren't able to create a local user, because this would otherwise be mistakenly posted as anonymous
             push @fail_errors,
@@ -367,8 +325,8 @@ sub try_work {
     my %in_flight;
 
     # this method is called when we have some comments to post. this will do a best effort
-    # attempt to post all comments that are filled in. if this returns 0, the caller should
-    # consider the import failed and exit.
+    # attempt to post all comments that are filled in. if it can't, it dies with a failure
+    # outcome.
     my $post_comments = sub {
         $log->( 'post sub starting with %d comments in flight', scalar( keys %in_flight ) );
 
@@ -511,8 +469,7 @@ sub try_work {
             }
             else {
                 $log->( 'Failed to import comment %d: %s.', $comment->[C_orig_id], $err );
-                $temp_fail->( 'Failure importing comment: %s.', $err );
-                return 0;
+                die $temp_fail->( 'Failure importing comment: %s.', $err );
             }
 
             # store this information
@@ -529,7 +486,6 @@ sub try_work {
             keys %in_flight;
         $log->( 'end of post sub has %d comments in flight', scalar( keys %in_flight ) );
         $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
-        return 1;
     };
 
     # body handling section now
@@ -666,11 +622,11 @@ sub try_work {
 
         # now we've got some body text, try to post these comments. if we can do that, we can clear
         # them from memory to reduce how much we're storing.
-        return unless $post_comments->();
+        $post_comments->();
     }
 
     # now we have the final post loop...
-    return unless $post_comments->();
+    $post_comments->();
     $log->( 'memory usage is now %dMB', LJ::gtop()->proc_mem($$)->resident / 1024 / 1024 );
 
     $status->(
@@ -686,7 +642,7 @@ sub try_work {
             DW::Task::SearchCopier->new( { userid => $u->id, source => "importcm" } ) );
     }
 
-    return $ok->();
+    return $ctx->ok;
 }
 
 sub do_authed_comment_fetch {

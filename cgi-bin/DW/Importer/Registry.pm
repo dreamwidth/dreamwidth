@@ -133,6 +133,11 @@ items only in C<content-importer-verify>.
 
 False for items that should not notify the user when they succeed.
 
+=item short_name
+
+What the item is called in process titles and logs; defaults to the name without
+its source prefix (C<entries> for C<lj_entries>).
+
 =item display_order
 
 Position on the choose-data page.
@@ -218,7 +223,7 @@ sub register_item {
     croak "class $def{class} is already registered"   if $BY_CLASS{ $def{class} };
     croak "typeid $def{typeid} is already registered" if $BY_TYPEID{ $def{typeid} };
 
-    my %item = ( %ITEM_DEFAULTS, %def );
+    my %item = ( %ITEM_DEFAULTS, short_name => $name =~ s/^[a-z]+_//r, %def );
     $ITEMS{$name}               = \%item;
     $BY_CLASS{ $item{class} }   = \%item;
     $BY_TYPEID{ $item{typeid} } = \%item;

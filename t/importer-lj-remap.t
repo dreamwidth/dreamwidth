@@ -24,6 +24,7 @@ use LJ::Tags;
 use LJ::Test qw( temp_user );
 use Storable qw( nfreeze );
 
+use DW::Importer::Context;
 use DW::Worker::ContentImporter::LiveJournal;
 use DW::Worker::ContentImporter::Local::Tags;
 use DW::Worker::ContentImporter::Local::TrustGroups;
@@ -102,12 +103,10 @@ my $lj = 'DW::Worker::ContentImporter::LiveJournal';
     die $dbh->errstr if $dbh->err;
     my $data = { userid => $u->id, import_data_id => $impid };
 
+    # the map is read once per job and kept in its context, so each call here is a new job
     sub remap {
         my ( $data, $mask ) = @_;
-
-        # the map is cached for the life of the process
-        %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-        return $lj->remap_groupmask( $data, $mask );
+        return $lj->remap_groupmask( DW::Importer::Context->new( data => $data ), $mask );
     }
 
     is( remap( $data, 0 ), 0,      'no access stays no access' );
