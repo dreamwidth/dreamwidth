@@ -27,28 +27,6 @@ use DW::Importer::Transform::LJMarkup qw( comment_text );
 # importing comments leaks memory, so the worker process exits afterwards to reclaim it
 sub exit_after_job { 1 }
 
-# keep the reason where someone debugging the import can find it. (a dry run writes no files,
-# so the reason only goes to its log.)
-sub on_exception {
-    my ( $class, $ctx, $msg ) = @_;
-    my $data = $ctx->data;
-
-    if ( $ctx->dry_run ) {
-        $ctx->log( 'FAILURE: %s', $msg );
-        return;
-    }
-
-    my $fn =
-        "$LJ::HOME/logs/imports/$data->{userid}/$data->{import_data_id}.lj_comments.$$.failure";
-    if ( open my $fh, '>', $fn ) {
-        print $fh "FAILURE: $msg";
-        close $fh;
-    }
-    else {
-        $ctx->log( 'Could not write %s: %s', $fn, $! );
-    }
-}
-
 sub run {
     my ( $class,  $ctx )  = @_;
     my ( $data,   $job )  = ( $ctx->data, $ctx->job );

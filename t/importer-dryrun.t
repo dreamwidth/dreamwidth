@@ -24,7 +24,6 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use lib "$ENV{LJHOME}/t/lib";
 use DW::Test::Importer qw( snapshot );
 use DW::Test::Importer::Site;
-use File::Path qw( remove_tree );
 use HTTP::Response;
 use LJ::Comment;
 use LJ::Entry;
@@ -329,5 +328,4 @@ ok( $skipped >= 5, 'and reports the entries as already imported' ) or diag( $aga
 ok( ( grep { $_->{type} eq 'comment' } $again->skips ), 'and the comments' );
 ok( ( grep { $_->{type} eq 'tag' } $again->skips ),     'and the tags' );
 
-remove_tree( "$LJ::HOME/logs/imports/" . $u->id );
 done_testing();

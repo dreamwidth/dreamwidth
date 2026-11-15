@@ -24,15 +24,17 @@ use Getopt::Long;
 use DW::Logic::Importer;
 use DW::Task::SearchCopier;
 use DW::Importer::Job;
+use DW::Importer::LogStore;
 use DW::Importer::Logger;
 use DW::Importer::Registry;
 use DW::Importer::Report;
 
 
-my ( $user, $list, $run, $dry_run, $verbose, $type, $import_id, $schedule_copy );
+my ( $user, $list, $log_id, $run, $dry_run, $verbose, $type, $import_id, $schedule_copy );
 GetOptions(
     'user=s' => \$user,
     'list' => \$list,
+    'log=i' => \$log_id,
     'run' => \$run,
     'dry-run' => \$dry_run,
     'verbose' => \$verbose,
@@ -41,8 +43,19 @@ GetOptions(
     'schedule-search-copy' => \$schedule_copy,
 );
 
+# print one stored import log; it needs no user, the log id says whose it is
+if ( defined $log_id ) {
+    my $row = DW::Importer::LogStore->log( $log_id )
+        or croak "No import log $log_id";
+    my ( $text, $missing ) = DW::Importer::LogStore->content( $row );
+    binmode STDOUT, ':raw';    # the log is UTF-8 bytes already
+    print $text;
+    warn "$missing of $row->{chunks} chunks could not be retrieved (expired?)\n" if $missing;
+    exit 0;
+}
+
 my $u = LJ::load_user( $user )
-    or croak "Usage: $0 -u USER [ --list | --run --type lj_entries [--import-id N] | --dry-run [--type lj_entries] [--import-id N] [--verbose] | --schedule-search-copy ]";
+    or croak "Usage: $0 ( -u USER [ --list | --run --type lj_entries [--import-id N] | --dry-run [--type lj_entries] [--import-id N] [--verbose] | --schedule-search-copy ] | --log LOGID )";
 my $dbh = LJ::get_db_writer();
 my $dbcm = LJ::get_cluster_master( $u )
     or croak "No DB!";
@@ -58,17 +71,26 @@ if ( $list ) {
         }, undef, $u->id);
     croak $dbh->errstr if $dbh->err;
 
+    # each import's items, then its logs (read them with --log)
+    my $print_logs = sub {
+        foreach my $l ( @{ DW::Importer::LogStore->logs_for( $u->id, $_[0] ) } ) {
+            printf "    log %-8d %-16s %s %8d bytes  %s\n", $l->{logid}, $l->{item},
+                scalar( localtime $l->{started} ), $l->{bytes}, $l->{host} // '';
+        }
+    };
+
     my $last_id;
     foreach my $r ( @$rows ) {
         if ( defined $last_id && $last_id != $r->[5] ) {
+            $print_logs->( $last_id );
             print "\n";
         }
         $last_id = $r->[5];
         printf "%-3d %25s %-16s %-10s %-5s %-5s\n",
             $r->[5], "$r->[8]\@$r->[7]:$r->[9]", $r->[1], $r->[2], ago( $r->[3] ), ago( $r->[4] );
     }
+    $print_logs->( $last_id ) if defined $last_id;
     print "\n";
-    printf "%s/logs/imports/%d/\n", $LJ::HOME, $u->id;
     exit 0;
 }
 

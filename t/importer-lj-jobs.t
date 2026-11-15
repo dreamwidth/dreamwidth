@@ -20,7 +20,6 @@ use warnings;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use File::Path qw( remove_tree );
 use HTTP::Response;
 use LJ::Comment;
 use LJ::Test qw( temp_user );
@@ -133,6 +132,10 @@ my $body_xml = q{<?xml version="1.0" encoding="utf-8"?>
     }
 
     sub comment_export { return $_[1] eq 'comment_meta' ? $meta_xml : $body_xml }
+
+    # profile pages (the comments job looks up the journal's FOAF); a missing page is
+    # handled as best effort
+    sub get { return HTTP::Response->new( 404, 'Not Found' ) }
 }
 my $remote = Test::Remote->new;
 $DW::Importer::Job::TRANSPORT = $remote;
@@ -274,5 +277,4 @@ sub events {
     is( status_of('lj_comments'), 'succeeded', 'the item succeeded' );
 }
 
-remove_tree( "$LJ::HOME/logs/imports/" . $u->id );
 done_testing();

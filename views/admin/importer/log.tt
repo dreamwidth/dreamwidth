@@ -1,0 +1,38 @@
+[%# admin/importer/log.tt
+
+One import log, for debugging a user's import
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+[%- sections.title = '.title' | ml -%]
+[%- USE date -%]
+
+[%- item_html = log.item FILTER html -%]
+[%- host_html = log.host FILTER html -%]
+<p>[% '.intro' | ml( user = username, item = item_html, import = log.import_data_id ) %]</p>
+<p>
+    [% '.meta' | ml(
+        started = date.format( log.started )
+        updated = date.format( log.updated )
+        bytes   = log.bytes
+        host    = host_html
+        pid     = log.pid
+    ) %]
+</p>
+<p>
+    <a href="[% site.root %]/admin/importer/history?user=[% u.user | uri %]">[% '.back' | ml %]</a> |
+    <a href="[% site.root %]/admin/importer/log?user=[% u.user | uri %]&amp;logid=[% log.logid %]&amp;format=text">[% '.download' | ml %]</a>
+</p>
+
+[%- IF missing -%]
+<div class="alert-box warning radius">[% '.missing' | ml( count = missing ) %]</div>
+[%- END -%]
+
+<pre style="white-space: pre-wrap; overflow-wrap: anywhere;">[% text | html %]</pre>

@@ -3103,6 +3103,24 @@ CREATE TABLE user_profile_accts (
 )
 EOC
 
+register_tablecreate( "import_logs", <<'EOC');
+CREATE TABLE import_logs (
+    logid INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    userid INT UNSIGNED NOT NULL,
+    import_data_id INT UNSIGNED NOT NULL,
+    item VARCHAR(255) NOT NULL,
+    started INT UNSIGNED NOT NULL,
+    updated INT UNSIGNED NOT NULL,
+    chunks INT UNSIGNED NOT NULL DEFAULT 0,
+    bytes INT UNSIGNED NOT NULL DEFAULT 0,
+    host VARCHAR(255),
+    pid INT UNSIGNED,
+
+    PRIMARY KEY (logid),
+    INDEX (userid, import_data_id)
+)
+EOC
+
 # NOTE: new table declarations go ABOVE here ;)
 
 ### changes

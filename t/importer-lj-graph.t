@@ -20,7 +20,6 @@ use warnings;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use File::Path qw( remove_tree );
 use LJ::Tags;
 use LJ::Test qw( temp_user temp_comm );
 use Storable qw( thaw );
@@ -66,12 +65,8 @@ $DW::Importer::Job::TRANSPORT = Test::Remote->new;
 }
 
 # the import as the confirm page would create it, with the verify job already queued
-my @importing;
-END { remove_tree( "$LJ::HOME/logs/imports/" . $_->id ) foreach @importing }
-
 sub start_import {
     my ( $u, @items ) = @_;
-    push @importing, $u;
     my $uj = $u->is_community ? $u->user : undef;
     LJ::get_db_writer()->do(
 'INSERT INTO import_data (userid, import_data_id, hostname, username, usejournal, password_md5) '

@@ -70,11 +70,7 @@ sub advance {
 
         foreach my $dep ( DW::Importer::Registry->dependents( $item, $journaltype ) ) {
             next unless ( $status{$dep} // '' ) eq 'init';
-
-            # a dependency that isn't part of this import doesn't hold anything up
-            next
-                if grep { exists $status{$_} && $status{$_} ne 'succeeded' }
-                DW::Importer::Registry->depends_on( $dep, $journaltype );
+            next if _blocked( \%status, $journaltype, $dep );
 
             push @{ $result{ready} }, $dep;
         }
@@ -97,6 +93,50 @@ sub advance {
     else {
         die "unknown outcome '$outcome'\n";
     }
+
+    return \%result;
+}
+
+# true if one of the item's dependencies is part of this import and has not succeeded; a
+# dependency that isn't part of the import doesn't hold anything up
+sub _blocked {
+    my ( $status, $journaltype, $item ) = @_;
+    return
+        scalar grep { exists $status->{$_} && $status->{$_} ne 'succeeded' }
+        DW::Importer::Registry->depends_on( $item, $journaltype );
+}
+
+=head2 C<< DW::Importer::Items->release( $u, $import_data_id, \@items ) >>
+
+For items that have just been put back to C<init> (see L<DW::Importer::Control>): each
+one whose dependencies in this import have all succeeded becomes C<ready>, so the
+scheduler picks it up; the others keep waiting for whatever they depend on. Only items
+that are still C<init> are touched.
+
+Returns a hashref with the C<ready> items and the C<waiting> ones.
+
+=cut
+
+sub release {
+    my ( $class, $u, $import_data_id, $items ) = @_;
+
+    my %result = ( ready => [], waiting => [] );
+    my $dbh    = LJ::get_db_writer()
+        or return \%result;
+
+    my $rows = $dbh->selectall_arrayref(
+        'SELECT item, status FROM import_items WHERE userid = ? AND import_data_id = ?',
+        undef, $u->id, $import_data_id );
+    return \%result unless $rows;
+
+    my %status      = map { $_->[0] => $_->[1] } @$rows;
+    my $journaltype = DW::Importer::Registry->journaltype($u);
+
+    foreach my $item (@$items) {
+        next unless ( $status{$item} // '' ) eq 'init' && DW::Importer::Registry->item($item);
+        push @{ $result{ _blocked( \%status, $journaltype, $item ) ? 'waiting' : 'ready' } }, $item;
+    }
+    $class->_set_status( $dbh, $u, $import_data_id, 'ready', $result{ready} );
 
     return \%result;
 }

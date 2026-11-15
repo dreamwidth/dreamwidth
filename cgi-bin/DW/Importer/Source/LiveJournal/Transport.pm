@@ -57,6 +57,8 @@ use Digest::MD5 qw( md5_hex );
 use LWP::UserAgent;
 use XMLRPC::Lite;
 
+use DW::BlobStore;
+
 =head2 C<< DW::Importer::Source::LiveJournal::Transport->new( data => $import_data, [ dry_run => 1 ] ) >>
 
 In a dry run the transport reads the comment export cache if there is one but never writes
@@ -193,22 +195,20 @@ sub comment_export {
     # of comments, to avoid possibly using one that was idle too long without testing it.
     $LJ::DBIRole->clear_req_cache();
 
-    # see if the file is cached. the cache belongs to one import (import_data_id is part of the
-    # key): retries of a job reuse what was already downloaded, which stops a stuck job from
-    # hammering the target, but a new import always fetches fresh data.
+    # see if the export is cached, in blob storage so that a retry on another host finds it.
+    # the cache belongs to one import (import_data_id is part of the key): retries of a job
+    # reuse what was already downloaded, which stops a stuck job from hammering the target,
+    # but a new import always fetches fresh data.
     my $md5 =
         md5_hex( $url
             . ( $data->{user} || $data->{username} )
             . ( $data->{usejournal} || '' ) . '#'
             . ( $data->{import_data_id} // 0 ) );
-    my $fn = "$LJ::HOME/logs/imports/$data->{userid}/$md5.xml";
-    if ( open my $cache, '<', $fn ) {
+    my $key    = "$data->{userid}/$md5";
+    my $cached = eval { DW::BlobStore->retrieve( importcache => $key ) };
+    if ($cached) {
         $log->( 'Using cached file %s.xml', $md5 );
-
-        local $/ = undef;
-        my $ret = <$cache>;
-        close $cache;
-        return $ret;
+        return $$cached;
     }
 
     # hit up the server with the specified information and return the raw content.
@@ -260,13 +260,17 @@ sub comment_export {
         if ( $self->{dry_run} ) {
             $log->( 'Not writing cache file %s.xml in a dry run', $md5 );
         }
-        elsif ( open my $cache, '>', $fn ) {
-            $log->( 'Writing cache file %s.xml', $md5 );
-            print $cache $xml;
-            close $cache or $log->( 'Could not finish cache file %s.xml: %s', $md5, $! );
-        }
         else {
-            $log->( 'Could not write cache file %s.xml: %s', $md5, $! );
+
+            # the export is still good if it can't be cached, so a failure only gets logged
+            $log->( 'Writing cache file %s.xml', $md5 );
+            my $copy = $xml;
+            unless ( eval { DW::BlobStore->store( importcache => $key, \$copy ) } ) {
+                $log->(
+                    'Could not write cache file %s.xml: %s',
+                    $md5, $@ || 'the store refused it'
+                );
+            }
         }
         return $xml;
     }
