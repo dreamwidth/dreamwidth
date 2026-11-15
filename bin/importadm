@@ -23,10 +23,7 @@ use Getopt::Long;
 
 use DW::Logic::Importer;
 use DW::Task::SearchCopier;
-use DW::Worker::ContentImporter::LiveJournal::Comments;
-use DW::Worker::ContentImporter::LiveJournal::Entries;
-use DW::Worker::ContentImporter::LiveJournal::Userpics;
-use DW::Worker::ContentImporter::LiveJournal::Verify;
+use DW::Importer::Registry;
 
 
 my ( $user, $list, $run, $type, $import_id, $schedule_copy );
@@ -79,16 +76,13 @@ if ( $schedule_copy ) {
 }
 
 if ( $run ) {
-    if ( ! defined $type || $type !~ /^lj_(?:entries|comments|verify|userpics)$/ ) {
-        croak "--type must be one of: lj_entries, lj_comments, lj_verify, lj_userpics";
+    my $item = DW::Importer::Registry->item( $type );
+    if ( ! defined $item ) {
+        croak "--type must be one of: " . join( ', ', map { $_->{name} } DW::Importer::Registry->items );
     }
 
-    my $class = "DW::Worker::ContentImporter::LiveJournal::" . {
-        lj_comments => 'Comments',
-        lj_entries  => 'Entries',
-        lj_verify   => 'Verify',
-        lj_userpics => 'Userpics',
-    }->{$type};
+    my $class = $item->{class};
+    eval "require $class; 1" or die $@;
 
     my $tmpdata;
     if ( defined $import_id ) {

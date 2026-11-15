@@ -23,17 +23,13 @@ BEGIN {
 }
 
 use LJ::Worker::TheSchwartz;
-use DW::Worker::ContentImporter::LiveJournal::Bio;
-use DW::Worker::ContentImporter::LiveJournal::FriendGroups;
-use DW::Worker::ContentImporter::LiveJournal::Friends;
-use DW::Worker::ContentImporter::LiveJournal::Tags;
-use DW::Worker::ContentImporter::LiveJournal::Userpics;
+use DW::Importer::Registry;
 
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Bio" );
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::FriendGroups" );
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Friends" );
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Tags" );
-schwartz_decl( "DW::Worker::ContentImporter::LiveJournal::Userpics" );
+# the registry says which worker classes this process runs
+foreach my $class ( DW::Importer::Registry->classes_for_process( 'content-importer-lite' ) ) {
+    eval "require $class; 1" or die $@;
+    schwartz_decl( $class );
+}
 
 $0 = 'content-importer [bored]';
 

@@ -33,6 +33,8 @@ use Storable;
 use LWP::UserAgent;
 use XMLRPC::Lite;
 use Digest::MD5 qw/ md5_hex /;
+use DW::Importer::Items;
+use DW::Importer::Registry;
 use DW::Stats;
 
 use LJ::Protocol;
@@ -161,6 +163,21 @@ sub _format_message {
     return @args ? sprintf( $msgt, @args ) : $msgt;
 }
 
+=head2 C<< $class->_advance( $import_data, $item, $outcome ) >>
+
+Applies the dependency rules in L<DW::Importer::Registry> now that an item has finished
+(C<$outcome> is C<success> or C<failure>).
+
+=cut
+
+sub _advance {
+    my ( $class, $imp, $item, $outcome ) = @_;
+
+    my $u = LJ::load_userid( $imp->{userid} )
+        or return;
+    DW::Importer::Items->advance( $u, $imp->{import_data_id}, $item, $outcome );
+}
+
 =head2 C<< $class->fail( $import_data, $item, $job, "text", [arguments, ...] ) >>
 
 Permanently fail this import job.
@@ -183,6 +200,9 @@ sub fail {
         );
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
+
+    # whatever was waiting for this item can never run now
+    $class->_advance( $imp, $item, 'failure' );
 
     my $msg = $class->_format_message( $msgt, @args );
     warn "Permanent failure: $msg\n"
@@ -280,6 +300,9 @@ sub ok {
         warn "IMPORTER ERROR: " . $dbh->errstr . "\n" if $dbh->err;
     }
 
+    # start whatever was waiting for this item
+    $class->_advance( $imp, $item, 'success' );
+
     DW::Stats::increment( 'dw.worker.importer.job_completed',
         1, [ "item:$item", "result:ok", "hostname:" . ( $imp->{hostname} || 'unknown' ) ] );
 
@@ -321,7 +344,10 @@ Check whether this import source is enabled.
 
 sub enabled {
     my ( $class, $data ) = @_;
-    return LJ::is_enabled( "importing", $data->{hostname} );
+
+    my $item = DW::Importer::Registry->item_for_class($class);
+    return DW::Importer::Registry->source_enabled( $item ? $item->{source} : undef,
+        $data->{hostname} );
 }
 
 =head2 C<< $class->status( $import_data, $item, $args ) >>
