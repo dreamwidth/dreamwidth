@@ -3209,7 +3209,9 @@ sub control_strip {
     # search box and ?style=mine/?style=light/?style=original/?style=site options
     # determine whether style is "mine", and define new uri variable to manipulate
     # note: all expressions case-insensitive
-    my $current_style = determine_viewing_style( $r->get_args, $view, $remote );
+    # an empty view is the journal's recent page, which make_journal renders as
+    # "lastn"; without that, viewing_style would treat it as an entry page
+    my $current_style = determine_viewing_style( $r->get_args, $view || 'lastn', $remote );
 
     # a quick little routine to use when cycling through the options
     # to create the style links for the nav bar
