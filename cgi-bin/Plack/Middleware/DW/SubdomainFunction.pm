@@ -117,8 +117,10 @@ sub call {
             # No SUBDOMAIN_FUNCTION entry: treat subdomain as username
             if ( $user eq 'shop' ) {
 
-                # Legacy shop subdomain without config: rewrite URI
+                # Preserve the external path for domain-session return URLs before
+                # rewriting the legacy shop route.
                 my $path = $r->path;
+                $env->{'dw.shop_external_path'} = $env->{PATH_INFO};
                 $path =~ s/\/$//;
                 $env->{PATH_INFO} = "/shop$path";
             }
