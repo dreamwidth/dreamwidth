@@ -329,8 +329,13 @@ function print_stylesheet () {
         }
 
     var string navlinks_css = "";
+    # Header tabs sit on the bar below the header, so drop the header's bottom margin.
+    var string header_margin_css = "";
         if ($*module_navlinks_section == "header") {
+            if ($*module_navlinks_show) { $header_margin_css = "#header { margin-bottom: 0; }"; }
             $navlinks_css = """
+            $header_margin_css
+
             .module-navlinks.module {
                 background: none;
                 border: none;
@@ -356,7 +361,7 @@ function print_stylesheet () {
                 background: $*color_header_links_background;
                 font-size:smaller;
                 padding: 0.5em ;
-                display: inline;
+                display: inline-block;
                 margin: 0 -5px 0 0;
                 border-bottom: 5px solid $*color_header_links_border;}
 
