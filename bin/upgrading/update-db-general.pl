@@ -796,6 +796,8 @@ CREATE TABLE talkleft_xfp (
 )
 EOC
 
+register_tabledrop("dbinfo");
+register_tabledrop("dbweights");
 register_tabledrop("procnotify");
 register_tabledrop("ibill_codes");
 register_tabledrop("paycredit");
@@ -1019,29 +1021,6 @@ CREATE TABLE dudata (
     bytes    MEDIUMINT UNSIGNED NOT NULL,
 
     PRIMARY KEY (userid, area, areaid)
-)
-EOC
-
-register_tablecreate( "dbinfo", <<'EOC');
-CREATE TABLE dbinfo (
-    dbid    TINYINT UNSIGNED NOT NULL,
-    name    VARCHAR(25),
-    fdsn      VARCHAR(255),
-    rootfdsn  VARCHAR(255),
-    masterid  TINYINT UNSIGNED NOT NULL,
-
-    PRIMARY KEY (dbid),
-    UNIQUE (name)
-)
-EOC
-
-register_tablecreate( "dbweights", <<'EOC');
-CREATE TABLE dbweights (
-    dbid    TINYINT UNSIGNED NOT NULL,
-    role    VARCHAR(25) NOT NULL,
-    PRIMARY KEY (dbid, role),
-    norm    TINYINT UNSIGNED NOT NULL,
-    curr    TINYINT UNSIGNED NOT NULL
 )
 EOC
 
