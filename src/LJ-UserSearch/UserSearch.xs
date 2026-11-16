@@ -301,6 +301,7 @@ void update_user (unsigned uid, const char *rec) {
   if (uid >= users_max) return;
 
   usermeta[uid] = *(struct meta *)rec;
+  usermeta[uid].lastmod = ntohl(usermeta[uid].lastmod);
 }
 
 #define FILE_READ_N  2048

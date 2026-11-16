@@ -1751,7 +1751,7 @@ sub postevent {
     }
 
     # argh, this is all too ugly.  need to unify more postpost stuff into async
-    $u->invalidate_directory_record;
+    $uowner->invalidate_directory_record;
 
     # Insert the slug (try to, this will fail if this slug is already used)
     my $slug = LJ::canonicalize_slug( $req->{slug} );
