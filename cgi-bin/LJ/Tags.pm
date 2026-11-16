@@ -1667,48 +1667,42 @@ sub deleted_trust_group {
 
     my $bval = 1 << $bit;
     my %masks;
-    $masks{$bval} = 1;    # don't need alterations for rows that only include the deleted group
 
     my $rollback = sub {
         die $u->errstr unless $u->rollback;
         return undef;
     };
 
-    # get data for all other security masks that include this group
-    my $sth = $u->prepare( "SELECT security, kwid, entryct FROM logkwsum WHERE journalid = ?"
-            . " AND security & ? AND security != ?" );
+    # get data for all security masks that include this group
+    my $sth = $u->prepare(
+        "SELECT security, kwid, entryct FROM logkwsum WHERE journalid = ? AND security & ?");
     return undef if $u->err || !$sth;
-    $sth->execute( $u->{userid}, $bval, $bval );
+    $sth->execute( $u->{userid}, $bval );
     return undef if $sth->err;
     $u->begin_work;    # rollback begins here
 
     while ( my ( $sec, $kwid, $ct ) = $sth->fetchrow_array ) {
 
-        # remove the group from mask and update logkwsum
+        # move the count to the mask without this group; entries that were
+        # only shared with this group are now private, which is mask 0
         my $newsec = $sec ^ $bval;    # XOR
-        unless (
-            $u->do(
-"UPDATE logkwsum SET entryct = entryct + ? WHERE journalid = ? AND security = ?  AND kwid = ?",
-                undef,
-                $ct,
-                $u->{userid},
-                $newsec,
-                $kwid
-            )
-            )
-        {
-            # no row to update, have to insert
-            $u->do( "INSERT INTO logkwsum (journalid, security, kwid, entryct) VALUES (?,?,?,?)",
-                undef, $u->{userid}, $newsec, $kwid, $ct );
-        }
+        $u->do(
+            "INSERT INTO logkwsum (journalid, kwid, security, entryct) VALUES (?,?,?,?) "
+                . "ON DUPLICATE KEY UPDATE entryct = entryct + ?",
+            undef, $u->{userid}, $kwid, $newsec, $ct, $ct
+        );
         return $rollback->() if $u->err;
         $masks{$sec} = 1;
     }
 
-    # delete from logkwsum and then nuke the user's tags
-    $u->do( "DELETE FROM logkwsum WHERE journalid = ? AND security IN (?)",
-        undef, $u->{userid}, join( ', ', keys %masks ) );
-    return $rollback->() if $u->err;
+    # delete the rows we moved
+    if (%masks) {
+        my @masks = keys %masks;
+        my $in    = join( ',', map { '?' } @masks );
+        $u->do( "DELETE FROM logkwsum WHERE journalid = ? AND security IN ($in)",
+            undef, $u->{userid}, @masks );
+        return $rollback->() if $u->err;
+    }
 
     die $u->errstr unless $u->commit;
     LJ::Tags::reset_cache($u);
