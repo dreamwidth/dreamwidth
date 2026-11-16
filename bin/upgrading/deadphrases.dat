@@ -4658,3 +4658,4 @@ general /protected.tt.windowtitle
 general /tracking/manage.tt.error.hiddenentry
 general /tracking/manage.tt.error.nocomment
 general redirect.error.noentry
+general /admin/statushistory.tt.txt.truncated
