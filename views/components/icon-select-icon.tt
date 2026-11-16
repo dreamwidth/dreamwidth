@@ -25,7 +25,12 @@
     <a href="[% remote.allpics_base %]">
   [%- END -%]
     [%- selected = current_icon || remote.userpic -%]
-    [%- selected.imgtag -%]
+    [%- IF selected -%]
+      [%- selected.imgtag -%]
+    [%- ELSE -%]
+      [%# no default icon: show the placeholder so the menu can update the preview %]
+      [%- dw.img( "nouserpic_sitescheme", "" ) -%]
+    [%- END -%]
   [%- IF can_use_userpic_select -%]
     </button>
   [%- ELSE -%]
