@@ -41,22 +41,21 @@ my @surfaces = (
 for my $surface (@surfaces) {
     my ( $name, $clean ) = @$surface;
     subtest $name => sub {
-        for my $rel ( '', '0', 'nofollow', 'noreferrer noopener sponsored', 'UGC nofollow',
-            'not-ugc', 'ugc-extra', 'nofollow &#117;gc' )
+        for my $rel ( '', '0', 'nofollow', 'noreferrer noopener sponsored',
+            'UGC nofollow', 'not-ugc', 'ugc-extra', 'nofollow &#117;gc' )
         {
-            my $out = $clean->(
-                qq{<a href="https://example.test/path?a=1&amp;b=2" rel="$rel"}
-                    . q{ target="_blank" title="A &amp; B">chosen link</a>}
-            );
+            my $out = $clean->( qq{<a href="https://example.test/path?a=1&amp;b=2" rel="$rel"}
+                    . q{ target="_blank" title="A &amp; B">chosen link</a>} );
             my $anchors = links($out);
             is( scalar @$anchors, 1, "$rel: one link remains" );
             my $a = $anchors->[0] || {};
-            is( $a->{href}, 'https://example.test/path?a=1&b=2', 'destination preserved' );
-            is( $a->{target}, '_blank', 'target preserved' );
-            is( $a->{title}, 'A & B', 'escaped title preserved' );
+            is( $a->{href},   'https://example.test/path?a=1&b=2', 'destination preserved' );
+            is( $a->{target}, '_blank',                            'target preserved' );
+            is( $a->{title},  'A & B',                             'escaped title preserved' );
             like( $out, qr/>chosen link<\/a>/, 'link text preserved' );
             my @tokens = split /[ \t\n\f\r]+/, $a->{rel} || '';
             is( scalar( grep { lc $_ eq 'ugc' } @tokens ), 1, 'exactly one UGC token' );
+
             for my $token ( split /[ \t\n\f\r]+/, $rel ) {
                 next if $token eq '&#117;gc';
                 ok( scalar( grep { $_ eq $token } @tokens ), "$token preserved" );
@@ -67,27 +66,33 @@ for my $surface (@surfaces) {
         for my $separator ( [ '&#160;', "\x{a0}" ], [ '&#8195;', "\x{2003}" ] ) {
             my ( $entity, $character ) = @$separator;
             my $out = $clean->(
-                qq{<a href="https://example.test/space" rel="ugc${entity}nofollow">link</a>}
-            );
+                qq{<a href="https://example.test/space" rel="ugc${entity}nofollow">link</a>});
             my $rel = links($out)->[0]{rel} || '';
-            is( $rel, LJ::no_utf8_flag("ugc${character}nofollow") . ' ugc',
-                "$entity stays within its token and a separate UGC token is added" );
+            is(
+                $rel,
+                LJ::no_utf8_flag("ugc${character}nofollow") . ' ugc',
+                "$entity stays within its token and a separate UGC token is added"
+            );
             my @tokens = split /[ \t\n\f\r]+/, $rel;
-            is( scalar( grep { lc $_ eq 'ugc' } @tokens ), 1,
-                "$entity does not separate HTML rel tokens" );
+            is( scalar( grep { lc $_ eq 'ugc' } @tokens ),
+                1, "$entity does not separate HTML rel tokens" );
             is( $clean->($out), $out, 'non-ASCII rel token stays stable when cleaned again' );
         }
 
         my $out = $clean->(q{Visit https://example.test/plain?a=1&amp;b=2});
-        my $a = links($out)->[0] || {};
+        my $a   = links($out)->[0] || {};
         is( $a->{rel}, 'ugc', 'plain URL autolink marked' );
         is( $a->{href}, 'https://example.test/plain?a=1&b=2', 'autolink query preserved' );
 
         $out = $clean->(q{<a href="/relative">relative</a><a href="#part">fragment</a>});
-        is_deeply( [ map { $_->{rel} } @{ links($out) } ], [ 'ugc', 'ugc' ],
-            'user-chosen relative and fragment links marked' );
+        is_deeply(
+            [ map { $_->{rel} } @{ links($out) } ],
+            [ 'ugc', 'ugc' ],
+            'user-chosen relative and fragment links marked'
+        );
 
-        $out = $clean->(q{<map name="m"><area href="https://example.test/map" rel="nofollow"></map>});
+        $out =
+            $clean->(q{<map name="m"><area href="https://example.test/map" rel="nofollow"></map>});
         $a = links($out)->[0] || {};
         is( $a->{rel}, 'nofollow ugc', 'image-map hyperlink marked' );
 
@@ -99,14 +104,14 @@ for my $surface (@surfaces) {
         unlike( $out, qr/onclick|javascript|\brel=/i, 'no handler or new link on rejected href' );
 
         $out = $clean->(q{<a href="https://example.test/safe" rel="javascript:bad">safe</a>});
-        $a = links($out)->[0] || {};
-        is( $a->{rel}, 'ugc', 'unsafe rel removed before adding metadata' );
-        is( scalar( () = $out =~ /\brel=/g ), 1, 'removed rel attribute is emitted only once' );
+        $a   = links($out)->[0] || {};
+        is( $a->{rel},                        'ugc', 'unsafe rel removed before adding metadata' );
+        is( scalar( () = $out =~ /\brel=/g ), 1,     'removed rel attribute is emitted only once' );
 
-        local @LJ::BLOCKED_LINKS = ( qr/example\.test/ );
+        local @LJ::BLOCKED_LINKS           = (qr/example\.test/);
         local $LJ::BLOCKED_LINK_SUBSTITUTE = 'https://blocked.test/';
         $out = $clean->(q{<a href="https://example.test/blocked">blocked</a>});
-        $a = links($out)->[0] || {};
+        $a   = links($out)->[0] || {};
         is( $a->{href}, 'https://blocked.test/', 'blocked-link replacement preserved' );
         is( $a->{rel}, 'ugc', 'replaced authored link marked' );
     };
@@ -122,11 +127,14 @@ for my $surface ( @surfaces[ 0, 1 ] ) {
             '<a href="https://example.test/raw" rel="nofollow">raw</a>'
             )
         {
-            my $out = $clean->( $input, { editor => 'markdown0' } );
+            my $out     = $clean->( $input, { editor => 'markdown0' } );
             my $anchors = links($out);
             is( scalar @$anchors, 1, 'Markdown produces a link' );
-            like( $anchors->[0]{rel} || '', qr/(?:^|[ \t\n\f\r])ugc(?:[ \t\n\f\r]|$)/,
-                'Markdown link marked' );
+            like(
+                $anchors->[0]{rel} || '',
+                qr/(?:^|[ \t\n\f\r])ugc(?:[ \t\n\f\r]|$)/,
+                'Markdown link marked'
+            );
         }
         my $out = $clean->( 'https://example.test/raw', { preformatted => 1 } );
         is( scalar @{ links($out) }, 0, 'raw formatting still disables autolinks' );
@@ -138,8 +146,11 @@ for my $surface ( @surfaces[ 0, 1 ] ) {
 my $anonymous = q{<a href="https://example.test/anon">anonymous</a> https://example.test/plain};
 LJ::CleanHTML::clean_comment( \$anonymous, { anon_comment => 1 } );
 is( scalar @{ links($anonymous) }, 0, 'anonymous extraction still removes links' );
-like( $anonymous, qr/<b>anonymous<\/b> \(https:\/\/example.test\/anon\)/,
-    'anonymous extraction preserves readable destination' );
+like(
+    $anonymous,
+    qr/<b>anonymous<\/b> \(https:\/\/example.test\/anon\)/,
+    'anonymous extraction preserves readable destination'
+);
 
 my $unverified = q{<a href="https://example.test/bio">bio</a> https://example.test/plain};
 LJ::CleanHTML::clean_userbio( \$unverified, 1 );
@@ -157,7 +168,8 @@ ok( !links($platform)->[0]{rel}, 'generic cleaner does not mark platform HTML' )
 my $mixed = '<a href="https://example.test/readmore">Read more</a> https://example.test/plain';
 LJ::CleanHTML::clean_event( \$mixed, { ugc_links => 0 } );
 is( scalar @{ links($mixed) }, 2, 'mixed-content caller keeps explicit and automatic links' );
-ok( !scalar( grep { $_->{rel} } @{ links($mixed) } ), 'mixed-content caller can omit UGC metadata' );
+ok( !scalar( grep { $_->{rel} } @{ links($mixed) } ),
+    'mixed-content caller can omit UGC metadata' );
 
 my ($mail) = LJ::format_mail('[Site help](https://example.test/help)');
 ok( scalar @{ links($mail) }, 'site email still contains links' );
