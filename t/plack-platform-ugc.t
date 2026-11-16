@@ -116,9 +116,13 @@ with_fake_memcache {
         is( $form->code, 200, 'authorized FAQ preview form renders' );
         my ($token) = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
         ok( $token, 'FAQ preview uses a signed CSRF token' );
+        # Form authentication binds the token to this browser's unique cookie.
+        my ($cookie) = map { /^(ljuniq=[^;]*)/ ? $1 : () } $form->header('Set-Cookie');
+        ok( $cookie, 'FAQ preview keeps the form browser identity' );
         platform_links(
             $cb->(
                 POST "http://localhost/admin/faq/faqedit?$as",
+                Cookie  => $cookie || '',
                 Content => [
                     lj_form_auth     => $token,
                     'action:preview' => 1,

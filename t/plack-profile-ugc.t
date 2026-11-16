@@ -39,11 +39,10 @@ sub set_creation_time {
 
 with_fake_memcache {
     my $u = temp_user();
-    $u->update_self( { status => 'A' } );
+    $u->update_self( { status => 'A', allow_contactshow => 'Y' } );
     set_creation_time( $u, time - 11 * 86400 );
-    $u->set_prop( url             => 'https://example.test/website?a=1&b=2' );
-    $u->set_prop( urlname         => 'UGC website & title' );
-    $u->set_prop( opt_showcontact => 'Y' );
+    $u->set_prop( url     => 'https://example.test/website?a=1&b=2' );
+    $u->set_prop( urlname => 'UGC website & title' );
     $u->set_bio('<a href="https://example.test/bio" rel="nofollow">UGC bio</a>');
 
     my ($service) = grep { $_->{name} eq 'github' } @{ DW::External::ProfileServices->list };
