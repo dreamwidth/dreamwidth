@@ -143,9 +143,14 @@ postFormInitData.strings = {
         <div class="row"><div class="columns">
             <div class='panel radius toolbar text-right'>
                 [%- IF remote.can_create_polls OR journalu.can_create_polls -%]
+                [%- poll_url = site.root _ "/poll/create";
+                    IF journalu.is_community;
+                        poll_journal = journalu.user | url;
+                        poll_url = poll_url _ "?authas=" _ poll_journal;
+                    END -%]
                 [%- INCLUDE "components/icon-link-decorative.tt"
                         link = {
-                            url = site.root _ "/poll/create"
+                            url = poll_url
                             newwindow = 1
                         }
                         icon = "graph-horizontal"
