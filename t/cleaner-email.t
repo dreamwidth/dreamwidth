@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 22;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
@@ -268,6 +268,97 @@ Datum: Donnerstag, 25. April, 2013 21:15 Uhr
 foo
 }, "\$LJ::BOGUS_EMAIL"
     )
+}
+
+# seen in the wild (#2907): an HTML-only reply, where the quoted header escapes
+# the angle brackets around our address. The cut is per line, and the
+# separator above the header is not recognized, so it stays.
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{<div>reply text</div>
+<div>&nbsp;</div>
+<div>---------------</div>
+<div><b>Sent:</b> Saturday, November 20, 2021 7:27 AM<br>
+<b>From:</b> "username1 - DW Comment" &lt;dw_null@dreamwidth.org&gt;<br>
+<b>To:</b> someone@example.com<br>
+<b>Subject:</b> Reply to your comment. [ username1 - 12345 ]</div>
+<div>username1 replied to a comment you left in a Dreamwidth entry "subject".</div>
+<div>Reply to this comment by replying to this email.</div>
+}
+    );
+
+    is(
+        $nonquoted, q{<div>reply text</div>
+<div>&nbsp;</div>
+<div>---------------</div>}, "removed the quoted notification from an HTML reply"
+    );
+}
+
+# other forms of the quoted address that the check used to miss
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+foo
+
+From: "username1 - DW Comment" <dw_null@dreamwidth.org<mailto:dw_null@dreamwidth.org>>
+username1 replied to a comment you left in a Dreamwidth entry.
+}
+    );
+
+    is(
+        $nonquoted, q{
+foo
+}, "removed quoted text when the address has a <mailto:...> suffix"
+    );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+foo
+
+From: username1 - DW Comment [mailto:dw_null@dreamwidth.org]
+Sent: Saturday, November 20, 2021 7:27 AM
+username1 replied to a comment you left in a Dreamwidth entry.
+}
+    );
+
+    is(
+        $nonquoted, q{
+foo
+}, "removed quoted text when the address is given as [mailto:...]"
+    );
+}
+
+# the reply itself may mention the address without quoting a header
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+Try adding dw_null@dreamwidth.org to your contacts so these stop going to spam.
+Also, I loved this chapter!}
+    );
+
+    is(
+        $nonquoted, q{
+Try adding dw_null@dreamwidth.org to your contacts so these stop going to spam.
+Also, I loved this chapter!}, "kept a reply that mentions the bare address"
+    );
+}
+
+# with no address configured, ordinary markup must not end the message
+{
+    local $LJ::BOGUS_EMAIL = '';
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+<b>foo</b>
+bar}
+    );
+
+    is(
+        $nonquoted, q{
+<b>foo</b>
+bar}, "kept all text when no bogus address is configured"
+    );
 }
 
 {
