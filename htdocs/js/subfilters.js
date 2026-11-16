@@ -332,7 +332,7 @@ function cfTrySave() {
 
     // now update the text
     $('#cf-unsaved').html( 'Saving in ' + cfSaveTicksLeft + ' seconds...' );
-    $('#cf-unsaved, #cf-hourglass').show();
+    $('#cf-unsaved, #cf-hourglass').css( 'visibility', 'visible' );
 }
 
 
@@ -347,7 +347,7 @@ function cfDoSave() {
 
             // we're saved
             cfTimerId = null;
-            $('#cf-unsaved, #cf-hourglass').hide();
+            $('#cf-unsaved, #cf-hourglass').css( 'visibility', 'hidden' );
         },
         'json'
     );
