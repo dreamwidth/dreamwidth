@@ -1066,10 +1066,11 @@ sub visible_to {
 
     if ( $self->security eq "usemask" ) {
 
-        # check if it's a community and they're a member
+        # community members can see members-only entries, and so can
+        # community administrators, as they can see private entries
         return 1
             if $self->journal->is_community
-            && $remote->member_of( $self->journal );
+            && ( $remote->member_of( $self->journal ) || $remote->can_manage( $self->journal ) );
 
         my $gmask   = $self->journal->trustmask($remote);
         my $allowed = ( int($gmask) & int( $self->{'allowmask'} ) );
@@ -1969,8 +1970,9 @@ sub get_log2_recent_user {
                     my $ju = LJ::load_userid( $item->{journalid} );
                     if ( $ju->is_community ) {
 
-                        # communities don't have masks towards users, so fake it
-                        $mask = $remote->member_of($ju) ? 1 : 0;
+                        # communities don't have masks towards users, so fake it;
+                        # administrators see members-only entries as members do
+                        $mask = ( $remote->member_of($ju) || $remote->can_manage($ju) ) ? 1 : 0;
                     }
                     else {
                         $mask = $ju->trustmask($remote);
