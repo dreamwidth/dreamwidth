@@ -1,0 +1,77 @@
+#
+# Bellwether: merges pull requests that its triage has already reviewed and
+# tested, when a maintainer says so or after its grace period. See
+# .github/scripts/bellwether.py for the rules.
+#
+# Triage runs elsewhere and keeps a status comment on each PR it has checked.
+# This workflow only reads comments and calls the GitHub API: it never checks
+# out or runs PR code, so it is safe to run with the app's key on PRs from
+# forks.
+#
+# Setup: the Bellwether GitHub App is installed on this repository, and its
+# private key is in the BELLWETHER_PRIVATE_KEY repository secret.
+#
+
+name: Bellwether
+
+on:
+  # Maintainer commands, and triage updating its status comment.
+  issue_comment:
+    types: [created, edited]
+  # A PR whose /merge was waiting on CI.
+  workflow_run:
+    workflows: ["CI (fast)"]
+    types: [completed]
+  # The grace period: ready PRs merge once it has passed.
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to evaluate (empty: every open PR)"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run per PR at a time. A sweep can still evaluate a PR alongside a
+  # comment run; each re-checks everything right before merging, and the
+  # merge call is pinned to the reviewed head.
+  group: bellwether-${{ github.event.issue.number || github.event.inputs.pr || 'sweep' }}
+  cancel-in-progress: false
+
+jobs:
+  act:
+    # Skip comments that can't matter: not on a PR, or neither a command nor
+    # Bellwether's own status comment.
+    if: >-
+      github.repository == 'dreamwidth/dreamwidth' &&
+      (github.event_name != 'issue_comment' ||
+       (github.event.issue.pull_request &&
+        (github.event.comment.user.login == 'dw-bellwether[bot]' ||
+         contains(github.event.comment.body, '/'))))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Always the default branch: this job must never run code from a PR.
+          ref: ${{ github.event.repository.default_branch || 'main' }}
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - id: token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: Iv23li8isxo2kD6B0ps6
+          private-key: ${{ secrets.BELLWETHER_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+          permission-actions: read
+          permission-checks: read
+
+      - name: Act on commands and the grace period
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: python3 .github/scripts/bellwether.py event
