@@ -78,7 +78,8 @@ my %e = (
         [ E_PERM, "Can only use administrator-locked security on community journals you manage." ],
     "150" => [ E_PERM, "Can't post as non-user" ],
     "151" => [ E_TEMP, "Banned from journal" ],
-    "152" => [ E_PERM, "Can't make back-dated entries in non-personal journal." ],
+    "152" =>
+        [ E_PERM, "Entries in communities can't use the 'Don't show on Reading pages' option." ],
     "153" => [ E_PERM, "Incorrect time value" ],
     "154" => [ E_PERM, "Can't add a redirected account as a friend" ],
     "155" => [ E_TEMP, "Non-authenticated email address" ],
@@ -2273,6 +2274,10 @@ sub editevent {
 
     $uowner->clear_daycounts( $oldevent->{allowmask} + 0 || $oldevent->{security},
         $qallowmask || $security );
+
+    # Equal security values skip invalidation, but moving the date still changes counts.
+    $uowner->clear_daycounts( $qallowmask || $security )
+        if substr( $eventtime, 0, 10 ) ne substr( $oldevent->{eventtime}, 0, 10 );
 
     # Update the slug (try to, this will fail if this slug is already used). To
     # delete or change the slug, you must pass this parameter in. If it is not

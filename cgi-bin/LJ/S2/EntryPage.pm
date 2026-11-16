@@ -498,8 +498,7 @@ sub EntryPage {
 
         $recurse->( $recurse, $p->{'comments'} );
 
-        my $js =
-            "<script>\n// don't crawl this.  read http://www.livejournal.com/developer/exporting\n";
+        my $js = "<script>\n// don't crawl this.\n";
         $js .= "var LJ_cmtinfo = " . to_json($cmtinfo) . "\n";
         $js .= '</script>';
         $p->{'LJ_cmtinfo'} = $js if $opts->{'need_cmtinfo'};

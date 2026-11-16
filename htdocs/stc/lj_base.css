@@ -17,6 +17,10 @@ iframe.lj_embedcontent {
     border: 0;
 }
 
+details > summary {
+    cursor: pointer;
+}
+
 form {
     margin: 0px;
     padding: 0px;

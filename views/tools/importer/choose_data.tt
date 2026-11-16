@@ -1,4 +1,4 @@
-<div class='importer'>
+<div class='importer' data-dependencies="[% dependencies_json | html %]">
 <h2 class='gradient'>[% "widget.importchoosedata.header2" | ml %]</h2>
 
 <form method="post">

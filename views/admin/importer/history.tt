@@ -1,11 +1,12 @@
 [%# admin/importer/history.tt
 
-Admin page for a user's entire importer history
+Admin page for a user's entire importer history, with the controls to cancel or rerun an import
 
 Authors:
     Afuna <coder.dw@afunamatata.com>
+    Mark Smith <mark@dreamwidth.org>
 
-Copyright (c) 2015-2017 by Dreamwidth Studios, LLC.
+Copyright (c) 2015-2026 by Dreamwidth Studios, LLC.
 
 This program is free software; you may redistribute it and/or modify it under
 the same terms as Perl itself.  For a copy of the license, please reference
@@ -30,33 +31,163 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </fieldset>
 </form>
 
-[%- IF import_items.defined && import_items.size > 0 -%]
+[%- IF result -%]
+    [%- IF result.error -%]
+    <div class="alert-box alert radius">
+        [%- IF result.error == 'badaction' -%]
+            [%- '.error.badaction' | ml -%]
+        [%- ELSIF result.error == 'badimport' -%]
+            [%- '.error.badimport' | ml -%]
+        [%- ELSIF result.error == 'notlatest' -%]
+            [%- '.error.notlatest' | ml -%]
+        [%- ELSIF result.error == 'inflight' -%]
+            [%- '.error.inflight' | ml -%]
+        [%- ELSIF result.error == 'settling' -%]
+            [%- '.error.settling' | ml -%]
+        [%- ELSIF result.error == 'jobsexist' -%]
+            [%- '.error.jobsexist' | ml -%]
+        [%- ELSIF result.error == 'queueunknown' -%]
+            [%- '.error.queueunknown' | ml -%]
+        [%- ELSIF result.error == 'nothing' -%]
+            [%- '.error.nothing' | ml -%]
+        [%- ELSE -%]
+            [%- '.error.unknown' | ml -%]
+        [%- END -%]
+    </div>
+    [%- ELSIF result.action == 'cancel' -%]
+    <div class="alert-box success radius">
+        [%- '.result.cancel' | ml(
+            id      = result.import_data_id
+            aborted = result.data.aborted.size
+            removed = result.data.jobs_removed
+            running = result.data.jobs_running
+        ) -%]
+        [%- UNLESS result.data.queue_complete %] [% '.result.queue_incomplete' | ml -%][%- END -%]
+    </div>
+    [%- ELSE -%]
+    <div class="alert-box success radius">
+        [%- '.result.retry' | ml(
+            id    = result.import_data_id
+            reset = result.data.reset.size
+            ready = result.data.ready.size
+        ) -%]
+        [%- IF result.data.waiting.size %] [% '.result.waiting' | ml( items = result.data.waiting.join( ', ' ) ) -%][%- END -%]
+    </div>
+    [%- END -%]
+[%- END -%]
+
+[%- IF username -%]
+<h2>[% username %]</h2>
+[%- END -%]
+
+[%- IF imports && imports.size > 0 -%]
+[%- FOREACH import = imports -%]
+<h3>[% '.import.heading' | ml( id = import.id ) %]</h3>
+<p>
+    [%- IF import.source %][% '.import.source' | ml( source = import.source ) %][% END -%]
+    [%- IF import.created %] [% '.import.created' | ml( created = date.format( import.created ) ) %][% END -%]
+</p>
+
+[%- UNLESS import.queue_complete -%]
+<p class="alert-box warning radius">[% '.queue.incomplete' | ml %]</p>
+[%- END -%]
+
+<div class="import-actions">
+[%- IF import.can_cancel -%]
+    <form method="POST" style="display: inline">
+        [% dw.form_auth %]
+        <input type="hidden" name="user" value="[% u.user | html %]" />
+        <input type="hidden" name="import_data_id" value="[% import.id %]" />
+        <input type="hidden" name="action" value="cancel" />
+        <input type="submit" class="button tiny alert" value="[% '.action.cancel' | ml %]" />
+    </form>
+[%- END -%]
+[%- IF import.retry_refusal -%]
+    <span class="secondary">
+        [%- IF import.retry_refusal == 'notlatest' -%]
+            [%- '.retry.notlatest' | ml -%]
+        [%- ELSIF import.retry_refusal == 'settling' -%]
+            [%- '.retry.settling' | ml -%]
+        [%- ELSE -%]
+            [%- '.retry.inflight' | ml -%]
+        [%- END -%]
+    </span>
+[%- ELSE -%]
+    <form method="POST" style="display: inline">
+        [% dw.form_auth %]
+        <input type="hidden" name="user" value="[% u.user | html %]" />
+        <input type="hidden" name="import_data_id" value="[% import.id %]" />
+        <input type="hidden" name="action" value="retry" />
+        <input type="submit" class="button tiny" value="[% '.action.retry' | ml %]" />
+    </form>
+[%- END -%]
+</div>
+
 <table class="table">
 <thead><tr>
-    <th>[% '.col.importnum' | ml %]</th>
     <th>[% '.col.item' | ml %]</th>
     <th>[% '.col.status' | ml %]</th>
     <th>[% '.col.created' | ml %]</th>
     <th>[% '.col.lasttouch' | ml %]</th>
-    <th>[% '.col.source' | ml %]</th>
+    <th>[% '.col.job' | ml %]</th>
+    <th>[% '.col.logs' | ml %]</th>
+    <th></th>
 </tr></thead>
 <tbody>
-[%- FOREACH import_id = import_items.keys.nsort -%]
-    [% SET parity = loop.count % 2 ? 'even' : 'odd' %]
-    [%- FOREACH item = import_items.$import_id.pairs -%]
-    <tr class='[% parity %]'>
-        <td>[% import_id %]</td>
-        <td>[% item.key %]</td>
-        <td>[% item.value.status %]</td>
-        <td>[% date.format( item.value.created ) %]</td>
-        <td>[% item.value.last_touch ? date.format( item.value.last_touch ) : "-" %]</td>
-        <td>[% item.value.source %]</td>
+[%- FOREACH item = import.items -%]
+    <tr>
+        <td>[% item.name %]</td>
+        <td>[% item.status %]</td>
+        <td>[% date.format( item.created ) %]</td>
+        <td>[% item.last_touch ? date.format( item.last_touch ) : "-" %]</td>
+        <td>
+        [%- FOREACH job = item.jobs -%]
+            <div>
+            [%- IF job.state == 'running' -%]
+                [%- '.job.running' | ml( until = date.format( job.grabbed_until ) ) -%]
+            [%- ELSIF job.state == 'retry' -%]
+                [%- '.job.retry' | ml( at = date.format( job.run_after ), failures = job.failures ) -%]
+            [%- ELSE -%]
+                [%- '.job.waiting' | ml( at = date.format( job.run_after ) ) -%]
+            [%- END -%]
+            [%- IF job.errors.size %]<br /><small>[% job.errors.0 | html %]</small>[% END -%]
+            </div>
+        [%- END -%]
+        </td>
+        <td>
+        [%- FOREACH log = item.logs -%]
+            [%- host_html = log.host FILTER html -%]
+            <div><a href="[% site.root %]/admin/importer/log?user=[% u.user | uri %]&amp;logid=[% log.logid %]">
+                [%- date.format( log.started ) -%]</a>
+                ([% '.log.size' | ml( bytes = log.bytes, host = host_html ) %])</div>
+        [%- END -%]
+        </td>
+        <td>
+        [%- UNLESS import.retry_refusal -%]
+            <form method="POST">
+                [% dw.form_auth %]
+                <input type="hidden" name="user" value="[% u.user | html %]" />
+                <input type="hidden" name="import_data_id" value="[% import.id %]" />
+                <input type="hidden" name="item" value="[% item.name | html %]" />
+                <input type="hidden" name="action" value="rerun" />
+                <input type="submit" class="button tiny secondary" value="[% '.action.rerun' | ml %]" />
+            </form>
+        [%- END -%]
+        </td>
     </tr>
-    [%- END -%]
-
-[%- END %]
+[%- END -%]
 </tbody>
 </table>
-[%- ELSE -%]
+
+[%- IF import.other_logs.size -%]
+<p>[% '.logs.other' | ml %]
+[%- FOREACH log = import.other_logs %]
+    <a href="[% site.root %]/admin/importer/log?user=[% u.user | uri %]&amp;logid=[% log.logid %]">[% log.item | html %] [% date.format( log.started ) %]</a>
+[%- END -%]
+</p>
+[%- END -%]
+
+[%- END -%]
+[%- ELSIF username -%]
     <p>[% '.empty' | ml %]</p>
 [%- END -%]
