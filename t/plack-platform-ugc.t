@@ -28,7 +28,7 @@ my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
 my $summary = 'https://example.test/faq-summary';
-my $answer = '<a href="https://example.test/faq-answer" rel="noreferrer">answer</a>';
+my $answer  = '<a href="https://example.test/faq-answer" rel="noreferrer">answer</a>';
 
 sub fixture_faq {
     return LJ::Faq->new(
@@ -48,27 +48,30 @@ sub fixture_faq {
 sub platform_links {
     my ( $res, $name, $expected ) = @_;
     is( $res->code, 200, "$name renders" );
-    my $html = $res->content;
+    my $html   = $res->content;
     my $parser = HTML::TokeParser->new( \$html );
     my %found;
     while ( my $token = $parser->get_tag('a') ) {
-        my $a = $token->[1];
+        my $a    = $token->[1];
         my $href = $a->{href} || '';
         next unless exists $expected->{$href};
         $found{$href}++;
         my %rel = map { lc($_) => 1 } split /[ \t\n\f\r]+/, $a->{rel} || '';
-        ok( !$rel{ugc}, "$name: official $href is not UGC" );
+        ok( !$rel{ugc},                 "$name: official $href is not UGC" );
         ok( $rel{ $expected->{$href} }, "$name: existing rel token survives" )
             if $expected->{$href};
     }
-    is_deeply( [ sort keys %found ], [ sort keys %$expected ],
-        "$name: all expected destinations survive" );
+    is_deeply(
+        [ sort keys %found ],
+        [ sort keys %$expected ],
+        "$name: all expected destinations survive"
+    );
 }
 
 with_fake_memcache {
     my $load_include = \&LJ::load_include;
-    my $load_faq = \&LJ::Faq::load;
-    my $enabled = \&LJ::is_enabled;
+    my $load_faq     = \&LJ::Faq::load;
+    my $enabled      = \&LJ::is_enabled;
 
     # Supply deterministic content only: route, permissions, cleaner and templates stay real.
     no warnings 'redefine';
@@ -104,12 +107,11 @@ with_fake_memcache {
         );
         platform_links(
             $cb->( GET 'http://localhost/support/faqbrowse?faqid=2147483000&as=nobody_exists' ),
-            'public FAQ', \%faq_links
-        );
+            'public FAQ', \%faq_links );
 
         my $u = temp_user();
         $u->grant_priv( 'faqadd', '*' );
-        my $as = 'as=' . $u->user;
+        my $as   = 'as=' . $u->user;
         my $form = $cb->( GET "http://localhost/admin/faq/faqedit?$as" );
         is( $form->code, 200, 'authorized FAQ preview form renders' );
         my ($token) = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
@@ -127,16 +129,18 @@ with_fake_memcache {
                     sortorder        => 1,
                 ]
             ),
-            'FAQ preview', \%faq_links
+            'FAQ preview',
+            \%faq_links
         );
 
         # The administration view escapes FAQ markup before cleaning it.
         local *LJ::Faq::load_all = sub {
-            fixture_faq( answer => 'https://example.test/faq-answer' )
+            fixture_faq( answer => 'https://example.test/faq-answer' );
         };
         platform_links(
             $cb->( GET "http://localhost/admin/faq/readcat?$as" ),
-            'FAQ administration', { 'https://example.test/faq-answer' => '' }
+            'FAQ administration',
+            { 'https://example.test/faq-answer' => '' }
         );
         $u->revoke_priv( 'faqadd', '*' );
     };

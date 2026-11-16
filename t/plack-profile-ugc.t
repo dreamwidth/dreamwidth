@@ -41,8 +41,8 @@ with_fake_memcache {
     my $u = temp_user();
     $u->update_self( { status => 'A' } );
     set_creation_time( $u, time - 11 * 86400 );
-    $u->set_prop( url => 'https://example.test/website?a=1&b=2' );
-    $u->set_prop( urlname => 'UGC website & title' );
+    $u->set_prop( url             => 'https://example.test/website?a=1&b=2' );
+    $u->set_prop( urlname         => 'UGC website & title' );
     $u->set_prop( opt_showcontact => 'Y' );
     $u->set_bio('<a href="https://example.test/bio" rel="nofollow">UGC bio</a>');
 
@@ -50,14 +50,14 @@ with_fake_memcache {
     die 'GitHub profile service fixture missing' unless $service && $service->{url_format};
     $u->save_profile_accts( { $service->{service_id} => ['ugc-profile-test'] } );
     my $service_url = sprintf( $service->{url_format}, 'ugc-profile-test' );
-    my %expected = (
+    my %expected    = (
         'https://example.test/website?a=1&b=2' => 1,
-        'https://example.test/bio' => 1,
-        $service_url => 1,
+        'https://example.test/bio'             => 1,
+        $service_url                           => 1,
     );
 
     test_psgi $app, sub {
-        my $cb = shift;
+        my $cb  = shift;
         my $res = $cb->( GET 'http://localhost/users/' . $u->user . '/profile?as=' . $u->user );
         is( $res->code, 200, 'real profile renders' );
         my $html = $res->content;
@@ -65,13 +65,14 @@ with_fake_memcache {
         my $p = HTML::TokeParser->new( \$html );
         my %found;
         my $controls = 0;
+
         while ( my $token = $p->get_tag('a') ) {
-            my $a = $token->[1];
+            my $a    = $token->[1];
             my $href = $a->{href} || '';
-            my %rel = map { lc($_) => 1 } split /\s+/, $a->{rel} || '';
+            my %rel  = map { lc($_) => 1 } split /\s+/, $a->{rel} || '';
             if ( $expected{$href} ) {
                 $found{$href}++;
-                ok( $rel{ugc}, "$href marked as UGC" );
+                ok( $rel{ugc},      "$href marked as UGC" );
                 ok( $rel{nofollow}, "$href keeps nofollow" );
             }
             else {
@@ -85,8 +86,11 @@ with_fake_memcache {
         set_creation_time( $u, time );
         $res = $cb->( GET 'http://localhost/users/' . $u->user . '/profile?as=nobody_exists' );
         is( $res->code, 200, 'new account profile renders for a stranger' );
-        unlike( $res->content, qr{https://example\.test/website},
-            'website age restriction still enforced' );
+        unlike(
+            $res->content,
+            qr{https://example\.test/website},
+            'website age restriction still enforced'
+        );
     };
 };
 

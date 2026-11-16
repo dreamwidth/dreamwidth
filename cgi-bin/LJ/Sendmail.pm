@@ -262,6 +262,7 @@ sub format_mail {
 
     # use markdown to format from text to HTML
     my $html = $text;
+
     # This formatter builds site messages, including platform greetings and footers.
     my $opts = { editor => 'markdown', ugc_links => 0 };
     LJ::CleanHTML::clean_event( \$html, $opts );
