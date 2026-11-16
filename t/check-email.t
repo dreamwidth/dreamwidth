@@ -44,7 +44,7 @@ my @tests = (
 
 );
 
-plan tests => scalar @tests;
+plan tests => scalar @tests + 2;
 
 sub check_email {
     my ( $email, $expected_error ) = @_;
@@ -62,3 +62,55 @@ sub check_email {
 foreach my $test (@tests) {
     check_email(@$test);
 }
+
+subtest 'rejections explain the problem to the user' => sub {
+    my @cases = (
+        [ '',                        'empty',        qr/cannot be blank/ ],
+        [ 'example.com',             'bad_form',     qr/did not give a valid email address/ ],
+        [ 'a,b@example.com',         'bad_username', qr/invalid characters/ ],
+        [ 'example@a.baddomainname', 'bad_domain',   qr/domain is invalid/ ],
+
+        # The message shows the normalized address and the suggested domain.
+        [ ' Example@GMALI.COM ', 'bad_spelling', qr/example\@gmali\.com\b.*\bgmail\.com\?/ ],
+        [ 'www.a@example.com',   'web_address',  qr/www\.a\@example\.com\b.*web address/ ],
+    );
+    for my $case (@cases) {
+        my ( $email, $code, $message ) = @$case;
+        my ( @errors, @codes );
+        LJ::check_email( $email, \@errors, undef, undef, \@codes );
+        is_deeply( \@codes, [$code], "$code: rejected with its error code" );
+        is( scalar @errors, 1, "$code: one message for the user" );
+        like( $errors[0], $message, "$code: the message describes the problem" );
+    }
+};
+
+subtest 'spelling confirmation' => sub {
+    for my $force ( 0, 1 ) {
+        my ( @errors, @codes, $checkbox );
+        LJ::check_email( 'example@gmali.com', \@errors, { force_spelling => $force },
+            \$checkbox, \@codes );
+        like(
+            $checkbox,
+            qr{id="force_spelling".*<label for="force_spelling">[^<]+</label>}s,
+            "the checkbox has a label (force=$force)"
+        );
+        is( !!( $checkbox =~ /checked="checked"/ ),
+            !!$force, "checkbox keeps its checked state (force=$force)" );
+        is_deeply(
+            \@codes,
+            $force ? [] : ['bad_spelling'],
+            "confirming overrides only the spelling check (force=$force)"
+        );
+    }
+
+    {
+        my ( @errors, @codes, $checkbox );
+        LJ::check_email( 'example.com', \@errors, { force_spelling => 1 }, \$checkbox, \@codes );
+        is_deeply( \@codes, ['bad_form'], 'confirming spelling does not bypass other checks' );
+    }
+
+    my ( @errors, @codes, $checkbox );
+    LJ::check_email( 'example@example.com', \@errors, {}, \$checkbox, \@codes );
+    is_deeply( \@errors, [], 'a valid address gets no message' );
+    is( $checkbox, undef, 'a valid address gets no confirmation checkbox' );
+};
