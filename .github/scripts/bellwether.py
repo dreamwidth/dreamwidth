@@ -46,6 +46,11 @@ NEXT = re.compile(re.escape(NEXT_START) + r".*?" + re.escape(NEXT_END), re.S)
 COMMAND = re.compile(r"^\s*/(approve|lgtm|merge|hold|unhold)\b", re.I | re.M)
 FOOTER = "I keep this comment up to date. New commits start the checks over."
 DRY_RUN = "--dry-run" in sys.argv
+# Repository variables. BELLWETHER_AUTO_MERGE turns on merging after the grace period with no
+# maintainer's go-ahead; BELLWETHER_AUTO_PER_HOUR caps those merges so they don't all land at once.
+# Merges a maintainer asked for aren't capped.
+AUTO_MERGE = os.environ.get("BELLWETHER_AUTO_MERGE", "") == "true"
+AUTO_PER_HOUR = int(os.environ.get("BELLWETHER_AUTO_PER_HOUR") or 2)
 
 
 def api(method, path, data=None):
@@ -257,10 +262,12 @@ def decide(number, final_check=False):
         return set_next(comment, state["next"])
     if go:
         reason = f"{', '.join(go)} approved it"
-    elif state["ready"] and state.get("ready_since"):
+    elif state["ready"] and state.get("ready_since") and AUTO_MERGE:
         hours = state["grace_hours"]
         if now() < parse_time(state["ready_since"]) + timedelta(hours=hours):
             return set_next(comment, state["next"])
+        if recent_merges() >= AUTO_PER_HOUR:
+            return print(f"  due, but {AUTO_PER_HOUR} merges already this hour; next sweep")
         reason = f"{hours} hours passed with no `/hold`"
     else:
         return set_next(comment, state["next"])
@@ -320,6 +327,17 @@ def handle_event():
         evaluate(int(event["inputs"]["pr"]))
     else:
         sweep()
+
+
+def recent_merges():
+    """How many PRs Bellwether merged in the last hour."""
+    cutoff = now() - timedelta(hours=1)
+    count = 0
+    for pr in api("GET", f"/repos/{REPO}/pulls?state=closed&sort=updated&direction=desc&per_page=30"):
+        if pr.get("merged_at") and parse_time(pr["merged_at"]) > cutoff:
+            merged_by = (api("GET", f"/repos/{REPO}/pulls/{pr['number']}").get("merged_by") or {})
+            count += merged_by.get("login") == BOT
+    return count
 
 
 def sweep():
