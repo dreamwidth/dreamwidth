@@ -54,11 +54,13 @@ with_fake_memcache {
         'https://example.test/bio'             => 1,
         $service_url                           => 1,
     );
+    my $profile_url = $u->profile_url;
 
     test_psgi $app, sub {
         my $cb  = shift;
-        my $res = $cb->( GET 'http://localhost/users/' . $u->user . '/profile?as=' . $u->user );
+        my $res = $cb->( GET $profile_url . '?as=' . $u->user );
         is( $res->code, 200, 'real profile renders' );
+        diag( $res->header('Location') || 'no redirect location' ) if $res->code != 200;
         my $html = $res->content;
         like( $html, qr/UGC website &amp; title/, 'website label remains escaped' );
         my $p = HTML::TokeParser->new( \$html );
@@ -83,8 +85,9 @@ with_fake_memcache {
         ok( $controls, 'profile edit control still present for owner' );
 
         set_creation_time( $u, time );
-        $res = $cb->( GET 'http://localhost/users/' . $u->user . '/profile?as=nobody_exists' );
+        $res = $cb->( GET $profile_url . '?as=nobody_exists' );
         is( $res->code, 200, 'new account profile renders for a stranger' );
+        diag( $res->header('Location') || 'no redirect location' ) if $res->code != 200;
         unlike(
             $res->content,
             qr{https://example\.test/website},
