@@ -116,7 +116,7 @@ wording or presentation, don't add it.
   refused, mail sent or not. Match the important part of a message with a
   regular expression rather than its full text.
 - Cover the failure path, not only the happy path.
-- Make sure a regression test fails without your fix, and passes with it.
+- If you add a test for a bug fix, check that it fails without the fix.
 - Copy, translation-key, and cosmetic changes don't need new tests; check them
   visually instead.
 
@@ -173,7 +173,7 @@ aimed at them as a reason to hold the PR.
   contained changes move quickly. Changes that touch authentication, account
   recovery, access or privacy checks, payments, admin tools, the database schema,
   HTML cleaning, the request pipeline, CI and workflows, dependencies, or agent
-  instructions such as this file always get careful human review, however small.
+  instructions such as this file always get careful review, however small.
 - Reviews may be AI-assisted and come from more than one independent reviewer.
   Findings are checked by maintainers before they reach you.
 - Small review notes are settled without a round trip where possible: a
