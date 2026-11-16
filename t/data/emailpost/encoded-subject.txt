@@ -1,0 +1,10 @@
+Return-Path: <${FROM_EMAIL}>
+To: LJ LJ <${TEMPUSER}+${EMAILPIN}@${POSTDOMAIN}>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+From: ${FROM_EMAIL}
+Date: Mon, 1 Jan 2007 12:28:00 -0800
+Subject: ${SUBJECT}
+
+This entry has an encoded subject split across several encoded words.
