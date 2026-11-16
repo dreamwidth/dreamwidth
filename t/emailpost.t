@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 46;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -145,6 +145,64 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
         "entry time is converted from the Date header into the user's timezone"
     );
     $u->set_prop( timezone => undef );
+}
+
+# subjects longer than one encoded word arrive as several folded encoded words
+{
+    my $email_post = DW::EmailPost->get_handler(
+        get_mime(
+            "encoded-subject",
+            {
+                %$user_email_info,
+                SUBJECT => "=?UTF-8?Q?=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82_?=\n"
+                    . " =?UTF-8?Q?=D0=BC=D0=B8=D1=80_?=\n"
+                    . " =?UTF-8?Q?=D0=B8=D0=B7_IFTTT?="
+            }
+        )
+    );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry with multi-word UTF-8 subject" );
+    my $entry = LJ::Entry->new( $u, jitemid => 5 );
+    is(
+        $entry->subject_raw,
+        "Привет мир из IFTTT",
+        "every encoded word kept in subject"
+    );
+}
+
+{
+    my $email_post = DW::EmailPost->get_handler(
+        get_mime(
+            "encoded-subject",
+            {
+                %$user_email_info, SUBJECT => "=?KOI8-R?B?7s/Xz9PUySA=?=\n =?KOI8-R?B?xM7R?="
+            }
+        )
+    );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry with multi-word KOI8-R subject" );
+    my $entry = LJ::Entry->new( $u, jitemid => 6 );
+    is( $entry->subject_raw, "Новости дня", "every encoded word converted to UTF-8" );
+}
+
+foreach my $charset ( 'x-no-such-charset', 'UTF-8-foo' ) {
+    my $email_post = DW::EmailPost->get_handler(
+        get_mime(
+            "encoded-subject",
+            {
+                %$user_email_info,
+                SUBJECT => "=?UTF-8?Q?=D0=9F=D1=80=D0=B8=D0=B2=D0=B5=D1=82_?=\n"
+                    . " =?${charset}?Q?abc?="
+            }
+        )
+    );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( !$ok, "did not post with $charset in subject" );
+    like(
+        $msg,
+        qr/Unknown charset encoding type.*\Q$charset\E/,
+        "rejected $charset in a later encoded word"
+    );
 }
 
 my $post_count = 0;
