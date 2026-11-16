@@ -243,6 +243,13 @@ _c?>
         }
 
 
+        # Point people at the new Create Entries page, keeping the same
+        # arguments that the beta redirect above passes along.
+        my $newpage_url = LJ::create_url( "/entry/new", cur_args => \%GET, keep_args => 1 );
+        $$body .= "<div class='highlight-box'>"
+            . BML::ml('.trynew', { 'aopts' => "href='" . LJ::ehtml($newpage_url) . "'" })
+            . "</div>\n";
+
         if (LJ::isu($remote) && (!$did_post || $did_spellcheck) && $remote->readonly) {
             $$body .= "<div id='readonly'><?warningbar ";
 

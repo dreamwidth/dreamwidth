@@ -125,6 +125,8 @@
 
 .title2=Post an Entry
 
+.trynew=This is the old version of the update page. Please try the <a [[aopts]]>new Create Entries page</a> instead.
+
 .update.head=Update your Journal...
 
 .update.status.failed=Your entry has not been posted.
