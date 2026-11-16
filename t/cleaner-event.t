@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 50;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -238,6 +238,49 @@ note("various allowed/disallowed tags");
     $clean->();
     is( $orig_post, $clean_post, "blink tag allowed" );
 
+}
+
+note("URLs and email addresses in angle brackets");
+{
+    $orig_post  = qq{<https://maps.app.goo.gl/ShTY8EGczovcMSMWA>};
+    $clean_post = qq{&lt;https://maps.app.goo.gl/ShTY8EGczovcMSMWA&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL is escaped with its case intact" );
+
+    $orig_post  = qq{Write to <Someone\@Example.COM> today};
+    $clean_post = qq{Write to &lt;Someone\@Example.COM&gt; today};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed email address is escaped with its case intact" );
+
+    $orig_post  = qq{<http://Example.com/A onmouseover="alert(1)">};
+    $clean_post = qq{&lt;http://Example.com/A&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL is escaped without event attributes" );
+
+    $orig_post  = qq{<http://Example.com/A note="x">};
+    $clean_post = qq{&lt;http://Example.com/A&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL omits trailing text after a space" );
+
+    $orig_post  = qq{<http://Example.com/A\tnote="x">};
+    $clean_post = qq{&lt;http://Example.com/A&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL omits trailing text after a tab" );
+
+    $orig_post  = qq{<http://Example.com/MixedCase/Path?Foo=Bar>};
+    $clean_post = qq{&lt;http://Example.com/MixedCase/Path?Foo=Bar&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL keeps the case of its path and query" );
+
+    $orig_post  = qq{<http://Example.com/Path?a=1&b=2>};
+    $clean_post = qq{&lt;http://Example.com/Path?a=1&amp;b=2&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL escapes ampersands in its query" );
+
+    $orig_post  = qq{<https://Example.com/Foo/>};
+    $clean_post = qq{&lt;https://Example.com/Foo/&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL keeps its trailing slash" );
 }
 
 note("mismatched and misnested tags");
