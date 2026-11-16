@@ -38,7 +38,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% IF media.size %]
 [% IF maxpage > 1 %]
-    <div class="action-box">
+    <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
         current => page,
         total_pages => maxpage, -%]
@@ -110,7 +110,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% form.submit( name = "action:delete", value = dw.ml( '.submit.delete' ) ) %]
 </form>
 [% IF maxpage > 1 %]
-    <div class="action-box">
+    <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
         current => page,
         total_pages => maxpage, -%]

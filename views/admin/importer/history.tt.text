@@ -1,5 +1,11 @@
 ;; -*- coding: utf-8 -*-
 
+.action.cancel=Cancel import
+
+.action.rerun=Rerun
+
+.action.retry=Retry failed items
+
 .admin.link=Importer History
 
 .admin.text=View a user's entire import history
@@ -10,7 +16,11 @@
 
 .col.item=Item
 
+.col.job=Queue
+
 .col.lasttouch=Last Touch
+
+.col.logs=Logs
 
 .col.source=Import Source
 
@@ -18,6 +28,56 @@
 
 .empty=No import history for this user.
 
+.error.badaction=That is not something this page can do.
+
+.error.badimport=That import does not belong to this user.
+
+.error.inflight=Not retried: some items are still waiting to run or running. Cancel the import first if it should stop.
+
+.error.jobsexist=Not retried: a job for this import is still in the queue (a cancelled job that is still running, for example). Try again once it has finished.
+
+.error.nothing=Nothing to rerun.
+
+.error.notlatest=Not retried: this is not the user's latest import, so the scheduler would abandon it.
+
+.error.queueunknown=Not retried: the queue could not be read, so it is not known whether a job is still there.
+
+.error.settling=Not retried: this import changed less than a minute ago. Try again shortly.
+
+.error.unknown=That did not work.
+
 .form.submit=View Import History
+
+.import.created=Created [[created]].
+
+.import.heading=Import #[[id]]
+
+.import.source=Imported from [[source]].
+
+.job.retry=Failed [[failures]] [[?failures|time|times]], retrying at [[at]]
+
+.job.running=Running until [[until]]
+
+.job.waiting=In the queue, runs at [[at]]
+
+.log.size=[[bytes]] bytes on [[host]]
+
+.logs.other=Other logs:
+
+.queue.incomplete=The job queue could not be read in full, so some jobs may not be shown.
+
+.result.cancel=Cancelled import #[[id]]: [[aborted]] [[?aborted|item|items]] aborted, [[removed]] queued [[?removed|job|jobs]] removed, [[running]] running [[?running|job|jobs]] left to stop on [[?running|its|their]] own.
+
+.result.queue_incomplete=The job queue could not be read in full, so some jobs may remain; they will do nothing when they run.
+
+.result.retry=Import #[[id]]: [[reset]] [[?reset|item|items]] reset, [[ready]] now ready to run.
+
+.result.waiting=Still waiting for an item they depend on: [[items]].
+
+.retry.inflight=Items are still waiting or running.
+
+.retry.notlatest=Not the latest import; it can't be retried.
+
+.retry.settling=Changed in the last minute; it can be retried shortly.
 
 .title=User Import History

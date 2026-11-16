@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<livejournal>
+<maxid>8</maxid>
+<comments>
+<comment id="1" posterid="10" state="A"/>
+<comment id="2" posterid="11" state="S"/>
+<comment id="3" posterid="10" state="D"/>
+<comment id="4" posterid="10" state="A"/>
+<comment id="5" posterid="0" state="A"/>
+<comment id="6" posterid="10" state="A"/>
+<comment id="7" posterid="10" state="A"/>
+<comment id="8" posterid="10" state="A"/>
+</comments>
+<usermaps>
+<usermap id="10" user="alice"/>
+<usermap id="11" user="ext_9"/>
+</usermaps>
+</livejournal>

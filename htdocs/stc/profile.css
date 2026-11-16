@@ -222,6 +222,10 @@ span.expandcollapse {
     white-space: nowrap;
     padding-top: 5px;
 }
+.external_services ul li.im_discord {
+    white-space: normal;
+    word-break: break-all;
+}
 .external_services div.im_icon {
     text-align: center;
     display: inline;
