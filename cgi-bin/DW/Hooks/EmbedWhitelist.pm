@@ -66,6 +66,7 @@ my %host_path_match = (
     "coub.com"                => [ qr!^/embed/!,          1 ],
     "criticalcommons.org"     => [ qr!^/embed$!,          1 ],
     "www.criticalcommons.org" => [ qr!/embed_view$!,      0 ],
+    "cyberfile.me"            => [ qr!^/video/embed/!,    1 ],
 
     "www.dailymotion.com" => [ qr!^/embed/video/!,                   1 ],
     "diode.zone"          => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],

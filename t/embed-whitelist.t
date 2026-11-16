@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 128;
+use Test::More tests => 130;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -102,6 +102,8 @@ note("misc");
     test_good_url("//codepen.io/enxaneta/embed/gPeZdP/?height=268&theme-id=0&default-tab=result");
     test_good_url("http://coub.com/embed/x1xx2xxxxxX");
     test_good_url("https://criticalcommons.org/embed?m=XycozAvcH");
+    test_good_url("https://cyberfile.me/video/embed/noaI/640x320/example.mp4");
+    test_bad_url( "https://cyberfile.me/noaI", "cyberfile file page, not embed" );
 
     # D
     test_good_url("http://www.dailymotion.com/embed/video/x1xx11x");
