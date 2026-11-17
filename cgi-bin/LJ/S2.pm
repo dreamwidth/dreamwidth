@@ -2399,18 +2399,28 @@ sub Page {
         $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
     }
 
-    unless ( $u->prop('customtext_content') ) {
-        $u->set_prop( 'customtext_content',
-            $opts->{ctx}->[S2::PROPS]->{text_module_customtext_content} );
-    }
-    unless ( $u->prop('customtext_url') ) {
-        $u->set_prop( 'customtext_url', $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );
-    }
-    if (   !defined $u->prop('customtext_title')
-        || $u->prop('customtext_title') eq ''
-        || $u->prop('customtext_title') eq "Custom Text" )
-    {
-        $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
+    # Custom text used to be stored in style layers; copy it into the journal's
+    # userprops. Only copy from the journal's own style (for feeds, the site's
+    # feed style): with style=mine or s2id=, the context holds another style's text.
+    my $own_style =
+          $styleid
+        ? $styleid == ( $u->prop('s2_style') || 0 )
+        : $u->is_syndicated && !$opts->{style_u};
+    if ($own_style) {
+        unless ( $u->prop('customtext_content') ) {
+            $u->set_prop( 'customtext_content',
+                $opts->{ctx}->[S2::PROPS]->{text_module_customtext_content} );
+        }
+        unless ( $u->prop('customtext_url') ) {
+            $u->set_prop( 'customtext_url',
+                $opts->{ctx}->[S2::PROPS]->{text_module_customtext_url} );
+        }
+        if (   !defined $u->prop('customtext_title')
+            || $u->prop('customtext_title') eq ''
+            || $u->prop('customtext_title') eq "Custom Text" )
+        {
+            $u->set_prop( 'customtext_title', $opts->{ctx}->[S2::PROPS]->{text_module_customtext} );
+        }
     }
 
     my $r = DW::Request->get;
