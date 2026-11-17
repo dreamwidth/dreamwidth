@@ -531,11 +531,13 @@ function CommentInfo::print(Entry e, string{} opts) {
 
     if ($.show_postlink and $.enabled) {
         """<li class="entry-replylink">""";
-        if (isnull $e) {
+        if (isnull $e or $.maxcomments) {
             $this->print_postlink();
+        } elseif ($*entry_interaction_links == "text") {
+            $e->print_reply_link({ "linktext" => $opts{"linktext"}, "target" => $opts{"target"} });
         } else {
             $e->print_reply_link({ "target" => $opts{"target"}, "img_url" => $*image_reply,
-                                    "alt" => $*text_post_comment_friends, "title" => $*text_post_comment_friends });
+                                    "alt" => $opts{"linktext"}, "title" => $opts{"linktext"} });
         }
         "</li>";
     }
@@ -584,8 +586,10 @@ function Entry::print_interaction_links(string target) {
         if ($count > 0) {
             "</ul>";
         }
-    } elseif ($p.view == "read") {
+    } elseif ($p.view == "read" or $p.view == "network") {
         $this.comments->print($this, { "linktext" => $*text_post_comment_friends, "target" => $this.dom_id + "-reply" });
+    } elseif ($p.view == "day" or $p.view == "recent") {
+        $this.comments->print($this, { "linktext" => $*text_post_comment, "target" => $this.dom_id + "-reply" });
     } else {
         $this.comments->print();
     }

@@ -1348,6 +1348,28 @@ function Page::lay_print_entry_reply_link(CommentInfo c) : void {
     }
 }
 
+# Same as above, but the link opens quick reply in the container named by target.
+#
+function Page::lay_print_entry_reply_link(Entry e, string target) : void {
+    if ($e.comments.show_postlink) {
+        var string marker = "[[reply-link]]";
+        var string text = lay_string_placeholders( $*reply_link_text, [$marker] );
+        if (not $text->contains($marker)) {
+            print " $text";
+            return;
+        }
+        var string[] parts = $text->split($marker);
+        print " ";
+        if (size $parts > 0) {
+            print $parts[0];
+        }
+        $e->print_reply_link({ "linktext" => $*reply_link_link_text, "target" => $target });
+        if (size $parts > 1) {
+            print $parts[1];
+        }
+    }
+}
+
 
 ###################################################
 #      #                                          #
@@ -1435,10 +1457,11 @@ function Page::lay_print_entry_footer(Entry e) {
     <div class="links">
     """;
     $this->lay_print_comment_details( $e.comments );
-    $this->lay_print_entry_reply_link( $e.comments );
+    $this->lay_print_entry_reply_link( $e, $e.dom_id + "-reply" );
     """
     </div>
     """;
+    $e->print_reply_container({ "target" => $e.dom_id + "-reply", "class" => "quickreply" });
 }
 
 
@@ -1842,8 +1865,8 @@ function Page::print() {
     $this->print_body();
 
     $this->lay_footer();
+    $this->print_wrapper_end();
     """
-</body>
 </html>
 """;
 }
@@ -2502,7 +2525,7 @@ function EntryPage::lay_print_entry_comments_bar() : void {
     <div class="entry-comments-bar">
         <span class="comments-title">""";
         $this->lay_print_comment_details( $.entry.comments );
-        $this->lay_print_entry_reply_link( $.entry.comments );
+        $this->lay_print_entry_reply_link( $.entry, "topcomment" );
         """</span>
     """; $this->lay_comment_pagination(); """
     </div>
@@ -2526,6 +2549,7 @@ function EntryPage::print_body() : void {
     $this->lay_back_forward();
 
     $this->lay_print_entry_comments_bar();
+    $this->print_reply_container({ "target" => "topcomment", "class" => "quickreply" });
 
     $this->lay_print_comments();
 
