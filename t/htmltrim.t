@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -85,6 +85,34 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
         "Truncating [3] with mismatched tags"
     );
 
+}
+
+{
+    # the cleaner leaves void elements such as <hr> and <wbr> unslashed
+    my $test_string = qq{<div class="box"><hr>inside</div>outside};
+    is(
+        LJ::html_trim( $test_string, length($test_string) ),
+        qq{<div class="box"><hr />inside</div>outside},
+        "Unslashed <hr> doesn't keep its container open"
+    );
+    is(
+        LJ::html_trim( $test_string, 8 ),
+        qq{<div class="box"><hr />inside</div>ou},
+        "Truncating after an unslashed <hr> closes its container in place"
+    );
+    is(
+        LJ::html_trim( qq{<span>a<wbr>b</span>c}, 3 ),
+        qq{<span>a<wbr />b</span>c},
+        "Unslashed <wbr> doesn't keep its container open"
+    );
+
+    my $entry = qq{<div style="border: 1px solid">first<hr>second</div><p>after</p>};
+    LJ::CleanHTML::clean_event( \$entry );
+    like(
+        LJ::html_trim( $entry, 1000 ),
+        qr{second</div>\s*<p>after</p>\s*$},
+        "Cleaned entry with an <hr> keeps later content outside its container"
+    );
 }
 
 1;
