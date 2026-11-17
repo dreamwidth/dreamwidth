@@ -11,8 +11,12 @@ use DW::Formats;
 
 DW::Routing->register_string( '/talkpost_do', \&talkpost_do_handler, app => 1 );
 DW::Routing->register_string( '/talkmulti',   \&talkmulti_handler,   app => 1 );
-DW::Routing->register_string( '/talkscreen',  \&talkscreen_handler,  app => 1 );
-DW::Routing->register_string( '/delcomment',  \&delcomment_handler,  app => 1 );
+
+# no_cache: these pages carry a per-user form_auth token in their confirmation
+# forms, so shared caches must not store them (the pre-TT BML pages also set
+# nocache=>1).
+DW::Routing->register_string( '/talkscreen', \&talkscreen_handler, app => 1, no_cache => 1 );
+DW::Routing->register_string( '/delcomment', \&delcomment_handler, app => 1, no_cache => 1 );
 DW::Routing->register_rpc(
     "delcomment", \&delcomment_handler,
     format  => 'json',
