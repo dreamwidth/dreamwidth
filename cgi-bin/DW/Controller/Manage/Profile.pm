@@ -31,6 +31,8 @@ use DW::Template;
 use LJ::Setting;
 use DW::External::ProfileServices;
 use DW::FormErrors;
+use DW::Countries;
+use LJ::Widget::Location;
 use Data::Dumper;
 
 DW::Routing->register_string( "/manage/profile",  \&profile_handler, app => 1, no_redirects => 1 );
@@ -63,12 +65,75 @@ sub profile_handler {
         N => LJ::Lang::ml("$scope.security.visibility.nobody"),
         }->{ $u->opt_showcontact };
 
-    my $errors = DW::FormErrors->new;
+    my $errors          = DW::FormErrors->new;
+    my $refresh_country = $r->did_post && $POST->{refresh_country};
 
     return DW::Template->render_template( 'error.tt', { message => $LJ::MSG_READONLY_USER } )
         if $u->is_readonly;
 
     ### user is now authenticated ###
+
+    $u->preload_props(qw(country state city));
+    my $location =
+        $r->did_post
+        ? LJ::Widget::Location->post_fields($POST)
+        : { map { $_ => $u->prop($_) || '' } qw(country state city) };
+    my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $location->{country} );
+    my %regions     = $regions_cfg ? @{ LJ::Widget::Location->region_options($regions_cfg) } : ();
+
+    unless ( $r->did_post ) {
+        $location->{statedrop}  = '';
+        $location->{stateother} = $location->{state};
+        if ($regions_cfg) {
+            my $stored  = $location->{state};
+            my @matches = grep { length $_ && $regions{$_} eq $stored } keys %regions;
+            $location->{statedrop} =
+                  exists $regions{$stored} ? $stored
+                : @matches == 1            ? $matches[0]
+                :                            '';
+            $location->{stateother} = '' if !length $stored || length $location->{statedrop};
+        }
+    }
+
+    if ($refresh_country) {
+        my %countries;
+        DW::Countries->load_legacy( \%countries );
+        if ( $location->{country} && !defined $countries{ $location->{country} } ) {
+            $errors->add( '', 'widget.location.error.locale.invalid_country' );
+        }
+        else {
+            # This marker only describes the previous display; Save never trusts it.
+            my $changed = ( $location->{country} || '' ) ne ( $POST->{location_country} || '' );
+            $location->{statedrop} = '' if $changed || !$regions_cfg;
+            my $selected = $location->{statedrop} || '';
+            $location->{stateother} = ''
+                if $changed || ( $regions_cfg && length $selected && exists $regions{$selected} );
+        }
+    }
+
+    if ( $regions_cfg && $location->{stateother} ) {
+        my $selected = $location->{statedrop} || '';
+
+        # Retained legacy text may be replaced by an explicit canonical choice.
+        # Arbitrary incompatible text must still reach the widget's validation.
+        if (   $r->did_post
+            && !$refresh_country
+            && length $selected
+            && exists $regions{$selected}
+            && ( $location->{country} || '' ) eq ( $u->prop('country') || '' )
+            && $location->{stateother} eq ( $u->prop('state') || '' ) )
+        {
+            $POST->{'Widget[Location]_stateother'} = '';
+            $location->{stateother}                = '';
+        }
+        elsif ( !$r->did_post || $refresh_country ) {
+            $errors->add( '', '.error.state.unavailable' );
+        }
+    }
+
+    if ( $regions_cfg && $location->{statedrop} && !exists $regions{ $location->{statedrop} } ) {
+        $errors->add( '', '.error.state.unavailable' );
+    }
 
     # The settings used on this page
     my @settings = ();
@@ -166,6 +231,12 @@ sub profile_handler {
     };
 
     my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
+    my %existing_services;
+    foreach my $service (@services) {
+        foreach my $account ( @{ $profile_accts->{ $service->{service_id} } || [] } ) {
+            $existing_services{ $account->[0] } = $service;
+        }
+    }
     my @dropdown = ( '' => '' );
     push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
 
@@ -179,25 +250,39 @@ sub profile_handler {
     $cur =~ tr/BVL/AAN/;    # D reset later
 
     my $vars = {
-        u                => $u,
-        authas_html      => $rv->{authas_html},
-        formdata         => $POST,
-        iscomm           => $iscomm,
-        curr_privacy     => $curr_privacy,
-        opt_sharebday    => $opt_sharebday,
-        help_icon        => \&LJ::help_icon,
-        showtoopts       => \@showtoopts,
-        interests        => $interests_str,
-        month_select     => \@months,
-        services         => \@services,
-        service_dropdown => \@dropdown,
-        saved            => \%saved,
-        bdpart           => \%bdpart,
-        checked          => $checked,
-        cur              => $cur,
-        profile_accts    => $profile_accts,
-        profile_email    => DW::Setting::ProfileEmail->option($u),
-        location => LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 ),
+        u                 => $u,
+        authas_html       => $rv->{authas_html},
+        formdata          => $POST,
+        iscomm            => $iscomm,
+        curr_privacy      => $curr_privacy,
+        opt_sharebday     => $opt_sharebday,
+        help_icon         => \&LJ::help_icon,
+        showtoopts        => \@showtoopts,
+        interests         => $interests_str,
+        month_select      => \@months,
+        services          => \@services,
+        service_dropdown  => \@dropdown,
+        saved             => \%saved,
+        bdpart            => \%bdpart,
+        checked           => $checked,
+        cur               => $cur,
+        profile_accts     => $profile_accts,
+        existing_services => \%existing_services,
+        profile_email => DW::Setting::ProfileEmail->option( $u, $r->did_post ? {} : undef, $POST ),
+        did_post      => $r->did_post,
+        location_country => $location->{country},
+        location         => LJ::Widget::Location->render(
+            skip_timezone                => 1,
+            minimal_display              => 1,
+            country                      => $location->{country},
+            city                         => $location->{city},
+            state                        => $location->{stateother},
+            state_inputselect_attributes => { selected => $location->{statedrop} },
+
+            # Keep retained text for a region country; an empty field keeps the widget's hint.
+            state_inputtext_attributes =>
+                { length $location->{stateother} ? ( value => $location->{stateother} ) : () },
+        ),
         set_profile_settings_extra => LJ::Hooks::run_hook( "profile_settings_extra", $u )
     };
 
@@ -208,9 +293,21 @@ sub profile_handler {
                 $u, undef, { minimal_display => 1, helper => 0 }
             )
         };
+        if ( $r->did_post ) {
+            $vars->{findbyemail}->{html} = LJ::html_select(
+                {
+                    name     => 'LJ__Setting__FindByEmail_opt_findbyemail',
+                    class    => 'select',
+                    selected => $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
+                },
+                '' => LJ::Lang::ml('settings.option.select'),
+                map { $_ => LJ::Lang::ml("settings.findbyemail.opt.$_") } qw(Y H N)
+            );
+        }
     }
 
-    if ( $r->did_post ) {
+    # Choice refreshes render the submitted form without any validation/save dispatch.
+    if ( $r->did_post && !$refresh_country ) {
 
         # name
         unless ( LJ::trim( $POST->{'name'} ) ) {
@@ -260,6 +357,38 @@ sub profile_handler {
         # bio
         if ( defined $POST->{'bio'} and length( $POST->{'bio'} ) >= LJ::BMAX_BIO ) {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
+        }
+
+        # Validate interests before any widget, setting or profile persistence.
+        my $valid_interests;
+        unless ( $POST->{'interests_absent'} ) {
+            my $maxinterests = $u->count_max_interests;
+
+            my @ints      = LJ::interest_string_to_list( $POST->{'interests'} );
+            my $intcount  = scalar(@ints);
+            my @interrors = ();
+
+            # Don't bother validating the interests if there are already too many
+            if ( $intcount > $maxinterests ) {
+                $errors->add(
+                    'interests',
+                    'error.interest.excessive2',
+                    {
+                        intcount     => $intcount,
+                        maxinterests => $maxinterests
+                    }
+                );
+            }
+            else {
+                # Clean interests, and make sure they're valid
+                my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
+                if ( @interrors > 0 ) {
+                    map { $errors->add( 'interests', @$_ ) } @interrors;
+                }
+                else {
+                    $valid_interests = \@valid_ints;
+                }
+            }
         }
 
         # Field validation is done; bail before any saving if it failed. The
@@ -424,37 +553,9 @@ sub profile_handler {
         LJ::EmbedModule->parse_module_embed( $u, \$POST->{'bio'} );
         $u->set_bio( $POST->{'bio'} );
 
-        # update interests
-        unless ( $POST->{'interests_absent'} ) {
-            my $maxinterests = $u->count_max_interests;
-
-            my @ints      = LJ::interest_string_to_list( $POST->{'interests'} );
-            my $intcount  = scalar(@ints);
-            my @interrors = ();
-
-            # Don't bother validating the interests if there are already too many
-            if ( $intcount > $maxinterests ) {
-                $errors->add(
-                    'interests',
-                    'error.interest.excessive2',
-                    {
-                        intcount     => $intcount,
-                        maxinterests => $maxinterests
-                    }
-                );
-            }
-            else {
-                # Clean interests, and make sure they're valid
-                my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
-                if ( @interrors > 0 ) {
-                    map { $errors->add( 'interests', @$_ ) } @interrors;
-                }
-                else {
-                    my $updated_interests_str = join( ", ", @valid_ints );
-                    $u->set_interests( \@valid_ints );
-                    $vars->{interests} = $updated_interests_str;
-                }
-            }
+        if ( defined $valid_interests ) {
+            $u->set_interests($valid_interests);
+            $vars->{interests} = join( ", ", @$valid_interests );
         }
 
         LJ::Hooks::run_hooks( 'profile_save', $u, \%saved, $POST );
@@ -490,8 +591,7 @@ sub profile_handler {
                 . "</a></li></ul>";
         }
 
-        # interest validation (above) can add errors after the main save; if so,
-        # re-render with them instead of reporting success
+        # Do not report success while errors are present.
         if ( $errors->exist ) {
             $vars->{errors} = $errors;
             return DW::Template->render_template( 'manage/profile.tt', $vars );

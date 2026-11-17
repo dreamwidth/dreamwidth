@@ -25,6 +25,7 @@ package DW::Controller::Create;
 use strict;
 use DW::AccountSwitcher;
 use DW::Controller;
+use DW::Countries;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
@@ -420,9 +421,39 @@ sub setup_handler {
 
     return $r->redirect( LJ::create_url("/") ) unless $remote->is_personal;
 
-    my @location_props = qw/ country state city /;
-    my $errors         = DW::FormErrors->new;
-    if ( $r->did_post ) {
+    my @location_props  = qw/ country state city /;
+    my $errors          = DW::FormErrors->new;
+    my $refresh_country = $r->did_post && $r->post_args->{refresh_country};
+    if ($refresh_country) {
+        $post = $r->post_args;
+
+        # Refresh choices before any save hooks, embed storage or inviter actions.
+        my %countries;
+        DW::Countries->load( \%countries );
+        if ( $post->{country} && !defined $countries{ $post->{country} } ) {
+            $errors->add( 'country', 'widget.location.error.locale.invalid_country' );
+        }
+        else {
+            # The marker describes the displayed options, never permission to save.
+            my $changed     = ( $post->{country} || '' ) ne ( $post->{location_country} || '' );
+            my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $post->{country} );
+            $post->{statedrop} = '' if $changed || !$regions_cfg;
+            if ($regions_cfg) {
+                my %regions = @{ LJ::Widget::Location->region_options($regions_cfg) };
+
+                # An unrepresentable stored region must not disappear on refresh.
+                my $selected = $post->{statedrop} || '';
+                $post->{stateother} = ''
+                    if $changed || ( length $selected && exists $regions{$selected} );
+                $errors->add( 'statedrop', '/create/setup.tt.error.state.unavailable' )
+                    if $post->{stateother};
+            }
+            else {
+                $post->{stateother} = '' if $changed;
+            }
+        }
+    }
+    elsif ( $r->did_post ) {
         $post = $r->post_args;
 
         # Check for spam strings
@@ -450,6 +481,16 @@ sub setup_handler {
         DW::Countries->load( \%countries );
 
         my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $post->{country} );
+        if (   $regions_cfg
+            && $post->{stateother}
+            && ( $post->{country} || '' ) eq ( $u->prop('country') || '' )
+            && $post->{stateother} eq ( $u->prop('state') || '' ) )
+        {
+            # The hidden legacy value must not prevent an explicit valid replacement.
+            my %regions  = @{ LJ::Widget::Location->region_options($regions_cfg) };
+            my $selected = $post->{statedrop} || '';
+            $post->{stateother} = '' if length $selected && exists $regions{$selected};
+        }
         if ( $regions_cfg && $post->{stateother} ) {
             $errors->add( 'statedrop', 'widget.location.error.locale.country_ne_state' );
         }
@@ -662,7 +703,7 @@ sub setup_handler {
 
     # clean bio and expand for editing
     my $bio = \$vars->{formdata}->{bio};
-    LJ::EmbedModule->parse_module_embed( $u, $bio, edit => 1 );
+    LJ::EmbedModule->parse_module_embed( $u, $bio, edit => 1 ) unless $refresh_country;
     LJ::text_out( $bio, "force" );
 
     # populate specified country with state information (if any)
@@ -671,6 +712,30 @@ sub setup_handler {
 
 # hashref of all regions for the specified country; it is initialized and used only if $regions_cfg is defined, i.e. the country has regions (states)
     $vars->{state_list} = LJ::Widget::Location->region_options($regions_cfg) if $regions_cfg;
+
+    unless ($post) {
+        my $form = $vars->{formdata};
+        if ($regions_cfg) {
+            my %regions = @{ $vars->{state_list} };
+            my $stored  = $form->{statedrop};
+            unless ( exists $regions{$stored} ) {
+
+                # Older data and name-storage mode contain labels, not option codes.
+                my @matches = grep { length $_ && $regions{$_} eq $stored } keys %regions;
+                $form->{statedrop} = @matches == 1 ? $matches[0] : '';
+            }
+            if ( !length $stored || length $form->{statedrop} ) {
+                $form->{stateother} = '';
+            }
+            else {
+                # Keep the incompatible value so ordinary Save rejects its loss.
+                $errors->add( 'statedrop', '/create/setup.tt.error.state.unavailable' );
+            }
+        }
+        else {
+            $form->{statedrop} = '';
+        }
+    }
 
     return DW::Template->render_template( 'create/setup.tt', $vars );
 }
