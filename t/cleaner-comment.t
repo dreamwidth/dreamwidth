@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 28;
+use Test::More tests => 34;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -172,6 +172,39 @@ $orig_comment  = q{<a href=mailto:blah@blah.com><table>};
 $clean_comment = q{<b></b> (mailto:blah@blah.com)};
 $clean->( { anon_comment => 1 } );
 is( $orig_comment, $clean_comment, "Anonymous comment bold escape" );
+
+note("Don't let <big> tags stack in anonymous comments");
+{
+    $orig_comment  = qq{<big><big><big>huge</big></big></big> normal};
+    $clean_comment = qq{<big>huge</big> normal};
+    $clean->( { anon_comment => 1 } );
+    is( $orig_comment, $clean_comment, "Nested big tags and their end tags dropped" );
+
+    $orig_comment  = qq{<big><h1>one<big><h1>two<big><h1>three};
+    $clean_comment = qq{<big><h1>one<h1>two<h1>three</h1></h1></h1></big>};
+    $clean->( { anon_comment => 1 } );
+    is( $orig_comment, $clean_comment, "Unclosed big tags separated by other tags dropped" );
+
+    $orig_comment  = qq{<big>a<big>b</big>c</big>d};
+    $clean_comment = qq{<big>abc</big>d};
+    $clean->( { anon_comment => 1 } );
+    is( $orig_comment, $clean_comment, "Outer big stays open until its own end tag" );
+
+    $orig_comment  = qq{<big>a</big> <big>b</big>};
+    $clean_comment = $orig_comment;
+    $clean->( { anon_comment => 1 } );
+    is( $orig_comment, $clean_comment, "Big tags one after another are kept" );
+
+    $orig_comment  = qq{<div><big>a<big>b</div><big>c</big>d};
+    $clean_comment = qq{<div><big>ab</big></div><big>c</big>d};
+    $clean->( { anon_comment => 1 } );
+    is( $orig_comment, $clean_comment, "Big reopened after an early close can still be closed" );
+
+    $orig_comment  = qq{<big><big>x</big></big>};
+    $clean_comment = $orig_comment;
+    $clean->();
+    is( $orig_comment, $clean_comment, "Nested big tags kept when not anonymous" );
+}
 
 note("various allowed/disallowed tags");
 {
