@@ -523,6 +523,16 @@ sub changepassword_handler {
             # if we used an authcode, we'll need to expire it now
             LJ::mark_authaction_used($aa) if $authu;
 
+            # The reset link was mailed to this address, so using it confirms
+            # the address, the same as following the confirmation link.
+            if ( $authu && !$u->is_validated && lc $aa->{arg1} eq lc $u->email_raw ) {
+                $u->update_self( { status => 'A' } );
+                $u->update_email_alias;
+                LJ::Hooks::run_hook( 'email_verified', $u );
+                LJ::Hooks::run_hook( 'post_email_change',
+                    { user => $u, newemail => $aa->{arg1}, suspend => 1 } );
+            }
+
             # End this account's sessions. Normally that logs the user out
             # everywhere and they re-login. But if they have other accounts
             # signed in to this browser through the switcher and are changing
