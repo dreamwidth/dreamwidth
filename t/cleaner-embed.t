@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 189;
+use Test::More tests => 191;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -137,6 +137,20 @@ qq{<iframe src="http://youtube.com/embed/$id"></iframe> <iframe src="http://www.
     $clean_post = qq{<iframe src="http://youtube.com/embed/$id"></iframe> };
     $clean->();
     is( $orig_post, $clean_post, "<iframe> tag: youtube.com (iframe embed code)" );
+
+    note("trusted site: cyberfile");
+    $orig_post =
+qq{<iframe src="https://cyberfile.me/video/embed/noaI/640x320/example.mp4" frameborder="0" scrolling="no" style="width: 640px; height: 320px; overflow: hidden;" allowfullscreen></iframe>};
+    $clean->();
+    like(
+        $orig_post,
+qr{^<iframe src="https://cyberfile\.me/video/embed/noaI/640x320/example\.mp4"[^>]*></iframe>$},
+        "<iframe> tag: cyberfile (iframe embed code)"
+    );
+
+    $orig_post = qq{<iframe src="https://cyberfile.me/noaI"></iframe>};
+    $clean->();
+    is( $orig_post, qq{}, "<iframe> tag: cyberfile (file page, not embed)" );
 
 # HTML 4 says an iframe can contain fallback content
 # HTML 5 says an iframe contains no fallback content
