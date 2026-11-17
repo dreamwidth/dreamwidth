@@ -73,6 +73,9 @@ my %host_path_match = (
     "dotsub.com"          => [ qr!^/media/!,                         1 ],
     "discordapp.com"      => [ qr!^/widget$!,                        1 ],
 
+    # documents (including single pages and notes) and projects
+    "embed.documentcloud.org" => [ qr!^/(?:documents|projects)/\d+!, 1 ],
+
     "episodecalendar.com" => [ qr!^/icalendar/!, 0 ],
 
     "www.flickr.com"     => [ qr!/player/$!, 1 ],

@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 189;
+use Test::More tests => 191;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -137,6 +137,21 @@ qq{<iframe src="http://youtube.com/embed/$id"></iframe> <iframe src="http://www.
     $clean_post = qq{<iframe src="http://youtube.com/embed/$id"></iframe> };
     $clean->();
     is( $orig_post, $clean_post, "<iframe> tag: youtube.com (iframe embed code)" );
+
+    note("trusted site: documentcloud");
+    $orig_post =
+qq{<iframe src="https://embed.documentcloud.org/documents/282753-lefler-thesis/?embed=1" title="Lefler Thesis (Hosted by DocumentCloud)" width="700" height="905" style="border: 1px solid #aaa;" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-popups-to-escape-sandbox"></iframe>};
+    $clean->();
+    like(
+        $orig_post,
+qr{^<iframe src="https://embed\.documentcloud\.org/documents/282753-lefler-thesis/\?embed=1"[^>]* width="700" height="905"[^>]*></iframe>$},
+        "<iframe> tag: documentcloud (iframe embed code)"
+    );
+
+    $orig_post =
+        qq{<iframe src="https://www.documentcloud.org/documents/282753-lefler-thesis/"></iframe>};
+    $clean->();
+    is( $orig_post, qq{}, "<iframe> tag: documentcloud (viewer page, not embed host)" );
 
 # HTML 4 says an iframe can contain fallback content
 # HTML 5 says an iframe contains no fallback content
