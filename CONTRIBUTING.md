@@ -6,6 +6,7 @@ We love having new contributors join us! Here's the quick summary of where to fi
 * Dreamwidth is a highly complicated web app with tons of dependencies. You don't need to get it working locally just to contribute: we do it all for you. You can do it if you want, but it's a lot easier if you let us do it! The easiest thing to do is to sign up for a [Dreamhack account](http://hack.dreamwidth.net/) -- our hosted developer service.
 * Read the [Dev Getting Started](https://github.com/dreamwidth/dreamwidth/wiki/Dev-Getting-Started) wiki guide.  Bear in mind that any mentions of Bugzilla are out-of-date and should be considered docs bugs.  Note, though, that docs bugs do not belong on Github Issues, and should probably be raised in the dw-docs community.
 * Check the [Programming Guidelines](https://github.com/dreamwidth/dreamwidth/wiki/Programming-Guidelines)
+* For journal styles, site CSS, or template changes, use the [style change checklist](doc/STYLES-CHECKLIST.md) before committing.
 * Send in a [Contributor Licensing Agreement](https://github.com/dreamwidth/dreamwidth/wiki/Contributor-Licensing-Agreement)
 * Start hacking!
 
