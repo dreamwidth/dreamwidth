@@ -58,24 +58,32 @@ if ( @ARGV == 2 && $ARGV[0] =~ /\A--(?:delete|state)\z/ ) {
 my $layout = LJ::S2::get_public_layers()->{'abstractia/layout'}->{s2lid}
     or croak 'install the public S2 layers before running this test';
 my $password = LJ::rand_chars(16);
-my ( $admin, $community );
+my ( $admin, $community, $outsider );
 my $created;
 
 END {
     unless ($created) {
-        remove_account($_) for grep { defined $_ } ( $community, $admin );
+        remove_account($_) for grep { defined $_ } ( $community, $admin, $outsider );
     }
 }
 
-until ($admin) {
-    $admin = LJ::User->create_personal(
-        user     => $prefix . 'c' . lc LJ::rand_chars(5),
-        email    => 'browser-test@example.com',
-        password => $password,
-        name     => 'Style Test Maintainer',
-    );
+sub create_personal {
+    my ($name) = @_;
+    my $account;
+    until ($account) {
+        $account = LJ::User->create_personal(
+            user     => $prefix . 'c' . lc LJ::rand_chars(5),
+            email    => 'browser-test@example.com',
+            password => $password,
+            name     => $name,
+        );
+    }
+    $account->update_self( { status => 'A', statusvis => 'V' } );
+    return $account;
 }
-$admin->update_self( { status => 'A', statusvis => 'V' } );
+
+$admin    = create_personal('Style Test Maintainer');
+$outsider = create_personal('Style Test Non-Maintainer');
 $admin->set_prop( journaltitle => 'Maintainer Journal' );
 until ($community) {
     $community = LJ::User->create_community(
@@ -103,6 +111,7 @@ $created = 1;
 print encode_json(
     {
         user      => $admin->user,
+        outsider  => $outsider->user,
         password  => $password,
         community => $community->user,
         theme     => $theme,
