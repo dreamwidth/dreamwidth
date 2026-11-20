@@ -330,6 +330,9 @@ function print_stylesheet () {
 
     var string navlinks_css = "";
         if ($*module_navlinks_section == "header") {
+            var Color nav_visited = $*color_header_links_visited.as_string == "" ? $*color_header_links : $*color_header_links_visited;
+            var Color nav_hover = $*color_header_links_hover.as_string == "" ? $*color_header_links : $*color_header_links_hover;
+            var Color nav_active = $*color_header_links_active.as_string == "" ? $*color_header_links : $*color_header_links_active;
             $navlinks_css = """
             .module-navlinks.module {
                 background: none;
@@ -367,9 +370,9 @@ function print_stylesheet () {
             .module-navlinks .module-header {display:none;}
 
             .module-navlinks a {font-size: smaller; color: $*color_header_links}
-            .module-navlinks a:visited {font-size: smaller; color: $*color_header_links_visited}
-            .module-navlinks a:hover {color: $*color_header_links_hover; text-decoration:none;}
-            .module-navlinks a:active {font-size: smaller; color: $*color_header_links_active}
+            .module-navlinks a:visited {font-size: smaller; color: $nav_visited}
+            .module-navlinks a:hover {color: $nav_hover; text-decoration:none;}
+            .module-navlinks a:active {font-size: smaller; color: $nav_active}
             """;
         }
 
