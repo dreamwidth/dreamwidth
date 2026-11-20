@@ -1,15 +1,24 @@
-@import "foundation/base";
-@import "foundation/components/tables";
-
-.console_command {
-    margin-top: $table-margin-bottom;
-    margin-bottom: $table-margin-bottom / 3;
-    border: solid 1px #aaa;
-    font-size: .925rem;
+.console-result {
+    margin-bottom: 1.5rem;
+    overflow-wrap: anywhere;
 }
 
-.console_text {
-    font-weight: bold;
-    overflow: visible;
-    font-size: 0.9em;
+.console-command {
+    font-size: 1.125rem;
+
+    code {
+        background: none;
+        border: 0;
+        color: inherit;
+        font-weight: normal;
+        padding: 0;
+        white-space: pre-wrap;
+    }
+}
+
+.console-responses .alert-box {
+    font-size: 1rem;
+    font-weight: normal;
+    margin-bottom: .5rem;
+    white-space: pre-wrap;
 }
