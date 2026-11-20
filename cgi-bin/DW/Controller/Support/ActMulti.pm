@@ -84,7 +84,7 @@ sub actmulti_handler {
         my @filtered_ids = splice( @ids, 0, 50 );
 
         my $requests = LJ::Support::load_requests( \@filtered_ids );
-        LJ::Support::close_request_with_points( $_, $cat, $remote ) foreach @$requests;
+        LJ::Support::close_requests_with_points( $requests, $cat, $remote );
 
         # @ids now holds the overflow beyond 50; pass it back so the board
         # re-marks those requests for the next round
