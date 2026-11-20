@@ -357,24 +357,46 @@ qr/&lt;span title=&quot;here &gt; there&quot;&gt;.*?real &amp;amp; &#39;quoted&#
         'Reports the correct location in UTF-8 octets'
     );
 
+    $warning = $warning_for->( ( 'w ' x 50 ) . '<em>tail' );
+    like(
+        $warning->{opts}{tags},
+        qr/\.\.\. (?:w ){7}<strong>&lt;em&gt;<\/strong>tail/,
+        'Applies seven-word limit before the opener even when character cap also triggers'
+    );
+
     my $boundary_utf8 =
-          ( 'a' x 300 )
+          ( 'p' x 20 )
+        . "\x{1F600}"
+        . ( 'q' x 237 )
         . "\x{2603} "
-        . ( 'b' x 75 )
+        . ( 'b' x 78 )
         . qq{<em>}
         . ( 'e' x 79 )
-        . "\x{2603} trailing words";
+        . "\x{2603}"
+        . ( 'f' x 237 )
+        . "\x{1F600} trailing";
     utf8::encode($boundary_utf8);
     $warning = $warning_for->($boundary_utf8);
     unlike( $warning->{opts}{tags}, qr/\xef\xbf\xbd/,
-        'Truncating UTF-8 octets at before/after boundaries never produces replacement characters'
+'Truncating UTF-8 octets at 80- and 320-byte boundaries never produces replacement characters'
     );
-    my $long_opener_utf8 = qq{<span title="} . ( 'c' x 70 ) . "\x{2603}" . ( 'd' x 20 ) . qq{">};
+    like(
+        $warning->{opts}{tags},
+        qr/\.\.\. \xe2\x98\x83 b{78}<strong>&lt;em&gt;<\/strong>e{79}\xe2\x98\x83 \.\.\./,
+        'UTF-8 boundary truncation preserves intact characters at the before and after cuts'
+    );
+
+    my $long_opener_utf8 = qq{<span title="} . ( 'c' x 66 ) . "\x{2603}" . ( 'd' x 20 ) . qq{">};
     utf8::encode($long_opener_utf8);
     my $opener_ctx = LJ::CleanHTML::_unclosed_tag_context( \$long_opener_utf8,
         [ 'span', 0, length($long_opener_utf8) ] );
     unlike( $opener_ctx, qr/\xef\xbf\xbd/,
         'Truncating UTF-8 octets inside a long opening tag never produces replacement characters' );
+    like(
+        $opener_ctx,
+        qr/<strong>&lt;span title=&quot;c{66}\xe2\x98\x83\.\.\.<\/strong>/,
+        'Long opening tag truncation keeps the 80th multibyte character intact'
+    );
 
     $warning = $warning_for->( '<strong>' . ( 'x' x 1000 ) . ' nearby words' );
     unlike( $warning->{opts}{tags}, qr/x{100}/, 'Does not quote an unbounded word' );
