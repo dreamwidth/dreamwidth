@@ -1573,8 +1573,6 @@ esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
 esn.view_thread=[[openlink]]View the thread[[closelink]] beginning with this comment
 
-esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
-
 esn.your_inbox=Your Inbox
 
 esn.you_can=You can:
