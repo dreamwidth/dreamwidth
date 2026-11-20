@@ -947,6 +947,8 @@ sub _render_edit_form {
     my $shared_admin_edit = $opts{shared_admin_edit};
     $vars->{formdata}          = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
     $vars->{shared_admin_edit} = $shared_admin_edit;
+    $vars->{moderation_url} = LJ::create_url( undef, keep_args => 1, args => { moderate => 1 } )
+        if $shared_admin_edit && !$journal->readonly && $entry_obj->deletable_by($remote);
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.

@@ -466,7 +466,7 @@ sub can_add_tags {
 # we don't allow identity users to add tags, even when tag permissions would otherwise allow any user on the site
 # exception are communities that explicitly allow identity users to post in them
 # FIXME: perhaps we should restrict on all users, but allow for more restrictive settings such as members?
-    return undef unless $remote->is_individual;
+    return undef unless $remote->is_individual && $remote->is_visible && !$remote->is_expunged;
     return undef if $u->has_banned($remote);
 
     # get permission hashref and check it; note that we fall back to the control
@@ -485,7 +485,7 @@ sub can_add_entry_tags {
     return undef unless $remote && $entry;
 
     my $journal = $entry->journal;
-    return undef unless $remote->is_individual;
+    return undef unless $remote->is_individual && $remote->is_visible && !$remote->is_expunged;
     return undef if $journal->has_banned($remote);
 
     my $perms = LJ::Tags::get_permission_levels($journal);
@@ -522,7 +522,7 @@ sub can_control_tags {
     my $u      = LJ::want_user(shift);
     my $remote = LJ::want_user(shift);
     return undef unless $u && $remote;
-    return undef unless $remote->is_individual;
+    return undef unless $remote->is_individual && $remote->is_visible && !$remote->is_expunged;
     return undef if $u->has_banned($remote);
 
     # get permission hashref and check it
@@ -881,7 +881,7 @@ sub update_logtags {
 
     # get the security of this post for use in %security; do this now so
     # we don't interrupt the transaction below
-    my $l2row = LJ::get_log2_row( $u, $jitemid );
+    my $l2row = $opts->{previous_security} || LJ::get_log2_row( $u, $jitemid );
     return undef unless $l2row;
 
     # calculate security masks
@@ -1070,13 +1070,15 @@ sub update_logtags {
 sub delete_logtags {
     return undef unless LJ::is_enabled('tags');
 
-    my $u       = LJ::want_user(shift);
-    my $jitemid = shift() + 0;
+    my $u                 = LJ::want_user(shift);
+    my $jitemid           = shift() + 0;
+    my $previous_security = shift;
     return undef unless $u && $jitemid;
 
     # maybe this is wrong, but it does all of the logic we would otherwise
     # have to duplicate here, so no sense in doing that.
-    return LJ::Tags::update_logtags( $u, $jitemid, { set_string => "", force => 1, } );
+    return LJ::Tags::update_logtags( $u, $jitemid,
+        { set_string => "", force => 1, previous_security => $previous_security } );
 }
 
 # <LJFUNC>

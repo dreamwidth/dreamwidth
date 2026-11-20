@@ -42,6 +42,7 @@ use DW::API::Key;
 use DW::Auth;
 use DW::Auth::TOTP;
 use DW::Auth::Challenge;
+use DW::Locker;
 use DW::RateLimit;
 use LJ::Tags;
 use LJ::Feed;
@@ -1848,6 +1849,106 @@ sub postevent {
     return $res;
 }
 
+sub _store_shared_official_edit {
+    my ( $dbcm, $entry, $actor, $old_revision, $store ) = @_;
+    my $journal = $entry->journal;
+    return 501 unless $journal->is_innodb;
+    my $dbh       = LJ::get_db_writer() or return 501;
+    my $setting   = LJ::get_prop( 'user', 'shared_admin_posts' ) or return 303;
+    my $journalid = $journal->id;
+    my $itemid    = $entry->jitemid;
+    my $editorid  = $actor->id;
+    my $authorid  = $entry->posterid;
+
+    my @transactions;
+    my $write = sub {
+        for my $db ( $dbh, ( $dbh == $dbcm ? () : $dbcm ) ) {
+            $db->begin_work or return 501;
+            push @transactions, $db;
+        }
+
+        my $accounts = $dbh->selectall_hashref(
+            q{SELECT userid, statusvis, journaltype, clusterid, dversion FROM user
+                WHERE userid IN (?, ?, ?) LOCK IN SHARE MODE},
+            'userid', undef, $journalid, $editorid, $authorid
+        );
+        return 501 unless $accounts;
+        for my $userid ( $journalid, $editorid, $authorid ) {
+            return 303
+                unless $accounts->{$userid}
+                && $accounts->{$userid}->{statusvis} eq 'V'
+                && $accounts->{$userid}->{clusterid};
+        }
+        return 303
+            unless $accounts->{$journalid}->{journaltype} eq 'C'
+            && $accounts->{$journalid}->{clusterid} == $journal->clusterid
+            && $accounts->{$editorid}->{journaltype} =~ /\A[PI]\z/;
+
+        my $admins = $dbh->selectcol_arrayref(
+            q{SELECT targetid FROM reluser WHERE userid=? AND type='A'
+                AND targetid IN (?, ?) LOCK IN SHARE MODE},
+            undef, $journalid, $editorid, $authorid
+        );
+        return 501 unless $admins;
+        return 303 unless @$admins == 2;
+
+        my $clustered  = $accounts->{$journalid}->{dversion} >= $setting->{cldversion};
+        my $setting_db = $clustered ? $dbcm : $dbh;
+        my $table      = $clustered ? 'userproplite2' : 'userproplite';
+        my ($enabled)  = $setting_db->selectrow_array(
+            "SELECT value FROM $table WHERE userid=? AND upropid=? LOCK IN SHARE MODE",
+            undef, $journalid, $setting->{id} );
+        return 501 if $setting_db->err;
+        return 303 unless $enabled;
+
+        my $current = $dbcm->selectrow_hashref(
+            'SELECT posterid, anum FROM log2 WHERE journalid=? AND jitemid=? FOR UPDATE',
+            undef, $journalid, $itemid );
+        return 501 if $dbcm->err;
+        return 303
+            unless $current
+            && $current->{posterid} == $authorid
+            && $current->{anum} == $entry->anum;
+
+        my %prop_ids = map { LJ::get_prop( 'log', $_ )->{id} => $_ }
+            qw(admin_post statusvis revnum admin_post_editor);
+        my $placeholders = join ',', ('?') x keys %prop_ids;
+        my $props        = $dbcm->selectall_arrayref(
+            "SELECT propid, value FROM logprop2 WHERE journalid=? AND jitemid=?
+                AND propid IN ($placeholders) FOR UPDATE",
+            undef, $journalid, $itemid, keys %prop_ids
+        );
+        return 501 unless $props;
+        my %current_props = map { $prop_ids{ $_->[0] } => $_->[1] } @$props;
+        return 303
+            unless $current_props{admin_post}
+            && $current_props{statusvis} ne 'S'
+            && $current_props{revnum} + 0 == $old_revision;
+
+        my $editor_prop = LJ::get_prop( 'log', 'admin_post_editor' );
+        my ($credited) = $dbcm->selectrow_array(
+'SELECT 1 FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=? AND new_value=? LIMIT 1',
+            undef, $journalid, $itemid, $editor_prop->{id}, "$editorid"
+        );
+        return 501 if $dbcm->err;
+        return 501
+            unless $credited
+            || $entry->put_logprop_in_history( 'admin_post_editor', undef, $editorid, undef );
+
+        return 501 unless $store->();
+        return 501 unless $dbcm->commit;
+        return 0;
+    };
+
+    my $error     = eval { $write->() };
+    my $exception = $@;
+    for my $db ( reverse @transactions ) {
+        $db->rollback unless $db->{AutoCommit};
+    }
+    die $exception if $exception;
+    return $error;
+}
+
 sub editevent {
     my ( $req, $err, $flags ) = @_;
     my $res     = {};
@@ -1876,7 +1977,7 @@ sub editevent {
     my $ownerid = $flags->{'ownerid'};
     my $uowner  = $flags->{'u_owner'} || $u;
 
-    return fail( $err, 305 ) if $u->is_suspended;
+    return fail( $err, 305 ) if !$u->is_visible || $u->is_expunged;
 
     # Make sure we have a user object here
     $uowner = LJ::want_user($uowner) unless LJ::isu($uowner);
@@ -2036,6 +2137,22 @@ sub editevent {
     return undef
         unless common_event_validation( $req, $err, $flags );
 
+    my $official_edit_lock;
+    if (
+        $uowner->is_community
+        && (   $other_author
+            || $curprops{$itemid}->{admin_post}
+            || exists $req->{props}->{admin_post} )
+        )
+    {
+        $official_edit_lock = DW::Locker->new->trylock(
+            "official-entry:$ownerid:$itemid",
+            class => 'official_entry',
+            wait  => 5
+        );
+        return fail( $err, 501 ) unless $official_edit_lock;
+    }
+
     delete $req->{props}->{admin_post}
         if $req->{props}->{admin_post} && !( $uowner->is_community && $u->can_manage($uowner) );
 
@@ -2068,7 +2185,9 @@ sub editevent {
     # 'opt_nocomments' to 0 again, 'opt_nocomments_maintainer' should be set to 0 again, as well
     # so comments are enabled again
     $req->{props}->{opt_nocomments_maintainer} = 0
-        if defined $req->{props}->{opt_nocomments} && !$req->{props}->{opt_nocomments};
+        if !$other_author
+        && defined $req->{props}->{opt_nocomments}
+        && !$req->{props}->{opt_nocomments};
 
     my $event  = $req->{'event'};
     my $owneru = LJ::load_userid($ownerid);
@@ -2108,7 +2227,7 @@ sub editevent {
 
         # FIXME: temporary hack until we can make update_logtags recognize entry security edits
         if ( LJ::Tags::can_control_tags( $uowner, $u ) || LJ::Tags::can_add_tags( $uowner, $u ) ) {
-            my $delete = LJ::Tags::delete_logtags( $uowner, $itemid );
+            LJ::Tags::delete_logtags( $uowner, $itemid ) unless $other_author;
             $do_tags_security = 1;
         }
     }
@@ -2117,86 +2236,104 @@ sub editevent {
     my $qmonth = $req->{'mon'} + 0;
     my $qday   = $req->{'day'} + 0;
 
-    if (   $eventtime ne $oldevent->{'eventtime'}
-        || $security ne $oldevent->{'security'}
-        || ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} )
-        || $qallowmask != $oldevent->{'allowmask'} )
-    {
-        # are they changing their most recent post?
-        if (   $u->equals($uowner)
-            && $u->prop("newesteventtime") eq $oldevent->{eventtime} )
+    my $log2_cache_row;
+    my $text_changed = !$flags->{'use_old_content'}
+        && ( $event ne $oldevent->{'event'} || $req->{'subject'} ne $oldevent->{'subject'} );
+    my $store = sub {
+        if (   $eventtime ne $oldevent->{'eventtime'}
+            || $security ne $oldevent->{'security'}
+            || ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} )
+            || $qallowmask != $oldevent->{'allowmask'} )
         {
+            # are they changing their most recent post?
+            if (   $u->equals($uowner)
+                && $u->prop("newesteventtime") eq $oldevent->{eventtime} )
+            {
 
-            if ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} ) {
+                if ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} ) {
 
-                # if they set the backdated flag, then we no longer know
-                # the newesteventtime.
-                $u->set_prop( "newesteventtime", undef );
+                    # if they set the backdated flag, then we no longer know
+                    # the newesteventtime.
+                    $u->set_prop( "newesteventtime", undef );
+                }
+                elsif ( $eventtime ne $oldevent->{eventtime} ) {
+
+                    # otherwise, if they changed time on this event,
+                    # the newesteventtime is this event's new time.
+                    $u->set_prop( "newesteventtime", $eventtime );
+                }
             }
-            elsif ( $eventtime ne $oldevent->{eventtime} ) {
 
-                # otherwise, if they changed time on this event,
-                # the newesteventtime is this event's new time.
-                $u->set_prop( "newesteventtime", $eventtime );
-            }
-        }
-
-        my $qsecurity = $uowner->quote($security);
-        my $dberr;
-        $uowner->log2_do( \$dberr,
+            my $qsecurity = $uowner->quote($security);
+            my $sql =
                   "UPDATE log2 SET eventtime=$qeventtime, revttime=$LJ::EndOfTime-"
                 . "UNIX_TIMESTAMP($qeventtime), year=$qyear, month=$qmonth, day=$qday, "
                 . "security=$qsecurity, allowmask=$qallowmask WHERE journalid=$ownerid "
-                . "AND jitemid=$itemid" );
-        return fail( $err, 501, $dberr ) if $dberr;
+                . "AND jitemid=$itemid";
+            return undef unless $other_author ? $uowner->do($sql) : $uowner->log2_do( undef, $sql );
 
-        # update memcached
-        my $sec = $qallowmask;
-        $sec = 0 if $security eq 'private';
-        $sec = $LJ::PUBLICBIT if $security eq 'public';
+            # update memcached
+            my $sec = $qallowmask;
+            $sec = 0 if $security eq 'private';
+            $sec = $LJ::PUBLICBIT if $security eq 'public';
 
-        my $row = pack( $LJ::LOGMEMCFMT,
-            $oldevent->{'posterid'},
-            LJ::mysqldate_to_time( $eventtime,             1 ),
-            LJ::mysqldate_to_time( $oldevent->{'logtime'}, 1 ),
-            $sec, $ditemid );
+            $log2_cache_row = pack( $LJ::LOGMEMCFMT,
+                $oldevent->{'posterid'},
+                LJ::mysqldate_to_time( $eventtime,             1 ),
+                LJ::mysqldate_to_time( $oldevent->{'logtime'}, 1 ),
+                $sec, $ditemid );
 
-        LJ::MemCache::set( [ $ownerid, "log2:$ownerid:$itemid" ], $row );
+        }
 
+        if (   $security ne $oldevent->{'security'}
+            || $qallowmask != $oldevent->{'allowmask'} )
+        {
+            if ( $security eq "public" || $security eq "private" ) {
+                $uowner->do("DELETE FROM logsec2 WHERE journalid=$ownerid AND jitemid=$itemid");
+            }
+            else {
+                $uowner->do( "REPLACE INTO logsec2 (journalid, jitemid, allowmask) "
+                        . "VALUES ($ownerid, $itemid, $qallowmask)" );
+            }
+            return undef if $uowner->err;
+        }
+
+        if ($text_changed) {
+            return undef
+                unless $uowner->do(
+                "UPDATE logtext2 SET subject=?, event=? "
+                    . "WHERE journalid=$ownerid AND jitemid=$itemid",
+                undef, $req->{'subject'}, LJ::text_compress($event)
+                );
+        }
+
+        $req->{props}->{revnum}  = ( $curprops{$itemid}->{revnum} || 0 ) + 1;
+        $req->{props}->{revtime} = time();
+        my $propset = {
+            map { $_ => $req->{props}->{$_} }
+            grep { LJ::get_prop( 'log', $_ ) } keys %{ $req->{props} }
+        };
+        $propset->{admin_post_editor} = 1 if $other_author;
+        return LJ::set_logprop( $uowner, $itemid, $propset, undef, $other_author );
+    };
+
+    if ($other_author) {
+        my $error = _store_shared_official_edit( $dbcm, $entry, $u,
+            $curprops{$itemid}->{revnum} + 0, $store );
+        return fail( $err, $error ) if $error;
+        LJ::MemCache::delete( [ $ownerid, "logprop:$ownerid:$itemid" ] );
+        LJ::MemCache::delete( [ $ownerid, "log2lt:$ownerid" ] ) if defined $log2_cache_row;
+    }
+    else {
+        return fail( $err, 501, $uowner->errstr ) unless $store->();
     }
 
-    if (   $security ne $oldevent->{'security'}
-        || $qallowmask != $oldevent->{'allowmask'} )
-    {
-        if ( $security eq "public" || $security eq "private" ) {
-            $uowner->do("DELETE FROM logsec2 WHERE journalid=$ownerid AND jitemid=$itemid");
-        }
-        else {
-            $uowner->do( "REPLACE INTO logsec2 (journalid, jitemid, allowmask) "
-                    . "VALUES ($ownerid, $itemid, $qallowmask)" );
-        }
-        return fail( $err, 501, $dbcm->errstr ) if $uowner->err;
-    }
-
+    LJ::MemCache::set( [ $ownerid, "log2:$ownerid:$itemid" ], $log2_cache_row )
+        if defined $log2_cache_row;
     LJ::MemCache::set( [ $ownerid, "logtext:$clusterid:$ownerid:$itemid" ],
         [ $req->{'subject'}, $event ] );
-
-    if (
-        !$flags->{'use_old_content'}
-        && (   $event ne $oldevent->{'event'}
-            || $req->{'subject'} ne $oldevent->{'subject'} )
-        )
-    {
-        $uowner->do(
-            "UPDATE logtext2 SET subject=?, event=? "
-                . "WHERE journalid=$ownerid AND jitemid=$itemid",
-            undef, $req->{'subject'}, LJ::text_compress($event)
-        );
-        return fail( $err, 501, $uowner->errstr ) if $uowner->err;
-
-        # update disk usage
-        $uowner->dudata_set( 'L', $itemid, $bytes );
-    }
+    $uowner->dudata_set( 'L', $itemid, $bytes ) if $text_changed;
+    LJ::Tags::delete_logtags( $uowner, $itemid, $oldevent ) if $other_author && $do_tags_security;
 
     my $clean_event = $event;
     my $errref;
@@ -2214,10 +2351,6 @@ sub editevent {
             }
         )
     ) if $errref;
-
-    # up the revision number
-    $req->{'props'}->{'revnum'}  = ( $curprops{$itemid}->{'revnum'} || 0 ) + 1;
-    $req->{'props'}->{'revtime'} = time();
 
     if ($do_tags) {
 
@@ -2249,18 +2382,6 @@ sub editevent {
 
       # we only want to warn if we tried to edit the tags, not if we just tried to edit the security
         $add_message->($tagerr) if $tagerr && $do_tags;
-    }
-
-    # handle the props
-    {
-        my $propset = {};
-        foreach my $pname ( keys %{ $req->{'props'} } ) {
-            my $p = LJ::get_prop( "log", $pname );
-            next unless $p;
-            $propset->{$pname} = $req->{'props'}->{$pname};
-        }
-        $propset->{admin_post_editor} = 1 if $other_author;
-        LJ::set_logprop( $uowner, $itemid, $propset );
     }
 
     # deal with backdated changes.  if the entry's rlogtime is
@@ -2312,11 +2433,6 @@ sub editevent {
                 );
             }
         }
-    }
-
-    if ($other_author) {
-        return fail( $err, 501, 'Could not record the shared post editor' )
-            unless $entry->put_logprop_in_history( 'admin_post_editor', undef, $posterid, undef );
     }
 
     $entry->invalidate_singleton;

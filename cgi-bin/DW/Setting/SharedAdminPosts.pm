@@ -18,7 +18,23 @@ use strict;
 use warnings;
 use base 'LJ::Setting::BoolSetting';
 
-sub should_render { return $_[1] && $_[1]->is_community }
+sub should_render {
+    my ( $class, $journal ) = @_;
+    my $remote = LJ::get_remote();
+    return
+           $journal
+        && $journal->is_community
+        && $remote
+        && $remote->is_visible
+        && !$remote->is_expunged
+        && $remote->can_manage($journal);
+}
+
+sub save {
+    my ( $class, $journal, $args ) = @_;
+    return unless $class->should_render($journal);
+    return $journal->set_prop( $class->prop_name, $args->{val} ? 1 : 0 );
+}
 
 sub label { 'Shared admin posts' }
 sub des   { 'Allow any admin of the community to edit official community posts.' }

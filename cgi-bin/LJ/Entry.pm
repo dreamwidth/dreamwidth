@@ -1000,12 +1000,14 @@ sub comments_manageable_by {
 # Read-only restrictions are checked separately by the edit protocol.
 sub editable_by {
     my ( $self, $remote, $current_props ) = @_;
-    return 0 unless LJ::isu($remote) && !$remote->is_suspended && $self->visible_to($remote);
+    return 0 unless LJ::isu($remote) && $remote->is_visible && !$remote->is_expunged;
+    return 0 unless $self->visible_to($remote);
     return 1 if $self->posterid == $remote->userid;
 
     my $journal = $self->journal;
-    return 0 unless $journal->is_community && $journal->prop('shared_admin_posts');
-    return 0 unless $remote->is_individual && $remote->can_manage($journal);
+    return 0 unless $journal->is_community    && $journal->prop('shared_admin_posts');
+    return 0 unless $remote->is_individual    && $remote->can_manage($journal);
+    return 0 unless $self->poster->is_visible && !$self->poster->is_expunged;
 
     $current_props //= $self->props;
     return 0 if ( $current_props->{statusvis} // '' ) eq 'S';
@@ -1014,7 +1016,8 @@ sub editable_by {
 
 sub deletable_by {
     my ( $self, $remote ) = @_;
-    return 0 unless LJ::isu($remote) && !$remote->is_suspended && $self->visible_to($remote);
+    return 0 unless LJ::isu($remote) && $remote->is_visible && !$remote->is_expunged;
+    return 0 unless $self->visible_to($remote);
     return $self->posterid == $remote->userid || $remote->can_manage( $self->journal );
 }
 
@@ -1152,7 +1155,7 @@ sub shared_admin_editor_names {
     );
     my $editors =
         LJ::load_userids( grep { /\A[1-9][0-9]*\z/ && $_ != $self->posterid } @{ $ids || [] } );
-    return sort map { $_->user } grep { $_ } values %$editors;
+    return sort map { $_->user } grep { $_ && !$_->is_expunged } values %$editors;
 }
 
 =head2 C<< $entry->userpic >>
@@ -2151,7 +2154,7 @@ sub get_itemid_after2  { return get_itemid_near2( @_, "after" ); }
 sub get_itemid_before2 { return get_itemid_near2( @_, "before" ); }
 
 sub set_logprop {
-    my ( $u, $jitemid, $hashref, $logprops ) = @_;    # hashref to set, hashref of what was done
+    my ( $u, $jitemid, $hashref, $logprops, $defer_cache ) = @_;
 
     $jitemid += 0;
     my $uid      = $u->{'userid'} + 0;
@@ -2173,13 +2176,20 @@ sub set_logprop {
         }
     }
 
-    $u->do( "REPLACE INTO logprop2 (journalid, jitemid, propid, value) " . "VALUES $ins_values" )
-        if $ins_values;
-    $u->do( "DELETE FROM logprop2 WHERE journalid=? AND jitemid=? " . "AND propid IN ($del_ids)",
-        undef, $u->userid, $jitemid )
-        if $del_ids;
+    return undef
+        if $ins_values
+        && !
+        defined $u->do(
+        "REPLACE INTO logprop2 (journalid, jitemid, propid, value) VALUES $ins_values");
+    return undef
+        if $del_ids
+        && !
+        defined $u->do(
+        "DELETE FROM logprop2 WHERE journalid=? AND jitemid=? AND propid IN ($del_ids)",
+        undef, $u->userid, $jitemid );
 
-    LJ::MemCache::delete( [ $uid, "logprop:$uid:$jitemid" ] ) if $kill_mem;
+    LJ::MemCache::delete( [ $uid, "logprop:$uid:$jitemid" ] ) if $kill_mem && !$defer_cache;
+    return 1;
 }
 
 # <LJFUNC>
@@ -2488,6 +2498,10 @@ sub delete_entry {
     # delete from clusters
     foreach my $t (qw(logtext2 logprop2 logsec2 logslugs)) {
         $u->do("DELETE FROM $t WHERE journalid=$jid AND jitemid=$jitemid");
+    }
+    if ( my $editor_prop = LJ::get_prop( 'log', 'admin_post_editor' ) ) {
+        $u->do( 'DELETE FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=?',
+            undef, $jid, $jitemid, $editor_prop->{id} );
     }
     $u->dudata_set( 'L', $jitemid, 0 );
 
