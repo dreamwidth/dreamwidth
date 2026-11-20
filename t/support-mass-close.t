@@ -59,6 +59,32 @@ sub add_response {
     return $dbh->{mysql_insertid};
 }
 
+sub prepare_batch_post {
+    my ( $closer, $catkey, $listed, $marked ) = @_;
+
+    LJ::start_request();
+    DW::Request->reset;
+    DW::Request::Standard->new( GET 'http://www.dw.test/support/help' );
+    LJ::set_remote($closer);
+    my $auth = LJ::form_auth(1);
+
+    DW::Request->reset;
+    my $return  = "/support/help?state=open&cat=$catkey";
+    my $request = DW::Request::Standard->new(
+        POST 'http://www.dw.test/support/actmulti',
+        Content => [
+            'action:closewithpoints' => 1,
+            lj_form_auth             => $auth,
+            spcatid                  => $catid,
+            ret                      => "$return%s",
+            ids                      => join( ':', @$listed ),
+            map { ( "check_$_" => 1 ) } @$marked
+        ]
+    );
+    LJ::set_remote($closer);
+    return $request;
+}
+
 with_fake_memcache {
     my $closer = temp_user();
     my ( $first, $second ) = map { $_->userid } temp_user(), temp_user();
@@ -76,26 +102,9 @@ with_fake_memcache {
     add_response( $unanswered, $second, 'screened', 6 );
     add_response( $unmarked,   $first,  'answer',   6 );
 
-    LJ::start_request();
-    DW::Request->reset;
-    DW::Request::Standard->new( GET 'http://www.dw.test/support/help' );
-    LJ::set_remote($closer);
-    my $auth = LJ::form_auth(1);
-
-    DW::Request->reset;
-    my $return  = "/support/help?state=open&cat=$catkey";
-    my $request = DW::Request::Standard->new(
-        POST 'http://www.dw.test/support/actmulti',
-        Content => [
-            'action:closewithpoints' => 1,
-            lj_form_auth             => $auth,
-            spcatid                  => $catid,
-            ret                      => "$return%s",
-            ids                      => join( ':', @requests ),
-            map { ( "check_$_" => 1 ) } ( $multiple, $repeat, $other, $unanswered )
-        ]
-    );
-    LJ::set_remote($closer);
+    my $request =
+        prepare_batch_post( $closer, $catkey, \@requests,
+        [ $multiple, $repeat, $other, $unanswered ] );
 
     my $profile = DBI::Profile->new( Path => [ '!Statement', '!MethodName' ] );
     $dbh->{Profile} = $profile;
@@ -153,6 +162,56 @@ with_fake_memcache {
         'closure log identifies the winning answer and point award'
     );
     unlike( $logs->{$unanswered}{message}, qr/granting/, 'unanswered closure logs no award' );
+
+    my $refresh_failure = request();
+    add_response( $refresh_failure, $first, 'answer', 1 );
+    prepare_batch_post( $closer, $catkey, [$refresh_failure], [$refresh_failure] );
+
+    $dbh->do('CREATE TEMPORARY TABLE supportpointsum (userid INT PRIMARY KEY)') or die $dbh->errstr;
+    eval { DW::Controller::Support::ActMulti::actmulti_handler() };
+    my $refresh_error = $@;
+    $dbh->do('DROP TEMPORARY TABLE supportpointsum') or die $dbh->errstr;
+
+    like(
+        $refresh_error,
+        qr/Could not refresh support point totals/,
+        'refresh failure prevents a success redirect'
+    );
+    is(
+        $dbh->selectrow_array(
+            'SELECT points FROM supportpoints WHERE spid=?',
+            undef, $refresh_failure
+        ),
+        2,
+        'the award remains recorded after a refresh failure'
+    );
+
+    my ( $committed, $blocked ) = map { request() } 1 .. 2;
+    add_response( $committed, $second, 'answer', 1 );
+    add_response( $blocked,   $second, 'answer', 1 );
+    my $cat     = LJ::Support::load_cats($catid)->{$catid};
+    my @ordered = map { { spid => $_, timecreate => $created } } ( $committed, $blocked );
+
+    $dbh->do( 'CREATE TEMPORARY TABLE support (spid INT PRIMARY KEY, state VARCHAR(6), '
+            . 'timeclosed INT, timemodified INT, '
+            . "CONSTRAINT blocked_request_stays_open CHECK (spid <> $blocked OR state = 'open'))" )
+        or die $dbh->errstr;
+    $dbh->do( "INSERT INTO support (spid, state) VALUES (?, 'open'), (?, 'open')",
+        undef, $committed, $blocked )
+        or die $dbh->errstr;
+    eval { LJ::Support::close_requests_with_points( \@ordered, $cat, $closer ) };
+    my $close_error = $@;
+    $dbh->do('DROP TEMPORARY TABLE support') or die $dbh->errstr;
+
+    like( $close_error, qr/blocked_request_stays_open/, 'propagates the later request failure' );
+    is(
+        $dbh->selectrow_array(
+            'SELECT totpoints FROM supportpointsum WHERE userid=?',
+            undef, $second
+        ),
+        12,
+        'refreshes the earlier award even when a later request fails'
+    );
 };
 
 done_testing;

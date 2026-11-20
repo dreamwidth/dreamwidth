@@ -868,7 +868,7 @@ sub _store_points {
 sub _refresh_point_sums {
     my ( $dbh, @userids ) = @_;
     @userids = grep { $_ } @userids;
-    return unless @userids;
+    return 1 unless @userids;
 
     my $in = join ',', ('?') x @userids;
     $dbh->do(
@@ -876,7 +876,7 @@ sub _refresh_point_sums {
             . "SELECT userid, SUM(points), UNIX_TIMESTAMP() FROM supportpoints "
             . "WHERE userid IN ($in) GROUP BY userid",
         undef, @userids
-    );
+    ) or return;
 
     my $users = LJ::load_userids(@userids);
     for my $userid (@userids) {
@@ -886,6 +886,7 @@ sub _refresh_point_sums {
         my $memkey = [ $userid, "supportpointsum:$userid" ];
         LJ::MemCache::delete($memkey);
     }
+    return 1;
 }
 
 # closes requests, assigning points for the last response left to each request
@@ -901,9 +902,15 @@ sub close_requests_with_points {
             for @$requests;
         1;
     };
-    my $error = $@;
-    _refresh_point_sums( $dbh, keys %awardees );
-    die $error unless $ok;
+    my $error     = $@;
+    my $refreshed = eval {
+        _refresh_point_sums( $dbh, keys %awardees )
+            or die "Could not refresh support point totals: " . $dbh->errstr;
+    };
+    my $refresh_error = $@;
+    warn $refresh_error if !$ok && !$refreshed;
+    die $error         unless $ok;
+    die $refresh_error unless $refreshed;
     return 1;
 }
 
