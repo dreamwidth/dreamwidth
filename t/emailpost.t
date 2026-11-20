@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 47;
+use Test::More tests => 56;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -204,6 +204,40 @@ BODY
     my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
     is( $entry->security,  'private',         'Wrapped header sets private security' );
     is( $entry->event_raw, 'A private post.', 'Wrapped header and continuation are not published' );
+
+    $mime = build_message( 'HTML with an implicit head close',
+        'text/html',
+        "<!doctype html><html><head><title>Mail</title><body>\npost-security: private\n\nMessage" );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted HTML with an implicit head close' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'private', 'Directive after implicit head close sets private security' );
+    unlike( $entry->event_raw, qr/post-security:/,
+        'Directive after implicit head close is removed' );
+
+    $mime = build_message(
+        'Quote after an empty directive',
+        'text/plain',
+        "post-icon:\n  > Quoted first line\n\nMessage"
+    );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted a plain-text quote after an empty directive' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'public', 'Plain-text quote leaves security at the public default' );
+    like( $entry->event_raw, qr/> Quoted first line/, 'The quoted line is retained' );
+
+    $mime = build_message( 'Blockquote after an empty directive',
+        'text/html',
+        "post-icon:\n  <blockquote>\npost-security: private\n</blockquote>\n\nMessage" );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted an HTML blockquote after an empty directive' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'public', 'Quoted security directive is not applied' );
+    like(
+        $entry->event_raw,
+        qr{<blockquote>\s*post-security: private\s*</blockquote>},
+        'The blockquote and quoted directive are retained'
+    );
 }
 
 sub build_message {
