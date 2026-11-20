@@ -390,15 +390,16 @@ sub new_from_html {
                 %iopts = ();
             }
 
-            #### not a special tag.  dump it right back out.
-
-            else {
+            elsif ( $qopen || $iopen ) {
                 $append .= "<$tag";
                 foreach ( keys %$opts ) {
                     $opts->{$_} = LJ::no_utf8_flag( $opts->{$_} );
                     $append .= " $_=\"" . LJ::ehtml( $opts->{$_} ) . "\"";
                 }
                 $append .= ">";
+            }
+            else {
+                $append = $token->[4];
             }
         }
         elsif ( $type eq "E" ) {
@@ -470,7 +471,7 @@ sub new_from_html {
             ###### not a special tag.
 
             else {
-                $append .= "</$tag>";
+                $append = ( $qopen || $iopen ) ? "</$tag>" : $token->[2];
             }
         }
         elsif ( $type eq "T" || $type eq "D" ) {
@@ -482,7 +483,7 @@ sub new_from_html {
             $newdata .= $token->[1];
         }
         elsif ( $type eq "PI" ) {
-            $newdata .= "<?$token->[1]>";
+            $newdata .= $popen ? "<?$token->[1]>" : $token->[2];
         }
         else {
             $newdata .= "<!-- OTHER: " . $type . "-->\n";

@@ -253,8 +253,7 @@ sub parse_module_embed {
         my $token = $tokens[$i];
         my ( $type, $tag, $attr ) = @$token;
         $tag = lc $tag unless $type eq 'T';
-        my $newstate      = undef;
-        my $reconstructed = $class->reconstruct($token);
+        my $newstate;
 
         if ( $state == REGULAR ) {
             if ( ( $tag eq 'lj-embed' || $tag eq 'site-embed' ) && $type eq 'S' && !$attr->{'/'} ) {
@@ -262,7 +261,7 @@ sub parse_module_embed {
                 # <lj-embed ...>, not self-closed
                 # switch to EXPLICIT state
                 $newstate      = EXPLICIT;
-                $explicit_open = $reconstructed;
+                $explicit_open = $class->reconstruct($token);
 
                 # save embed id, width and height if they do exist in attributes
                 $embed_attrs{id}    = $attr->{id} if $attr->{id};
@@ -276,7 +275,7 @@ sub parse_module_embed {
 
                # <object> or <embed> or <iframe>
                # append the tag contents to new embed buffer, so we can convert in to lj-embed later
-                $embed .= $reconstructed;
+                $embed .= $class->reconstruct($token);
 
                 if ( $attr->{'/'} ) {
 
@@ -295,9 +294,17 @@ sub parse_module_embed {
                     push @stack, $tag;
                 }
             }
+            elsif ( $type eq 'S' ) {
+                $newtxt .=
+                    ( $tag eq 'lj-embed' || $tag eq 'site-embed' )
+                    ? $class->reconstruct($token)
+                    : $token->[4];
+            }
+            elsif ( $type eq 'E' || $type eq 'PI' ) {
+                $newtxt .= $token->[2];
+            }
             else {
-                # otherwise stay in REGULAR
-                $newtxt .= $reconstructed;
+                $newtxt .= $token->[1];
             }
         }
         elsif ( $state == IMPLICIT ) {
@@ -323,7 +330,7 @@ sub parse_module_embed {
             }
 
             # append to embed buffer
-            $embed .= $reconstructed;
+            $embed .= $class->reconstruct($token);
 
         }
         elsif ( $state == EXPLICIT ) {
@@ -335,7 +342,7 @@ sub parse_module_embed {
             }
             else {
                 # continue appending contents to embed buffer
-                $embed .= $reconstructed;
+                $embed .= $class->reconstruct($token);
             }
         }
         else {
