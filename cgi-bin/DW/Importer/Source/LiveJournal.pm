@@ -649,9 +649,10 @@ sub comment_meta {
     my ( $self, %opts ) = @_;
     my $log = $opts{log} || sub { undef };
 
-    my ( %meta, %usermap, $lasttag );
-    my ( $server_max_id, $window_last_id );
+    my ( %meta,          %usermap,       $lasttag );
+    my ( $server_max_id, $window_max_id, $window_last_id );
     my $server_next_id = 1;
+    my %window_meta;
     my @window_usermap;
 
     # setup our parsing function
@@ -667,13 +668,13 @@ sub comment_meta {
         if ( $lasttag eq 'comment' ) {
 
             # get some data on a comment
-            $meta{ $temp{id} } = { posterid => $temp{posterid} + 0, state => $temp{state} || 'A' };
+            $window_meta{ $temp{id} } =
+                { posterid => $temp{posterid} + 0, state => $temp{state} || 'A' };
 
             $window_last_id = $temp{id} if $temp{id} > $window_last_id;
 
         }
         elsif ( $lasttag eq 'usermap' && !exists $usermap{ $temp{id} } ) {
-            $usermap{ $temp{id} } = $temp{user};
             push @window_usermap, [ $temp{id}, $temp{user} ];
         }
     };
@@ -691,13 +692,13 @@ sub comment_meta {
             || $lasttag eq 'nextid';
 
         # save these values for later
-        $server_max_id = $_[1] + 0 if $lasttag eq 'maxid';
+        $window_max_id  .= $_[1] if $lasttag eq 'maxid';
         $server_next_id .= $_[1] if $lasttag eq 'nextid';
     };
 
     # hit up the server for metadata
     while (defined $server_next_id
-        && $server_next_id =~ /^\d+$/
+        && $server_next_id =~ /\A[0-9]+\z/
         && ( !defined $server_max_id || $server_next_id <= $server_max_id ) )
     {
         my $start_id = $server_next_id;
@@ -710,17 +711,32 @@ sub comment_meta {
         die DW::Importer::Outcome->temp_fail('Error fetching comment metadata from server.')
             unless $content;
 
-        ( $server_next_id, $window_last_id ) = ( undef, $start_id - 1 );
-        @window_usermap = ();
+        my $reset = sub {
+            ( $lasttag, $server_next_id, $window_max_id, $window_last_id ) =
+                ( '', undef, undef, $start_id - 1 );
+            %window_meta    = ();
+            @window_usermap = ();
+        };
+        $reset->();
 
         $self->_parse_xml( { Start => $meta_handler, Char => $meta_content, End => $meta_closer },
-            $content );
+            $content, $reset );
 
-        $opts{after_window}->( $server_max_id, [@window_usermap] ) if $opts{after_window};
+        $server_max_id = $window_max_id + 0 if defined $window_max_id;
+        @meta{ keys %window_meta } = values %window_meta;
+        my @new_users;
+        foreach my $user (@window_usermap) {
+            my ( $id, $name ) = @$user;
+            next if exists $usermap{$id};
+            $usermap{$id} = $name;
+            push @new_users, $user;
+        }
+
+        $opts{after_window}->( $server_max_id, \@new_users ) if $opts{after_window};
 
         next
             if defined $server_next_id
-            && $server_next_id =~ /^\d+$/
+            && $server_next_id =~ /\A[0-9]+\z/
             && $server_next_id > $start_id;
 
         if ( $window_last_id >= $start_id ) {
@@ -878,7 +894,7 @@ sub comment_bodies {
             'lastid = %d, reset_lastid = %d, nextid = %s',
             $lastid, $reset_lastid, $body_nextid || '-'
         );
-        if ( $body_nextid =~ /^\d+$/ && $body_nextid > $reset_lastid + 1 ) {
+        if ( $body_nextid =~ /\A[0-9]+\z/ && $body_nextid > $reset_lastid + 1 ) {
             $lastid = $body_nextid - 1;
         }
         elsif ( $lastid - $reset_lastid < $FETCH_BODY ) {

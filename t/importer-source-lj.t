@@ -429,6 +429,7 @@ for my $case (
     [ 'empty middle metadata window', 0, undef ],
     [ 'fractional metadata cursor',   1, '1.5' ],
     [ 'malformed metadata cursor',    1, '7oops' ],
+    [ 'non-ASCII metadata cursor',    1, '7&#x0662;' ],
     [ 'equal metadata cursor',        0, 4 ],
     [ 'backward metadata cursor',     0, 2 ],
     )
@@ -464,6 +465,32 @@ for my $case (
         );
     };
 }
+
+subtest 'metadata encoding retry' => sub {
+    my %windows = (
+        1 => meta_window(
+            first  => 1,
+            last   => 2,
+            max    => 4,
+            next   => 4,
+            poster => 10,
+            users  => [ [ 10, 'alice' ], [ 11, "caf\xe9" ] ],
+        ),
+        4 => meta_window( first => 4, last => 4, poster => 11 ),
+    );
+    my $site = Test::Site->new(
+        export => {
+            comment_meta => sub { delete $windows{ $_[0] } }
+        }
+    );
+
+    my @usermap;
+    my $meta = source($site)->comment_meta( after_window => sub { push @usermap, @{ $_[1] } } );
+    is_deeply( [ map { $_->[1] } @{ $site->{asked} } ], [ 1, 4 ], 'the cursor survives retry' );
+    is_deeply( [ sort keys %{ $meta->{comments} } ], [ 1, 2, 4 ],
+        'later comments are still found' );
+    is_deeply( \@usermap, [ [ 10, 'alice' ], [ 11, "caf\x{e9}" ] ], 'each user is reported once' );
+};
 
 # bodies
 sub body_window {
