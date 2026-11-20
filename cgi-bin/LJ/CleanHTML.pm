@@ -1446,19 +1446,48 @@ sub _unclosed_tag_context {
     return LJ::ehtml("<$tag>") unless defined $start;
 
     my $limit  = 80;
-    my $left   = $start > $limit ? $start - $limit : 0;
-    my $right  = $start + $length;
-    my $before = substr( $$source, $left, $start - $left );
-    my $opener = substr( $$source, $start, $length > $limit ? $limit : $length );
-    my $after  = substr( $$source, $right, $limit );
-
     my $octets = !utf8::is_utf8($$source);
+    my $span   = $octets ? $limit * 4 : $limit;
+    my $left   = $start > $span ? $start - $span : 0;
+    my $right  = $start + $length;
+    my $total  = length $$source;
+
+    # Align byte slices to UTF-8 character boundaries before decoding so valid
+    # multibyte characters are never split into replacement characters.
+    if ($octets) {
+        $left++ while $left < $start && ( ord( substr( $$source, $left, 1 ) ) & 0xC0 ) == 0x80;
+    }
+
+    my $before = substr( $$source, $left,  $start - $left );
+    my $opener = substr( $$source, $start, $length );
+    my $after_end = $right + $span;
+    $after_end = $total if $after_end > $total;
+    if ( $octets && $after_end < $total ) {
+        $after_end--
+            while $after_end > $right
+            && ( ord( substr( $$source, $after_end, 1 ) ) & 0xC0 ) == 0x80;
+    }
+    my $after = substr( $$source, $right, $after_end - $right );
+
     if ($octets) {
         $_ = decode( 'UTF-8', $_ ) for ( $before, $opener, $after );
     }
 
-    my $omitted_before = $before =~ s/\A.*?\S+\s+(?=(?:\S+\s+){6}\S+\s*\z)//s || $left;
-    my $omitted_after  = $right + $limit < length $$source;
+    my $omitted_before = $left > 0;
+    if ( length($before) > $limit ) {
+        $before         = substr( $before, -$limit );
+        $omitted_before = 1;
+    }
+    my $opener_truncated = length($opener) > $limit;
+    $opener = substr( $opener, 0, $limit ) if $opener_truncated;
+
+    my $omitted_after = $after_end < $total;
+    if ( length($after) > $limit ) {
+        $after         = substr( $after, 0, $limit );
+        $omitted_after = 1;
+    }
+
+    $omitted_before ||= $before =~ s/\A.*?\S+\s+(?=(?:\S+\s+){6}\S+\s*\z)//s;
     if ( $after =~ s/(\A\s*(?:\S+\s+){6}\S+)\s+\S.*\z/$1/s ) {
         $omitted_after = 1;
     }
@@ -1471,7 +1500,7 @@ sub _unclosed_tag_context {
     $before =~ s/\A //;
     $after  =~ s/ \z//;
     $before = "... $before" if $omitted_before;
-    $opener .= '...'  if $length > $limit;
+    $opener .= '...'  if $opener_truncated;
     $after  .= ' ...' if $omitted_after;
 
     return "<q>$before<strong>$opener</strong>$after</q>";

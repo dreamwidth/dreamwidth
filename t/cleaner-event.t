@@ -357,6 +357,25 @@ qr/&lt;span title=&quot;here &gt; there&quot;&gt;.*?real &amp;amp; &#39;quoted&#
         'Reports the correct location in UTF-8 octets'
     );
 
+    my $boundary_utf8 =
+          ( 'a' x 300 )
+        . "\x{2603} "
+        . ( 'b' x 75 )
+        . qq{<em>}
+        . ( 'e' x 79 )
+        . "\x{2603} trailing words";
+    utf8::encode($boundary_utf8);
+    $warning = $warning_for->($boundary_utf8);
+    unlike( $warning->{opts}{tags}, qr/\xef\xbf\xbd/,
+        'Truncating UTF-8 octets at before/after boundaries never produces replacement characters'
+    );
+    my $long_opener_utf8 = qq{<span title="} . ( 'c' x 70 ) . "\x{2603}" . ( 'd' x 20 ) . qq{">};
+    utf8::encode($long_opener_utf8);
+    my $opener_ctx = LJ::CleanHTML::_unclosed_tag_context( \$long_opener_utf8,
+        [ 'span', 0, length($long_opener_utf8) ] );
+    unlike( $opener_ctx, qr/\xef\xbf\xbd/,
+        'Truncating UTF-8 octets inside a long opening tag never produces replacement characters' );
+
     $warning = $warning_for->( '<strong>' . ( 'x' x 1000 ) . ' nearby words' );
     unlike( $warning->{opts}{tags}, qr/x{100}/, 'Does not quote an unbounded word' );
 
