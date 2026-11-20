@@ -61,18 +61,19 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- dw.form_auth -%]
         [%- form.hidden( name = 'url', value = entry.edit_url ) -%]
         [%- form.hidden( name = '_save', value = 1 ) -%]
-        <p>Clear a field to remove its property.</p>
+        <p>Only properties with an edit field can be changed here. Leave a field blank to remove its property; a literal 0 is not supported.</p>
     [%- END -%]
     <ul>
     [%- FOR prop = props -%]
         <li>
             [%- IF can_save && prop.field -%]
-                [%- IF prop.multiline -%]
+                [%- form.hidden( name = prop.baseline_field, value = prop.baseline ) -%]
+                [%- IF prop.textarea_value -%]
                     [%- form.textarea(
                         label = prop.name,
                         name = prop.field,
-                        value = prop.raw_value,
-                        maxlength = 255,
+                        value = prop.textarea_value,
+                        maxlength = max_prop_chars,
                         rows = 2
                     ) -%]
                 [%- ELSE -%]
@@ -80,7 +81,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                         label = prop.name,
                         name = prop.field,
                         value = prop.raw_value,
-                        maxlength = 255
+                        maxlength = max_prop_chars
                     ) -%]
                 [%- END -%]
             [%- ELSE -%]
