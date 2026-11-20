@@ -90,7 +90,9 @@ paths:
                   type: array
                   description: |-
                     IDs from `GET /journals/{username}/accesslists` for this journal.
-                    Required with `custom` security. An empty array selects no filters.
+                    Use only with `custom` security, which requires this field.
+                    An empty array selects no filters.
+                    Requests containing `custom_bit` are rejected.
                   items:
                     type: integer
                     minimum: 1

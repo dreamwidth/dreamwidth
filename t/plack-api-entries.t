@@ -201,16 +201,32 @@ subtest 'custom access filter validation' => sub {
     my $state = entry_state( fresh_entry( $owner, $id ) );
     is( $state->{event},     "body $post_count", 'invalid requests did not change entry text' );
     is( $state->{allowmask}, 1 << $group,        'invalid requests did not change the entry mask' );
+};
 
-    ($res) = api_request(
+subtest 'legacy custom_bit is rejected without saving' => sub {
+    my $id = proto_post( $owner, security => 'usemask', allowmask => 1 << $group );
+    my ( undef, $before ) = api_request( GET => $base, key => $okey );
+    my ( $res, $body ) = api_request(
+        POST => $base,
+        key  => $okey,
+        json => { text => 'new filtered entry', custom_bit => [$other_group] }
+    );
+    is( $res->code, 400, 'legacy fields cannot silently create a public entry' );
+    like( $body->{error}, qr/custom_groups/, 'creation error points to the supported field' );
+
+    ( $res, $body ) = api_request(
         POST => "$base/$id",
         key  => $okey,
-        json => { text => 'text-only edit', custom_bit => [0] }
+        json => { text => 'new text for a narrower audience', custom_bit => [$other_group] }
     );
-    is( $res->code, 200, 'an unknown field does not prevent a text-only edit' );
-    $state = entry_state( fresh_entry( $owner, $id ) );
-    is( $state->{event},     'text-only edit', 'the text edit took effect' );
-    is( $state->{allowmask}, 1 << $group,      'an internal field cannot grant broader access' );
+    is( $res->code, 400, 'legacy filter edits cannot silently leave the old audience in place' );
+    like( $body->{error}, qr/custom_groups/, 'edit error points to the supported field' );
+
+    my ( undef, $after ) = api_request( GET => $base, key => $okey );
+    is( scalar @$after, scalar @$before, 'legacy input did not create an entry' );
+    my $state = entry_state( fresh_entry( $owner, $id ) );
+    is( $state->{event},     "body $post_count", 'legacy input did not change the entry text' );
+    is( $state->{allowmask}, 1 << $group,        'legacy input did not change the entry mask' );
 };
 
 subtest 'editing custom access filters' => sub {

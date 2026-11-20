@@ -45,7 +45,7 @@ my $entries = DW::Controller::API::REST->path( 'journals/entries.yaml', 1,
 sub _prepare_custom_groups {
     my ( $post, $journal, $current_security ) = @_;
 
-    delete $post->{custom_bit};
+    return 'custom_bit is not supported. Use custom_groups instead.' if exists $post->{custom_bit};
 
     my $security = $post->{security} // $current_security;
     if ( !exists $post->{custom_groups} ) {
