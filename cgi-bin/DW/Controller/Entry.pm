@@ -760,17 +760,14 @@ sub _edit {
             && !$journal->readonly;
         return error_ml('error.invalidform')
             unless LJ::check_form_auth( $maintainer_post->{lj_form_auth} );
-        LJ::set_logprop(
-            $journal, $itemid,
-            {
-                adult_content_maintainer_reason =>
-                    $maintainer_post->{prop_adult_content_maintainer_reason},
-                adult_content_maintainer  => $maintainer_post->{prop_adult_content_maintainer},
-                opt_nocomments_maintainer => $maintainer_post->{prop_opt_nocomments_maintainer}
-                ? 1
-                : 0,
-            }
-        );
+        my $props = {
+            adult_content_maintainer_reason =>
+                $maintainer_post->{prop_adult_content_maintainer_reason},
+            adult_content_maintainer => $maintainer_post->{prop_adult_content_maintainer},
+        };
+        $props->{opt_nocomments_maintainer} = $maintainer_post->{prop_opt_nocomments_maintainer} ? 1 : 0
+            unless $entry->comments_disabled_poster;
+        LJ::set_logprop( $journal, $itemid, $props );
         $r->status(302);
         $r->header_out( Location => LJ::create_url( undef, keep_args => 1 ) );
         return $r->OK;
@@ -968,6 +965,7 @@ sub _render_edit_form {
     $vars->{warnings} = $warnings;
 
     $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{comments_disabled_by_maintainer} = $entry_obj->prop('opt_nocomments_maintainer');
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
