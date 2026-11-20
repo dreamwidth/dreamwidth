@@ -846,8 +846,12 @@ sub append_request {
 # userid may be undef/0 in the setting to zero case
 sub set_points {
     my ( $spid, $userid, $points ) = @_;
-
     my $dbh = LJ::get_db_writer();
+    _refresh_point_sums( $dbh, _store_points( $dbh, $spid, $userid, $points ) );
+}
+
+sub _store_points {
+    my ( $dbh, $spid, $userid, $points ) = @_;
     if ($points) {
         $dbh->do( "REPLACE INTO supportpoints (spid, userid, points) " . "VALUES (?,?,?)",
             undef, $spid, $userid, $points );
@@ -858,16 +862,25 @@ sub set_points {
         $dbh->do( "DELETE FROM supportpoints WHERE spid=?", undef, $spid );
     }
 
+    return $userid;
+}
+
+sub _refresh_point_sums {
+    my ( $dbh, @userids ) = @_;
+    @userids = grep { $_ } @userids;
+    return unless @userids;
+
+    my $in = join ',', ('?') x @userids;
     $dbh->do(
         "REPLACE INTO supportpointsum (userid, totpoints, lastupdate) "
             . "SELECT userid, SUM(points), UNIX_TIMESTAMP() FROM supportpoints "
-            . "WHERE userid=? GROUP BY 1",
-        undef, $userid
-    ) if $userid;
+            . "WHERE userid IN ($in) GROUP BY userid",
+        undef, @userids
+    );
 
-    # clear caches
-    if ($userid) {
-        my $u = LJ::load_userid($userid);
+    my $users = LJ::load_userids(@userids);
+    for my $userid (@userids) {
+        my $u = $users->{$userid};
         delete $u->{_supportpointsum} if $u;
 
         my $memkey = [ $userid, "supportpointsum:$userid" ];
@@ -875,13 +888,29 @@ sub set_points {
     }
 }
 
-# closes request, assigning points for the last response left to the request
+# closes requests, assigning points for the last response left to each request
 
-sub close_request_with_points {
-    my ( $sp, $spcat, $remote ) = @_;
+sub close_requests_with_points {
+    my ( $requests, $spcat, $remote ) = @_;
+    return unless $requests && @$requests;
+    my $dbh = LJ::get_db_writer() or return;
+
+    my %awardees;
+    my $ok = eval {
+        _close_request_with_points( $dbh, $_, $spcat, $remote, \%awardees )
+            for @$requests;
+        1;
+    };
+    my $error = $@;
+    _refresh_point_sums( $dbh, keys %awardees );
+    die $error unless $ok;
+    return 1;
+}
+
+sub _close_request_with_points {
+    my ( $dbh, $sp, $spcat, $remote, $awardees ) = @_;
 
     my $spid = $sp->{spid} + 0;
-    my $dbh  = LJ::get_db_writer() or return;
 
     # close the request
     $dbh->do(
@@ -925,7 +954,8 @@ sub close_request_with_points {
     my $points =
         LJ::Support::calc_points( $sp, $response->{timelogged} - $sp->{timecreate}, $spcat );
 
-    LJ::Support::set_points( $spid, $userid, $points );
+    my $updated_userid = _store_points( $dbh, $spid, $userid, $points );
+    $awardees->{$updated_userid} = 1 if $updated_userid;
 
     my $username = LJ::want_user($userid)->display_name;
 
