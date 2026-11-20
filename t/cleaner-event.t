@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 43;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -298,5 +298,70 @@ qq{&lt;select ... &gt;&lt;option ... &gt;hello&lt;/option&gt;&lt;option ... &gt;
     is( $orig_post, $clean_post,
         "Full text of entry, with mismatched HTML tags within and with-out the cut" );
 }
+
+subtest 'Unclosed tag warnings identify the opening markup' => sub {
+    my $warning_for = sub {
+        my ($entry) = @_;
+        my $warning;
+        LJ::CleanHTML::clean_event( \$entry, { verbose_err => \$warning, editor => 'html_raw0' } );
+        return $warning;
+    };
+
+    my $warning = $warning_for->(
+              'distant one two three four five six seven <strong>eight nine ten eleven twelve '
+            . 'thirteen fourteen distant' );
+    like(
+        $warning->{opts}{tags},
+qr/one two three four five six seven .*?&lt;strong&gt;.*?eight nine ten eleven twelve thirteen fourteen/,
+        'Quotes the source on both sides of an unclosed opening tag'
+    );
+    unlike( $warning->{opts}{tags}, qr/distant/, 'Omits text beyond the nearby words' );
+
+    $warning =
+        $warning_for->( '<div><span>closed</span> first <span title="here > there">real &amp; '
+            . q{'quoted' "text" <b>visible</b></div>} );
+    like(
+        $warning->{opts}{tags},
+qr/&lt;span title=&quot;here &gt; there&quot;&gt;.*?real &amp;amp; &#39;quoted&#39; &quot;text&quot; &lt;b&gt;visible&lt;\/b&gt;/,
+        'Uses the misnested opener, not the earlier closed span, and escapes the quoted source'
+    );
+    unlike( $warning->{opts}{tags},
+        qr/<\/?(?:span|b|div)\b/, 'Entry markup cannot become markup in the warning' );
+
+    $warning = $warning_for->('<textarea>short entry with an unfinished input');
+    like(
+        $warning->{opts}{tags},
+        qr/&lt;textarea&gt;.*?short entry with an unfinished input/,
+        'Includes context when textarea needs its special closing treatment'
+    );
+
+    $warning = $warning_for->('<em>first <strong>second');
+    like(
+        $warning->{opts}{tags},
+        qr{<strong>&lt;strong&gt;</strong>second.*<strong>&lt;em&gt;</strong>first},
+        'Highlights each opening tag separately when both are unclosed'
+    );
+
+    my $unicode = "\x{2603} outside <em>inside \x{2603}";
+    $warning = $warning_for->($unicode);
+    like(
+        $warning->{opts}{tags},
+        qr/\x{2603} outside .*?&lt;em&gt;.*?inside \x{2603}/,
+        'Reports the correct location in a character string'
+    );
+    utf8::encode($unicode);
+    $warning = $warning_for->($unicode);
+    like(
+        $warning->{opts}{tags},
+        qr/\xe2\x98\x83 outside .*?&lt;em&gt;.*?inside \xe2\x98\x83/,
+        'Reports the correct location in UTF-8 octets'
+    );
+
+    $warning = $warning_for->( '<strong>' . ( 'x' x 1000 ) . ' nearby words' );
+    unlike( $warning->{opts}{tags}, qr/x{100}/, 'Does not quote an unbounded word' );
+
+    ok( !defined $warning_for->('<strong>closed</strong><ul><li>optional</ul><p>optional'),
+        'No warning for closed tags or optional end tags' );
+};
 
 1;
