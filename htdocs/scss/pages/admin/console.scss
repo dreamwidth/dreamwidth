@@ -20,5 +20,9 @@
     font-size: 1rem;
     font-weight: normal;
     margin-bottom: .5rem;
-    white-space: pre-wrap;
+
+    .console-response-text {
+        font-family: monospace;
+        white-space: pre-wrap;
+    }
 }

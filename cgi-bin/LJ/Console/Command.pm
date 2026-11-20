@@ -164,10 +164,10 @@ sub print {
 }
 
 sub error {
-    my $self = shift;
-    my $text = shift;
+    my ( $self, $text, %opts ) = @_;
 
-    push @{ $self->{output} }, LJ::Console::Response->new( status => 'error', text => $text );
+    push @{ $self->{output} },
+        LJ::Console::Response->new( %opts, status => 'error', text => $text );
 
     return 1;
 }

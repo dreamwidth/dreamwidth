@@ -36,7 +36,10 @@ sub is_hidden { 1 }
 sub execute {
     my ( $self, @args ) = @_;
 
-    return $self->error("There is no such command '$self->{command}'.");
+    my $message = "There is no such command '%s'.";
+    my $command = $self->{command};
+    return $self->error( sprintf( $message, LJ::ehtml($command) ),
+        html_text => sprintf( $message, $command ), );
 }
 
 sub as_string {

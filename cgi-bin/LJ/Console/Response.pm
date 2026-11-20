@@ -23,8 +23,9 @@ sub new {
     my %opts  = @_;
 
     my $self = {
-        status => delete $opts{status},
-        text   => delete $opts{text},
+        status    => delete $opts{status},
+        text      => delete $opts{text},
+        html_text => delete $opts{html_text},
     };
 
     croak "invalid parameter: status"
@@ -74,8 +75,9 @@ sub as_html {
     my $label   = ucfirst $self->status;
 
     return
-        "<li class='alert-box $class'><strong>$label:</strong> "
-        . LJ::ehtml( $self->text ) . "</li>";
+          "<li class='alert-box $class'><strong>$label:</strong><div class='console-response-text'>"
+        . LJ::ehtml( $self->{html_text} // $self->text )
+        . "</div></li>";
 }
 
 1;
