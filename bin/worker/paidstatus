@@ -168,6 +168,46 @@ sub main_loop {
 
 }
 
+sub has_pending_self_checkmoneyorder {
+    my ( $dbh, $account ) = @_;
+    return 0 unless $account->is_personal;
+
+    my $uid     = $account->id;
+    my $cartids = $dbh->selectcol_arrayref(
+        q{SELECT cartid FROM shop_carts WHERE userid = ? AND state = ? AND paymentmethod = ?},
+        undef, $uid, $DW::Shop::STATE_PEND_PAID, $DW::Shop::PAYMENTMETHODS{checkmoneyorder}->{id} );
+    unless ($cartids) {
+        $log->(
+            'Unable to look up pending check or money order carts for user %d: %s',
+            $uid, $dbh->errstr
+        );
+        return 0;
+    }
+
+    foreach my $cartid (@$cartids) {
+        my $cart = eval { DW::Shop::Cart->get_from_cartid($cartid) };
+        if ($@) {
+            $log->( 'Unable to load cart %d for expiration notice: %s', $cartid, $@ );
+            next;
+        }
+        next
+            unless ref $cart eq 'DW::Shop::Cart'
+            && ( $cart->userid // 0 ) == $uid
+            && $cart->state == $DW::Shop::STATE_PEND_PAID
+            && $cart->paymentmethod eq 'checkmoneyorder';
+
+        foreach my $item ( @{ $cart->items } ) {
+            return 1
+                if $item->isa('DW::Shop::Item::Account')
+                && !$item->applied
+                && !$item->t_email
+                && ( $item->from_userid // 0 ) == $uid
+                && ( $item->t_userid // 0 ) == $uid;
+        }
+    }
+    return 0;
+}
+
 sub expire_user {
     my ( $dbh, $uid ) = @_;
 
@@ -207,23 +247,29 @@ sub expire_user {
     }
     elsif ( $u->is_visible ) {
         my $email = $u->email_raw;
-        LJ::send_mail(
-            {
-                to       => $email,
-                fromname => $LJ::SITENAME,
-                from     => $LJ::ACCOUNTS_EMAIL,
-                subject =>
-                    LJ::Lang::ml( "shop.expiration.user.0.subject", { sitename => $LJ::SITENAME } ),
-                body => LJ::Lang::ml(
-                    "shop.expiration.user.0.body",
-                    {
-                        touser   => $u->display_name,
-                        shopurl  => "$LJ::SHOPROOT/account?for=self",
-                        sitename => $LJ::SITENAME,
-                    }
-                ),
-            }
-        ) if defined $email && length $email;
+        if ( defined $email && length $email ) {
+            my $bodytype = has_pending_self_checkmoneyorder( $dbh, $u ) ? 'checkmoneyorder.0' : '0';
+            LJ::send_mail(
+                {
+                    to       => $email,
+                    fromname => $LJ::SITENAME,
+                    from     => $LJ::ACCOUNTS_EMAIL,
+                    subject  => LJ::Lang::ml(
+                        "shop.expiration.user.0.subject",
+                        { sitename => $LJ::SITENAME }
+                    ),
+                    body => LJ::Lang::ml(
+                        "shop.expiration.user.$bodytype.body",
+                        {
+                            touser        => $u->display_name,
+                            shopurl       => "$LJ::SHOPROOT/account?for=self",
+                            sitename      => $LJ::SITENAME,
+                            accountsemail => $LJ::ACCOUNTS_EMAIL,
+                        }
+                    ),
+                }
+            );
+        }
     }
 
     # this is pretty easy, we just tell DW::Pay to do it
@@ -289,25 +335,30 @@ sub warn_user {
     }
     else {
         my $email = $u->email_raw;
-        LJ::send_mail(
-            {
-                to       => $email,
-                fromname => $LJ::SITENAME,
-                from     => $LJ::ACCOUNTS_EMAIL,
-                subject  => LJ::Lang::ml(
-                    "shop.expiration.user.$mail.subject",
-                    { sitename => $LJ::SITENAME }
-                ),
-                body => LJ::Lang::ml(
-                    "shop.expiration.user.$bodytype.body",
-                    {
-                        touser   => $u->display_name,
-                        shopurl  => "$LJ::SHOPROOT/account?for=self",
-                        sitename => $LJ::SITENAME,
-                    }
-                ),
-            }
-        ) if defined $email && length $email;
+        if ( defined $email && length $email ) {
+            $bodytype = 'checkmoneyorder.3'
+                if $mail eq '3' && has_pending_self_checkmoneyorder( $dbh, $u );
+            LJ::send_mail(
+                {
+                    to       => $email,
+                    fromname => $LJ::SITENAME,
+                    from     => $LJ::ACCOUNTS_EMAIL,
+                    subject  => LJ::Lang::ml(
+                        "shop.expiration.user.$mail.subject",
+                        { sitename => $LJ::SITENAME }
+                    ),
+                    body => LJ::Lang::ml(
+                        "shop.expiration.user.$bodytype.body",
+                        {
+                            touser        => $u->display_name,
+                            shopurl       => "$LJ::SHOPROOT/account?for=self",
+                            sitename      => $LJ::SITENAME,
+                            accountsemail => $LJ::ACCOUNTS_EMAIL,
+                        }
+                    ),
+                }
+            );
+        }
     }
 
     # now update the db

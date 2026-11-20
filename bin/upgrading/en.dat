@@ -3929,6 +3929,33 @@ The [[sitename]] Team
 
 shop.expiration.user.3.subject=[[sitename]] Account Expiration
 
+shop.expiration.user.checkmoneyorder.0.body<<
+Dear [[touser]],
+
+Your paid time on [[sitename]] has expired. You can still use your
+account, but you won't have access to the paid account features.
+
+Your check or money order payment is still pending. If you've already
+mailed it, please email Accounts at [[accountsemail]]. We can extend
+your paid time while your payment is pending.
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.user.checkmoneyorder.3.body<<
+Dear [[touser]],
+
+Your paid time on [[sitename]] will expire in approximately three days.
+
+Your check or money order payment is still pending. If you've already
+mailed it, please email Accounts at [[accountsemail]]. We can extend
+your paid time while your payment is pending.
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.item.account.canbeadded.alreadyperm=[[user]] has a Seed Account, so they cannot receive any additional paid time.
 
 shop.item.account.canbeadded.invalidjournaltype=You can only send paid time to a personal journal or community account.
