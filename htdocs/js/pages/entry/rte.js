@@ -79,9 +79,10 @@ function LJUser(textArea) {
 function useRichText(textArea, statPrefix, raw) {
     var rte = new FCKeditor();
     var t = rte._IsCompatibleBrowser();
-    if (!t) return;
+    if (!t) return false;
 
-    var entry_html = document.getElementById(textArea).value;
+    const body = document.getElementById(textArea);
+    var entry_html = body.value;
 
     entry_html = convertToHTMLTags(entry_html, statPrefix);
     if (!raw) {
@@ -95,14 +96,15 @@ function useRichText(textArea, statPrefix, raw) {
         oFCKeditor.BasePath = statPrefix + "/fck/";
         oFCKeditor.Height = 350;
         oFCKeditor.ToolbarSet = "Update";
-        document.getElementById(textArea).value = entry_html;
         oFCKeditor.ReplaceTextarea();
+        if (body.style.display !== 'none') return false;
+        body.value = entry_html;
 
     } else {
-        if (! FCKeditorAPI) return;
+        if (! FCKeditorAPI) return false;
         var oEditor = FCKeditorAPI.GetInstance(textArea);
         editor_frame.style.display = "block";
-        document.getElementById(textArea).style.display = "none";
+        body.style.display = "none";
         oEditor.SetData(entry_html);
 
         oEditor.Focus();
@@ -111,7 +113,7 @@ function useRichText(textArea, statPrefix, raw) {
     }
 
    LJUser(textArea);
-
+   return true;
 }
 
 function usePlainText(textArea, raw) {
@@ -241,17 +243,17 @@ var raw = document.querySelector('#editor').value == 'html_raw0';
 
 window.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('#editor').value == 'rte0') {
-        if (postFormInitData.edit) {
-            const body = document.getElementById('entry-body');
-            originalRichTextBody = body.value;
+        const body = document.getElementById('entry-body');
+        const originalBody = body.value;
+        use_rte = useRichText('entry-body', '/stc/', raw);
+        if (use_rte && postFormInitData.edit) {
+            originalRichTextBody = originalBody;
             body.form.addEventListener('formdata', event => {
                 if (!FCKeditor_LOADED && originalRichTextBody !== undefined) {
                     event.formData.set(body.name, originalRichTextBody);
                 }
             });
         }
-        useRichText('entry-body', '/stc/', raw);
-        use_rte = true;
       }
 })
 
@@ -261,8 +263,7 @@ document.querySelector('#editor').addEventListener('change', e => {
     originalRichTextBody = initialRichTextHTML = undefined;
     let format = e.target.value;
     if (format == 'rte0') {
-        useRichText('entry-body', '/stc/', raw);
-        use_rte = true;
+        use_rte = useRichText('entry-body', '/stc/', raw);
     }
     if (format != 'rte0' && use_rte) {
         let raw = format == 'html_raw0';

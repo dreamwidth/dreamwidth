@@ -16,13 +16,21 @@
 const { readFileSync } = require("node:fs");
 const { launch } = require("./browser");
 
-async function submit(filename, url, visibility, edit, delayEditor) {
+async function submit(filename, url, visibility, edit, editorMode) {
+    const delayEditor = editorMode === "delay";
+    const fallbackEditor = editorMode === "fallback";
     const origin = new URL(url).origin;
     const html = readFileSync(filename, "utf8")
         .replace(/(?:https?:)?\/\/www\.test\.dw(?=\/)/g, origin);
     const browser = await launch();
     try {
         const page = await browser.newPage();
+        if (fallbackEditor) {
+            await page.evaluateOnNewDocument(() => {
+                Object.defineProperty(navigator, "productSub", { value: "0" });
+                Object.defineProperty(navigator, "userAgent", { value: "Unsupported browser" });
+            });
+        }
         const isLocal = request => new URL(request.url()).origin === origin;
         const isEditorFrame = request => request.isNavigationRequest()
             && new URL(request.url()).pathname.endsWith("/fck/editor/fckeditor.html");
@@ -53,11 +61,20 @@ async function submit(filename, url, visibility, edit, delayEditor) {
             if (await page.evaluate(() => window.FCKeditor_LOADED)) {
                 throw new Error("Rich-text editor loaded before the early save");
             }
+        } else if (fallbackEditor) {
+            await navigation;
+            await page.waitForSelector("#entry-body", { visible: true });
+            if (await page.evaluate(() => FCKeditor_IsCompatibleBrowser()
+                || document.getElementById("entry-body___Frame"))) {
+                throw new Error("FCKeditor did not leave the fallback textarea in place");
+            }
         } else {
             await navigation;
             await page.waitForFunction(() => window.FCKeditor_LOADED);
         }
-        if (edit) {
+        if (edit && fallbackEditor) {
+            await page.type("#entry-body", edit);
+        } else if (edit) {
             await page.evaluate(() => FCKeditorAPI.GetInstance("entry-body").Focus());
             await page.keyboard.type(edit);
         }
