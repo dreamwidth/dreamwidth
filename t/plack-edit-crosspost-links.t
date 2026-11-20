@@ -14,6 +14,7 @@
 use strict;
 use warnings;
 
+use File::Temp qw(tempfile);
 use HTTP::Request::Common;
 use Plack::Test;
 use Test::More;
@@ -186,17 +187,32 @@ with_fake_memcache {
     };
 
     test_psgi $app, sub {
-        my $client = shift;
-        for my $editor (qw(advanced simple)) {
-            my $body  = "An older entry in the $editor editor.\nSecond line.";
+        my $client  = shift;
+        my @editors = ( 'advanced', 'simple', 'advanced with legacy format' );
+        push @editors, 'advanced rich text' if $ENV{DW_TEST_RTE};
+        for my $editor (@editors) {
+            my $legacy_format = $editor eq 'advanced with legacy format';
+            my $rich_text     = $editor eq 'advanced rich text';
+
+            $owner->set_prop( 'entry_editor2', $legacy_format ? 'html_raw0' : 'html_casual1' );
+            my $body =
+                $rich_text
+                ? '<lj-cut>More</lj-cut>'
+                : "An older entry in the $editor editor.\nSecond line.";
             my $entry = $owner->t_post_fake_entry( body => $body );
-            my $id    = $entry->ditemid;
+            $entry->set_prop( 'editor', 'html' ) if $legacy_format;
+            $entry->set_prop( 'editor', 'rte0' ) if $rich_text;
+            my $id = $entry->ditemid;
             DW::External::Account->record_xpost( $entry, $mapping );
             DW::External::Account->record_xpost_detail( $entry, $details );
             $account = DW::External::Account->get_external_account( $owner, $account_id );
             $account->set_recordlink(0);
 
-            my $url = "http://localhost/entry/$name/$id/edit?as=$name";
+            my $base =
+                $rich_text
+                ? ( $ENV{DW_BROWSER_BASE} // 'http://127.0.0.1:8080' )
+                : 'http://localhost';
+            my $url = "$base/entry/$name/$id/edit?as=$name";
             $url .= '&mode=simple' if $editor eq 'simple';
             my $form = $client->( GET $url )->content;
             like(
@@ -206,25 +222,46 @@ with_fake_memcache {
             );
             my ($token) = $form =~ /name=["']lj_form_auth["'][^>]*value=["']([^"']+)/;
             ok( $token, "$editor issues a form token" );
+            my ($formats) = $form =~ /<select\b[^>]*\bname=["']editor["'][^>]*>(.*?)<\/select>/s;
+            my ($format) =
+                ( $formats // '' ) =~ /<option\b(?=[^>]*\bselected\b)[^>]*\bvalue=["']([^"']+)/;
+            is( $format, 'html_raw0', 'legacy format falls back to the current editor preference' )
+                if $legacy_format;
+            is( $format, 'rte0', 'rich-text entry opens in the rich-text editor' ) if $rich_text;
 
             my $save = sub {
                 my ( $hide, %changes ) = @_;
                 @jobs = ();
-                my $response = $client->(
-                    POST $url,
-                    Content => [
+                my $request;
+                if ($rich_text) {
+                    my ( $html, $filename ) = tempfile( UNLINK => 1 );
+                    print {$html} $client->( GET $url )->content;
+                    close $html or die $!;
+                    open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
+                        $filename, $url, $hide, $changes{event} // ''
+                        or die $!;
+                    my $payload = do { local $/; <$browser> };
+                    close $browser or die 'Could not submit the rich-text editor form in Chrome';
+                    $request = POST $url,
+                        Content_Type => 'application/x-www-form-urlencoded',
+                        Content      => $payload;
+                }
+                else {
+                    $request = POST $url,
+                        Content => [
                         lj_form_auth         => $token,
                         hide_crosspost_links => $hide,
                         'action:post'        => 1,
                         crosspost_entry      => 1,
                         crosspost            => $account_id,
-                        editor               => 'html_casual1',
+                        editor               => $format,
                         subject              => delete $changes{subject}  // 'test suite post.',
                         event                => delete $changes{event}    // $body,
                         security             => delete $changes{security} // 'public',
                         %changes,
-                    ]
-                );
+                        ];
+                }
+                my $response = $client->($request);
                 like(
                     $response->content,
                     qr/edit was successful/i,
@@ -237,6 +274,11 @@ with_fake_memcache {
             for my $hide ( 1, 0 ) {
                 my $fresh = $save->($hide);
                 is( scalar @jobs, 0, "$editor does not queue a crosspost on visibility-only save" );
+                is( $fresh->event_raw, $body,
+                    'visibility-only rich-text save keeps original markup' )
+                    if $rich_text;
+                is( $fresh->prop('editor'), 'html', 'visibility-only save keeps the stored format' )
+                    if $legacy_format;
                 is_deeply( DW::External::Account->xpost_string_to_hash( $fresh->prop('xpost') ),
                     $mapping, "$editor retains the external ID" );
                 is_deeply(
@@ -253,16 +295,22 @@ with_fake_memcache {
 
             my %changes;
             my $hide = 0;
-            for my $change (
+            my @edits =
+                $rich_text
+                ? ( [ event => 'New text.' ] )
+                : (
                 [ event    => 'New text.' ],
                 [ subject  => 'New subject' ],
                 [ taglist  => 'new tag' ],
                 [ security => 'private' ],
-                )
-            {
+                );
+            unshift @edits, [ editor => 'html_casual1' ] if $legacy_format;
+            for my $change (@edits) {
                 my ( $field, $value ) = @$change;
                 $changes{$field} = $value;
-                $save->( $hide = 1 - $hide, %changes );
+                my $fresh = $save->( $hide = 1 - $hide, %changes );
+                like( $fresh->event_raw, qr/\Q$value\E/, 'rich-text edit saves the new text' )
+                    if $rich_text;
                 is_deeply(
                     [ map { [ @$_{qw(accountid ditemid delete)} ] } @jobs ],
                     [ [ $account_id, $id, 0 ] ],
