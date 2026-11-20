@@ -189,15 +189,16 @@ with_fake_memcache {
     test_psgi $app, sub {
         my $client  = shift;
         my @editors = ( 'advanced', 'simple', 'advanced with legacy format' );
-        push @editors, 'advanced rich text' if $ENV{DW_TEST_RTE};
+        push @editors, 'advanced rich text', 'advanced rich text while loading' if $ENV{DW_TEST_RTE};
         for my $editor (@editors) {
             my $legacy_format = $editor eq 'advanced with legacy format';
-            my $rich_text     = $editor eq 'advanced rich text';
+            my $delay_editor  = $editor eq 'advanced rich text while loading';
+            my $rich_text     = $editor eq 'advanced rich text' || $delay_editor;
 
             $owner->set_prop( 'entry_editor2', $legacy_format ? 'html_raw0' : 'html_casual1' );
             my $body =
                 $rich_text
-                ? '<lj-cut>More</lj-cut>'
+                ? "<lj-cut>More\nin the $editor editor.</lj-cut>"
                 : "An older entry in the $editor editor.\nSecond line.";
             my $entry = $owner->t_post_fake_entry( body => $body );
             $entry->set_prop( 'editor', 'html' ) if $legacy_format;
@@ -225,8 +226,14 @@ with_fake_memcache {
             my ($formats) = $form =~ /<select\b[^>]*\bname=["']editor["'][^>]*>(.*?)<\/select>/s;
             my ($format) =
                 ( $formats // '' ) =~ /<option\b(?=[^>]*\bselected\b)[^>]*\bvalue=["']([^"']+)/;
-            is( $format, 'html_raw0', 'legacy format falls back to the current editor preference' )
-                if $legacy_format;
+            my $other_format;
+
+            if ($legacy_format) {
+                like( $format // '',
+                    qr/\Ahtml_(?:raw0|casual1)\z/, 'the form picks an HTML format' );
+                $other_format = $format eq 'html_raw0' ? 'html_casual1' : 'html_raw0';
+                $owner->set_prop( 'entry_editor2', 'html_casual1' );
+            }
             is( $format, 'rte0', 'rich-text entry opens in the rich-text editor' ) if $rich_text;
 
             my $save = sub {
@@ -238,7 +245,8 @@ with_fake_memcache {
                     print {$html} $client->( GET $url )->content;
                     close $html or die $!;
                     open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
-                        $filename, $url, $hide, $changes{event} // ''
+                        $filename, $url, $hide, $changes{event} // '',
+                        ( $delay_editor ? 'delay' : '' )
                         or die $!;
                     my $payload = do { local $/; <$browser> };
                     close $browser or die 'Could not submit the rich-text editor form in Chrome';
@@ -274,10 +282,11 @@ with_fake_memcache {
             for my $hide ( 1, 0 ) {
                 my $fresh = $save->($hide);
                 is( scalar @jobs, 0, "$editor does not queue a crosspost on visibility-only save" );
-                is( $fresh->event_raw, $body,
-                    'visibility-only rich-text save keeps original markup' )
+                is( $fresh->event_raw, $body, "$editor visibility-only save keeps original markup" )
                     if $rich_text;
-                is( $fresh->prop('editor'), 'html', 'visibility-only save keeps the stored format' )
+                is( $fresh->prop('editor'),
+                    'html',
+                    'visibility-only save keeps the stored format after a preference change' )
                     if $legacy_format;
                 is_deeply( DW::External::Account->xpost_string_to_hash( $fresh->prop('xpost') ),
                     $mapping, "$editor retains the external ID" );
@@ -296,21 +305,23 @@ with_fake_memcache {
             my %changes;
             my $hide = 0;
             my @edits =
-                $rich_text
-                ? ( [ event => 'New text.' ] )
+                  $delay_editor ? ()
+                : $rich_text    ? ( [ event => 'New text.' ] )
                 : (
                 [ event    => 'New text.' ],
                 [ subject  => 'New subject' ],
                 [ taglist  => 'new tag' ],
                 [ security => 'private' ],
                 );
-            unshift @edits, [ editor => 'html_casual1' ] if $legacy_format;
+            unshift @edits, [ editor => $other_format ] if $legacy_format;
             for my $change (@edits) {
                 my ( $field, $value ) = @$change;
                 $changes{$field} = $value;
                 my $fresh = $save->( $hide = 1 - $hide, %changes );
                 like( $fresh->event_raw, qr/\Q$value\E/, 'rich-text edit saves the new text' )
                     if $rich_text;
+                is( $fresh->prop('editor'), $value, 'deliberate format change is saved' )
+                    if $field eq 'editor';
                 is_deeply(
                     [ map { [ @$_{qw(accountid ditemid delete)} ] } @jobs ],
                     [ [ $account_id, $id, 0 ] ],
