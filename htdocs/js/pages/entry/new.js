@@ -383,11 +383,11 @@ var postForm = (function($) {
         });
     };
 
-    var initSlug = function($form, $dateElement) {
+    var initSlug = function($form, $dateElement, journalBases) {
         var $slug = $("#js-entry-slug");
-        var $slugBase = $("#js-slug-base");
+        var $preview = $("#js-slug-base");
 
-        var slug = $slug.val(), base_url = '';
+        var baseUrl = "";
 
         // Takes an input string and sluggifies it. If you update this, please
         // also update LJ::canonicalize_slug in cgi-bin/LJ/Web.pm.
@@ -401,30 +401,30 @@ var postForm = (function($) {
                     .toLowerCase();
         }
 
-        function updateSlugBase() {
-            var dval = $dateElement.val().replace(/-/g, '/');
+        function updateSlugPreview() {
+            var datePath = $dateElement.val().replace(/-/g, "/");
+            var slug = toSlug($slug.val());
 
-            $slugBase.text(base_url + "/" + dval + "/");
+            $preview.text(baseUrl + "/" + datePath + "/" + (slug ? slug + ".html" : ""));
         }
 
-        $slug.change(function(e) {
-            slug = toSlug($slug.val());
-            $slug.val(slug);
+        $slug.on("input", updateSlugPreview).on("change", function() {
+            $slug.val(toSlug($slug.val()));
 
-            updateSlugBase();
-            e.preventDefault();
+            updateSlugPreview();
         });
 
-        $dateElement.change(function(e) {
-            updateSlugBase();
+        $dateElement.on("change", updateSlugPreview);
+
+        $form.on("journalselect", function(evt, journal) {
+            var journalName = journal.name || "[journal]";
+            baseUrl = journalBases[journal.name] || (Site.user_domain
+                ? window.location.protocol + "//" + journalName.replace(/_/g, "-") + "." + Site.user_domain
+                : window.location.origin + "/~" + journalName);
+            updateSlugPreview();
         });
 
-        $form.bind('journalselect', function(evt, journal) {
-            base_url = 'http://' + (journal.name || "[journal]") + '.' + Site.user_domain;
-            updateSlugBase();
-        });
-
-        updateSlugBase();
+        updateSlugPreview();
     };
 
     var initTags = function($form) {
@@ -633,7 +633,7 @@ var postForm = (function($) {
         initCurrents(entryForm, formData.moodpics);
         initSecurity(entryForm, formData.security, { edit: formData.edit } );
         initJournal(entryForm);
-        initSlug(entryForm, $("#js-entrytime-date"));
+        initSlug(entryForm, $("#js-entrytime-date"), formData.journalBases);
         initTags(entryForm);
         initDate(entryForm, { edit: formData.edit });
         initCrosspost(entryForm);
