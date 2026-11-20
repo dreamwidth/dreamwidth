@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 32;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -113,15 +113,47 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
     my $barbit     = $u->create_trust_group( groupname => 'bar' );
     my $email_post = DW::EmailPost->get_handler( get_mime( "parse-props", $user_email_info ) );
     my ( $ok, $msg ) = $email_post->process;
-    ok( $ok, "posted entry with custom settings" );
-    my $entry = LJ::Entry->new( $u, jitemid => 3 );
-    is( $entry->event_raw, "This is a test post.", "Settings removed from body text" );
-    is( $entry->security, 'usemask', "Entry security is correct" );
+    ok( $ok, "posted entry with custom settings" ) or diag $msg;
+    my $entry    = LJ::Entry->new( $u, jitemid => 3 );
+    my $expected = <<'BODY';
+For Sweeney Todd: Sweeney/Nellie,
+post-canon, pre-canon, everybody lives AU
+Unwilling to address: character x reader
+post-canon: everyone's alive
+post-war: rebuilding
+post-security: public
+lj-mood: happy
+BODY
+    chomp $expected;
+    is( $entry->event_raw, $expected, "Leading settings removed and body text preserved" );
+    is( $entry->security,  'usemask', "Entry security is correct" );
     is( $entry->allowmask, ( 1 << $foobit ) | ( 1 << $barbit ), 'Entry allowmask is correct' );
     is( $entry->prop('current_moodid'), 56, "Entry mood is correct" );
     is( $entry->prop('current_music'), "Jonathan Coulton -- Code Monkey",
         "Entry music is correct" );
     is( $entry->prop('opt_screening'), 'R', 'Entry comment screening is correct' );
+}
+
+{
+    my $email_post = DW::EmailPost->get_handler( get_mime( "html-headers", $user_email_info ) );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted HTML entry with custom settings" ) or diag $msg;
+    my $entry = LJ::Entry->new( $u, jitemid => 4 );
+    is( $entry->security, 'private', 'Header inside leading HTML wrappers sets entry security' );
+    like(
+        $entry->event_raw,
+        qr/<p>Story notes:<\/p>\npost-war: rebuilding/,
+        'HTML message retains post-prefixed body text'
+    );
+}
+
+{
+    my $email_post = DW::EmailPost->get_handler( get_mime( "body-pin", $user_email_info ) );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry authenticated by a leading body PIN" ) or diag $msg;
+    my $entry = LJ::Entry->new( $u, jitemid => 5 );
+    is( $entry->security, 'private', 'Header after PIN sets entry security' );
+    like( $entry->event_raw, qr/\A\s*A private post\.\z/, 'PIN and header are not published' );
 }
 
 sub get_mime {
