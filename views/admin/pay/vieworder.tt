@@ -59,6 +59,27 @@
 <p>[% '.noitems' | ml %]</p>
 [% END %]
 
+[% IF delivery_edits.size %]
+<h3>Adjust delivery date</h3>
+<p>Only future deliveries that have not been sent can be changed.</p>
+[% FOREACH edit IN delivery_edits %]
+<form method="post" action="/admin/pay/view?cartid=[% cart.id | url %]">
+  [% dw.form_auth %]
+  <input type="hidden" name="itemid" value="[% edit.item.id | html %]">
+  <p>
+    <label for="deliverydate-[% edit.item.id | html %]">
+      New delivery date for [% edit.item.name_text | html %]
+      [% IF edit.recipient %]to [% edit.recipient | html %][% END %]
+      (item #[% edit.item.id | html %])
+    </label>
+    <input type="date" id="deliverydate-[% edit.item.id | html %]" name="deliverydate"
+           value="[% edit.item.deliverydate | html %]" min="[% minimum_delivery_date | html %]" required>
+  </p>
+  <p><input type="submit" name="adjust_delivery" value="Save delivery date" class="button tiny"></p>
+</form>
+[% END %]
+[% END %]
+
 [%# not stripping strings for legacy transaction engines %]
 
 [%- IF classname == 'PayPal' -%]

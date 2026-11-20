@@ -48,6 +48,7 @@ use strict;
 use warnings;
 
 use DW::RenameToken;
+use DW::Shop::Cart;
 use DW::FormErrors;
 use DW::Cache;
 
@@ -226,12 +227,14 @@ sub rename {
 
     return 0 if $errors->exist || !$can_rename_to;
 
+    my $cart_locks = DW::User::Rename::_lock_rename_carts( $errors, $opts{token} ) or return 0;
+
     $tousername = LJ::canonical_username($tousername);
     if ( my $tou = LJ::load_user($tousername) ) {
         return 0 unless DW::User::Rename::_rename_to_ex( $tou, errors => $opts{errors} );
     }
 
-    return DW::User::Rename::_rename( $self, $tousername, %opts );
+    return DW::User::Rename::_rename( $self, $tousername, %opts, cart_locks => $cart_locks );
 }
 
 =head2 C<< $self->swap_usernames( $touser [, %opts ] ) >>
@@ -276,6 +279,8 @@ sub swap_usernames {
         && $u2->can_rename_to( $u1->username, %opts, %admin_opts );
     return 0 if $errors->exist || !$can_rename;
 
+    my $cart_locks = DW::User::Rename::_lock_rename_carts( $errors, @tokens[ 0, 1 ] ) or return 0;
+
     my $u1name = $u1->user;
     my $u2name = $u2->user;
 
@@ -286,13 +291,34 @@ sub swap_usernames {
     # ugh, but need it to avoid duplicate timestamps in infohistory
     sleep(1);
 
-    $did_rename &&=
-        DW::User::Rename::_rename( $u1, $u2name, %opts, %admin_opts, token => $tokens[0] );
+    $did_rename &&= DW::User::Rename::_rename(
+        $u1, $u2name, %opts, %admin_opts,
+        token      => $tokens[0],
+        cart_locks => $cart_locks
+    );
     return 0 unless $did_rename;
 
-    $did_rename &&=
-        DW::User::Rename::_rename( $u2, $u1name, %opts, %admin_opts, token => $tokens[1] );
+    $did_rename &&= DW::User::Rename::_rename(
+        $u2, $u1name, %opts, %admin_opts,
+        token      => $tokens[1],
+        cart_locks => $cart_locks
+    );
     return $did_rename;
+}
+
+sub _lock_rename_carts {
+    my ( $errors, @tokens ) = @_;
+    my %locks;
+    for my $token (@tokens) {
+        my $cartid = $token->cartid or next;
+        next if $locks{$cartid};
+        $locks{$cartid} = DW::Shop::Cart->processing_lock($cartid);
+        unless ( $locks{$cartid} ) {
+            $errors->add( 'token', 'rename.error.tokenorderbusy' );
+            return undef;
+        }
+    }
+    return \%locks;
 }
 
 =head2 C<< $self->_clear_from_cache >>
@@ -388,7 +414,13 @@ sub _rename {
 
     # ...existing code...
 
-    $token->apply( userid => $self->userid, from => $fromusername, to => $tousername );
+    my $cart_lock = $opts{cart_locks}{ $token->cartid || 0 };
+    $token->apply(
+        userid    => $self->userid,
+        from      => $fromusername,
+        to        => $tousername,
+        cart_lock => $cart_lock
+    ) or warn 'Failed to record redemption of rename token #' . $token->id;
 
     $self->apply_rename_opts(
         from     => $fromusername,

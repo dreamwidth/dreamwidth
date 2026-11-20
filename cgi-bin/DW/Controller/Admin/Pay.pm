@@ -27,6 +27,7 @@ use DW::Pay;
 use DW::Shop;
 use DW::Shop::Cart;
 use DW::Shop::Engine;
+use DW::Shop::Item::Account;
 use DW::InviteCodes;
 
 use DateTime;
@@ -288,6 +289,10 @@ sub view_controller {
     return error_ml("$scope.error.notfound") unless $cart;
     $cartid = $cart->id;
 
+    if ( $r->did_post && $rv->{post_args}{adjust_delivery} ) {
+        return adjust_delivery_date( $dbh, $cartid, $rv->{remote}, $rv->{post_args} );
+    }
+
     # see if we are being asked to process a check/money order
 
     if ( $r->did_post && $r->post_args->{record_cmo} ) {
@@ -302,6 +307,14 @@ sub view_controller {
         my %notes_method = map { $_ => 1 } qw( check other );
         return error_ml("$scope.error.nonotes")
             if $notes_method{$received_method} && !$received_notes;
+
+        my $lock = DW::Shop::Cart->processing_lock($cartid)
+            or return error_ml('error.pay.cmo.engbadstate');
+        $cart = DW::Shop::Cart->get_from_cartid($cartid)
+            or return error_ml("$scope.error.notfound");
+        return error_ml('error.pay.cmo.engbadstate')
+            unless $cart->paymentmethod eq 'checkmoneyorder'
+            && $cart->state == $DW::Shop::STATE_PEND_PAID;
 
         # record the payment
 
@@ -333,11 +346,119 @@ sub view_controller {
     $vars->{from_epoch} = sub { DateTime->from_epoch( epoch => $_[0] ) };
     $vars->{is_pending} = sub { $_[0] == $DW::Shop::STATE_PEND_PAID ? 1 : 0 };
 
+    my @scheduled = scheduled_delivery_items($cart);
+    if (@scheduled) {
+        $vars->{delivery_edits} = [
+            map {
+                my $recipient = LJ::load_userid( $_->t_userid );
+                {
+                    item      => $_,
+                    recipient => $recipient ? $recipient->user : $_->t_email,
+                }
+            } @scheduled
+        ];
+        $vars->{minimum_delivery_date} =
+            DateTime->now( time_zone => 'local' )->add( days => 1 )->ymd;
+    }
+
     $vars->{cmo_info} =
         $dbh->selectrow_hashref( "SELECT paymentmethod, notes FROM shop_cmo WHERE cartid = ?",
         undef, $cartid );
 
     return DW::Template->render_template( 'admin/pay/vieworder.tt', $vars );
+}
+
+sub scheduled_delivery_items {
+    my ($cart) = @_;
+    return () unless $cart->state == $DW::Shop::STATE_PAID;
+
+    my $today = LJ::mysql_date();
+    my %item_counts;
+    $item_counts{ $_->id }++ for @{ $cart->items };
+    return grep {
+               $item_counts{ $_->id } == 1
+            && $_->isa('DW::Shop::Item::Account')
+            && !$_->applied
+            && ( $_->deliverydate // '' ) gt $today
+    } @{ $cart->items };
+}
+
+sub delivery_date_error {
+    my ($message) = @_;
+    return DW::Template->render_template( 'error.tt', { message => $message } );
+}
+
+sub adjust_delivery_date {
+    my ( $dbh, $cartid, $admin, $post ) = @_;
+    my $date = $post->{deliverydate} // '';
+    my ( $year, $month, $day ) = $date =~ /\A([0-9]{4})-([0-9]{2})-([0-9]{2})\z/;
+    return delivery_date_error('Enter a valid future delivery date.')
+        unless defined $year
+        && eval { DateTime->new( year => $year, month => $month, day => $day ) };
+
+    my $lock = DW::Shop::Cart->processing_lock($cartid)
+        or return delivery_date_error('This order is busy. Try again in a moment.');
+
+    my $cart = DW::Shop::Cart->get_from_cartid($cartid);
+    return error_ml('/admin/pay/vieworder.tt.error.notfound') unless $cart;
+    return delivery_date_error('Enter a valid future delivery date.')
+        unless $date gt LJ::mysql_date();
+
+    my $itemid = $post->{itemid} // '';
+    my ($item) = grep { $_->id eq $itemid } scheduled_delivery_items($cart);
+    return delivery_date_error('This item is no longer eligible for a delivery date change.')
+        unless $item;
+
+    my $old_date = $item->deliverydate;
+    if ( $date ne $old_date ) {
+        $item->set_deliverydate($date);
+        return delivery_date_error('Unable to save the delivery date. Try again.')
+            unless save_delivery_date( $dbh, $cart, $item, $admin, $old_date );
+    }
+
+    return DW::Request->get->redirect("$LJ::SITEROOT/admin/pay/view?cartid=$cartid");
+}
+
+sub save_delivery_date {
+    my ( $dbh, $cart, $item, $admin, $old_date ) = @_;
+    my $cartid = $cart->id;
+    my $notes  = sprintf 'Admin override: Order #%d, item #%d delivery date: %s to %s',
+        $cartid, $item->id, $old_date, $item->deliverydate;
+
+    my $started;
+    my $saved = eval {
+        my ($tables) = $dbh->selectrow_array(
+            q{SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME IN ('shop_carts', 'statushistory') AND ENGINE = 'InnoDB'}
+        );
+        die 'Delivery overrides require InnoDB shop_carts and statushistory tables'
+            unless defined $tables && $tables == 2;
+
+        $dbh->begin_work or die $dbh->errstr;
+        $started = 1;
+        $cart->save_items($dbh) or die( $dbh->errstr || 'Cart update did not affect one row' );
+        $dbh->do(
+            'INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) '
+                . 'VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)',
+            undef,
+            $item->t_userid || $cart->userid || 0,
+            $admin->id,
+            'paidstatus',
+            $notes,
+        ) or die $dbh->errstr;
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($saved) {
+        my $error = $@;
+        if ( $started && !eval { $dbh->rollback } ) {
+            warn "Failed to roll back delivery date change for order #$cartid: "
+                . ( $@ || $dbh->errstr );
+            $dbh->disconnect;
+        }
+        warn "Failed to save delivery date change for order #$cartid: $error";
+    }
+    return $saved;
 }
 
 1;
