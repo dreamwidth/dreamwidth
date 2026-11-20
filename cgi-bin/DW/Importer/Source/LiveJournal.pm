@@ -639,7 +639,9 @@ Fetches the comment export's metadata, window by window. Returns
 
 Options are callbacks: C<before_window> is called with the id the next window starts
 at, and C<after_window> with C<( $max_id, \@new_usermap )> (pairs of C<[ posterid, username ]>
-in the order the window listed them) once a window has been read, and may die to stop. Dies with a C<temp_fail> if a window can't be fetched.
+in the order the window listed them) once a window has been read, and may die to stop.
+If the server gives a maximum id but no next id, an empty window advances by the
+requested window size. Dies with a C<temp_fail> if a window can't be fetched.
 
 =cut
 
@@ -648,7 +650,8 @@ sub comment_meta {
     my $log = $opts{log} || sub { undef };
 
     my ( %meta, %usermap, $lasttag );
-    my ( $server_max_id, $server_next_id, $nextid ) = ( undef, 1, 0 );
+    my ( $server_max_id, $window_last_id );
+    my $server_next_id = 1;
     my @window_usermap;
 
     # setup our parsing function
@@ -666,9 +669,7 @@ sub comment_meta {
             # get some data on a comment
             $meta{ $temp{id} } = { posterid => $temp{posterid} + 0, state => $temp{state} || 'A' };
 
-            # Some servers have old code and don't return the nextid tag, so
-            # we have to track the best ID we've seen and use it later.
-            $nextid = $temp{id} if $temp{id} > $nextid;
+            $window_last_id = $temp{id} if $temp{id} > $window_last_id;
 
         }
         elsif ( $lasttag eq 'usermap' && !exists $usermap{ $temp{id} } ) {
@@ -699,21 +700,17 @@ sub comment_meta {
         && $server_next_id =~ /^\d+$/
         && ( !defined $server_max_id || $server_next_id <= $server_max_id ) )
     {
-        $opts{before_window}->($server_next_id) if $opts{before_window};
+        my $start_id = $server_next_id;
+        $opts{before_window}->($start_id) if $opts{before_window};
 
-        $log->(
-            'Fetching metadata; max_id = %d, next_id = %d.',
-            $server_max_id  || 0,
-            $server_next_id || 0
-        );
+        $log->( 'Fetching metadata; max_id = %d, next_id = %d.', $server_max_id || 0, $start_id );
 
         my $content =
-            $self->{transport}
-            ->comment_export( 'comment_meta', $server_next_id, $FETCH_META, $log );
+            $self->{transport}->comment_export( 'comment_meta', $start_id, $FETCH_META, $log );
         die DW::Importer::Outcome->temp_fail('Error fetching comment metadata from server.')
             unless $content;
 
-        $server_next_id = undef;
+        ( $server_next_id, $window_last_id ) = ( undef, $start_id - 1 );
         @window_usermap = ();
 
         $self->_parse_xml( { Start => $meta_handler, Char => $meta_content, End => $meta_closer },
@@ -721,10 +718,17 @@ sub comment_meta {
 
         $opts{after_window}->( $server_max_id, [@window_usermap] ) if $opts{after_window};
 
-        # Now we need to ensure that we get a proper nextid. If it's an old
-        # remote, then they won't send <nextid> in the metadata. :-(
-        $server_next_id = $nextid + 1
-            if defined $nextid && $nextid > 0 && !defined $server_next_id;
+        next if defined $server_next_id && $server_next_id > $start_id;
+
+        if ( $window_last_id >= $start_id ) {
+            $server_next_id = $window_last_id + 1;
+        }
+        elsif ( defined $server_max_id ) {
+            $server_next_id = $start_id + $FETCH_META;
+        }
+        else {
+            last;
+        }
     }
     $log->('Finished fetching metadata.');
 

@@ -424,6 +424,41 @@ sub meta_window {
         1, 'before more is fetched' );
 }
 
+for my $first_window_empty ( 0, 1 ) {
+    subtest $first_window_empty
+        ? 'empty first metadata window'
+        : 'empty middle metadata window' => sub {
+        my $empty = '<?xml version="1.0"?><livejournal><maxid>7</maxid>'
+            . '<comments></comments><usermaps></usermaps></livejournal>';
+        my %windows = (
+            1 => $first_window_empty
+            ? $empty
+            : meta_window( first => 1, last => 3, max => 7, poster => 0 ),
+            4 => $empty,
+            7 => meta_window( first => 7, last => 7, max => 7, poster => 0 ),
+        );
+        my $site = Test::Site->new(
+            export => {
+                comment_meta => sub { delete $windows{ $_[0] } }
+            }
+        );
+
+        my $meta;
+        my $outcome = outcome_of( sub { $meta = source($site)->comment_meta } );
+        is( $outcome, undef, 'an empty window does not stop the import' );
+        is_deeply(
+            [ map { $_->[1] } @{ $site->{asked} } ],
+            [ 1, 4, 7 ],
+            'each window is requested once'
+        );
+        is_deeply(
+            [ sort { $a <=> $b } keys %{ $meta->{comments} // {} } ],
+            $first_window_empty ? [7] : [ 1, 2, 3, 7 ],
+            'later comments are still found'
+        );
+        };
+}
+
 # bodies
 sub body_window {
     my (%o) = @_;
