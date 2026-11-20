@@ -107,6 +107,12 @@ sub reload_entry {
     return LJ::Entry->new( $entry->journal, jitemid => $entry->jitemid );
 }
 
+sub community_embed_count {
+    return LJ::get_cluster_master($community)
+        ->selectrow_array( 'SELECT COUNT(*) FROM embedcontent WHERE userid=?',
+        undef, $community->id );
+}
+
 my $official = post_entry( $community, $author, 'Official announcement',          1 );
 my $ordinary = post_entry( $community, $author, 'Ordinary entry',                 0 );
 my $external = post_entry( $other,     $author, 'Another community announcement', 1 );
@@ -203,6 +209,43 @@ $editor = LJ::load_userid( $editor->id );
         'REST saves the new content'
     );
     is( reload_entry($official)->posterid, $author->id, 'REST preserves the original author' );
+
+    my $entries         = '/journals/' . $community->user . '/entries/';
+    my $key             = DW::API::Key->new_for_user($editor)->hash;
+    my $missing         = ( $official->jitemid + 1000 ) * 256;
+    my $wrong_anum      = $official->jitemid * 256 + ( $official->anum + 1 ) % 256;
+    my $removed         = post_entry( $community, $author, 'Removed entry fixture', 1 );
+    my $removed_ditemid = $removed->ditemid;
+    is( edit_entry( $removed, $author, '' ), 0, 'author deletes the REST fixture' );
+    for my $target (
+        [ $missing,         'missing entry' ],
+        [ $wrong_anum,      'wrong anum' ],
+        [ $removed_ditemid, 'deleted entry' ]
+        )
+    {
+        my ($response) = api_request(
+            POST => $entries . $target->[0],
+            key  => $key,
+            json => { text => 'Unmatched edit' }
+        );
+        is( $response->code, 404, "REST POST returns 404 for $target->[1]" );
+    }
+}
+
+{
+    my $moderated = post_entry( $community, $author, 'Read-only moderation fixture', 1 );
+    $editor->update_self( { statusvis => 'O' } );
+    LJ::start_request();
+    $editor = LJ::load_userid( $editor->id );
+    ok( !reload_entry($moderated)->editable_by($editor),
+        'read-only admin cannot open shared edit' );
+    ok( reload_entry($moderated)->deletable_by($editor), 'read-only admin can open moderation' );
+    is( edit_entry( $moderated, $editor, 'Read-only save' ),
+        318, 'read-only admin cannot save content' );
+    is( edit_entry( $moderated, $editor, '' ),
+        0, 'read-only admin can delete another admin’s post' );
+    ok( !reload_entry($moderated)->valid, 'read-only admin’s deletion removes the entry' );
+    $editor->update_self( { statusvis => 'V' } );
 }
 
 $author->update_self( { statusvis => 'S' } );
@@ -221,21 +264,66 @@ $official->set_prop( statusvis => undef );
 
 {
     no warnings 'redefine';
+    my $concurrent   = post_entry( $community, $author, 'Concurrent visibility fixture', 1 );
+    my $trylock      = \&DW::Locker::trylock;
+    my $entry_lock   = 'official-entry:' . $community->id . ':' . $concurrent->jitemid;
+    my $author_saved = 0;
+    local *DW::Locker::trylock = sub {
+        if ( $_[1] eq $entry_lock && !$author_saved++ ) {
+            is(
+                edit_entry( $concurrent, $author, 'Made private by author', security => 'private' ),
+                0,
+                'author changes visibility before releasing the entry lock'
+            );
+        }
+        return $trylock->(@_);
+    };
+    is( edit_entry( $concurrent, $editor, 'Shared edit without visibility', min => 12 ),
+        0, 'shared edit without visibility still saves' );
+    is( reload_entry($concurrent)->security,
+        'private', 'shared edit preserves the author’s visibility change' );
+}
+
+{
+    no warnings 'redefine';
+    my $restricted = post_entry( $community, $author, 'Members-only fixture', 1 );
+    is(
+        edit_entry(
+            $restricted, $author, 'Members-only content',
+            security  => 'usemask',
+            allowmask => 1
+        ),
+        0,
+        'author saves members-only visibility'
+    );
+    my $validate = \&LJ::Protocol::common_event_validation;
+    local *LJ::Protocol::common_event_validation = sub {
+        my $valid = $validate->(@_);
+        LJ::clear_rel( $community, $editor, 'E' );
+        return $valid;
+    };
+    is( edit_entry( $restricted, $editor, 'No longer a member' ),
+        303, 'shared edit rechecks whether the admin can still see members-only content' );
+    is(
+        reload_entry($restricted)->event_raw,
+        'Members-only content',
+        'membership revocation preserves content'
+    );
+    LJ::set_rel( $community, $editor, 'E' );
+    local *LJ::Protocol::common_event_validation = $validate;
+    is( edit_entry( $restricted, $editor, 'Members-only edit', min => 13 ),
+        0, 'a member can save without specifying visibility' );
+    is( reload_entry($restricted)->allowmask, 1, 'a content edit preserves the members-only mask' );
+}
+
+{
+    no warnings 'redefine';
+    local $LJ::DISABLED{embed_module} = 0;
     my $validate = \&LJ::Protocol::common_event_validation;
     for my $revocation (
         [
             'flag',
-            sub {
-                local *LJ::Protocol::common_event_validation = $validate;
-                is(
-                    edit_entry(
-                        $official, $author,
-                        'Author revoked the flag', props => { admin_post => 0 }
-                    ),
-                    0,
-                    'author revokes the flag while another save is in flight'
-                );
-            },
+            sub { $official->set_prop( admin_post => 0 ) },
             sub { $official->set_prop( admin_post => 1 ) }
         ],
         [
@@ -251,15 +339,17 @@ $official->set_prop( statusvis => undef );
         )
     {
         my ( $name, $revoke, $restore ) = @$revocation;
-        my $before =
-            $name eq 'flag' ? 'Author revoked the flag' : reload_entry($official)->event_raw;
+        my $before = reload_entry($official)->event_raw;
         local *LJ::Protocol::common_event_validation = sub {
             my $valid = $validate->(@_);
             $revoke->();
             return $valid;
         };
-        is( edit_entry( $official, $editor, "Revoked $name", props => { admin_post => 1 } ),
+        my $embed_count = community_embed_count();
+        my $body = qq{Revoked $name <iframe src="https://www.youtube.com/embed/example"></iframe>};
+        is( edit_entry( $official, $editor, $body, props => { admin_post => 1 } ),
             303, "in-flight save cannot outlive revocation of the $name" );
+        is( community_embed_count(), $embed_count, "revoking the $name prevents embed writes" );
         is( reload_entry($official)->event_raw, $before, "revoking the $name preserves content" );
         ok( !reload_entry($official)->prop('admin_post'), 'stale form does not restore the flag' )
             if $name eq 'flag';
@@ -269,12 +359,30 @@ $official->set_prop( statusvis => undef );
 
 {
     no warnings 'redefine';
-    my $before = reload_entry($official)->event_raw;
+    local $LJ::DISABLED{embed_module} = 0;
+    my $before      = reload_entry($official)->event_raw;
+    my $embed_count = community_embed_count();
+    my $body = 'Unattributed edit <iframe src="https://www.youtube.com/embed/example"></iframe>';
     local *LJ::Entry::put_logprop_in_history = sub { return undef };
-    like( edit_entry( $official, $third, 'Unattributed edit', security => 'private' ),
+    like( edit_entry( $official, $third, $body, security => 'private' ),
         qr/^501\b/, 'failure to record a new editor rejects the edit' );
+    is( community_embed_count(), $embed_count, 'history failure rolls back the new embed' );
     is( reload_entry($official)->event_raw, $before,  'history failure leaves content unchanged' );
     is( reload_entry($official)->security,  'public', 'history failure leaves security unchanged' );
+}
+
+{
+    local $LJ::DISABLED{embed_module} = 0;
+    my $embedded = post_entry( $community, $author, 'Approved embed fixture', 1 );
+    my $before   = community_embed_count();
+    my $body     = 'Approved edit <iframe src="https://example.invalid/video"></iframe>';
+    is( edit_entry( $embedded, $editor, $body ), 0, 'an approved shared edit saves an embed' );
+    is( community_embed_count(), $before + 1, 'the community owns the committed embed' );
+    like(
+        reload_entry($embedded)->event_raw,
+        qr/<site-embed id="\d+"\/>/,
+        'the updated entry references the committed embed'
+    );
 }
 
 like( edit_entry( $official, $author, 'False attribution', props => { admin_post_editor => 1 } ),
