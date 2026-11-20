@@ -1465,7 +1465,9 @@ sub _unclosed_tag_context {
         $omitted_after = 1;
     }
 
-    $omitted_before ||= $before =~ s/\A.*?\S+\s+(?=(?:\S+\s+){6}\S+\s*\z)//s;
+    if ( $before =~ s/\A.*?\S+\s+(?=(?:\S+\s+){6}\S+\s*\z)//s ) {
+        $omitted_before = 1;
+    }
     if ( $after =~ s/(\A\s*(?:\S+\s+){6}\S+)\s+\S.*\z/$1/s ) {
         $omitted_after = 1;
     }
