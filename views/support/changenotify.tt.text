@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.changenotify.text=Select which categories of support requests you'd like to be notified for.  Choices are <b>off</b> (the default), <b>new</b> (you'll get a notification when a new support request in that category is posted), or <b>all</b> (you'll get a notification and then a copy of each comment/solution posted).
+.changenotify.text=Choose which notifications to receive for each support category: <b>Off</b> (the default), <b>New Only</b> (new requests), <b>New and Regreens</b> (new requests and follow-up comments from the requester), or <b>All</b> (new requests and every response you can see).
 
 .done.text=When you're finished, press the "Save Changes" button.
 
@@ -10,6 +10,8 @@
 .option.all=All
 
 .option.new=New Only
+
+.option.newandregreens=New and Regreens
 
 .option.off=Off
 
