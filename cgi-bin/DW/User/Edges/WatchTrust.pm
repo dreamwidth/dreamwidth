@@ -715,6 +715,7 @@ sub watch_list {
 # gets a hashref of trust group requested.  arguments is a hash of options
 #   id => NNN,      id of group to get
 #   name => "ZZZ",  name of group to get
+#   force_database => 1, bypass cache and read on the writer
 #
 # returns undef if group not found
 #
@@ -727,11 +728,38 @@ sub trust_groups {
     confess 'invalid bit number' if $bit < 0 || $bit > 60;
     my $name = delete( $opts{name} );
     $name = lc $name if defined $name;
+    my $force_database = delete $opts{force_database};
     confess 'invalid arguments' if %opts;
 
-    return DW::User::Edges::WatchTrust::Loader::_trust_groups( $u, $bit, $name );
+    return DW::User::Edges::WatchTrust::Loader::_trust_groups( $u, $bit, $name, $force_database );
 }
 *LJ::User::trust_groups = \&trust_groups;
+
+sub lock_trust_groups {
+    my ( $u, %opts ) = @_;
+    return LJ::locker()->trylock( 'trustgroup:' . $u->id, class => 'trustgroup', %opts );
+}
+*LJ::User::lock_trust_groups = \&lock_trust_groups;
+
+sub trust_group_revision {
+    my ($u) = @_;
+    my $db = LJ::get_db_writer() or return undef;
+    my ($revision) =
+        $db->selectrow_array( q{SELECT max FROM usercounter WHERE journalid = ? AND area = 'G'},
+        undef, $u->id );
+    return $db->err ? undef : $revision // 0;
+}
+*LJ::User::trust_group_revision = \&trust_group_revision;
+
+sub _clear_media_group_bit {
+    my ( $u, $bit ) = @_;
+    $u->do(
+        q{UPDATE media SET allowmask = allowmask & ~(1 << ?)
+          WHERE userid = ? AND security = 'usemask' AND allowmask & (1 << ?)},
+        undef, $bit, $u->id, $bit
+    );
+    return !$u->err;
+}
 
 # edits a new trust_group, arguments is a hash of options
 #   id => NNN,           (optional) bit/ID of the group to edit (1..60)
@@ -748,7 +776,8 @@ sub create_trust_group {
     my ( $u, %opts ) = @_;
     $u = LJ::want_user($u)
         or confess 'invalid user object';
-    my $grp = $u->trust_groups;
+    my $lock = $u->lock_trust_groups( wait => 2 )      or return 0;
+    my $grp  = $u->trust_groups( force_database => 1 ) or return 0;
 
     # calculate an id to use
     my $id = ( delete( $opts{id} ) // 0 ) + 0;
@@ -769,10 +798,7 @@ sub create_trust_group {
     confess 'name not provided'
         unless $opts{groupname};
 
-    # now perform an edit with our chosen id
-    return $id
-        if $u->edit_trust_group( id => $id, _force_create => 1, %opts );
-    return 0;
+    return _write_trust_group( $u, $id, undef, %opts ) ? $id : 0;
 }
 *LJ::User::create_trust_group = \&create_trust_group;
 
@@ -798,15 +824,21 @@ sub edit_trust_group {
     return 1 unless %opts;
 
     # get current trust groups
-    my $grps = $u->trust_groups;
-    return 0 unless exists $grps->{$id} || $opts{_force_create};
+    my $lock = $u->lock_trust_groups( wait => 2 )      or return 0;
+    my $grps = $u->trust_groups( force_database => 1 ) or return 0;
+    my $group = $grps->{$id};
+    return 0 unless $group || ( $id >= 1 && $opts{_force_create} );
+
+    return _write_trust_group( $u, $id, $group, %opts );
+}
+*LJ::User::edit_trust_group = \&edit_trust_group;
+
+sub _write_trust_group {
+    my ( $u, $id, $group, %opts ) = @_;
+    return 0 unless $group || _clear_media_group_bit( $u, $id );
 
     # now calculate what to change
-    my %change = (
-        sortorder => $grps->{$id}->{sortorder},
-        groupname => $grps->{$id}->{groupname},
-        is_public => $grps->{$id}->{is_public},
-    );
+    my %change = %{ $group || {} };
     $change{sortorder} = $opts{sortorder}
         if exists $opts{sortorder} && $opts{sortorder} =~ /^\d+$/;
     $change{groupname} = DW::User::Edges::WatchTrust::valid_group_name( $opts{groupname} )
@@ -830,7 +862,6 @@ sub edit_trust_group {
     LJ::memcache_kill( $u, 'trust_group' );
     return 1;
 }
-*LJ::User::edit_trust_group = \&edit_trust_group;
 
 # deletes a trust_group, arguments is a hash of options
 #   id => NNN,       delete by id (1..60)
@@ -846,20 +877,13 @@ sub delete_trust_group {
     my ( $u, %opts ) = @_;
     $u = LJ::want_user($u) or confess 'invalid user object';
 
-    # use existing accessor to figure out what group they mean
-    my $grp = $u->trust_groups( id => $opts{id}, name => $opts{name} );
+    my $lock = $u->lock_trust_groups( wait => 2 ) or return 0;
+    my $grp  = $u->trust_groups( id => $opts{id}, name => $opts{name}, force_database => 1 );
     return 0 unless $grp;
 
     # set bit to remove
     my $bit = $grp->{groupnum} + 0;
     return 0 unless $bit >= 1 && $bit <= 60;
-
-    $u->do(
-        q{UPDATE media SET allowmask = allowmask & ~(1 << ?)
-          WHERE userid = ? AND security = 'usemask' AND allowmask & (1 << ?)},
-        undef, $bit, $u->id, $bit
-    );
-    return 0 if $u->err;
 
     # remove all posts from allowing that group:
     my @posts_to_clean = @{
@@ -897,19 +921,24 @@ sub delete_trust_group {
         or return 0;
 
     # iterate over everybody in this group and remove the bit
-    my $tglist = $u->trust_group_members( id => $bit, force_database => 1 );
-    foreach my $tid ( keys %{ $tglist || {} } ) {
+    my $members = $dbh->selectcol_arrayref(
+        q{SELECT to_userid FROM wt_edges WHERE from_userid = ? AND groupmask & (1 << ?)},
+        undef, $userid, $bit );
+    return 0 if $dbh->err;
+    foreach my $tid (@$members) {
         $dbh->do(
 q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
             undef, $bit, $u->id, $tid
         );
+        return 0 if $dbh->err;
 
         # don't forget memcache
         LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
         DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
     }
 
-    # finally remove the trust group, huzzah
+    # Invalidate rendered choices and clear media before freeing the slot under the same lock.
+    return 0 unless LJ::alloc_user_counter( $u, 'G' ) && _clear_media_group_bit( $u, $bit );
     $u->do( q{DELETE FROM trust_groups WHERE userid = ? AND groupnum = ?}, undef, $u->id, $bit );
     return 0 if $u->err;
 

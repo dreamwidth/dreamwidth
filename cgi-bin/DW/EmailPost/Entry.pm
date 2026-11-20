@@ -241,6 +241,7 @@ sub _set_props {
 
     my $security;
     my $amask;
+    my $group_revision;
 
     # "lc" is right here because groupnames are forcibly lowercased in
     # LJ::User->trust_groups;
@@ -254,14 +255,22 @@ sub _set_props {
         }
     }
     elsif ($security) {               # Assume a trust group list if unknown security.
-            # Get the mask for the requested trust group list, discarding those
-            # that don't exist.
+        my $lock = $u->lock_trust_groups( wait => 2 )
+            or return $self->err('Access filters are busy. Please try again.');
+        my $groups = $u->trust_groups( force_database => 1 );
+        $group_revision = $u->trust_group_revision;
+        return $self->err('Unable to read access filters.')
+            unless $groups && defined $group_revision;
+        my %group_ids = map { lc( $_->{groupname} ) => $_->{groupnum} }
+            sort { $b->{groupnum} <=> $a->{groupnum} } values %$groups;
+        $lock->release;
+
         $amask = 0;
         my @unrecognized = ();
         foreach my $groupname ( split( /\s*,\s*/, $security ) ) {
-            my $group = $u->trust_groups( name => $groupname );
-            if ($group) {
-                $amask |= ( 1 << $group->{groupnum} );
+            my $id = $group_ids{$groupname};
+            if ($id) {
+                $amask |= ( 1 << $id );
             }
             else {
                 push @unrecognized, $groupname;
@@ -282,10 +291,11 @@ sub _set_props {
         }
     }
 
-    $self->{props}    = $props;
-    $self->{security} = $security;
-    $self->{amask}    = $amask;
-    $self->{time}     = $time;
+    $self->{props}          = $props;
+    $self->{security}       = $security;
+    $self->{amask}          = $amask;
+    $self->{group_revision} = $group_revision;
+    $self->{time}           = $time;
 
     return 1;
 }
@@ -304,8 +314,9 @@ sub insert_images {
     # upload picture attachments
     # undef return value? retry posting for later.
     my $fb_upload = $self->_upload_images(
-        security  => $self->{security},
-        allowmask => $self->{amask},
+        security       => $self->{security},
+        allowmask      => $self->{amask},
+        group_revision => $self->{group_revision},
     );
 
     # if we found and successfully uploaded some images...

@@ -311,7 +311,7 @@ sub _wt_list_db {
 
 # returns a hashref for a trust group
 sub _trust_groups {
-    my ( $u, $bit, $name ) = @_;
+    my ( $u, $bit, $name, $force_database ) = @_;
 
     # memcache data version number
     my $ver = 2;
@@ -360,24 +360,25 @@ sub _trust_groups {
     # check memcache
     my $userid = $u->id;
     my $memkey = [ $userid, "trust_group:$userid" ];
-    $fg = LJ::MemCache::get($memkey);
-    return $find_grp->() if $fg;
+    unless ($force_database) {
+        $fg = LJ::MemCache::get($memkey);
+        return $find_grp->() if $fg;
+    }
 
     # check database
     $fg = [$ver];
-    my $db = LJ::get_cluster_def_reader($u);
+    my $db = $force_database ? LJ::get_cluster_master($u) : LJ::get_cluster_def_reader($u);
     return undef unless $db;
 
-    my $sth = $db->prepare( 'SELECT userid, groupnum, groupname, sortorder, is_public '
-            . 'FROM trust_groups WHERE userid = ?' );
-    $sth->execute($userid);
+    my $rows = $db->selectall_arrayref(
+'SELECT userid, groupnum, groupname, sortorder, is_public FROM trust_groups WHERE userid = ?',
+        undef, $userid
+    );
     return LJ::error($db) if $db->err;
-
-    my @row;
-    push @$fg, [@row] while @row = $sth->fetchrow_array;
+    push @$fg, @$rows;
 
     # set in memcache
-    LJ::MemCache::set( $memkey, $fg );
+    LJ::MemCache::set( $memkey, $fg ) unless $force_database;
 
     return $find_grp->();
 }

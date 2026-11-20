@@ -17,7 +17,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <p>These filters apply only when Security is set to Custom. If none are checked, the image is private.</p>
         [% FOREACH group IN custom_groups %]
             <div>
-                <label><input type="checkbox" name="[% name | html %]" value="[% group.groupnum | html %]"[% IF selected.item(group.groupnum) %] checked[% END %]> [% group.groupname | html %]</label>
+                <label><input type="checkbox" name="[% name | html %]" value="[% group.groupnum | html %]:[% group_revision | html %]"[% IF selected.item(group.groupnum) %] checked[% END %]> [% group.groupname | html %]</label>
             </div>
         [% END %]
     </fieldset>

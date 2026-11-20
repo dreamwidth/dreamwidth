@@ -27,6 +27,7 @@ use DW::Routing;
 use DW::Request;
 use DW::Controller;
 use DW::External::Site;
+use HTTP::Status qw(HTTP_CONFLICT);
 use POSIX;
 
 my %VALID_SIZES =
@@ -110,15 +111,29 @@ sub media_manage_handler {
 }
 
 sub security_form_options {
-    my ( $rv, @groups ) = @_;
+    my ($rv)     = @_;
+    my $groups   = $rv->{u}->trust_groups( force_database => 1 ) or return;
+    my $revision = $rv->{u}->trust_group_revision;
+    return unless defined $revision;
+
+    my @groups = sort { $a->{sortorder} <=> $b->{sortorder} || $a->{groupname} cmp $b->{groupname} }
+        grep { $_->{groupnum} >= 1 && $_->{groupnum} <= 60 } values %$groups;
     $rv->{security} = [
         { value => "public",  text => LJ::Lang::ml('label.security.public2') },
         { value => "usemask", text => LJ::Lang::ml('label.security.accesslist') },
         { value => "private", text => LJ::Lang::ml('label.security.private2') },
     ];
-    $rv->{custom_groups} = \@groups;
+    $rv->{custom_groups}  = \@groups;
+    $rv->{group_revision} = $revision;
     push @{ $rv->{security} }, { value => 'custom', text => LJ::Lang::ml('label.security.custom') }
         if @groups;
+    return 1;
+}
+
+sub media_security_error {
+    my ( $r, $status, $message ) = @_;
+    $r->status($status);
+    return DW::Template->render_template( 'error.tt', { message => $message } );
 }
 
 sub media_bulkedit_handler {
@@ -132,16 +147,17 @@ sub media_bulkedit_handler {
         }
     ) if $rv->{remote}->is_identity;
 
-    my @groups = $rv->{u}->trust_groups;
-    security_form_options( $rv, @groups );
-
     my $r = DW::Request->get;
+    my ( $lock, $groups, $revision );
     if ( $r->did_post ) {
         my $post_args = $r->post_args;
         return error_ml('error.invalidauth')
             unless LJ::check_form_auth( $post_args->{lj_form_auth} );
 
         if ( $post_args->{"action:edit"} ) {
+            $lock = $rv->{u}->lock_trust_groups
+                or return media_security_error( $r, HTTP_CONFLICT,
+                'Access filters are busy. Try again.' );
             my %post = %{ $post_args->as_hashref || {} };
 
             # transform our HTML field names to property names
@@ -164,23 +180,21 @@ sub media_bulkedit_handler {
                 my $mask      = 0;
                 if ( defined $selection ) {
                     if ( $selection eq 'custom' ) {
+                        $groups   //= $rv->{u}->trust_groups( force_database => 1 );
+                        $revision //= $rv->{u}->trust_group_revision;
+                        return media_security_error( $r, $r->SERVER_ERROR,
+                            'Unable to read access filters' )
+                            unless $groups && defined $revision;
                         $selection = 'usemask';
-                        $mask      = DW::Media->allowmask_for_groups( $rv->{u},
-                            $post_args->get_all("group-$displayid") );
+                        $mask      = DW::Media->allowmask_for_groups( $groups, $revision,
+                            [ $post_args->get_all("group-$displayid") ], 1 );
                     }
                     elsif ( $selection eq 'usemask' ) {
                         $mask = 1;
                     }
-                    unless ( defined $mask && $selection =~ /\A(?:public|private|usemask)\z/ ) {
-                        $r->status( $r->HTTP_BAD_REQUEST );
-                        return DW::Template->render_template(
-                            'error.tt',
-                            {
-                                message =>
-                                    'Invalid image security or access filter. Reload and try again.'
-                            }
-                        );
-                    }
+                    return media_security_error( $r, $r->HTTP_BAD_REQUEST,
+                        'Invalid image security or access filter. Reload and try again.' )
+                        unless defined $mask && $selection =~ /\A(?:public|private|usemask)\z/;
                 }
                 $updates{$displayid} = [ $media, $selection, $mask ];
             }
@@ -210,6 +224,14 @@ sub media_bulkedit_handler {
             }
         }
     }
+
+    $lock ||= $rv->{u}->lock_trust_groups
+        or return media_security_error( $r, HTTP_CONFLICT, 'Access filters are busy. Try again.' );
+    return media_security_error( $r, $r->SERVER_ERROR, 'Unable to read access filters' )
+        unless security_form_options($rv);
+    $lock->release;
+
+    my @groups = @{ $rv->{custom_groups} };
 
     my %nav_args = %{ $r->get_args };
     my $order    = delete $nav_args{order};
@@ -375,7 +397,12 @@ sub media_new_handler {
         }
     ) if $rv->{remote}->is_identity;
 
-    security_form_options( $rv, $rv->{u}->trust_groups );
+    my $r    = $rv->{r};
+    my $lock = $rv->{u}->lock_trust_groups
+        or return media_security_error( $r, HTTP_CONFLICT, 'Access filters are busy. Try again.' );
+    return media_security_error( $r, $r->SERVER_ERROR, 'Unable to read access filters' )
+        unless security_form_options($rv);
+    $lock->release;
 
     $rv->{default_security} = $rv->{remote}->newpost_minsecurity;
     $rv->{default_security} = 'usemask' if $rv->{default_security} eq 'friends';

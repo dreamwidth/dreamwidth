@@ -16,11 +16,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 44;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost;
+use DW::Media;
 use LJ::Emailpost::Web;
 use LJ::Protocol;
 use LJ::Userpic;
@@ -32,6 +33,7 @@ use MIME::Entity;
 use MIME::Parser;
 
 local $LJ::T_ALLOW_EMAILPOST = 1;    # override caps
+$LJ::CAP{$_}{media_file_quota} = 10 for keys %LJ::CAP;
 
 my $u        = temp_user();
 my $emailpin = "emailpin123";
@@ -400,6 +402,43 @@ subtest 'community slug changes use the community writer' => sub {
     ok( !LJ::Entry->new( $community, slug => 'community-second' ),
         'removed slug no longer resolves' );
 };
+
+{
+    my $photo_owner = temp_user();
+    my $viewer      = temp_user();
+    $photo_owner->add_edge( $viewer, trust => { nonotify => 1 } );
+    my $group = $photo_owner->create_trust_group( groupname => 'Photo exchange' );
+    $photo_owner->edit_trustmask( $viewer, add => $group );
+    my $mime = MIME::Entity->build( Type => 'multipart/mixed' );
+    $mime->attach( Type => 'image/png', Path => 'htdocs/img/videoplaceholder.png' );
+    my $post = DW::EmailPost::Entry->new($mime);
+    $post->{u}    = $photo_owner;
+    $post->{body} = 'A photo';
+    ok(
+        $post->_set_props(
+            $photo_owner,
+            'Mon, 1 Jan 2007 12:28:00 -0800',
+            security => 'Photo exchange'
+        ),
+        'email resolves the filter by name'
+    );
+
+    $post->insert_images;
+    my ($photo) = DW::Media->get_active_for_user($photo_owner);
+    ok( $photo && $photo->visible_to($viewer),
+        'the chosen filter grants access to the attachment' );
+    $photo->delete if $photo;
+
+    ok( $photo_owner->delete_trust_group( id => $group ), 'deleted the email filter' );
+    is( $photo_owner->create_trust_group( id => $group, groupname => 'Photo exchange' ),
+        $group, 'reused its number and name before saving another attachment' );
+    $photo_owner->edit_trustmask( $viewer, add => $group );
+    $post->insert_images;
+    ($photo) = DW::Media->get_active_for_user($photo_owner);
+    ok( $photo,                                 'the attachment is still uploaded' );
+    ok( $photo && !$photo->visible_to($viewer), 'a stale email mask grants no access' );
+    $photo->delete if $photo;
+}
 
 sub get_mime {
     my ( $filepart, $replace ) = @_;
