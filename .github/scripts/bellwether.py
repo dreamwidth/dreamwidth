@@ -3,8 +3,8 @@
 bellwether.py
 
 Acts on maintainer commands in pull request comments (/merge, /approve, /hold,
-/unhold) and on Bellwether's grace period, for PRs that Bellwether's triage
-has already checked.
+/unhold, /fix++) and on Bellwether's grace period, for PRs that Bellwether's
+triage has already checked. A /fix that triage hasn't run yet holds the merge.
 
 Bellwether's triage runs elsewhere: it reviews and tests each PR, then keeps
 one status comment on it. That comment carries a hidden state line saying
@@ -43,7 +43,8 @@ MARKER = "<!-- bellwether:status -->"
 STATE = re.compile(r"<!-- bellwether:state (\{.*?\}) -->")
 NEXT_START, NEXT_END = "<!-- bellwether:next -->", "<!-- /bellwether:next -->"
 NEXT = re.compile(re.escape(NEXT_START) + r".*?" + re.escape(NEXT_END), re.S)
-COMMAND = re.compile(r"^\s*/(approve|lgtm|merge|hold|unhold)\b", re.I | re.M)
+# `/fix` asks triage to fix review items on the branch; `/fix++` also approves.
+COMMAND = re.compile(r"^\s*/(approve|lgtm|merge|hold|unhold|fix\+\+|fix)(?!\w)", re.I | re.M)
 FOOTER = "I keep this comment up to date. New commits start the checks over."
 DRY_RUN = "--dry-run" in sys.argv
 
@@ -105,17 +106,20 @@ def status_comment(number):
     return None, None
 
 
-def commands(pr, since):
-    """Maintainers' go-aheads on the current head, whether the PR is on hold, and who has
-    requested changes.
+def commands(pr, since, fixes_done=()):
+    """Maintainers' go-aheads on the current head, whether the PR is on hold, who has requested
+    changes, and who has a `/fix` that triage hasn't dealt with yet.
 
     /approve, /lgtm, /merge and approving reviews count only after `since`, when Bellwether first
     saw this head, so a new push needs a new go-ahead. An edited comment counts from when it was
     edited. /hold and /unhold persist; the latest wins. Each reviewer's latest review is the one
-    that counts. The PR's author and bots never count."""
+    that counts. The PR's author and bots never count.
+
+    A `/fix` posted after `since` that isn't in the state's `fixes_done` hasn't run yet. Merging
+    then would merge the commit without the fix, so the PR waits for triage to push it."""
     author = pr["user"]["login"]
     since = parse_time(since)
-    go, hold = [], None
+    go, hold, fixing = [], None, []
     comments = paged(f"/repos/{REPO}/issues/{pr['number']}/comments")
     for c in sorted(comments, key=lambda c: parse_time(c["updated_at"])):
         who = c["user"]["login"]
@@ -123,8 +127,11 @@ def commands(pr, since):
         if not found or who == author or c["user"]["type"] == "Bot" or not can_write(who):
             continue
         for cmd in found:
-            if cmd in ("approve", "lgtm", "merge") and parse_time(c["updated_at"]) > since:
+            if cmd in ("approve", "lgtm", "merge", "fix++") and parse_time(c["updated_at"]) > since:
                 go.append(who)
+            if cmd in ("fix", "fix++") and parse_time(c["updated_at"]) > since \
+                    and c["id"] not in fixes_done:
+                fixing.append(who)
             elif cmd == "hold":
                 hold = who
             elif cmd == "unhold":
@@ -143,7 +150,7 @@ def commands(pr, since):
         elif (r["state"] == "APPROVED" and r["commit_id"] == pr["head"]["sha"]
               and parse_time(r["submitted_at"]) > since):
             go.append(who)
-    return list(dict.fromkeys(go)), hold, changes
+    return list(dict.fromkeys(go)), hold, changes, list(dict.fromkeys(fixing))
 
 
 def ci_state(sha, ignore, required):
@@ -244,15 +251,18 @@ def decide(number, final_check=False):
     if pr["base"]["ref"] != pr["base"]["repo"]["default_branch"]:
         # Triage tests PRs merged onto the default branch only.
         return print(f"  targets {pr['base']['ref']}, not the default branch")
-    go, hold, changes = commands(pr, state["head_seen_at"])
+    go, hold, changes, fixing = commands(pr, state["head_seen_at"], state.get("fixes_done") or [])
     print(f"  gates_ok={state['gates_ok']} needs_approval={state['needs_approval']} "
-          f"ready={state['ready']} go={go} hold={hold} changes_requested={changes}")
+          f"ready={state['ready']} go={go} hold={hold} changes_requested={changes} fixing={fixing}")
     if changes:
         return set_next(comment, f"**Changes requested by {', '.join(changes)}.** I won't merge "
                                  f"it until they approve.\n\n{FOOTER}")
     if hold:
         return set_next(comment, f"**On hold: {hold} replied `/hold`.**\n\n"
                                  "Maintainers: reply `/unhold` to let it merge.")
+    if fixing:
+        return set_next(comment, f"**Waiting on the `/fix` from {', '.join(fixing)}.** I'll push "
+                                 f"it, check it and re-test before anything merges.\n\n{FOOTER}")
     if not state["gates_ok"] or (state["needs_approval"] and not go):
         return set_next(comment, state["next"])
     if go:
