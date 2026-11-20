@@ -362,12 +362,12 @@ sub get_recent_talkitems {
     ## $raw_talkitems - contains DB rows that are not filtered
     ## to match remote user's permissions to see
     my $raw_talkitems;
-    my $memkey = [ $u->userid, 'rcntalk:' . $u->userid ];
+    my $memkey = [ $u->userid, 'rcntalk2:' . $u->userid ];
     $raw_talkitems = LJ::MemCache::get($memkey);
     if ( !$raw_talkitems ) {
         my $sth =
             $u->prepare( "SELECT jtalkid, nodetype, nodeid, parenttalkid, "
-                . "       posterid, UNIX_TIMESTAMP(datepost) as 'datepostunix', state "
+                . "       posterid, UNIX_TIMESTAMP(datepost) as 'datepostunix', state, screened_frozen "
                 . "FROM talk2 "
                 . "WHERE journalid=? AND state <> 'D' "
                 . "ORDER BY jtalkid DESC "

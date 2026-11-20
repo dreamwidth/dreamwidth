@@ -116,6 +116,7 @@ sub received_handler {
 
             my $state   = "";
             my $tdclass = "";
+            my $frozen  = LJ::Talk::comment_is_frozen($r);
             if ( $r->{state} eq "S" ) {
                 $state   = "Screened";
                 $tdclass = "screened";
@@ -123,7 +124,7 @@ sub received_handler {
             elsif ( $r->{state} eq "D" ) {
                 $state = "Deleted";
             }
-            elsif ( $r->{state} eq "F" ) {
+            elsif ($frozen) {
                 $state = "Frozen";
             }
 
@@ -146,7 +147,7 @@ sub received_handler {
             my $freeze_link;
             my $freeze_img;
 
-            if ( $r->{'state'} ne 'F' ) {
+            if ( !$frozen ) {
                 $freeze_link = LJ::create_url(
                     "/talkscreen",
                     args => {
@@ -157,7 +158,7 @@ sub received_handler {
                 );
                 $freeze_img = LJ::img( "btn_freeze", "", { align => 'absmiddle', hspace => 2 } );
             }
-            elsif ( $r->{'state'} eq 'F' ) {
+            else {
                 $freeze_link = LJ::create_url(
                     "/talkscreen",
                     args => {
