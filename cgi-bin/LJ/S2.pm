@@ -4325,11 +4325,9 @@ sub _Entry__get_link {
     my $esnjournal = $journalu->is_community ? $journal : $poster;
 
     if ( $key eq "edit_entry" ) {
-        return $null_link
-            unless $remote
-            && ( $remote->user eq $journal
-            || $remote->user eq $poster
-            || $remote->can_manage($journalu) );
+        return $null_link unless $remote;
+        my $entry = LJ::Entry->new( $journalu, ditemid => $this->{itemid} );
+        return $null_link unless $entry->deletable_by($remote);
         return LJ::S2::Link(
             "$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$this->{'itemid'}",
             $ctx->[S2::PROPS]->{"text_edit_entry"},

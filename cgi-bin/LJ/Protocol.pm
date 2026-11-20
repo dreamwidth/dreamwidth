@@ -1343,6 +1343,9 @@ sub postevent {
     return undef
         unless common_event_validation( $req, $err, $flags );
 
+    delete $req->{props}->{admin_post}
+        if $req->{props}->{admin_post} && !( $uowner->is_community && $u->can_manage($uowner) );
+
     # now we can move over to picture_mapid instead of picture_keyword if appropriate
     if ( $req->{props} && defined $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
         $req->{props}->{picture_mapid} =
@@ -1867,6 +1870,8 @@ sub editevent {
     my $ownerid = $flags->{'ownerid'};
     my $uowner  = $flags->{'u_owner'} || $u;
 
+    return fail( $err, 305 ) if $u->is_suspended;
+
     # Make sure we have a user object here
     $uowner = LJ::want_user($uowner) unless LJ::isu($uowner);
     my $clusterid  = $uowner->{'clusterid'};
@@ -1914,6 +1919,7 @@ sub editevent {
         $dbcm->selectrow_hashref( "SELECT journalid AS 'ownerid', posterid, eventtime, logtime, "
             . "compressed, security, allowmask, year, month, day, "
             . "rlogtime, anum FROM log2 WHERE journalid=$ownerid AND jitemid=$itemid" );
+    return fail( $err, 302 ) unless $oldevent && $ownerid == $oldevent->{ownerid};
 
     my $ditemid = $itemid * 256 + $oldevent->{anum};
 
@@ -1931,13 +1937,11 @@ sub editevent {
     # kill seconds in eventtime, since we don't use it, then we can use 'eq' and such
     $oldevent->{'eventtime'} =~ s/:00$//;
 
-    ### make sure this user is allowed to edit this entry
-    return fail( $err, 302 )
-        unless ( $ownerid == $oldevent->{'ownerid'} );
-
     ### load existing meta-data
     my %curprops;
-    LJ::load_log_props2( $dbcm, $ownerid, [$itemid], \%curprops );
+    my $other_author = $posterid != $oldevent->{posterid};
+    LJ::DB::cond_no_cache( $other_author,
+        sub { LJ::load_log_props2( $dbcm, $ownerid, [$itemid], \%curprops ) } );
 
     # xpost helper for later
     my $schedule_xposts = sub {
@@ -1949,23 +1953,12 @@ sub editevent {
         }
     };
 
-    ### what can they do to somebody elses entry?  (in shared journal)
-    ### can edit it if they own or maintain the journal, but not if the journal is read-only
-    if ( $posterid != $oldevent->{'posterid'} || $u->is_readonly || $uowner->is_readonly ) {
-        ## deleting.
-        return fail( $err, 304 )
-            if $req->{'event'} !~ /\S/ && !$u->can_manage($uowner);
-
-        ## editing:
-        if ( $req->{'event'} =~ /\S/ ) {
-            return fail( $err, 303 ) if $posterid != $oldevent->{'posterid'};
-            return fail( $err, 318 ) if $u->is_readonly;
-            return fail( $err, 319 ) if $uowner->is_readonly;
-        }
-    }
+    my $entry = LJ::Entry->new( $uowner, jitemid => $itemid );
 
     # simple logic for deleting an entry
     if ( !$flags->{'use_old_content'} && $req->{'event'} !~ /\S/ ) {
+        return fail( $err, 304 )
+            if ( $other_author || $u->is_readonly ) && !$u->can_manage($uowner);
         $deleted = 1;
 
         # if their newesteventtime prop equals the time of the one they're deleting
@@ -2004,6 +1997,14 @@ sub editevent {
         return $res;
     }
 
+    if ($other_author) {
+        $entry->absorb_row(%$oldevent);
+        return fail( $err, 303 ) unless $entry->editable_by( $u, $curprops{$itemid} || {} );
+        return fail( $err, 501, 'Official post editor property is not registered' )
+            unless LJ::get_prop( 'log', 'admin_post_editor' );
+    }
+    return fail( $err, 318 ) if $u->is_readonly;
+
     # now make sure the new entry text isn't $CannotBeShown
     return fail( $err, 210 )
         if $req->{event} eq $CannotBeShown;
@@ -2028,6 +2029,14 @@ sub editevent {
     # updating an entry:
     return undef
         unless common_event_validation( $req, $err, $flags );
+
+    delete $req->{props}->{admin_post}
+        if $req->{props}->{admin_post} && !( $uowner->is_community && $u->can_manage($uowner) );
+
+    if ($other_author) {
+        delete $req->{props}->{picture_keyword};
+        delete $req->{props}->{picture_mapid};
+    }
 
     # now we can move over to picture_mapid instead of picture_keyword if appropriate
     if ( $req->{props} && defined $req->{props}->{picture_keyword} && $u->userpic_have_mapid ) {
@@ -2245,6 +2254,7 @@ sub editevent {
             next unless $p;
             $propset->{$pname} = $req->{'props'}->{$pname};
         }
+        $propset->{admin_post_editor} = 1 if $other_author;
         LJ::set_logprop( $uowner, $itemid, $propset );
     }
 
@@ -2284,14 +2294,14 @@ sub editevent {
     # present, we leave the slug alone.
     if ( exists $req->{slug} ) {
         LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
-        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
             undef, $ownerid, $itemid );
 
         my $slug = LJ::canonicalize_slug( $req->{slug} );
         if ( defined $slug && length $slug > 0 ) {
-            $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+            $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
                 undef, $ownerid, $itemid, $slug );
-            if ( $u->err ) {
+            if ( $uowner->err ) {
                 $add_message->( 'Sorry, it looks like that slug has already been used. '
                         . 'Your entry has been updated, but you can still edit it again to add a unique slug.'
                 );
@@ -2299,7 +2309,13 @@ sub editevent {
         }
     }
 
-    my $entry = LJ::Entry->new( $ownerid, jitemid => $itemid );
+    if ($other_author) {
+        return fail( $err, 501, 'Could not record the shared post editor' )
+            unless $entry->put_logprop_in_history( 'admin_post_editor', undef, $posterid, undef );
+    }
+
+    $entry->invalidate_singleton;
+    $entry = LJ::Entry->new( $uowner, jitemid => $itemid );
 
     $res->{itemid} = $itemid;
     if ( defined $oldevent->{'anum'} ) {
@@ -2608,6 +2624,7 @@ sub getevents {
             # the xpost property is not something we should be distributing
             # as it's a serialized string and confuses clients
             delete $props{$itemid}->{xpost};
+            delete $props{$itemid}->{admin_post_editor};
 
             my $evt = $evt_from_itemid{$itemid};
             $evt->{'props'} = {};

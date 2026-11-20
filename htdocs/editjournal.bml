@@ -152,7 +152,7 @@ body<=
             # this is a sanity check, make sure the entry we got is visible to the
             # person trying to edit it.
             return "<?h1 $ML{'Error'} h1?><?p $ML{'.error.nofind'} p?>"
-                unless $entry_obj->visible_to( $remote );
+                unless $entry_obj->correct_anum($anum) && $entry_obj->visible_to( $remote );
 
             # do getevents request
             my %res = ();
@@ -177,23 +177,14 @@ body<=
                 unless $res{'events_count'} && $res{'events_1_anum'} == $anum;
 
             # are we authorized to edit other peoples' posts in this community?
-            my $disabled_save = 0;
-            my $disabled_delete = 0;
-            my $disabled_spamdelete = 0;
-            if ( $usejournal && $res{'events_1_poster'} ne $u->user ) {
-                $disabled_delete = ! $u->can_manage( $usejournal_u );
-                $disabled_save++;
-            }
-            $disabled_spamdelete = $disabled_delete || !$usejournal || ($res{'events_1_poster'} eq $u->{'user'});
+            my $disabled_save = !$entry_obj->editable_by($u) || $u->is_readonly || $u_for_entry->is_readonly;
+            my $disabled_delete = !$entry_obj->deletable_by($u);
+            my $disabled_spamdelete = $disabled_delete || !$usejournal || $entry_obj->poster->equals($u);
             $disabled_spamdelete ||= LJ::sysban_check( 'spamreport', $usejournal_u->user ) if $usejournal_u;
 
-            # read-only posters and journals cannot be edited
-            if (!$disabled_save && ($u->is_readonly || ($usejournal_u && $usejournal_u->is_readonly))) {
-                $disabled_save++;
-            }
-
             return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
-                    if ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
+                    if ! $disabled_save && !LJ::did_post()
+                    && ( $entry_obj->admin_post || LJ::BetaFeatures->user_in_beta( $remote => "updatepage" ) );
 
             ###
             ### SAVE EDITS
@@ -237,6 +228,9 @@ body<=
             # they clicked the save or delete button
             if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
                 return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
+                return LJ::bad_input($ML{'error.invalidauth'})
+                    if $POST{'action:deletespam'} ? $disabled_spamdelete
+                    : $POST{'action:delete'} ? $disabled_delete : $disabled_save;
 
                 my %req = ( 'mode' => 'editevent',
                             'ver' => $LJ::PROTOCOL_VER,

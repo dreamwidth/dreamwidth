@@ -77,6 +77,11 @@ sub reset_singletons {
     %singletons = ();
 }
 
+sub invalidate_singleton {
+    my ($self) = @_;
+    delete $singletons{ $self->journalid }{ $self->jitemid };
+}
+
 # <LJFUNC>
 # name: LJ::Entry::new
 # class: entry
@@ -992,22 +997,25 @@ sub comments_manageable_by {
     return $remote->userid == $self->posterid || $remote->can_manage($u);
 }
 
-# instance method: returns bool, if remote user can edit this entry
-# use this to determine whether to, e.g., show edit buttons or an edit form
-# but don't use this when saving stuff to the database -- those need to pass through the protocol
-# does not care about readonly status, just about permissions
+# Read-only restrictions are checked separately by the edit protocol.
 sub editable_by {
-    my ( $self, $remote ) = @_;
-    return 0 unless LJ::isu($remote);
-    return 0 unless $self->visible_to($remote);
-
-    # remote is editing their own entry
+    my ( $self, $remote, $current_props ) = @_;
+    return 0 unless LJ::isu($remote) && !$remote->is_suspended && $self->visible_to($remote);
     return 1 if $self->posterid == $remote->userid;
 
-    # editing an entry that's not your personal journal
-    return 1 if $self->journalid != $self->posterid && $remote->can_manage( $self->journal );
+    my $journal = $self->journal;
+    return 0 unless $journal->is_community && $journal->prop('shared_admin_posts');
+    return 0 unless $remote->is_individual && $remote->can_manage($journal);
 
-    return 0;
+    $current_props //= $self->props;
+    return 0 if ( $current_props->{statusvis} // '' ) eq 'S';
+    return $current_props->{admin_post} && $self->_can_flag_admin_post;
+}
+
+sub deletable_by {
+    my ( $self, $remote ) = @_;
+    return 0 unless LJ::isu($remote) && !$remote->is_suspended && $self->visible_to($remote);
+    return $self->posterid == $remote->userid || $remote->can_manage( $self->journal );
 }
 
 # instance method:  returns bool, if remote user can view this entry
@@ -1115,9 +1123,7 @@ Returns true if this post is an official administrator post.
 sub admin_post {
     my $self = $_[0];
 
-    return 0 unless $self->journal->is_community;
-    return 0
-        unless $self->poster && $self->poster->can_manage( $self->journal );
+    return 0 unless $self->_can_flag_admin_post;
 
     if ( exists $_[1] ) {
         return $_[0]->set_prop( 'admin_post', $_[1] ? 1 : 0 );
@@ -1125,6 +1131,28 @@ sub admin_post {
     else {
         return $_[0]->prop('admin_post') ? 1 : 0;
     }
+}
+
+sub _can_flag_admin_post {
+    my ($self) = @_;
+    return
+           $self->journal->is_community
+        && $self->poster
+        && $self->poster->can_manage( $self->journal );
+}
+
+sub shared_admin_editor_names {
+    my ($self) = @_;
+    return unless $self->journal->is_community && $self->prop('admin_post_editor');
+
+    my $prop = LJ::get_prop( 'log', 'admin_post_editor' ) or return;
+    my $ids  = $self->journal->selectcol_arrayref(
+'SELECT DISTINCT new_value FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=?',
+        undef, $self->journalid, $self->jitemid, $prop->{id}
+    );
+    my $editors =
+        LJ::load_userids( grep { /\A[1-9][0-9]*\z/ && $_ != $self->posterid } @{ $ids || [] } );
+    return sort map { $_->user } grep { $_ } values %$editors;
 }
 
 =head2 C<< $entry->userpic >>

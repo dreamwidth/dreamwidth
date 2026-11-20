@@ -536,12 +536,20 @@ sub _edit {
 
     return error_ml('error.invalidauth') unless $journal;
 
+    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
+    return error_ml('/entry/form.tt.error.nofind')
+        unless $entry_obj->correct_anum( $ditemid % 256 );
+
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
     my $post;
 
-    if ( $r->did_post ) {
-        $post = $r->post_args;
+    $post = $r->post_args if $r->did_post;
+    my $mode_delete = $post && $post->{'action:delete'};
+    return error_ml('/entry/form.tt.error.nofind')
+        unless $mode_delete ? $entry_obj->deletable_by($remote) : $entry_obj->editable_by($remote);
+
+    if ($post) {
 
         # no difference because we rely on the entry info, but let's get rid of this
         # just to make sure it doesn't trip us up in the future...
@@ -549,7 +557,6 @@ sub _edit {
         $post->remove('usejournal');
 
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
-        my $mode_delete  = $post->{"action:delete"}  ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
             unless LJ::text_in($post);
@@ -612,21 +619,8 @@ sub _edit {
     # or it's from the user's POST
     my $trust_datetime_value = 1;
 
-    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
-
-    # are you authorized to view this entry
-    # and does the entry we got match the provided ditemid exactly?
-    my $anum   = $ditemid % 256;
-    my $itemid = $ditemid >> 8;
-    return error_ml("/entry/form.tt.error.nofind")
-        unless $entry_obj->editable_by($remote)
-        && $anum == $entry_obj->anum
-        && $itemid == $entry_obj->jitemid;
-
-    # so at this point, we know that we are authorized to edit this entry
-    # but we need to handle things differently if we're an admin
-    # FIXME: handle communities
-    return error_ml('IS AN ADMIN') unless $entry_obj->poster->equals($remote);
+    return error_ml('/entry/form.tt.error.nofind') unless $entry_obj->editable_by($remote);
+    my $shared_admin_edit = !$entry_obj->poster->equals($remote);
 
     my %crosspost;
     if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
@@ -658,7 +652,8 @@ sub _edit {
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
 
-    $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{formdata}          = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{shared_admin_edit} = $shared_admin_edit;
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
@@ -672,8 +667,10 @@ sub _edit {
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
     # Set up info for the icon select/preview/browse components
-    $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
-    $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+    unless ($shared_admin_edit) {
+        $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
+        $vars->{current_icon} = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+    }
 
     my %editable = map { $_ => 1 } @modules;
     $vars->{editable} = \%editable;
