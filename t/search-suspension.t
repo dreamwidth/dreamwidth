@@ -90,4 +90,74 @@ $check_search->( 'after rebuild while suspended', 0 );
 ok( $journal->set_unsuspended( $viewer, 'search suspension test' ), 'unsuspend journal' );
 $check_search->( 'after unsuspension without recopy', 1 );
 
+# Race 1: stale suspended user object passed after journal is unsuspended
+ok( $journal->set_suspended( $viewer, 'stale handle test' ), 'suspend for stale handle test' );
+my $stale_suspended = bless {%$journal}, ref $journal;
+ok( $journal->set_unsuspended( $viewer, 'stale handle test' ),
+    'unsuspend before stale-handle recopy' );
+DW::Task::SearchCopier::copy_entry( $stale_suspended, $entry->jitemid, 1 );
+DW::Task::SearchCopier::copy_comment( $stale_suspended, $comment->jtalkid );
+$check_search->( 'after recopy with stale suspended user handle', 1 );
+
+# Race 2: unsuspension completes while copy_entry / copy_comment is mid-flight
+ok( $journal->set_suspended( $viewer, 'mid-flight unsuspend entry' ),
+    'suspend for mid-flight entry unsuspend race' );
+{
+    my $orig  = \&LJ::text_uncompress;
+    my $fired = 0;
+    no warnings 'redefine';
+    local *LJ::text_uncompress = sub {
+        if ( !$fired++ ) {
+            $journal->set_unsuspended( $viewer, 'mid-flight unsuspend entry' );
+        }
+        return $orig->(@_);
+    };
+    DW::Task::SearchCopier::copy_entry( $journal, $entry->jitemid, 1 );
+}
+$check_search->( 'after mid-flight unsuspension during copy_entry', 1 );
+
+ok( $journal->set_suspended( $viewer, 'mid-flight unsuspend comment' ),
+    'suspend for mid-flight comment unsuspend race' );
+{
+    my $orig  = \&LJ::text_uncompress;
+    my $fired = 0;
+    no warnings 'redefine';
+    local *LJ::text_uncompress = sub {
+        if ( !$fired++ ) {
+            $journal->set_unsuspended( $viewer, 'mid-flight unsuspend comment' );
+        }
+        return $orig->(@_);
+    };
+    DW::Task::SearchCopier::copy_comment( $journal, $comment->jtalkid );
+}
+$check_search->( 'after mid-flight unsuspension during copy_comment', 1 );
+
+# Race 3: suspension completes while copy_entry is mid-flight
+{
+    my $orig  = \&LJ::text_uncompress;
+    my $fired = 0;
+    no warnings 'redefine';
+    local *LJ::text_uncompress = sub {
+        if ( !$fired++ ) {
+            $journal->set_suspended( $viewer, 'mid-flight suspend entry' );
+        }
+        return $orig->(@_);
+    };
+    DW::Task::SearchCopier::copy_entry( $journal, $entry->jitemid, 1 );
+}
+$check_search->( 'after mid-flight suspension during copy_entry', 0 );
+ok( $journal->set_unsuspended( $viewer, 'cleanup after mid-flight suspend' ),
+    'unsuspend after mid-flight suspend race' );
+
+# Status split: deleted is inactive (hidden), undeleted and memorial remain visible
+ok( $journal->set_deleted, 'delete journal' );
+$recopy->();
+$check_search->( 'after recopy while deleted', 0 );
+ok( $journal->set_visible, 'undelete journal' );
+$check_search->( 'after undelete without recopy', 1 );
+
+ok( $journal->set_memorial, 'mark journal memorial' );
+$recopy->();
+$check_search->( 'after recopy while memorial', 1 );
+
 done_testing();

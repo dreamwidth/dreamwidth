@@ -80,6 +80,23 @@ sub manticore_db {
     return $dbsx;
 }
 
+# Read authoritative account status from master so a stale in-memory user
+# object or a status change racing with a copy cannot leave dw1 out of sync.
+sub _journal_is_deleted {
+    my ($u) = @_;
+    my $fresh = LJ::load_userid( $u->id, 'force' ) || $u;
+    return $fresh->is_inactive ? 1 : 0;
+}
+
+sub _reconcile_deleted_flag {
+    my ( $dbsx, $u, $written_deleted ) = @_;
+    my $current = _journal_is_deleted($u);
+    return if $current == $written_deleted;
+
+    $dbsx->do( sprintf 'UPDATE dw1 SET is_deleted = %d WHERE journalid = %d', $current, $u->id );
+    $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+}
+
 sub work {
     my ( $self, $handle ) = @_;
     my $args = $self->args->[0];
@@ -229,7 +246,7 @@ sub copy_comment {
     my ( $entries, $comments );
     my @delete_jtalkids;
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
-    my $is_deleted = $u->is_inactive ? 1 : 0;
+    my $is_deleted  = _journal_is_deleted($u);
 
     my $in = join ',', map { int $_ } @$only_jtalkid;
     $comments = $dbfrom->selectall_hashref(
@@ -341,6 +358,7 @@ sub copy_comment {
         }
     }
     if ($ins_count) {
+        _reconcile_deleted_flag( $dbsx, $u, $is_deleted );
         $log->info( sprintf 'Inserted %d comments (#%d-#%d) for %s(%d).',
             $ins_count, $ins_min, $ins_max, $u->user, $u->id );
     }
@@ -435,7 +453,7 @@ sub copy_entry {
     # be after a user already has most of their posts copied and is just
     # updating one or two.
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
-    my $is_deleted = $u->is_inactive ? 1 : 0;
+    my $is_deleted  = _journal_is_deleted($u);
     my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
     foreach my $jitemid (@copy_jitemids) {
         my $row = $dbfrom->selectrow_hashref(
@@ -485,6 +503,7 @@ sub copy_entry {
         $ins_max = $jitemid if !defined $ins_max || $jitemid > $ins_max;
     }
     if ($ins_count) {
+        _reconcile_deleted_flag( $dbsx, $u, $is_deleted );
         $log->info( sprintf 'Inserted %d posts (#%d-#%d) for %s(%d).',
             $ins_count, $ins_min, $ins_max, $u->user, $u->id );
     }
