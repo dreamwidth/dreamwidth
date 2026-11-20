@@ -3114,6 +3114,16 @@ sub post_comment {
     my $parent   = $comment->{parent};
     my $itemid   = $item->jitemid;
 
+    my $commenter = $comment->{u};
+    my $min_age   = $journalu->prop('opt_min_comment_age');
+    if ( $min_age && $commenter && !$commenter->can_manage($journalu) ) {
+        my $created = $commenter->timecreate;
+        if ( !$created || time() - $created < $min_age ) {
+            my $username = LJ::ehtml( $journalu->user );
+            return ( 0, "Sorry, $username doesn't allow comments from newly-created accounts" );
+        }
+    }
+
     my $parent_state = $parent->{state} || "";
 
     # unscreen the parent comment if needed
