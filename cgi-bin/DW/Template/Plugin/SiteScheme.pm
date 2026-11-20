@@ -20,6 +20,7 @@ use strict;
 use DW::AccountSwitcher;
 use DW::Auth::Challenge;
 use DW::Logic::MenuNav;
+use DW::Search;
 
 =head1 NAME
 
@@ -80,6 +81,10 @@ sub menu_nav {
 
 sub search_render {
     return LJ::Widget::Search->render;
+}
+
+sub content_search_enabled {
+    return DW::Search::enabled();
 }
 
 sub challenge_generate {

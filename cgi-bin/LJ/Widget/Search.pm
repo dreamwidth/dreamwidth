@@ -16,11 +16,13 @@ package LJ::Widget::Search;
 use strict;
 use base qw(LJ::Widget);
 use Carp qw(croak);
+use DW::Search;
 
 sub need_res { qw( stc/widgets/search.css ) }
 
 sub render_body {
-    return DW::Template->template_string('widget/search.tt');
+    return DW::Template->template_string( 'widget/search.tt',
+        { content_search_enabled => DW::Search::enabled() } );
 }
 
 1;
