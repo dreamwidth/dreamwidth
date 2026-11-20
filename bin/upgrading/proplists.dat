@@ -878,6 +878,14 @@ userproplist.opt_maxpicwidth:
   multihomed: 0
   prettyname: Max Picture Width
 
+userproplist.opt_min_comment_age:
+  cldversion: 4
+  datatype: num
+  des: Minimum account age in seconds to post new comments in this journal.
+  indexed: 0
+  multihomed: 0
+  prettyname: New Account Comments
+
 userproplist.opt_nctalklinks:
   cldversion: 4
   datatype: bool
