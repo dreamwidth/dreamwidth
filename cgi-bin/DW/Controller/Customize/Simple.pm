@@ -147,6 +147,8 @@ sub options_handler {
     my $vars            = _common_vars( $rv, $u, \$headextra );
     $vars->{title} = LJ::Lang::ml(
         $u->is_community ? '/customize/options.tt.title.comm' : '/customize/options.tt.title' );
+    $vars->{advanced_url} = LJ::create_url( '/customize/advanced/',
+        args => { authas => $u->userid != $rv->{remote}->userid ? $u->user : undef } );
     $vars->{current_theme} =
         _widget_html( $current_theme, { no_theme_chooser => 1, headextra => \$headextra },
         \$headextra, 'Customize' );

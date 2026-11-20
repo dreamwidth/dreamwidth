@@ -4,8 +4,9 @@
     [% dw.ml('.error.advanced.editing.denied') %]
 [% ELSE %]
 
+[% authas = authas | html %]
 <h1> [% dw.ml('.disclaimer.header') %] </h1>
-<p> [% dw.ml('.disclaimer.text', {"aopts" => "href=\"$site.root/customize/\""}) %] </p>
+<p> [% dw.ml('.disclaimer.text', {"aopts" => "href=\"$site.root/customize/$authas\""}) %] </p>
 
 <h1> [% dw.ml('.documentation.header') %] </h1>
 <p> [% dw.ml('.documentation.text') %] </p>
@@ -16,7 +17,7 @@
 
 <h1> [% dw.ml('.advancedoptions.header') %]</h1>
 <ul>
-<li><a href="[% site.root %]/customize/advanced/layers">[% dw.ml('.yourlayers.link') %]</a> -- [% dw.ml('.yourlayers.desc') %]</li>
-<li><a href="[% site.root %]/customize/advanced/styles">[% dw.ml('.yourstyles.link') %]</a> -- [% dw.ml('.yourstyles.desc') %]</li>
+<li><a href="[% site.root %]/customize/advanced/layers[% authas %]">[% dw.ml('.yourlayers.link') %]</a> -- [% dw.ml('.yourlayers.desc') %]</li>
+<li><a href="[% site.root %]/customize/advanced/styles[% authas %]">[% dw.ml('.yourstyles.link') %]</a> -- [% dw.ml('.yourstyles.desc') %]</li>
 </ul>
 [% END %]
