@@ -191,17 +191,21 @@ function generate_pollHTML(ljtags, pollID) {
 
 // Constant used to check if FCKeditorAPI is loaded
 var FCKeditor_LOADED = false;
+let originalRichTextBody;
+let initialRichTextHTML;
 
 function FCKeditor_OnComplete( editorInstance ) {
+    if (originalRichTextBody !== undefined) {
+        initialRichTextHTML = editorInstance.GetXHTML(false);
+    }
     editorInstance.Events.AttachEvent( 'OnAfterLinkedFieldUpdate', doLinkedFieldUpdate) ;
     FCKeditor_LOADED = true;
 }
 
 function doLinkedFieldUpdate(oEditor) {
     var html = oEditor.GetXHTML(false);
-    var tags = convertToTags(html);
-
-    document.getElementById('entry-body').value = tags;
+    document.getElementById('entry-body').value =
+        html === initialRichTextHTML ? originalRichTextBody : convertToTags(html);
 }
 
 function convertToTags(html) {
@@ -237,6 +241,9 @@ var raw = document.querySelector('#editor').value == 'html_raw0';
 
 window.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('#editor').value == 'rte0') {
+        if (postFormInitData.edit) {
+            originalRichTextBody = document.getElementById('entry-body').value;
+        }
         useRichText('entry-body', '/stc/', raw);
         use_rte = true;
       }
@@ -245,6 +252,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Watch the format select for changes, and add or destroy the RTE as necessary
 document.querySelector('#editor').addEventListener('change', e => {
+    originalRichTextBody = initialRichTextHTML = undefined;
     let format = e.target.value;
     if (format == 'rte0') {
         useRichText('entry-body', '/stc/', raw);

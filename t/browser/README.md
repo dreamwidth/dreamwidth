@@ -17,6 +17,10 @@ node t/browser/message-length.js
 Each test prints `PASS: ...` lines and exits non-zero on failure. Set `DW_BROWSER_BASE` to test a server other than
 `http://127.0.0.1:8080`.
 
+The crosspost link visibility test has an optional rich-text round trip in Chrome. With the same setup,
+run `DW_TEST_RTE=1 prove t/plack-edit-crosspost-links.t`. The browser submits the rendered form to the
+Perl test harness, which checks what the save would queue without contacting an external service.
+
 ## Writing one
 
 A test here must run with that single command and no other setup:

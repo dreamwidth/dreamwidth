@@ -1848,7 +1848,10 @@ sub postevent {
 }
 
 sub _is_crosspost_visibility_only {
-    my ( $req, $old, $old_props, $new_event, $security, $eventtime, $tags_changed, $entry ) = @_;
+    my (
+        $req,       $old,          $old_props, $new_event, $security,
+        $eventtime, $tags_changed, $entry,     $editing_user
+    ) = @_;
     my $props = $req->{props};
     return 0
         unless $old_props->{xpost}
@@ -1866,7 +1869,11 @@ sub _is_crosspost_visibility_only {
     if ( defined $props->{editor} ) {
         my $old_editor =
             LJ::CleanHTML::entry_edit_format( \$old_event, $old_props, $old->{logtime} );
-        return 0 if $props->{editor} ne DW::Formats::validate($old_editor);
+        my $selection = DW::Formats::select_items(
+            current   => $old_editor,
+            preferred => $editing_user->prop('entry_editor2'),
+        );
+        return 0 if $props->{editor} ne $selection->{selected};
     }
     else {
         for my $format_prop (qw(opt_preformatted used_rte)) {
@@ -2277,12 +2284,19 @@ sub editevent {
         $flags->{check_crosspost_visibility}
         && _is_crosspost_visibility_only(
             $req, $oldevent, $curprops{$itemid}, $event,
-            $security, $eventtime, $do_tags, LJ::Entry->new( $uowner, jitemid => $itemid )
+            $security, $eventtime, $do_tags, LJ::Entry->new( $uowner, jitemid => $itemid ), $u
         )
         )
     {
         $flags->{unchanged_crossposts} =
             DW::External::Account->xpost_string_to_hash( $curprops{$itemid}->{xpost} );
+        my $saved_editor = $curprops{$itemid}->{editor};
+        if (   defined $req->{props}->{editor}
+            && $saved_editor
+            && !DW::Formats::validate($saved_editor) )
+        {
+            delete @{ $req->{props} }{qw(editor opt_preformatted)};
+        }
     }
 
     # handle tags if they're defined
