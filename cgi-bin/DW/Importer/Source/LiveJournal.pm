@@ -641,7 +641,8 @@ Options are callbacks: C<before_window> is called with the id the next window st
 at, and C<after_window> with C<( $max_id, \@new_usermap )> (pairs of C<[ posterid, username ]>
 in the order the window listed them) once a window has been read, and may die to stop.
 If the server gives a maximum id but no advancing integer next id, an empty window
-advances by the requested window size. Dies with a C<temp_fail> if a window can't be fetched.
+advances by the requested window size. Dies with a C<temp_fail> if a window can't be fetched
+or parsed.
 
 =cut
 
@@ -719,7 +720,9 @@ sub comment_meta {
         };
         $reset->();
 
-        $self->_parse_xml( { Start => $meta_handler, Char => $meta_content, End => $meta_closer },
+        die DW::Importer::Outcome->temp_fail('Error parsing comment metadata from server.')
+            unless $self->_parse_xml(
+            { Start => $meta_handler, Char => $meta_content, End => $meta_closer },
             $content, $reset );
 
         $server_max_id = $window_max_id + 0 if defined $window_max_id;
@@ -761,24 +764,24 @@ sub _parse_xml {
 
     my $parser = DW::XML::Parser->new( Handlers => $handlers );
 
-    eval {
+    return 1 if eval {
+
         # try to run with the encoding the XML gives us
         $parser->parse($content);
-    } or do {
-
-        # that didn't work, let's force encodings to see if one of them does.
-        my $result;
-        foreach my $encoding (@ENCODINGS) {
-            eval {
-                $reset->() if $reset;
-                $result = $parser->parse( $content, ProtocolEncoding => $encoding );
-            };
-            last if $result;
-        }
-
-        # if we couldn't parse it with any encoding, just die with the parser error.
-        carp "$@" unless $result;
+        1;
     };
+
+    # that didn't work, let's force encodings to see if one of them does.
+    foreach my $encoding (@ENCODINGS) {
+        return 1 if eval {
+            $reset->() if $reset;
+            $parser->parse( $content, ProtocolEncoding => $encoding );
+            1;
+        };
+    }
+
+    carp "$@";
+    return;
 }
 
 =head2 C<< $source->comment_bodies( %opts ) >>

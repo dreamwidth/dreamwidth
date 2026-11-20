@@ -492,6 +492,34 @@ subtest 'metadata encoding retry' => sub {
     is_deeply( \@usermap, [ [ 10, 'alice' ], [ 11, "caf\x{e9}" ] ], 'each user is reported once' );
 };
 
+subtest 'unparseable metadata window' => sub {
+    my %windows = (
+        1 => meta_window( first => 1, last => 3, max => 7, poster => 0 ),
+        4 => qq{<?xml version="1.0" encoding="utf-8"?><livejournal><usermap id="10" user="alice"/>},
+        7 => meta_window( first => 7, last => 7, poster => 0 ),
+    );
+    my $site = Test::Site->new(
+        export => {
+            comment_meta => sub { delete $windows{ $_[0] } }
+        }
+    );
+
+    my @after;
+    my $outcome;
+    {
+        local $SIG{__WARN__} = sub { };
+        $outcome = outcome_of(
+            sub {
+                source($site)->comment_meta( after_window => sub { push @after, [@_] } );
+            }
+        );
+    }
+    is( ref $outcome eq 'DW::Importer::Outcome' ? $outcome->status : $outcome,
+        'temp_fail', 'unparseable metadata is a temporary failure' );
+    is_deeply( \@after, [ [ 7, [] ] ], 'only the valid window is delivered' );
+    is_deeply( [ map { $_->[1] } @{ $site->{asked} } ], [ 1, 4 ], 'no later window is requested' );
+};
+
 # bodies
 sub body_window {
     my (%o) = @_;
