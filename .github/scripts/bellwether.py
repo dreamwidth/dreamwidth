@@ -5,6 +5,7 @@ bellwether.py
 Acts on maintainer commands in pull request comments (/merge, /approve, /hold,
 /unhold, /fix++) and on Bellwether's grace period, for PRs that Bellwether's
 triage has already checked. A /fix that triage hasn't run yet holds the merge.
+It also keeps the PR's `bw:` status label in step with what it decides.
 
 Bellwether's triage runs elsewhere: it reviews and tests each PR, then keeps
 one status comment on it. That comment carries a hidden state line saying
@@ -32,6 +33,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -106,7 +108,7 @@ def status_comment(number):
     return None, None
 
 
-def commands(pr, since, fixes_done=()):
+def commands(pr, since, fixes_done=(), go_since=None):
     """Maintainers' go-aheads on the current head, whether the PR is on hold, who has requested
     changes, and who has a `/fix` that triage hasn't dealt with yet.
 
@@ -116,9 +118,13 @@ def commands(pr, since, fixes_done=()):
     that counts. The PR's author and bots never count.
 
     A `/fix` posted after `since` that isn't in the state's `fixes_done` hasn't run yet. Merging
-    then would merge the commit without the fix, so the PR waits for triage to push it."""
+    then would merge the commit without the fix, so the PR waits for triage to push it.
+
+    `go_since`, when later than `since`, is when a `/fix` on this head failed: go-aheads from before
+    it asked for the fix, so only later ones count."""
     author = pr["user"]["login"]
     since = parse_time(since)
+    go_since = max(since, parse_time(go_since)) if go_since else since
     go, hold, fixing = [], None, []
     comments = paged(f"/repos/{REPO}/issues/{pr['number']}/comments")
     for c in sorted(comments, key=lambda c: parse_time(c["updated_at"])):
@@ -127,7 +133,7 @@ def commands(pr, since, fixes_done=()):
         if not found or who == author or c["user"]["type"] == "Bot" or not can_write(who):
             continue
         for cmd in found:
-            if cmd in ("approve", "lgtm", "merge", "fix++") and parse_time(c["updated_at"]) > since:
+            if cmd in ("approve", "lgtm", "merge", "fix++") and parse_time(c["updated_at"]) > go_since:
                 go.append(who)
             if cmd in ("fix", "fix++") and parse_time(c["updated_at"]) > since \
                     and c["id"] not in fixes_done:
@@ -148,7 +154,7 @@ def commands(pr, since, fixes_done=()):
         if r["state"] == "CHANGES_REQUESTED":
             changes.append(who)
         elif (r["state"] == "APPROVED" and r["commit_id"] == pr["head"]["sha"]
-              and parse_time(r["submitted_at"]) > since):
+              and parse_time(r["submitted_at"]) > go_since):
             go.append(who)
     return list(dict.fromkeys(go)), hold, changes, list(dict.fromkeys(fixing))
 
@@ -228,6 +234,32 @@ def set_next(comment, text):
                               {"body": body})["body"]
 
 
+# Triage sets every status label on each pass. Between passes this keeps the label in step with
+# what this script just decided. `risk:` labels and anyone else's labels are left alone.
+STATUS_LABELS = ("bw: needs approval", "bw: blocking item", "bw: fix failed", "bw: merging",
+                 "bw: waiting on author", "bw: in progress", "bw: on hold")
+
+
+def set_label(pr, label):
+    """Make `label` the PR's only status label; None removes them all (once it has merged)."""
+    have = {x["name"] for x in pr.get("labels") or []}
+    stale = sorted((have & set(STATUS_LABELS)) - {label})
+    add = [label] if label and label not in have else []
+    if not stale and not add:
+        return
+    print(f"  labels -> " + ", ".join([*(f"+{x}" for x in add), *(f"-{x}" for x in stale)]))
+    if DRY_RUN:
+        return
+    for x in stale:
+        try:
+            api("DELETE", f"/repos/{REPO}/issues/{pr['number']}/labels/{urllib.parse.quote(x, safe='')}")
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                raise
+    if add:
+        api("POST", f"/repos/{REPO}/issues/{pr['number']}/labels", {"labels": add})
+
+
 def evaluate(number):
     for _ in range(3):
         try:
@@ -251,28 +283,42 @@ def decide(number, final_check=False):
     if pr["base"]["ref"] != pr["base"]["repo"]["default_branch"]:
         # Triage tests PRs merged onto the default branch only.
         return print(f"  targets {pr['base']['ref']}, not the default branch")
-    go, hold, changes, fixing = commands(pr, state["head_seen_at"], state.get("fixes_done") or [])
+    go, hold, changes, fixing = commands(pr, state["head_seen_at"], state.get("fixes_done") or [],
+                                         state.get("fix_failed_at"))
+
+    def label(name):
+        # The final check re-runs this function; label once. A state from before triage sent its
+        # label has none, and then triage's own labels stand.
+        if not final_check and name:
+            set_label(pr, name)
     print(f"  gates_ok={state['gates_ok']} needs_approval={state['needs_approval']} "
           f"ready={state['ready']} go={go} hold={hold} changes_requested={changes} fixing={fixing}")
     if changes:
+        label("bw: waiting on author")
         return set_next(comment, f"**Changes requested by {', '.join(changes)}.** I won't merge "
                                  f"it until they approve.\n\n{FOOTER}")
     if hold:
+        label("bw: on hold")
         return set_next(comment, f"**On hold: {hold} replied `/hold`.**\n\n"
                                  "Maintainers: reply `/unhold` to let it merge.")
     if fixing:
+        label("bw: in progress")
         return set_next(comment, f"**Waiting on the `/fix` from {', '.join(fixing)}.** I'll push "
                                  f"it, check it and re-test before anything merges.\n\n{FOOTER}")
     if not state["gates_ok"] or (state["needs_approval"] and not go):
+        label(state.get("label"))
         return set_next(comment, state["next"])
     if go:
+        label("bw: merging")
         reason = f"{', '.join(go)} approved it"
     elif state["ready"] and state.get("ready_since"):
+        label(state.get("label"))
         hours = state["grace_hours"]
         if now() < parse_time(state["ready_since"]) + timedelta(hours=hours):
             return set_next(comment, state["next"])
         reason = f"{hours} hours passed with no `/hold`"
     else:
+        label(state.get("label"))
         return set_next(comment, state["next"])
 
     # Everything triage checked has passed. Re-check what can have changed since.
@@ -313,6 +359,7 @@ def decide(number, final_check=False):
         detail = json.loads(e.read() or b"{}").get("message", e.reason)
         return set_next(comment, f"**Merge failed.** GitHub said: {detail}\n\n{FOOTER}")
     set_next(comment, f"**Merged** as {merged['sha'][:11]} after {reason}.")
+    set_label(pr, None)
 
 
 def handle_event():
