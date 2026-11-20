@@ -33,6 +33,8 @@ my $base = "/journals/$ou/entries";
 $owner->add_edge( $friend, trust => { nonotify => 1 } );
 my $group = $owner->create_trust_group( groupname => 'api test group' );
 $owner->edit_trustmask( $friend, add => $group );
+my $other_group   = $owner->create_trust_group( id => 60, groupname => 'another filter' );
+my $foreign_group = $stranger->create_trust_group( id => 59, groupname => 'foreign filter' );
 
 # Posts directly through the protocol, for setups the API can't express.
 # Each body is unique, because postevent treats a repeated body as a duplicate.
@@ -132,6 +134,115 @@ subtest 'posting' => sub {
     is( $res->code, 400, 'invalid tag in the array is rejected' );
 };
 
+subtest 'posting with custom access filters' => sub {
+    my ( $res, $body ) = api_request(
+        POST => $base,
+        key  => $okey,
+        json => {
+            text          => 'custom post',
+            security      => 'custom',
+            custom_groups => [ $group, $other_group ]
+        }
+    );
+    is( $res->code, 200, 'post with two custom filters' );
+    my $id = $body->{entry_id};
+    ok( $id, 'custom post returns an entry ID' ) or return;
+
+    ( $res, $body ) = api_request( GET => "$base/$id", key => $okey );
+    is( $body->{security}, 'custom', 'posted entry reads back with custom security' );
+    is_deeply( $body->{custom_groups}, [ $group, $other_group ], 'both filter IDs read back' );
+
+    ($res) = api_request( GET => "$base/$id", key => $fkey );
+    is( $res->code, 200, 'a selected filter member can read the new entry' );
+    ($res) = api_request( GET => "$base/$id", key => $skey );
+    is( $res->code, 403, 'an unselected user cannot read the new entry' );
+};
+
+subtest 'custom access filter validation' => sub {
+    my $id = proto_post( $owner, security => 'usemask', allowmask => 1 << $group );
+    my ( undef, $before ) = api_request( GET => $base, key => $okey );
+    for my $invalid (
+        [ scalar       => { security => 'custom', custom_groups => $group } ],
+        [ zero         => { security => 'custom', custom_groups => [0] } ],
+        [ negative     => { security => 'custom', custom_groups => [-1] } ],
+        [ out_of_range => { security => 'custom', custom_groups => [61] } ],
+        [ fractional   => { security => 'custom', custom_groups => [1.5] } ],
+        [ null         => { security => 'custom', custom_groups => [undef] } ],
+        [ foreign      => { security => 'custom', custom_groups => [ $group, $foreign_group ] } ],
+        [ wrong_mode   => { security => 'public', custom_groups => [$group] } ],
+        )
+    {
+        my ( $label, $fields ) = @$invalid;
+        for my $path ( $base, "$base/$id" ) {
+            my ($res) = api_request(
+                POST => $path,
+                key  => $okey,
+                json => { %$fields, text => "invalid $label" }
+            );
+            is( $res->code, 400, "$label: invalid filters refused for $path" );
+        }
+    }
+
+    my ($res) = api_request(
+        POST => $base,
+        key  => $okey,
+        json => { text => 'no filters', security => 'custom' }
+    );
+    is( $res->code, 400, 'new custom entries require an explicit filter selection' );
+    ($res) = api_request(
+        POST => $base,
+        key  => $okey,
+        json => { text => 'no security', custom_groups => [$group] }
+    );
+    is( $res->code, 400, 'a filter list cannot silently create a public entry' );
+
+    my ( undef, $after ) = api_request( GET => $base, key => $okey );
+    is( scalar @$after, scalar @$before, 'invalid requests did not create entries' );
+    my $state = entry_state( fresh_entry( $owner, $id ) );
+    is( $state->{event},     "body $post_count", 'invalid requests did not change entry text' );
+    is( $state->{allowmask}, 1 << $group,        'invalid requests did not change the entry mask' );
+
+    ($res) = api_request(
+        POST => "$base/$id",
+        key  => $okey,
+        json => { text => 'text-only edit', custom_bit => [0] }
+    );
+    is( $res->code, 200, 'an unknown field does not prevent a text-only edit' );
+    $state = entry_state( fresh_entry( $owner, $id ) );
+    is( $state->{event},     'text-only edit', 'the text edit took effect' );
+    is( $state->{allowmask}, 1 << $group,      'an internal field cannot grant broader access' );
+};
+
+subtest 'editing custom access filters' => sub {
+    my $id   = proto_post($owner);
+    my $path = "$base/$id";
+    my ($res) = api_request( POST => $path, key => $okey, json => { security => 'custom' } );
+    is( $res->code, 400, 'switching to custom requires an explicit filter selection' );
+
+    ($res) = api_request(
+        POST => $path,
+        key  => $okey,
+        json => { security => 'custom', custom_groups => [$group] }
+    );
+    is( $res->code, 200, 'a public entry can be switched to custom' );
+    ($res) = api_request( GET => $path, key => $fkey );
+    is( $res->code, 200, 'a selected member can read the newly filtered entry' );
+
+    ($res) =
+        api_request( POST => $path, key => $okey, json => { custom_groups => [$other_group] } );
+    is( $res->code, 200, 'change filters without resending security' );
+    is( entry_state( fresh_entry( $owner, $id ) )->{allowmask}, 1 << $other_group,
+        'mask replaced' );
+    ($res) = api_request( GET => $path, key => $fkey );
+    is( $res->code, 403, 'a removed member can no longer read the entry' );
+
+    ($res) = api_request( POST => $path, key => $okey, json => { custom_groups => [] } );
+    is( $res->code, 200, 'explicitly clear all filters' );
+    my ( undef, $body ) = api_request( GET => $path, key => $okey );
+    is( $body->{security}, 'custom', 'empty selection keeps custom security' );
+    is_deeply( $body->{custom_groups}, [], 'empty selection reads back' );
+};
+
 subtest 'community posting and editing' => sub {
     my $comm = temp_comm();
     LJ::set_rel( $comm, $owner, 'A' );
@@ -146,6 +257,16 @@ subtest 'community posting and editing' => sub {
 
     ( $res, $body ) = api_request( POST => $cbase, key => $skey, json => { text => 'outsider' } );
     is( $res->code, 403, 'non-member cannot post to the community' );
+
+    my $member_group = $friend->create_trust_group( groupname => 'member filter' );
+    my $custom =
+        { text => 'custom community post', security => 'custom', custom_groups => [$member_group] };
+    ($res) = api_request( POST => $cbase, key => $fkey, json => $custom );
+    is( $res->code, 400, 'member cannot post with custom filters in a community' );
+    ($res) = api_request( POST => "$cbase/$id", key => $fkey, json => $custom );
+    is( $res->code, 400, 'member cannot make a community entry custom' );
+    ( $res, $body ) = api_request( GET => "$cbase/$id", key => $fkey );
+    is( $body->{security}, 'public', 'rejected edit leaves community entry public' );
 
     ( $res, $body ) =
         api_request( POST => "$cbase/$id", key => $okey, json => { text => 'mod' } );
