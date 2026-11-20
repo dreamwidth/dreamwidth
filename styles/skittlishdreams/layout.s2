@@ -470,12 +470,9 @@ function IconsPage::print_body {
     """<div class="sorting-options">\n<ul>\n""";
     var int sort_ct = 0;
     foreach var string k ($.sort_keyseq) {
-        var string text = lang_icon_sortorder_title($k);
-        if ( $k == $.sortorder ) {
-            print safe """<li class='$k active'>$text""";
-        } else {
-            print safe """<li class='$k'><a href='$.sort_urls{$k}'>$text</a>""";
-        }
+        var string active = $k == $.sortorder ? " active" : "";
+        """<li class='$k$active'>""";
+        $this->print_sort_option($k, lang_icon_sortorder_title($k));
         if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         "</li>\n";
     }

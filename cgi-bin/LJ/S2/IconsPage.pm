@@ -29,6 +29,9 @@ sub IconsPage {
         );
     my $default_sortorder =
         S2::get_property_value( $opts->{'ctx'}, 'icons_sort_order' ) || 'upload';
+    if ( $remote && $remote->prop('iconbrowser_keywordorder') ) {
+        $default_sortorder = $remote->iconbrowser_keywordorder ? 'keyword' : 'upload';
+    }
     my $sortorder = $get->{sortorder} || $default_sortorder;
 
     @allpics = grep { $_->state eq 'N' || ( $view_inactive && $_->state ne 'X' ) } @allpics;
@@ -57,9 +60,15 @@ sub IconsPage {
 
     my @sort_methods = ( 'upload', 'keyword' );
 
-    $p->{sortorder}   = $sortorder;
-    $p->{sort_keyseq} = \@sort_methods;
-    $p->{sort_urls}   = {
+    $p->{sortorder}    = $sortorder;
+    $p->{sort_keyseq}  = \@sort_methods;
+    $p->{_sort_action} = LJ::create_url(
+        undef,
+        viewing_style => 1,
+        cur_args      => $get,
+        keep_args     => [qw(view inactive)]
+    );
+    $p->{sort_urls} = {
         map {
             $_ => LJ::create_url(
                 undef,
@@ -163,6 +172,31 @@ sub IconsPage {
     $p->{icons} = \@pics_out;
 
     return $p;
+}
+
+package S2::Builtin::LJ;
+
+sub IconsPage__print_sort_option {
+    my ( $ctx, $this, $order, $text ) = @_;
+    my $label = LJ::ehtml($text);
+
+    if ( $order eq $this->{sortorder} ) {
+        $S2::pout->($label);
+    }
+    elsif ( $this->{sort_urls}->{$order} ) {
+        if ( LJ::get_remote() ) {
+            my $url   = LJ::ehtml( $this->{_sort_action} );
+            my $value = LJ::ehtml($order);
+            $S2::pout->( qq{<form method="post" action="$url" style="display:inline">}
+                    . LJ::form_auth()
+                    . qq{<button type="submit" class="button tiny secondary" name="icon_view_order" value="$value">$label</button></form>}
+            );
+        }
+        else {
+            my $url = LJ::ehtml( $this->{sort_urls}->{$order} );
+            $S2::pout->(qq{<a href="$url">$label</a>});
+        }
+    }
 }
 
 1;
