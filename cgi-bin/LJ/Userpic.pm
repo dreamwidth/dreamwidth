@@ -806,7 +806,7 @@ sub get_upf_image_info {
     return unless $width && $height;
 
     my $orientation = 1;
-    if ( $format eq 'JPG' || $format eq 'PNG' ) {
+    if ( $format eq 'JPG' ) {
         my $info = Image::ExifTool::ImageInfo( $dataref, 'IFD0:Orientation', { PrintConv => 0 } );
         $orientation = $info->{Orientation} if ( $info->{Orientation} // '' ) =~ /\A[2-8]\z/;
     }
