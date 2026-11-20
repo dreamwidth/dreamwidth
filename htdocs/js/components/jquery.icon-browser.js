@@ -13,7 +13,8 @@ function IconBrowser($el, options) {
 
     $(options.triggerSelector).attr("data-reveal-id", options.modalId);
 
-    new Options(this.modal, options.preferences);
+    var formAuth = $el.closest("form").find("input[name='lj_form_auth']").val();
+    new Options(this.modal, options.preferences, formAuth);
 
     $(document)
         .on('open.fndtn.reveal', modalSelector, function(e) {
@@ -327,9 +328,10 @@ IconBrowser.prototype = {
     }
 };
 
-function Options(modal, prefs) {
+function Options(modal, prefs, formAuth) {
     $.extend(this, {
-        modal: modal
+        modal: modal,
+        formAuth: formAuth
     });
     $("#js-icon-browser-order-option")
         .on('change', this.toggleKeywordOrder.bind(this))
@@ -386,7 +388,8 @@ Options.prototype = {
         }
     },
     save: function(option, value) {
-        var params = {};
+        if (!this.formAuth) return;
+        var params = { lj_form_auth: this.formAuth };
         params[option] = value;
 
         // this is a best effort thing, so be silent about success/error

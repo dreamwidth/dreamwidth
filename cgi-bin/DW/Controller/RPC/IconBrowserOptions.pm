@@ -21,25 +21,23 @@ use LJ::JSON;
 
 DW::Routing->register_rpc( "iconbrowser_save", \&iconbrowser_save, format => 'json' );
 
-# saves the metatext / smallicons options (Y/N)
 sub iconbrowser_save {
-
-    # gets the request and args
-    my $r    = DW::Request->get;
-    my $post = $r->post_args;
-
+    my $r      = DW::Request->get;
+    my $post   = $r->post_args;
     my $remote = LJ::get_remote();
+    return $r->FORBIDDEN
+        unless $remote
+        && $remote->session
+        && $post->{lj_form_auth}
+        && LJ::check_form_auth( $post->{lj_form_auth} );
 
-    if ( $post->{keywordorder} ) {
-        $remote->iconbrowser_keywordorder( $post->{keywordorder} eq "true" ? "Y" : "N" );
-    }
+    my @options = grep { defined $post->{$_} } qw(keywordorder metatext smallicons);
+    return $r->HTTP_BAD_REQUEST
+        if grep { $post->{$_} ne 'true' && $post->{$_} ne 'false' } @options;
 
-    if ( $post->{metatext} ) {
-        $remote->iconbrowser_metatext( $post->{metatext} eq "true" ? "Y" : "N" );
-    }
-
-    if ( $post->{smallicons} ) {
-        $remote->iconbrowser_smallicons( $post->{smallicons} eq "true" ? "Y" : "N" );
+    for my $option (@options) {
+        my $setter = "iconbrowser_$option";
+        $remote->$setter( $post->{$option} eq 'true' ? 'Y' : 'N' );
     }
 
     $r->print( to_json( { success => 1 } ) );

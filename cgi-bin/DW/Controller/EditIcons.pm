@@ -46,8 +46,16 @@ sub editicons_handler {
     my ( $ok, $rv ) = controller( authas => 1, form_auth => 0 );
     return $rv unless $ok;
 
-    my $u = $rv->{u};    # authas || remote
-    my $r = $rv->{r};    # DW::Request
+    my $u      = $rv->{u};        # authas || remote
+    my $r      = $rv->{r};        # DW::Request
+    my $remote = $rv->{remote};
+
+    if ( $r->did_post && defined( my $order = $r->post_args->{icon_view_order} ) ) {
+        return $r->FORBIDDEN unless LJ::check_form_auth( $r->post_args->{lj_form_auth} );
+        return $r->HTTP_BAD_REQUEST unless $order eq 'upload' || $order eq 'keyword';
+        $remote->iconbrowser_keywordorder( $order eq 'keyword' ? 'Y' : 'N' );
+        return $r->redirect( LJ::create_url( '/manage/icons', keep_args => ['authas'] ) );
+    }
 
     # error pages must be returned from handler context, not subroutines!
     # this is basically error_ml without the implicit ML call
@@ -266,21 +274,22 @@ sub editicons_handler {
     $rv->{errors}   = $errors;
     $rv->{messages} = \@info;
 
-    my $args = $r->get_args;
-    $rv->{sort_by_kw} = $args->{'keywordSort'} ? 1 : 0;
+    my $args           = $r->get_args;
+    my $requested_sort = $args->{keywordsort} // $args->{keywordSort};
+    my $explicit_sort  = defined $requested_sort ? ( $requested_sort ? 1 : 0 ) : undef;
+    $rv->{sort_by_kw}  = $explicit_sort // $remote->iconbrowser_keywordorder;
+    $rv->{sort_action} = LJ::create_url( '/manage/icons', keep_args => ['authas'] );
 
     $rv->{selflink} = sub {
-        my $want_kw      = $_[0] // $args->{'keywordSort'};
-        my $keyword_sort = $want_kw ? { 'keywordSort' => 1 } : {};
         return LJ::create_url(
             "/manage/icons",
             keep_args => ['authas'],
-            args      => $keyword_sort
+            args      => { keywordSort => $explicit_sort },
         );
     };
 
     $rv->{icons} =
-        $args->{'keywordSort'}
+        $rv->{sort_by_kw}
         ? [ LJ::Userpic->sort( \@userpics ) ]
         : \@userpics;
     $rv->{num_icons} = scalar @userpics;

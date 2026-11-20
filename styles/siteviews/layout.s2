@@ -125,17 +125,13 @@ function IconsPage::print_body() {
             $.pages->print({ "anchor" => "" });
         }
 
-        """<p>""";
+        """<div class="sorting-options">""";
         var int sort_ct = 0;
         foreach var string k ($.sort_keyseq) {
-            var string text = lang_icon_sortorder_title($k);
-            if ( $k == $.sortorder ) {
-                print safe """$text""";
-            } else {
-                print safe """<a href='$.sort_urls{$k}'>$text</a>""";
-            }
+            $this->print_sort_option($k, lang_icon_sortorder_title($k));
             if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         }
+        """</div>""";
 
         """<div class="icon-container">""";
         foreach var Icon i ($.icons) {
