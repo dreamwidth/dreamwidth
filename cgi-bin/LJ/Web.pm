@@ -2060,6 +2060,26 @@ PREVIEW
         if ( $opts->{'mode'} eq "edit" ) {
             my $onclick = "";
 
+            if ( $opts->{has_crosspost_links} ) {
+                $out .= '<p><label for="hide_crosspost_links">Links to crossposts:</label> '
+                    . LJ::html_select(
+                    {
+                        name               => 'hide_crosspost_links',
+                        id                 => 'hide_crosspost_links',
+                        selected           => $opts->{hide_crosspost_links},
+                        tabindex           => $tabindex->(),
+                        'aria-describedby' => 'crosspost-links-help',
+                    },
+                    0,
+                    'Show links on this entry',
+                    1,
+                    'Hide links from this entry',
+                    )
+                    . '<br><span id="crosspost-links-help">'
+                    . 'This only changes the links on Dreamwidth, not the posts on other sites.'
+                    . '</span></p>';
+            }
+
             if ( !$opts->{'disabled_save'} ) {
                 $out .= LJ::html_submit(
                     'action:save',
