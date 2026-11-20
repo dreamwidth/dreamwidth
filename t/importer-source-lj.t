@@ -424,12 +424,18 @@ sub meta_window {
         1, 'before more is fetched' );
 }
 
-for my $first_window_empty ( 0, 1 ) {
-    subtest $first_window_empty
-        ? 'empty first metadata window'
-        : 'empty middle metadata window' => sub {
-        my $empty = '<?xml version="1.0"?><livejournal><maxid>7</maxid>'
-            . '<comments></comments><usermaps></usermaps></livejournal>';
+for my $case (
+    [ 'empty first metadata window',  1, undef ],
+    [ 'empty middle metadata window', 0, undef ],
+    [ 'fractional metadata cursor',   1, '1.5' ],
+    [ 'malformed metadata cursor',    1, '7oops' ],
+    [ 'equal metadata cursor',        0, 4 ],
+    [ 'backward metadata cursor',     0, 2 ],
+    )
+{
+    my ( $name, $first_window_empty, $cursor ) = @$case;
+    subtest $name => sub {
+        my $empty   = meta_window( first => 1, last => 0, max => 7, next => $cursor );
         my %windows = (
             1 => $first_window_empty
             ? $empty
@@ -456,7 +462,7 @@ for my $first_window_empty ( 0, 1 ) {
             $first_window_empty ? [7] : [ 1, 2, 3, 7 ],
             'later comments are still found'
         );
-        };
+    };
 }
 
 # bodies

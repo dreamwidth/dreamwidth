@@ -640,8 +640,8 @@ Fetches the comment export's metadata, window by window. Returns
 Options are callbacks: C<before_window> is called with the id the next window starts
 at, and C<after_window> with C<( $max_id, \@new_usermap )> (pairs of C<[ posterid, username ]>
 in the order the window listed them) once a window has been read, and may die to stop.
-If the server gives a maximum id but no next id, an empty window advances by the
-requested window size. Dies with a C<temp_fail> if a window can't be fetched.
+If the server gives a maximum id but no advancing integer next id, an empty window
+advances by the requested window size. Dies with a C<temp_fail> if a window can't be fetched.
 
 =cut
 
@@ -691,8 +691,8 @@ sub comment_meta {
             || $lasttag eq 'nextid';
 
         # save these values for later
-        $server_max_id  = $_[1] + 0 if $lasttag eq 'maxid';
-        $server_next_id = $_[1] + 0 if $lasttag eq 'nextid';
+        $server_max_id = $_[1] + 0 if $lasttag eq 'maxid';
+        $server_next_id .= $_[1] if $lasttag eq 'nextid';
     };
 
     # hit up the server for metadata
@@ -718,7 +718,10 @@ sub comment_meta {
 
         $opts{after_window}->( $server_max_id, [@window_usermap] ) if $opts{after_window};
 
-        next if defined $server_next_id && $server_next_id > $start_id;
+        next
+            if defined $server_next_id
+            && $server_next_id =~ /^\d+$/
+            && $server_next_id > $start_id;
 
         if ( $window_last_id >= $start_id ) {
             $server_next_id = $window_last_id + 1;
