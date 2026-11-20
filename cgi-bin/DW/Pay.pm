@@ -22,6 +22,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
+use DateTime;
 use HTTP::Request;
 use LWP::UserAgent;
 use DW::BusinessRules::Pay;
@@ -958,7 +959,8 @@ sub validate_deliverydate {
         day   => $3,
     );
 
-    my $time_check = DateTime->compare( $given_date, DateTime->today );
+    my $today      = DateTime->today;
+    my $time_check = DateTime->compare( $given_date, $today );
 
     if ( $time_check < 0 ) {
 
@@ -969,8 +971,10 @@ sub validate_deliverydate {
 
         # date is in the future, add it.
         $item_data->{deliverydate} = $given_date->date;
+        return $given_date->delta_days($today)->in_units('days');
     }
 
+    return;
 }
 
 1;

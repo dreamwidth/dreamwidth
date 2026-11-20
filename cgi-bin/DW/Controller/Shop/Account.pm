@@ -20,6 +20,8 @@ package DW::Controller::Shop::Account;
 use strict;
 use warnings;
 use Carp qw/ croak confess /;
+use DateTime;
+use Digest::SHA qw(hmac_sha256_hex);
 
 use DW::Controller;
 use DW::Pay;
@@ -27,9 +29,31 @@ use DW::Routing;
 use DW::Shop;
 use DW::Template;
 use LJ::JSON;
+use LJ::UniqCookie;
 use DW::FormErrors;
 
 DW::Routing->register_string( '/shop/account', \&shop_account_handler, app => 1 );
+
+sub _order_token {
+    my ( $cart, $remote, $token, @fields ) = @_;
+    return unless $cart;
+
+    my ( $stime, $secret );
+    if ( defined $token ) {
+        ($stime) = $token =~ /\A([1-9][0-9]{0,9}):[0-9a-f]{64}\z/;
+        return unless $stime;
+        $secret = LJ::get_secret($stime);
+    }
+    else {
+        ( $stime, $secret ) = LJ::get_secret();
+    }
+    return unless $secret;
+
+    my $buyer = $remote ? $remote->id : ( LJ::UniqCookie->current_uniq // '' );
+    my $payload = join "\0", 'shop/account', $cart->id, $remote ? 'user' : 'guest', $buyer, @fields;
+    my $signed  = "$stime:" . hmac_sha256_hex( $payload, $secret );
+    return defined $token ? $token eq $signed : $signed;
+}
 
 sub shop_account_handler {
     my ( $ok, $rv ) = DW::Controller::Shop::_shop_controller( anonymous => 1, form_auth => 1 );
@@ -37,6 +61,7 @@ sub shop_account_handler {
 
     my $r      = DW::Request->get;
     my $remote = $rv->{remote};
+    my $cart   = $rv->{cart};
     my $GET    = $r->get_args;
     my $post   = $r->post_args;
     my $vars;
@@ -87,8 +112,22 @@ sub shop_account_handler {
         $vars->{paid_status} = DW::Widget::PaidAccountStatus->render;
     }
 
-    my $errors = DW::FormErrors->new;
-    if ( $r->did_post ) {
+    my $errors           = DW::FormErrors->new;
+    my $editing_delivery = $r->did_post && $post->{edit_deliverydate};
+    if (
+           $editing_delivery
+        && $post->{prem_convert}
+        && _order_token(
+            $cart, $remote,
+            $post->{delivery_review_token} // '', 'delivery',
+            $post->{deliverydate}          // '', $post->{prem_convert}
+        )
+        )
+    {
+        $premium_convert = $post->{prem_convert};
+    }
+
+    if ( $r->did_post && !$editing_delivery ) {
 
         my $item_data = {};
 
@@ -133,9 +172,10 @@ sub shop_account_handler {
             }
         }
 
-        if ( $post->{deliverydate} ) {
-            DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
-        }
+        my $delivery_days =
+            $post->{deliverydate}
+            ? DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data )
+            : undef;
 
         unless ( $post->{accttype} ) {
             $errors->add( 'accttype', 'widget.shopitemoptions.error.notype' );
@@ -167,7 +207,7 @@ sub shop_account_handler {
 
                 my $ok = DW::Shop::Item::Account->allow_account_conversion( $u, $item->class );
 
-                if ( $ok && $has_premium && $item->class eq 'paid' && !$post->{prem_convert} ) {
+                if ( $ok && $has_premium && $item->class eq 'paid' ) {
 
                     # check account expiration date
                     my $exptime = DateTime->from_epoch( epoch => $paid_status->{expiretime} );
@@ -181,32 +221,75 @@ sub shop_account_handler {
                     my $to_day = sub { return $_[0]->truncate( to => 'day' ) };
 
                     if ( DateTime->compare( $to_day->($exptime), $to_day->($newtime) ) ) {
-                        my $months = $item->months;
-                        my $newexp = $exptime->clone->add( months => $months );
-                        my $paid_d = $exptime->delta_days($newexp)->in_units('days');
+                        my @conversion = (
+                            'conversion', $u->id, $post->{accttype},
+                            $item->deliverydate // '',
+                            $paid_status->{expiretime}
+                        );
 
-                        # FIXME: this should be DW::BusinessRules::Pay::DWS::CONVERSION_RATE
-                        my $prem_d = int( $paid_d * 0.7 );
+                        if (
+                            _order_token(
+                                $cart, $remote, $post->{prem_convert} // '', @conversion
+                            )
+                            )
+                        {
+                            $premium_convert = $post->{prem_convert};
+                        }
+                        else {
+                            $premium_convert = _order_token( $cart, $remote, undef, @conversion );
+                            my $months = $item->months;
+                            my $newexp = $exptime->clone->add( months => $months );
+                            my $paid_d = $exptime->delta_days($newexp)->in_units('days');
 
-                        my $ml_args =
-                            { date => $exptime->ymd, premium_num => $prem_d, paid_num => $paid_d };
+                            # FIXME: this should be DW::BusinessRules::Pay::DWS::CONVERSION_RATE
+                            my $prem_d = int( $paid_d * 0.7 );
 
-                        # but only include date if the logged-in user owns the account
-                        delete $ml_args->{date} unless $remote && $remote->can_purchase_for($u);
+                            my $ml_args = {
+                                date        => $exptime->ymd,
+                                premium_num => $prem_d,
+                                paid_num    => $paid_d
+                            };
 
-                        $errors->add( undef, '/shop/account.tt.error.premiumconvert', $ml_args );
-                        $errors->add( undef, '/shop/account.tt.error.premiumconvert.postdate',
-                            $ml_args )
-                            if $ml_args->{date};
-                        $premium_convert = 1;
+                            # but only include date if the logged-in user owns the account
+                            delete $ml_args->{date} unless $remote && $remote->can_purchase_for($u);
 
+                            $errors->add( undef, '/shop/account.tt.error.premiumconvert',
+                                $ml_args );
+                            $errors->add( undef, '/shop/account.tt.error.premiumconvert.postdate',
+                                $ml_args )
+                                if $ml_args->{date};
+                        }
                     }
                 }
             }
 
             unless ( $errors->exist ) {
+                if ( $item && $delivery_days ) {
+                    my $date   = $item->deliverydate;
+                    my @review = ( 'delivery', $date, $premium_convert // '' );
+                    unless (
+                        ( $post->{confirm_deliverydate} // '' ) eq $date
+                        && _order_token(
+                            $cart, $remote, $post->{delivery_review_token} // '', @review
+                        )
+                        )
+                    {
+                        return DW::Template->render_template(
+                            'shop/account-delivery-confirm.tt',
+                            {
+                                cart_display => $rv->{cart_display},
+                                deliverydate => $date,
+                                days         => $delivery_days,
+                                formdata     => $post,
+                                prem_convert => $premium_convert,
+                                delivery_review_token =>
+                                    _order_token( $cart, $remote, undef, @review ),
+                            }
+                        );
+                    }
+                }
 
-                my ( $rv, $err ) = $rv->{cart}->add_item($item);
+                my ( $rv, $err ) = $cart->add_item($item);
                 $errors->add_string( '', $err ) unless $rv;
 
                 unless ( $errors->exist ) {
@@ -242,7 +325,7 @@ sub shop_account_handler {
     $vars->{seed_avail}     = DW::Pay::num_permanent_accounts_available() > 0;
     $vars->{num_perms}      = DW::Pay::num_permanent_accounts_available_estimated();
     $vars->{formdata}       = $post || { username => ( $GET->{user} ), anonymous => !$remote };
-    $vars->{did_post}       = $r->did_post;
+    $vars->{did_post}       = $r->did_post && ( !$editing_delivery || $post->{alreadyposted} );
     $vars->{acct_reason}    = DW::Shop::Item::Account->can_have_reason;
     $vars->{prem_convert}   = $premium_convert;
     $vars->{email_checkbox} = $email_checkbox;

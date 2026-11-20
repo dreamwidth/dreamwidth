@@ -1,0 +1,4 @@
+.btn.confirm=Confirm and add to cart
+.btn.edit=Edit order
+.delivery=This paid time will be delivered in [[days]] [[?days|day|days]], on [[date]]. Confirm this delivery date to add it to your cart.
+.title=Confirm delivery date

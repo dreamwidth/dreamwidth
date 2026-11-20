@@ -71,7 +71,7 @@
                 <label for="username">[% dw.ml( '.giftfor.username') %]</label>
             </div>
             <div class="columns medium-6">
-                [% form.textbox(  name => 'username', value => user)  %]
+                [% form.textbox(  name => 'username', default => user)  %]
             </div>
         </div>
         [% ELSIF for == 'random' %]
@@ -142,7 +142,7 @@
 
     [% IF prem_convert %]
 		<p>
-		[% form.checkbox(  name => 'prem_convert', id => 'prem_convert', value => 1 ) %]
+		[% form.checkbox(  name => 'prem_convert', id => 'prem_convert', value => prem_convert ) %]
 		<label for='prem_convert'>[% dw.ml('.premiumconvert.agree') %]</label>
 		</p>
 	[% END %]
