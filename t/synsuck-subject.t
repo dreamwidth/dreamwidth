@@ -46,13 +46,14 @@ END {
 }
 
 sub import_subject {
-    my ($subject) = @_;
-    my $title     = LJ::ehtml($subject);
-    my $rss       = qq{<?xml version="1.0" encoding="UTF-8"?>
+    my ( $subject, $fixture ) = @_;
+    $fixture //= 'fixture-1';
+    my $title = LJ::ehtml($subject);
+    my $rss   = qq{<?xml version="1.0" encoding="UTF-8"?>
         <rss version="2.0"><channel><title>Example feed</title>
         <link>https://example.com/</link><description>Synthetic feed</description>
         <item><title>$title</title><link>https://example.com/1</link>
-        <guid isPermaLink="false">fixture-1</guid><description>Example item.</description></item>
+        <guid isPermaLink="false">$fixture</guid><description>Example item.</description></item>
         </channel></rss>};
     my $response = HTTP::Response->new(200);
     $response->header( 'Content-Type' => 'application/rss+xml' );
@@ -115,5 +116,30 @@ import_subject($short);
 ( $tooltip, $display ) = rendered_subject( $itemid, 'recent' );
 is( $display, $short,   'visible subject follows a short replacement' );
 is( $tooltip, $display, 'short replacement does not have a stale long tooltip' );
+
+my $oversized_itemid;
+my $multibyte = "\xE2\x98\x83";
+for my $letter ( 'B', 'C' ) {
+    my $prefix = ( $letter x 4092 ) . $multibyte;
+    import_subject( $prefix . $multibyte . ( 'Z' x 16_777_216 ), 'oversized' );
+    my ( $stored_id, $stored_subject, $stored_body, $stored_tooltip ) = $feed->selectrow_array(
+        'SELECT jitemid, subject, event, syn_full_subject FROM logtext2 '
+            . 'WHERE journalid = ? AND jitemid <> ?',
+        undef, $feed->id, $itemid
+    );
+    $oversized_itemid //= $stored_id;
+    ok(
+        $stored_id && $stored_id == $oversized_itemid,
+        'oversized title imports or updates the same entry'
+    );
+    is( $stored_subject, $letter x LJ::CMAX_SUBJECT, 'oversized title keeps the standard subject' );
+    like(
+        LJ::text_uncompress( $stored_body // '' ),
+        qr/Example item\./,
+        'oversized title keeps the entry body'
+    );
+    ok( defined $stored_tooltip && $stored_tooltip eq $prefix,
+        'stored tooltip stays within the byte budget without splitting UTF-8' );
+}
 
 done_testing;

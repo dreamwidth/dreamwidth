@@ -58,7 +58,8 @@ use constant E_TEMP => 0;
 use constant E_PERM => 1;
 
 # maximum items for get_friends_page function
-use constant FRIEND_ITEMS_LIMIT => 50;
+use constant FRIEND_ITEMS_LIMIT            => 50;
+use constant SYN_SUBJECT_TOOLTIP_MAX_BYTES => 4096;
 
 # Lower bound for sync queries when the client has no lastsync yet. This is
 # MySQL's minimum valid DATETIME: strict sql_mode (NO_ZERO_DATE) rejects
@@ -1124,8 +1125,13 @@ sub common_event_validation {
     $req->{'subject'} =
         LJ::text_trim( $req->{'subject'}, LJ::BMAX_SUBJECT, LJ::CMAX_SUBJECT, \$did_trim );
     return fail( $err, 411 ) if $did_trim && !$flags->{allow_truncated_subject};
-    $flags->{_syn_full_subject} =
-        $did_trim && $flags->{preserve_syn_subject} ? $untrimmed_subject : undef;
+    $flags->{_syn_full_subject} = undef;
+    if ( $did_trim && $flags->{preserve_syn_subject} ) {
+        $flags->{_syn_full_subject} =
+            length($untrimmed_subject) > SYN_SUBJECT_TOOLTIP_MAX_BYTES
+            ? LJ::text_trim( $untrimmed_subject, SYN_SUBJECT_TOOLTIP_MAX_BYTES )
+            : $untrimmed_subject;
+    }
 
     foreach ( keys %{ $req->{'props'} } ) {
 
