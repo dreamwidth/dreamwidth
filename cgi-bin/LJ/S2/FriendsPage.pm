@@ -73,7 +73,7 @@ sub FriendsPage {
 
     # see if they have a previously cached copy of this page they
     # might be able to still use.
-    if ( $opts->{'header'}->{'If-Modified-Since'} ) {
+    if ( $remote && $opts->{'header'}->{'If-Modified-Since'} ) {
         my $theirtime = LJ::http_to_time( $opts->{'header'}->{'If-Modified-Since'} );
 
         # send back a 304 Not Modified if they say they've reloaded this
@@ -84,7 +84,7 @@ sub FriendsPage {
             return 1;
         }
     }
-    $opts->{'headers'}->{'Last-Modified'} = LJ::time_to_http($lastmod);
+    $opts->{'headers'}->{'Last-Modified'} = LJ::time_to_http($lastmod) if $remote;
 
     my $get = $opts->{'getargs'};
 

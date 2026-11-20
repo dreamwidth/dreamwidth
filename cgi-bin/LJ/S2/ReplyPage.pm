@@ -17,6 +17,8 @@ use strict;
 
 package LJ::S2;
 
+use LJ::Web;
+
 sub ReplyPage {
     my ( $u, $remote, $opts ) = @_;
 
@@ -198,16 +200,9 @@ sub ReplyPage {
 
         my $cmtobj = LJ::Comment->new( $u, dtalkid => $dtalkid );
 
-        my $tz_remote;
-        my $datetime_remote;
-        my $datetime_poster;
-        if ($remote) {
-            my $tz = $remote->prop("timezone");
-            $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
-        }
-
-        $datetime_remote = $tz_remote ? DateTime_tz( $cmtobj->unixtime, $tz_remote ) : undef;
-        $datetime_poster =
+        my $tz_remote       = LJ::viewer_timezone($remote);
+        my $datetime_remote = $tz_remote ? DateTime_tz( $cmtobj->unixtime, $tz_remote ) : undef;
+        my $datetime_poster =
             $parentcomment ? DateTime_tz( $cmtobj->unixtime, $parentcomment->poster ) : undef;
 
         my $replyargs = LJ::viewing_style_args(%$get);

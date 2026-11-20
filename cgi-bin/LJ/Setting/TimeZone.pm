@@ -15,11 +15,14 @@ package LJ::Setting::TimeZone;
 use base 'LJ::Setting';
 use strict;
 use warnings;
+use DateTime::TimeZone;
+use DW::Request;
+use LJ::Web;
 
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return !$u || $u->is_community ? 0 : 1;
+    return $u && $u->is_community ? 0 : 1;
 }
 
 sub helpurl {
@@ -34,11 +37,19 @@ sub label {
     return $class->ml('setting.timezone.label');
 }
 
+sub _submitted_timezone {
+    my ( $class, $args ) = @_;
+    return $args->{ $class->pkgkey . 'timezone' } // $args->{timezone};
+}
+
 sub option {
     my ( $class, $u, $errs, $args ) = @_;
     my $key = $class->pkgkey;
 
-    my $timezone = $class->get_arg( $args, "timezone" ) || $u->prop("timezone");
+    my $timezone = $class->_submitted_timezone($args);
+    if ( !defined $timezone || $timezone ne '' && !LJ::is_valid_timezone($timezone) ) {
+        $timezone = $u ? $u->prop('timezone') : LJ::anonymous_timezone();
+    }
 
     my $map   = DateTime::TimeZone::links();
     my $usmap = { map { $_ => $map->{$_} } grep { m!^US/! && $_ ne "US/Pacific-New" } keys %$map };
@@ -52,7 +63,7 @@ sub option {
     my $ret = LJ::html_select(
         {
             name     => "${key}timezone",
-            selected => $timezone,
+            selected => $timezone // '',
         },
         @options
     );
@@ -65,20 +76,39 @@ sub option {
 
 sub error_check {
     my ( $class, $u, $args ) = @_;
-    my $val = $class->get_arg( $args, "timezone" );
+    my $val = $class->_submitted_timezone($args);
 
     $class->errors( timezone => $class->ml('setting.timezone.error.invalid') )
-        unless !$val || grep { $val eq $_ } DateTime::TimeZone::all_names();
+        if defined $val && $val ne '' && !LJ::is_valid_timezone($val);
 
     return 1;
 }
 
 sub save {
     my ( $class, $u, $args ) = @_;
+    my $val = $class->_submitted_timezone($args);
+    return 1 unless defined $val;
     $class->error_check( $u, $args );
 
-    my $val = $class->get_arg( $args, "timezone" );
-    $u->set_prop( timezone => $val );
+    if ($u) {
+        $u->set_prop( timezone => $val );
+    }
+    else {
+        my $r      = DW::Request->get;
+        my %cookie = (
+            name     => 'dw_timezone',
+            domain   => ".$LJ::DOMAIN",
+            path     => '/',
+            httponly => 1,
+            SameSite => 'Lax',
+        );
+        if ( $val eq '' ) {
+            $r->delete_cookie(%cookie);
+        }
+        else {
+            $r->add_cookie( %cookie, value => $val, expires => time() + 86400 * 365 * 10 );
+        }
+    }
 
     return 1;
 }
