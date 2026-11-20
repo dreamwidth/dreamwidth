@@ -244,7 +244,7 @@ sub _extract_post_headers {
     my ( %lj_headers, %post_headers );
     while ( $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*)(?:\r?\n|\z)/igc ) {
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), LJ::trim($3) );
-        if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n][^\r\n]*)(?:\r?\n|\z)/gc ) {
+        if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n<>][^\r\n]*)(?:\r?\n|\z)/gc ) {
             $value = LJ::trim($1);
         }
         my $headers = $prefix eq 'lj' ? \%lj_headers : \%post_headers;
@@ -268,7 +268,7 @@ sub _html_body_offset {
         my ( $type, $tag ) = @$token;
         if ( $type eq 'S' ) {
             $offset += length $token->[4];
-            return $offset if !$in_head && $tag eq 'body';
+            return $offset if !$metadata && $tag eq 'body';
             if ($in_head) {
                 last if $metadata;
                 $metadata = $tag if $tag =~ /\A(?:title|style|script)\z/;
