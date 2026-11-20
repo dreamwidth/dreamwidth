@@ -21,7 +21,7 @@ BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
 
-use Time::HiRes qw/ gettimeofday tv_interval /;
+use Time::HiRes qw/ CLOCK_MONOTONIC gettimeofday tv_interval /;
 use LJ::Sendmail;
 use LJ::Lang;
 use DW::Shop;
@@ -66,6 +66,8 @@ my $alert = sub {
     );
     return undef;
 };
+
+my $last_warning_scan;
 
 while (1) {
     $log->('Main loop beginning...');
@@ -116,7 +118,6 @@ sub main_loop {
 
 ## PHASE 1) PROCESS PAYMENTS
 
-    # dig up carts that are in state paid and scannable
     my $cartids = $dbh->selectcol_arrayref(
         q{SELECT cartid FROM shop_carts WHERE state = ? AND nextscan < UNIX_TIMESTAMP()},
         undef, $DW::Shop::STATE_PAID );
@@ -147,6 +148,9 @@ sub main_loop {
 
 ## PHASE 3) PROCESS EXPIRATION WARNING MAILS
 
+    my $now = Time::HiRes::clock_gettime(CLOCK_MONOTONIC);
+    return if defined $last_warning_scan && $now - $last_warning_scan < 5 * 60;
+
     # dig up who expire soon
     my $rows = $dbh->selectall_arrayref(
         q{SELECT userid, lastemail, expiretime - UNIX_TIMESTAMP()
@@ -155,16 +159,58 @@ sub main_loop {
                (expiretime IS NOT NULL AND
                 expiretime > UNIX_TIMESTAMP() AND
                 expiretime < ( UNIX_TIMESTAMP() + 14*86400 )
-              )}
+              ) AND (lastemail IS NULL OR
+                     (lastemail = 14 AND expiretime < UNIX_TIMESTAMP() + 3*86400))}
     );
     return $log->( 'Database error: %s', $dbh->errstr )
         if $dbh->err;
+    $last_warning_scan = $now;
 
     $log->( 'Found %d users expiring soon.', scalar(@$rows) );
 
     # now warn the user
     warn_user( $dbh, $_ ) foreach @$rows;
 
+}
+
+sub pending_self_renewal_date {
+    my ( $dbh, $account ) = @_;
+    return undef if $account->is_community;
+
+    my $uid = $account->id;
+    my $cartids =
+        $dbh->selectcol_arrayref( q{SELECT cartid FROM shop_carts WHERE userid = ? AND state = ?},
+        undef, $uid, $DW::Shop::STATE_PAID );
+    if ( $dbh->err ) {
+        $log->( 'Unable to look up renewal carts for user %d: %s', $uid, $dbh->errstr );
+        return undef;
+    }
+
+    my $today = LJ::mysql_date();
+    my $earliest;
+    foreach my $cartid (@$cartids) {
+        my $cart = eval { DW::Shop::Cart->get_from_cartid($cartid) };
+        if ($@) {
+            $log->( 'Unable to read paid cart %d for renewal notices: %s', $cartid, $@ );
+            next;
+        }
+        next
+            unless ref $cart eq 'DW::Shop::Cart'
+            && $cart->state == $DW::Shop::STATE_PAID
+            && ( $cart->userid // 0 ) == $uid;
+
+        foreach my $item ( @{ $cart->items } ) {
+            next unless $item->isa('DW::Shop::Item::Account') && $item->apply_automatically;
+            next if $item->applied || $item->t_email;
+            next unless ( $item->t_userid // 0 ) == $uid && ( $item->from_userid // 0 ) == $uid;
+            my $date = $item->deliverydate;
+            next unless $date && $date ge $today;
+
+            $earliest = $date if !$earliest || $date lt $earliest;
+        }
+    }
+
+    return $earliest;
 }
 
 sub expire_user {
@@ -203,6 +249,8 @@ sub expire_user {
         }
     }
     elsif ( $u->is_visible ) {
+        my $renewal_date = pending_self_renewal_date( $dbh, $u );
+        my $bodytype     = $renewal_date ? 'renewal.0' : '0';
         LJ::send_mail(
             {
                 to       => $u->email_raw,
@@ -211,11 +259,12 @@ sub expire_user {
                 subject =>
                     LJ::Lang::ml( "shop.expiration.user.0.subject", { sitename => $LJ::SITENAME } ),
                 body => LJ::Lang::ml(
-                    "shop.expiration.user.0.body",
+                    "shop.expiration.user.$bodytype.body",
                     {
                         touser   => $u->display_name,
                         shopurl  => "$LJ::SHOPROOT/account?for=self",
                         sitename => $LJ::SITENAME,
+                        date     => $renewal_date,
                     }
                 ),
             }
@@ -236,17 +285,17 @@ sub warn_user {
 
     my $mail;
     if ( $timeleft < 86400 * 3 && ( !defined $lastmail || $lastmail == 14 ) ) {
-        $log->( 'Sending 3-day expiration mail to %s(%d).', $u->user, $u->id );
         $mail = '3';
 
     }
     elsif ( $timeleft < 86400 * 14 && !defined $lastmail ) {
-        $log->( 'Sending 14-day expiration mail to %s(%d).', $u->user, $u->id );
         $mail = '14';
     }
 
     return 1 unless defined $mail;
+    return 1 if pending_self_renewal_date( $dbh, $u );
 
+    $log->( 'Sending %s-day expiration mail to %s(%d).', $mail, $u->user, $u->id );
     DW::Stats::increment( 'dw.shop.paid_account.warn_' . $mail, 1 );
 
     # alter warning message body for premium paid accounts

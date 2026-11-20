@@ -3811,6 +3811,17 @@ The [[sitename]] Team
 
 shop.expiration.user.0.subject=[[sitename]] Account Expired
 
+shop.expiration.user.renewal.0.body<<
+Dear [[touser]],
+
+Your paid time on [[sitename]] has now expired. The paid time from your
+renewal is scheduled to be applied on [[date]]. You don't need to place
+another order.
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.expiration.user.14.body<<
 Dear [[touser]],
 
