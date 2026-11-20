@@ -198,6 +198,10 @@ sub EntryPage {
         'expand_all' => $expand_all,
         'filter'     => $get->{comments},
     };
+    if ( defined $destination_thread ) {
+        $copts->{destination_thread} =
+            $destination_thread % 256 == $entry->anum ? $destination_thread >> 8 : 0;
+    }
 
     my $userlite_journal = UserLite($u);
 
@@ -464,7 +468,9 @@ sub EntryPage {
         }
     };
     $p->{'comments'} = [];
-    $convert_comments->( $convert_comments, $p->{'comments'}, \@comments, 1 );
+    $convert_comments->(
+        $convert_comments, $p->{'comments'}, \@comments, $copts->{out_thread_depth} // 1
+    );
 
     # prepare the javascript data structure to put in the top of the page
     # if the remote user is a manager of the comments
