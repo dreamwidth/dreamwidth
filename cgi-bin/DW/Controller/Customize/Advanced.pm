@@ -32,7 +32,7 @@ DW::Routing->register_string( '/customize/advanced/layersource', \&layersource_h
 DW::Routing->register_string( '/customize/advanced/layeredit',   \&layeredit_handler,   app => 1 );
 
 sub advanced_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
 
     my $r             = $rv->{r};
@@ -45,6 +45,7 @@ sub advanced_handler {
     $vars->{u}             = $u;
     $vars->{remote}        = $remote;
     $vars->{no_layer_edit} = $no_layer_edit;
+    $vars->{authas}        = $u->user ne $remote->user ? '?authas=' . $u->user : '';
 
     return DW::Template->render_template( 'customize/advanced/index.tt', $vars );
 

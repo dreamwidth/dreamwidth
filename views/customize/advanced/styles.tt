@@ -1,6 +1,7 @@
 
     [% sections.title = '.title' | ml %]
-    [% dw.ml("Backlink", { 'link' => "$site.root/customize/advanced/",'text' => dw.ml('.back2'),}) %]
+    [% authas = (noactions ? '' : getextra) | html %]
+    [% dw.ml("Backlink", { 'link' => "$site.root/customize/advanced/$authas",'text' => dw.ml('.back2'),}) %]
     [% dw.ml("Actionlink", {'link' => "<a href='$site.root/customize/advanced/layers$getextra'>" _ dw.ml('.nav.yourlayers') _ "</a>", }) %]
 
 

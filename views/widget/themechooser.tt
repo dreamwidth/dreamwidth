@@ -32,7 +32,7 @@
     <li class='theme-item[% theme.current ? " selected" : "" %]'>
     <img src="[% theme.imgurl %]" class='theme-preview' />
 
-    <a href='[% theme.preview_url %]' target='_blank' class='theme-preview-link' title="[% dw.ml('widget.themechooser.theme.preview') %]">
+    <a href='[% theme.preview_url | html %]' target='_blank' class='theme-preview-link' title="[% dw.ml('widget.themechooser.theme.preview') %]">
         <img src='[% site.imgroot %]/customize/preview-theme.gif' class='theme-preview-image' />
     </a>
 
