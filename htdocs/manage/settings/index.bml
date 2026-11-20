@@ -166,6 +166,7 @@ body<=
                 DW::Setting::SynLevel
                 LJ::Setting::SearchInclusion
                 LJ::Setting::EnableComments
+                DW::Setting::NewAccountComments
                 LJ::Setting::CommentScreening
                 LJ::Setting::CommentCaptcha
                 LJ::Setting::CommentIP
