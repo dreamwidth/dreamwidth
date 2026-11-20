@@ -262,25 +262,24 @@ sub _extract_post_headers {
 sub _html_body_offset {
     my ($body) = @_;
     my $parser = HTML::TokeParser->new( \$body );
-    my ( $offset, $in_head, $metadata ) = ( 0, 0, '' );
+    my ( $offset, $seen_head, $in_head, $metadata ) = ( 0, 0, 0, '' );
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $tag ) = @$token;
         if ( $type eq 'S' ) {
-            $offset += length $token->[4];
-            return $offset if !$metadata && $tag eq 'body';
+            return $offset + length $token->[4] if !$metadata && $tag eq 'body';
             if ($in_head) {
                 last if $metadata;
                 $metadata = $tag if $tag =~ /\A(?:title|style|script)\z/;
                 last unless $metadata || $tag =~ /\A(?:base|link|meta)\z/;
             }
             else {
-                $in_head = 1 if $tag eq 'head';
+                $seen_head = $in_head = 1 if $tag eq 'head';
                 last unless $in_head || $tag eq 'html';
             }
+            $offset += length $token->[4];
         }
         elsif ( $type eq 'E' ) {
-            $offset += length $token->[2];
             if ( $metadata && $tag eq $metadata ) {
                 $metadata = '';
             }
@@ -290,6 +289,7 @@ sub _html_body_offset {
             else {
                 last;
             }
+            $offset += length $token->[2];
         }
         elsif ($type eq 'C'
             || ( $type eq 'D' && $tag =~ /\A<!doctype\s+html\b/i )
@@ -302,7 +302,7 @@ sub _html_body_offset {
         }
     }
 
-    return 0;
+    return $seen_head && !$metadata ? $offset : 0;
 }
 
 # given a content-type header, return a hash of content-type attributes
