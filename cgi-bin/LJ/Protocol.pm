@@ -42,7 +42,9 @@ use DW::API::Key;
 use DW::Auth;
 use DW::Auth::TOTP;
 use DW::Auth::Challenge;
+use DW::Formats;
 use DW::RateLimit;
+use LJ::CleanHTML;
 use LJ::Tags;
 use LJ::Feed;
 use LJ::EmbedModule;
@@ -1197,7 +1199,7 @@ sub common_event_validation {
 }
 
 sub schedule_xposts {
-    my ( $u, $ditemid, $deletep, $fn ) = @_;
+    my ( $u, $ditemid, $deletep, $fn, $unchanged_crossposts ) = @_;
     return unless LJ::isu($u) && $ditemid > 0;
     return unless $fn && ref $fn eq 'CODE';
 
@@ -1207,6 +1209,12 @@ sub schedule_xposts {
     foreach my $acct (@accounts) {
         my ( $xpostp, $info ) = $fn->($acct);
         next unless $xpostp;
+        next
+            if !$deletep
+            && $unchanged_crossposts
+            && $unchanged_crossposts->{ $acct->acctid }
+            && !$info->{password}
+            && !$info->{auth_response};
 
         my $jobargs = {
             uid       => $u->userid,
@@ -1829,6 +1837,50 @@ sub postevent {
     return $res;
 }
 
+sub _is_crosspost_visibility_only {
+    my ( $req, $old, $old_props, $new_event, $security, $eventtime, $tags_changed, $entry ) = @_;
+    my $props = $req->{props};
+    return 0
+        unless $old_props->{xpost}
+        && defined $props->{opt_hide_xpost_links}
+        && !!$props->{opt_hide_xpost_links} != !!$old_props->{opt_hide_xpost_links};
+    return 0
+        if $tags_changed
+        || $security ne $old->{security}
+        || $req->{allowmask} + 0 != $old->{allowmask}
+        || $eventtime ne substr( $old->{eventtime}, 0, 16 )
+        || $req->{subject} ne $old->{subject}
+        || ( exists $req->{slug} && $req->{slug} ne ( $entry->slug // '' ) );
+
+    my $old_event = $old->{event};
+    if ( defined $props->{editor} ) {
+        my $old_editor =
+            LJ::CleanHTML::entry_edit_format( \$old_event, $old_props, $old->{logtime} );
+        return 0 if $props->{editor} ne DW::Formats::validate($old_editor);
+    }
+    else {
+        for my $format_prop (qw(opt_preformatted used_rte)) {
+            return 0
+                if defined $props->{$format_prop}
+                && !!$props->{$format_prop} != !!$old_props->{$format_prop};
+        }
+    }
+    $old_event =~ s/\A\s+|\s+\z//g;
+    return 0 if $new_event ne $old_event;
+
+    for my $prop (
+        qw(adult_content current_coords current_location current_mood current_moodid
+        current_music opt_backdated opt_nocomments opt_noemail opt_screening picture_keyword
+        picture_mapid pingback)
+        )
+    {
+        return 0
+            if defined $props->{$prop}
+            && ( $props->{$prop} || '' ) ne ( $old_props->{$prop} || '' );
+    }
+    return 1;
+}
+
 sub editevent {
     my ( $req, $err, $flags ) = @_;
     my $res     = {};
@@ -2208,6 +2260,18 @@ sub editevent {
         LJ::Tags::is_valid_tagstring( $req->{props}->{taglist}, $request_tags );
         $request_tags = join( ",", sort @{ $request_tags || [] } );
         $do_tags      = ( $request_tags ne $entry_tags );
+    }
+
+    if (
+        $flags->{check_crosspost_visibility}
+        && _is_crosspost_visibility_only(
+            $req, $oldevent, $curprops{$itemid}, $event,
+            $security, $eventtime, $do_tags, LJ::Entry->new( $uowner, jitemid => $itemid )
+        )
+        )
+    {
+        $flags->{unchanged_crossposts} =
+            DW::External::Account->xpost_string_to_hash( $curprops{$itemid}->{xpost} );
     }
 
     # handle tags if they're defined

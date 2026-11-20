@@ -27,7 +27,6 @@ die $@ unless ref $app eq 'CODE';
 
 local $LJ::IS_DEV_SERVER              = 1;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'editCrosspostLinks';
-local $LJ::BETA_FEATURES{updatepage}  = {};
 
 with_fake_memcache {
     my $owner           = temp_user();
@@ -157,5 +156,124 @@ with_fake_memcache {
     $owner->do( 'DELETE FROM externalaccount WHERE userid=? AND acctid=?',
         undef, $owner->id, $account_id );
 };
+
+{
+    my $owner   = temp_user();
+    my $name    = $owner->user;
+    my $account = DW::External::Account->create(
+        $owner,
+        {
+            servicetype => 'lj',
+            servicename => 'Example',
+            username    => 'test-crosspost',
+            password    => 'fixture-password',
+            recordlink  => 1,
+            options     => {},
+        }
+    );
+    my $account_id = $account->acctid;
+    my $target     = 'https://crosspost.example.invalid/129.html';
+    my $mapping    = { $account_id => 129 };
+    my $details    = { $account_id => { itemid => 129, url => $target } };
+
+    my @jobs;
+    my $dispatch = \&DW::TaskQueue::dispatch;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $queue, @tasks ) = @_;
+        push @jobs, map { $_->args->[0] } grep { $_->isa('DW::Task::XPost') } @tasks;
+        return $dispatch->( $queue, grep { !$_->isa('DW::Task::XPost') } @tasks );
+    };
+
+    test_psgi $app, sub {
+        my $client = shift;
+        for my $editor (qw(advanced simple)) {
+            my $body  = "An older entry in the $editor editor.\nSecond line.";
+            my $entry = $owner->t_post_fake_entry( body => $body );
+            my $id    = $entry->ditemid;
+            DW::External::Account->record_xpost( $entry, $mapping );
+            DW::External::Account->record_xpost_detail( $entry, $details );
+            $account = DW::External::Account->get_external_account( $owner, $account_id );
+            $account->set_recordlink(0);
+
+            my $url = "http://localhost/entry/$name/$id/edit?as=$name";
+            $url .= '&mode=simple' if $editor eq 'simple';
+            my $form = $client->( GET $url )->content;
+            like(
+                $form,
+                qr/<input(?=[^>]*\bname=["']crosspost["'])(?=[^>]*\bchecked\b)/,
+                "$editor preselects the active destination"
+            );
+            my ($token) = $form =~ /name=["']lj_form_auth["'][^>]*value=["']([^"']+)/;
+            ok( $token, "$editor issues a form token" );
+
+            my $save = sub {
+                my ( $hide, %changes ) = @_;
+                @jobs = ();
+                my $response = $client->(
+                    POST $url,
+                    Content => [
+                        lj_form_auth         => $token,
+                        hide_crosspost_links => $hide,
+                        'action:post'        => 1,
+                        crosspost_entry      => 1,
+                        crosspost            => $account_id,
+                        editor               => 'html_casual1',
+                        subject              => delete $changes{subject}  // 'test suite post.',
+                        event                => delete $changes{event}    // $body,
+                        security             => delete $changes{security} // 'public',
+                        %changes,
+                    ]
+                );
+                like(
+                    $response->content,
+                    qr/edit was successful/i,
+                    "$editor save succeeds"
+                );
+                LJ::Entry->reset_singletons;
+                return LJ::Entry->new( $owner, ditemid => $id );
+            };
+
+            for my $hide ( 1, 0 ) {
+                my $fresh = $save->($hide);
+                is( scalar @jobs, 0, "$editor does not queue a crosspost on visibility-only save" );
+                is_deeply( DW::External::Account->xpost_string_to_hash( $fresh->prop('xpost') ),
+                    $mapping, "$editor retains the external ID" );
+                is_deeply(
+                    DW::External::Account->xpost_string_to_hash( $fresh->prop('xpostdetail') ),
+                    $details, "$editor retains the saved URL with Record link off" );
+                my %currents = LJ::currents( $fresh->props, $owner );
+                if ($hide) {
+                    is( $currents{Xpost} // '', '', "$editor hides the link" );
+                }
+                else {
+                    like( $currents{Xpost}, qr/\Q$target\E/, "$editor restores the link" );
+                }
+            }
+
+            my %changes;
+            my $hide = 0;
+            for my $change (
+                [ event    => 'New text.' ],
+                [ subject  => 'New subject' ],
+                [ taglist  => 'new tag' ],
+                [ security => 'private' ],
+                )
+            {
+                my ( $field, $value ) = @$change;
+                $changes{$field} = $value;
+                $save->( $hide = 1 - $hide, %changes );
+                is_deeply(
+                    [ map { [ @$_{qw(accountid ditemid delete)} ] } @jobs ],
+                    [ [ $account_id, $id, 0 ] ],
+                    "$editor queues an external edit for changed $field"
+                );
+            }
+            LJ::delete_entry( $owner, $entry->jitemid, 0, $entry->anum );
+        }
+    };
+    $owner->do( 'DELETE FROM externalaccount WHERE userid=? AND acctid=?',
+        undef, $owner->id, $account_id );
+}
 
 done_testing;

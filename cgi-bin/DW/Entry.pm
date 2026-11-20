@@ -37,36 +37,10 @@ sub _backend_to_form {
 
     my $event = $entry->event_raw;
 
-    # Look up formatting for newer entries...
-    my $editor = $entry->prop('editor');
-    unless ($is_api) {
-
-        # ...or, figure out formatting when editing old entries.
-        # TODO: This duplicates some logic from LJ::CleanHTML for guessing an editor
-        # value for old posts. Would be nice to centralize it in the Entry class,
-        # except that if we're detecting old-style !markdown, we DO want to also
-        # mutate the body text, which makes it hairy.
-        unless ($editor) {
-            if ( LJ::CleanHTML::legacy_markdown( \$event ) ) {    # mutates $event
-                $editor = 'markdown0';
-            }
-            elsif ( $entry->prop('used_rte') ) {
-                $editor = 'rte0';
-            }
-            elsif ( $entry->prop('opt_preformatted') ) {
-                $editor = 'html_raw0';
-            }
-            elsif ( $entry->prop('import_source') ) {
-                $editor = 'html_casual0';
-            }
-            elsif ( $entry->logtime_mysql lt '2019-05' ) {
-                $editor = 'html_casual0';
-            }
-            else {
-                $editor = 'html_casual1';    # For accurate state when editing posts.
-            }
-        }
-    }
+    my $editor =
+          $is_api
+        ? $entry->prop('editor')
+        : LJ::CleanHTML::entry_edit_format( \$event, $entry->props, $entry->logtime_mysql );
     my %formprops = map { $_ => $entry->prop( $form_to_props{$_} ) } keys %form_to_props;
 
     # some properties aren't in the hash above, so go through them manually
@@ -364,7 +338,7 @@ sub _save_new_entry {
 }
 
 sub _save_editted_entry {
-    my ( $ditemid, $form_req, $auth ) = @_;
+    my ( $ditemid, $form_req, $auth, $flags ) = @_;
 
     my $req = {
         ver        => $LJ::PROTOCOL_VER,
@@ -376,15 +350,10 @@ sub _save_editted_entry {
     };
 
     my $err = 0;
-    my $res = LJ::Protocol::do_request(
-        "editevent",
-        $req,
-        \$err,
-        {
-            noauth => 1,
-            u      => $auth->{poster},
-        }
-    );
+    $flags ||= {};
+    $flags->{noauth} = 1;
+    $flags->{u}      = $auth->{poster};
+    my $res = LJ::Protocol::do_request( "editevent", $req, \$err, $flags );
 
     return { errors => LJ::Protocol::error_message($err) } unless $res;
     return $res;

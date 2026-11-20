@@ -2280,6 +2280,17 @@ sub legacy_markdown {
     return $$ref =~ s/^\s*!markdown\s*\r?\n//is;
 }
 
+# Detecting legacy Markdown strips the leading !markdown line from $$event.
+sub entry_edit_format {
+    my ( $event, $props, $logtime ) = @_;
+    return $props->{editor} if $props->{editor};
+    return 'markdown0'      if legacy_markdown($event);
+    return 'rte0'           if $props->{used_rte};
+    return 'html_raw0'      if $props->{opt_preformatted};
+    return 'html_casual0'   if $props->{import_source} || $logtime lt '2019-05';
+    return 'html_casual1';
+}
+
 # An HTML::TokeParser that numbers the tokens it returns (1, 2, 3 ... in source
 # order, however they were read: get_token, or get_text/get_tag reading ahead and
 # handing one back), for casual_to_explicit.
