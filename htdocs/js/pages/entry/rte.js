@@ -242,7 +242,13 @@ var raw = document.querySelector('#editor').value == 'html_raw0';
 window.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('#editor').value == 'rte0') {
         if (postFormInitData.edit) {
-            originalRichTextBody = document.getElementById('entry-body').value;
+            const body = document.getElementById('entry-body');
+            originalRichTextBody = body.value;
+            body.form.addEventListener('formdata', event => {
+                if (!FCKeditor_LOADED && originalRichTextBody !== undefined) {
+                    event.formData.set(body.name, originalRichTextBody);
+                }
+            });
         }
         useRichText('entry-body', '/stc/', raw);
         use_rte = true;

@@ -16,7 +16,7 @@
 const { readFileSync } = require("node:fs");
 const { launch } = require("./browser");
 
-async function submit(filename, url, visibility, edit) {
+async function submit(filename, url, visibility, edit, delayEditor) {
     const origin = new URL(url).origin;
     const html = readFileSync(filename, "utf8")
         .replace(/(?:https?:)?\/\/www\.test\.dw(?=\/)/g, origin);
@@ -24,9 +24,11 @@ async function submit(filename, url, visibility, edit) {
     try {
         const page = await browser.newPage();
         const isLocal = request => new URL(request.url()).origin === origin;
+        const isEditorFrame = request => request.isNavigationRequest()
+            && new URL(request.url()).pathname.endsWith("/fck/editor/fckeditor.html");
         page.on("pageerror", error => console.error(error.message));
         page.on("requestfailed", request => {
-            if (request.method() === "GET" && isLocal(request)) {
+            if (request.method() === "GET" && isLocal(request) && !(delayEditor && isEditorFrame(request))) {
                 console.error(request.failure().errorText, request.url());
             }
         });
@@ -38,10 +40,23 @@ async function submit(filename, url, visibility, edit) {
                 }
                 return request.abort();
             }
+            if (delayEditor && isEditorFrame(request)) {
+                return;
+            }
             return request.method() === "GET" && isLocal(request) ? request.continue() : request.abort();
         });
-        await page.goto(url, { waitUntil: "domcontentloaded" });
-        await page.waitForFunction(() => window.FCKeditor_LOADED);
+        const editorRequest = delayEditor && page.waitForRequest(isEditorFrame);
+        const navigation = page.goto(url, { waitUntil: "domcontentloaded" });
+        if (delayEditor) {
+            await Promise.race([editorRequest, navigation]);
+            await editorRequest;
+            if (await page.evaluate(() => window.FCKeditor_LOADED)) {
+                throw new Error("Rich-text editor loaded before the early save");
+            }
+        } else {
+            await navigation;
+            await page.waitForFunction(() => window.FCKeditor_LOADED);
+        }
         if (edit) {
             await page.evaluate(() => FCKeditorAPI.GetInstance("entry-body").Focus());
             await page.keyboard.type(edit);

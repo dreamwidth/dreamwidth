@@ -672,10 +672,7 @@ sub _edit {
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
-    $vars->{editors} = DW::Formats::select_items(
-        current   => $vars->{formdata}->{editor},
-        preferred => $remote->prop('entry_editor2'),
-    );
+    $vars->{editors} = DW::Formats::select_items( current => $vars->{formdata}->{editor} );
 
     # The template helper uses "formdata" to set the default values for fields,
     # so we'll update it in place with what DW::Formats thinks we should use.

@@ -1848,10 +1848,7 @@ sub postevent {
 }
 
 sub _is_crosspost_visibility_only {
-    my (
-        $req,       $old,          $old_props, $new_event, $security,
-        $eventtime, $tags_changed, $entry,     $editing_user
-    ) = @_;
+    my ( $req, $old, $old_props, $new_event, $security, $eventtime, $tags_changed, $entry ) = @_;
     my $props = $req->{props};
     return 0
         unless $old_props->{xpost}
@@ -1869,10 +1866,7 @@ sub _is_crosspost_visibility_only {
     if ( defined $props->{editor} ) {
         my $old_editor =
             LJ::CleanHTML::entry_edit_format( \$old_event, $old_props, $old->{logtime} );
-        my $selection = DW::Formats::select_items(
-            current   => $old_editor,
-            preferred => $editing_user->prop('entry_editor2'),
-        );
+        my $selection = DW::Formats::select_items( current => $old_editor );
         return 0 if $props->{editor} ne $selection->{selected};
     }
     else {
@@ -2284,7 +2278,7 @@ sub editevent {
         $flags->{check_crosspost_visibility}
         && _is_crosspost_visibility_only(
             $req, $oldevent, $curprops{$itemid}, $event,
-            $security, $eventtime, $do_tags, LJ::Entry->new( $uowner, jitemid => $itemid ), $u
+            $security, $eventtime, $do_tags, LJ::Entry->new( $uowner, jitemid => $itemid )
         )
         )
     {
