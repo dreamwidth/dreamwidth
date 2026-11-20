@@ -16,6 +16,7 @@ package DW::Logic::MenuNav;
 
 use strict;
 use LJ::Lang;
+use LJ::Sysban;
 use DW::Search;
 
 # name: get_menu_navigation
@@ -60,9 +61,10 @@ sub get_menu_navigation {
     my $loggedin_ispaid = ( $loggedin && $u->is_paid ) ? 1 : 0;
     my $loggedin_popsubscriptions = ( $loggedin && $u->can_use_popsubscriptions );
     my $loggedin_person           = ( $loggedin && $u->is_person ) ? 1 : 0;
-    my $loggedout = $loggedin ? 0 : 1;
-    my $always    = 1;
-    my $never     = 0;
+    my $loggedout          = $loggedin ? 0 : 1;
+    my $can_create_account = $loggedout && !LJ::Sysban::account_creation_blocked();
+    my $always             = 1;
+    my $never              = 0;
 
     my @nav = (
         {
@@ -71,7 +73,7 @@ sub get_menu_navigation {
                 {
                     url     => "$LJ::SITEROOT/create",
                     text    => "menunav.create.createaccount",
-                    display => $loggedout,
+                    display => $can_create_account,
                 },
                 {
                     url     => "$LJ::SITEROOT/manage/settings/?cat=display",

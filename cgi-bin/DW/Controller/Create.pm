@@ -28,6 +28,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use LJ::Sysban;
 use LJ::Widget::Location;
 
 =head1 NAME
@@ -51,10 +52,25 @@ DW::Routing->register_string( $urls{next},    \&next_handler,    app => 1 );
 sub create_handler {
     my ($opts) = @_;
 
+    my $r = DW::Request->get;
+    if ( LJ::Sysban::account_creation_blocked() ) {
+        $r->no_cache;
+        $r->status( $r->FORBIDDEN );
+        return DW::Template->render_template(
+            'error.tt',
+            {
+                message => 'Because your internet connection has been a source of abusive/spam '
+                    . 'traffic in the past, you cannot use it to create a Dreamwidth account. '
+                    . 'You will need to use a different internet connection to create an account. '
+                    . 'If you are not using a VPN or proxy service and you believe this is a mistake, '
+                    . 'please email support@dreamwidth.org with your IP address and we will investigate further.',
+            }
+        );
+    }
+
     my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
     return $rv unless $ok;
 
-    my $r   = $rv->{r};
     my $get = $r->get_args;
     my $post;
 

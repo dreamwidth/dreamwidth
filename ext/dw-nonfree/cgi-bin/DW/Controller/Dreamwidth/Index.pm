@@ -25,8 +25,9 @@ use DW::Template;
 use DW::Controller;
 use DW::Panel;
 use DW::InviteCodes;
+use LJ::Sysban;
 
-DW::Routing->register_string( "/index", \&index_handler, app => 1 );
+DW::Routing->register_string( "/index", \&index_handler, app => 1, no_cache => 1 );
 
 sub index_handler {
     my ( $ok, $rv ) = controller( anonymous => 1 );
@@ -79,11 +80,12 @@ sub index_handler {
         push @{ $columns[1]->{items} }, [ 'https://dw-codesharing.dreamwidth.org/', 'codeshare' ]
             if $LJ::USE_ACCT_CODES;
 
-        $vars->{invite_length}  = DW::InviteCodes::CODE_LEN;
-        $vars->{string}         = $string;
-        $vars->{columns}        = \@columns;
-        $vars->{use_acct_codes} = $LJ::USE_ACCT_CODES;
-        $vars->{use_payments}   = LJ::is_enabled('payments');
+        $vars->{invite_length}            = DW::InviteCodes::CODE_LEN;
+        $vars->{string}                   = $string;
+        $vars->{columns}                  = \@columns;
+        $vars->{use_acct_codes}           = $LJ::USE_ACCT_CODES;
+        $vars->{use_payments}             = LJ::is_enabled('payments');
+        $vars->{account_creation_blocked} = LJ::Sysban::account_creation_blocked();
     }
 
     return DW::Template->render_template( 'index.tt', $vars );
