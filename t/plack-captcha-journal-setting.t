@@ -64,7 +64,8 @@ with_fake_memcache {
 
     test_psgi $app, sub {
         my $cb = shift;
-        for $legacy ( 0, 1 ) {
+        for my $mode ( 0, 1 ) {
+            $legacy = $mode;
             subtest $legacy ? 'legacy form' : 'Foundation form' => sub {
                 for my $who ( 'nobody_exists', $stranger->user, $owner->user ) {
 

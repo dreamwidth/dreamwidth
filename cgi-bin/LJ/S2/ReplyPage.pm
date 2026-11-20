@@ -280,19 +280,23 @@ sub ReplyForm__print {
     $post_vars = $form->{_values}
         unless keys %$post_vars;    # _values only gets populated when editing comment. -NF
 
+    my $do_captcha =
+        LJ::Talk::Post::require_captcha_test( $remote, $u, $post_vars->{body}, $form->{'_entry'} );
+    my $captcha_journal_setting = $do_captcha
+        && LJ::Talk::Post::journal_captcha_policy( $remote, $u ) eq 'required';
+
     $S2::pout->(
         LJ::Talk::talkform(
             {
-                'journalu'   => $u,
-                'parpost'    => $parpost,
-                'replyto'    => $parent,
-                'ditemid'    => $form->{'_ditemid'},
-                'styleopts'  => $form->{_styleopts},
-                'thread'     => $form->{_thread},
-                'form'       => $post_vars,
-                'do_captcha' => LJ::Talk::Post::require_captcha_test(
-                    $remote, $u, $post_vars->{body}, $form->{'_entry'}
-                )
+                'journalu'                => $u,
+                'parpost'                 => $parpost,
+                'replyto'                 => $parent,
+                'ditemid'                 => $form->{'_ditemid'},
+                'styleopts'               => $form->{_styleopts},
+                'thread'                  => $form->{_thread},
+                'form'                    => $post_vars,
+                'do_captcha'              => $do_captcha,
+                'captcha_journal_setting' => $captcha_journal_setting,
             }
         )
     );

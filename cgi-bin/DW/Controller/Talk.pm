@@ -346,15 +346,12 @@ sub talkpost_do_handler {
             \$need_captcha, \@errors );
     }
 
-    # An answered challenge keeps a generic reason on preview/error redisplay.
+    # Explain any visible challenge when the journal setting independently
+    # requires one, whatever reason (or the generic redisplay '1') came first.
     # Use the authenticated commenter, not posted form fields or the session
-    # viewer, to explain a journal setting that independently still applies.
+    # viewer.
     my $captcha_journal_setting = $need_captcha
-        && (
-        $need_captcha eq 'journal_setting'
-        || ( $need_captcha eq '1'
-            && LJ::Talk::Post::journal_captcha_policy( $commenter, $journalu ) eq 'required' )
-        );
+        && LJ::Talk::Post::journal_captcha_policy( $commenter, $journalu ) eq 'required';
 
     # If there's anything in @errors at the end of prepare_and_validate_comment,
     # it returns undef instead of a $comment, even if it wasn't the one to
