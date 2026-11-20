@@ -31,7 +31,7 @@ body<=
     $title = $u->is_community ? $ML{'.title.comm'} : $ML{'.title'};
 
     # extra arguments for get requests
-    my $getextra = $authas ne $remote->user ? "?authas=$authas" : "";
+    my $getextra = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
     # if using s1, switch them to s2
     unless ($u->prop('stylesys') == 2) {
@@ -96,7 +96,7 @@ body<=
     $ret .= "</div><!-- end .layout-selector-wrapper' -->";
 
     $ret .= "<h2 class='widget-header'><?_ml .advanced _ml?></h2>";
-    $ret .= "<a href='advanced/'><?_ml .advanced _ml?></a>";
+    $ret .= "<a href='$LJ::SITEROOT/customize/advanced/$getextra'><?_ml .advanced _ml?></a>";
 
     return $ret;
 }

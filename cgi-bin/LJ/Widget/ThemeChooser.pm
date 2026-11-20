@@ -46,9 +46,8 @@ sub render_body {
     $opts{page}     //= 1;
     $opts{show}     //= 12;
 
-    if ( $u->user ne $remote->user ) {
-        $opts{authas} = $u->user;
-    }
+    my $authas = $u->user ne $remote->user ? $u->user : undef;
+    $opts{authas} = $authas if defined $authas;
 
     my $cat_title;
     my @themes;
@@ -135,7 +134,7 @@ sub render_body {
             && !$current->themeid ) ? 1 : 0;
         my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
 
-        push @theme_data, get_theme_data( $theme, $current_theme, $no_layer_edit );
+        push @theme_data, get_theme_data( $theme, $current_theme, $no_layer_edit, $authas );
 
     }
 
@@ -150,7 +149,7 @@ sub render_body {
 }
 
 sub get_theme_data {
-    my ( $theme, $current, $no_layer_edit ) = @_;
+    my ( $theme, $current, $no_layer_edit, $authas ) = @_;
     my $tmp = {
         imgurl   => $theme->preview_imgurl,
         layoutid => $theme->layoutid,
@@ -177,14 +176,10 @@ sub get_theme_data {
         $tmp->{can_edit_theme}  = $theme->themeid  && !$theme->{uniq}        ? 1 : 0;
     }
 
-    if ( $theme->themeid ) {
-        $tmp->{preview_url} = LJ::create_url( "/customize/preview_redirect",
-            args => { 'themeid' => $theme->themeid } );
-    }
-    else {
-        $tmp->{preview_url} = LJ::create_url( "/customize/preview_redirect",
-            args => { 'layoutid' => $theme->layoutid } );
-    }
+    my %preview_args =
+        $theme->themeid ? ( themeid => $theme->themeid ) : ( layoutid => $theme->layoutid );
+    $tmp->{preview_url} = LJ::create_url( '/customize/preview_redirect',
+        args => { %preview_args, authas => $authas } );
     return $tmp;
 }
 

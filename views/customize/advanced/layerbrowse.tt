@@ -77,7 +77,8 @@
     [% IF pub.$id.size %]
         [% dw.ml('Backlink', { 'link' => "$site.root/customize/advanced/layerbrowse", 'text' => dw.ml('.nav.publiclayers') }) %]
     [% ELSE %]
-        [% dw.ml('Backlink', { 'link' => "$site.root/customize/advanced/layers", 'text' => dw.ml('.nav.yourlayers') }) %]
+        [% authas = layer_list_authas | html %]
+        [% dw.ml('Backlink', { 'link' => "$site.root/customize/advanced/layers$authas", 'text' => dw.ml('.nav.yourlayers') }) %]
         [% dw.ml('Actionlink', { 'link' => "<a href='$site.root/customize/advanced/layeredit?id=$id'>" _ dw.ml('.nav.editlayer') _ "</a>" }) %]
     [% END %]
 

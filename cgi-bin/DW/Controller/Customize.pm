@@ -148,7 +148,7 @@ sub viewuser_handler {
     return DW::Template->render_template( 'customize/viewuser.tt', $vars );
 }
 
-# Resolve a theme/layout to a preview style for the viewer's own journal and
+# Resolve a theme/layout to a preview style for the journal being customized and
 # redirect there with ?s2id=. Linked from the theme chooser and the admin
 # themes list; carries no view of its own.
 sub preview_redirect_handler {

@@ -113,6 +113,7 @@ sub render_body {
         themechooser_html => $themechooser_html,
         keywords_string   => $keywords_string,
         upsell            => $upsell,
+        getextra          => $getextra,
         cats_sorted       => \@cats_sorted,
         main_cat_list     => $main_cat_list,
         cat_list          => $cat_list
