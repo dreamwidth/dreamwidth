@@ -22,8 +22,10 @@ use DW::EmailPost;
 use LJ::Support;
 use LJ::Sysban;
 
-schwartz_decl('LJ::Worker::IncomingEmail');
-schwartz_work();
+unless (caller) {
+    schwartz_decl('LJ::Worker::IncomingEmail');
+    schwartz_work();
+}
 
 package TempDirObj;
 use File::Path ();
@@ -242,13 +244,12 @@ sub work {
             {
                 'type' => 'comment',
                 'body' => $body,
+                'requester_reply' => 'email',
             }
           )
           or return dequeue("Error appending request?");
 
         LJ::Support::add_email_address( $sp, $from );
-
-        LJ::Support::touch_request($spid);
 
         return completed();
     }
@@ -380,3 +381,5 @@ sub subject_is_bogus {
         || $subject =~ /^your account ([\w\-]{1,25})$/i
         || $subject =~ /Message Undeliverable/i;
 }
+
+1;

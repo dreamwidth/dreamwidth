@@ -46,6 +46,7 @@
   [% form.select( name = "spcatid_${cat.spcatid}", selected = notify.${cat.spcatid},
                   items = [ "off", dw.ml('.option.off'),
                             "new", dw.ml('.option.new'),
+                            "new_and_regreen", dw.ml('.option.newandregreens'),
                             "all", dw.ml('.option.all'),
                           ] ) %]
   [% cat.catname %]

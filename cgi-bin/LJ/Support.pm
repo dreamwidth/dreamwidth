@@ -808,7 +808,7 @@ sub append_request {
         $sql =
 "INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) VALUES (NULL, $spid, UNIX_TIMESTAMP(), $qtype, $qfaqid, $quserid, $qmessage)";
     }
-    $dbh->do($sql);
+    $dbh->do($sql) or return undef;
     my $splid = $dbh->{'mysql_insertid'};
 
     # mark this as an interesting update
@@ -836,7 +836,12 @@ sub append_request {
         }
     }
 
-    support_notify( { spid => $spid, splid => $splid, type => 'update' } );
+    my $notification = { spid => $spid, splid => $splid, type => 'update' };
+    $notification->{regreen} = 1
+        if $re->{type} eq 'comment'
+        && $re->{requester_reply}
+        && _touch_after_requester_reply( $dbh, $spid, $re->{requester_reply} eq 'email' );
+    support_notify($notification);
 
     _index_supportlog($splid);
 
@@ -956,6 +961,33 @@ sub touch_request {
     set_points( $spid, undef, 0 );
 
     return 1;
+}
+
+sub _touch_after_requester_reply {
+    my ( $dbh, $spid, $is_email ) = @_;
+    return 0 if $is_email && is_locked($spid);
+
+    while (1) {
+        my ( $state, $touched, $last_help, $now ) = $dbh->selectrow_array(
+            'SELECT state, timetouched, timelasthelp, UNIX_TIMESTAMP() FROM support WHERE spid=?',
+            undef, $spid );
+        return 0 unless defined $now;
+
+        my $was_open = ( $state // '' ) eq 'open';
+        my $regreen =
+            ( !$was_open || open_request_status( $touched, $last_help ) eq 'awaiting close' )
+            && open_request_status( $now, $last_help ) ne 'awaiting close';
+        my $updated = $dbh->do(
+"UPDATE support SET state='open', timeclosed=0, timetouched=?, timemodified=UNIX_TIMESTAMP()"
+                . ' WHERE spid=? AND state <=> ? AND timetouched <=> ? AND timelasthelp <=> ?',
+            undef, $now, $spid, $state, $touched, $last_help
+        );
+        return 0 unless defined $updated;
+        next unless $updated > 0 || ( $was_open && $touched == $now );
+
+        set_points( $spid, undef, 0 ) if $is_email;
+        return $regreen;
+    }
 }
 
 # Extra email addresses are stored as support properties
@@ -1123,6 +1155,20 @@ sub support_notify {
     return $h ? 1 : 0;
 }
 
+sub load_notification_subscribers {
+    my ( $dbh, $spcatid, $event ) = @_;
+
+    my @levels = ('all');
+    push @levels, 'new'             if $event->{type} eq 'new';
+    push @levels, 'new_and_regreen' if $event->{type} eq 'new' || $event->{regreen};
+
+    my $placeholders = join ', ', ('?') x @levels;
+    my $userids      = $dbh->selectcol_arrayref(
+        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($placeholders)",
+        undef, $spcatid, @levels );
+    return LJ::load_userids(@$userids);
+}
+
 package LJ::Worker::SupportNotify;
 use base 'TheSchwartz::Worker';
 
@@ -1141,12 +1187,7 @@ sub work {
     # causing the message not to load from the reader
     my $dbr = LJ::get_db_writer();
 
-    # now branch a bit to select the right user information
-    my $level = $type eq 'new' ? "'new', 'all'" : "'all'";
-    my $data  = $dbr->selectcol_arrayref(
-        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($level)",
-        undef, $sp->{_cat}{spcatid} );
-    my $userids = LJ::load_userids(@$data);
+    my $userids = LJ::Support::load_notification_subscribers( $dbr, $sp->{_cat}{spcatid}, $a );
 
     # prepare the email
     my $body;

@@ -43,12 +43,7 @@ sub work {
     # causing the message not to load from the reader
     my $dbr = LJ::get_db_writer();
 
-    # now branch a bit to select the right user information
-    my $level = $type eq 'new' ? "'new', 'all'" : "'all'";
-    my $data  = $dbr->selectcol_arrayref(
-        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($level)",
-        undef, $sp->{_cat}{spcatid} );
-    my $userids = LJ::load_userids(@$data);
+    my $userids = LJ::Support::load_notification_subscribers( $dbr, $sp->{_cat}{spcatid}, $a );
 
     # prepare the email
     my $body;
