@@ -189,11 +189,13 @@ with_fake_memcache {
     test_psgi $app, sub {
         my $client  = shift;
         my @editors = ( 'advanced', 'simple', 'advanced with legacy format' );
-        push @editors, 'advanced rich text', 'advanced rich text while loading' if $ENV{DW_TEST_RTE};
+        push @editors, 'advanced rich text', 'advanced rich text while loading',
+            'advanced rich text fallback' if $ENV{DW_TEST_RTE};
         for my $editor (@editors) {
             my $legacy_format = $editor eq 'advanced with legacy format';
             my $delay_editor  = $editor eq 'advanced rich text while loading';
-            my $rich_text     = $editor eq 'advanced rich text' || $delay_editor;
+            my $fallback      = $editor eq 'advanced rich text fallback';
+            my $rich_text     = $editor eq 'advanced rich text' || $delay_editor || $fallback;
 
             $owner->set_prop( 'entry_editor2', $legacy_format ? 'html_raw0' : 'html_casual1' );
             my $body =
@@ -246,7 +248,7 @@ with_fake_memcache {
                     close $html or die $!;
                     open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
                         $filename, $url, $hide, $changes{event} // '',
-                        ( $delay_editor ? 'delay' : '' )
+                        ( $delay_editor ? 'delay' : $fallback ? 'fallback' : '' )
                         or die $!;
                     my $payload = do { local $/; <$browser> };
                     close $browser or die 'Could not submit the rich-text editor form in Chrome';
@@ -318,7 +320,7 @@ with_fake_memcache {
                 my ( $field, $value ) = @$change;
                 $changes{$field} = $value;
                 my $fresh = $save->( $hide = 1 - $hide, %changes );
-                like( $fresh->event_raw, qr/\Q$value\E/, 'rich-text edit saves the new text' )
+                like( $fresh->event_raw, qr/\Q$value\E/, "$editor saves the new text" )
                     if $rich_text;
                 is( $fresh->prop('editor'), $value, 'deliberate format change is saved' )
                     if $field eq 'editor';
