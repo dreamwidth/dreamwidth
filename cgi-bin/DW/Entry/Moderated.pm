@@ -102,13 +102,11 @@ sub event {
         }
     );
 
-    my $poll_preview = sub {
-        my $poll = shift @polls;
-        return '' unless $poll;
-        return $poll->preview;
-    };
-
-    $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
+    foreach my $poll (@polls) {
+        my $preview = $poll->preview;
+        my $ph      = $poll->placeholder;
+        $event =~ s/\Q$ph\E/$preview/;
+    }
     LJ::CleanHTML::clean_event(
         \$event,
         {

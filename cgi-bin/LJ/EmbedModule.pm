@@ -119,10 +119,10 @@ sub transform_rte_post {
     return $txt unless $txt && $txt =~ /ljembed/i;
 
     # FIXME: shouldn't use regexes to parse this
-    $txt =~
-s/<div\s*class="ljembed"\s*(embedid="(\d+)")?\s*>(((?!<\/div>).)*)<\/div>/<site-embed id="$2">$3<\/site-embed>/ig;
-    $txt =~
-s/<div\s*(embedid="(\d+)")?\s*class="ljembed"\s*>(((?!<\/div>).)*)<\/div>/<site-embed id="$2">$3<\/site-embed>/ig;
+    $txt =~ s{<div\s*class=(["'])ljembed\1\s*(?:embedid=(["'])(\d+)\2)?\s*>(((?!</div>).)*)</div>}
+             {'<site-embed id="' . ( $3 // '' ) . '">' . $4 . '</site-embed>'}ige;
+    $txt =~ s{<div\s*(?:embedid=(["'])(\d+)\1\s*)?class=(["'])ljembed\3\s*>(((?!</div>).)*)</div>}
+             {'<site-embed id="' . ( $2 // '' ) . '">' . $4 . '</site-embed>'}ige;
     return $txt;
 }
 

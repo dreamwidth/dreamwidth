@@ -182,6 +182,11 @@ sub contains_new_poll {
     return ( $$postref =~ /<(?:lj-)?poll\b/i );
 }
 
+sub placeholder {
+    my ($self) = @_;
+    return $self->{_placeholder} || '<poll-placeholder>';
+}
+
 # parses poll tags and returns whatever polls were parsed out
 sub new_from_html {
     my ( $class, $postref, $error, $iteminfo ) = @_;
@@ -203,6 +208,15 @@ sub new_from_html {
     my %iopts;
 
     my @polls;    # completed parsed polls
+
+    my $placeholder = '<poll-placeholder>';
+    if ( index( $$postref, $placeholder ) >= 0 ) {
+        my $n = 0;
+        while ( index( $$postref, $placeholder ) >= 0 ) {
+            $placeholder = "<poll-placeholder-$n>";
+            $n++;
+        }
+    }
 
     my $p = HTML::TokeParser->new($postref);
 
@@ -422,9 +436,10 @@ sub new_from_html {
                 # create a fake temporary poll object
                 my $pollobj = LJ::Poll->new;
                 $pollobj->absorb_row( \%popts );
+                $pollobj->{_placeholder} = $placeholder;
                 push @polls, $pollobj;
 
-                $append .= "<poll-placeholder>";
+                $append .= $placeholder;
             }
 
             ##### end QUESTION
