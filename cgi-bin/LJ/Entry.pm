@@ -517,8 +517,9 @@ sub _load_text {
     my $lt  = $ret->{ $self->{jitemid} };
     return 0 unless $lt;
 
-    $self->{subject} = $lt->[0];
-    $self->{event}   = $lt->[1];
+    $self->{subject}          = $lt->[0];
+    $self->{event}            = $lt->[1];
+    $self->{syn_full_subject} = $lt->[2];
 
     if ( $self->prop("unknown8bit") ) {
 
@@ -900,6 +901,12 @@ sub subject_text {
     my $subject = $self->{subject};
     LJ::CleanHTML::clean_subject_all( \$subject ) if $subject;
     return $subject;
+}
+
+sub syn_full_subject {
+    my $self = $_[0];
+    $self->_load_text unless $self->{_loaded_text};
+    return $self->{syn_full_subject};
 }
 
 # instance method.  returns HTML-cleaned/formatted version of the event
@@ -1444,7 +1451,7 @@ use DW::External::Account;
 # info: Fetches posts from clusters, trying memcache and slaves first if available.
 # returns: hashref with keys 'text', 'prop', or 'replycount', and values being
 #          hashrefs with keys "jid:jitemid".  values of that are as follows:
-#          text: [ $subject, $body ], props: { ... }, and replycount: scalar
+#          text: [ $subject, $body, $syn_full_subject ], props: { ... }, and replycount: scalar
 # args: opts?, id
 # des-opts: An optional hashref of options:
 #            - memcache_only:  Don't fall back on the database.
@@ -1563,12 +1570,15 @@ sub get_posts_raw {
             return unless %$cneedtext;
             my $in = $make_in->( keys %$cneedtext );
             $sth = $db->prepare(
-                "SELECT journalid, jitemid, subject, event " . "FROM logtext2 WHERE $in" );
+"SELECT journalid, jitemid, subject, event, syn_full_subject FROM logtext2 WHERE $in"
+            );
             $sth->execute;
-            while ( my ( $jid, $jitemid, $subject, $event ) = $sth->fetchrow_array ) {
+            while ( my ( $jid, $jitemid, $subject, $event, $syn_full_subject ) =
+                $sth->fetchrow_array )
+            {
                 LJ::text_uncompress( \$event );
                 my $id  = "$jid:$jitemid";
-                my $val = [ $subject, $event ];
+                my $val = [ $subject, $event, $syn_full_subject ];
                 $ret->{text}{$id} = $val;
                 LJ::MemCache::add( [ $jid, "logtext:$cid:$id" ], $val );
                 delete $cneedtext->{$id};
@@ -2615,7 +2625,7 @@ sub replycount_do {
 #      cases of old items the slaves have already disposed of.  See also:
 #      [func[LJ::get_talktext2]].
 # args: u, opts?, jitemid*
-# returns: hashref with keys being jitemids, values being [ $subject, $body ]
+# returns: hashref keyed by jitemid, with values [ $subject, $body, $syn_full_subject ]
 # des-opts: Optional hashref of special options.  NOW IGNORED (2005-09-14)
 # des-jitemid: List of jitemids to retrieve the subject & text for.
 # </LJFUNC>
@@ -2655,12 +2665,12 @@ sub get_logtext2 {
     die "Can't get database handle loading entry text" unless $db;
 
     my $jitemid_in = join( ", ", keys %need );
-    my $sth        = $db->prepare( "SELECT jitemid, subject, event FROM logtext2 "
+    my $sth        = $db->prepare( "SELECT jitemid, subject, event, syn_full_subject FROM logtext2 "
             . "WHERE journalid=$journalid AND jitemid IN ($jitemid_in)" );
     $sth->execute;
-    while ( my ( $id, $subject, $event ) = $sth->fetchrow_array ) {
+    while ( my ( $id, $subject, $event, $syn_full_subject ) = $sth->fetchrow_array ) {
         LJ::text_uncompress( \$event );
-        my $val = [ $subject, $event ];
+        my $val = [ $subject, $event, $syn_full_subject ];
         $lt->{$id} = $val;
         LJ::MemCache::add( [ $journalid, "logtext:$clusterid:$journalid:$id" ], $val );
         delete $need{$id};
