@@ -90,6 +90,8 @@ paths:
 
                     An empty array clears all filters. If omitted, existing
                     filters are kept.
+
+                    Requests containing `custom_bit` are rejected.
                   items:
                     type: integer
                     minimum: 1
