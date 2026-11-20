@@ -162,11 +162,16 @@ sub run_commands_html {
 
     my $out;
     foreach my $c ( LJ::Console->parse_text($text) ) {
+        $out .= "<section class='console-result'>";
         $out .= $c->as_html;
-        $out .= "<pre><span class='console_text'>";
         $c->execute_safely;
-        $out .= join( "\n", map { $_->as_html } $c->responses );
-        $out .= "</span></pre>";
+        my @responses = $c->responses;
+        if (@responses) {
+            $out .= "<ul class='no-bullet console-responses'>";
+            $out .= join( "\n", map { $_->as_html } @responses );
+            $out .= "</ul>";
+        }
+        $out .= "</section>";
     }
 
     return $out;
