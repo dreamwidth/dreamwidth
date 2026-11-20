@@ -27,8 +27,7 @@ sub IconsPage {
         && (   LJ::check_priv( $remote, "supportviewscreened" )
             || LJ::check_priv( $remote, "supporthelp" ) )
         );
-    my $default_sortorder =
-        S2::get_property_value( $opts->{'ctx'}, 'icons_sort_order' ) || 'upload';
+    my $default_sortorder = S2::get_property_value( $opts->{'ctx'}, 'icons_page_sort' ) || 'upload';
     if ( $remote && $remote->prop('iconbrowser_keywordorder') ) {
         $default_sortorder = $remote->iconbrowser_keywordorder ? 'keyword' : 'upload';
     }

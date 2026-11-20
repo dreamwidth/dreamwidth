@@ -23,6 +23,7 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::Request::Standard;
 use LJ::S2;
+use LJ::Session;
 use LJ::Test qw(temp_user with_fake_memcache);
 use LJ::Userpic;
 
@@ -36,8 +37,12 @@ my $viewer = temp_user();
 my $owner  = temp_user();
 $_->update_self( { status => 'A' } ) for ( $viewer, $owner );
 
-my @pics;
-END { $_->delete for @pics; }
+my ( @pics, @sessions );
+
+END {
+    $_->destroy for @sessions;
+    $_->delete  for @pics;
+}
 
 for my $account ( $viewer, $owner ) {
     for my $fixture ( [ 'good.png', 'zebra order' ], [ 'good.gif', 'apple order' ] ) {
@@ -62,7 +67,7 @@ sub journal_icons {
     local $owner->{_s2styleid}   = 0;
     local $owner->{_journalbase} = $owner->journal_base;
     my $ctx = [];
-    $ctx->[S2::PROPS] = { num_items_icons => 0, icons_sort_order => $style_order };
+    $ctx->[S2::PROPS] = { num_items_icons => 0, icons_page_sort => $style_order };
     my $page = LJ::S2::IconsPage( $owner, $remote, { ctx => $ctx, getargs => $get || {} } );
     DW::Request->reset;
     return join ', ', map { @{ $_->{keywords} } } @{ $page->{icons} };
@@ -78,6 +83,15 @@ sub form_token {
     LJ::set_remote(undef);
     DW::Request->reset;
     return $token;
+}
+
+sub session_cookie {
+    my ($account) = @_;
+    my $session = LJ::Session->create( $account, nolog => 1, defer_login => 1 )
+        or die 'could not create login session';
+    push @sessions, $session;
+    return join '; ', 'ljmastersession=' . $session->master_cookie_string,
+        'ljloggedin=' . $session->loggedin_cookie_string;
 }
 
 with_fake_memcache {
@@ -126,7 +140,9 @@ with_fake_memcache {
         $invalid = $sort_on->( "$view&view=all", 'invalid', $token );
         is( $invalid->code, 400, 'unknown sort order is rejected' );
         $invalid = $sort_on->( $journal, 'upload', $token );
-        is( $invalid->code,         403,      'logged-out visitors cannot save a choice' );
+        is( $invalid->code, 403, 'logged-out visitors cannot save a choice' );
+        $invalid = $sort_on->( $manage, 'upload', form_token($owner) );
+        is( $invalid->code,         403,      'Manage Icons also rejects a mismatched form token' );
         is( journal_icons($viewer), $keyword, 'rejected requests do not change the order' );
 
         $save = $sort_on->( "$view&view=all&sortorder=keyword", 'upload', $token );
@@ -141,6 +157,60 @@ with_fake_memcache {
         is( $manage_icons->("$manage&keywordSort=1"),
             $keyword, 'legacy keyword link still works over a saved upload choice' );
         is( $manage_icons->($manage), $upload, 'the legacy link does not change the saved choice' );
+
+        local $LJ::CAP{1}->{userpicselect} = 1;
+        my $cookie       = session_cookie($viewer);
+        my $other_cookie = session_cookie($viewer);
+        my $picker       = 'http://localhost/inbox/compose';
+        my $rpc          = 'http://localhost/__rpc_iconbrowser_save';
+        my $picker_form  = sub {
+            my ($expected_order) = @_;
+            my $res = $request->( GET $picker, Cookie => $cookie );
+            is( $res->code, 200, 'picker page renders for the signed-in viewer' );
+            my ($form) = $res->content =~ m{(<form\b[^>]*\bid="compose"[^>]*>.*?</form>)}s;
+            like(
+                $form // '',
+                qr/data-iconbrowser-keywordorder="$expected_order"/,
+                'Foundation picker opens with the saved preference'
+            );
+            my ($auth) = ( $form // '' ) =~ /name="lj_form_auth"\s+value="([^"]+)"/;
+            return $auth;
+        };
+        my $picker_auth = $picker_form->(0);
+        ok( $picker_auth, 'picker form contains a session token' );
+        my $forged_auth = ( $picker_auth // '' ) =~ s/([[:xdigit:]])\z/$1 eq '0' ? '1' : '0'/er;
+
+        my $picker_save = sub {
+            my ( $session, $order, $auth ) = @_;
+            return $request->(
+                POST $rpc,
+                ( defined $session ? ( Cookie => $session ) : () ),
+                Content =>
+                    [ keywordorder => $order, defined $auth ? ( lj_form_auth => $auth ) : () ]
+            );
+        };
+        is( $picker_save->( $cookie, 'true', undef )->code, 403, 'picker requires a token' );
+        is( $picker_save->( $cookie, 'true', $forged_auth )->code,
+            403, 'picker rejects a forged token for the current session' );
+        is( $picker_save->( $other_cookie, 'true', $picker_auth )->code,
+            403, 'picker rejects a token from a different session of the same user' );
+        is( $picker_save->( undef, 'true', $picker_auth )->code,
+            403, 'logged-out visitors cannot save via the picker' );
+        is( journal_icons($viewer), $upload, 'rejected picker requests leave the order unchanged' );
+
+        is( $picker_save->( $cookie, 'true', $picker_auth )->code,
+            200, 'picker saves keyword order with a valid token' );
+        is( $picker_save->( $cookie, 'invalid', $picker_auth )->code,
+            400, 'picker rejects unknown order values without resetting the saved order' );
+        is( journal_icons($viewer), $keyword, 'Icons follows the keyword choice from the picker' );
+        is( $manage_icons->($manage), $keyword, 'Manage Icons follows the keyword choice' );
+        $picker_form->(1);
+
+        is( $picker_save->( $cookie, 'false', $picker_auth )->code,
+            200, 'picker saves upload order with a valid token' );
+        is( journal_icons($viewer),   $upload, 'Icons follows the upload choice from the picker' );
+        is( $manage_icons->($manage), $upload, 'Manage Icons follows the upload choice' );
+        $picker_form->(0);
     };
 };
 

@@ -164,7 +164,9 @@
     };
 
     function _persist( option, value ) {
-        var params = {};
+        var formAuth = $.fn.iconselector.owner.closest("form").find("input[name='lj_form_auth']").val();
+        if (!formAuth) return;
+        var params = { lj_form_auth: formAuth };
         params[option] = value;
 
         // this is a best effort thing, so be silent about success/error
