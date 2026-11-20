@@ -71,13 +71,18 @@ my $dbh = LJ::get_db_writer();
 # list bans
 if ($list) {
     my $where;
+    my @values;
     if ($banid) {
         $where = "banid=" . $dbh->quote($banid);
     }
     else {
         my @where = ();
-        push @where, ( "what=" . $dbh->quote($what) )         if $what;
-        push @where, ( "value=" . $dbh->quote($value) )       if $value;
+        push @where, ( "what=" . $dbh->quote($what) ) if $what;
+        if ($value) {
+            my ( $match, @bind ) = LJ::Sysban::value_match_sql($value);
+            push @where, $match;
+            @values = @bind;
+        }
         push @where, ( "status=" . $dbh->quote($status) )     if $status;
         push @where, ( "bandate=" . $dbh->quote($bandate) )   if $bandate;
         push @where, ( "banuntil=" . $dbh->quote($banuntil) ) if $banuntil;
@@ -86,7 +91,7 @@ if ($list) {
     }
 
     my $sth = $dbh->prepare("SELECT * FROM sysban WHERE $where ORDER BY bandate ASC");
-    $sth->execute;
+    $sth->execute(@values);
     my $ct;
     while ( my $ban = $sth->fetchrow_hashref ) {
         print "> banid: $ban->{'banid'}, status: $ban->{'status'}, ";
@@ -117,6 +122,7 @@ if ($banlength) {
 if ($add) {
 
     $status = ( $status eq 'expired' ? 'expired' : 'active' );
+    $value  = LJ::Sysban::normalize_value( $what, $value );
 
     $dbh->do(
         "INSERT INTO sysban (status, what, value, note, bandate, banuntil)"
@@ -150,6 +156,9 @@ if ($modify) {
     # load selected ban
     my $ban = $dbh->selectrow_hashref( "SELECT * FROM sysban WHERE banid=?", undef, $banid );
     die $dbh->errstr if $dbh->err;
+
+    $value = LJ::Sysban::normalize_value( $what || $ban->{what}, $value || $ban->{value} )
+        if $what || $value;
 
     my @set = ();
 

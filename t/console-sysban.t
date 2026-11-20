@@ -18,12 +18,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 20;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Sysban;
 use LJ::Console;
-use LJ::Test qw (temp_user);
+use LJ::Test qw (temp_user with_fake_memcache);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
 my $u = temp_user();
@@ -121,3 +121,94 @@ ok(
 );
 
 $dbh->do( "DELETE FROM sysban WHERE banid = ?", undef, $banid_domain_bogus );
+
+my $ipv6          = '2001:db8:abcd::1';
+my $expanded_ipv6 = '2001:0DB8:ABCD:0000:0000:0000:0000:0001';
+
+subtest 'Console adds and finds an individual IPv6 ban' => sub {
+    my $result = $run->("sysban_add talk_ip_test $expanded_ipv6 7 testing");
+    like( $result, qr/^success: .*#\d+/, 'Console accepts an expanded IPv6 address' );
+    my ($banid) = $result =~ /#(\d+)/;
+    return unless $banid;
+
+    my $duplicate = $run->("sysban_add talk_ip_test $ipv6 7 testing");
+    like(
+        $duplicate,
+        qr/^error: .*already banned/,
+        'Console rejects an equivalent duplicate as soon as the first ban is created'
+    );
+    if ( my ($duplicate_id) = $duplicate =~ /#(\d+)/ ) {
+        $dbh->do( 'DELETE FROM sysban WHERE banid = ?', undef, $duplicate_id );
+    }
+
+    $dbh->do( 'UPDATE sysban SET bandate = NOW() - INTERVAL 1 SECOND WHERE banid = ?',
+        undef, $banid );
+    is( $dbh->selectrow_array( 'SELECT value FROM sysban WHERE banid = ?', undef, $banid ),
+        $ipv6, 'Database stores the canonical address' );
+    ok( LJ::sysban_check( 'talk_ip_test', $ipv6 ), 'Compressed spelling is banned' );
+    local $LJ::_T_FAKE_IP = $expanded_ipv6;
+    ok(
+        LJ::sysban_check( 'talk_ip_test', LJ::get_remote_ip() ),
+        'The expanded spelling returned by the request IP helper is banned'
+    );
+    ok( !LJ::sysban_check( 'talk_ip_test', '2001:db8:abcd::2' ), 'Neighbor is not banned' );
+    my $matches = LJ::Sysban::populate_full_by_value( $expanded_ipv6, 'talk_ip_test', 'email' );
+    is( $matches->{talk_ip_test}[0]{banid},
+        $banid, 'Admin lookup finds the ban by either spelling' );
+
+    $dbh->do( 'UPDATE sysban SET value = ? WHERE banid = ?', undef, $expanded_ipv6, $banid );
+    ok( LJ::sysban_check( 'talk_ip_test', $ipv6 ), 'An older unnormalized ban still applies' );
+
+    $dbh->do( 'DELETE FROM sysban WHERE banid = ?', undef, $banid );
+};
+
+subtest 'IP ban checks use the same IPv6 address identity' => sub {
+    local $LJ::IP_BANNED_LOADED        = 0;
+    local $LJ::NOANON_IP_BANNED_LOADED = 0;
+    local %LJ::IP_BANNED;
+    local %LJ::NOANON_IP_BANNED;
+
+    with_fake_memcache {
+        for my $type (qw(ip noanon_ip)) {
+            ok( !LJ::sysban_check( $type, $ipv6 ), "$type starts without a ban" );
+            my $banid = LJ::Sysban::create( what => $type, value => $expanded_ipv6, bandays => 0 );
+            $dbh->do( 'UPDATE sysban SET bandate = NOW() - INTERVAL 1 SECOND WHERE banid = ?',
+                undef, $banid );
+
+            ok( LJ::sysban_check( $type, $ipv6 ),          "$type matches with a cold cache" );
+            ok( LJ::sysban_check( $type, $expanded_ipv6 ), "$type matches with a warm cache" );
+
+            $dbh->do( 'DELETE FROM sysban WHERE banid = ?', undef, $banid );
+        }
+
+        LJ::Sysban::tempban_create( ip => $expanded_ipv6, 60 );
+        ok(
+            LJ::Sysban::tempban_check( ip => [ '2001:db8:abcd::2', $ipv6 ] ),
+            'Temporary IP ban matches the compressed spelling in a list of addresses'
+        );
+    };
+};
+
+subtest 'Invalid and protected IPv6 addresses are refused' => sub {
+    foreach my $invalid ( '2001:db8::g', '2001:db8::/64', 'fe80::1%eth0' ) {
+        like( $run->("sysban_add talk_ip_test $invalid 7 testing"),
+            qr/^error:/, "Rejects $invalid as an individual address" );
+    }
+
+    local %LJ::UNBANNABLE_IPS = ( '^127\.' => 'local IPv4', '^::1$' => 'local IPv6' );
+    like(
+        $run->('sysban_add talk_ip_test 127.0.0.1 7 testing'),
+        qr/^error: Cannot ban IP/,
+        'Existing IPv4 protection still applies'
+    );
+    like(
+        $run->('sysban_add talk_ip_test 0:0:0:0:0:0:0:1 7 testing'),
+        qr/^error: Cannot ban IP/,
+        'Expanded IPv6 spelling cannot bypass a canonical protection rule'
+    );
+    like(
+        $run->('sysban_add talk_ip_test ::ffff:7f00:1 7 testing'),
+        qr/^error: Cannot ban IP/,
+        'IPv4-mapped IPv6 cannot bypass IPv4 protection'
+    );
+};

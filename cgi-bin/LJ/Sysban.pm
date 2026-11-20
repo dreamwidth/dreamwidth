@@ -18,9 +18,53 @@ package LJ::Sysban;
 use strict;
 use v5.10;
 use Log::Log4perl;
+use Socket qw( AF_INET AF_INET6 inet_ntop inet_pton );
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
+
+my @ip_types = qw( ip noanon_ip talk_ip_test );
+my %ip_type  = map { $_ => 1 } @ip_types;
+
+sub _canonical_ipv6 {
+    my ($value) = @_;
+    return unless defined $value && index( $value, ':' ) >= 0 && $value =~ /\A[0-9a-f:.]+\z/i;
+    my $address = inet_pton( AF_INET6, $value ) or return;
+
+    return inet_ntop( AF_INET, substr( $address, 12 ) )
+        if substr( $address, 0, 12 ) eq ( "\0" x 10 . "\xff\xff" );
+
+    return lc inet_ntop( AF_INET6, $address );
+}
+
+sub normalize_value {
+    my ( $what, $value ) = @_;
+    return $value unless $what && $ip_type{$what};
+    return _canonical_ipv6($value) // $value;
+}
+
+sub value_match_sql {
+    my ($value) = @_;
+    my $canonical = _canonical_ipv6($value);
+    return ( 'value = ?', $value ) unless defined $canonical;
+
+    my $ip_types = join ', ', map { "'$_'" } @ip_types;
+    return (
+        "(value = ? OR (what IN ($ip_types) AND (value = ? OR INET6_ATON(value) = INET6_ATON(?))))",
+        $value, $canonical, $value );
+}
+
+sub _ip_ban_active {
+    my ( $bans, $value, $now ) = @_;
+    return 0 unless defined $value;
+
+    my $canonical = _canonical_ipv6($value);
+    for my $ip ( $value, defined $canonical && $canonical ne $value ? ($canonical) : () ) {
+        my $expires = $bans->{$ip};
+        return 1 if defined $expires && ( !$expires || $expires > $now );
+    }
+    return 0;
+}
 
 =head1 Methods
 
@@ -38,6 +82,7 @@ sub tempban_create {
     $log->debug( 'Tempban for ', $what, ' of ', $value, ' until: ', $exptime );
 
     if ( $what eq 'ip' ) {
+        $value = normalize_value( $what, $value );
         LJ::MemCache::set( "tempban:ip:$value", 1, $exptime );
     }
     elsif ( $what eq 'uniq' ) {
@@ -54,7 +99,14 @@ sub tempban_check {
 
     $values = [$values] unless ref $values eq 'ARRAY';
 
-    my $mem = LJ::MemCache::get_multi( map { "tempban:$what:$_" } @$values );
+    my @keys = map { "tempban:$what:$_" } @$values;
+    if ( $what eq 'ip' ) {
+        for my $value (@$values) {
+            my $canonical = _canonical_ipv6($value);
+            push @keys, "tempban:ip:$canonical" if defined $canonical && $canonical ne $value;
+        }
+    }
+    my $mem = LJ::MemCache::get_multi(@keys);
 
     return 1 if grep { $_ } values %$mem;
     return 0;
@@ -92,26 +144,21 @@ sub sysban_check {
 
         # is it already cached in memory?
         if ($LJ::NOANON_IP_BANNED_LOADED) {
-            return (
-                defined $LJ::NOANON_IP_BANNED{$value}
-                    && (
-                    $LJ::NOANON_IP_BANNED{$value} == 0 ||    # forever
-                    $LJ::NOANON_IP_BANNED{$value} > time()
-                    )
-            );                                               # not-expired
+            return _ip_ban_active( \%LJ::NOANON_IP_BANNED, $value, $now );
         }
 
         # set this before the query
         $LJ::NOANON_IP_BANNED_LOADED = time();
 
-        sysban_populate( \%LJ::NOANON_IP_BANNED, "noanon_ip" )
+        my $bans = sysban_populate( {}, 'noanon_ip' )
             or return undef $LJ::NOANON_IP_BANNED_LOADED;
+        %LJ::NOANON_IP_BANNED = %$bans;
 
         # set in memcache
         LJ::MemCache::set( "sysban:noanon_ip", \%LJ::NOANON_IP_BANNED, $ip_ban_delay );
 
         # return value to user
-        return $LJ::NOANON_IP_BANNED{$value};
+        return _ip_ban_active( $bans, $value, $now );
     }
 
     # cache if ip ban
@@ -135,26 +182,21 @@ sub sysban_check {
 
         # is it already cached in memory?
         if ($LJ::IP_BANNED_LOADED) {
-            return (
-                defined $LJ::IP_BANNED{$value}
-                    && (
-                    $LJ::IP_BANNED{$value} == 0 ||    # forever
-                    $LJ::IP_BANNED{$value} > time()
-                    )
-            );                                        # not-expired
+            return _ip_ban_active( \%LJ::IP_BANNED, $value, $now );
         }
 
         # set this before the query
         $LJ::IP_BANNED_LOADED = time();
 
-        sysban_populate( \%LJ::IP_BANNED, "ip" )
+        my $bans = sysban_populate( {}, 'ip' )
             or return undef $LJ::IP_BANNED_LOADED;
+        %LJ::IP_BANNED = %$bans;
 
         # set in memcache
         LJ::MemCache::set( "sysban:ip", \%LJ::IP_BANNED, $ip_ban_delay );
 
         # return value to user
-        return $LJ::IP_BANNED{$value};
+        return _ip_ban_active( $bans, $value, $now );
     }
 
     # cache if uniq ban
@@ -241,6 +283,7 @@ sub sysban_check {
     # standard check helper
     my $check = sub {
         my ( $wh, $vl ) = @_;
+        my ( $value_match, @values ) = $ip_type{$wh} ? value_match_sql($vl) : ( 'value = ?', $vl );
 
         return $dbr->selectrow_array(
             qq{
@@ -248,12 +291,12 @@ sub sysban_check {
                 FROM sysban
                 WHERE status = 'active'
                   AND what = ?
-                  AND value = ?
+                  AND $value_match
                   AND NOW() > bandate
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
-            }, undef, $wh, $vl
+            }, undef, $wh, @values
         );
     };
 
@@ -307,7 +350,7 @@ sub sysban_check {
         return 0;
     }
 
-    # non-ip bans come straight from the db
+    # Other bans come straight from the db
     return $check->( $what, $value );
 }
 *LJ::sysban_check = \&sysban_check;
@@ -336,6 +379,11 @@ sub _db_sysban_populate {
     $sth->execute($what);
     return undef if $sth->err;
     while ( my ( $val, $exp ) = $sth->fetchrow_array ) {
+        if ( $ip_type{$what} ) {
+            $val = normalize_value( $what, $val );
+            my $previous = $where->{$val};
+            next if defined $previous && ( !$previous || ( $exp && $previous > $exp ) );
+        }
         $where->{$val} = $exp || 0;
     }
 
@@ -424,19 +472,20 @@ sub _db_sysban_populate_full_by_value {
         if $in_what;
 
     my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
+    my ( $value_match, @values ) = value_match_sql($value);
 
     # build cache from db
     my $sth = $dbh->prepare(
         qq{SELECT banid, what, UNIX_TIMESTAMP(banuntil), note
            FROM sysban
            WHERE status = 'active'
-                 AND value = ?
+                 AND $value_match
                  $in_what
                  AND NOW() > bandate
                  $banuntil
         }
     );
-    $sth->execute($value);
+    $sth->execute(@values);
     return undef if $sth->err;
 
     my $where;
@@ -540,7 +589,7 @@ sub create {
     }
 
     # strip out leading/trailing whitespace
-    $opts{'value'} = LJ::trim( $opts{'value'} );
+    $opts{'value'} = normalize_value( $opts{'what'}, LJ::trim( $opts{'value'} ) );
 
     # do insert
     $dbh->do(
@@ -558,7 +607,7 @@ sub create {
     my $exptime = $opts{bandays} ? time() + 86400 * $opts{bandays} : 0;
     $exptime = $opts{exptime} if $opts{exptime};
 
-    # special case: creating ip/uniq/spamreport ban
+    # Invalidate the cache for ban types that use it.
     ban_do( $opts{what}, $opts{value}, $exptime );
 
     # log in statushistory
@@ -586,19 +635,36 @@ sub create {
 # </LJFUNC>
 sub validate {
     my ( $what, $value, $opts, $post ) = @_;
+    my $canonical = $ip_type{$what} ? _canonical_ipv6($value) : undef;
 
     # bail early if the ban already exists
-    return "This is already banned"
-        if !$opts->{skipexisting} && sysban_check( $what, $value );
+    unless ( $opts->{skipexisting} ) {
+        if ( defined $canonical ) {
+            my $dbh = LJ::get_db_writer();
+            my ( $value_match, @values ) = value_match_sql($value);
+            return "This is already banned"
+                if $dbh && $dbh->selectrow_array(
+                "SELECT 1 FROM sysban WHERE what = ? AND status = 'active' AND $value_match "
+                    . "AND bandate <= NOW() AND (banuntil > NOW() OR banuntil = 0 OR banuntil IS NULL) LIMIT 1",
+                undef, $what, @values
+                );
+        }
+        else {
+            return "This is already banned" if sysban_check( $what, $value );
+        }
+    }
 
     my $validate = {
         'ip' => sub {
             my $ip = shift;
 
-            while ( my ( $ip_re, $reason ) = each %LJ::UNBANNABLE_IPS ) {
-                next unless $ip =~ $ip_re;
-                return "Cannot ban IP $ip: " . LJ::ehtml($reason);
+            for my $ip_re ( keys %LJ::UNBANNABLE_IPS ) {
+                next unless $ip =~ $ip_re || ( defined $canonical && $canonical =~ $ip_re );
+                return "Cannot ban IP $ip: " . LJ::ehtml( $LJ::UNBANNABLE_IPS{$ip_re} );
             }
+
+            return 0 if defined $canonical;
+            return 'Invalid IPv6 address' if index( $ip, ':' ) >= 0;
 
             return $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
                 ? 0
@@ -649,10 +715,8 @@ sub validate {
         'support_email'  => 'email',
         'support_uniq'   => 'uniq',
         'lostpassword'   => 'user',
-        'talk_ip_test'   => 'ip',
         'invite_user'    => 'user',
         'invite_email'   => 'email',
-        'noanon_ip'      => 'ip',
         'spamreport'     => 'user',
         oauth_consumer   => 'user',
     );
@@ -660,6 +724,7 @@ sub validate {
     while ( my ( $new, $existing ) = splice( @map, 0, 2 ) ) {
         $validate->{$new} = $validate->{$existing};
     }
+    $validate->{$_} = $validate->{ip} for @ip_types;
 
     my $check = $validate->{$what} or return "Invalid sysban type";
     return $check->($value);
@@ -743,22 +808,18 @@ sub modify {
 
 sub ban_do {
     my ( $what, $value, $until ) = @_;
-    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    my %types = ( ip => 1, noanon_ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};
 
+    $LJ::IP_BANNED_LOADED        = 0 if $what eq 'ip';
+    $LJ::NOANON_IP_BANNED_LOADED = 0 if $what eq 'noanon_ip';
     LJ::MemCache::delete("sysban:$what");
 
     return 1;
 }
 
 sub ban_undo {
-    my ( $what, $value ) = @_;
-    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
-    return unless $types{$what};
-
-    LJ::MemCache::delete("sysban:$what");
-
-    return 1;
+    return ban_do(@_);
 }
 
 1;
