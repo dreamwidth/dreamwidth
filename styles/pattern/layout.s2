@@ -357,6 +357,12 @@ var string entry_title_font = generate_font_css($*font_entry_title, $*font_base,
 var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
 
 var string margin = $*content_margins + "%";
+var string sidebar_space = "0px";
+if ($*layout_type->contains("three-columns")) {
+    $sidebar_space = $*sidebar_width_doubled;
+} elseif ($*layout_type->contains("two-columns")) {
+    $sidebar_space = $*sidebar_width;
+}
 
 var string header_css = "";
 if ($*module_userprofile_section == "headersec") {
@@ -558,10 +564,15 @@ hr,
 /* Containers
 ******************************/
 
-#header-wrapper,
-#content {
-    margin-left: $margin;
-    margin-right: $margin;
+#header-wrapper {
+    margin-inline: .5em;
+}
+
+@media $medium_media_query {
+    #header-wrapper,
+    #content {
+        margin-inline: clamp(0px, (100% - $sidebar_space - 24em) / 2, $margin);
+    }
 }
 
 #primary > .inner:first-child {
@@ -616,9 +627,11 @@ hr,
     line-height: 1em;
 }
 
-$header_css
+@media $medium_media_query {
+    $header_css
 
-$title_css
+    $title_css
+}
 
 #header-footer {
     clear: both;
@@ -726,10 +739,6 @@ $title_css
     display: none;
 }
 
-.entry .contents {
-    min-height: $entry_margin;
-}
-
 .entry-content { 
     margin-bottom: 1em;
     text-align: $*post_text_align;
@@ -815,10 +824,6 @@ pre {
 
 .poster-ip {
     display: block;
-}
-
-.comment .contents {
-    min-height: $comment_margin;
 }
 
 .comment-content {
@@ -911,7 +916,17 @@ pre {
     text-transform: lowercase;
 }
 
-$userpic_css
+@media $large_media_query {
+    .entry .contents {
+        min-height: $entry_margin;
+    }
+
+    .comment .contents {
+        min-height: $comment_margin;
+    }
+
+    $userpic_css
+}
 
 /* Reply
 ******************************/
