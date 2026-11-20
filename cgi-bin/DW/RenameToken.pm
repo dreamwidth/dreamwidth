@@ -305,22 +305,29 @@ Record information about how this rename token was applied.
 sub apply {
     my ( $self, %opts ) = @_;
 
+    my $cartid = $self->cartid;
+    my $lock   = $opts{cart_lock};
+    if ( $cartid && !$lock ) {
+        $lock = DW::Shop::Cart->processing_lock($cartid) or return 0;
+    }
+
     # modify self
     my $dbh = LJ::get_db_writer();
     $dbh->do(
 "UPDATE renames SET renuserid=?, fromuser=?, touser=?, rendate=?, status = 'A' WHERE renid=?",
         undef, $opts{userid}, $opts{from}, $opts{to}, time, $self->id
-    );
+    ) or return 0;
 
     # modify status in the cart
-    if ( $self->cartid ) {
-        my $cart = DW::Shop::Cart->get_from_cartid( $self->cartid );
+    if ( $cartid && ( my $cart = DW::Shop::Cart->get_from_cartid($cartid) ) ) {
+        my $changed;
         foreach my $item ( @{ $cart->items } ) {
             next unless $item->isa("DW::Shop::Item::Rename") && $item->token eq $self->token;
-            $item->apply;
+            next if $item->applied;
+            $changed = 1 if $item->apply;
         }
 
-        $cart->save;
+        return 0 if $changed && !$cart->save_items($dbh);
     }
 
     return 1;

@@ -119,7 +119,7 @@ sub get_from_ordernum {
     return $cart;
 }
 
-# Holds a cart stable while the paidstatus worker or a payment admin updates it.
+# Holds a cart stable during worker, admin, and rename item updates.
 sub processing_lock {
     my ( $class, $cartid ) = @_;
     return LJ::locker()->trylock( "shop-cart:$cartid", class => 'shop_cart' );
@@ -254,6 +254,13 @@ q{REPLACE INTO shop_carts (userid, cartid, starttime, uniq, state, nextscan, aut
     # bail if error
     return 0 if $dbh->err;
     return 1;
+}
+
+sub save_items {
+    my ( $self, $dbh ) = @_;
+    my $rows = $dbh->do( 'UPDATE shop_carts SET cartblob = ? WHERE cartid = ?',
+        undef, nfreeze($self), $self->id );
+    return defined $rows && $rows == 1;
 }
 
 # returns an engine for this cart
