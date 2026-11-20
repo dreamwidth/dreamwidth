@@ -145,6 +145,9 @@
   <p>[% '.edit.nopics.desc' | ml %]</p>
 [%- ELSE -%]
   <div id='current_userpics'>
+  <form id='manage-icon-order' method='post' action='[% sort_action | html %]'>
+    [% dw.form_auth %]
+  </form>
   <form method='post' action='[% selflink() %]'>
     [% dw.form_auth %]
     <h2>[% '.edit.icons.header' | ml %]</h2>
@@ -165,11 +168,13 @@
       [%- END -%]
       <p>
         [%- IF sort_by_kw -%]
-          <a href = "[% selflink(0) %]">[% '.icon.sort.default' | ml %]</a>
+          <button type='submit' form='manage-icon-order' class='button tiny secondary'
+                  name='icon_view_order' value='upload'>[% '.icon.sort.default' | ml %]</button>
           | [% '.icon.sort.keyword' | ml %]
         [%- ELSE -%]
           [% '.icon.sort.default' | ml %] |
-          <a href = "[% selflink(1) %]">[% '.icon.sort.keyword' | ml %]</a>
+          <button type='submit' form='manage-icon-order' class='button tiny secondary'
+                  name='icon_view_order' value='keyword'>[% '.icon.sort.keyword' | ml %]</button>
         [%- END -%]
       </p>
     </div>

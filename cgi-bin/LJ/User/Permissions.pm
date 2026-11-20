@@ -658,7 +658,7 @@ sub iconbrowser_keywordorder {
     my $u = $_[0];
 
     if ( $_[1] ) {
-        my $newval = $_[1] eq "Y" ? "Y" : undef;
+        my $newval = $_[1] eq "Y" ? "Y" : "N";
         $u->set_prop( iconbrowser_keywordorder => $newval );
     }
 
