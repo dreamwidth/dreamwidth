@@ -833,11 +833,12 @@ sub authenticate_user_and_mutate_form {
                 return $err->( "No claimed id: " . $csr->err );
             }
 
+            $ban_error = LJ::OpenID::claimed_sysban_error($claimed_id);
+            return $err->($ban_error) if $ban_error;
+
             # Store their cleaned up identity url (vs. what they actually typed.)
             # MUTATE FORM: canonicalize oidurl
             $form->{oidurl} = $claimed_id->claimed_url();
-            $ban_error = LJ::OpenID::sysban_error( $form->{oidurl} );
-            return $err->($ban_error) if $ban_error;
 
             # Store the entry
             my $pendcid = LJ::alloc_user_counter( $journalu, "C" );

@@ -1116,7 +1116,7 @@ sub load_from_consumer {
         return;
     }
 
-    if ( my $message = LJ::OpenID::sysban_error($url) ) {
+    if ( my $message = LJ::OpenID::verified_sysban_error($vident) ) {
         $$errorref = $message if ref $errorref;
         return;
     }
