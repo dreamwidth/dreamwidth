@@ -17,10 +17,12 @@ the same terms as Perl itself. For a copy of the license, please reference
 
 <form method="post">
     [% dw.form_auth() %]
-    [% FOREACH field IN ['for', 'accttype', 'username', 'email', 'force_spelling', 'anonymous', 'reason', 'alreadyposted', 'prem_convert'] %]
+    [% FOREACH field IN ['for', 'accttype', 'username', 'email', 'force_spelling', 'anonymous', 'reason', 'alreadyposted'] %]
         [% form.hidden(name = field) IF formdata.exists(field) %]
     [% END %]
     [% form.hidden(name = 'deliverydate', value = deliverydate) %]
+    [% form.hidden(name = 'prem_convert', value = prem_convert) IF prem_convert %]
+    [% form.hidden(name = 'delivery_review_token', value = delivery_review_token) %]
     <button type="submit" class="button" name="confirm_deliverydate" value="[% deliverydate | html %]">[% '.btn.confirm' | ml %]</button>
     <button type="submit" class="button secondary" name="edit_deliverydate" value="1">[% '.btn.edit' | ml %]</button>
 </form>
