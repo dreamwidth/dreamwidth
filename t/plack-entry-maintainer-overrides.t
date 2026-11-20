@@ -66,6 +66,10 @@ sub get_form {
 
 sub submit_form {
     my ( $client, $url, $form, $action, %fields ) = @_;
+    my $marker = 'opt_nocomments_maintainer_present';
+    if ( my $input = $form->{inputs}{$marker} ) {
+        $fields{$marker} = $input->{value};
+    }
     return $client->(
         POST $url,
         [
@@ -151,12 +155,33 @@ test_psgi $app, sub {
                 'rating edit does not clear hidden override'
             );
 
+            my $stale_admin_form = get_form( $client, $admin_url, 'updateForm' );
+            ok( !$stale_admin_form->{inputs}{prop_opt_nocomments_maintainer},
+                'old admin form has no comment checkbox' );
             $form = get_form( $client, $poster_url, $id );
             submit_form( $client, $poster_url, $form, 'save', %edit_fields,
-                comment_settings => 'noemail' );
+                comment_settings => '' );
             $entry = reload_entry($entry);
             ok( !$entry->comments_disabled_poster,    'poster can undo their own comment setting' );
             ok( $entry->comments_disabled_maintainer, 'poster cannot undo the admin override' );
+
+            is(
+                submit_form(
+                    $client, $admin_url, $stale_admin_form, 'savemaintainer',
+                    prop_adult_content_maintainer        => 'concepts',
+                    prop_adult_content_maintainer_reason => 'Updated community rating'
+                )->code,
+                302,
+                'admin can save a rating reason from the old form'
+            );
+            $entry = reload_entry($entry);
+            is(
+                $entry->adult_content_maintainer_reason,
+                'Updated community rating',
+                'rating reason was changed'
+            );
+            ok( $entry->prop('opt_nocomments_maintainer'),
+                'old form without the checkbox preserves the comment override' );
 
             $admin_form = get_form( $client, $admin_url, 'updateForm' );
             my $checkbox = $admin_form->{inputs}{prop_opt_nocomments_maintainer};

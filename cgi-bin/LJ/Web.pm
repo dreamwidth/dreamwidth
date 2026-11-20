@@ -1910,6 +1910,7 @@ PREVIEW
         # comment disabling/enabling
         # only possible if comments weren't disabled by poster
         unless ( $opts->{prop_opt_nocomments} ) {
+            $out .= LJ::html_hidden( opt_nocomments_maintainer_present => 1 );
             $out .= "<p class='pkg'>";
             $out .=
                   "<label for='prop_opt_nocomments_maintainer' class='left options'>"
