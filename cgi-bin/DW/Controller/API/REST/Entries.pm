@@ -42,6 +42,30 @@ my $entries_all = DW::Controller::API::REST->path( 'journals/entries_all.yaml', 
 my $entries = DW::Controller::API::REST->path( 'journals/entries.yaml', 1,
     { get => \&rest_get, post => \&edit_entry } );
 
+sub _prepare_custom_groups {
+    my ( $post, $journal, $current_security ) = @_;
+
+    return 'custom_bit is not supported. Use custom_groups instead.' if exists $post->{custom_bit};
+
+    my $security = $post->{security} // $current_security;
+    if ( !exists $post->{custom_groups} ) {
+        return 'custom_groups is required when setting custom security.'
+            if $security eq 'custom' && $current_security ne 'custom';
+        return;
+    }
+
+    return 'custom_groups can only be used with custom security.' unless $security eq 'custom';
+    return 'Custom security is not supported for community entries.' if $journal->is_community;
+
+    my $groups = $journal->trust_groups;
+    foreach my $id ( @{ $post->{custom_groups} } ) {
+        return "Unknown access filter ID: $id." unless exists $groups->{$id};
+    }
+
+    $post->{custom_bit} = delete $post->{custom_groups};
+    return;
+}
+
 ###################################################
 #
 # Handles post of new entries, given a journal name
@@ -98,6 +122,9 @@ sub new_entry {
 
     return $self->rest_error('403')
         unless $remote->can_post_to($usejournal);
+
+    my $filter_error = _prepare_custom_groups( $post, $usejournal, 'public' );
+    return $self->rest_error( '400', $filter_error ) if $filter_error;
 
     my $flags = {};
     $flags->{noauth} = 1;
@@ -289,7 +316,10 @@ sub edit_entry {
         $post->{trust_datetime} = 1;
     }
 
-    my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
+    my $form_req     = DW::Entry::_backend_to_form( 1, $entry_obj );
+    my $filter_error = _prepare_custom_groups( $post, $usejournal, $form_req->{security} );
+    return $self->rest_error( '400', $filter_error ) if $filter_error;
+
     DW::Entry::_form_to_backend( 1, $form_req, $post );
 
     # check for spam domains

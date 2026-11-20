@@ -72,11 +72,30 @@ paths:
                     omitted, the entry's current date and time are kept.
                 security:
                   type: string
-                  description: Security level to use. Can be `public`, `private`, or `access`.
+                  description: Entry security level. Custom security is only available for
+                    personal journals.
                   enum:
                     - public
                     - private
                     - access
+                    - custom
+                custom_groups:
+                  type: array
+                  description: >-
+                    IDs from `GET /journals/{username}/accesslists` for this
+                    journal.
+
+                    Use only with `custom` security. Required when switching to
+                    `custom`.
+
+                    An empty array clears all filters. If omitted, existing
+                    filters are kept.
+
+                    Requests containing `custom_bit` are rejected.
+                  items:
+                    type: integer
+                    minimum: 1
+                    maximum: 60
                 age_restriction:
                   type: string
                   description: Age restriction flag. `none` puts no flags on the entry,
