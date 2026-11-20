@@ -67,6 +67,11 @@ sub new {
     return $self;
 }
 
+sub set_deliverydate {
+    my ( $self, $date ) = @_;
+    $self->{deliverydate} = $date;
+}
+
 # override
 sub _apply {
     my $self = $_[0];

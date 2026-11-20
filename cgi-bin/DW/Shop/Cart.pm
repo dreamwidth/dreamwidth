@@ -119,6 +119,12 @@ sub get_from_ordernum {
     return $cart;
 }
 
+# Holds a cart stable while the paidstatus worker or a payment admin updates it.
+sub processing_lock {
+    my ( $class, $cartid ) = @_;
+    return LJ::locker()->trylock( "shop-cart:$cartid", class => 'shop_cart' );
+}
+
 # returns a new cart given an invite code
 # if scalar ref 'itemidref' is passed, store the itemid for the invite code in it
 sub get_from_invite {
