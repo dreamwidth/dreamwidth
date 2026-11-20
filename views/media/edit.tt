@@ -73,11 +73,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
                             type = "select"
                             name="security-$obj.displayid"
                             items = security
-                            selected = obj.security
+                            selected = security_selection.item(obj.displayid)
                             labelSize = 4
                         -%]
                     </div>
                 </div>
+            [% INCLUDE 'media/access-filters.tt'
+                name = "group-$obj.displayid"
+                selected = selected_groups.item(obj.displayid)
+            %]
             [% INCLUDE 'media/field-row.tt'
                 label = dw.ml(".edit.alt")
                 type = "text"
