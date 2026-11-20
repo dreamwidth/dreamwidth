@@ -765,8 +765,10 @@ sub _edit {
                 $maintainer_post->{prop_adult_content_maintainer_reason},
             adult_content_maintainer => $maintainer_post->{prop_adult_content_maintainer},
         };
-        $props->{opt_nocomments_maintainer} = $maintainer_post->{prop_opt_nocomments_maintainer} ? 1 : 0
-            unless $entry->comments_disabled_poster;
+        $props->{opt_nocomments_maintainer} =
+            $maintainer_post->{prop_opt_nocomments_maintainer} ? 1 : 0
+            if $maintainer_post->{opt_nocomments_maintainer_present}
+            && !$entry->comments_disabled_poster;
         LJ::set_logprop( $journal, $itemid, $props );
         $r->status(302);
         $r->header_out( Location => LJ::create_url( undef, keep_args => 1 ) );
