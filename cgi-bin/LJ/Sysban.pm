@@ -22,6 +22,7 @@ use Socket qw( AF_INET AF_INET6 inet_ntop inet_pton );
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
+use LJ::TextUtil;
 
 my @ip_types = qw( ip noanon_ip talk_ip_test );
 my %ip_type  = map { $_ => 1 } @ip_types;
@@ -37,21 +38,39 @@ sub _canonical_ipv6 {
     return lc inet_ntop( AF_INET6, $address );
 }
 
+sub _canonical_ip {
+    my ($value) = @_;
+    return unless defined $value;
+    return _canonical_ipv6($value) if index( $value, ':' ) >= 0;
+    return $value if $value =~ /\A[0-9.]+\z/ && inet_pton( AF_INET, $value );
+    return;
+}
+
 sub normalize_value {
     my ( $what, $value ) = @_;
-    return $value unless $what && $ip_type{$what};
-    return _canonical_ipv6($value) // $value;
+    return $value unless $what && $ip_type{$what} && defined $value;
+    $value = LJ::trim($value);
+    return _canonical_ip($value) // $value;
 }
 
 sub value_match_sql {
     my ($value) = @_;
-    my $canonical = _canonical_ipv6($value);
-    return ( 'value = ?', $value ) unless defined $canonical;
+    return ( 'value = ?', $value ) unless defined $value;
 
+    my $trimmed   = LJ::trim($value);
+    my $canonical = _canonical_ip($trimmed);
+    return ( 'value = ?', $value ) if !defined $canonical && $trimmed eq $value;
+
+    my $ip_match = 'value = ?';
+    my @values   = ($trimmed);
+    if ( defined $canonical ) {
+        @values =
+            index( $canonical, ':' ) >= 0 ? ($canonical) : ( $canonical, "::ffff:$canonical" );
+        my $addresses = join ', ', map { 'INET6_ATON(?)' } @values;
+        $ip_match = "INET6_ATON(value) IN ($addresses)";
+    }
     my $ip_types = join ', ', map { "'$_'" } @ip_types;
-    return (
-        "(value = ? OR (what IN ($ip_types) AND (value = ? OR INET6_ATON(value) = INET6_ATON(?))))",
-        $value, $canonical, $value );
+    return ( "(value = ? OR (what IN ($ip_types) AND $ip_match))", $value, @values );
 }
 
 sub _ip_ban_active {
@@ -380,7 +399,7 @@ sub _db_sysban_populate {
     return undef if $sth->err;
     while ( my ( $val, $exp ) = $sth->fetchrow_array ) {
         if ( $ip_type{$what} ) {
-            $val = normalize_value( $what, $val );
+            $val = _canonical_ip($val) // $val;
             my $previous = $where->{$val};
             next if defined $previous && ( !$previous || ( $exp && $previous > $exp ) );
         }
@@ -635,7 +654,8 @@ sub create {
 # </LJFUNC>
 sub validate {
     my ( $what, $value, $opts, $post ) = @_;
-    my $canonical = $ip_type{$what} ? _canonical_ipv6($value) : undef;
+    $value = LJ::trim($value) if $ip_type{$what};
+    my $canonical = $ip_type{$what} ? _canonical_ip($value) : undef;
 
     # bail early if the ban already exists
     unless ( $opts->{skipexisting} ) {
@@ -738,8 +758,6 @@ sub validate {
 # des-bandays: the new expiry
 # des-expire: the old expiry
 # des-note: the new note (optional)
-# des-what: the ban type
-# des-value: the ban value
 # returns: ERROR object on success, error message on failure
 # </LJFUNC>
 sub modify {
@@ -758,9 +776,12 @@ sub modify {
 
     my $dbh = LJ::get_db_writer();
 
-    my $banid   = $dbh->quote( $opts{'banid'} );
+    my $banid   = $opts{'banid'};
     my $expire  = $opts{'expire'};
     my $bandays = $opts{'bandays'};
+    my $ban =
+        $dbh->selectrow_hashref( 'SELECT what, value FROM sysban WHERE banid = ?', undef, $banid );
+    return bless { message => $dbh->errstr // "No sysban with ID $banid", }, 'ERROR' unless $ban;
 
     my $banuntil = "NULL";
     if ($bandays) {
@@ -780,15 +801,15 @@ sub modify {
         }
     }
 
-    $dbh->do(
+    my $updated = $dbh->do(
         "UPDATE sysban SET banuntil=$banuntil,note=?
-             WHERE banid=$banid",
-        undef, $opts{note}
+             WHERE banid=?",
+        undef, $opts{note}, $banid
     );
 
-    if ( $dbh->err ) {
-        return bless { message => $dbh->errstr, }, 'ERROR';
-    }
+    return bless { message => $dbh->errstr, }, 'ERROR' unless defined $updated;
+
+    ban_do( $ban->{what} );
 
     # log in statushistory
     my $remote = LJ::get_remote();
@@ -799,7 +820,7 @@ sub modify {
             . "bandate="
             . LJ::mysql_time()
             . "; banuntil=$banuntil; "
-            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "what=$ban->{what}; value=$ban->{value}; "
             . "note=$opts{'note'};" );
 
     return $dbh->{'mysql_insertid'};
