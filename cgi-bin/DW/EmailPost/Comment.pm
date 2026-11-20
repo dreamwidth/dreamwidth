@@ -88,6 +88,7 @@ sub _process {
 
     $self->_check_sender or return $self->send_error;
 
+    $self->_extract_post_headers;
     $self->_set_props( $self->{u}, %{ $self->{post_headers} || {} } );
 
     # remove reply cruft

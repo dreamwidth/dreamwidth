@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 44;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -121,10 +121,20 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
     my $barbit     = $u->create_trust_group( groupname => 'bar' );
     my $email_post = DW::EmailPost->get_handler( get_mime( "parse-props", $user_email_info ) );
     my ( $ok, $msg ) = $email_post->process;
-    ok( $ok, "posted entry with custom settings" );
-    my $entry = LJ::Entry->new( $u, jitemid => 3 );
-    is( $entry->event_raw, "This is a test post.", "Settings removed from body text" );
-    is( $entry->security, 'usemask', "Entry security is correct" );
+    ok( $ok, "posted entry with custom settings" ) or diag $msg;
+    my $entry    = LJ::Entry->new( $u, jitemid => 3 );
+    my $expected = <<'BODY';
+For Sweeney Todd: Sweeney/Nellie,
+post-canon, pre-canon, everybody lives AU
+Unwilling to address: character x reader
+post-canon: everyone's alive
+post-war: rebuilding
+post-security: public
+lj-mood: happy
+BODY
+    chomp $expected;
+    is( $entry->event_raw, $expected, "Leading settings removed and body text preserved" );
+    is( $entry->security,  'usemask', "Entry security is correct" );
     is( $entry->allowmask, ( 1 << $foobit ) | ( 1 << $barbit ), 'Entry allowmask is correct' );
     is( $entry->prop('current_moodid'), 56, "Entry mood is correct" );
     is( $entry->prop('current_music'), "Jonathan Coulton -- Code Monkey",
@@ -145,6 +155,52 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
         "entry time is converted from the Date header into the user's timezone"
     );
     $u->set_prop( timezone => undef );
+}
+
+{
+    my $email_post = DW::EmailPost->get_handler( get_mime( "html-headers", $user_email_info ) );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted HTML entry with custom settings" ) or diag $msg;
+    my $entry = LJ::Entry->new( $u, jitemid => 5 );
+    is( $entry->security, 'private', 'Header inside leading HTML wrappers sets entry security' );
+    like(
+        $entry->event_raw,
+        qr/<p>Story notes:<\/p>\npost-war: rebuilding/,
+        'HTML message retains post-prefixed body text'
+    );
+}
+
+{
+    my $email_post = DW::EmailPost->get_handler( get_mime( "body-pin", $user_email_info ) );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry authenticated by a leading body PIN" ) or diag $msg;
+    my $entry = LJ::Entry->new( $u, jitemid => 6 );
+    is( $entry->security, 'private', 'Header after PIN sets entry security' );
+    like( $entry->event_raw, qr/\A\s*A private post\.\z/, 'PIN and header are not published' );
+}
+
+sub get_mime {
+    my ( $filepart, $replace ) = @_;
+    $replace ||= {};
+
+    my $file   = "$Bin/data/emailpost/$filepart.txt";
+    my $tmpdir = File::Temp::tempdir( CLEANUP => 1 );
+    open( my $fh, $file )
+        or die "Couldn't open file $file: $!";
+    my $outfile = "$tmpdir/email-with-substs-$filepart";
+    open( my $newfh, "+>$outfile" )
+        or die "Couldn't open file $outfile for writing: $!";
+    while (<$fh>) {
+        s/\$\{(.+?)\}/$replace->{$1} || die "Unknown substitution: $1"/eg;
+        print $newfh $_;
+    }
+    seek( $newfh, 0, 0 );    # seek to beginning
+
+    my $parser = MIME::Parser->new;
+    $parser->output_dir($tmpdir);
+
+    my $entity;
+    return eval { $entity = $parser->parse($newfh); };
 }
 
 my $post_count = 0;
@@ -400,29 +456,5 @@ subtest 'community slug changes use the community writer' => sub {
     ok( !LJ::Entry->new( $community, slug => 'community-second' ),
         'removed slug no longer resolves' );
 };
-
-sub get_mime {
-    my ( $filepart, $replace ) = @_;
-    $replace ||= {};
-
-    my $file   = "$Bin/data/emailpost/$filepart.txt";
-    my $tmpdir = File::Temp::tempdir( CLEANUP => 1 );
-    open( my $fh, $file )
-        or die "Couldn't open file $file: $!";
-    my $outfile = "$tmpdir/email-with-substs-$filepart";
-    open( my $newfh, "+>$outfile" )
-        or die "Couldn't open file $outfile for writing: $!";
-    while (<$fh>) {
-        s/\$\{(.+?)\}/$replace->{$1} || die "Unknown substitution: $1"/eg;
-        print $newfh $_;
-    }
-    seek( $newfh, 0, 0 );    # seek to beginning
-
-    my $parser = MIME::Parser->new;
-    $parser->output_dir($tmpdir);
-
-    my $entity;
-    return eval { $entity = $parser->parse($newfh); };
-}
 
 1;

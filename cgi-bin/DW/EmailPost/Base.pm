@@ -37,7 +37,8 @@ This is the basic email posting behavior. Subclasses should implement the follow
 
 =item _parse_destination - given an auth string taken from the "to:" email header, set the user/journal/validated information
 
-=item _process - process the email. ::Base does some of the common cleanup for you. It's up to you to finish the job. Call $self->cleanup_body_final in here
+=item _process - process the email. Call $self->_extract_post_headers before applying post
+options and $self->cleanup_body_final before submitting the body.
 
 =back
 
@@ -130,8 +131,7 @@ sub process {
     # get the body and subject from the email
     # processed character encoding, but not cleaned up further than that
     # will probably need further processing before using as entry/comment text
-    $self->_extract_text         or return $self->send_error;
-    $self->_extract_post_headers or return $self->send_error;
+    $self->_extract_text or return $self->send_error;
 
     return $self->_process;
 }
@@ -225,28 +225,30 @@ sub _extract_text {
     return 1;
 }
 
-# extract any lj-*, post-* headers
-# these are not validated; any error-checking must be done by whatever is using them
+# Extract leading lj-* and post-* lines, including unrecognized header names.
+# The post-* values take precedence over their legacy lj-* equivalents.
 sub _extract_post_headers {
     my $self = $_[0];
 
-    my ( %post_headers, $amask );
+    my $body = $self->{body};
+    pos($body) = 0;
 
-    # first look for old style lj headers
-    while ( $self->{body} =~ s/(?:^|\n)lj-(.+?):\s*(.+?)(?:$|\n)//is ) {
-        $post_headers{ lc($1) } = LJ::trim($2);
+    if ( $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html' ) {
+        my $wrapper = qr{<(?:!doctype[ \t]+html|html|body|div|p)(?:[ \t][^<>\r\n]*)?>}i;
+        $body =~ /\G(?:(?:[ \t]*$wrapper)*[ \t]*\r?\n)+/gc;
     }
 
-    # next look for new style post headers
-    # so if both are specified, this value will be retained
-    while ( $self->{body} =~ s/(?:^|\n)post-(.+?):\s*(.+?)(?:$|\n)//is ) {
-        $post_headers{ lc($1) } = LJ::trim($2);
+    my $start = pos($body);
+    my ( %lj_headers, %post_headers );
+    while ( $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*)(?:\r?\n|\z)/igc ) {
+        my $headers = lc($1) eq 'lj' ? \%lj_headers : \%post_headers;
+        $headers->{ lc($2) } = LJ::trim($3);
     }
 
-    # remove any whitespace between post headers and body
-    $self->{body} =~ s/^\s*//;
-
-    $self->{post_headers} = \%post_headers;
+    substr( $body, $start, pos($body) - $start, '' );
+    $body =~ s/\A\s*//;
+    $self->{body}         = $body;
+    $self->{post_headers} = { %lj_headers, %post_headers };
 
     return 1;
 }
