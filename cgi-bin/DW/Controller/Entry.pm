@@ -956,6 +956,11 @@ sub _edit {
                     allow_empty => $mode_delete,
                     errors      => $errors
                 );
+                if ( defined $post->{hide_crosspost_links}
+                    && $post->{hide_crosspost_links} =~ /\A[01]\z/ )
+                {
+                    $form_req->{props}{opt_hide_xpost_links} = $post->{hide_crosspost_links};
+                }
 
                 # check for spam domains
                 LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
@@ -1057,7 +1062,12 @@ sub _render_edit_form {
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
 
-    $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{formdata}            = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{has_crosspost_links} = $entry_obj->has_crosspost_links;
+    $vars->{hide_crosspost_links} =
+          $post && defined $post->{hide_crosspost_links}
+        ? $post->{hide_crosspost_links}
+        : $entry_obj->prop('opt_hide_xpost_links') || 0;
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
