@@ -3684,17 +3684,6 @@ The [[sitename]] Team
 
 shop.expiration.comm.0.subject=[[sitename]] Account Expired
 
-shop.expiration.comm.renewal.0.body<<
-Dear [[touser]],
-
-Your [[sitename]] community [[commname]]'s paid time has now expired.
-The paid time from your scheduled renewal will be applied on [[date]].
-You don't need to place another order.
-
-Regards,
-The [[sitename]] Team
-.
-
 shop.expiration.comm.14.body<<
 Dear [[touser]],
 
@@ -3826,7 +3815,7 @@ shop.expiration.user.renewal.0.body<<
 Dear [[touser]],
 
 Your paid time on [[sitename]] has now expired. The paid time from your
-scheduled renewal will be applied on [[date]]. You don't need to place
+renewal is scheduled to be applied on [[date]]. You don't need to place
 another order.
 
 Regards,
