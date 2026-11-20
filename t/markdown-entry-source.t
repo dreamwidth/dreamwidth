@@ -102,4 +102,29 @@ subtest 'Polls on post' => sub {
     like( $error, qr/^103(?:$|:)/, 'an invalid poll still prevents posting' );
 };
 
+subtest 'Literal poll-placeholder attribute and legacy embed wrapper with poll' => sub {
+    my $attr_tag = q{<span title='<poll-placeholder>'>Example</span>};
+    my $poll     = '<poll name="Safe"><poll-question type="text">Q?</poll-question></poll>';
+    my ( $result, $error ) = request( 'postevent', event => "$attr_tag\n\n$poll\n\n$after" );
+    is( $error, 0, 'posted entry containing literal <poll-placeholder> attribute before poll' )
+        or return;
+
+    my $saved = saved_source( $result->{itemid} );
+    like( $saved, qr/\A\Q$attr_tag\E\n\n<poll-[1-9]\d*>\n\n\Q$after\E\z/,
+'literal <poll-placeholder> in attribute is untouched and real poll is linked at poll position'
+    );
+
+    my $legacy_embed = q{<div class='ljembed' embedid='42'>fallback content</div>};
+    ( $result, $error ) = request( 'postevent', event => "$before\n\n$poll\n\n$legacy_embed" );
+    is( $error, 0, 'posted entry combining poll and single-quoted legacy ljembed wrapper' )
+        or return;
+
+    my $saved_combo = saved_source( $result->{itemid} );
+    like(
+        $saved_combo,
+        qr/\A\Q$before\E\n\n<poll-[1-9]\d*>\n\n<site-embed id="[1-9]\d*"\/>\z/,
+'poll and single-quoted legacy ljembed wrapper both convert cleanly alongside preserved Markdown'
+    );
+};
+
 done_testing;

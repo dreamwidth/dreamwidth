@@ -1649,8 +1649,9 @@ sub postevent {
             );
 
             my $pollid = $poll->pollid;
+            my $ph     = $poll->placeholder;
 
-            $event =~ s/<poll-placeholder>/<poll-$pollid>/;
+            $event =~ s/\Q$ph\E/<poll-$pollid>/;
         }
     }
     #### /embedding
