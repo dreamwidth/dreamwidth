@@ -13,6 +13,7 @@ $alert-box-error-color: $alert-color !default;
   &.round { @include radius($global-rounded); }
 
   &.success { @include alert-style($success-color);}
+  &.success.crosspost-requested { border-color: $primary-color; }
   &.alert { @include alert-style($alert-box-error-color);}
   &.secondary { @include alert-style($secondary-color);}
 
