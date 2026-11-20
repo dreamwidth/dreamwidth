@@ -14,40 +14,28 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% cart_display %]
 
 [% IF refunded %]
-
-<p>[% '.complete' | ml %]</p>
-
-<p>[% '.refunded' | ml(sitename = site.nameshort, points = points, days = days, type = type) %]</p>
-
+    <p class="alert-box success radius">[% '.complete' | ml %]</p>
+    <p>[% '.refunded' | ml(sitename = site.nameshort, points = points, days = days, type = type) %]</p>
 [% ELSE %]
+    <p>[% '.about' | ml(sitename = site.nameshort) %]</p>
+    <p>[% '.about3' | ml %]</p>
 
-<p>[% '.about' | ml(sitename = site.nameshort) %]</p>
+    [% IF NOT rate %]
+        <p class="alert-box alert radius">[% '.noteligible' | ml %]</p>
+    [% ELSIF NOT can_refund %]
+        <p class="alert-box alert radius">[% '.toosoon' | ml %]</p>
+        [% IF next_refund %]
+            <p>[% '.nextrefund' | ml(date = next_refund) %]</p>
+        [% END %]
+    [% ELSIF NOT points %]
+        <p class="alert-box alert radius">[% '.toofew' | ml %]</p>
+    [% ELSE %]
+        <p>[% '.refund' | ml(sitename = site.nameshort, points = points, days = days, type = type) %]</p>
+        <p>[% '.areyousure' | ml %]</p>
 
-<p>[% '.about3' | ml %]</p>
-
-[% IF NOT rate %]
-
-<p><strong>[% '.noteligible' | ml %]</strong></p>
-
-[% ELSIF NOT can_refund %]
-
-<p><strong>[% '.toosoon' | ml %]</strong></p>
-<p>[% IF next_refund; '.nextrefund' | ml(date = next_refund); END %]</p>
-
-[% ELSIF NOT points %]
-
-<p><strong>[% '.toofew' | ml %]</strong><p>
-
-[% ELSE %]
-
-<p>[% '.refund' | ml(sitename = site.nameshort, points = points, days = days, type = type) %]</p>
-
-<p>[% '.areyousure' | ml %]</p>
-
-<form method='post'>
-[% dw.form_auth %]
-<input type='submit' value='[% '.addtocart' | ml(points = points) %]' />
-</form>
-
-[% END %]
+        <form method="post">
+            [% dw.form_auth %]
+            [% form.submit(value = dw.ml('.addtocart', points = points), class = 'button primary expand-for-mobile') %]
+        </form>
+    [% END %]
 [% END %]
