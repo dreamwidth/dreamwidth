@@ -50,6 +50,7 @@
             <h1>[% dw.ml( ".intro.what_is_dreamwidth", { sitename => site.name } ) %]</h1>
             <p>[% dw.ml( ".intro.what_is_dreamwidth.content", { sitename => site.name } ) %]</p>
     </div>
+    [% UNLESS account_creation_blocked %]
     <div id="intro-box-create">
             <h2>[% dw.ml( ".create.join_dreamwidth", { sitename => site.nameshort } ) %]</h2>
             <p>[% dw.ml( string, { aopts => ( use_acct_codes ?
@@ -69,6 +70,7 @@
             <p style="margin-top: 1em;">[% dw.ml( ".create.join_dreamwidth.codeshare" ) %]</p>
         [% END %]
     </div>
+    [% END %]
 </div>
 
 <div id="frontpage-links" class="row">

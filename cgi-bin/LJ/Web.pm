@@ -35,6 +35,7 @@ use LJ::Directory::Constraint;
 use LJ::PageStats;
 use LJ::JSON;
 use LJ::Lang;
+use LJ::Sysban;
 
 # <LJFUNC>
 # name: LJ::img
@@ -1946,7 +1947,9 @@ sub control_strip {
         }
 
         push( @$actionlinks, $links{'login'} ) unless $show_login_form;
-        push( @$actionlinks, $links{'create_account'}, $links{'learn_more'} );
+        push( @$actionlinks, $links{'create_account'} )
+            unless LJ::Sysban::account_creation_blocked();
+        push( @$actionlinks, $links{'learn_more'} );
     }
 
     # search box and ?style=mine/?style=light/?style=original/?style=site options
