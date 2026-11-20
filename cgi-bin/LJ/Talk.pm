@@ -1082,6 +1082,21 @@ sub load_comments {
     my $thread = $opts->{'thread'} + 0;
     $thread = 0 unless $posts->{$thread} && !$posts->{$thread}->{_hidden};
 
+    if ( $thread && defined $opts->{destination_thread} ) {
+        my $destination = $opts->{destination_thread};
+        $destination = 0 unless $posts->{$destination} && !$posts->{$destination}->{_hidden};
+
+        my $ancestor = $thread;
+        my $depth    = $destination ? 1 : 0;
+        while ( $ancestor > $destination ) {
+            my $parent = $posts->{$ancestor}->{parenttalkid};
+            last if $parent >= $ancestor;
+            $ancestor = $parent;
+            $depth++;
+        }
+        $opts->{out_thread_depth} = $depth if $ancestor == $destination;
+    }
+
     unless ( $thread || $children{$thread} ) {
         $opts->{'out_error'} = "noposts";
         return;

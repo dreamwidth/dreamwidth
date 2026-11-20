@@ -60,8 +60,12 @@ sub EntryPage {
     my $permalink = $entry->url;
     my $style_arg = LJ::viewing_style_args(%$get);
 
-    $p->{'viewing_thread'} = $get->{thread} ? 1 : 0;
-    $p->{_viewing_thread_id} = $get->{thread} ? $get->{thread} + 0 : 0;
+    # an id with the wrong anum is treated like a missing one
+    my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} + 0 : 0;
+    $thread = 0 if $thread % 256 != $entry->anum;
+
+    $p->{'viewing_thread'}   = $thread ? 1 : 0;
+    $p->{_viewing_thread_id} = $thread;
 
     my $link_thread_arg = '';    # Thread to return to after reply/edit
 
@@ -174,9 +178,6 @@ sub EntryPage {
     my $top_only_mode = ( $view_arg =~ /\btop-only\b/ );
     my $view_num      = ( $view_arg =~ /(\d+)/ ) ? $1 : undef;
 
-    # an id with the wrong anum is treated like a missing one
-    my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} : 0;
-    $thread   = 0     if $thread % 256 != $entry->anum;
     $view_num = undef if defined $view_num && $view_num % 256 != $entry->anum;
 
     my $expand_all = ( $u->thread_expand_all($remote) && $get->{'expand_all'} );
@@ -198,6 +199,10 @@ sub EntryPage {
         'expand_all' => $expand_all,
         'filter'     => $get->{comments},
     };
+    if ( defined $destination_thread ) {
+        $copts->{destination_thread} =
+            $destination_thread % 256 == $entry->anum ? $destination_thread >> 8 : 0;
+    }
 
     my $userlite_journal = UserLite($u);
 
@@ -464,7 +469,9 @@ sub EntryPage {
         }
     };
     $p->{'comments'} = [];
-    $convert_comments->( $convert_comments, $p->{'comments'}, \@comments, 1 );
+    $convert_comments->(
+        $convert_comments, $p->{'comments'}, \@comments, $copts->{out_thread_depth} // 1
+    );
 
     # prepare the javascript data structure to put in the top of the page
     # if the remote user is a manager of the comments
