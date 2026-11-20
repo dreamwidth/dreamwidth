@@ -70,6 +70,10 @@ sub file_new_handler {
     return api_error( $r->HTTP_BAD_REQUEST, 'No uploads found' )
         unless ref $uploads eq 'ARRAY' && scalar @$uploads;
 
+    my $initial_security = $r->get_args->{initial_security};
+    return api_error( $r->HTTP_BAD_REQUEST, 'Invalid initial security' )
+        if defined $initial_security && $initial_security ne 'private';
+
     foreach my $upload (@$uploads) {
         my ( $type, $ext ) = DW::Media->get_upload_type( $upload->{'content-type'} );
         next unless defined $type && $type == DW::Media::TYPE_PHOTO;
@@ -78,7 +82,7 @@ sub file_new_handler {
         my $obj = DW::Media->upload_media(
             user     => $rv->{u},
             data     => $upload->{body},
-            security => $rv->{u}->newpost_minsecurity,
+            security => $initial_security // $rv->{u}->newpost_minsecurity,
         );
         return api_error( $r->SERVER_ERROR, 'Failed to upload media' )
             unless $obj;
@@ -107,6 +111,7 @@ sub file_new_handler {
 #     1234: {
 #         security => "public",  # public, private, access, usemask
 #         allowmask => 3553,     # only valid in usemask security
+#         groups => [2, 4],     # instead of allowmask; only valid in usemask security
 #         title => "some title", # else, the name of the property
 #         otherprop => 5,
 #         ...
@@ -144,12 +149,22 @@ sub file_edit_handler {
         return api_error( $r->NOT_FOUND, 'Media ID not found or invalid' )
             unless $media{$id};
 
+        my $security = $args->{$id}->{security} // '';
         return api_error( $r->HTTP_BAD_REQUEST, 'Security invalid' )
-            if $args->{$id}->{security}
-            && $args->{$id}->{security} !~ /^(?:public|private|usemask)$/;
+            if exists $args->{$id}->{security} && $security !~ /\A(?:public|private|usemask)\z/;
+        if ( exists $args->{$id}->{groups} ) {
+            my $groups = delete $args->{$id}->{groups};
+            return api_error( $r->HTTP_BAD_REQUEST, 'Invalid access filters' )
+                unless $security eq 'usemask'
+                && ref $groups eq 'ARRAY'
+                && !exists $args->{$id}->{allowmask};
+            my $mask = DW::Media->allowmask_for_groups( $rv->{u}, @$groups );
+            return api_error( $r->HTTP_BAD_REQUEST, 'Invalid access filters' ) unless defined $mask;
+            $args->{$id}->{allowmask} = $mask;
+        }
         if ( exists $args->{$id}->{allowmask} ) {
             return api_error( $r->HTTP_BAD_REQUEST, 'Allowmask invalid with chosen security' )
-                unless $args->{$id}->{security} eq 'usemask';
+                unless $security eq 'usemask';
             return api_error( $r->HTTP_BAD_REQUEST, 'Allowmask must be numeric' )
                 unless $args->{$id}->{allowmask} =~ /^\d+$/;
         }

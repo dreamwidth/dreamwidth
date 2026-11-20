@@ -854,6 +854,13 @@ sub delete_trust_group {
     my $bit = $grp->{groupnum} + 0;
     return 0 unless $bit >= 1 && $bit <= 60;
 
+    $u->do(
+        q{UPDATE media SET allowmask = allowmask & ~(1 << ?)
+          WHERE userid = ? AND security = 'usemask' AND allowmask & (1 << ?)},
+        undef, $bit, $u->id, $bit
+    );
+    return 0 if $u->err;
+
     # remove all posts from allowing that group:
     my @posts_to_clean = @{
         $u->selectcol_arrayref(

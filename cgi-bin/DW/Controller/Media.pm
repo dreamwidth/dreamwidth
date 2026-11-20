@@ -109,6 +109,18 @@ sub media_manage_handler {
     return DW::Template->render_template( 'media/index.tt', $rv );
 }
 
+sub security_form_options {
+    my ( $rv, @groups ) = @_;
+    $rv->{security} = [
+        { value => "public",  text => LJ::Lang::ml('label.security.public2') },
+        { value => "usemask", text => LJ::Lang::ml('label.security.accesslist') },
+        { value => "private", text => LJ::Lang::ml('label.security.private2') },
+    ];
+    $rv->{custom_groups} = \@groups;
+    push @{ $rv->{security} }, { value => 'custom', text => LJ::Lang::ml('label.security.custom') }
+        if @groups;
+}
+
 sub media_bulkedit_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
@@ -120,12 +132,8 @@ sub media_bulkedit_handler {
         }
     ) if $rv->{remote}->is_identity;
 
-    my @security = (
-        { value => "public",  text => LJ::Lang::ml('label.security.public2') },
-        { value => "usemask", text => LJ::Lang::ml('label.security.accesslist') },
-        { value => "private", text => LJ::Lang::ml('label.security.private2') },
-    );
-    $rv->{security} = \@security;
+    my @groups = $rv->{u}->trust_groups;
+    security_form_options( $rv, @groups );
 
     my $r = DW::Request->get;
     if ( $r->did_post ) {
@@ -143,32 +151,46 @@ sub media_bulkedit_handler {
 
             my %props;
             while ( my ( $key, $val ) = each %post ) {
-                next if $key eq "delete";
-                next unless $key =~ m/^(\w+)-(\d+)/;
-                my $mediaid = $2 >> 8;
-                if ( exists $props{$mediaid} ) {
-                    $props{$mediaid}{$1} = $val;
-                }
-                else {
-                    $props{$mediaid} = { $1 => $val };
-                }
+                next unless $key =~ /\A(security|title|alttext|description)-([0-9]+)\z/;
+                $props{$2}{$1} = $val;
             }
 
-            # go through and try to fetch a media object from
-            # each id, then try to set it's properties
+            my %updates;
+            for my $displayid ( keys %props ) {
+                my $media = DW::Media->new( user => $rv->{u}, mediaid => $displayid >> 8 );
+                next unless $media && $media->displayid == $displayid;
 
-            for my $media_key ( keys %props ) {
-                my $media = DW::Media->new( user => $rv->{u}, mediaid => $media_key );
-                next unless $media;
+                my $selection = delete $props{$displayid}{security};
+                my $mask      = 0;
+                if ( defined $selection ) {
+                    if ( $selection eq 'custom' ) {
+                        $selection = 'usemask';
+                        $mask      = DW::Media->allowmask_for_groups( $rv->{u},
+                            $post_args->get_all("group-$displayid") );
+                    }
+                    elsif ( $selection eq 'usemask' ) {
+                        $mask = 1;
+                    }
+                    unless ( defined $mask && $selection =~ /\A(?:public|private|usemask)\z/ ) {
+                        $r->status( $r->HTTP_BAD_REQUEST );
+                        return DW::Template->render_template(
+                            'error.tt',
+                            {
+                                message =>
+                                    'Invalid image security or access filter. Reload and try again.'
+                            }
+                        );
+                    }
+                }
+                $updates{$displayid} = [ $media, $selection, $mask ];
+            }
 
-                while ( my ( $key, $val ) = each %{ $props{$media_key} } ) {
-                    if ( $key eq 'security' ) {
-                        my $amask = $val eq "usemask" ? 1 : 0;
-                        $media->set_security( security => $val, allowmask => $amask );
-                    }
-                    else {
-                        $media->prop( $key, $val );
-                    }
+            for my $displayid ( keys %updates ) {
+                my ( $media, $security, $mask ) = @{ $updates{$displayid} };
+                $media->set_security( security => $security, allowmask => $mask )
+                    if defined $security;
+                while ( my ( $key, $val ) = each %{ $props{$displayid} } ) {
+                    $media->prop( $key, $val );
                 }
             }
 
@@ -198,6 +220,16 @@ sub media_bulkedit_handler {
     my @media =
         DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200, sort => $sort );
 
+    foreach my $media (@media) {
+        my $id = $media->displayid;
+        $rv->{security_selection}{$id} = $media->security;
+        next unless $media->security eq 'usemask' && !( $media->allowmask & 1 );
+        $rv->{security_selection}{$id} = @groups ? 'custom' : 'private';
+        $rv->{selected_groups}{$id}    = {
+            map  { $_->{groupnum} => 1 }
+            grep { $media->allowmask & ( 1 << $_->{groupnum} ) } @groups
+        };
+    }
     my $maxpage = POSIX::ceil( scalar @media / 20 );
     my $page    = $nav_args{page} // 1;
 
@@ -343,11 +375,7 @@ sub media_new_handler {
         }
     ) if $rv->{remote}->is_identity;
 
-    $rv->{security} = [
-        { value => "public",  text => LJ::Lang::ml('label.security.public2') },
-        { value => "usemask", text => LJ::Lang::ml('label.security.accesslist') },
-        { value => "private", text => LJ::Lang::ml('label.security.private2') },
-    ];
+    security_form_options( $rv, $rv->{u}->trust_groups );
 
     $rv->{default_security} = $rv->{remote}->newpost_minsecurity;
     $rv->{default_security} = 'usemask' if $rv->{default_security} eq 'friends';

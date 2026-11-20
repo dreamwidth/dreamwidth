@@ -37,6 +37,17 @@ my %ACTIVE_SORT_ORDER = (
     smallest => 'filesize ASC, logtime DESC, mediaid DESC',
 );
 
+sub allowmask_for_groups {
+    my ( $class, $user, @groups ) = @_;
+    my %owned = map { $_->{groupnum} => 1 } $user->trust_groups;
+    my $mask  = 0;
+    foreach my $group (@groups) {
+        return undef unless defined $group && !ref $group && $owned{$group};
+        $mask |= 1 << $group;
+    }
+    return $mask;
+}
+
 sub new {
     my ( $class, %opts ) = @_;
     confess 'Need a user and mediaid key'
