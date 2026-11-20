@@ -36,6 +36,8 @@ body<=
     return "<?p " . BML::ml('protocol.not_validated', { sitename => $LJ::SITENAMESHORT, siteroot => $LJ::SITEROOT }) . " p?>"
         unless $remote->is_validated;
 
+    LJ::need_res('js/message-length.js');
+
     # $_[1] is a pre-request scratch area
     # put variables here so that we can access them later
     # outside of this _code block
@@ -303,11 +305,18 @@ body<=
              });
     $body .= "</p>\n";
     $body .= "<div class='msg_txt'>";
-    $body .= "<textarea name='msg_body' rows=6 cols=55 wrap=soft>";
-    $body .= LJ::ehtml( $POST{'msg_body'} || $msg_body );
-    $body .= "</textarea><br />";
-    $body .= "<span class='helper'>Up to " . LJ::commafy($msg_limit) . " characters. Plain text, no HTML.";
-    $body .= "</span></div>\n";
+    $body .= "<label for='msg_body'>" . LJ::ehtml($ML{'.form.label.message'}) . "</label>";
+    $body .= LJ::html_textarea({
+        name => 'msg_body', id => 'msg_body', rows => 6, cols => 55, wrap => 'soft',
+        value => $POST{'msg_body'} || $msg_body,
+        'aria-describedby' => 'msg_body_hint msg_body_warning',
+        'data-message-limit' => $msg_limit,
+        'data-message-warning' => BML::ml('.warning.message.length', {
+            msg_limit => LJ::commafy($msg_limit),
+        }),
+    });
+    $body .= "<br /><span class='helper' id='msg_body_hint'>Up to " . LJ::commafy($msg_limit) . " characters. Plain text, no HTML.";
+    $body .= "</span><div id='msg_body_warning' role='status' aria-live='polite' aria-atomic='true'><strong></strong></div></div>\n";
 
     $body .= $msg_parent;
     $body .= LJ::html_hidden({
