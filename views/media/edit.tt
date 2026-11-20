@@ -38,7 +38,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% IF media.size %]
 <form method="GET">
-    [% form.hidden( name = 'page', value = page ) %]
     [% form.select( name = 'order', id = 'media-order', label = dw.ml('.order.label'),
         selected = order, items = [
             { value = 'newest', text = dw.ml('.order.newest') },

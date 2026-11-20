@@ -12,8 +12,9 @@ jQuery(function($) {
         if ( response ) {
             var data = $(form).serializeArray();
             data.push({ name: "action:delete", value: true});
+            // Reload so the server can clamp the page and redraw pagination after deletion.
             $.post( form.action, data, function() {
-                $("#media-manage input[name=delete]:checked").closest(".media-item").fadeOut().remove();
+                window.location.href = form.action;
             } );
         }
     }
