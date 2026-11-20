@@ -836,7 +836,9 @@ sub append_request {
         }
     }
 
-    support_notify( { spid => $spid, splid => $splid, type => 'update' } );
+    my $notification = { spid => $spid, splid => $splid, type => 'update' };
+    $notification->{regreen} = 1 if $re->{regreen} && $re->{type} eq 'comment';
+    support_notify($notification);
 
     _index_supportlog($splid);
 
@@ -1123,6 +1125,20 @@ sub support_notify {
     return $h ? 1 : 0;
 }
 
+sub load_notification_subscribers {
+    my ( $dbh, $spcatid, $event ) = @_;
+
+    my @levels = ('all');
+    push @levels, 'new'             if $event->{type} eq 'new';
+    push @levels, 'new_and_regreen' if $event->{type} eq 'new' || $event->{regreen};
+
+    my $placeholders = join ', ', ('?') x @levels;
+    my $userids      = $dbh->selectcol_arrayref(
+        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($placeholders)",
+        undef, $spcatid, @levels );
+    return LJ::load_userids(@$userids);
+}
+
 package LJ::Worker::SupportNotify;
 use base 'TheSchwartz::Worker';
 
@@ -1141,12 +1157,7 @@ sub work {
     # causing the message not to load from the reader
     my $dbr = LJ::get_db_writer();
 
-    # now branch a bit to select the right user information
-    my $level = $type eq 'new' ? "'new', 'all'" : "'all'";
-    my $data  = $dbr->selectcol_arrayref(
-        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($level)",
-        undef, $sp->{_cat}{spcatid} );
-    my $userids = LJ::load_userids(@$data);
+    my $userids = LJ::Support::load_notification_subscribers( $dbr, $sp->{_cat}{spcatid}, $a );
 
     # prepare the email
     my $body;

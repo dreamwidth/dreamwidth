@@ -410,8 +410,9 @@ sub _route_to_support {
         my $splid = LJ::Support::append_request(
             $sp,
             {
-                'type' => 'comment',
-                'body' => $body,
+                'type'    => 'comment',
+                'body'    => $body,
+                'regreen' => 1,
             }
         );
         unless ($splid) {

@@ -58,8 +58,8 @@ sub cn_handler {
 
         foreach my $cat (@filter_cats) {
             my $id      = $cat->{'spcatid'};
-            my $setting = $form->{"spcatid_$id"};
-            if ( $setting eq "all" || $setting eq "new" ) {
+            my $setting = $form->{"spcatid_$id"} // "off";
+            if ( $setting eq "all" || $setting eq "new" || $setting eq "new_and_regreen" ) {
                 if ($sql) {
                     $sql .= ", ";
                 }

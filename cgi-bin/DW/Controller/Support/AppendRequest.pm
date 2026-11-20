@@ -240,11 +240,12 @@ sub append_handler {
     }
 
     # a poster replying reopens their own request
+    my $is_poster = LJ::Support::is_poster( $sp, $remote, $FORM{auth} );
     $dbh->do(
         "UPDATE support SET state='open', timetouched=UNIX_TIMESTAMP(), timeclosed=0,"
             . " timemodified=UNIX_TIMESTAMP() WHERE spid=?",
         undef, $spid
-    ) if LJ::Support::is_poster( $sp, $remote, $FORM{auth} );
+    ) if $is_poster;
 
     if ( $FORM{changecat} ) {
         $dbh->do( "UPDATE support SET spcatid=? WHERE spid=?", undef, $newcat, $spid );
@@ -274,16 +275,17 @@ sub append_handler {
         $splid = LJ::Support::append_request(
             $sp,
             {
-                body   => $FORM{reply},
-                type   => $userfacing_action_type,
-                faqid  => $faqid,
-                uniq   => $r->note('uniq'),
-                remote => $remote,
+                body    => $FORM{reply},
+                type    => $userfacing_action_type,
+                faqid   => $faqid,
+                uniq    => $r->note('uniq'),
+                remote  => $remote,
+                regreen => $is_poster,
             }
         );
 
         LJ::Support::mail_response_to_user( $sp, $splid )
-            unless LJ::Support::is_poster( $sp, $remote, $FORM{auth} );
+            unless $is_poster;
     }
 
     # then any internal status changes
@@ -299,7 +301,7 @@ sub append_handler {
         );
 
         LJ::Support::mail_response_to_user( $sp, $splid )
-            unless LJ::Support::is_poster( $sp, $remote, $FORM{auth} );
+            unless $is_poster;
     }
 
     $rv->{state} = 'logged';
