@@ -358,13 +358,14 @@ sub main_controller {
         my $in    = join( "','", map { $_ + 0 } @srids );
         $in = "'$in'";
 
-        if (   $post->{sysban_ip}
+        my $sysban_ip = LJ::trim( $post->{sysban_ip} );
+        if (   $sysban_ip
             && $remote->has_priv( 'sysban', "talk_ip_test" )
-            && !LJ::Sysban::validate( "talk_ip_test", $post->{sysban_ip} ) )
+            && !LJ::Sysban::validate( "talk_ip_test", $sysban_ip ) )
         {
             LJ::Sysban::create(
                 what    => 'talk_ip_test',
-                value   => $post->{sysban_ip},
+                value   => $sysban_ip,
                 bandays => 0,
                 note    => $post->{sysban_note}
                     || LJ::Lang::ml("$scope.reports.individual.sysban.anon")

@@ -595,14 +595,18 @@ sub validate {
         'ip' => sub {
             my $ip = shift;
 
-            while ( my ( $ip_re, $reason ) = each %LJ::UNBANNABLE_IPS ) {
+            return "Format: xxx.xxx.xxx.xxx (ip address)"
+                unless $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/;
+
+            for my $ip_re ( keys %LJ::UNBANNABLE_IPS ) {
                 next unless $ip =~ $ip_re;
-                return "Cannot ban IP $ip: " . LJ::ehtml($reason);
+                return
+                      "Cannot ban IP "
+                    . LJ::ehtml($ip) . ": "
+                    . LJ::ehtml( $LJ::UNBANNABLE_IPS{$ip_re} );
             }
 
-            return $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
-                ? 0
-                : "Format: xxx.xxx.xxx.xxx (ip address)";
+            return 0;
         },
         'uniq' => sub {
             my $uniq = shift;
