@@ -1246,6 +1246,14 @@ userproplist.safe_search:
   multihomed: 0
   prettyname: Safe Search Filtering
 
+userproplist.shared_admin_posts:
+  cldversion: 4
+  datatype: bool
+  des: Allow all community administrators to edit official posts
+  indexed: 0
+  multihomed: 0
+  prettyname: Shared admin posts
+
 userproplist.shop_points:
   cldversion: 0
   datatype: num
@@ -1491,6 +1499,13 @@ logproplist.admin_post:
   datatype: bool
   sortorder: 99
   ownership: user
+
+logproplist.admin_post_editor:
+  datatype: bool
+  des: This entry has shared official post editor IDs in logprop_history
+  prettyname: Official post editor
+  sortorder: 99
+  ownership: system
 
 logproplist.adult_content:
   datatype: char

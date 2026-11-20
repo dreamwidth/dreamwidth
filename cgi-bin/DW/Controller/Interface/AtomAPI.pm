@@ -398,7 +398,7 @@ sub _edit_entry {
     my $r = DW::Request->get;
 
     return ( 0, err ( "You aren't authorized to edit this entry.", $r->HTTP_UNAUTHORIZED ) )
-        unless $entry_obj->poster->equals($remote);
+        unless $entry_obj->editable_by($remote);
 
     return ( 0, err ( "Can't edit entry: journal is readonly.", $r->BAD_REQUEST ) )
         if $u->is_readonly || $remote->is_readonly;
@@ -482,7 +482,7 @@ sub _delete_entry {
     my $r = DW::Request->get;
 
     return ( 0, err ( "You aren't authorized to delete this entry.", $r->HTTP_UNAUTHORIZED ) )
-        unless $entry_obj->poster->equals($remote) || $remote->can_manage($u);
+        unless $entry_obj->deletable_by($remote);
 
     my $req = {
         usejournal  => !$remote->equals($u) ? $u->user : undef,

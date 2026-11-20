@@ -250,6 +250,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
     [%- BLOCK components forCommunity = 0 %]
         [% FOREACH component = items %]
+        [%- NEXT IF shared_admin_edit && component == 'icons' -%]
         [%- IF forCommunity -%]<div class='columns medium-6 large-4 [% IF loop.count == items.size %]end[% END %]'>[%- END -%]
 
         <div class='panel component [% component %]-component[% UNLESS forCommunity || panels.show.$component -%] inactive-component[%- END -%]'

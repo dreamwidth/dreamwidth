@@ -714,6 +714,9 @@ sub _render_maintainer_form {
             adult_content_enabled => LJ::is_enabled('adult_content'),
             remote                => $remote,
             action                => $opts{action} // LJ::create_url( undef, keep_args => 1 ),
+            shared_edit_url       => $entry->editable_by($remote)
+            ? LJ::create_url( undef, keep_args => 1, no_blank => 1, args => { moderate => '' } )
+            : undef,
             props                 => {
                 adult_content_maintainer_reason => $entry->prop('adult_content_maintainer_reason')
                     || '',
@@ -740,35 +743,34 @@ sub _edit {
 
     return error_ml('error.invalidauth') unless $journal;
 
+    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
+    return error_ml('/entry/form.tt.error.nofind')
+        unless $entry_obj->correct_anum( $ditemid % 256 );
+
+    my $other_author = $entry_obj->posterid != $remote->userid;
+    my $can_moderate = $other_author
+        && $journal->is_comm
+        && !$journal->readonly
+        && $entry_obj->deletable_by($remote);
+    my $can_edit = $entry_obj->editable_by($remote);
+    my $moderation_view = $can_moderate && ( $r->get_args->{moderate} || !$can_edit );
+
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
-    my $post;
+    my $post     = $r->did_post ? $r->post_args : undef;
     my $spellcheck_requested;
 
-    my $maintainer_post = $r->did_post ? $r->post_args : undef;
-    if ( $maintainer_post && $maintainer_post->{'action:savemaintainer'} ) {
-        my $entry  = LJ::Entry->new( $journal, ditemid => $ditemid );
-        my $anum   = $ditemid % 256;
-        my $itemid = $ditemid >> 8;
-        return error_ml('/entry/form.tt.error.nofind')
-            unless $entry->editable_by($remote)
-            && $anum == $entry->anum
-            && $itemid == $entry->jitemid
-            && !$entry->poster->equals($remote)
-            && $journal->is_comm
-            && $remote->can_manage($journal)
-            && !$journal->readonly;
+    if ( $post && $post->{'action:savemaintainer'} ) {
+        return error_ml('/entry/form.tt.error.nofind') unless $can_moderate;
         return error_ml('error.invalidform')
-            unless LJ::check_form_auth( $maintainer_post->{lj_form_auth} );
+            unless LJ::check_form_auth( $post->{lj_form_auth} );
         LJ::set_logprop(
-            $journal, $itemid,
+            $journal, $entry_obj->jitemid,
             {
                 adult_content_maintainer_reason =>
-                    $maintainer_post->{prop_adult_content_maintainer_reason},
-                adult_content_maintainer  => $maintainer_post->{prop_adult_content_maintainer},
-                opt_nocomments_maintainer => $maintainer_post->{prop_opt_nocomments_maintainer}
-                ? 1
-                : 0,
+                    $post->{prop_adult_content_maintainer_reason},
+                adult_content_maintainer  => $post->{prop_adult_content_maintainer},
+                opt_nocomments_maintainer => $post->{prop_opt_nocomments_maintainer} ? 1 : 0,
             }
         );
         $r->status(302);
@@ -780,58 +782,54 @@ sub _edit {
     # their own entry; only treat this as the manager-moderation action when
     # the poster differs from the actor, so an owner's delete still falls
     # through to the generic edit/delete handling below unaffected.
-    if ( $maintainer_post
-        && ( $maintainer_post->{'action:delete'} || $maintainer_post->{'action:deletespam'} ) )
+    my $mode_delete = $post && $post->{'action:delete'};
+    if ( $post && ( $post->{'action:deletespam'} || ( $mode_delete && $other_author ) ) )
     {
-        my $entry  = LJ::Entry->new( $journal, ditemid => $ditemid );
-        my $anum   = $ditemid % 256;
-        my $itemid = $ditemid >> 8;
-        if (   $entry->editable_by($remote)
-            && $anum == $entry->anum
-            && $itemid == $entry->jitemid
-            && !$entry->poster->equals($remote) )
-        {
-            my $deletespam = $maintainer_post->{'action:deletespam'} ? 1 : 0;
-            return error_ml('/entry/form.tt.error.nofind')
-                unless $journal->is_comm && $remote->can_manage($journal) && !$journal->readonly;
+        return error_ml('/entry/form.tt.error.nofind') unless $can_moderate;
+        my $deletespam = $post->{'action:deletespam'};
 
-            # Retained editjournal's disabled_spamdelete additionally requires
-            # a clear spamreport sysban; ordinary delete does not.
-            return error_ml('error.invalidform')
-                if $deletespam && LJ::sysban_check( 'spamreport', $journal->user );
-            return error_ml('error.invalidform')
-                unless LJ::check_form_auth( $maintainer_post->{lj_form_auth} );
+        # Retained editjournal's disabled_spamdelete additionally requires
+        # a clear spamreport sysban; ordinary delete does not.
+        return error_ml('error.invalidform')
+            if $deletespam && LJ::sysban_check( 'spamreport', $journal->user );
+        return error_ml('error.invalidform') unless LJ::check_form_auth( $post->{lj_form_auth} );
 
-            LJ::mark_entry_as_spam( $journal, $itemid ) if $deletespam;
+        LJ::mark_entry_as_spam( $journal, $entry_obj->jitemid ) if $deletespam;
 
-            $journal->log_event(
-                'delete_entry',
-                {
-                    remote       => $remote,
-                    actiontarget => $ditemid,
-                    method       => 'web',
-                }
-            );
+        $journal->log_event(
+            'delete_entry',
+            {
+                remote       => $remote,
+                actiontarget => $ditemid,
+                method       => 'web',
+            }
+        );
 
-            my %edit_res = _do_edit(
-                $ditemid,
-                {
-                    event     => '',
-                    security  => $entry->security,
-                    allowmask => $entry->allowmask,
-                },
-                { poster => $remote, journal => $journal },
-                warnings => $warnings,
-            );
-            return $edit_res{render} if $edit_res{status} eq "ok";
-            return DW::Template->render_template( 'error.tt', { message => $edit_res{errors} } )
-                if $edit_res{errors};
-            return error_ml('error.invalidform');
-        }
+        my %edit_res = _do_edit(
+            $ditemid,
+            {
+                event     => '',
+                security  => $entry_obj->security,
+                allowmask => $entry_obj->allowmask,
+            },
+            { poster => $remote, journal => $journal },
+            warnings => $warnings,
+        );
+        return $edit_res{render} if $edit_res{status} eq 'ok';
+        return DW::Template->render_template( 'error.tt', { message => $edit_res{errors} } )
+            if $edit_res{errors};
+        return error_ml('error.invalidform');
     }
 
-    if ( $r->did_post ) {
-        $post = $r->post_args;
+    if ($moderation_view) {
+        return error_ml('error.invalidauth') if $post;
+        return _render_maintainer_form( $entry_obj, $journal, $remote );
+    }
+
+    return error_ml('/entry/form.tt.error.nofind')
+        unless $mode_delete ? $entry_obj->deletable_by($remote) : $can_edit;
+
+    if ($post) {
 
         # no difference because we rely on the entry info, but let's get rid of this
         # just to make sure it doesn't trip us up in the future...
@@ -839,7 +837,6 @@ sub _edit {
         $post->remove('usejournal');
 
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
-        my $mode_delete  = $post->{"action:delete"}  ? 1 : 0;
         $spellcheck_requested = $post->{"action:spellcheck"} ? 1 : 0;
 
         my $okay_formauth = LJ::check_form_auth( $post->{lj_form_auth} );
@@ -908,26 +905,6 @@ sub _edit {
     # or it's from the user's POST
     my $trust_datetime_value = 1;
 
-    my $entry_obj = LJ::Entry->new( $journal, ditemid => $ditemid );
-
-    # are you authorized to view this entry
-    # and does the entry we got match the provided ditemid exactly?
-    my $anum   = $ditemid % 256;
-    my $itemid = $ditemid >> 8;
-    return error_ml("/entry/form.tt.error.nofind")
-        unless $entry_obj->editable_by($remote)
-        && $anum == $entry_obj->anum
-        && $itemid == $entry_obj->jitemid;
-
-    # A community maintainer may manage another poster's entry, but never edit
-    # its subject or body.  Keep that property-only surface separate from the
-    # ordinary editor below.
-    unless ( $entry_obj->poster->equals($remote) ) {
-        return error_ml('/entry/form.tt.error.nofind')
-            unless $journal->is_comm && $remote->can_manage($journal) && !$journal->readonly;
-        return _render_maintainer_form( $entry_obj, $journal, $remote );
-    }
-
     my %crosspost;
     if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
         my $xposthash = DW::External::Account->xpost_string_to_hash($xpost);
@@ -950,7 +927,7 @@ sub _edit {
     );
 
     return _render_edit_form( $r, $vars, $errors, $warnings, $post, $entry_obj, $remote, $journal,
-        $spellcheck_requested );
+        $spellcheck_requested, shared_admin_edit => $other_author );
 }
 
 sub _render_edit_form {
@@ -967,7 +944,9 @@ sub _render_edit_form {
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
 
-    $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    my $shared_admin_edit = $opts{shared_admin_edit};
+    $vars->{formdata}          = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{shared_admin_edit} = $shared_admin_edit;
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
@@ -989,8 +968,10 @@ sub _render_edit_form {
     }
 
     # Set up info for the icon select/preview/browse components
-    $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
-    $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+    unless ($shared_admin_edit) {
+        $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
+        $vars->{current_icon} = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
+    }
 
     my %editable = map { $_ => 1 } @modules;
     $vars->{editable} = \%editable;

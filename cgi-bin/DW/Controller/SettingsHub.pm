@@ -159,6 +159,7 @@ sub _categories {
                 qw(
                     DW::Setting::CommunityMembership DW::Setting::CommunityPostLevel
                     DW::Setting::CommunityPostLevelNew DW::Setting::CommunityEntryModeration
+                    DW::Setting::SharedAdminPosts
                     DW::Setting::CommunityJoinLinks DW::Setting::CommunityGuidelinesLocation
                     DW::Setting::CommunityGuidelinesEntry
                     )

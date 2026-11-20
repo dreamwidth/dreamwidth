@@ -676,6 +676,12 @@ sub EntryPage_entry {
         }
     }
 
+    my @editors = $entry->shared_admin_editor_names;
+    if (@editors) {
+        my $notice = 'Community admins who also edited this post: ' . join( ', ', @editors ) . '.';
+        $event .= '<p class="shared-admin-editors">' . LJ::ehtml($notice) . '</p>';
+    }
+
     my $s2entry = Entry(
         $u,
         {

@@ -275,12 +275,6 @@ sub edit_entry {
         && $anum == $entry_obj->anum
         && $itemid == $entry_obj->jitemid;
 
-    # so at this point, we know that we are authorized to edit this entry
-    # but we need to handle things differently if we're an admin
-    # FIXME: handle communities
-    return $self->rest_error( '403', "Editing other people's entries is not supported yet." )
-        unless $entry_obj->poster->equals($remote);
-
     # an omitted datetime keeps the entry's current date
     if ( $post->{datetime} ) {
         my ( $date, $time ) = split( / /, $post->{datetime} );
