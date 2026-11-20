@@ -60,8 +60,12 @@ sub EntryPage {
     my $permalink = $entry->url;
     my $style_arg = LJ::viewing_style_args(%$get);
 
-    $p->{'viewing_thread'} = $get->{thread} ? 1 : 0;
-    $p->{_viewing_thread_id} = $get->{thread} ? $get->{thread} + 0 : 0;
+    # an id with the wrong anum is treated like a missing one
+    my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} + 0 : 0;
+    $thread = 0 if $thread % 256 != $entry->anum;
+
+    $p->{'viewing_thread'}   = $thread ? 1 : 0;
+    $p->{_viewing_thread_id} = $thread;
 
     my $link_thread_arg = '';    # Thread to return to after reply/edit
 
@@ -174,11 +178,7 @@ sub EntryPage {
     my $top_only_mode = ( $view_arg =~ /\btop-only\b/ );
     my $view_num      = ( $view_arg =~ /(\d+)/ ) ? $1 : undef;
 
-    # an id with the wrong anum is treated like a missing one
-    my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} : 0;
-    $thread                  = 0 if $thread % 256 != $entry->anum;
-    $p->{_viewing_thread_id} = $thread;
-    $view_num                = undef if defined $view_num && $view_num % 256 != $entry->anum;
+    $view_num = undef if defined $view_num && $view_num % 256 != $entry->anum;
 
     my $expand_all = ( $u->thread_expand_all($remote) && $get->{'expand_all'} );
 

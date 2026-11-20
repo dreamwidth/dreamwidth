@@ -60,6 +60,14 @@ async function checkExpansion(page, url, fixture, depth) {
         const fromEntry = await checkExpansion(page, entryURL, fixture, 3);
         const fromThread = await checkExpansion(page, `${entryURL}?thread=${fixture.middle}`, fixture, 2);
         const fromMalformedThread = await checkExpansion(page, `${entryURL}?thread=${fixture.middle}.0`, fixture, 3);
+        const malformedReplyHref = await page.$eval(
+            `#cmt${fixture.middle} a[href*="replyto="]`,
+            a => a.getAttribute("href")
+        );
+        assert.ok(
+            !malformedReplyHref.includes(`thread=${fixture.middle}`),
+            "malformed thread query does not leak partial thread param into reply links"
+        );
 
         const response = await page.goto(`${entryURL}?thread=${fixture.target}`, { waitUntil: "networkidle2" });
         assert.equal(response.status(), 200);
