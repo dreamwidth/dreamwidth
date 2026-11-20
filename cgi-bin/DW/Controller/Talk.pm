@@ -1258,7 +1258,7 @@ sub talkscreen_handler {
         my $can_unscreen = LJ::Talk::can_unscreen( $remote, $u, $up, $post->{'userpost'} );
         return $error->('/talkscreen.tt.error.privs.unscreen') unless $can_unscreen;
         if ( $POST->{'confirm'} eq 'Y' ) {
-            if ( $state ne 'A' ) {
+            if ( $state eq 'S' ) {
                 LJ::Talk::unscreen_comment( $u, $qitemid, $qtalkid );
             }
 

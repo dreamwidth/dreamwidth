@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 50;
+use Test::More tests => 52;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Protocol;
@@ -363,11 +363,18 @@ test_esn_flow(
         ok( !$email, "Unscreen: u1 not notified of screened reply" );
 
         # unscreen the reply
-        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $screened_reply->jtalkid );
+        LJ::Talk::freeze_thread( $u2, $entry->jitemid, $screened_reply->jtalkid );
+        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $comment->jtalkid,
+            $screened_reply->jtalkid );
 
         # u1 SHOULD now be notified
         $email = $got_notified->($u1);
-        ok( $email, "Unscreen: u1 notified after reply unscreened" );
+        is( $email, 1, 'Unscreen: only the newly public reply triggers a notification' );
+        ok( $screened_reply->is_frozen, 'Unscreen: the public reply remains frozen' );
+
+        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $screened_reply->jtalkid );
+        ok( !$got_notified->($u1),
+            'Unscreen: repeating the action sends no duplicate notification' );
 
         $subsc->delete;
 
