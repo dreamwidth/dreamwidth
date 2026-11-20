@@ -83,9 +83,20 @@ async function exercise(page, fixture, cookies) {
     await navigate(page, advanced);
     await navigate(page, 'a[href*="/customize/advanced/layers"]');
     const layerPage = new URL(page.url());
-    const communityLayer = await page.$(`#table_yourlayers form[action="layeredit?id=${fixture.theme}"]`);
+    const layerId = `#table_yourlayers a[href="layerbrowse?id=${fixture.theme}"]`;
+    const communityLayer = await page.$(layerId);
 
     const failures = [];
+    if (layerPage.searchParams.get("authas") !== fixture.community || !communityLayer) {
+        failures.push("Advanced customization opened the maintainer's layer list instead of the community's");
+    } else {
+        await navigate(page, layerId);
+        assert.match(await page.title(), /Community Custom Theme/, "the layer ID opens the community theme details");
+        await navigate(page, 'a[href*="/customize/advanced/layers"]');
+        if (new URL(page.url()).searchParams.get("authas") !== fixture.community || !await page.$(layerId)) {
+            failures.push("The layer details Your Layers backlink did not return to the community's layer list");
+        }
+    }
     if (![301, 302, 303, 307, 308].includes(previewResponse.status) || !previewLocation.includes(fixture.community)) {
         failures.push("preview did not redirect to the community journal");
     }
@@ -96,10 +107,25 @@ async function exercise(page, fixture, cookies) {
         await navigate(page, edit);
         assert.match(await page.title(), /Community Custom Theme/, "the editor opens the applied theme");
     }
-    if (layerPage.searchParams.get("authas") !== fixture.community || !communityLayer) {
-        failures.push("Advanced customization opened the maintainer's layer list instead of the community's");
+    return failures;
+}
+
+async function checkDenied(browser, fixture, failures) {
+    const context = await browser.createBrowserContext();
+    try {
+        await login(context, fixture.outsider, fixture.password);
+        const page = await context.newPage();
+        for (const route of ["", "layers", "styles"]) {
+            const pathname = `/customize/advanced/${route}`;
+            await page.goto(`${BASE}${pathname}?authas=${fixture.community}`, { waitUntil: "domcontentloaded" });
+            const body = await page.$eval("body", element => element.textContent);
+            if (!/couldn't be authenticated as the specified account/.test(body)) {
+                failures.push(`${pathname} did not reject a non-maintainer selecting the community`);
+            }
+        }
+    } finally {
+        await context.close();
     }
-    assert.deepEqual(failures, []);
 }
 
 (async () => {
@@ -110,8 +136,10 @@ async function exercise(page, fixture, cookies) {
         const cookies = await login(browser, fixture.user, fixture.password);
         const page = await browser.newPage();
         await page.setCookie(...cookies);
-        await exercise(page, fixture, cookies);
-        console.log("PASS: community preview, theme apply, settings save, and layer navigation");
+        const failures = await exercise(page, fixture, cookies);
+        await checkDenied(browser, fixture, failures);
+        assert.deepEqual(failures, []);
+        console.log("PASS: community preview, theme apply, settings save, layer navigation, and authorization");
     } finally {
         try {
             if (browser) await browser.close();
@@ -119,7 +147,11 @@ async function exercise(page, fixture, cookies) {
             try {
                 deleteFixture(fixtureName, fixture.community);
             } finally {
-                deleteFixture(fixtureName, fixture.user);
+                try {
+                    deleteFixture(fixtureName, fixture.user);
+                } finally {
+                    deleteFixture(fixtureName, fixture.outsider);
+                }
             }
         }
     }
