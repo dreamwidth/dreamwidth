@@ -150,9 +150,12 @@ sub visible_to {
 
     # simple usemask checking...
     if ( $self->security eq 'usemask' ) {
-        my $gmask = $u->trustmask($other_u);
+        my $allowmask = int $self->allowmask;
+        return 0 unless $allowmask;
+        my $gmask =
+            $allowmask & ~1 ? $u->trustmask_from_primary($other_u) : $u->trustmask($other_u);
 
-        my $allowed = int $gmask & int $self->allowmask;
+        my $allowed = ( $gmask // 0 ) & $allowmask;
         return $allowed ? 1 : 0;
     }
 

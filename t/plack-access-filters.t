@@ -39,7 +39,12 @@ test_psgi $app, sub {
     my ($token) = $res->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
     ok( $token, 'signed form token' );
     my $save = sub {
-        return $cb->( POST $url, Content => [ mode => 'save', lj_form_auth => $token, @_ ] );
+        my $form = $cb->( GET $url );
+        my ($revision) = $form->content =~ /name=['"]group_revision['"][^>]*value=['"]([^'"]+)/;
+        return $cb->(
+            POST $url,
+            Content => [ mode => 'save', lj_form_auth => $token, group_revision => $revision, @_ ]
+        );
     };
 
     # The form submits the trust mask as separate low and high halves.

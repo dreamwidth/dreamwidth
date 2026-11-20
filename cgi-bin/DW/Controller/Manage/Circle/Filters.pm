@@ -43,61 +43,97 @@ sub filters_handler {
     # These multi-select fields are UI state; membership uses the mask fields.
     delete @post{qw(list_in list_out)};
     return error_ml('error.invalidform') unless LJ::text_in( \%post );
-    my $groups = $u->trust_groups;
 
     if ( $r->did_post && ( $post{mode} || '' ) eq 'save' ) {
+        my $reload_error = 'Could not save access filters. Reload the page and try again.';
+        my $mutation_error =
+            'Some access filter changes may have been saved. Reload the page and try again.';
+        my $save_error = $u->with_trust_groups_lock(
+            sub {
+                my $revision = $u->trust_group_revision;
+                return $reload_error
+                    unless defined $revision
+                    && defined $post{group_revision}
+                    && $post{group_revision} eq $revision;
+                my $groups = $u->trust_groups( force_database => 1 ) or return $reload_error;
 
-        # Validate every name before making changes to any group.
-        for my $id ( 1 .. 60 ) {
-            my $name = $post{"efg_set_${id}_name"};
-            next unless $name;
-            return error_ml("$scope.error.comma")
-                if $name =~ /,/ && ( !$groups->{$id} || $name ne $groups->{$id}->{groupname} );
-            return error_ml('error.invalidform')
-                unless DW::User::Edges::WatchTrust::valid_group_name($name);
-            return error_ml('error.invalidform')
-                unless ( $post{"efg_set_${id}_sort"} // '' ) =~ /^\d+$/;
-        }
-        my $deleted_mask = 0;
-        for my $id ( 1 .. 60 ) {
-            if ( $post{"efg_delete_$id"} ) {
-                $deleted_mask |= 1 << $id;
-                next unless $groups->{$id};
-                return error_ml('error.nodb') unless $u->delete_trust_group( id => $id );
+                # Validate every name before making changes to any group.
+                for my $id ( 1 .. 60 ) {
+                    my $name = $post{"efg_set_${id}_name"};
+                    next unless $name;
+                    return LJ::Lang::ml("$scope.error.comma")
+                        if $name =~ /,/
+                        && ( !$groups->{$id} || $name ne $groups->{$id}->{groupname} );
+                    return LJ::Lang::ml('error.invalidform')
+                        unless DW::User::Edges::WatchTrust::valid_group_name($name)
+                        && ( $post{"efg_set_${id}_sort"} // '' ) =~ /^\d+$/;
+                }
+                my $allowed_mask = 1;
+                for my $id ( 1 .. 60 ) {
+                    my $existing = $groups->{$id};
+                    if ( $post{"efg_delete_$id"} ) {
+                        return $mutation_error if $existing && !$u->delete_trust_group( id => $id );
+                        next;
+                    }
+                    if ( my $name = $post{"efg_set_${id}_name"} ) {
+                        my %args = (
+                            id        => $id,
+                            groupname => $name,
+                            sortorder => $post{"efg_set_${id}_sort"},
+                            is_public => $post{"efg_set_${id}_public"} ? 1 : 0,
+                        );
+                        my $saved =
+                            $existing ? $u->edit_trust_group(%args) : $u->create_trust_group(%args);
+                        return $mutation_error unless $saved;
+                        $allowed_mask |= 1 << $id;
+                    }
+                    elsif ($existing) {
+                        $allowed_mask |= 1 << $id;
+                    }
+                }
+
+                my $members = $u->trust_list( force_database => 1 );
+                return $mutation_error unless defined $members;
+                for my $key ( keys %post ) {
+                    next unless $key =~ /^editfriend_(groupmask|maskhi)_(\w+)$/;
+                    my ( $format, $name ) = ( $1, $2 );
+                    my $trusted = LJ::load_user($name);
+
+                    # Never re-add someone removed from the circle since the form loaded.
+                    my $member = $trusted && $members->{ $trusted->id } or next;
+                    my $mask =
+                          $format eq 'groupmask'
+                        ? $post{$key}
+                        : ( $post{$key} << 31 ) | $post{"editfriend_masklo_$name"};
+
+                    # Deleting a group must not restore its bits from stale form fields.
+                    $mask = ( $mask & $allowed_mask ) | 1;
+                    next if $mask == ( $member->{groupmask} & ~( 7 << 61 ) );
+                    return $mutation_error
+                        unless $u->add_edge( $trusted, trust => { mask => $mask, nonotify => 1 } );
+                }
+                return '';
             }
-            elsif ( $post{"efg_set_${id}_name"} ) {
-                my %args = (
-                    id        => $id,
-                    groupname => $post{"efg_set_${id}_name"},
-                    sortorder => $post{"efg_set_${id}_sort"},
-                    is_public => $post{"efg_set_${id}_public"} ? 1 : 0,
-                );
-                my $saved =
-                    $groups->{$id} ? $u->edit_trust_group(%args) : $u->create_trust_group(%args);
-                return error_ml('error.nodb') unless $saved;
-            }
-        }
-        for my $key ( keys %post ) {
-            next unless $key =~ /^editfriend_(groupmask|maskhi)_(\w+)$/;
-            my ( $format, $name ) = ( $1, $2 );
-            my $trusted = LJ::load_user($name);
-
-            # Never re-add someone removed from the circle since the form loaded.
-            next unless $trusted && $u->trusts($trusted);
-            my $mask =
-                  $format eq 'groupmask'
-                ? $post{$key}
-                : ( $post{$key} << 31 ) | $post{"editfriend_masklo_$name"};
-
-            # Deleting a group must not restore its bits from stale form fields.
-            $mask &= ~$deleted_mask;
-            $u->add_edge( $trusted, trust => { mask => $mask, nonotify => 1 } );
-        }
+        );
+        return DW::Template->render_template( 'error.tt',
+            { message => $save_error // $reload_error } )
+            if !defined $save_error || length $save_error;
         $rv->{saved} = 1;
         return DW::Template->render_template( 'manage/circle/editfilters.tt', $rv );
     }
 
-    $rv->{group_fields} = [
+    my $load_error = 'Could not load access filters. Reload the page and try again.';
+    my $lock       = $u->lock_trust_groups
+        or return DW::Template->render_template( 'error.tt', { message => $load_error } );
+    my $revision   = $u->trust_group_revision;
+    my $groups     = $u->trust_groups( force_database => 1 );
+    my $trust_list = $u->trust_list( force_database => 1 );
+    $lock->release;
+    return DW::Template->render_template( 'error.tt', { message => $load_error } )
+        unless defined $revision && $groups && defined $trust_list;
+
+    $rv->{group_revision} = $revision;
+    $rv->{group_fields}   = [
         map {
             my $group = $groups->{$_};
             {
@@ -108,9 +144,10 @@ sub filters_handler {
             }
         } 1 .. 60
     ];
-    $rv->{groups} = [ $u->trust_groups ];
-    my $trust_list = $u->trust_list;
-    my $users      = LJ::load_userids( keys %$trust_list );
+    $rv->{groups} =
+        [ sort { $a->{sortorder} <=> $b->{sortorder} || $a->{groupname} cmp $b->{groupname} }
+            values %$groups ];
+    my $users = LJ::load_userids( keys %$trust_list );
     $rv->{members} = [
         map {
             my $member = $users->{$_};

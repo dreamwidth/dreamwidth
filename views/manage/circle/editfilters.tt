@@ -35,6 +35,7 @@
             data-comma="[% '.error.comma' | ml | html %]">
             [% dw.form_auth %]
             [% form.hidden(name = 'mode', value = 'save') %]
+            [% form.hidden(name = 'group_revision', value = group_revision) %]
             [% FOREACH group IN group_fields %]
                 [% form.hidden(name = 'efg_set_' _ group.id _ '_name', value = group.name) %]
                 [% form.hidden(name = 'efg_set_' _ group.id _ '_sort', value = group.sort) %]
