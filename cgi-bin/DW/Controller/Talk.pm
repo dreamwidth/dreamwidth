@@ -1201,17 +1201,14 @@ sub talkscreen_handler {
     return $error->('error.nodb') unless $dbcr;
 
     my $post;
-    $qtalkid = int( $qtalkid / 256 );      # get rid of anum
-    $post    = $dbcr->selectrow_hashref(
-              "SELECT jtalkid AS 'talkid', nodetype, state, nodeid AS 'itemid', "
-            . "parenttalkid, journalid, posterid FROM talk2 "
-            . "WHERE journalid=$u->{'userid'} AND jtalkid=$qtalkid" );
+    $qtalkid = int( $qtalkid / 256 );                                # get rid of anum
+    $post    = LJ::Talk::get_talk2_row( $dbcr, $u->id, $qtalkid );
 
     # hidden comments answer as missing ones, except to journal managers
     return $error->('talk.error.nocomment')
         unless $post
         && ( $remote->can_manage($u)
-        || LJ::Entry->new( $u, jitemid => $post->{itemid} )->visible_comment( $talkid, $remote ) );
+        || LJ::Entry->new( $u, jitemid => $post->{nodeid} )->visible_comment( $talkid, $remote ) );
     return $error->('talk.error.comm_deleted') if $post->{'state'} eq "D";
 
     my $state = $post->{'state'};
@@ -1223,7 +1220,7 @@ sub talkscreen_handler {
         $post->{'userpost'} = LJ::get_username( $post->{'posterid'} );
     }
 
-    my $qitemid = $post->{'itemid'} + 0;
+    my $qitemid = $post->{nodeid} + 0;
 
     my $e = LJ::Entry->new( $u, jitemid => $qitemid );
 
@@ -1277,9 +1274,7 @@ sub talkscreen_handler {
         return $error->('/talkscreen.tt.error.privs.freeze') unless $can_freeze;
 
         if ( $POST->{confirm} eq 'Y' ) {
-            if ( $state ne 'F' ) {
-                LJ::Talk::freeze_thread( $u, $qitemid, $qtalkid );
-            }
+            return $error->('error.nodb') unless LJ::Talk::freeze_thread( $u, $qitemid, $qtalkid );
             return $jsres->( $mode, '/talkscreen.tt.frozen.body' ) if $jsmode;
 
             $vars->{done}   = 1;
@@ -1288,11 +1283,10 @@ sub talkscreen_handler {
     }
     elsif ( $mode eq 'unfreeze' ) {
         my $can_unfreeze = LJ::Talk::can_unfreeze( $remote, $u, $up, $post->{userpost} );
-        return $error->("You are not allowed to unfreeze this thread") unless $can_unfreeze;
+        return $error->('/talkscreen.tt.error.privs.unfreeze') unless $can_unfreeze;
         if ( $POST->{confirm} eq 'Y' ) {
-            if ( $state eq 'F' ) {
-                LJ::Talk::unfreeze_thread( $u, $qitemid, $qtalkid );
-            }
+            return $error->('error.nodb')
+                unless LJ::Talk::unfreeze_thread( $u, $qitemid, $qtalkid );
             return $jsres->( $mode, '/talkscreen.tt.unfrozen.body' ) if $jsmode;
 
             $vars->{done}   = 1;

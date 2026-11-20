@@ -738,6 +738,7 @@ CREATE TABLE talk2 (
     posterid INT UNSIGNED NOT NULL default '0',
     datepost DATETIME NOT NULL default CURRENT_TIMESTAMP,
     state CHAR(1) default 'A',
+    screened_frozen TINYINT UNSIGNED NOT NULL DEFAULT 0,
 
     PRIMARY KEY  (journalid,jtalkid),
     KEY (nodetype,journalid,nodeid),
@@ -4228,6 +4229,12 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         if ( column_type( "syndicated", "failcount" ) eq '' ) {
             do_alter( 'syndicated',
                 "ALTER TABLE syndicated ADD COLUMN failcount SMALLINT UNSIGNED NOT NULL DEFAULT 0"
+            );
+        }
+
+        if ( table_relevant('talk2') && !column_type( 'talk2', 'screened_frozen' ) ) {
+            do_alter( 'talk2',
+                'ALTER TABLE talk2 ADD COLUMN screened_frozen TINYINT UNSIGNED NOT NULL DEFAULT 0'
             );
         }
     }

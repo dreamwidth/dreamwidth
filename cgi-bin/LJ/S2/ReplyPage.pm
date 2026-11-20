@@ -130,7 +130,7 @@ sub ReplyPage {
         # FIXME: Why are we loading the comment manually when we do LJ::Comment->new below
         # and could do everything through there.
         my $sql =
-              "SELECT jtalkid, posterid, state, datepost FROM talk2 "
+              "SELECT jtalkid, posterid, state, screened_frozen, datepost FROM talk2 "
             . "WHERE journalid=$u->{'userid'} AND jtalkid=$re_talkid "
             . "AND nodetype='L' AND nodeid="
             . $entry->jitemid;
@@ -143,7 +143,7 @@ sub ReplyPage {
         return LJ::S2::EntryPage_not_found( $u, $opts )
             unless $parpost && $entry->visible_comment( $replytoid, $remote );
 
-        if ( $parpost->{'state'} eq 'F' ) {
+        if ( LJ::Talk::comment_is_frozen($parpost) ) {
 
             # frozen comment, no replies allowed
 
@@ -232,7 +232,7 @@ sub ReplyPage {
             'talkid'         => $dtalkid,
             'link_keyseq'    => ['delete_comment'],
             'screened'       => $parpost->{'state'} eq "S" ? 1 : 0,
-            'frozen'         => $parpost->{'state'} eq "F" ? 1 : 0,
+            'frozen'         => LJ::Talk::comment_is_frozen($parpost),
             'deleted'        => $parpost->{'state'} eq "D" ? 1 : 0,
             'full'           => 1,
             timeformat24     => $remote && $remote->use_24hour_time,
