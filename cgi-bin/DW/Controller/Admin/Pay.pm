@@ -365,8 +365,11 @@ sub scheduled_delivery_items {
     return () unless $cart->state == $DW::Shop::STATE_PAID;
 
     my $today = LJ::mysql_date();
+    my %item_counts;
+    $item_counts{ $_->id }++ for @{ $cart->items };
     return grep {
-               $_->isa('DW::Shop::Item::Account')
+               $item_counts{ $_->id } == 1
+            && $_->isa('DW::Shop::Item::Account')
             && !$_->applied
             && ( $_->deliverydate // '' ) gt $today
     } @{ $cart->items };
@@ -402,10 +405,30 @@ sub adjust_delivery_date {
     if ( $date ne $old_date ) {
         $item->set_deliverydate($date);
         return delivery_date_error('Unable to save the delivery date. Try again.')
-            unless $cart->save;
+            unless save_delivery_date( $dbh, $cart, $item, $admin, $old_date );
+    }
 
-        my $notes =
-            "Admin override: Order #$cartid, item #$itemid delivery date: $old_date to $date";
+    return DW::Request->get->redirect("$LJ::SITEROOT/admin/pay/view?cartid=$cartid");
+}
+
+sub save_delivery_date {
+    my ( $dbh, $cart, $item, $admin, $old_date ) = @_;
+    my $cartid = $cart->id;
+    my $notes  = sprintf 'Admin override: Order #%d, item #%d delivery date: %s to %s',
+        $cartid, $item->id, $old_date, $item->deliverydate;
+
+    my $started;
+    my $saved = eval {
+        my ($tables) = $dbh->selectrow_array(
+            q{SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME IN ('shop_carts', 'statushistory') AND ENGINE = 'InnoDB'}
+        );
+        die 'Delivery overrides require InnoDB shop_carts and statushistory tables'
+            unless defined $tables && $tables == 2;
+
+        $dbh->begin_work or die $dbh->errstr;
+        $started = 1;
+        $cart->save_items($dbh) or die( $dbh->errstr || 'Cart update did not affect one row' );
         $dbh->do(
             'INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) '
                 . 'VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)',
@@ -414,10 +437,20 @@ sub adjust_delivery_date {
             $admin->id,
             'paidstatus',
             $notes,
-        ) or warn "Failed to log delivery date change for order #$cartid: " . $dbh->errstr;
+        ) or die $dbh->errstr;
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($saved) {
+        my $error = $@;
+        if ( $started && !eval { $dbh->rollback } ) {
+            warn "Failed to roll back delivery date change for order #$cartid: "
+                . ( $@ || $dbh->errstr );
+            $dbh->disconnect;
+        }
+        warn "Failed to save delivery date change for order #$cartid: $error";
     }
-
-    return DW::Request->get->redirect("$LJ::SITEROOT/admin/pay/view?cartid=$cartid");
+    return $saved;
 }
 
 1;
