@@ -807,7 +807,6 @@ sub authenticate_user_and_mutate_form {
 
             return $err->("No OpenID identity URL entered") unless $form->{oidurl};
 
-            my $csr     = LJ::OpenID::consumer();
             my $exptype = 'short';
             my $ipfixed = 0;
 
@@ -818,6 +817,10 @@ sub authenticate_user_and_mutate_form {
                 $ipfixed = LJ::get_remote_ip() if index( $1, "<" ) >= 0;
             }
 
+            my $ban_error = LJ::OpenID::sysban_error( $form->{oidurl} );
+            return $err->($ban_error) if $ban_error;
+
+            my $csr             = LJ::OpenID::consumer();
             my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
             my $claimed_id = $csr->claimed_identity( $form->{oidurl} );
@@ -833,6 +836,8 @@ sub authenticate_user_and_mutate_form {
             # Store their cleaned up identity url (vs. what they actually typed.)
             # MUTATE FORM: canonicalize oidurl
             $form->{oidurl} = $claimed_id->claimed_url();
+            $ban_error = LJ::OpenID::sysban_error( $form->{oidurl} );
+            return $err->($ban_error) if $ban_error;
 
             # Store the entry
             my $pendcid = LJ::alloc_user_counter( $journalu, "C" );

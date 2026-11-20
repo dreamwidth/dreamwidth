@@ -16,6 +16,7 @@ package LJ::OpenID;
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
 use LJ::OpenID::Cache;
+use LJ::Sysban;
 use Net::OpenID::Server;
 use Net::OpenID::Consumer;
 
@@ -70,6 +71,15 @@ sub consumer {
     );
 
     return $csr;
+}
+
+sub sysban_error {
+    my ($url) = @_;
+    return unless LJ::Sysban::sysban_check( 'openid_domain', $url );
+
+    my $sitename = LJ::ehtml($LJ::SITENAMESHORT);
+    return "We're sorry, but $sitename has restricted OpenID logins from your OpenID provider. "
+        . 'Please contact us if you believe this restriction is in error.';
 }
 
 sub consumer_secret {

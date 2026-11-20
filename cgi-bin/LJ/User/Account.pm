@@ -21,6 +21,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use Carp qw/ confess /;
 use LJ::DB;
 use LJ::Identity;
+use LJ::OpenID;
 
 use DW::Pay;
 use DW::Cache;
@@ -1112,6 +1113,11 @@ sub load_from_consumer {
 
     if ( $url =~ /[\<\>\s]/ ) {
         $err->('/openid/login.tt.error.invalidcharacters');
+        return;
+    }
+
+    if ( my $message = LJ::OpenID::sysban_error($url) ) {
+        $$errorref = $message if ref $errorref;
         return;
     }
 

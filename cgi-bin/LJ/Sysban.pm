@@ -18,9 +18,34 @@ package LJ::Sysban;
 use strict;
 use v5.10;
 use Log::Log4perl;
+use URI;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
+
+my $invalid_openid_domain = 'Invalid OpenID domain: enter a domain such as example.org';
+
+sub _openid_domain {
+    my ( $value, $for_storage ) = @_;
+    return unless defined $value;
+    $value = LJ::trim($value) if $for_storage;
+    return if $value =~ /[\s<>]/;
+    $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;
+    return unless $value =~ m{\Ahttps?://}i;
+
+    my $uri  = URI->new($value);
+    my $host = lc( $uri->host // '' );
+    $host =~ s/\.\z//;
+    my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/;
+    return unless $host =~ /\A$label(?:\.$label)+\z/;
+
+    if ($for_storage) {
+        return if length($host) > 80 || defined $uri->userinfo;
+        return if $uri->path ne '' && $uri->path ne '/';
+        return if defined $uri->query || defined $uri->fragment;
+    }
+    return $host;
+}
 
 =head1 Methods
 
@@ -259,7 +284,7 @@ sub sysban_check {
 
     # helper variation for wildcard match of domain bans
     my $check_subdomains = sub {
-        my ($host) = @_;
+        my ( $type, $host ) = @_;
         return 0 unless $host && $host =~ /\./;
 
         # very similar to above, except in addition to exact match
@@ -276,9 +301,13 @@ sub sysban_check {
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
-            }, undef, 'email_domain', $host, $host
+            }, undef, $type, $host, $host
         );
     };
+
+    if ( $what eq 'openid_domain' ) {
+        return $check_subdomains->( $what, scalar _openid_domain($value) );
+    }
 
     # check both ban by email and ban by domain if we have an email address
     if ( $what eq 'email' ) {
@@ -289,7 +318,7 @@ sub sysban_check {
 
         # see if this domain is banned, either directly
         # or else as part of a larger domain ban
-        return 1 if $check_subdomains->($1);
+        return 1 if $check_subdomains->( 'email_domain', $1 );
 
         # account for GMail troll tricks
         my @domains = split( /\./, $1 );
@@ -529,6 +558,10 @@ sub create {
 
     # strip out leading/trailing whitespace
     $opts{'value'} = LJ::trim( $opts{'value'} );
+    if ( $opts{what} eq 'openid_domain' ) {
+        $opts{value} = _openid_domain( $opts{value}, 1 );
+        return bless { message => $invalid_openid_domain }, 'ERROR' unless $opts{value};
+    }
 
     # do insert
     $dbh->do(
@@ -575,6 +608,11 @@ sub create {
 sub validate {
     my ( $what, $value, $opts, $post ) = @_;
 
+    if ( $what eq 'openid_domain' ) {
+        $value = _openid_domain( $value, 1 );
+        return $invalid_openid_domain unless $value;
+    }
+
     # bail early if the ban already exists
     return "This is already banned"
         if !$opts->{skipexisting} && sysban_check( $what, $value );
@@ -613,7 +651,8 @@ sub validate {
                 return "Invalid email domain: $email_domain";
             }
         },
-        'user' => sub {
+        'openid_domain' => sub { return 0 },
+        'user'          => sub {
             my $user = shift;
 
             my $u = LJ::load_user($user);
