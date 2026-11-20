@@ -17,6 +17,7 @@ use warnings;
 
 use HTTP::Request::Common;
 use Plack::Test;
+use Test::MockObject;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -26,6 +27,7 @@ use LJ::Test qw(temp_user with_fake_memcache);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
+do "$ENV{LJHOME}/bin/worker/incoming-email" or die $@ || $!;
 
 local $LJ::IS_DEV_SERVER              = 1;
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'supportNotifyTest';
@@ -166,6 +168,10 @@ with_fake_memcache {
             is( $response->code, 200, 'Reply submission succeeds' );
         };
 
+        $reply->( $requester, replytype => 'comment', reply => 'One more detail.' );
+        expect_delivery( 'A requester comment on a new open request reaches All only',
+            $all, $all_reader );
+
         $reply->( $helper, replytype => 'answer', reply => 'Please try again.' );
         expect_delivery( 'An answer reaches both All subscribers', $all, $all_reader );
         $dbh->do(
@@ -184,6 +190,10 @@ with_fake_memcache {
             'A requester follow-up reaches New and Regreens and All, except the author',
             $regreen, $all, $all_reader );
 
+        $reply->( $requester, replytype => 'comment', reply => 'Another detail after reopening.' );
+        expect_delivery( 'A second requester comment after a web regreen reaches All only',
+            $all, $all_reader );
+
         $reply->( $helper, replytype => 'comment', reply => 'A staff comment.' );
         expect_delivery( 'A staff comment reaches All only', $all, $all_reader );
         $reply->( $helper, replytype => 'screened', reply => 'A screened answer.' );
@@ -195,24 +205,75 @@ with_fake_memcache {
         ok( LJ::Support::touch_request($spid), 'Standalone touch works' );
         expect_delivery('A standalone touch sends no mail');
 
-        $dbh->do( q{UPDATE support SET state='closed' WHERE spid=?}, undef, $spid );
-        my $sp = LJ::Support::load_request($spid);
+        my $close = sub {
+            $dbh->do(
+                q{UPDATE support SET state='closed', timeclosed=UNIX_TIMESTAMP() WHERE spid=?},
+                undef, $spid )
+                or die $dbh->errstr;
+        };
+        $close->();
+        my $sp     = LJ::Support::load_request($spid);
+        my $reopen = $client->( GET "http://localhost/support/act?touch;$spid;$sp->{authcode}" );
+        is( $reopen->code, 200, 'The email action link reopens the request' );
+        is( LJ::Support::load_request($spid)->{state},
+            'open', 'The link reopens before any comment' );
+        expect_delivery('Reopening with the action link alone sends no mail');
+        $reply->(
+            $requester,
+            replytype => 'comment',
+            reply     => 'More detail after using the link.'
+        );
+        expect_delivery( 'A comment after the separate reopen reaches All only', $all,
+            $all_reader );
+
         my ( $localpart, $domain ) = split /\@/, $mailbox;
-        my $auth = LJ::Support::mini_auth($sp);
-        my $to   = "$localpart+$spid" . "z$auth\@$domain";
-        my $from = $requester->email_raw;
-        ok( DW::IncomingEmail->process(<<"EMAIL"), 'Incoming support reply is processed' );
+        my $auth  = LJ::Support::mini_auth($sp);
+        my $to    = "$localpart+$spid" . "z$auth\@$domain";
+        my $from  = $requester->email_raw;
+        my $email = sub {
+            my ($body) = @_;
+            return <<"EMAIL";
 From: $from
 To: $to
+Return-Path: <$from>
 Subject: Re: Test request
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 
-The problem came back.
+$body
 EMAIL
-        is( LJ::Support::load_request($spid)->{state}, 'open', 'Email reply reopens the request' );
-        expect_delivery( 'An email follow-up also reaches New and Regreens and All',
-            $regreen, $all, $all_reader, $requester );
+        };
+        my $legacy = sub {
+            my ($message) = @_;
+            my $job = Test::MockObject->new;
+            $job->set_always( arg => $message );
+            $job->set_true('completed');
+            LJ::Worker::IncomingEmail->work($job);
+            return $job->called('completed');
+        };
+
+        for my $handler ( [ 'Modern', sub { DW::IncomingEmail->process(@_) } ],
+            [ 'Legacy', $legacy ] )
+        {
+            my ( $name, $process ) = @$handler;
+            $close->();
+            ok( $process->( $email->("The problem came back ($name).") ),
+                "$name email is processed" );
+            my $reopened = LJ::Support::load_request($spid);
+            is( $reopened->{state}, 'open', "$name email reopens the request" );
+            isnt(
+                LJ::Support::open_request_status( @{$reopened}{qw(timetouched timelasthelp)} ),
+                'awaiting close',
+                "$name email returns the request to the green queue"
+            );
+            expect_delivery( "$name email regreen reaches New and Regreens and All",
+                $regreen, $all, $all_reader, $requester );
+
+            ok( $process->( $email->("More detail after reopening ($name).") ),
+                "$name email follow-up is processed" );
+            expect_delivery( "$name email follow-up on the already-green request reaches All only",
+                $all, $all_reader );
+        }
     };
 };
 

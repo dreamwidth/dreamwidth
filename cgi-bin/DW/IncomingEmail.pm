@@ -410,9 +410,9 @@ sub _route_to_support {
         my $splid = LJ::Support::append_request(
             $sp,
             {
-                'type'    => 'comment',
-                'body'    => $body,
-                'regreen' => 1,
+                'type'            => 'comment',
+                'body'            => $body,
+                'requester_reply' => 'email',
             }
         );
         unless ($splid) {
@@ -422,7 +422,6 @@ sub _route_to_support {
         }
 
         LJ::Support::add_email_address( $sp, $from );
-        LJ::Support::touch_request($spid);
 
         $class->_outcome(
             'support_routed', $path, 'support', 'info',

@@ -1,5 +1,5 @@
 ;; -*- coding: utf-8 -*-
-.changenotify.text=Choose which notifications to receive for each support category: <b>Off</b> (the default), <b>New Only</b> (new requests), <b>New and Regreens</b> (new requests and follow-up comments from the requester), or <b>All</b> (new requests and every response you can see).
+.changenotify.text=Choose which notifications to receive for each support category: <b>Off</b> (the default), <b>New Only</b> (new requests), <b>New and Regreens</b> (new requests and requester replies that return a request to the help queue), or <b>All</b> (new requests and every response you can see).
 
 .done.text=When you're finished, press the "Save Changes" button.
 
