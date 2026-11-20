@@ -229,6 +229,7 @@ sub copy_comment {
     my ( $entries, $comments );
     my @delete_jtalkids;
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
+    my $is_deleted = $u->is_inactive ? 1 : 0;
 
     my $in = join ',', map { int $_ } @$only_jtalkid;
     $comments = $dbfrom->selectall_hashref(
@@ -324,12 +325,12 @@ sub copy_comment {
             my $sql = sprintf(
                 'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
                     . ' allow_global_search, is_deleted, security_bits, title, body)'
-                    . ' VALUES (%d, %d, %d, %d, %d, %d, 0, %s, ?, ?)',
+                    . ' VALUES (%d, %d, %d, %d, %d, %d, %d, %s, ?, ?)',
                 $u->id, $comments->{$jid}->{nodeid},
                 $jid,
                 $comments->{$jid}->{posterid},
                 $comments->{$jid}->{datepost},
-                $allowpublic, _mva($bits),
+                $allowpublic, $is_deleted, _mva($bits),
             );
             $dbsx->do( $sql, undef, $text->{$jid}->{subject} // '', $text->{$jid}->{body} // '' );
             $log->logcroak( $dbsx->errstr ) if $dbsx->err;
@@ -434,6 +435,7 @@ sub copy_entry {
     # be after a user already has most of their posts copied and is just
     # updating one or two.
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
+    my $is_deleted = $u->is_inactive ? 1 : 0;
     my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
     foreach my $jitemid (@copy_jitemids) {
         my $row = $dbfrom->selectrow_hashref(
@@ -472,8 +474,9 @@ sub copy_entry {
         my $sql =
             sprintf( 'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
                 . ' allow_global_search, is_deleted, security_bits, title, body)'
-                . ' VALUES (%d, %d, 0, %d, %d, %d, 0, %s, ?, ?)',
-            $jid, $jitemid, $row->{posterid}, $row->{date_posted}, $allowpublic, _mva($bits), );
+                . ' VALUES (%d, %d, 0, %d, %d, %d, %d, %s, ?, ?)',
+            $jid, $jitemid, $row->{posterid}, $row->{date_posted}, $allowpublic,
+            $is_deleted, _mva($bits), );
         $dbsx->do( $sql, undef, $row->{subject} // '', $row->{event} // '' );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
