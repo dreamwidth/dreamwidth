@@ -391,12 +391,16 @@ postFormInitData.strings = {
                 -%]
 
                 [% IF action.edit %]
-                    [%- form.submit( value = dw.ml( '.button.delete' )
-                                     name  = "action:delete"
-                                     id    = "js-delete-button"
-                                     class = "button secondary right"
-                                    )
-                    -%]
+                    [% IF moderation_url %]
+                        <a class="button secondary right" href="[% moderation_url | html %]">Moderate this post</a>
+                    [% ELSE %]
+                        [%- form.submit( value = dw.ml( '.button.delete' )
+                                         name  = "action:delete"
+                                         id    = "js-delete-button"
+                                         class = "button secondary right"
+                                        )
+                        -%]
+                    [% END %]
                 [% END %]
             </div>
         </div>

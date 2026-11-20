@@ -271,9 +271,14 @@ sub edit_entry {
     my $anum   = $ditemid % 256;
     my $itemid = $ditemid >> 8;
     return $self->rest_error('404')
-        unless $entry_obj->editable_by($remote)
-        && $anum == $entry_obj->anum
+        unless $anum == $entry_obj->anum
         && $itemid == $entry_obj->jitemid;
+
+    unless ( $entry_obj->editable_by($remote) ) {
+        return $self->rest_error( '403', 'You cannot edit this community entry.' )
+            if $usejournal->is_community && $entry_obj->deletable_by($remote);
+        return $self->rest_error('404');
+    }
 
     # an omitted datetime keeps the entry's current date
     if ( $post->{datetime} ) {

@@ -654,6 +654,8 @@ sub _edit {
 
     $vars->{formdata}          = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
     $vars->{shared_admin_edit} = $shared_admin_edit;
+    $vars->{moderation_url}    = '/editjournal?journal=' . $journal->user . "&itemid=$ditemid"
+        if $shared_admin_edit && $entry_obj->deletable_by($remote);
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.

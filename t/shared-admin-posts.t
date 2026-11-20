@@ -17,9 +17,14 @@ use warnings;
 
 use Test::More;
 use HTTP::Request;
+use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/t/lib";
+use DW::API::Key;
 use DW::Request::Standard;
+use DW::Setting::SharedAdminPosts;
+use DW::Test::API qw(api_request);
 use LJ::Protocol;
 use LJ::S2;
 use LJ::Test qw(temp_user temp_comm);
@@ -77,7 +82,7 @@ sub edit_entry {
             %changes,
         },
         \$error,
-        { noauth => 1, u => $actor },
+        $changes{password} ? {} : { noauth => 1, u => $actor },
     );
     return $result ? 0 : ( $error || 'unknown error' );
 }
@@ -116,6 +121,7 @@ my $setting = LJ::get_prop( 'user', 'shared_admin_posts' );
 ok( $setting, 'shared admin posts setting is registered' );
 ok( LJ::get_prop( 'log', 'admin_post_editor' ), 'editor history property is registered' );
 $community->set_prop( shared_admin_posts => 1 ) if $setting;
+$other->set_prop( shared_admin_posts => 1 )     if $setting;
 
 is( edit_entry( $ordinary, $editor, 'Not official', props => { admin_post => 1 } ),
     303, 'cannot grant yourself permission by flagging an ordinary entry' );
@@ -131,14 +137,145 @@ $editor->update_self( { statusvis => 'S' } );
 is( edit_entry( $official, $editor, 'Suspended editor' ), 305, 'suspended admins cannot edit' );
 $editor->update_self( { statusvis => 'V' } );
 
+$editor->set_password('shared-post-test-password');
+$editor->update_self( { statusvis => 'D' } );
+LJ::start_request();
+$editor = LJ::load_userid( $editor->id );
+ok( $editor->can_manage($community),   'deleted editor still has the admin relationship' );
+ok( !$official->editable_by($editor),  'deleted admin cannot open the shared edit form' );
+ok( !$official->deletable_by($editor), 'deleted admin cannot open the moderation form' );
+ok( !LJ::Tags::can_add_entry_tags( $editor, $official ), 'deleted admin cannot edit entry tags' );
+{
+    local $LJ::CACHED_REMOTE = 1;
+    local $LJ::CACHE_REMOTE  = $editor;
+    ok(
+        !DW::Setting::SharedAdminPosts->should_render($community),
+        'deleted admin cannot manage the shared editing setting'
+    );
+}
+is( edit_entry( $official, $editor, 'Deleted editor', password => 'shared-post-test-password' ),
+    305, 'authenticated deleted admin cannot edit' );
+my $app      = do "$ENV{LJHOME}/app.psgi" or die $@;
+my $app_test = Plack::Test->create($app);
+{
+    my %edit = (
+        username   => $editor->user,
+        password   => 'shared-post-test-password',
+        ver        => 1,
+        usejournal => $community->user,
+        itemid     => $official->jitemid,
+        event      => 'Deleted editor over XML-RPC',
+        subject    => 'Official announcement',
+    );
+    my $members = join '', map {
+              "<member><name>$_</name><value><string>"
+            . LJ::exml( $edit{$_} )
+            . '</string></value></member>'
+    } sort keys %edit;
+    my $request = HTTP::Request->new(
+        POST => 'http://www.dw.test/interface/xmlrpc',
+        [ 'Content-Type' => 'text/xml' ],
+        '<?xml version="1.0"?><methodCall><methodName>LJ.XMLRPC.editevent</methodName>'
+            . "<params><param><value><struct>$members</struct></value></param></params></methodCall>"
+    );
+    my $response = $app_test->request($request);
+    like(
+        $response->content,
+        qr{<name>faultCode</name>\s*<value><(?:int|i4|string)>305</},
+        'XML-RPC rejects a deleted admin using valid credentials'
+    );
+}
+$editor->update_self( { statusvis => 'V' } );
+is( edit_entry( $official, $editor, 'Active editor', password => 'shared-post-test-password' ),
+    0, 'the same protocol credentials work for an active admin' );
+$editor = LJ::load_userid( $editor->id );
+{
+    my $path = '/journals/' . $community->user . '/entries/' . $official->ditemid;
+    my ($response) = api_request(
+        POST => $path,
+        key  => DW::API::Key->new_for_user($editor)->hash,
+        json => { text => 'Second admin edited over REST' }
+    );
+    is( $response->code, 200, 'active community admin can edit via authenticated REST' );
+    is(
+        reload_entry($official)->event_raw,
+        'Second admin edited over REST',
+        'REST saves the new content'
+    );
+    is( reload_entry($official)->posterid, $author->id, 'REST preserves the original author' );
+}
+
 $author->update_self( { statusvis => 'S' } );
 is( edit_entry( $official, $editor, 'Suspended author' ),
     303, 'cannot edit a suspended author’s post' );
 $author->update_self( { statusvis => 'V' } );
 
+LJ::clear_rel( $community, $author, 'A' );
+is( edit_entry( $official, $editor, 'Former admin author' ),
+    303, 'removing the author’s admin role revokes sharing' );
+LJ::set_rel( $community, $author, 'A' );
+
 $official->set_prop( statusvis => 'S' );
 is( edit_entry( $official, $editor, 'Suspended entry' ), 303, 'cannot edit a suspended entry' );
 $official->set_prop( statusvis => undef );
+
+{
+    no warnings 'redefine';
+    my $validate = \&LJ::Protocol::common_event_validation;
+    for my $revocation (
+        [
+            'flag',
+            sub {
+                local *LJ::Protocol::common_event_validation = $validate;
+                is(
+                    edit_entry(
+                        $official, $author,
+                        'Author revoked the flag', props => { admin_post => 0 }
+                    ),
+                    0,
+                    'author revokes the flag while another save is in flight'
+                );
+            },
+            sub { $official->set_prop( admin_post => 1 ) }
+        ],
+        [
+            'setting',
+            sub { $community->set_prop( shared_admin_posts => 0 ) },
+            sub { $community->set_prop( shared_admin_posts => 1 ) }
+        ],
+        [
+            'admin role',
+            sub { LJ::clear_rel( $community, $editor, 'A' ) },
+            sub { LJ::set_rel( $community, $editor, 'A' ) }
+        ],
+        )
+    {
+        my ( $name, $revoke, $restore ) = @$revocation;
+        my $before =
+            $name eq 'flag' ? 'Author revoked the flag' : reload_entry($official)->event_raw;
+        local *LJ::Protocol::common_event_validation = sub {
+            my $valid = $validate->(@_);
+            $revoke->();
+            return $valid;
+        };
+        is( edit_entry( $official, $editor, "Revoked $name", props => { admin_post => 1 } ),
+            303, "in-flight save cannot outlive revocation of the $name" );
+        is( reload_entry($official)->event_raw, $before, "revoking the $name preserves content" );
+        ok( !reload_entry($official)->prop('admin_post'), 'stale form does not restore the flag' )
+            if $name eq 'flag';
+        $restore->();
+    }
+}
+
+{
+    no warnings 'redefine';
+    my $before = reload_entry($official)->event_raw;
+    local *LJ::Entry::put_logprop_in_history = sub { return undef };
+    like( edit_entry( $official, $third, 'Unattributed edit', security => 'private' ),
+        qr/^501\b/, 'failure to record a new editor rejects the edit' );
+    is( reload_entry($official)->event_raw, $before,  'history failure leaves content unchanged' );
+    is( reload_entry($official)->security,  'public', 'history failure leaves security unchanged' );
+}
 
 like( edit_entry( $official, $author, 'False attribution', props => { admin_post_editor => 1 } ),
     qr/^205\b/, 'clients cannot write the internal attribution property' );
@@ -154,15 +291,34 @@ is(
 );
 is( reload_entry($official)->prop('current_music'), 'Music', 'shared edit saves metadata' );
 is( reload_entry($official)->security, 'private', 'shared edit can update entry visibility' );
-$official->set_prop( picture_keyword => 'Original author icon' );
+my $private_url =
+    'http://www.dw.test/users/' . $community->user . '/' . $official->ditemid . '.html';
+my $private_res = $app_test->request( HTTP::Request->new( GET => $private_url ) );
+unlike( $private_res->content, $msg,
+    'a private entry does not reveal attribution to an anonymous reader' );
+$official->set_prop( picture_keyword           => 'Original author icon' );
+$official->set_prop( opt_nocomments_maintainer => 1 );
 is(
     edit_entry(
         $official, $editor, 'Second admin edited again',
         security => 'public',
-        props    => { picture_keyword => '' }
+        props    => { picture_keyword => '', opt_nocomments => 0 }
     ),
     0,
     'a repeat edit succeeds'
+);
+ok(
+    reload_entry($official)->comments_disabled_maintainer,
+    'shared saves preserve comment overrides'
+);
+my $history_prop = LJ::get_prop( 'log', 'admin_post_editor' );
+is(
+    $community->selectrow_array(
+        'SELECT COUNT(*) FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=?',
+        undef, $community->id, $official->jitemid, $history_prop->{id}
+    ),
+    1,
+    'repeat saves do not add duplicate editor history'
 );
 is(
     reload_entry($official)->prop('picture_keyword'),
@@ -189,9 +345,31 @@ unlike(
     'attribution uses usernames, not display-name markup'
 );
 
+my $reading_entry =
+    LJ::S2::Entry_from_entryobj( $member, reload_entry($official), { getargs => {} } );
+like( $reading_entry->{text}, $msg, 'full-body reading view includes attribution' );
+my $title_entry = LJ::S2::Entry_from_entryobj( $member, reload_entry($official),
+    { getargs => {}, no_entry_body => 1 } );
+unlike( $title_entry->{text}, $msg, 'title-only view omits attribution' );
+
+my $old_name      = $third->user;
+my $new_name      = 'r_' . substr( $old_name, 2 );
+my $third_cluster = $third->clusterid;
+$third->update_self( { user => $new_name } );
+LJ::start_request();
+like( entry_text($official), qr/\Q$new_name\E/,
+    'attribution follows the editor’s stable ID after rename' );
+unlike( entry_text($official), qr/\Q$old_name\E/, 'attribution omits the former username' );
+$third->update_self( { statusvis => 'X', clusterid => 0 } );
+LJ::start_request();
+unlike( entry_text($official), qr/\Q$new_name\E/,
+    'attribution omits an expunged user with a retained ID' );
+like( entry_text($official), qr/\Q@{[$editor->user]}\E/, 'attribution still names other editors' );
+$third->update_self( { statusvis => 'V', clusterid => $third_cluster } );
+
 is( edit_entry( $official, $editor, 'Flag removed', props => { admin_post => 0 } ),
     0, 'a shared edit can remove the flag' );
-is( edit_entry( $official, $third, 'After removal' ), 303, 'removing the flag revokes sharing' );
+is( edit_entry( $official, $editor, 'After removal' ), 303, 'removing the flag revokes sharing' );
 like( entry_text($official), $msg, 'removing the flag does not erase attribution' );
 
 is( edit_entry( $official, $author, 'Flag restored', props => { admin_post => 1 } ),
@@ -199,5 +377,14 @@ is( edit_entry( $official, $author, 'Flag restored', props => { admin_post => 1 
 $community->set_prop( shared_admin_posts => 0 ) if $setting;
 is( edit_entry( $official, $editor, 'Disabled again' ), 303, 'turning sharing off revokes access' );
 is( edit_entry( $ordinary, $editor, '' ), 0, 'existing admin moderation deletion is unchanged' );
+ok( LJ::delete_entry( $community, $official->jitemid ), 'entry deletion completes' );
+is(
+    $community->selectrow_array(
+        'SELECT COUNT(*) FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=?',
+        undef, $community->id, $official->jitemid, $history_prop->{id}
+    ),
+    0,
+    'purging entry data also removes shared editor history'
+);
 
 done_testing();

@@ -2185,6 +2185,14 @@ sub Entry {
     return $e;
 }
 
+sub shared_admin_editor_notice {
+    my ($entry) = @_;
+    my @editors = $entry->shared_admin_editor_names;
+    return '' unless @editors;
+    my $notice = 'Community admins who also edited this post: ' . join( ', ', @editors ) . '.';
+    return '<p class="shared-admin-editors">' . LJ::ehtml($notice) . '</p>';
+}
+
 #returns an S2 Entry from a user object and an entry object
 sub Entry_from_entryobj {
     my ( $u, $entry_obj, $opts ) = @_;
@@ -2230,12 +2238,17 @@ sub Entry_from_entryobj {
 
     unless ($no_entry_body) {
         LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
+        my $body = $text;
         $text = DW::Logic::AdultContent->transform_post(
             post    => $text,
             journal => $journal,
             remote  => $remote,
             entry   => $entry_obj
         );
+        $text .= shared_admin_editor_notice($entry_obj)
+            if $text eq $body
+            && $entry_obj->prop('admin_post_editor')
+            && $entry_obj->visible_to($remote);
     }
 
     # journal: posted to; poster: posted by

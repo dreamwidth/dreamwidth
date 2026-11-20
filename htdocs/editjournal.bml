@@ -177,14 +177,17 @@ body<=
                 unless $res{'events_count'} && $res{'events_1_anum'} == $anum;
 
             # are we authorized to edit other peoples' posts in this community?
-            my $disabled_save = !$entry_obj->editable_by($u) || $u->is_readonly || $u_for_entry->is_readonly;
+            my $can_edit = $entry_obj->editable_by($u) && !$u->is_readonly && !$u_for_entry->is_readonly;
+            my $other_author = !$entry_obj->poster->equals($u);
+            my $shared_edit = $can_edit && $other_author;
+            my $disabled_save = !$can_edit || $other_author;
             my $disabled_delete = !$entry_obj->deletable_by($u);
-            my $disabled_spamdelete = $disabled_delete || !$usejournal || $entry_obj->poster->equals($u);
+            my $disabled_spamdelete = $disabled_delete || !$usejournal || !$other_author;
             $disabled_spamdelete ||= LJ::sysban_check( 'spamreport', $usejournal_u->user ) if $usejournal_u;
 
             return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
                     if ! $disabled_save && !LJ::did_post()
-                    && ( $entry_obj->admin_post || LJ::BetaFeatures->user_in_beta( $remote => "updatepage" ) );
+                    && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
             ### SAVE EDITS
@@ -473,6 +476,10 @@ body<=
                 $ret .= "<div class='warning-box'>$ML{'.invalid_encoding'} </div><br/>";
             }
 
+            if ($shared_edit) {
+                my $edit_url = '/entry/' . $u_for_entry->user . "/$ditemid/edit";
+                $ret .= qq{<p><a href="$edit_url">Edit shared official post</a></p>};
+            }
             $ret .= LJ::entry_form($entry, \$$head, \$onload);
             $ret .= "</form></div>";
             $ret .= "</td>";
