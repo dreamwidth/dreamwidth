@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 56;
+use Test::More tests => 71;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -185,16 +185,39 @@ BODY
         unlike( $entry->event_raw, qr/post-security:/, "Leading directive removed in $label" );
     }
 
-    for my $body_prefix ( '<p>Introductory prose.</p>', '<blockquote>' ) {
-        my $closing = $body_prefix eq '<blockquote>' ? "\n</blockquote>" : '';
-        my $message =
-            $preamble . "<body>\n$body_prefix\npost-security: private$closing\n</body>\n</html>";
-        my $mime = build_message( "HTML with $body_prefix", 'text/html', $message );
+    my $directive = "\npost-security: private\n\nMessage";
+    for my $case (
+        [ 'implied body after closed head',  "$preamble$directive</html>" ],
+        [ 'implied body with a div wrapper', "$preamble<div>$directive</div></html>" ],
+        [ 'implied body after title',        "<head><title>Mail</title>$directive" ],
+        )
+    {
+        my ( $label, $message ) = @$case;
+        my $mime = build_message( $label, 'text/html', $message );
         my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
-        ok( $ok, "Posted HTML with $body_prefix" ) or diag $msg;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
         my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
-        is( $entry->security, 'public', "No security directive applied after $body_prefix" );
-        like( $entry->event_raw, qr/post-security: private/, "Text kept after $body_prefix" );
+        is( $entry->security, 'private', "Leading directive sets private security with $label" );
+        unlike( $entry->event_raw, qr/post-security:/, "Leading directive removed with $label" );
+    }
+
+    for my $opening ( '<body>', '' ) {
+        my $label = $opening ? 'explicit body' : 'implied body';
+        for my $body_prefix ( '<p>Introductory prose.</p>', '<blockquote>' ) {
+            my $closing = $body_prefix eq '<blockquote>' ? "\n</blockquote>" : '';
+            my $message = $preamble
+                . "$opening\n$body_prefix\npost-security: private$closing\n</body>\n</html>";
+            my $mime = build_message( "HTML with $label and $body_prefix", 'text/html', $message );
+            my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+            ok( $ok, "Posted HTML with $label and $body_prefix" ) or diag $msg;
+            my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+            is( $entry->security, 'public', "No directive applied after $body_prefix in $label" );
+            like(
+                $entry->event_raw,
+                qr/post-security: private/,
+                "Text kept after $body_prefix in $label"
+            );
+        }
     }
 
     my $mime = build_message( 'Wrapped security header',
