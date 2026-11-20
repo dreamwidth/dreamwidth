@@ -151,6 +151,7 @@ LJ::Hooks::register_hook(
             lostpassword   => "Can ban requests for lost passwords",
             noanon_ip      => "Can ban anonymous comments from specific IPs",
             oauth_consumer => "Can ban specific users from having OAuth consumers",
+            openid_domain  => "Can ban OpenID logins from a domain and its subdomains",
             pay_cc         => "Can ban payments from specific credit cards",
             pay_email      => "Can ban payments from specific emails",
             pay_uniq       => "Can ban payments from specific sessions",

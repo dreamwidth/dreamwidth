@@ -16,6 +16,7 @@ use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
+use LJ::Sysban;
 use DW::Auth::TOTP;
 
 use constant VERSION => 1;
@@ -564,6 +565,16 @@ sub session_from_cookies {
             $getopts{old_cookie} = 1;
         }
         $sessobj = LJ::Session->session_from_master_cookie( \%getopts, @cookies );
+    }
+
+    if ($sessobj) {
+        my $owner  = $sessobj->owner;
+        my $openid = $owner && $owner->openid_identity;
+        if ( $openid && LJ::Sysban::sysban_check( 'openid_domain', $openid ) ) {
+            $sessobj->destroy;
+            LJ::Session->clear_master_cookie;
+            return undef;
+        }
     }
 
     return $sessobj;
