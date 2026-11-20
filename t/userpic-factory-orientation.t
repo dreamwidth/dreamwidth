@@ -109,6 +109,41 @@ for my $case (
     };
 }
 
+subtest 'PNG preview bypasses ExifTool' => sub {
+    my $png_image = $image->Clone;
+    $png_image->Set( magick => 'PNG' );
+    my $png = $png_image->ImageToBlob;
+    my $key = 'factory-orientation-png';
+    ok( DW::BlobStore->store( temp => $key, \$png ), 'stored the PNG upload' ) or return;
+
+    my $read_exif  = \&Image::ExifTool::ImageInfo;
+    my $exif_calls = 0;
+    my $preview;
+    {
+        no warnings 'redefine';
+        local *Image::ExifTool::ImageInfo = sub {
+            $exif_calls++;
+            goto &$read_exif;
+        };
+        $preview = LJ::Userpic->get_upf_scaled( mogkey => $key, size => 200 );
+    }
+    DW::BlobStore->delete( temp => $key );
+
+    is( $exif_calls, 0, 'PNG preview does not call ExifTool' );
+    ok( $preview, 'produced a preview' ) or return;
+    is( $preview->[1], 'image/png', 'preview is PNG' );
+    is_deeply( [ @$preview[ 2, 3 ] ], [ 200, 120 ], 'preview reports scaled dimensions' );
+
+    my $decoded = Image::Magick->new;
+    my $error   = $decoded->BlobToImage( ${ $preview->[0] } );
+    is( "$error", '', 'PNG preview can be decoded' ) or return;
+    is_deeply(
+        [ $decoded->Get(qw(width height)) ],
+        [ 200, 120 ],
+        'decoded PNG has the expected dimensions'
+    );
+};
+
 ok( !LJ::Userpic->get_upf_scaled( mogkey => 'missing-factory-orientation' ),
     'missing upload fails' );
 
