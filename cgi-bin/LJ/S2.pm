@@ -35,6 +35,7 @@ use LJ::S2::EntryPage;
 use LJ::S2::ReplyPage;
 use LJ::S2::TagsPage;
 use LJ::S2::IconsPage;
+use LJ::Web;
 use Storable;
 use POSIX ();
 
@@ -2392,12 +2393,8 @@ sub Page {
     my $linkobj  = LJ::Links::load_linkobj($u);
     my $linklist = [ map { UserLink($_) } @$linkobj ];
 
-    my $remote = LJ::get_remote();
-    my $tz_remote;
-    if ($remote) {
-        my $tz = $remote->prop("timezone");
-        $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
-    }
+    my $remote    = LJ::get_remote();
+    my $tz_remote = LJ::viewer_timezone($remote);
 
     unless ( $u->prop('customtext_content') ) {
         $u->set_prop( 'customtext_content',

@@ -22,6 +22,7 @@ use DW;
 use lib DW->home . "/src/s2";
 use S2;
 use LJ::JSON;
+use LJ::Web;
 
 sub EntryPage {
     my ( $u, $remote, $opts ) = @_;
@@ -207,11 +208,7 @@ sub EntryPage {
         @comments = LJ::Talk::load_comments( $u, $remote, "L", $itemid, $copts );
     }
 
-    my $tz_remote;
-    if ($remote) {
-        my $tz = $remote->prop("timezone");
-        $tz_remote = $tz ? eval { DateTime::TimeZone->new( name => $tz ); } : undef;
-    }
+    my $tz_remote = LJ::viewer_timezone($remote);
 
     my ( $last_talkid, $last_jid ) = LJ::get_lastcomment();
 
