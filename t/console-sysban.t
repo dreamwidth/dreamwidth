@@ -18,13 +18,32 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Sysban;
 use LJ::Console;
 use LJ::Test qw (temp_user);
 local $LJ::T_NO_COMMAND_PRINT = 1;
+
+subtest 'protected IPs' => sub {
+    local %LJ::UNBANNABLE_IPS = ( qr/\A192\.0\.2\.(?:10|11)\z/ => 'Office & support' );
+    my $opts = { skipexisting => 1 };
+
+    for my $bantype (qw(ip noanon_ip talk_ip_test)) {
+        for my $ip (qw(192.0.2.10 192.0.2.10 192.0.2.11)) {
+            like(
+                LJ::Sysban::validate( $bantype, $ip, $opts ),
+                qr/Cannot ban IP .*Office &amp; support/,
+                "$bantype refuses protected IP $ip on every attempt"
+            );
+        }
+        ok(
+            !LJ::Sysban::validate( $bantype, '192.0.2.100', $opts ),
+            "$bantype allows an IP outside the protected pattern"
+        );
+    }
+};
 
 my $u = temp_user();
 LJ::set_remote($u);
