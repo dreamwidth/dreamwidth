@@ -418,9 +418,10 @@ sub factory_prepare {
     );
 
     # save the arguments for the factory URL
+    my ( $width, $height ) = LJ::Userpic->get_upf_image_info( $upload->{image} );
     my $args = {
-        imageWidth  => $upload->{imagew},
-        imageHeight => $upload->{imageh}
+        imageWidth  => $width,
+        imageHeight => $height
     };
 
     $args->{$_} = $upload->{$_} foreach qw/ keywords comments descriptions
@@ -691,8 +692,6 @@ sub parse_post_uploads {
                     }
                     else {
                         $current_upload{requires_factory} = 1;
-                        $current_upload{imageh}           = $imageh;
-                        $current_upload{imagew}           = $imagew;
                         if ( $POST->{"spool_data_$counter"} ) {
                             $current_upload{spool_data} = $POST->{"spool_data_$counter"};
                         }
