@@ -18,6 +18,7 @@ package DW::Controller::API::Media;
 
 use strict;
 use warnings;
+use HTTP::Status qw(HTTP_CONFLICT);
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
@@ -110,8 +111,8 @@ sub file_new_handler {
 #  {
 #     1234: {
 #         security => "public",  # public, private, access, usemask
-#         allowmask => 3553,     # only valid in usemask security
-#         groups => [2, 4],     # instead of allowmask; only valid in usemask security
+#         allowmask => 3553,     # current slot bits, only valid in usemask security
+#         groups => [2, 4],     # alternative to allowmask; bare IDs refer to current slots
 #         title => "some title", # else, the name of the property
 #         otherprop => 5,
 #         ...
@@ -138,6 +139,7 @@ sub file_edit_handler {
 
     # First pass to check arguments.
     my %media;
+    my ( $lock, $groups, $revision );
     foreach my $id ( keys %$args ) {
 
         # sometimes JS sends us the string 'null' so let's make sure $id is OK
@@ -152,21 +154,33 @@ sub file_edit_handler {
         my $security = $args->{$id}->{security} // '';
         return api_error( $r->HTTP_BAD_REQUEST, 'Security invalid' )
             if exists $args->{$id}->{security} && $security !~ /\A(?:public|private|usemask)\z/;
+        if ( $security eq 'usemask' && !$lock ) {
+            my $owner = $rv->{u};
+            $lock = $owner->lock_trust_groups
+                or return api_error( HTTP_CONFLICT, 'Access filters are busy. Try again.' );
+            $groups   = $owner->trust_groups( force_database => 1 );
+            $revision = $owner->trust_group_revision;
+            return api_error( $r->SERVER_ERROR, 'Unable to read access filters' )
+                unless $groups && defined $revision;
+        }
         if ( exists $args->{$id}->{groups} ) {
-            my $groups = delete $args->{$id}->{groups};
+            my $selected = delete $args->{$id}->{groups};
             return api_error( $r->HTTP_BAD_REQUEST, 'Invalid access filters' )
                 unless $security eq 'usemask'
-                && ref $groups eq 'ARRAY'
+                && ref $selected eq 'ARRAY'
                 && !exists $args->{$id}->{allowmask};
-            my $mask = DW::Media->allowmask_for_groups( $rv->{u}, @$groups );
-            return api_error( $r->HTTP_BAD_REQUEST, 'Invalid access filters' ) unless defined $mask;
+            my $mask = DW::Media->allowmask_for_groups( $groups, $revision, $selected );
+            return api_error( $r->HTTP_BAD_REQUEST,
+                'Invalid access filters. Reload and try again.' )
+                unless defined $mask;
             $args->{$id}->{allowmask} = $mask;
         }
-        if ( exists $args->{$id}->{allowmask} ) {
+        elsif ( exists $args->{$id}->{allowmask} ) {
             return api_error( $r->HTTP_BAD_REQUEST, 'Allowmask invalid with chosen security' )
                 unless $security eq 'usemask';
-            return api_error( $r->HTTP_BAD_REQUEST, 'Allowmask must be numeric' )
-                unless $args->{$id}->{allowmask} =~ /^\d+$/;
+            my $mask = DW::Media->validated_allowmask( $groups, $args->{$id}->{allowmask} );
+            return api_error( $r->HTTP_BAD_REQUEST, 'Invalid access mask' ) unless defined $mask;
+            $args->{$id}->{allowmask} = $mask;
         }
 
         # Check to be sure this is valid. Security and Allowmask are separate
@@ -184,7 +198,7 @@ sub file_edit_handler {
     # were loadable, to try to make it an atomic process.
     foreach my $id ( keys %$args ) {
         my ( $security, $allowmask ) =
-            ( delete $args->{$id}->{security}, int( delete $args->{$id}->{allowmask} // 0 ) );
+            ( delete $args->{$id}->{security}, delete $args->{$id}->{allowmask} // 0 );
         if ( defined $security ) {
             $media{$id}->set_security(
                 security  => $security,

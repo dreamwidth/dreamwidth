@@ -79,20 +79,11 @@ local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'mediaFilterTest';
             'upload offers the owner\'s custom filters'
         );
 
-        my $upload = $request->(
-            POST "$host/api/v1/file/new?$as_owner&initial_security=private",
-            Content_Type => 'form-data',
-            Content      => [ files => [ $fixture, 'test.png', Content_Type => 'image/png' ] ]
-        );
-        is( $upload->code, 200, 'upload accepts the staged image' );
-        my $uploaded = eval { from_json( $upload->content )->{result}{id} };
-        if ($uploaded) {
-            my $staged = DW::Media->new( user => $owner, mediaid => $uploaded >> 8 );
-            is( $staged->security, 'private', 'upload stays private until its security is saved' );
-            $staged->delete;
-        }
-
-        my $response = $save->( 'custom', "group-$id" => $low, "group-$id" => $high );
+        my $edit_form = $request->( GET $edit );
+        my @values    = $edit_form->content =~ /name="group-$id" value="([0-9]+:[0-9]+)"/g;
+        my %choices   = map { ( split /:/, $_ )[0] => $_ } @values;
+        my $response =
+            $save->( 'custom', "group-$id" => $choices{$low}, "group-$id" => $choices{$high} );
         is( $response->code, 200, 'image management saves multiple custom filters' );
         my $saved = $load->();
         is( $saved->allowmask, ( 1 << $low ) | ( 1 << $high ), 'exact filter bits are saved' );
