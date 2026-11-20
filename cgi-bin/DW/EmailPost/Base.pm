@@ -18,6 +18,7 @@ use LJ::Emailpost::Web;
 use DW::Formats;
 
 use Encode;
+use HTML::TokeParser ();
 use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
@@ -234,6 +235,7 @@ sub _extract_post_headers {
     pos($body) = 0;
 
     if ( $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html' ) {
+        pos($body) = _html_body_offset($body);
         my $wrapper = qr{<(?:!doctype[ \t]+html|html|body|div|p)(?:[ \t][^<>\r\n]*)?>}i;
         $body =~ /\G(?:(?:[ \t]*$wrapper)*[ \t]*\r?\n)+/gc;
     }
@@ -241,8 +243,12 @@ sub _extract_post_headers {
     my $start = pos($body);
     my ( %lj_headers, %post_headers );
     while ( $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*)(?:\r?\n|\z)/igc ) {
-        my $headers = lc($1) eq 'lj' ? \%lj_headers : \%post_headers;
-        $headers->{ lc($2) } = LJ::trim($3);
+        my ( $prefix, $name, $value ) = ( lc($1), lc($2), LJ::trim($3) );
+        if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n][^\r\n]*)(?:\r?\n|\z)/gc ) {
+            $value = LJ::trim($1);
+        }
+        my $headers = $prefix eq 'lj' ? \%lj_headers : \%post_headers;
+        $headers->{$name} = $value;
     }
 
     substr( $body, $start, pos($body) - $start, '' );
@@ -251,6 +257,52 @@ sub _extract_post_headers {
     $self->{post_headers} = { %lj_headers, %post_headers };
 
     return 1;
+}
+
+sub _html_body_offset {
+    my ($body) = @_;
+    my $parser = HTML::TokeParser->new( \$body );
+    my ( $offset, $in_head, $metadata ) = ( 0, 0, '' );
+
+    while ( my $token = $parser->get_token ) {
+        my ( $type, $tag ) = @$token;
+        if ( $type eq 'S' ) {
+            $offset += length $token->[4];
+            return $offset if !$in_head && $tag eq 'body';
+            if ($in_head) {
+                last if $metadata;
+                $metadata = $tag if $tag =~ /\A(?:title|style|script)\z/;
+                last unless $metadata || $tag =~ /\A(?:base|link|meta)\z/;
+            }
+            else {
+                $in_head = 1 if $tag eq 'head';
+                last unless $in_head || $tag eq 'html';
+            }
+        }
+        elsif ( $type eq 'E' ) {
+            $offset += length $token->[2];
+            if ( $metadata && $tag eq $metadata ) {
+                $metadata = '';
+            }
+            elsif ( $in_head && !$metadata && $tag eq 'head' ) {
+                $in_head = 0;
+            }
+            else {
+                last;
+            }
+        }
+        elsif ($type eq 'C'
+            || ( $type eq 'D' && $tag =~ /\A<!doctype\s+html\b/i )
+            || ( $type eq 'T' && ( $metadata || $tag !~ /\S/ ) ) )
+        {
+            $offset += length $tag;
+        }
+        else {
+            last;
+        }
+    }
+
+    return 0;
 }
 
 # given a content-type header, return a hash of content-type attributes

@@ -15,12 +15,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 11;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost::Comment;
 use LJ::Test;
+use LJ::Userpic;
+use MIME::Entity;
 
 my $subject;
 my $u = temp_user();
@@ -77,3 +79,51 @@ is(
     "Make sure punctuation isn't escaped",
     "custom parent subject, punctuated email subject"
 );
+
+{
+    local $LJ::T_ALLOW_EMAILPOST  = 1;
+    local $LJ::EMAIL_REPLY_DOMAIN = 'reply.example.com';
+    $u->update_self( { status => 'A' } );
+    DW::EmailPost::Comment::generate_auth($u);
+
+    open my $image, '<:raw', "$ENV{LJHOME}/t/data/userpics/good.png" or die $!;
+    my $data = do { local $/; <$image> };
+    my $icon = LJ::Userpic->create( $u, data => \$data );
+    $icon->set_keywords('reply icon');
+
+    my $body = <<'BODY';
+post-icon: reply icon
+post-format: html
+
+Here are my notes:
+post-icon: part of the message
+post-format: markdown
+BODY
+    my $mime = MIME::Entity->build(
+        From    => $u->email_raw,
+        To      => DW::EmailPost::Comment->replyto_address( $u, $u, $ditemid, $c_parent->dtalkid ),
+        Subject => 'Email reply with settings',
+        Type    => 'text/plain',
+        Data    => $body,
+    );
+    my ( $ok, $msg ) = DW::EmailPost::Comment->new($mime)->process;
+    ok( $ok, 'Posted an email reply with settings' ) or diag $msg;
+
+    my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
+    my ($reply) = grep { $_->subject_raw eq 'Email reply with settings' } $entry->comment_list;
+    ok( $reply, 'Reply saved on the entry' );
+SKIP: {
+        skip 'No reply was saved', 3 unless $reply;
+        is( $reply->userpic_kw, 'reply icon', 'Leading post-icon sets the reply icon' );
+        is(
+            $reply->prop('editor'),
+            DW::Formats::validate('html_casual_latest'),
+            'Leading post-format sets the reply editor'
+        );
+        like(
+            $reply->body_raw,
+            qr/\AHere are my notes:\npost-icon: part of the message\npost-format: markdown\s*\z/,
+            'Settings-like lines after reply prose are published unchanged'
+        );
+    }
+}
