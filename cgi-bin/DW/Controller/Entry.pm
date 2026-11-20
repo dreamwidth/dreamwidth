@@ -1223,17 +1223,16 @@ sub preview_handler {
         );
 
         my $can_create_poll = $up->can_create_polls || ( $u->is_community && $u->can_create_polls );
-        my $poll_preview    = sub {
-            my $poll = shift @polls;
-            return '' unless $poll;
-            return $can_create_poll
+        foreach my $poll (@polls) {
+            my $preview =
+                  $can_create_poll
                 ? $poll->preview
                 : qq{<div class="highlight-box">}
                 . LJ::Lang::ml('/poll/create.bml.error.accttype2')
                 . qq{</div>};
-        };
-
-        $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
+            my $ph = $poll->placeholder;
+            $event =~ s/\Q$ph\E/$preview/;
+        }
     }
 
     # expand existing polls (for editing, or when transferring polls to another entry)
