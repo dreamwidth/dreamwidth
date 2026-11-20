@@ -17,6 +17,7 @@ package LJ;
 use strict;
 
 use Carp;
+use DateTime::TimeZone;
 use POSIX;
 use Digest::MD5;
 use Digest::SHA1;
@@ -35,6 +36,25 @@ use LJ::Directory::Constraint;
 use LJ::PageStats;
 use LJ::JSON;
 use LJ::Lang;
+
+my %timezone_names = map { $_ => 1 } DateTime::TimeZone::all_names();
+
+sub is_valid_timezone {
+    my ($name) = @_;
+    return defined $name && exists $timezone_names{$name};
+}
+
+sub anonymous_timezone {
+    my $r    = DW::Request->get or return;
+    my $name = $r->cookie('dw_timezone');
+    return is_valid_timezone($name) ? $name : undef;
+}
+
+sub viewer_timezone {
+    my ($remote) = @_;
+    my $name = $remote ? $remote->prop('timezone') : anonymous_timezone();
+    return $name ? eval { DateTime::TimeZone->new( name => $name ) } : undef;
+}
 
 # <LJFUNC>
 # name: LJ::img
