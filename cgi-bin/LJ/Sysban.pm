@@ -328,7 +328,7 @@ sub sysban_check {
 
 sub _account_create_ip {
     my ($value) = @_;
-    return unless defined $value;
+    return unless defined $value && $value =~ /\A[0-9a-fA-F:.]+\z/;
 
     my $ipv4 = inet_pton( AF_INET, $value );
     return inet_ntop( AF_INET, $ipv4 ) if defined $ipv4;
@@ -401,12 +401,13 @@ sub _db_sysban_populate_full {
 
     # build cache from db
     my $limitsql = $limit ? " ORDER BY banid DESC LIMIT ? OFFSET ?" : "";
+    my $starts = $what eq 'account_create' ? '>=' : '>';
     my $sth =
         $dbh->prepare( "SELECT banid, value, "
             . "UNIX_TIMESTAMP(banuntil), note "
             . "FROM sysban "
             . "WHERE status='active' AND what=? "
-            . "AND NOW() > bandate "
+            . "AND NOW() $starts bandate "
             . "AND (NOW() < banuntil OR banuntil IS NULL)"
             . $limitsql );
     $sth->execute( $what, $limit, $skip );
@@ -449,17 +450,12 @@ sub populate_full_by_value_with_expired {
 
 sub _db_sysban_populate_full_by_value {
     my ( $value, $no_expired, @types ) = @_;
+    return undef unless @types;
+
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
-    my $in_what = "";
-    my $has_all = 0;
-
-    $in_what = join ", ", map { $dbh->quote($_) } @types
-        unless $has_all;
-    $in_what = " AND what IN ( $in_what )"
-        if $in_what;
-
+    my $in_what  = join ', ', ('?') x @types;
     my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
 
     # build cache from db
@@ -467,13 +463,14 @@ sub _db_sysban_populate_full_by_value {
         qq{SELECT banid, what, UNIX_TIMESTAMP(banuntil), note
            FROM sysban
            WHERE status = 'active'
-                 AND value = ?
-                 $in_what
-                 AND NOW() > bandate
+                 AND what IN ($in_what)
+                 AND ((what = 'account_create' AND value = ? AND NOW() >= bandate)
+                   OR (what <> 'account_create' AND value = ? AND NOW() > bandate))
                  $banuntil
         }
     );
-    $sth->execute($value);
+    my $ip = _account_create_ip($value);
+    $sth->execute( @types, $ip, $value );
     return undef if $sth->err;
 
     my $where;
@@ -719,15 +716,13 @@ sub _unbannable_ip_error {
 
 # <LJFUNC>
 # name: LJ::Sysban::modify
-# des: modifies the expiry or note field of an entry
-# args: banid, bandays, expiry, expirenow, note (passed in as hash)
+# des: modifies a ban's expiry or note if the current user can manage its stored type
+# args: banid, bandays, expire, note (passed in as hash)
 # des-banid: the ban ID we're modifying
 # des-bandays: the new expiry
 # des-expire: the old expiry
 # des-note: the new note (optional)
-# des-what: the ban type
-# des-value: the ban value
-# returns: ERROR object on success, error message on failure
+# returns: ERROR object on failure
 # </LJFUNC>
 sub modify {
     my %opts = @_;
@@ -743,11 +738,18 @@ sub modify {
         return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
 
-    my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_writer()
+        or return bless { message => 'Could not connect to the database' }, 'ERROR';
 
-    my $banid   = $dbh->quote( $opts{'banid'} );
+    my $banid   = $opts{'banid'};
     my $expire  = $opts{'expire'};
     my $bandays = $opts{'bandays'};
+
+    my ( $what, $value ) =
+        $dbh->selectrow_array( 'SELECT what, value FROM sysban WHERE banid = ?', undef, $banid );
+    my $remote = LJ::get_remote();
+    return bless { message => 'You do not have the correct privileges to modify this ban' }, 'ERROR'
+        unless defined $what && $remote && $remote->has_priv( 'sysban', $what );
 
     my $banuntil = "NULL";
     if ($bandays) {
@@ -767,20 +769,16 @@ sub modify {
         }
     }
 
-    $dbh->do(
-        "UPDATE sysban SET banuntil=$banuntil,note=?
-             WHERE banid=$banid",
-        undef, $opts{note}
-    );
+    $dbh->do( "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=? AND what=?",
+        undef, $opts{note}, $banid, $what );
 
     if ( $dbh->err ) {
         return bless { message => $dbh->errstr, }, 'ERROR';
     }
 
-    LJ::MemCache::delete('sysban:account_create') if $opts{what} eq 'account_create';
+    LJ::MemCache::delete('sysban:account_create') if $what eq 'account_create';
 
     # log in statushistory
-    my $remote = LJ::get_remote();
     $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
 
     LJ::statushistory_add( 0, $remote, 'sysban_modify',
@@ -788,7 +786,7 @@ sub modify {
             . "bandate="
             . LJ::mysql_time()
             . "; banuntil=$banuntil; "
-            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "what=$what; value=$value; "
             . "note=$opts{'note'};" );
 
     return $dbh->{'mysql_insertid'};
