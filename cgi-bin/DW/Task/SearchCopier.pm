@@ -84,17 +84,39 @@ sub manticore_db {
 # object or a status change racing with a copy cannot leave dw1 out of sync.
 sub _journal_is_deleted {
     my ($u) = @_;
-    my $fresh = LJ::load_userid( $u->id, 'force' ) || $u;
+    my $fresh = LJ::load_userid( $u->id, 'force' )
+        or $log->logcroak( "Unable to load authoritative status for userid " . $u->id );
     return $fresh->is_inactive ? 1 : 0;
 }
 
-sub _reconcile_deleted_flag {
-    my ( $dbsx, $u, $written_deleted ) = @_;
-    my $current = _journal_is_deleted($u);
-    return if $current == $written_deleted;
+sub _update_deleted_flag {
+    my ( $dbsx, $u, $is_deleted, $col, $ids, $extra_where ) = @_;
+    my @remaining = @$ids;
+    my $extra     = $extra_where ? " AND $extra_where" : '';
 
-    $dbsx->do( sprintf 'UPDATE dw1 SET is_deleted = %d WHERE journalid = %d', $current, $u->id );
-    $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+    while ( my @chunk = splice( @remaining, 0, _CHUNK_SIZE ) ) {
+        $dbsx->do( sprintf 'UPDATE dw1 SET is_deleted = %d WHERE journalid = %d%s AND %s IN (%s)',
+            $is_deleted, $u->id, $extra, $col, join( ',', @chunk ) );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+    }
+}
+
+sub _reconcile_deleted_flag {
+    my ( $dbsx, $u, $written_deleted, $col, $ids, $extra_where ) = @_;
+    my $last = $written_deleted;
+
+    for ( 1 .. 5 ) {
+        my $current = _journal_is_deleted($u);
+        return if $current == $last;
+
+        _update_deleted_flag( $dbsx, $u, $current, $col, $ids, $extra_where );
+        $last = $current;
+    }
+
+    my $final = _journal_is_deleted($u);
+    return if $final == $last;
+    $log->logcroak( sprintf 'Status kept changing while reconciling search index for %s(%d).',
+        $u->user, $u->id );
 }
 
 sub work {
@@ -296,6 +318,7 @@ sub copy_comment {
         push @jtalkids, [ $jtalkid, $force_private ];
     }
 
+    my @inserted_jtalkids;
     my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
     while ( my @items = splice( @jtalkids, 0, _CHUNK_SIZE ) ) {
         last unless @items;
@@ -352,13 +375,14 @@ sub copy_comment {
             $dbsx->do( $sql, undef, $text->{$jid}->{subject} // '', $text->{$jid}->{body} // '' );
             $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
+            push @inserted_jtalkids, int $jid;
             $ins_count++;
             $ins_min = $jid if !defined $ins_min || $jid < $ins_min;
             $ins_max = $jid if !defined $ins_max || $jid > $ins_max;
         }
     }
     if ($ins_count) {
-        _reconcile_deleted_flag( $dbsx, $u, $is_deleted );
+        _reconcile_deleted_flag( $dbsx, $u, $is_deleted, 'jtalkid', \@inserted_jtalkids );
         $log->info( sprintf 'Inserted %d comments (#%d-#%d) for %s(%d).',
             $ins_count, $ins_min, $ins_max, $u->user, $u->id );
     }
@@ -454,6 +478,7 @@ sub copy_entry {
     # updating one or two.
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
     my $is_deleted  = _journal_is_deleted($u);
+    my @inserted_jitemids;
     my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
     foreach my $jitemid (@copy_jitemids) {
         my $row = $dbfrom->selectrow_hashref(
@@ -498,12 +523,14 @@ sub copy_entry {
         $dbsx->do( $sql, undef, $row->{subject} // '', $row->{event} // '' );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
+        push @inserted_jitemids, int $jitemid;
         $ins_count++;
         $ins_min = $jitemid if !defined $ins_min || $jitemid < $ins_min;
         $ins_max = $jitemid if !defined $ins_max || $jitemid > $ins_max;
     }
     if ($ins_count) {
-        _reconcile_deleted_flag( $dbsx, $u, $is_deleted );
+        _reconcile_deleted_flag( $dbsx, $u, $is_deleted, 'jitemid', \@inserted_jitemids,
+            'jtalkid = 0' );
         $log->info( sprintf 'Inserted %d posts (#%d-#%d) for %s(%d).',
             $ins_count, $ins_min, $ins_max, $u->user, $u->id );
     }

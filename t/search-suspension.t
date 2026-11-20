@@ -149,6 +149,74 @@ $check_search->( 'after mid-flight suspension during copy_entry', 0 );
 ok( $journal->set_unsuspended( $viewer, 'cleanup after mid-flight suspend' ),
     'unsuspend after mid-flight suspend race' );
 
+# Race 4: second transition between reconciliation read and Manticore UPDATE
+# (active -> suspended before insert -> unsuspended before reconciliation UPDATE)
+my $untouched = $journal->t_post_fake_entry( body => "$query untouched" );
+isnt( $untouched->jitemid, $entry->jitemid, 'untouched entry is distinct from copied entry' );
+DW::Task::SearchCopier::copy_entry( $journal, $untouched->jitemid, 1 );
+{
+    my $orig_uncompress = \&LJ::text_uncompress;
+    my $orig_update     = \&DW::Task::SearchCopier::_update_deleted_flag;
+    my ( $did_suspend, $did_unsuspend ) = ( 0, 0 );
+    no warnings 'redefine';
+    local *LJ::text_uncompress = sub {
+        if ( !$did_suspend++ ) {
+            $journal->set_suspended( $viewer, 'race4 suspend before insert' );
+        }
+        return $orig_uncompress->(@_);
+    };
+    local *DW::Task::SearchCopier::_update_deleted_flag = sub {
+        if ( !$did_unsuspend++ ) {
+            $journal->set_unsuspended( $viewer, 'race4 unsuspend before reconcile update' );
+        }
+        return $orig_update->(@_);
+    };
+    DW::Task::SearchCopier::copy_entry( $journal, $entry->jitemid, 1 );
+}
+{
+    my $result = DW::Search::search_journal(
+        remoteid         => $viewer->id,
+        query            => $query,
+        include_comments => 1,
+    ) or BAIL_OUT('race4 search failed');
+    is( $result->{total}, 4, 'after transition during reconciliation UPDATE: search total' );
+    is_deeply(
+        [ sort map { $_->{url} } @{ $result->{matches} } ],
+        [ sort( $control->url, $entry->url, $untouched->url, $comment->url ) ],
+        'after transition during reconciliation UPDATE: both copied and untouched entries visible'
+    );
+}
+
+# Race 5: reverse transition during reconciliation UPDATE
+# (suspended -> unsuspended before insert -> re-suspended before reconciliation UPDATE)
+ok( $journal->set_suspended( $viewer, 'race5 initial suspend' ), 'suspend for race5' );
+{
+    my $orig_uncompress = \&LJ::text_uncompress;
+    my $orig_update     = \&DW::Task::SearchCopier::_update_deleted_flag;
+    my ( $did_unsuspend, $did_resuspend ) = ( 0, 0 );
+    no warnings 'redefine';
+    local *LJ::text_uncompress = sub {
+        if ( !$did_unsuspend++ ) {
+            $journal->set_unsuspended( $viewer, 'race5 unsuspend before insert' );
+        }
+        return $orig_uncompress->(@_);
+    };
+    local *DW::Task::SearchCopier::_update_deleted_flag = sub {
+        if ( !$did_resuspend++ ) {
+            $journal->set_suspended( $viewer, 'race5 resuspend before reconcile update' );
+        }
+        return $orig_update->(@_);
+    };
+    DW::Task::SearchCopier::copy_entry( $journal, $entry->jitemid, 1 );
+}
+$check_search->( 'after reverse transition during reconciliation UPDATE', 0 );
+ok( $journal->set_unsuspended( $viewer, 'cleanup after race5' ), 'unsuspend after race5' );
+
+# Remove extra untouched entry before remaining status checks
+$dbh->do( sprintf 'DELETE FROM dw1 WHERE journalid = %d AND jitemid = %d AND jtalkid = 0',
+    $journal->id, $untouched->jitemid );
+LJ::delete_entry( $journal, $untouched->jitemid, undef, $untouched->anum );
+
 # Status split: deleted is inactive (hidden), undeleted and memorial remain visible
 ok( $journal->set_deleted, 'delete journal' );
 $recopy->();
