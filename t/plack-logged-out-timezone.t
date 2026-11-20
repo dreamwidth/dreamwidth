@@ -1,6 +1,6 @@
 # t/plack-logged-out-timezone.t
 #
-# Test the logged-out timezone preference on the Display settings page.
+# Test the logged-out timezone preference and journal cache policy.
 #
 # Authors:
 #      SAPHID <saphid@users.noreply.github.com>
@@ -20,6 +20,7 @@ use HTTP::Request::Common;
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::S2;
 use LJ::Test qw(temp_user with_fake_memcache);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -122,6 +123,58 @@ with_fake_memcache {
             '', 'account settings do not overwrite the guest cookie' );
         is( selected_zone( $request->( GET $account_url, Cookie => $visitor_cookie ) ),
             '', 'the cleared account setting persists and does not fall back to the guest cookie' );
+    };
+};
+
+with_fake_memcache {
+    local $LJ::CAP_DEF{userdomain} = 1;
+    my $owner     = temp_user();
+    my $entry     = $owner->t_post_fake_entry();
+    my $comment   = $entry->t_enter_comment( u => $owner )->dtalkid;
+    my $journal   = 'http://localhost/users/' . $owner->user;
+    my $entry_url = $journal . '/' . $entry->ditemid . '.html';
+
+    no warnings 'redefine';
+    local *LJ::S2::make_journal = sub {
+        my ( undef, $style, $view, undef, $opts ) = @_;
+        my $siteviews = $style eq 'siteviews';
+        ${ $opts->{handle_with_siteviews_ref} } = $siteviews;
+        return "<p>Fixture $view</p>";
+    };
+
+    test_psgi $app, sub {
+        my ($request) = @_;
+        for my $route (
+            [ entry => $entry_url,      '' ],
+            [ entry => $entry_url,      "thread=$comment" ],
+            [ reply => $entry_url,      "replyto=$comment" ],
+            [ read  => "$journal/read", '' ]
+            )
+        {
+            my ( $view, $base, $query ) = @$route;
+            for my $style ( '', 'style=site' ) {
+                my $args = join '&', grep { length } ( $query, $style );
+                my $page = length($args) ? "$base?$args" : $base;
+                for my $cookie ( '', $visitor_cookie ) {
+                    my $label = "$page, " . ( $cookie ? 'with a timezone' : 'without a timezone' );
+                    my $res   = $request->( GET $page, ( $cookie ? ( Cookie => $cookie ) : () ) );
+                    is( $res->code, 200, "$label renders successfully" );
+                    if ($style) {
+                        ok( $res->content =~ /<html\b.*Fixture \Q$view\E/s,
+                            "$label uses the site wrapper" );
+                    }
+                    else {
+                        ok( $res->content eq "<p>Fixture $view</p>", "$label uses journal HTML" );
+                    }
+                    is(
+                        $res->header('Cache-Control'),
+                        'private, no-cache',
+                        "$label requires private revalidation"
+                    );
+                    is( $res->header('Vary'), 'Cookie', "$label varies by cookie" );
+                }
+            }
+        }
     };
 };
 
