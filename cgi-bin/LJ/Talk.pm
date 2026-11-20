@@ -1510,8 +1510,9 @@ sub talkform {
                 && $parpost->{state} eq "S"
                 && LJ::Talk::can_unscreen( $remote, $journalu, $entry->poster ) );
 
-        $remote_opts->{allowed} = !$journalu->does_not_allow_comments_from($remote);
-        $remote_opts->{banned}  = $journalu->has_banned($remote);
+        my $denials = $journalu->comment_policy_denials($remote);
+        $remote_opts->{allowed} = !keys %$denials;
+        $remote_opts->{banned}  = $denials->{journal_ban} // 0;
         $remote_opts->{screened} =
             (      $journalu->has_autoscreen($remote)
                 || $screening eq 'A'
@@ -2747,22 +2748,17 @@ sub prepare_and_validate_comment {
             $mlerr->("$tp_d.error.testacct");
         }
 
-        # Ban check for journal and entry:
-        if ( $journalu->has_banned($commenter) ) {
-            $mlerr->("$tp_d.error.banned$iscomm");
-        }
-        else {
-            # comm hasn't banned you, but maybe this poster did
-            $mlerr->("$tp_d.error.banned.entryowner") if $entry->poster->has_banned($commenter);
-        }
-
-        # Ban check for parent comment:
-        my $parentu = LJ::load_userid( $parpost->{posterid} );
-        $mlerr->("$tp_d.error.banned.reply")
-            if defined $parentu && $parentu->has_banned($commenter);
+        my $denials = $journalu->comment_policy_denials(
+            $commenter,
+            entry_poster  => $entry->poster,
+            parent_poster => LJ::load_userid( $parpost->{posterid} ),
+        );
+        $mlerr->("$tp_d.error.banned$iscomm")     if $denials->{journal_ban};
+        $mlerr->("$tp_d.error.banned.entryowner") if $denials->{entry_ban};
+        $mlerr->("$tp_d.error.banned.reply")      if $denials->{parent_ban};
 
         # they down with unvalidated OpenIDs?
-        if ( $journalu->does_not_allow_comments_from_unconfirmed_openid($commenter) ) {
+        if ( $denials->{unconfirmed_openid} ) {
             $mlerr->(
                 "$tp_d.error.noopenidpost",
                 {
@@ -2788,7 +2784,7 @@ sub prepare_and_validate_comment {
         $mlerr->("$tp_d.error.noreply_readonly_remote") if $commenter->is_readonly;
 
         # members only?
-        if ( $journalu->does_not_allow_comments_from_non_access($commenter) ) {
+        if ( $denials->{non_access} ) {
             my $msg = $journalu->is_community ? "notamember" : "notafriend";
             $mlerr->( "$tp_d.error.$msg", { user => $journalu->user } );
         }
@@ -2797,13 +2793,11 @@ sub prepare_and_validate_comment {
         # I think these would all have been handled by the checks in the other
         # branch, but tradition says anons get different error messages.
 
-        # Doesn't allow anon comments?
-        if ( $journalu->does_not_allow_comments_from($commenter) ) {
-            $mlerr->("$tp_d.error.noanon$iscomm");
-        }
+        my $denials = $journalu->comment_policy_denials(undef);
+        $mlerr->("$tp_d.error.noanon$iscomm") if $denials->{anonymous};
 
         # members only?
-        if ( $journalu->prop('opt_whocanreply') eq 'friends' ) {
+        if ( $denials->{non_access} ) {
             my $msg = $journalu->is_community ? "membersonly" : "friendsonly";
             $mlerr->( "$tp_d.error.$msg", { user => $journalu->user } );
         }
