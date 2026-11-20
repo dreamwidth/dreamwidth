@@ -171,7 +171,7 @@ sub openid_claim_handler {
         return $err->( $csr->err );
     }
 
-    $ban_error = LJ::OpenID::sysban_error( $claimed_id->claimed_url );
+    $ban_error = LJ::OpenID::claimed_sysban_error($claimed_id);
     return $err->($ban_error) if $ban_error;
 
     my $check_url = $claimed_id->check_url(
@@ -216,7 +216,7 @@ sub openid_claimed_handler {
 
     my $url = $vident->url;
     return $err->('.error.invalidchars') if $url =~ /[\<\>\s]/;
-    my $ban_error = LJ::OpenID::sysban_error($url);
+    my $ban_error = LJ::OpenID::verified_sysban_error($vident);
     return $err->($ban_error) if $ban_error;
 
     my $ou = LJ::User::load_identity_user( 'O', $url, $vident );
@@ -359,7 +359,7 @@ sub openid_login_handler {
             return error_ml( '/openid/login.tt.error.loading_identity', { err => $csr->err } );
         }
 
-        $ban_error = LJ::OpenID::sysban_error( $claimed_id->claimed_url );
+        $ban_error = LJ::OpenID::claimed_sysban_error($claimed_id);
         return $error_page->($ban_error) if $ban_error;
 
         my $check_url = $claimed_id->check_url(

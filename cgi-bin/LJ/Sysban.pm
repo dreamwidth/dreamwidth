@@ -19,22 +19,32 @@ use strict;
 use v5.10;
 use Log::Log4perl;
 use URI;
+use URI::Escape qw(uri_escape);
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
-
-my $invalid_openid_domain = 'Invalid OpenID domain: enter a domain such as example.org';
 
 sub _openid_domain {
     my ( $value, $for_storage ) = @_;
     return unless defined $value;
     $value = LJ::trim($value) if $for_storage;
+    return if $for_storage && $value =~ /[^\x00-\x7f]|%/;
     return if $value =~ /[\s<>]/;
     $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;
     return unless $value =~ m{\Ahttps?://}i;
 
+    if ( $value =~ /[^\x00-\x7f]/ ) {
+        utf8::encode($value) if utf8::is_utf8($value);
+        $value = uri_escape( $value, '\x80-\xff' );
+    }
     my $uri  = URI->new($value);
-    my $host = lc( $uri->host // '' );
+    my $host = $uri->host // '';
+    if ( $host =~ /[^\x00-\x7f]/ ) {
+        return unless utf8::decode($host) && $host =~ /\A(?:[a-z0-9.-]|[^\x00-\x7f])+\z/i;
+        $uri->host($host);
+        $host = $uri->host // '';
+    }
+    $host = lc($host);
     $host =~ s/\.\z//;
     my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/;
     return unless $host =~ /\A$label(?:\.$label)+\z/;
@@ -45,6 +55,33 @@ sub _openid_domain {
         return if defined $uri->query || defined $uri->fragment;
     }
     return $host;
+}
+
+sub parse_openid_domain {
+    my $host = _openid_domain( $_[0], 1 );
+    return ( $host, undef ) if defined $host;
+    return ( undef,
+        'Invalid OpenID domain: enter an ASCII domain such as example.org (use Punycode for IDNs)'
+    );
+}
+
+sub _domain_ban_matches {
+    my ( $db, $type, $host ) = @_;
+    return 0 unless $db && $host && $host =~ /\./;
+
+    my $starts = $type eq 'openid_domain' ? '<=' : '<';
+    return $db->selectrow_array(
+        qq{
+            SELECT COUNT(*) FROM sysban
+            WHERE status = 'active'
+              AND what = ?
+              AND (value = ? OR ? LIKE CONCAT("%.", value))
+              AND bandate $starts NOW()
+              AND (NOW() < banuntil
+                   OR banuntil = 0
+                   OR banuntil IS NULL)
+        }, undef, $type, $host, $host
+    );
 }
 
 =head1 Methods
@@ -282,31 +319,8 @@ sub sysban_check {
         );
     };
 
-    # helper variation for wildcard match of domain bans
-    my $check_subdomains = sub {
-        my ( $type, $host ) = @_;
-        return 0 unless $host && $host =~ /\./;
-
-        # very similar to above, except in addition to exact match
-        # we also check for wildcard matches of larger banned domains
-        # e.g. foo.bar.org will match ban for "%.bar.org"
-
-        return $dbr->selectrow_array(
-            qq{
-                SELECT COUNT(*) FROM sysban
-                WHERE status = 'active'
-                  AND what = ?
-                  AND (value = ? OR ? LIKE CONCAT("%.", value))
-                  AND NOW() > bandate
-                  AND (NOW() < banuntil
-                       OR banuntil = 0
-                       OR banuntil IS NULL)
-            }, undef, $type, $host, $host
-        );
-    };
-
     if ( $what eq 'openid_domain' ) {
-        return $check_subdomains->( $what, scalar _openid_domain($value) );
+        return _domain_ban_matches( $dbr, $what, scalar _openid_domain($value) );
     }
 
     # check both ban by email and ban by domain if we have an email address
@@ -318,7 +332,7 @@ sub sysban_check {
 
         # see if this domain is banned, either directly
         # or else as part of a larger domain ban
-        return 1 if $check_subdomains->( 'email_domain', $1 );
+        return 1 if _domain_ban_matches( $dbr, 'email_domain', $1 );
 
         # account for GMail troll tricks
         my @domains = split( /\./, $1 );
@@ -571,8 +585,9 @@ sub create {
     # strip out leading/trailing whitespace
     $opts{'value'} = LJ::trim( $opts{'value'} );
     if ( $opts{what} eq 'openid_domain' ) {
-        $opts{value} = _openid_domain( $opts{value}, 1 );
-        return bless { message => $invalid_openid_domain }, 'ERROR' unless $opts{value};
+        my ( $host, $error ) = parse_openid_domain( $opts{value} );
+        return bless { message => $error }, 'ERROR' if $error;
+        $opts{value} = $host;
     }
 
     # do insert
@@ -621,8 +636,11 @@ sub validate {
     my ( $what, $value, $opts, $post ) = @_;
 
     if ( $what eq 'openid_domain' ) {
-        $value = _openid_domain( $value, 1 );
-        return $invalid_openid_domain unless $value;
+        my ( $host, $error ) = parse_openid_domain($value);
+        return $error if $error;
+        return 'This is already banned'
+            if !$opts->{skipexisting} && _domain_ban_matches( LJ::get_db_writer(), $what, $host );
+        return 0;
     }
 
     # bail early if the ban already exists
@@ -663,8 +681,7 @@ sub validate {
                 return "Invalid email domain: $email_domain";
             }
         },
-        'openid_domain' => sub { return 0 },
-        'user'          => sub {
+        'user' => sub {
             my $user = shift;
 
             my $u = LJ::load_user($user);

@@ -74,12 +74,32 @@ sub consumer {
 }
 
 sub sysban_error {
-    my ($url) = @_;
-    return unless LJ::Sysban::sysban_check( 'openid_domain', $url );
+    my %checked;
+    foreach my $url (@_) {
+        next unless defined $url && !$checked{$url}++;
+        next unless LJ::Sysban::sysban_check( 'openid_domain', $url );
 
-    my $sitename = LJ::ehtml($LJ::SITENAMESHORT);
-    return "We're sorry, but $sitename has restricted OpenID logins from your OpenID provider. "
-        . 'Please contact us if you believe this restriction is in error.';
+        my $sitename = LJ::ehtml($LJ::SITENAMESHORT);
+        return
+              "We're sorry, but $sitename has restricted OpenID logins from your OpenID provider. "
+            . 'Please contact us if you believe this restriction is in error.';
+    }
+    return;
+}
+
+sub claimed_sysban_error {
+    my ($claimed_id) = @_;
+    my $delegate = $claimed_id->delegated_url;
+    return sysban_error(
+        $claimed_id->claimed_url,
+        $claimed_id->identity_server,
+        ( defined $delegate && $delegate =~ m{\Ahttps?://}i ? $delegate : () )
+    );
+}
+
+sub verified_sysban_error {
+    my ($verified_id) = @_;
+    return claimed_sysban_error( $verified_id->{claimed_identity} );
 }
 
 sub consumer_secret {

@@ -116,6 +116,12 @@ if ($banlength) {
 # add new ban
 if ($add) {
 
+    if ( $what eq 'openid_domain' ) {
+        my ( $host, $error ) = LJ::Sysban::parse_openid_domain($value);
+        die "$error\n" if $error;
+        $value = $host;
+    }
+
     $status = ( $status eq 'expired' ? 'expired' : 'active' );
 
     $dbh->do(
@@ -150,6 +156,14 @@ if ($modify) {
     # load selected ban
     my $ban = $dbh->selectrow_hashref( "SELECT * FROM sysban WHERE banid=?", undef, $banid );
     die $dbh->errstr if $dbh->err;
+
+    if (   ( $what || $ban->{what} ) eq 'openid_domain'
+        && ( defined $value || $ban->{what} ne 'openid_domain' ) )
+    {
+        my ( $host, $error ) = LJ::Sysban::parse_openid_domain( $value // $ban->{value} );
+        die "$error\n" if $error;
+        $value = $host;
+    }
 
     my @set = ();
 
