@@ -85,6 +85,12 @@ contentflag.viewingexplicit.byjournal.personal=You're about to view content that
 
 contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
+copytext.button=Copy
+
+copytext.copied=Copied to clipboard.
+
+copytext.failed=Couldn't copy automatically. The text is selected: press Ctrl+C (or Cmd+C on a Mac) to copy it.
+
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
 cprod.editpics.text7.v1=You've reached your limit of [[num]] icons.
