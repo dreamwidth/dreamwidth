@@ -1492,9 +1492,8 @@ MOODS
 
         # Comment Settings
         my $comment_settings_selected = sub {
-            return "noemail" if $opts->{'prop_opt_noemail'};
-            return "nocomments"
-                if $opts->{prop_opt_nocomments} || $opts->{prop_opt_nocomments_maintainer};
+            return "nocomments" if $opts->{prop_opt_nocomments};
+            return "noemail"    if $opts->{'prop_opt_noemail'};
             return $opts->{'comment_settings'};
         };
 
@@ -1507,11 +1506,7 @@ MOODS
             return "Enabled";
         };
 
-        my $nocomments_display =
-            $opts->{prop_opt_nocomments_maintainer}
-            ? 'entryform.comment.settings.nocomments.admin'
-            : 'entryform.comment.settings.nocomments';
-
+        my $maintainer_disabled      = $opts->{prop_opt_nocomments_maintainer};
         my $comment_settings_default = BML::ml( 'entryform.comment.settings.default5',
             { 'aopts' => $comment_settings_journaldefault->() } );
         $out .= LJ::html_select(
@@ -1520,16 +1515,23 @@ MOODS
                 'id'       => 'comment_settings',
                 'class'    => 'select',
                 'selected' => $comment_settings_selected->(),
-                'tabindex' => $tabindex->()
+                'tabindex' => $tabindex->(),
+                $maintainer_disabled ? ( 'aria-describedby' => 'comment-settings-admin-note' ) : (),
             },
             "",
             $comment_settings_default,
             "nocomments",
-            BML::ml( $nocomments_display, "noemail" ),
+            BML::ml('entryform.comment.settings.nocomments'),
             "noemail",
             BML::ml('entryform.comment.settings.noemail')
         );
         $out .= LJ::help_icon_html( "comment", "", " " );
+        if ($maintainer_disabled) {
+            $out .=
+                  " <span id='comment-settings-admin-note'>"
+                . BML::ml('entryform.comment.settings.nocomments.admin')
+                . "</span>";
+        }
         $out .= "\n";
         $out .= "</span>\n";
         $out .= "</p>\n";
@@ -1908,6 +1910,7 @@ PREVIEW
         # comment disabling/enabling
         # only possible if comments weren't disabled by poster
         unless ( $opts->{prop_opt_nocomments} ) {
+            $out .= LJ::html_hidden( opt_nocomments_maintainer_present => 1 );
             $out .= "<p class='pkg'>";
             $out .=
                   "<label for='prop_opt_nocomments_maintainer' class='left options'>"
