@@ -680,6 +680,7 @@ sub EntryPage_entry {
         $u,
         {
             subject             => $subject,
+            syn_full_subject    => $entry->syn_full_subject,
             text                => $event,
             dateparts           => LJ::alldatepart_s2( $entry->eventtime_mysql ),
             system_dateparts    => LJ::alldatepart_s2( $entry->logtime_mysql ),

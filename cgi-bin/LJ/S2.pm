@@ -19,6 +19,7 @@ use strict;
 use DW;
 use DW::Request;
 use DW::Cache;
+use Encode ();
 use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
@@ -2080,9 +2081,10 @@ sub TagList {
 sub Entry {
     my ( $u, $arg ) = @_;
     my $e = {
-        '_type'       => 'Entry',
-        'link_keyseq' => [ 'edit_entry', 'edit_tags' ],
-        'metadata'    => {},
+        '_type'             => 'Entry',
+        '_syn_full_subject' => $arg->{syn_full_subject},
+        'link_keyseq'       => [ 'edit_entry', 'edit_tags' ],
+        'metadata'          => {},
     };
     foreach (
         qw( subject text journal poster new_day end_day
@@ -2298,6 +2300,7 @@ sub Entry_from_entryobj {
         $u,
         {
             subject             => $subject,
+            syn_full_subject    => $entry_obj->syn_full_subject,
             text                => $text,
             dateparts           => LJ::alldatepart_s2( $entry_obj->{eventtime} ),
             system_dateparts    => LJ::alldatepart_s2( $entry_obj->{logtime} ),
@@ -4286,8 +4289,12 @@ sub EntryLite__formatted_subject {
 
         # additional cleaning for title attribute, necessary to enable
         # screenreaders to see the names of the invisible links
-        my $title = $subject;
+        my $title = $this->{_syn_full_subject} // $subject;
         LJ::CleanHTML::clean_subject_all( \$title );
+        my $is_utf8 = Encode::is_utf8($title);
+        $title = Encode::decode_utf8($title) unless $is_utf8;
+        $title = LJ::ehtml( LJ::dhtml($title) );
+        $title = Encode::encode_utf8($title) unless $is_utf8;
 
         return "<a title=\"$title\" href=\"$this->{permalink_url}\"$class$style>$subject</a>";
     }
