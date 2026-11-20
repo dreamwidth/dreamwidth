@@ -15,10 +15,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 153;
+use Test::More tests => 154;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
+use DW::FormErrors;
 use DW::User::Rename;
 use DW::RenameToken;
 
@@ -108,6 +109,34 @@ note("-- personal-to-unregistered, with redirect");
     is( $orig_u->get_renamed_user->user,
         $tousername, "Confirm redirect from $fromusername to $tousername" );
 }
+
+subtest 'redirects to a purged journal are still unavailable' => sub {
+    my $requester = temp_user();
+    my $first     = temp_user( journaltype => 'R' );
+    my $second    = temp_user( journaltype => 'R' );
+    my $target    = temp_user();
+
+    ok( DW::User::Rename->create_redirect_journal( $first->user, $second->user ),
+        'Created the first redirect' );
+    ok( DW::User::Rename->create_redirect_journal( $second->user, $target->user ),
+        'Created the second redirect' );
+    $target->set_statusvis('X');
+
+    ok( $requester->can_rename_to( $target->user ), 'The purged username itself is available' );
+    for my $alias ( $second, $first ) {
+        my $alias_name  = $alias->user;
+        my $target_name = $target->user;
+        my $errors      = DW::FormErrors->new;
+        ok( !$requester->can_rename_to( $alias_name, errors => $errors ),
+            'The redirecting username is unavailable' );
+        my $error = $errors->get('touser');
+        like(
+            $error->{message},
+            qr/\Q$alias_name\E.*redirects to.*\Q$target_name\E/i,
+            'The error identifies the requested name and the final destination'
+        );
+    }
+};
 
 note("-- user-to-user, no redirect");
 {
