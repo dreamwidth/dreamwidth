@@ -57,7 +57,8 @@ sub save_module {
     if ( defined $id ) {
         my $old_content = $class->module_content(
             moduleid  => $id,
-            journalid => LJ::want_userid($journal)
+            journalid => LJ::want_userid($journal),
+            no_cache  => $opts{after_commit},
         )->{content}
             || '';
         my $new_content = $contents;
@@ -73,7 +74,8 @@ sub save_module {
 
     # are we creating a new entry?
     if ($need_new_id) {
-        $id = LJ::alloc_user_counter( $journal, 'D' )
+        $id = (
+            $opts{allocate_id} ? $opts{allocate_id}->() : LJ::alloc_user_counter( $journal, 'D' ) )
             or die "Could not allocate embed module ID";
     }
 
@@ -108,7 +110,16 @@ sub save_module {
         linktext => $src_info->{linktext},
         url      => $src_info->{url},
     };
-    LJ::MemCache::set( $memkey, $cref );
+    my $publish = sub {
+        LJ::MemCache::set( $memkey, $cref );
+        DW::TaskQueue->dispatch( $src_info->{job} ) if $src_info->{job};
+    };
+    if ( $opts{after_commit} ) {
+        push @{ $opts{after_commit} }, $publish;
+    }
+    else {
+        $publish->();
+    }
 
     return $id;
 }
@@ -191,15 +202,25 @@ sub parse_module_embed {
         return $class->expand_entry( $journal, $postref, %opts );
     }
 
+    my $prepared = $class->prepare_module_embed($postref);
+    $$postref = $class->store_prepared_module_embed( $journal, $prepared, preview => $preview );
+}
+
+sub prepare_module_embed {
+    my ( $class, $postref ) = @_;
+    return
+        unless LJ::is_enabled('embed_module')
+        && $$postref =~ /<((lj|site)-embed|embed|object|iframe)/i;
+
     # ok, we can safely parse post text
     # machine state
-    my $state           = REGULAR;
-    my $p               = HTML::TokeParser->new($postref);
-    my $newtxt          = '';
-    my %embed_attrs     = ();                                # ($eid, $ewidth, $eheight);
-    my $embed           = '';
-    my @stack           = ();
-    my $next_preview_id = 1;
+    my $state       = REGULAR;
+    my $p           = HTML::TokeParser->new($postref);
+    my $newtxt      = '';
+    my %embed_attrs = ();                                # ($eid, $ewidth, $eheight);
+    my $embed       = '';
+    my @stack       = ();
+    my @parts;
 
     while ( my $token = $p->get_token ) {
         my ( $type, $tag, $attr ) = @$token;
@@ -282,21 +303,10 @@ sub parse_module_embed {
         }
 
         # we decided to switch back to REGULAR and have something in embed buffer
-        # so let's save buffer as an embed module and start all over again
+        # so record the embed and start all over again
         if ( defined $newstate && $newstate == REGULAR && $embed ) {
-            $embed_attrs{id} = $class->save_module(
-                id       => ( $preview ? $next_preview_id++ : $embed_attrs{id} ),
-                contents => $embed,
-                journal  => $journal,
-                preview  => $preview,
-            );
-
-            $newtxt .= "<site-embed "
-                . join( ' ',
-                map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () }
-                    qw / id width height / )
-                . "/>";
-
+            push @parts, $newtxt, { attrs => {%embed_attrs}, contents => $embed };
+            $newtxt      = '';
             $embed       = '';
             %embed_attrs = ();
         }
@@ -306,8 +316,31 @@ sub parse_module_embed {
 
     }
 
-    # update passed text
-    $$postref = $newtxt;
+    return [ @parts, $newtxt ];
+}
+
+sub store_prepared_module_embed {
+    my ( $class, $journal, $parts, %opts ) = @_;
+    my $newtxt          = '';
+    my $next_preview_id = 1;
+    for my $part (@$parts) {
+        unless ( ref $part ) {
+            $newtxt .= $part;
+            next;
+        }
+        my %attrs = %{ $part->{attrs} };
+        $attrs{id} = $class->save_module(
+            %opts,
+            id       => ( $opts{preview} ? $next_preview_id++ : $attrs{id} ),
+            contents => $part->{contents},
+            journal  => $journal,
+        );
+        $newtxt .=
+              '<site-embed '
+            . join( ' ', map { exists $attrs{$_} ? "$_=\"$attrs{$_}\"" : () } qw(id width height) )
+            . '/>';
+    }
+    return $newtxt;
 }
 
 # only allow percentage as a unit
@@ -338,11 +371,10 @@ sub _extract_style_keyvals {
 # Currently handles: YouTube, Vimeo
 sub extract_src_info {
     my ( $class, $args ) = @_;
-    my ( $site, $href );
 
-    my ( $contents, $cmptext, $journal, $id, $preview, $vid_id, $host, $linktext, $url ) =
-        map { delete $args->{$_} }
-        qw( contents cmptext journal id preview vid_id host linktext url );
+    my ( $contents, $cmptext, $journal, $id, $preview ) =
+        @{$args}{qw(contents cmptext journal id preview)};
+    my ( $vid_id, $host, $linktext, $url );
 
     my $youtube_uri = qr{    # match...
         src=["']             # src=" or src='
@@ -356,62 +388,23 @@ sub extract_src_info {
 
         # YouTube
 
-        my $host   = "https://www.youtube.com/";
-        my $prefix = "watch?v=";
-
         # construct the URL and link text
         $contents =~ /.*src="[^"]*embed\/([^"]*)".*/;
-        my $vid_id = $1;
-        $url      = LJ::ehtml( $host . $prefix . $vid_id );
+        $vid_id   = $1;
+        $host     = 'youtube';
+        $url      = LJ::ehtml( 'https://www.youtube.com/watch?v=' . $vid_id );
         $linktext = LJ::Lang::ml('embedmedia.youtube');
-
-        # Fire off the worker to get the correct title
-        DW::TaskQueue->dispatch(
-            DW::Task::EmbedWorker->new(
-                {
-                    vid_id    => $vid_id,
-                    host      => 'youtube',
-                    preview   => $preview,
-                    contents  => $contents,
-                    cmptext   => $cmptext,
-                    journalid => $journal->id,
-                    id        => $id,
-                    linktext  => $linktext,
-                    url       => $url,
-                }
-            )
-        );
-
     }
     elsif ( $contents =~ /src="https?:\/\/.*vimeo\.com/ ) {
 
         # Vimeo's default c/p embed code contains a link to the
         # video by title. If that's present, don't build a link.
-        my $host = "https://vimeo.com/";
-
         # get the video ID
         $contents =~ /.*src="[^"]*vimeo\.com\/video\/([^"]*)".*/;
-        my $vid_id = $1;
-
-        $url      = LJ::ehtml( $host . $vid_id );
+        $vid_id   = $1;
+        $host     = 'vimeo';
+        $url      = LJ::ehtml( 'https://vimeo.com/' . $vid_id );
         $linktext = LJ::Lang::ml('embedmedia.vimeo');
-
-        # Fire off the worker to get the correct title
-        DW::TaskQueue->dispatch(
-            DW::Task::EmbedWorker->new(
-                {
-                    vid_id    => $vid_id,
-                    host      => 'vimeo',
-                    preview   => $preview,
-                    contents  => $contents,
-                    cmptext   => $cmptext,
-                    journalid => $journal->id,
-                    id        => $id,
-                    linktext  => $linktext,
-                    url       => $url,
-                }
-            )
-        );
     }
     else {
         # Not one of our known embed types
@@ -419,7 +412,20 @@ sub extract_src_info {
         $url      = "";
     }
 
-    return { linktext => $linktext, url => $url };
+    my $job = $host && DW::Task::EmbedWorker->new(
+        {
+            vid_id    => $vid_id,
+            host      => $host,
+            preview   => $preview,
+            contents  => $contents,
+            cmptext   => $cmptext,
+            journalid => $journal->id,
+            id        => $id,
+            linktext  => $linktext,
+            url       => $url,
+        }
+    );
+    return { linktext => $linktext, url => $url, job => $job };
 }
 
 # Used by TheSchwartz to contact external embed site APIs
@@ -738,7 +744,7 @@ sub module_content {
     # try memcache
     my $memkey = $class->memkey( $journalid, $moduleid, $preview );
     my ( $content, $linktext, $url );    # for direct linking
-    my $cref = LJ::MemCache::get($memkey);
+    my $cref = $opts{no_cache} ? {} : LJ::MemCache::get($memkey);
     $content  = $cref->{content};
     $linktext = $cref->{linktext};
     $url      = $cref->{url};
@@ -776,7 +782,7 @@ sub module_content {
         };
 
         # save in memcache
-        LJ::MemCache::set( $memkey, $return_content );
+        LJ::MemCache::set( $memkey, $return_content ) unless $opts{no_cache};
     }
     else {
         # get rid of whitespace around the content

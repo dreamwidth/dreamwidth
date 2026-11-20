@@ -1016,9 +1016,11 @@ sub editable_by {
 
 sub deletable_by {
     my ( $self, $remote ) = @_;
-    return 0 unless LJ::isu($remote) && $remote->is_visible && !$remote->is_expunged;
+    return 0 unless LJ::isu($remote) && !$remote->is_expunged;
+    return 0 unless $remote->is_visible || $remote->statusvis eq 'O';
     return 0 unless $self->visible_to($remote);
-    return $self->posterid == $remote->userid || $remote->can_manage( $self->journal );
+    return ( !$remote->is_readonly && $self->posterid == $remote->userid )
+        || $remote->can_manage( $self->journal );
 }
 
 # instance method:  returns bool, if remote user can view this entry

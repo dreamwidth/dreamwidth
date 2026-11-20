@@ -491,7 +491,7 @@ sub alloc_user_counter {
     return undef unless $dom =~ /^[LTMPSRKCOVEQDIZXFYABN]$/;
     ##################################################################
 
-    my $dbh = LJ::get_db_writer();
+    my $dbh = $opts->{dbh} || LJ::get_db_writer();
     return undef unless $dbh;
 
     my $newmax;
@@ -523,7 +523,7 @@ sub alloc_user_counter {
             if ( $@ or !$rv ) {
                 $dbh->do( "DELETE FROM usercounter WHERE " . "journalid=? AND area=?",
                     undef, $uid, $dom );
-                return LJ::alloc_user_counter( $u, $dom );
+                return LJ::alloc_user_counter( $u, $dom, { dbh => $dbh } );
             }
         }
 
@@ -663,7 +663,7 @@ sub alloc_user_counter {
 
     # The 2nd invocation of the alloc_user_counter sub should do the
     # intended incrementing.
-    return LJ::alloc_user_counter( $u, $dom, { recurse => 1 } );
+    return LJ::alloc_user_counter( $u, $dom, { dbh => $dbh, recurse => 1 } );
 }
 
 package LJ::Error::Database::Unavailable;

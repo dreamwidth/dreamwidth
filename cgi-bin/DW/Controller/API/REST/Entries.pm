@@ -268,11 +268,7 @@ sub edit_entry {
 
     # are you authorized to view this entry
     # and does the entry we got match the provided ditemid exactly?
-    my $anum   = $ditemid % 256;
-    my $itemid = $ditemid >> 8;
-    return $self->rest_error('404')
-        unless $anum == $entry_obj->anum
-        && $itemid == $entry_obj->jitemid;
+    return $self->rest_error('404') unless $entry_obj->correct_anum( $ditemid % 256 );
 
     unless ( $entry_obj->editable_by($remote) ) {
         return $self->rest_error( '403', 'You cannot edit this community entry.' )
@@ -290,6 +286,7 @@ sub edit_entry {
 
     my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
     DW::Entry::_form_to_backend( 1, $form_req, $post );
+    delete @{$form_req}{qw(security allowmask)} unless defined $post->{security};
 
     # check for spam domains
     LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
