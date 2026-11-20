@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Sysban;
@@ -38,11 +38,66 @@ subtest 'protected IPs' => sub {
                 "$bantype refuses protected IP $ip on every attempt"
             );
         }
+        like(
+            LJ::Sysban::validate( $bantype, "192.0.2.10\n", $opts ),
+            qr/Format: xxx\.xxx\.xxx\.xxx/,
+            "$bantype rejects trailing-newline IP before protected check"
+        );
         ok(
             !LJ::Sysban::validate( $bantype, '192.0.2.100', $opts ),
             "$bantype allows an IP outside the protected pattern"
         );
     }
+};
+
+subtest 'spamreports trimmed protected IP' => sub {
+    require DW::Controller::Admin::SpamReports;
+    require DW::Request::Standard;
+    require HTTP::Request;
+
+    local %LJ::UNBANNABLE_IPS = ( qr/\A192\.0\.2\.12\z/ => 'Office IP' );
+    my $admin = temp_user();
+    $admin->grant_priv( 'siteadmin', 'spamreports' );
+    $admin->grant_priv( 'sysban',    'talk_ip_test' );
+    LJ::set_remote($admin);
+
+    my $run_del = sub {
+        my ($encoded_ip) = @_;
+        my $auth = LJ::eurl( LJ::form_auth(1) );
+        my $body = "lj_form_auth=$auth&mode=del&srids=0&sysban_ip=$encoded_ip&sysban_note=test";
+        my $req  = HTTP::Request->new( POST => 'http://www.dreamwidth.org/admin/spamreports' );
+        $req->header( 'Content-Type' => 'application/x-www-form-urlencoded' );
+        $req->content($body);
+
+        DW::Request::reset();
+        my $r = DW::Request::Standard->new($req);
+        local $DW::Request::cur_req = $r;
+        DW::Controller::Admin::SpamReports::main_controller();
+        return $r;
+    };
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( "DELETE FROM sysban WHERE what = 'talk_ip_test' AND value IN (?, ?)",
+        undef, '192.0.2.12', '192.0.2.99' );
+
+    my $r_protected = $run_del->('192.0.2.12%0A');
+    is( $r_protected->status, 200, 'spam report closure with padded protected IP succeeds' );
+    my ($protected_count) = $dbh->selectrow_array(
+        "SELECT COUNT(*) FROM sysban WHERE what = 'talk_ip_test' AND value = ?",
+        undef, '192.0.2.12' );
+    is( $protected_count, 0,
+        'closing a spam report with a padded protected IP does not create a sysban' );
+
+    my $r_allowed = $run_del->('192.0.2.99%0A');
+    is( $r_allowed->status, 200, 'spam report closure with padded allowed IP succeeds' );
+    my ($allowed_banid) = $dbh->selectrow_array(
+        "SELECT banid FROM sysban WHERE what = 'talk_ip_test' AND value = ?"
+            . " ORDER BY banid DESC LIMIT 1",
+        undef, '192.0.2.99'
+    );
+    ok( $allowed_banid,
+        'closing a spam report with a padded allowed IP creates the trimmed sysban' );
+    $dbh->do( "DELETE FROM sysban WHERE banid = ?", undef, $allowed_banid ) if $allowed_banid;
 };
 
 my $u = temp_user();
