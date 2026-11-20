@@ -12,6 +12,7 @@
 package DW::Controller::Admin::Props;
 
 use strict;
+use Encode qw(decode_utf8);
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
@@ -62,19 +63,30 @@ sub entryprops_handler {
     );
     return $rv unless $ok;
 
-    my $r      = $rv->{r};
-    my $remote = $rv->{remote};
+    my $r        = $rv->{r};
+    my $remote   = $rv->{remote};
+    my $can_save = $remote->has_priv( 'canview', 'entryprops' )
+        && $remote->has_priv( 'siteadmin', 'entryprops' );
     my %entry_info;
     my @props;
+    my $saved;
 
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
-        my $post  = $r->post_args;
+        my $post = $r->post_args;
+        if ( $post->{_save} ) {
+            return error_ml( 'admin.noprivserror',
+                { numprivs => 1, needprivs => 'siteadmin:entryprops' } )
+                unless $can_save;
+            return error_ml('error.invalidform')
+                unless LJ::check_form_auth( $post->{lj_form_auth} )
+                && LJ::check_referer('/admin/entryprops');
+        }
         my $entry = LJ::Entry->new_from_url( LJ::trim( $post->{url} ) );
 
         my $url = LJ::ehtml( $post->{url} );
         $errors->add_string( 'url', "$url is not a valid entry URL." )
-            unless $entry && $entry->valid;
+            unless $entry && $entry->correct_anum;
 
         unless ( $errors->exist ) {
 
@@ -111,16 +123,70 @@ sub entryprops_handler {
                 server_time   => $entry->logtime_mysql,
                 adult_content => $journal->adult_content || "none",
             );
+            $entry_info{edit_url} =
+                "$LJ::SITEROOT/users/" . $journal->user . '/' . $entry->ditemid . '.html';
 
             my %entry_props = %{ $entry->props || {} };
+            my %metadata    = map { $_ => LJ::get_prop( 'log', $_ ) } keys %entry_props;
+            if ( $post->{_save} ) {
+                my %changes;
+                foreach my $name ( sort keys %entry_props ) {
+                    my $meta   = $metadata{$name} or next;
+                    my $field  = "prop_$name";
+                    my @values = $post->get_all($field);
+                    next unless @values;
+                    my $value = $values[0];
+                    if ( @values != 1 || !LJ::is_utf8($value) ) {
+                        $errors->add_string( $field, 'Enter one valid text value.' );
+                        next;
+                    }
+                    my $previous = $entry_props{$name} // '';
+                    $value    =~ s/\r\n/\n/g;
+                    $previous =~ s/\r\n/\n/g;
+                    next if $value eq $previous;
+                    if ( length( decode_utf8($value) ) > 255 ) {
+                        $errors->add_string( $field, 'Enter no more than 255 characters.' );
+                    }
+                    elsif ( $meta->{datatype} eq 'num' && $value !~ /\A[0-9]{0,12}\z/ ) {
+                        $errors->add_string( $field, 'Enter a whole number of up to 12 digits.' );
+                    }
+                    elsif ( $meta->{datatype} eq 'bool' && $value !~ /\A[01]?\z/ ) {
+                        $errors->add_string( $field, 'Enter 1 or 0, or leave this blank.' );
+                    }
+                    else {
+                        $changes{$name} = $value;
+                    }
+                }
+
+                unless ( $errors->exist ) {
+                    foreach my $name ( sort keys %changes ) {
+                        my $value = $changes{$name};
+                        $entry->set_prop( $name, $value );
+                        if ( $journal->err ) {
+                            $errors->add_string( "prop_$name", 'Could not save this property.' );
+                            last;
+                        }
+                        if ($value) {
+                            $entry_props{$name} = $value;
+                        }
+                        else {
+                            delete $entry_props{$name};
+                        }
+                    }
+                    $saved = !$errors->exist;
+                }
+            }
             foreach my $prop_name ( sort keys %entry_props ) {
                 my %prop = (
                     name        => $prop_name,
                     value       => $entry_props{$prop_name},
                     description => "",
                 );
-                if ( my $prop_meta = LJ::get_prop( "log", $prop_name ) ) {
+                if ( my $prop_meta = $metadata{$prop_name} ) {
                     $prop{description} = $prop_meta->{des};
+                    $prop{field}       = "prop_$prop_name";
+                    $prop{raw_value}   = $prop{value} // '';
+                    $prop{multiline}   = $prop{raw_value} =~ /[\r\n]/;
 
                     # an ugly hack, i know
                     $prop{value} = LJ::mysql_time( $prop{value} ) if $prop_meta->{des} =~ /unix/i;
@@ -178,9 +244,11 @@ sub entryprops_handler {
     }
 
     my $vars = {
-        entry  => %entry_info ? \%entry_info : undef,
-        props  => \@props,
-        errors => $errors,
+        entry    => %entry_info ? \%entry_info : undef,
+        props    => \@props,
+        errors   => $errors,
+        can_save => $can_save,
+        saved    => $saved,
     };
     return DW::Template->render_template( "admin/entryprops.tt", $vars );
 }
