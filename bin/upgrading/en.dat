@@ -5303,6 +5303,10 @@ widget.s2propgroup.collapse=collapse all
 
 widget.s2propgroup.expand=expand all
 
+widget.s2propgroup.image.help=Use the image's direct URL, such as https://example.com/image.png. Files from your computer and HTML/embed code will not work here.
+
+widget.s2propgroup.image.url=URL
+
 widget.s2propgroup.language.custom=(Custom)
 
 widget.s2propgroup.language.default=(Default)

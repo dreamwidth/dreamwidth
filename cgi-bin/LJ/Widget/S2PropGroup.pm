@@ -520,7 +520,7 @@ sub output_prop {
 
 sub output_prop_element {
     my ( $class, $prop, $prop_name, $u, $style, $theme, $props, $is_group, $grouped_prop_override,
-        $overriding_values )
+        $overriding_values, $image_url_id )
         = @_;
     $grouped_prop_override ||= {};
     $overriding_values     ||= {};
@@ -598,9 +598,36 @@ sub output_prop_element {
                 . LJ::help_icon("s2opt_$prop->{name}")
                 . "</label>";
 
+            my $image_help_id;
+            my $first_in_group = 1;
             foreach my $prop_in_group (@$override) {
-                $ret .= $class->output_prop_element( $props->{$prop_in_group},
-                    $prop_in_group, $u, $style, $theme, $props, $is_group + 1 );
+                my $child = $props->{$prop_in_group};
+                my $child_image_url_id;
+
+                # Image groups put their URL first, followed by repeat/position controls.
+                # Keep other grouped text fields and non-text controls unchanged.
+                if (   $prop->{grouptype} eq "image"
+                    && $first_in_group
+                    && $child->{type} eq "string"
+                    && !$child->{values}
+                    && !( ( $child->{full} || 0 ) > 0 )
+                    && !( ( $child->{rows} || 0 ) > 0 && ( $child->{cols} || 0 ) > 0 ) )
+                {
+                    $child_image_url_id = $class->widget_ele_id . "_${name}_${prop_in_group}";
+                    $image_help_id      = "${child_image_url_id}_help";
+                }
+                $first_in_group = 0;
+
+                $ret .=
+                    $class->output_prop_element( $child,
+                    $prop_in_group, $u, $style, $theme, $props, $is_group + 1,
+                    undef, undef, $child_image_url_id );
+            }
+            if ($image_help_id) {
+                $ret .=
+                      "<p class='detail' id='"
+                    . LJ::ehtml($image_help_id) . "'>"
+                    . $class->ml('widget.s2propgroup.image.help') . "</p>";
             }
             my $note = "";
             $note .= LJ::eall( $prop->{note} )          if $prop->{note};
@@ -687,12 +714,26 @@ sub output_prop_element {
         else {
             my ( $size, $maxlength ) = ( $prop->{size} || 30, $prop->{maxlength} || 255 );
 
+            my %image_attributes;
+            if ($image_url_id) {
+                %image_attributes = (
+                    id                 => $image_url_id,
+                    'aria-describedby' => "${image_url_id}_help",
+                );
+                $ret .=
+                      "<label for='"
+                    . LJ::ehtml($image_url_id) . "'>"
+                    . $class->ml('widget.s2propgroup.image.url')
+                    . "</label> ";
+            }
+
             $ret .= $class->html_text(
                 name      => $name,
                 disabled  => !$can_use,
                 value     => $override,
                 maxlength => $maxlength,
                 size      => $size,
+                %image_attributes,
             );
         }
         $ret .= "</td>" unless $is_group;
