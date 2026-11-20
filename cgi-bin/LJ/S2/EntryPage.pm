@@ -176,8 +176,9 @@ sub EntryPage {
 
     # an id with the wrong anum is treated like a missing one
     my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} : 0;
-    $thread   = 0     if $thread % 256 != $entry->anum;
-    $view_num = undef if defined $view_num && $view_num % 256 != $entry->anum;
+    $thread                  = 0 if $thread % 256 != $entry->anum;
+    $p->{_viewing_thread_id} = $thread;
+    $view_num                = undef if defined $view_num && $view_num % 256 != $entry->anum;
 
     my $expand_all = ( $u->thread_expand_all($remote) && $get->{'expand_all'} );
 

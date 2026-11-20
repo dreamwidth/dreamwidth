@@ -59,6 +59,7 @@ async function checkExpansion(page, url, fixture, depth) {
         const entryURL = BASE + fixture.path;
         const fromEntry = await checkExpansion(page, entryURL, fixture, 3);
         const fromThread = await checkExpansion(page, `${entryURL}?thread=${fixture.middle}`, fixture, 2);
+        const fromMalformedThread = await checkExpansion(page, `${entryURL}?thread=${fixture.middle}.0`, fixture, 3);
 
         const response = await page.goto(`${entryURL}?thread=${fixture.target}`, { waitUntil: "networkidle2" });
         assert.equal(response.status(), 200);
@@ -71,9 +72,9 @@ async function checkExpansion(page, url, fixture, depth) {
                 wrapperDepth: value, indicatorDepth: value, mobileIndent: false, expanded: true,
             }));
         }
-        assert.deepEqual({ fromEntry, fromThread }, {
-            fromEntry: expected(3), fromThread: expected(2),
-        }, "expansion preserves the displayed parent and child depths in both views");
+        assert.deepEqual({ fromEntry, fromThread, fromMalformedThread }, {
+            fromEntry: expected(3), fromThread: expected(2), fromMalformedThread: expected(3),
+        }, "expansion preserves the displayed parent and child depths in full, partial, and fallback views");
         console.log("PASS: nested expansion preserves entry-relative and thread-relative depth");
     } finally {
         try {
