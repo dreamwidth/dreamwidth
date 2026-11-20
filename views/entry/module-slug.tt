@@ -22,8 +22,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
     </div>
 
-    <div class="row collapse">
-        <div class="columns small-9">
+    <div class="row">
+        <div class="columns">
             [%- form.textbox( label = dw.ml( ".label.post_slug" )
                     name = "entry_slug"
                     id = "js-entry-slug"
@@ -31,10 +31,6 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
                     maxlength = "80"
             ) -%]
-        </div>
-
-        <div class="columns small-3">
-            <span class="postfix">.html</span>
         </div>
     </div>
 

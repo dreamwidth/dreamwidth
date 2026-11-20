@@ -11,6 +11,7 @@ Run inside the devcontainer, with the dev server up, from `$LJHOME`:
 ```bash
 bin/dev/screenshot /login >/dev/null   # first run only: installs Chrome and puppeteer-core
 node t/browser/editicons-rename.js
+node t/browser/entry-slug-preview.js
 node t/browser/message-length.js
 ```
 

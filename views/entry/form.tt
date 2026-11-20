@@ -71,6 +71,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 var postFormInitData = new Object();
 postFormInitData.edit = [% action.edit ? "true" : "false" %];
 
+postFormInitData.journalBases = Object.create(null);
+[%- FOREACH journal IN journallist %]
+postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base | js %];
+[%- END %]
+
 postFormInitData.moodpics = {
     [%- FOREACH mood = moodtheme.pics.pairs %]
         [% mood.key | js %] : [ [% mood.value.name | js %], [% mood.value.pic | js %], [% mood.value.width | js %], [% mood.value.height | js %] ]
