@@ -308,21 +308,45 @@ sub trusts_or_has_member {
 =head2 Comment-Related Functions
 =cut
 
-# true if u1 wouldn't allow a comment from u2, for ANY reason
 sub does_not_allow_comments_from {
-    my ( $u1, $u2 ) = @_;
-    return unless LJ::isu($u1);
+    my ( $journal, $commenter ) = @_;
+    return unless LJ::isu($journal);
+    return keys %{ $journal->comment_policy_denials($commenter) } ? 1 : 0;
+}
 
-    if ( LJ::isu($u2) ) {
-        return
-               $u1->has_banned($u2)
-            || $u1->does_not_allow_comments_from_non_access($u2)
-            || $u1->does_not_allow_comments_from_unconfirmed_openid($u2);
+=head2 C<< $journal->comment_policy_denials($commenter, %target) >>
+
+Returns a hashref of applicable journal policy denials for this identity (C<undef>
+for anonymous). Pass C<entry_poster> and, for a reply to a comment, C<parent_poster>
+to also enforce bans by those authors. An empty hash does not imply that the target
+is visible or open to replies, or that the account and submission are valid.
+
+=cut
+
+sub comment_policy_denials {
+    my ( $journal, $commenter, %target ) = @_;
+    my %denials;
+
+    if ( LJ::isu($commenter) ) {
+        if ( $journal->has_banned($commenter) ) {
+            $denials{journal_ban} = 1;
+        }
+        elsif ( $target{entry_poster} && $target{entry_poster}->has_banned($commenter) ) {
+            $denials{entry_ban} = 1;
+        }
+        $denials{parent_ban} = 1
+            if $target{parent_poster} && $target{parent_poster}->has_banned($commenter);
+        $denials{unconfirmed_openid} = 1
+            if $journal->does_not_allow_comments_from_unconfirmed_openid($commenter);
+        $denials{non_access} = 1 if $journal->does_not_allow_comments_from_non_access($commenter);
     }
     else {
-        # Anonymous (which is never allowed on syndicated items)
-        return $u1->prop('opt_whocanreply') ne 'all' || $u1->is_syndicated;
+        my $setting = $journal->prop('opt_whocanreply');
+        $denials{anonymous}  = 1 if $setting ne 'all' || $journal->is_syndicated;
+        $denials{non_access} = 1 if $setting eq 'friends';
     }
+
+    return \%denials;
 }
 
 # true if u1 restricts commenting to trusted and u2 is not trusted
