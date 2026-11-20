@@ -308,6 +308,14 @@ sub view_controller {
         return error_ml("$scope.error.nonotes")
             if $notes_method{$received_method} && !$received_notes;
 
+        my $lock = DW::Shop::Cart->processing_lock($cartid)
+            or return error_ml('error.pay.cmo.engbadstate');
+        $cart = DW::Shop::Cart->get_from_cartid($cartid)
+            or return error_ml("$scope.error.notfound");
+        return error_ml('error.pay.cmo.engbadstate')
+            unless $cart->paymentmethod eq 'checkmoneyorder'
+            && $cart->state == $DW::Shop::STATE_PEND_PAID;
+
         # record the payment
 
         $dbh->do( "INSERT INTO shop_cmo (cartid, paymentmethod, notes) VALUES (?, ?, ?)",
