@@ -35,6 +35,7 @@ my $stranger  = temp_user();
 my $manager   = temp_user();
 my $community = temp_comm();
 LJ::set_rel( $community, $manager, 'A' );
+$_->update_self( { status => 'A' } ) for ( $owner, $stranger );
 
 my $personal_entry  = $owner->t_post_fake_entry;
 my $community_entry = $owner->t_post_fake_entry(
@@ -60,13 +61,17 @@ with_fake_memcache {
 
     test_psgi $app, sub {
         my ($request) = @_;
-        my $moderate = sub {
-            my ( $actor, $comment, $mode, $ajax ) = @_;
+        my $form_auth = sub {
+            my ($actor) = @_;
             LJ::set_remote($actor);
             delete $LJ::REQ_GLOBAL{form_auth_chal};
             my $auth = LJ::form_auth(1);
             LJ::set_remote(undef);
+            return $auth;
+        };
 
+        my $moderate = sub {
+            my ( $actor, $comment, $mode, $ajax ) = @_;
             my $endpoint   = $ajax ? '__rpc_talkscreen?jsmode=1&json=1&' : 'talkscreen?';
             my $actor_name = $actor->user;
             my $response   = $request->(
@@ -76,7 +81,7 @@ with_fake_memcache {
                     journal      => $comment->journal->user,
                     talkid       => $comment->dtalkid,
                     confirm      => 'Y',
-                    lj_form_auth => $auth,
+                    lj_form_auth => $form_auth->($actor),
                 ],
             );
 
@@ -87,6 +92,36 @@ with_fake_memcache {
             return $response->content;
         };
 
+        my $owner_name = $owner->user;
+        my $recent = sub { $request->( GET "http://localhost/comments/recent?as=$owner_name" ) };
+        my $root_dtalkid = $root->dtalkid;
+        my $reply_link   = qr/href='[^']*\breplyto=$root_dtalkid\b/;
+        my $post_reply   = sub {
+            my ( $actor, %extra ) = @_;
+            my $actor_name = $actor->user;
+            return $request->(
+                POST "http://localhost/talkpost_do?as=$actor_name",
+                Content => [
+                    lj_form_auth => $form_auth->($actor),
+                    chrp1        => LJ::Talk::generate_chrp1(
+                        $personal_entry->journalid,
+                        $personal_entry->ditemid
+                    ),
+                    journal      => $owner_name,
+                    itemid       => $personal_entry->ditemid,
+                    parenttalkid => $root->jtalkid,
+                    usertype     => 'cookieuser',
+                    cookieuser   => $actor_name,
+                    body         => 'A reply to the screened root',
+                    %extra,
+                ],
+            );
+        };
+        my $child_count = sub {
+            my $talkdata = LJ::Talk::get_talk_data( $owner, 'L', $personal_entry->jitemid );
+            return scalar grep { $_->{parenttalkid} == $root->jtalkid } values %$talkdata;
+        };
+
         like( $moderate->( $commenter, $root, 'freeze', 1 )->{error},
             qr/permission/i, 'a comment author cannot freeze their own screened comment' );
         ok(
@@ -94,12 +129,35 @@ with_fake_memcache {
             'a stranger cannot moderate a screened comment'
         );
         moderation_state( $root, 1, 0, 'unauthorized freeze' );
+        like( $recent->()->content, $reply_link, 'Recent Comments offers a reply before freezing' );
 
         like( $moderate->( $owner, $root, 'freeze', 1 )->{newurl},
             qr/mode=unfreeze/, 'AJAX freeze offers the inverse action' );
         moderation_state( $root,    1, 1, 'screened thread root after AJAX freeze' );
         moderation_state( $child,   0, 1, 'public descendant after AJAX freeze' );
         moderation_state( $sibling, 0, 0, 'separate thread after AJAX freeze' );
+        my $frozen_recent = $recent->()->content;
+        like(
+            $frozen_recent,
+            qr/id='state$root_dtalkid'>Screened/,
+            'the frozen row still shows as screened'
+        );
+        unlike( $frozen_recent, $reply_link,
+            'Recent Comments omits the frozen screened reply link' );
+
+        my $before = $child_count->();
+        like(
+            $post_reply->( $owner, unscreen_parent => 1 )->content,
+            qr/comment is frozen/i,
+            'the owner cannot reply to a frozen screened parent'
+        );
+        like(
+            $post_reply->($stranger)->content,
+            qr/non-existent comment/i,
+            'a stranger is not told the screened parent is frozen'
+        );
+        is( $child_count->(), $before, 'rejected replies are not stored' );
+        moderation_state( $root, 1, 1, 'frozen parent after rejected reply with unscreen option' );
 
         ok(
             $moderate->( $commenter, $root, 'unfreeze', 1 )->{error},
@@ -112,6 +170,10 @@ with_fake_memcache {
         );
         moderation_state( $root,  1, 0, 'screened thread root after web unfreeze' );
         moderation_state( $child, 0, 0, 'public descendant after web unfreeze' );
+        like( $recent->()->content, $reply_link,
+            'Recent Comments offers a reply after unfreezing' );
+        $post_reply->($owner);
+        is( $child_count->(), $before + 1, 'a reply is stored after unfreezing' );
 
         like(
             $moderate->( $owner, $comm_root, 'freeze', 0 ),

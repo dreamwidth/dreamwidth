@@ -589,30 +589,32 @@ sub unscreen_comment {
     return undef unless LJ::isu($u);
     my $itemid   = shift(@_) + 0;
     my @jtalkids = @_;
+    my $userid   = $u->id;
 
-    my $in = join( ',', map { $_ + 0 } @jtalkids );
-    return unless $in;
+    my @unscreened;
+    foreach my $jtalkid (@jtalkids) {
+        my $updated = $u->talk2_do(
+            "L",
+            $itemid,
+            undef,
+            "UPDATE talk2 SET state=IF(screened_frozen, 'F', 'A'), screened_frozen=0 "
+                . "WHERE journalid=? AND jtalkid=? AND nodetype='L' AND nodeid=? AND state='S'",
+            $userid,
+            $jtalkid,
+            $itemid
+        );
+        push @unscreened, $jtalkid if $updated && $updated > 0;
+    }
+    return unless @unscreened;
 
-    my $userid = $u->{'userid'} + 0;
-    my $prop   = LJ::get_prop( "log", "hasscreened" );
-
-    my $updated = $u->talk2_do( "L", $itemid, undef,
-              "UPDATE talk2 SET state=IF(screened_frozen, 'F', 'A'), screened_frozen=0 "
-            . "WHERE journalid=$userid AND jtalkid IN ($in) "
-            . "AND nodetype='L' AND nodeid=$itemid "
-            . "AND state='S'" );
-    return undef unless $updated;
-
-    LJ::Talk::invalidate_talk2row_memcache( $u->id, @jtalkids );
+    LJ::Talk::invalidate_talk2row_memcache( $userid, @unscreened );
     LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
-    if ( $updated > 0 ) {
-        LJ::replycount_do( $u, $itemid, "incr", $updated );
-        my $dbcm        = LJ::get_cluster_master($u);
-        my $hasscreened = $dbcm->selectrow_array( "SELECT COUNT(*) FROM talk2 "
-                . "WHERE journalid=$userid AND nodeid=$itemid AND nodetype='L' AND state='S'" );
-        LJ::set_logprop( $u, $itemid, { 'hasscreened' => 0 } ) unless $hasscreened;
-    }
+    LJ::replycount_do( $u, $itemid, "incr", scalar @unscreened );
+    my $dbcm        = LJ::get_cluster_master($u);
+    my $hasscreened = $dbcm->selectrow_array( "SELECT COUNT(*) FROM talk2 "
+            . "WHERE journalid=$userid AND nodeid=$itemid AND nodetype='L' AND state='S'" );
+    LJ::set_logprop( $u, $itemid, { 'hasscreened' => 0 } ) unless $hasscreened;
 
     LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
@@ -621,7 +623,7 @@ sub unscreen_comment {
     # fire events so that users who missed the original notification
     # (because the comment was screened) get notified now
     my @jobs;
-    foreach my $jtalkid (@jtalkids) {
+    foreach my $jtalkid (@unscreened) {
         push @jobs,
             LJ::Event::JournalNewComment->new_for_unscreen(
             LJ::Comment->new( $u, jtalkid => $jtalkid ) );

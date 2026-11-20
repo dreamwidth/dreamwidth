@@ -231,6 +231,7 @@ sub received_handler {
                 pu             => $pu,               # user that posted the comment
                 hr_ago         => $hr_ago,           # text of time posted
                 state          => $state,            # Screened, Deleted, or Frozen
+                frozen         => $frozen,
                 del_link       => $del_link,
                 del_img        => $del_img,
                 screen_link    => $screen_link,
