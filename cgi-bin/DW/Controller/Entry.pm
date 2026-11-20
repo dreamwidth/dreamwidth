@@ -789,7 +789,8 @@ sub _queue_crosspost {
                         auth_response  => $submitted->{resp},
                     }
                 );
-            }
+            },
+            $opts{unchanged_crossposts},
         );
 
         foreach my $crosspost ( @{ $xpost_successes || [] } ) {
@@ -996,7 +997,8 @@ sub _do_post {
 sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
-    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
+    my %flags = ( check_crosspost_visibility => 1 );
+    my $res   = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth, \%flags );
     return %$res if $res->{errors};
 
     my $remote  = $auth->{poster};
@@ -1107,11 +1109,12 @@ sub _do_edit {
 
     my @crossposts = _queue_crosspost(
         $form_req,
-        remote  => $remote,
-        journal => $journal,
-        deleted => $deleted,
-        ditemid => $ditemid,
-        editurl => $edit_url,
+        remote               => $remote,
+        journal              => $journal,
+        deleted              => $deleted,
+        ditemid              => $ditemid,
+        editurl              => $edit_url,
+        unchanged_crossposts => $flags{unchanged_crossposts},
     );
 
     my $poststatus = {

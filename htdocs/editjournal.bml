@@ -271,7 +271,8 @@ body<=
                 LJ::Hooks::run_hooks('spam_check', $u, \%req, 'entry');
 
                 # do editevent request
-                LJ::do_request(\%req, \%res, { 'noauth' => 1, 'u' => $u });
+                my %edit_flags = ( noauth => 1, u => $u, check_crosspost_visibility => 1 );
+                LJ::do_request(\%req, \%res, \%edit_flags);
 
                 # check response
                 unless ($res{'success'} eq "OK") {
@@ -300,7 +301,7 @@ body<=
                                                                               || $GET{"prop_xpost_chal_$acctid"},
                                                             auth_response => $POST{"prop_xpost_resp_$acctid"}
                                                                              || $GET{"prop_xpost_resp_$acctid"}})
-                                                      });
+                                                      }, $edit_flags{unchanged_crossposts});
                     $xpost_result .= "<ul>\n";
                     $xpost_result .= join("\n",
                                           map {"<li>"
