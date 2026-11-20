@@ -22,7 +22,7 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::Search;
 use DW::Task::SearchCopier;
-use LJ::Test qw(temp_user);
+use LJ::Test qw(temp_user with_fake_memcache);
 
 plan skip_all => '@LJ::MANTICORE not configured' unless @LJ::MANTICORE;
 
@@ -71,6 +71,15 @@ my $check_search = sub {
         [ sort @urls ],
         "$label: search hits"
     );
+};
+
+my $indexed_deleted_flag = sub {
+    my ( $journalid, $jitemid, $jtalkid ) = @_;
+    my ($flag) = $dbh->selectrow_array(
+        sprintf 'SELECT is_deleted FROM dw1 WHERE journalid = %d AND jitemid = %d AND jtalkid = %d',
+        $journalid, $jitemid, $jtalkid );
+    BAIL_OUT( $dbh->errstr ) if $dbh->err;
+    return defined $flag ? 0 + $flag : undef;
 };
 
 DW::Task::SearchCopier::copy_entry( $viewer, $control->jitemid, 1 );
@@ -154,10 +163,19 @@ ok( $journal->set_unsuspended( $viewer, 'cleanup after mid-flight suspend' ),
 my $untouched = $journal->t_post_fake_entry( body => "$query untouched" );
 isnt( $untouched->jitemid, $entry->jitemid, 'untouched entry is distinct from copied entry' );
 DW::Task::SearchCopier::copy_entry( $journal, $untouched->jitemid, 1 );
+my $index_flags = sub {
+    return [
+        $indexed_deleted_flag->( $journal->id, $entry->jitemid,     0 ),
+        $indexed_deleted_flag->( $journal->id, $untouched->jitemid, 0 ),
+        $indexed_deleted_flag->( $journal->id, $entry->jitemid,     $comment->jtalkid ),
+        $indexed_deleted_flag->( $viewer->id,  $control->jitemid,   0 ),
+    ];
+};
 {
     my $orig_uncompress = \&LJ::text_uncompress;
     my $orig_update     = \&DW::Task::SearchCopier::_update_deleted_flag;
     my ( $did_suspend, $did_unsuspend ) = ( 0, 0 );
+    my @flags_after_updates;
     no warnings 'redefine';
     local *LJ::text_uncompress = sub {
         if ( !$did_suspend++ ) {
@@ -169,9 +187,15 @@ DW::Task::SearchCopier::copy_entry( $journal, $untouched->jitemid, 1 );
         if ( !$did_unsuspend++ ) {
             $journal->set_unsuspended( $viewer, 'race4 unsuspend before reconcile update' );
         }
-        return $orig_update->(@_);
+        $orig_update->(@_);
+        push @flags_after_updates, $index_flags->();
     };
     DW::Task::SearchCopier::copy_entry( $journal, $entry->jitemid, 1 );
+    is_deeply(
+        \@flags_after_updates,
+        [ [ 1, 0, 0, 0 ], [ 0, 0, 0, 0 ] ],
+        'race4 temporarily hides only the just-copied entry'
+    );
 }
 {
     my $result = DW::Search::search_journal(
@@ -194,6 +218,7 @@ ok( $journal->set_suspended( $viewer, 'race5 initial suspend' ), 'suspend for ra
     my $orig_uncompress = \&LJ::text_uncompress;
     my $orig_update     = \&DW::Task::SearchCopier::_update_deleted_flag;
     my ( $did_unsuspend, $did_resuspend ) = ( 0, 0 );
+    my @flags_after_updates;
     no warnings 'redefine';
     local *LJ::text_uncompress = sub {
         if ( !$did_unsuspend++ ) {
@@ -205,9 +230,15 @@ ok( $journal->set_suspended( $viewer, 'race5 initial suspend' ), 'suspend for ra
         if ( !$did_resuspend++ ) {
             $journal->set_suspended( $viewer, 'race5 resuspend before reconcile update' );
         }
-        return $orig_update->(@_);
+        $orig_update->(@_);
+        push @flags_after_updates, $index_flags->();
     };
     DW::Task::SearchCopier::copy_entry( $journal, $entry->jitemid, 1 );
+    is_deeply(
+        \@flags_after_updates,
+        [ [ 0, 1, 1, 0 ], [ 1, 1, 1, 0 ] ],
+        'race5 temporarily unhides only the just-copied entry'
+    );
 }
 $check_search->( 'after reverse transition during reconciliation UPDATE', 0 );
 ok( $journal->set_unsuspended( $viewer, 'cleanup after race5' ), 'unsuspend after race5' );
@@ -216,6 +247,40 @@ ok( $journal->set_unsuspended( $viewer, 'cleanup after race5' ), 'unsuspend afte
 $dbh->do( sprintf 'DELETE FROM dw1 WHERE journalid = %d AND jitemid = %d AND jtalkid = 0',
     $journal->id, $untouched->jitemid );
 LJ::delete_entry( $journal, $untouched->jitemid, undef, $untouched->anum );
+
+with_fake_memcache {
+    my $task         = DW::Task::SearchCopier->new( { userid => $journal->id } );
+    my $throttle_key = [ $journal->id, 'search-copy-full:' . $journal->id ];
+    {
+        my $orig_uncompress = \&LJ::text_uncompress;
+        my $suspended       = 0;
+        no warnings 'redefine';
+        local *LJ::text_uncompress = sub {
+            unless ( $suspended++ ) {
+                ok( $journal->set_suspended( $viewer, 'suspend before full-copy insert' ),
+                    'suspend during unforced full copy' );
+            }
+            return $orig_uncompress->(@_);
+        };
+        local *DW::Task::SearchCopier::_update_deleted_flag = sub {
+            die "Injected reconciliation failure\n";
+        };
+        eval { $task->work };
+        like(
+            $@,
+            qr/Injected reconciliation failure/,
+            'unforced full copy raises on repair failure'
+        );
+    }
+    is( $indexed_deleted_flag->( $journal->id, $entry->jitemid, 0 ),
+        0, 'failed reconciliation leaves the inserted entry with a stale flag' );
+    ok( !LJ::MemCache::get($throttle_key), 'failed full copy does not set the throttle' );
+    is( $task->work, DW::Task::COMPLETED, 'unforced full-copy retry completes' );
+    $check_search->( 'after retry of failed full-copy reconciliation', 0 );
+    ok( LJ::MemCache::get($throttle_key), 'successful full-copy retry sets the throttle' );
+    ok( $journal->set_unsuspended( $viewer, 'cleanup after full-copy retry' ),
+        'unsuspend after full-copy retry' );
+};
 
 # Status split: deleted is inactive (hidden), undeleted and memorial remain visible
 ok( $journal->set_deleted, 'delete journal' );

@@ -80,13 +80,17 @@ sub manticore_db {
     return $dbsx;
 }
 
-# Read authoritative account status from master so a stale in-memory user
-# object or a status change racing with a copy cannot leave dw1 out of sync.
+# Read authoritative account status without replacing cached user objects.
 sub _journal_is_deleted {
     my ($u) = @_;
-    my $fresh = LJ::load_userid( $u->id, 'force' )
-        or $log->logcroak( "Unable to load authoritative status for userid " . $u->id );
-    return $fresh->is_inactive ? 1 : 0;
+    my $dbw = LJ::get_db_writer()
+        or $log->logcroak("Global database writer not available.");
+    my ($statusvis) =
+        $dbw->selectrow_array( 'SELECT statusvis FROM user WHERE userid = ?', undef, $u->id );
+    $log->logcroak( $dbw->errstr ) if $dbw->err;
+    $log->logcroak( "Unable to load authoritative status for userid " . $u->id )
+        unless defined $statusvis;
+    return $statusvis =~ /\A[DXS]\z/ ? 1 : 0;
 }
 
 sub _update_deleted_flag {
@@ -178,21 +182,19 @@ sub work {
     else {
         $log->info("Requested complete recopy of user.");
 
-        # Throttle unless the caller passed force => 1. Routine dispatchers
-        # (schedulers, app hooks) should leave force unset so the 24h
-        # memcache key prevents stampedes. Explicit operator invocations
-        # (search-tool import-user, or import-all --force) pass force to
-        # bypass.
+        # Throttle only after a successful full copy, so failed work can retry.
+        # Explicit operator invocations can bypass the throttle with force.
+        my $throttle_key = [ $u->id, "search-copy-full:" . $u->id ];
         unless ( $args->{force} ) {
-            my $time = LJ::MemCache::get( [ $u->id, "search-copy-full:" . $u->id ] );
+            my $time = LJ::MemCache::get($throttle_key);
             if ( $time && $time > time() - 86400 ) {
                 $log->info("Copied less than a day ago. Skipping.");
                 return DW::Task::COMPLETED;
             }
         }
-        LJ::MemCache::set( [ $u->id, "search-copy-full:" . $u->id ], time() );
         copy_entry( $u, undef, 1 );
         copy_comment($u) if $copy_comments;
+        LJ::MemCache::set( $throttle_key, time() );
     }
 
     return DW::Task::COMPLETED;
