@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 44;
+use Test::More tests => 59;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -78,7 +78,8 @@ ok( !$ok, "not posted" );
 like( $msg, qr/Invalid PIN/, "rejected due to invalid PIN" );
 is( $email_post->dequeue, 1, "and it's dequeued" );
 
-$u->set_prop( "emailpost_pin", $emailpin );
+$u->set_prop( "emailpost_pin",      $emailpin );
+$u->set_prop( 'emailpost_security', 'public' );
 
 $email_post = DW::EmailPost->get_handler($mime);
 $email_post->destination("$user+$emailpin");
@@ -177,6 +178,66 @@ BODY
     my $entry = LJ::Entry->new( $u, jitemid => 6 );
     is( $entry->security, 'private', 'Header after PIN sets entry security' );
     like( $entry->event_raw, qr/\A\s*A private post\.\z/, 'PIN and header are not published' );
+}
+
+{
+    my $jitemid  = 6;
+    my $preamble = "<!DOCTYPE html>\n<html>\n<head><title>Email title</title></head>\n";
+    for my $multipart ( 0, 1 ) {
+        my $label   = $multipart ? 'multipart HTML fallback'        : 'HTML-only email';
+        my $opening = $multipart ? "<!-- mail client -->\n<body>\n" : '<body>';
+        my $message =
+              $preamble
+            . $opening
+            . "post-security: private\n\n<p>A private post.</p>\n</body>\n</html>";
+        my $mime = build_message(
+            $label,
+            $multipart ? 'multipart/mixed' : 'text/html',
+            $multipart ? undef             : $message
+        );
+        if ($multipart) {
+            $mime->attach( Type => 'text/html', Data => $message );
+            $mime->attach( Type => 'application/octet-stream', Data => 'attachment' );
+        }
+
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private', "Full document in $label uses private security" );
+        unlike( $entry->event_raw, qr/post-security:/, "Leading directive removed in $label" );
+    }
+
+    for my $body_prefix ( '<p>Introductory prose.</p>', '<blockquote>' ) {
+        my $closing = $body_prefix eq '<blockquote>' ? "\n</blockquote>" : '';
+        my $message =
+            $preamble . "<body>\n$body_prefix\npost-security: private$closing\n</body>\n</html>";
+        my $mime = build_message( "HTML with $body_prefix", 'text/html', $message );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $body_prefix" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', "No security directive applied after $body_prefix" );
+        like( $entry->event_raw, qr/post-security: private/, "Text kept after $body_prefix" );
+    }
+
+    my $mime = build_message( 'Wrapped security header',
+        'text/plain', "post-security:\n  private\n\nA private post." );
+    my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted entry with a wrapped header' ) or diag $msg;
+    my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security,  'private',         'Wrapped header sets private security' );
+    is( $entry->event_raw, 'A private post.', 'Wrapped header and continuation are not published' );
+}
+
+sub build_message {
+    my ( $subject, $type, $body ) = @_;
+    return MIME::Entity->build(
+        From    => $user_email_info->{FROM_EMAIL},
+        To      => "$user+$emailpin\@$user_email_info->{POSTDOMAIN}",
+        Date    => 'Mon, 1 Jan 2007 12:28:00 -0800',
+        Subject => $subject,
+        Type    => $type,
+        ( defined($body) ? ( Data => $body ) : () ),
+    );
 }
 
 sub get_mime {
