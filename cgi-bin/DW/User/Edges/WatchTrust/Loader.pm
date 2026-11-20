@@ -24,6 +24,19 @@ use strict;
 use Carp qw/ confess /;
 use DW::Cache;
 
+sub _read_trustmask {
+    my ( $db, $from_userid, $to_userid ) = @_;
+    return undef unless $db;
+    my ($mask) = $db->selectrow_array(
+        'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+        undef, $from_userid, $to_userid );
+    return $db->err ? undef : ( $mask // 0 ) + 0;
+}
+
+sub _trustmask_from_primary {
+    return _read_trustmask( LJ::get_db_writer(), @_ );
+}
+
 # returns trustmask between two users
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
@@ -40,11 +53,8 @@ sub _trustmask {
         my $dbr = LJ::get_db_reader();
         die "No database reader available" unless $dbr;
 
-        $mask = $dbr->selectrow_array(
-            'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
-            undef, $from_userid, $to_userid );
-        return 0 if $dbr->err;    # transient error: don't cache
-        $mask = $mask ? $mask + 0 : 0;    # force numeric
+        $mask = _read_trustmask( $dbr, $from_userid, $to_userid );
+        return 0 unless defined $mask;    # transient error: don't cache
 
         LJ::MemCache::set( $memkey, $mask, 3600 );
     }

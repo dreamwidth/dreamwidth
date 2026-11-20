@@ -50,6 +50,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
                 [%- dw.form_auth -%]
                 [%- form.hidden( name = "new_state", value=edge.on ? "off" : "on" ) -%]
+                [%- IF edge.group_revision.defined -%]
+                    [%- form.hidden( name = "group_revision", value = edge.group_revision ) -%]
+                [%- END -%]
                 <div class="row">
                     <div class="columns medium-6">
                         <p>[%- edge.type == "subscribe" && u.is_community ? ".${edge.type}.explanation.comm" : ".${edge.type}.explanation" | ml( user => u.ljuser_display ) -%]</p>

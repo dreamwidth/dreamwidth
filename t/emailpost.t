@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 36;
+use Test::More tests => 38;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -165,6 +165,14 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
         ),
         'email resolves the filter by name'
     );
+
+    my $lock = $photo_owner->lock_trust_groups;
+    $post->insert_images;
+    like( $post->{body}, qr/picture.*not posted/i, 'a contended email upload is reported' );
+    ok( !scalar DW::Media->get_active_for_user($photo_owner),
+        'the contended upload creates no image' );
+    $lock->release;
+    $post->{body} = 'A photo';
 
     $post->insert_images;
     my ($photo) = DW::Media->get_active_for_user($photo_owner);

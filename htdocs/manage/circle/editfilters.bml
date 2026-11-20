@@ -51,76 +51,76 @@ _c?>
     # extra arguments for get requests
     my $getextra = $authas ne $remote->{'user'} ? "?authas=$authas" : '';
     
-    my $trust_groups = $u->trust_groups;
+    my $reload_error = 'Could not save access filters. Reload the page and try again.';
+    my $mutation_error = 'Some access filter changes may have been saved. Reload the page and try again.';
 
-    if ( $POST{mode} eq 'save' ) {
+    if ( ($POST{mode} // '') eq 'save' ) {
         unless (LJ::check_form_auth()) {
             $body = "<?h1 $ML{'Error'} h1?><?p $ML{'error.invalidform'} p?>";
             return;
         }
 
-        # check all creations/renames first
-        for ( my $i = 1; $i <= 60; $i++ ) {
-            my $name = $POST{"efg_set_${i}_name"};
-            if ( $name && ( ref $trust_groups->{$i} ne 'HASH' || $name ne $trust_groups->{$i}->{groupname} ) ) {
-                if ( $name =~ /,/ ) {
-                    return $err->($ML{'.error.comma'});
+        my $save_error = $u->with_trust_groups_lock(sub {
+            my $revision = $u->trust_group_revision;
+            return $reload_error unless defined $revision && defined $POST{group_revision}
+                && $POST{group_revision} eq $revision;
+            my $trust_groups = $u->trust_groups( force_database => 1 ) or return $reload_error;
+
+            # check all creations/renames first
+            for my $bit (1 .. 60) {
+                my $name = $POST{"efg_set_${bit}_name"};
+                if ( $name && ( !$trust_groups->{$bit} || $name ne $trust_groups->{$bit}->{groupname} ) ) {
+                    return $ML{'.error.comma'} if $name =~ /,/;
                 }
             }
-        }
 
-        # add/edit/delete groups
-        for ( my $i = 1; $i <= 60; $i++ ) {
-            if ( $POST{"efg_delete_$i"} ) {
-                $u->delete_trust_group( id => $i );
-            } elsif ( $POST{"efg_set_${i}_name"} ) {
-                my $create = ref $trust_groups->{$i} eq 'HASH' ? 0 : 1;
-                my $name = $POST{"efg_set_${i}_name"};
-                my $sort = $POST{"efg_set_${i}_sort"};
-                my $public = $POST{"efg_set_${i}_public"} ? 1 : 0;
-                if ( $create ) {
-                    $u->create_trust_group( id => $i, groupname => $name, sortorder => $sort, is_public => $public );
-                } else {
-                    $u->edit_trust_group( id => $i, groupname => $name, sortorder => $sort, is_public => $public );
+            # add/edit/delete groups
+            my $allowed_mask = 1;
+            for my $bit (1 .. 60) {
+                my $existing = $trust_groups->{$bit};
+                if ( $POST{"efg_delete_$bit"} ) {
+                    return $mutation_error if $existing && !$u->delete_trust_group( id => $bit );
+                    next;
+                }
+                if ( my $name = $POST{"efg_set_${bit}_name"} ) {
+                    my %options = (
+                        id => $bit, groupname => $name,
+                        sortorder => $POST{"efg_set_${bit}_sort"},
+                        is_public => $POST{"efg_set_${bit}_public"} ? 1 : 0,
+                    );
+                    my $saved = $existing ? $u->edit_trust_group(%options) : $u->create_trust_group(%options);
+                    return $mutation_error unless $saved;
+                    $allowed_mask |= 1 << $bit;
+                } elsif ($existing) {
+                    $allowed_mask |= 1 << $bit;
                 }
             }
-        }
 
-        # update users' trustmasks
-        foreach my $post_key ( keys %POST ) {
-            # If someone tries to edit their trust list at the wrong time,
-            # they may get a page sent out with the old format (groupmask) and
-            # processed with the new (maskhi and masklo). So make sure not to
-            # give users the wrong trust masks, by accepting both. (Since no
-            # page will mix both, there's no need to check for contradicting
-            # data.)
-            next unless $post_key =~ /^editfriend_(groupmask|maskhi)_(\w+)$/;
+            # update users' trustmasks
+            my $members = $u->trust_list( force_database => 1 ) or return $mutation_error;
+            foreach my $post_key ( keys %POST ) {
+                next unless $post_key =~ /^editfriend_maskhi_(\w+)$/;
+                my $username = $1;
+                my $trusted_u = LJ::load_user($username) or next;
+                my $member = $members->{$trusted_u->id} or next;
 
-            my $trusted_u = LJ::load_user( $2 );
-            # User might have been removed from circle between load and
-            # submit; don't re-add.
-            next unless $trusted_u && $u->trusts( $trusted_u );
-            my $groupmask;
-            if ( $1 eq 'groupmask' ) {
-                $groupmask = $POST{$post_key};
-            } else {
-                $groupmask = ( $POST{$post_key} << 31 ) | $POST{"editfriend_masklo_$2"};
+                my $groupmask = ( $POST{$post_key} << 31 ) | $POST{"editfriend_masklo_$username"};
+                $groupmask = ( $groupmask & $allowed_mask ) | 1;
+                next if $groupmask == ($member->{groupmask} & ~(7 << 61));
+                return $mutation_error unless $u->add_edge( $trusted_u, trust => {
+                    mask => $groupmask,
+                    nonotify => 1,
+                } );
             }
-
-            $u->add_edge( $trusted_u, trust => {
-                mask => $groupmask,
-                nonotify => 1,
-            } );
-        }
+            return '';
+        });
+        return $err->($save_error // $reload_error) if !defined $save_error || length $save_error;
 
         $body .= "<?h1 $ML{'.saved.header'} h1?><?p $ML{'.saved.text'} p?>";
         $body .= "<ul><li><a href='$LJ::SITEROOT/update'>$ML{'.saved.action.post'}</li><li><a href='$LJ::SITEROOT/manage/subscriptions/filters'>$ML{'.saved.action.subscription'}</li></ul>";
 
         return;
     }
-
-    my $trust_list = $u->trust_list;
-    my $trusted_us = LJ::load_userids( keys %$trust_list );
 
     # redirect to managing subscription filters
     $body .= "<div class='highlight-box'>" . BML::ml( '.subfilters', { aopts => "href='$LJ::SITEROOT/manage/subscriptions/filters'" } ) . "</div>\n\n";
@@ -136,9 +136,19 @@ _c?>
         return;
     }
 
+    my $load_error = 'Could not load access filters. Reload the page and try again.';
+    my $lock = $u->lock_trust_groups or return $err->($load_error);
+    my $revision = $u->trust_group_revision;
+    my $trust_groups = $u->trust_groups( force_database => 1 );
+    my $trust_list = $u->trust_list( force_database => 1 );
+    return $err->($load_error) unless defined $revision && $trust_groups && $trust_list;
+    $lock->release;
+    my $trusted_us = LJ::load_userids( keys %$trust_list );
+
     $body .= "<?p $ML{'.text'} p?><?p $ML{'.text.sec'} p?><p>";
     $body .= "<form method='post' name='fg' action='editfilters$getextra'>";
     $body .= LJ::form_auth();
+    $body .= LJ::html_hidden( 'group_revision', $revision );
     $body .= "<input type='hidden' name='mode' value='save' />";
     for ( my $i = 1; $i <= 60; $i++ ) {
         my $sort = 255;
@@ -504,7 +514,7 @@ END_JS
 
     $body .= "<tr style='vertical-align: top;'>";
     $body .= "<td><select name='list_groups' style='width: 150px;' size='15' onchange='groupClicked();'>";
-    foreach my $trustgroup ( $u->trust_groups ) {
+    foreach my $trustgroup ( sort { $a->{sortorder} <=> $b->{sortorder} || $a->{groupname} cmp $b->{groupname} } values %$trust_groups ) {
         my $listname = $trustgroup->{groupname};
         $listname .= " $ML{'.group.public'}" if $trustgroup->{is_public};
         $body .= "<option value='$trustgroup->{groupnum}'>" . LJ::ehtml($listname);

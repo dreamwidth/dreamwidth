@@ -20,6 +20,7 @@ use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Media;
+use DW::Cache;
 use LJ::JSON;
 use LJ::Test qw(temp_user);
 
@@ -124,6 +125,95 @@ test_psgi $app, sub {
     my @fresh_choice = $render->( $request->( GET $edit ) );
     is( $bulk->(@fresh_choice)->code, 200, 'a fresh form can select the replacement' );
     ok( $load->()->visible_to($viewer), 'the selected replacement grants access' );
+
+    my $circle    = "$host/circle/" . $viewer->user . "/edit?$as_owner";
+    my $filters   = "$host/manage/circle/editfilters?$as_owner";
+    my $form_data = sub {
+        my ($url)      = @_;
+        my $form       = $request->( GET $url );
+        my ($auth)     = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        my ($revision) = $form->content =~ /name=['"]group_revision['"][^>]*value=['"]([^'"]+)/;
+        ok( $form->is_success && defined $auth, "loads membership form at $url" );
+        return ( lj_form_auth => $auth, defined $revision ? ( group_revision => $revision ) : () );
+    };
+    my @old_circle  = $form_data->($circle);
+    my @old_filters = $form_data->($filters);
+    my @membership  = (
+        'editfriend_maskhi_' . $viewer->user => $mask >> 31,
+        'editfriend_masklo_' . $viewer->user => 1
+    );
+
+    ok( $owner->add_edge( $viewer, watch => { nonotify => 1 } ), 'also watches the old member' );
+    $lock = $owner->lock_trust_groups;
+    ok(
+        !$owner->add_edge( $viewer, watch => { nonotify => 1 } ),
+        'watch rewrite cannot overlap a filter mutation'
+    );
+    ok(
+        !$owner->remove_edge( $viewer, watch => { nonotify => 1 } ),
+        'remove-watch rewrite cannot overlap a filter mutation'
+    );
+    ok(
+        !$owner->edit_trustmask( $viewer, remove => $filter ),
+        'membership edit cannot overlap a filter mutation'
+    );
+    my $failed_deletion = $request->(
+        POST $filters,
+        Content => [
+            @old_filters,
+            mode                                 => 'save',
+            "efg_delete_$filter"                 => 1,
+            'editfriend_maskhi_' . $viewer->user => 0,
+            'editfriend_masklo_' . $viewer->user => 1
+        ]
+    );
+    ok( $failed_deletion->content !~ /Your access filters are now saved/i,
+        'a contended deletion is not reported as saved' );
+    ok( $owner->trust_groups( id => $filter, force_database => 1 ),
+        'the contended filter remains' );
+    ok( $load->()->visible_to($viewer), 'a contended deletion does not change membership' );
+    $lock->release;
+
+    ok( $owner->delete_trust_group( id => $filter ), 'deletes the old membership filter' );
+    my $db = LJ::get_db_writer();
+    $db->do(
+        'UPDATE wt_edges SET groupmask = groupmask | ? WHERE from_userid = ? AND to_userid = ?',
+        undef, $mask, $owner->id, $viewer->id );
+    is( $owner->create_trust_group( id => $filter, groupname => 'Art exchange' ),
+        $filter, 'allocates the same slot even when an orphaned edge bit exists' );
+    is( $api->( groups => [$filter] )->code, 200, 'a fresh image save selects the replacement' );
+    ok( !$load->()->visible_to($viewer), 'allocation does not inherit orphaned membership' );
+    $owner->edit_trustmask( $viewer, remove => $filter );
+
+    my $key    = $owner->id . ':' . $viewer->id;
+    my $memkey = [ $owner->id, "trustmask:$key" ];
+    LJ::MemCache::set( $memkey, $mask | 1, 3600 );
+    DW::Cache->request->set( 'trustmask', $key, $mask | 1 );
+    ok( !$load->()->visible_to($viewer), 'image authorization ignores stale cached membership' );
+    LJ::MemCache::delete($memkey);
+    DW::Cache->request->remove( 'trustmask', $key );
+
+    my $stale_circle = $request->(
+        POST $circle, Content => [ @old_circle, 'action:accessfilters' => 1, "bit_$filter" => 1 ]
+    );
+    ok(
+        $stale_circle->content =~ /reload.*try again/is,
+        'Circle tells the owner to reload stale choices'
+    );
+    ok( !$load->()->visible_to($viewer), 'the stale Circle save cannot grant image access' );
+    $owner->edit_trustmask( $viewer, remove => $filter );
+
+    my $stale_filters =
+        $request->( POST $filters, Content => [ @old_filters, mode => 'save', @membership ] );
+    ok( $stale_filters->content =~ /reload.*try again/is, 'editfilters rejects stale choices' );
+    ok( !$load->()->visible_to($viewer), 'the stale editfilters save cannot grant image access' );
+    $owner->edit_trustmask( $viewer, remove => $filter );
+
+    my @fresh_circle = $form_data->($circle);
+    $request->(
+        POST $circle, Content => [ @fresh_circle, 'action:accessfilters' => 1, "bit_$filter" => 1 ]
+    );
+    ok( $load->()->visible_to($viewer), 'a fresh explicit membership grant authorizes the image' );
 };
 
 $image->delete;
