@@ -3,7 +3,7 @@
 
 .error.noindex=You have no picture uploaded. You must upload one using the <a href="[[pagelink]]">Edit Icons</a> page.
 
-.howtouse=Click and drag anywhere within the photo to create your icon. When you're happy with what you see in the preview box, click the Create Icon button to save it.
+.howtouse=Drag across the photo with your finger or mouse to select the part you want. When you're happy with what you see in the preview, select Create Icon to save it.
 
 .noscript<<
 You need JavaScript enabled in order to use the Icon Factory.

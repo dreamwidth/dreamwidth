@@ -1,4 +1,5 @@
 var regsel;
+var origW, origH;
 var borderOn = false;
 
 function onRegionChange (c) {
@@ -10,16 +11,17 @@ function onRegionChanged (c) {
 
     updatePreview(c);
 
-    $("x1").value = c.x1;
-    $("y1").value = c.y1;
-    $("x2").value = c.x2;
-    $("y2").value = c.y2;
+    document.getElementById("x1").value = c.x1;
+    document.getElementById("y1").value = c.y1;
+    document.getElementById("x2").value = c.x2;
+    document.getElementById("y2").value = c.y2;
 }
 
 function updatePreview (c) {
     var w = c.x2 - c.x1, h = c.y2 - c.y1;
+    if (w <= 0 || h <= 0) return;
 
-    var upp = $("userpicpreview");
+    var upp = document.getElementById("userpicpreview");
 
     var newsizes = getSizedCoords(100, w, h);
 
@@ -35,8 +37,9 @@ function updatePreview (c) {
     var zoomx = nw/origW;
     var zoomy = nh/origH;
 
-    $("prevcon").style.width = Math.floor(newsizes[0]) + "px";
-    $("prevcon").style.height = Math.floor(newsizes[1]) + "px";
+    var preview = document.getElementById("prevcon");
+    preview.style.width = Math.floor(newsizes[0]) + "px";
+    preview.style.height = Math.floor(newsizes[1]) + "px";
 
     var nl = zoomx * c.x1;
     var nt = zoomy * c.y1;
@@ -47,7 +50,7 @@ function updatePreview (c) {
 
 function setConstrain () {
     if(!regsel) return;
-    var checked = $('constrain').checked;
+    var checked = document.getElementById("constrain").checked;
     regsel.keepSquare(checked);
     regsel.setBottomRight(regsel.brx, regsel.bry, checked);
     regsel.fireOnRegionChanged();
@@ -66,45 +69,43 @@ function getSizedCoords (newsize, w, h) {
     return [nw, nh];
 }
 
-function toggleBorder (evt) {
+function toggleBorder () {
+    var preview = document.getElementById("prevcon");
     if (borderOn) {
-        $("prevcon").style.border = "1px solid transparent";
+        preview.style.border = "1px solid transparent";
         borderOn = false;
     } else {
-        $("prevcon").style.border = "1px solid #000000";
+        preview.style.border = "1px solid #000000";
         borderOn = true;
     }
 }
 
 // This setup actually does need to be on the load event.
-DOM.addEventListener(window, "load", function () {
-    if (!origW || !origH)
-        return;
+window.addEventListener("load", function () {
+    var image = document.getElementById("userpic");
+    if (!image || !image.naturalWidth || !image.naturalHeight) return;
 
-    $("userpic").style.display = "";
+    origW = image.naturalWidth;
+    origH = image.naturalHeight;
+    var container = document.getElementById("picContainer");
+    var heightLimitedWidth = 75 * origW / origH;
+    container.style.width = "min(" + origW + "px, " + heightLimitedWidth + "vh)";
+    container.hidden = false;
 
-    regsel = new ImageRegionSelect({src: $("userpic"),
+    regsel = new ImageRegionSelect({src: image,
         onRegionChange:  onRegionChange,
         onRegionChanged: onRegionChanged
     });
 
-    var imageDimensions = getSizedCoords(scaledSizeMax, origW, origH);
-    origW = imageDimensions[0];
-    origH = imageDimensions[1];
-    var w = origW;
-    var h = origH;
-
-    $("picContainer").style.width = w + "px";
-    $("picContainer").style.height = h + "px";
-
-    var x1 = 20, y1 = 20, x2 = w - 20, y2 = h - 20;
-    regsel.setTopLeft(x1, y1);
-    regsel.setBottomRight(x2, y2);
+    var insetX = Math.min(20, Math.floor(origW / 4));
+    var insetY = Math.min(20, Math.floor(origH / 4));
+    regsel.setTopLeft(insetX, insetY);
+    regsel.setBottomRight(origW - insetX, origH - insetY);
     regsel.fireOnRegionChanged();
 
     regsel.keepSquare(false);
 
-    $("createbtn").disabled = false;
+    document.getElementById("createbtn").disabled = false;
 
-    DOM.addEventListener($("borderToggle"), "change", toggleBorder.bindEventListener());
+    document.getElementById("borderToggle").addEventListener("change", toggleBorder);
 });

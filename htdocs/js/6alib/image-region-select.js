@@ -63,7 +63,7 @@ var ImageRegionSelect = new Class( Object, {
         if (opts.src && typeof opts.src == 'object') {
             this.imgEle = opts.src;
         } else {
-            this.imgEle = $(opts.src);
+            this.imgEle = document.getElementById(opts.src);
         }
 
 	var imgEle = this.imgEle;
@@ -73,62 +73,43 @@ var ImageRegionSelect = new Class( Object, {
             return;
         }
 
-        var w = imgEle.width;
-        var h = imgEle.height;
-        this.width = w;
-        this.height = h;
+        this.width = imgEle.naturalWidth;
+        this.height = imgEle.naturalHeight;
 
         this.keepSquareAspect = false;
 
         var containerDiv = this.containerDiv = document.createElement("div");
-        //containerDiv.style.border = "2px solid red";
-        containerDiv.style.width = w + "px";
-        containerDiv.style.height = h + "px";
-        containerDiv.style.background = "yellow";
         containerDiv.style.position = "relative";
         containerDiv.style.cursor = "crosshair";
+        containerDiv.style.touchAction = "none";
+        containerDiv.style.userSelect = "none";
 
         imgEle.parentNode.replaceChild(containerDiv, imgEle);
         containerDiv.appendChild(imgEle);
-        imgEle.style.position = "absolute";
-        imgEle.style.top = "0px";
-        imgEle.style.left = "0px";
-
-        // IE-specific attribute to disable the on-image toolbar:
-        imgEle.setAttribute("galleryimg", "no");
+        imgEle.draggable = false;
+        imgEle.style.display = "block";
+        imgEle.style.width = "100%";
+        imgEle.style.height = "auto";
 
         // make the black and white dotted ants
-        var makeAnts = function (color) {
+        var makeAnts = function (parent, color) {
             var ele = document.createElement("div");
             ele.style.position = "absolute";
-            ele.style.top  = "0px";
-            ele.style.left = "0px";
-            ele.style.width = w + "px";
-            ele.style.height = h + "px";
+            ele.style.pointerEvents = "none";
+            ele.style.boxSizing = "border-box";
             ele.style.border = "2px dashed " + color;
-            containerDiv.appendChild(ele);
+            parent.appendChild(ele);
             return ele;
         };
-        this.ants1 = makeAnts("white");
-        this.ants2 = makeAnts("black");
+        this.ants1 = makeAnts(containerDiv, "white");
+        this.ants2 = makeAnts(this.ants1, "black");
+        this.ants2.style.inset = "0";
 
-        var coverNode = document.createElement("div");
-        coverNode.style.width = w + "px";
-        coverNode.style.height = h + "px";
-        //coverNode.style.border = "2px solid green";
-        coverNode.style.position = "absolute";
-        coverNode.style.top = "0px";
-        coverNode.style.left = "0px";
-        containerDiv.appendChild(coverNode);
-
-        // setup event handlers
-        var eatEvent = function (e) {
-            e = Event.prep(e);
-            return e.stop();
-        };
-        imgEle.onmousemove       = eatEvent;
-        containerDiv.onmousemove = eatEvent;
-        containerDiv.onmousedown = ImageRegionSelect.containerMouseDown.bindEventListener(this);
+        containerDiv.addEventListener("pointerdown", this.startDrag.bind(this));
+        containerDiv.addEventListener("pointermove", this.updateDrag.bind(this));
+        containerDiv.addEventListener("pointerup", this.endDrag.bind(this));
+        containerDiv.addEventListener("pointercancel", this.cancelDrag.bind(this));
+        containerDiv.addEventListener("lostpointercapture", this.cancelDrag.bind(this));
 
         this.setEnabled(true);
         this.reset();
@@ -170,7 +151,6 @@ var ImageRegionSelect = new Class( Object, {
     handleClick: function (e) {
         if (! this.enabled) return;
 
-        e = Event.prep(e);
         var pos = this.relPos(e);
 
         if (this.onClick) {
@@ -178,12 +158,12 @@ var ImageRegionSelect = new Class( Object, {
         }
     },
 
-    relPos: function (e) {
-        e = Event.prep(e);
-        var loc    = DOM.getAbsoluteCursorPosition(e);
-        var ctrDim = DOM.getAbsoluteDimensions(this.containerDiv);
-        return {x: loc.x - ctrDim.absoluteLeft,
-                       y: loc.y - ctrDim.absoluteTop };
+    relPos: function (event) {
+        var bounds = this.containerDiv.getBoundingClientRect();
+        return {
+            x: Math.round((event.clientX - bounds.left) * this.width / bounds.width),
+            y: Math.round((event.clientY - bounds.top) * this.height / bounds.height)
+        };
     },
 
     sortPoints: function () {
@@ -218,14 +198,15 @@ var ImageRegionSelect = new Class( Object, {
         y = max(0, min(y, this.height));
 
         if (isShift) {
-            var dx = Math.abs(this.tlx - x);
-            var dy = Math.abs(this.tly - y);
-            var d = max(dx, dy);
-
-            this.brx = min(this.tlx + ((x > this.tlx) ? 1 : -1) * d, this.width);
-            this.bry = min(this.tly + ((y > this.tly) ? 1 : -1) * d, this.height);
-            if (this.brx < 0) this.brx = 0;
-            if (this.bry < 0) this.bry = 0;
+            var xDirection = x >= this.tlx ? 1 : -1;
+            var yDirection = y >= this.tly ? 1 : -1;
+            var size = Math.min(
+                Math.max(Math.abs(this.tlx - x), Math.abs(this.tly - y)),
+                xDirection > 0 ? this.width - this.tlx : this.tlx,
+                yDirection > 0 ? this.height - this.tly : this.tly
+            );
+            this.brx = this.tlx + xDirection * size;
+            this.bry = this.tly + yDirection * size;
         } else {
             this.brx = x;
             this.bry = y;
@@ -238,8 +219,8 @@ var ImageRegionSelect = new Class( Object, {
 
         var minx = min(this.tlx, this.brx);
         var miny = min(this.tly, this.bry);
-        var width = max(4, Math.abs(this.brx - this.tlx));
-        var height = max(4, Math.abs(this.bry - this.tly));
+        var width = Math.abs(this.brx - this.tlx);
+        var height = Math.abs(this.bry - this.tly);
 
         if (this.onRegionChange) {
             this.onRegionChange({
@@ -250,88 +231,67 @@ var ImageRegionSelect = new Class( Object, {
             });
         }
 
-        this.ants1.style.left = minx + "px";
-        this.ants1.style.top = miny + "px";
-        this.ants1.style.width = width + "px";
-        this.ants1.style.height = height + "px";
-
-        this.ants2.style.left = (minx + 2) + "px";
-        this.ants2.style.top = (miny + 2) + "px";
-        this.ants2.style.width = (width - 4) + "px";
-        this.ants2.style.height = (height - 4) + "px";
+        this.ants1.style.left = (100 * minx / this.width) + "%";
+        this.ants1.style.top = (100 * miny / this.height) + "%";
+        this.ants1.style.width = (100 * width / this.width) + "%";
+        this.ants1.style.height = (100 * height / this.height) + "%";
     },
 
     keepSquare: function (keepSquareAspect) {
       this.keepSquareAspect = keepSquareAspect;
     },
 
-    dummy: 1
+    startDrag: function (event) {
+        if (!this.enabled || this.drag || !event.isPrimary || event.button !== 0) return;
+        this.drag = {
+            pointerId: event.pointerId,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            anchor: this.relPos(event),
+            previous: this.getSelectedRegion(),
+            started: false
+        };
+        this.containerDiv.setPointerCapture(event.pointerId);
+        event.preventDefault();
+    },
+
+    updateDrag: function (event) {
+        var drag = this.drag;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        if (!drag.started) {
+            if (Math.abs(event.clientX - drag.clientX) < 10 &&
+                Math.abs(event.clientY - drag.clientY) < 10) return;
+            drag.started = true;
+            this.setTopLeft(drag.anchor.x, drag.anchor.y);
+        }
+        var point = this.relPos(event);
+        this.setBottomRight(point.x, point.y, event.shiftKey || this.keepSquareAspect);
+    },
+
+    endDrag: function (event) {
+        var drag = this.drag;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        this.updateDrag(event);
+        if (!drag.started) {
+            this.drag = null;
+            this.handleClick(event);
+        } else if (this.tlx === this.brx || this.tly === this.bry) {
+            this.cancelDrag(event);
+        } else {
+            this.drag = null;
+            this.sortPoints();
+            this.fireOnRegionChanged();
+        }
+    },
+
+    cancelDrag: function (event) {
+        var drag = this.drag;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        this.drag = null;
+        this.tlx = drag.previous.x1;
+        this.tly = drag.previous.y1;
+        this.brx = drag.previous.x2;
+        this.bry = drag.previous.y2;
+        this.adjustAnts();
+    }
 });
-
-ImageRegionSelect.containerMouseDown = function (e) {
-    //this.dbg("onKeyDown, code="+code+", shift="+e.shiftKey);
-
-    e = Event.prep(e);
-    var dpos = this.relPos(e);
-    var self = this;
-
-    var ctrDiv = this.containerDiv;
-    var did_topleft = false;
-    var imgEle = this.imgEle;
-
-    var isClose = function (pos) {
-        // this looks stupid, but it's the only way that'll work:  I tried
-        // to just return the expression in the if block, but it wasn't working.
-        // not sure what I'm not understanding here.  --brad
-        if (Math.abs(pos.x - dpos.x) < 10 &&
-            Math.abs(pos.y - dpos.y) < 10) {
-                return true;
-            } else {
-                return false;
-            }
-    };
-
-
-    // IE's onmousemove event comes in from a different place than the mousedown/up.
-    // whatever.
-    imgEle.onmousemove = ctrDiv.onmousemove = function (emove) {
-        emove = Event.prep(emove);
-        var mpos = self.relPos(emove);
-
-        var isShift = emove.shiftKey || self.keepSquareAspect;
-        //log(trackerPlane + ":  mouse move");
-
-        if (did_topleft) {
-            self.setBottomRight(mpos.x, mpos.y, isShift);
-        } else if (! isClose(mpos)) {
-            did_topleft = true;
-            self.setTopLeft(dpos.x, dpos.y);
-            self.setBottomRight(mpos.x, mpos.y, isShift);
-        }
-
-        return emove.stop();
-    };
-
-    ctrDiv.onmouseup = function (eup) {
-        eup = Event.prep(eup);
-        var upos = self.relPos(eup);
-
-        ctrDiv.onmousemove = null;
-        ctrDiv.onmouseup   = null;
-        imgEle.onmousemove = null;
-
-        if (!did_topleft) {
-            self.handleClick(eup);
-            return eup.stop();
-        }
-
-        self.sortPoints();
-
-        self.fireOnRegionChanged();
-
-        return eup.stop();
-
-    };
-
-    return e.stop();
-};
