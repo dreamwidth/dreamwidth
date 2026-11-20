@@ -71,7 +71,7 @@
                 <label for="username">[% dw.ml( '.giftfor.username') %]</label>
             </div>
             <div class="columns medium-6">
-                [% form.textbox(  name => 'username', value => user)  %]
+                [% form.textbox(  name => 'username', default => user)  %]
             </div>
         </div>
         [% ELSIF for == 'random' %]

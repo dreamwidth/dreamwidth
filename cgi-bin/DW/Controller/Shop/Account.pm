@@ -20,6 +20,7 @@ package DW::Controller::Shop::Account;
 use strict;
 use warnings;
 use Carp qw/ croak confess /;
+use DateTime;
 
 use DW::Controller;
 use DW::Pay;
@@ -87,8 +88,9 @@ sub shop_account_handler {
         $vars->{paid_status} = DW::Widget::PaidAccountStatus->render;
     }
 
-    my $errors = DW::FormErrors->new;
-    if ( $r->did_post ) {
+    my $errors           = DW::FormErrors->new;
+    my $editing_delivery = $r->did_post && $post->{edit_deliverydate};
+    if ( $r->did_post && !$editing_delivery ) {
 
         my $item_data = {};
 
@@ -133,9 +135,10 @@ sub shop_account_handler {
             }
         }
 
-        if ( $post->{deliverydate} ) {
-            DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
-        }
+        my $delivery_days =
+            $post->{deliverydate}
+            ? DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data )
+            : undef;
 
         unless ( $post->{accttype} ) {
             $errors->add( 'accttype', 'widget.shopitemoptions.error.notype' );
@@ -205,6 +208,20 @@ sub shop_account_handler {
             }
 
             unless ( $errors->exist ) {
+                if (   $item
+                    && $delivery_days
+                    && ( $post->{confirm_deliverydate} // '' ) ne $item->deliverydate )
+                {
+                    return DW::Template->render_template(
+                        'shop/account-delivery-confirm.tt',
+                        {
+                            cart_display => $rv->{cart_display},
+                            deliverydate => $item->deliverydate,
+                            days         => $delivery_days,
+                            formdata     => $post,
+                        }
+                    );
+                }
 
                 my ( $rv, $err ) = $rv->{cart}->add_item($item);
                 $errors->add_string( '', $err ) unless $rv;
@@ -242,7 +259,7 @@ sub shop_account_handler {
     $vars->{seed_avail}     = DW::Pay::num_permanent_accounts_available() > 0;
     $vars->{num_perms}      = DW::Pay::num_permanent_accounts_available_estimated();
     $vars->{formdata}       = $post || { username => ( $GET->{user} ), anonymous => !$remote };
-    $vars->{did_post}       = $r->did_post;
+    $vars->{did_post}       = $r->did_post && ( !$editing_delivery || $post->{alreadyposted} );
     $vars->{acct_reason}    = DW::Shop::Item::Account->can_have_reason;
     $vars->{prem_convert}   = $premium_convert;
     $vars->{email_checkbox} = $email_checkbox;
