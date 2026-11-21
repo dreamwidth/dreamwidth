@@ -91,8 +91,9 @@ addition to `bin/worker/dw-send-email`. With worker-manager, enable
 
 Before rolling out the web change, apply the global database upgrade and start
 the notice worker. Renames require InnoDB for `user`, `useridmap` and `reluser`;
-convert legacy installations before enabling renames on them. The upgrade adds
-the InnoDB notice outbox and recipient tables. For hosted ECS deployments,
+convert legacy installations before enabling renames on them. The upgrade creates
+the notice outbox and recipient tables in InnoDB and converts any existing
+non-InnoDB copies of those two tables. For hosted ECS deployments,
 provision the `worker-dw-community-rename-notice-service` service using the
 checked-in task definition and deploy `dw-community-rename-notice` via the
 worker deployment workflow. The notice worker polls MySQL; only the existing

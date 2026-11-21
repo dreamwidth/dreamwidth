@@ -2909,7 +2909,7 @@ CREATE TABLE community_rename_notice (
     scanned TINYINT NOT NULL DEFAULT 0,
 
     INDEX (commid)
-)
+) ENGINE=InnoDB
 EOC
 
 register_tablecreate( 'community_rename_recipient', <<'EOC');
@@ -2921,7 +2921,7 @@ CREATE TABLE community_rename_recipient (
 
     PRIMARY KEY (noticeid, mailbox),
     INDEX (noticeid, next_attempt)
-)
+) ENGINE=InnoDB
 EOC
 
 register_tablecreate( "bannotes", <<'EOC');
@@ -3156,6 +3156,17 @@ register_alter(
 
         my $dbh    = shift;
         my $runsql = shift;
+
+        foreach my $table (qw(community_rename_notice community_rename_recipient)) {
+            next unless table_relevant($table);
+            my ($engine) = $dbh->selectrow_array(
+                'SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() '
+                    . 'AND TABLE_NAME=?',
+                undef, $table
+            );
+            next unless defined $engine && lc($engine) ne 'innodb';
+            do_alter( $table, "ALTER TABLE $table ENGINE=InnoDB" );
+        }
 
         if ( column_type( "users_for_paid_accounts", "journaltype" ) eq "" ) {
             do_alter( "users_for_paid_accounts",
