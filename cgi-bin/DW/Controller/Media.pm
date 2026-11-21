@@ -365,8 +365,8 @@ sub media_index_handler {
 
 sub make_embed_url {
     my ( $obj, %opts ) = @_;
-    my $url   = $obj->full_url;
-    my $src   = defined $opts{size} ? $obj->url( size => $opts{size} ) : $url;
+    my $url   = LJ::ehtml( $obj->full_url );
+    my $src   = defined $opts{size} ? LJ::ehtml( $obj->url( size => $opts{size} ) ) : $url;
     my $alt   = $obj->prop('alttext') || '';
     my $title = $obj->prop('title') || '';
     my $embed;
