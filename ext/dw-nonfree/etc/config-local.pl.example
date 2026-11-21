@@ -144,6 +144,9 @@
     # Similarly for the icon used by Facebook for previews on links
     $FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/img/Swirly-d-square.png";
 
+    $SITE_LOGO_IMAGE = "tropo-red/dw_logo.png";
+    $SITE_LOGO_ICON_IMAGE = "Swirly-d-square.png";
+
     # Needed for concatenation of static resources (see bin/build-static.sh)
     $STATDOCS = "$HOME/build/static";
 
