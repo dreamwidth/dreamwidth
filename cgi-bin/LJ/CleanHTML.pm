@@ -540,8 +540,8 @@ TOKEN:
 
             if ( defined $action{$tag} and $action{$tag} eq "conditional" ) {
                 if ( $tag eq "iframe" ) {
-                    my $can_https;
-                    ( $force_allow, $can_https ) =
+                    my ( $can_https, $default_referrer_policy );
+                    ( $force_allow, $can_https, $default_referrer_policy ) =
                         LJ::Hooks::run_hook( 'allow_iframe_embeds', $attr->{src} );
                     $attr->{src} =~ s!^https?:!!
                         if $opts->{force_https_embed}
@@ -554,6 +554,14 @@ TOKEN:
                             $eat_block->("iframe");
                         }
                         next TOKEN;
+                    }
+
+                    if (   $opts->{display_as_content}
+                        && defined $default_referrer_policy
+                        && !exists $attr->{referrerpolicy} )
+                    {
+                        $attr->{referrerpolicy} = $default_referrer_policy;
+                        push @{ $token->[3] }, 'referrerpolicy';
                     }
 
                     # remove the name, because it can be targetted by links
@@ -1789,6 +1797,7 @@ sub clean_embed {
             transform_embed_nocheck => 1,
             rewrite_embed_param     => 1,
             force_https_embed       => $opts->{display_as_content},
+            display_as_content      => $opts->{display_as_content},
 
             # Embeds always come from somewhere else, so be conservative.
             formatting  => 'html',
