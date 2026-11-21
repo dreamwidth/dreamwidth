@@ -82,9 +82,9 @@ function useRichText(textArea, statPrefix, raw) {
     if (!t) return false;
 
     const body = document.getElementById(textArea);
-    var entry_html = body.value;
+    const plainTextBody = body.value;
 
-    entry_html = convertToHTMLTags(entry_html, statPrefix);
+    var entry_html = convertToHTMLTags(plainTextBody, statPrefix);
     if (!raw) {
         entry_html = entry_html.replace(/\n/g, '<br />');
     }
@@ -98,10 +98,11 @@ function useRichText(textArea, statPrefix, raw) {
         oFCKeditor.ToolbarSet = "Update";
         oFCKeditor.ReplaceTextarea();
         if (body.style.display !== 'none') return false;
+        pendingRichTextBody = plainTextBody;
         body.value = entry_html;
 
     } else {
-        if (! FCKeditorAPI) return false;
+        if (!FCKeditor_LOADED || typeof FCKeditorAPI === 'undefined') return false;
         var oEditor = FCKeditorAPI.GetInstance(textArea);
         editor_frame.style.display = "block";
         body.style.display = "none";
@@ -117,10 +118,24 @@ function useRichText(textArea, statPrefix, raw) {
 }
 
 function usePlainText(textArea, raw) {
-    if (! FCKeditorAPI) return;
+    const body = document.getElementById(textArea);
+    var editor_frame = document.getElementById(textArea + '___Frame');
+    if (!FCKeditor_LOADED) {
+        if (typeof FCKeditorAPI !== 'undefined') {
+            const queue = FCKeditorAPI._FunctionQueue;
+            const loadToolbar = editor_frame.contentWindow.LoadToolbar;
+            if (queue.Functions.includes(loadToolbar)) queue.Remove(loadToolbar);
+        }
+        editor_frame.remove();
+        document.getElementById(textArea + '___Config').remove();
+        body.value = pendingRichTextBody;
+        pendingRichTextBody = undefined;
+        body.style.display = "block";
+        return;
+    }
+    if (typeof FCKeditorAPI === 'undefined') return;
     var oEditor = FCKeditorAPI.GetInstance(textArea);
     if (! oEditor) return;
-    var editor_frame = document.getElementById(textArea + '___Frame');
 
     var html = oEditor.GetXHTML(false);
     html = convertToTags(html);
@@ -130,11 +145,11 @@ function usePlainText(textArea, raw) {
         html = html.replace(/&nbsp;/g, ' ');
     }
 
-    document.getElementById(textArea).value = html;
+    body.value = html;
     oEditor.Focus();
 
     editor_frame.style.display = "none";
-    document.getElementById(textArea).style.display = "block";
+    body.style.display = "block";
 
     // Hack for handling submitHandler
     oEditor.switched_rte_on = '0';
@@ -193,6 +208,7 @@ function generate_pollHTML(ljtags, pollID) {
 
 // Constant used to check if FCKeditorAPI is loaded
 var FCKeditor_LOADED = false;
+let pendingRichTextBody;
 let originalRichTextBody;
 let initialRichTextHTML;
 
@@ -201,6 +217,7 @@ function FCKeditor_OnComplete( editorInstance ) {
         initialRichTextHTML = editorInstance.GetXHTML(false);
     }
     editorInstance.Events.AttachEvent( 'OnAfterLinkedFieldUpdate', doLinkedFieldUpdate) ;
+    pendingRichTextBody = undefined;
     FCKeditor_LOADED = true;
 }
 
@@ -244,13 +261,12 @@ var raw = document.querySelector('#editor').value == 'html_raw0';
 window.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('#editor').value == 'rte0') {
         const body = document.getElementById('entry-body');
-        const originalBody = body.value;
         use_rte = useRichText('entry-body', '/stc/', raw);
         if (use_rte && postFormInitData.edit) {
-            originalRichTextBody = originalBody;
+            originalRichTextBody = pendingRichTextBody;
             body.form.addEventListener('formdata', event => {
-                if (!FCKeditor_LOADED && originalRichTextBody !== undefined) {
-                    event.formData.set(body.name, originalRichTextBody);
+                if (pendingRichTextBody !== undefined) {
+                    event.formData.set(body.name, pendingRichTextBody);
                 }
             });
         }
@@ -260,14 +276,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Watch the format select for changes, and add or destroy the RTE as necessary
 document.querySelector('#editor').addEventListener('change', e => {
-    originalRichTextBody = initialRichTextHTML = undefined;
-    let format = e.target.value;
-    if (format == 'rte0') {
+    const format = e.target.value;
+    if (format === 'rte0' && !use_rte) {
+        if (document.getElementById('entry-body').value !== originalRichTextBody) {
+            originalRichTextBody = initialRichTextHTML = undefined;
+        }
         use_rte = useRichText('entry-body', '/stc/', raw);
+    } else if (format !== 'rte0' && use_rte) {
+        if (FCKeditor_LOADED) originalRichTextBody = initialRichTextHTML = undefined;
+        usePlainText('entry-body', format === 'html_raw0');
+        use_rte = false;
     }
-    if (format != 'rte0' && use_rte) {
-        let raw = format == 'html_raw0';
-      usePlainText('entry-body', raw);
-      use_rte = false;
-    }
-  });
+});

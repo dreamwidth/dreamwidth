@@ -190,13 +190,20 @@ with_fake_memcache {
     test_psgi $app, sub {
         my $client  = shift;
         my @editors = ( 'beta', 'legacy', 'beta with legacy format' );
-        push @editors, 'beta rich text', 'beta rich text while loading', 'beta rich text fallback'
+        push @editors, 'beta rich text', 'beta rich text while loading',
+            'beta rich text loading format round trip', 'beta rich text fallback'
             if $ENV{DW_TEST_RTE};
+        my %editor_modes = (
+            'beta rich text'                           => 'ready',
+            'beta rich text while loading'             => 'delay',
+            'beta rich text loading format round trip' => 'roundtrip',
+            'beta rich text fallback'                  => 'fallback',
+        );
         for my $editor (@editors) {
             my $legacy_format = $editor eq 'beta with legacy format';
-            my $delay_editor  = $editor eq 'beta rich text while loading';
-            my $fallback      = $editor eq 'beta rich text fallback';
-            my $rich_text     = $editor eq 'beta rich text' || $delay_editor || $fallback;
+            my $editor_mode   = $editor_modes{$editor} // '';
+            my $rich_text     = $editor_mode ne '';
+            my $delay_editor  = $editor_mode eq 'delay' || $editor_mode eq 'roundtrip';
 
             $owner->set_prop( 'entry_editor2', $legacy_format ? 'html_raw0' : 'html_casual1' );
             my $body =
@@ -254,8 +261,7 @@ with_fake_memcache {
                     print {$html} $client->( GET $url )->content;
                     close $html or die $!;
                     open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
-                        $filename, $url, $hide, $changes{event} // '',
-                        ( $delay_editor ? 'delay' : $fallback ? 'fallback' : '' )
+                        $filename, $url, $hide, $changes{event} // '', $editor_mode
                         or die $!;
                     my $payload = do { local $/; <$browser> };
                     close $browser or die 'Could not submit the rich-text editor form in Chrome';
