@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test;
@@ -158,6 +158,80 @@ subtest 'markup warnings follow the entry format' => sub {
     );
     ok( $edit, 'cleared the entry editor' ) or return;
     like( $edit->{message}, qr/invalid HTML/, 'clearing the editor restores HTML warnings' );
+};
+
+subtest 'Community slugs are stored on the journal cluster' => sub {
+    plan skip_all => 'Requires two test clusters' unless @LJ::CLUSTERS >= 2;
+
+    my ( $poster_cluster, $journal_cluster ) = @LJ::CLUSTERS;
+    my $poster = temp_user( cluster => $poster_cluster );
+    my $community;
+    {
+        local $LJ::DEFAULT_CLUSTER = [$journal_cluster];
+        $community = temp_comm();
+    }
+    isnt( $poster->clusterid, $community->clusterid,
+        'Poster and community use different clusters' );
+    $poster->update_self( { status => 'A' } );
+    ok( $poster->join_community( $community, 0, 1 ), 'Poster joins with posting access' );
+
+    my $request = sub {
+        my ( $mode, %args ) = @_;
+        LJ::Entry->reset_singletons;
+        my $error;
+        my $response = LJ::Protocol::do_request(
+            $mode,
+            {
+                ver        => $LJ::PROTOCOL_VER,
+                username   => $poster->user,
+                usejournal => $community->user,
+                tz         => 'guess',
+                security   => 'public',
+                allowmask  => 0,
+                subject    => 'Community slug test',
+                event      => 'Community entry content',
+                %args,
+            },
+            \$error,
+            { noauth => 1 },
+        );
+        BAIL_OUT( "$mode failed: " . LJ::Protocol::error_message($error) ) unless $response;
+        return $response;
+    };
+
+    my $slug_itemid = sub {
+        my ($slug) = @_;
+        my $entry = LJ::Entry->new( $community, slug => $slug );
+        return $entry ? $entry->jitemid : undef;
+    };
+
+    my $posted   = $request->( 'postevent', slug => 'original-slug' );
+    my $entry_id = $posted->{itemid};
+    ok( $entry_id, 'Posted a community entry' );
+    like( $posted->{url}, qr{/original-slug\.html$}, 'Posting returns the slug URL' );
+    is( $slug_itemid->('original-slug'), $entry_id, 'Original slug resolves to the entry' );
+
+    my $edited = $request->( 'editevent', itemid => $entry_id, slug => 'updated-slug' );
+    like( $edited->{url}, qr{/updated-slug\.html$}, 'Editing returns the new slug URL' );
+    is( $slug_itemid->('updated-slug'),  $entry_id, 'Updated slug resolves to the entry' );
+    is( $slug_itemid->('original-slug'), undef,     'Changing the slug removes the old lookup' );
+
+    my ($misplaced) =
+        $poster->selectrow_array( 'SELECT slug FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        undef, $community->id, $entry_id );
+    is( $misplaced, undef, 'No slug row is written to the poster cluster' );
+
+    $request->( 'editevent', itemid => $entry_id, subject => 'Edit without a slug field' );
+    is( $slug_itemid->('updated-slug'), $entry_id, 'Omitting the slug leaves it unchanged' );
+
+    my $duplicate = $request->( 'postevent', slug => 'updated-slug', event => 'Another entry' );
+    like( $duplicate->{message}, qr/already been used/, 'Duplicate slug reports a conflict' );
+    is( $slug_itemid->('updated-slug'),
+        $entry_id, 'Duplicate slug still points to its first entry' );
+
+    my $cleared = $request->( 'editevent', itemid => $entry_id, slug => '' );
+    like( $cleared->{url}, qr{/\d+\.html$}, 'Clearing the slug restores the numeric URL' );
+    is( $slug_itemid->('updated-slug'), undef, 'Clearing the slug removes its lookup' );
 };
 
 #use Data::Dumper;

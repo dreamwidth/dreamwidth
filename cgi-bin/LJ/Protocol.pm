@@ -1755,9 +1755,9 @@ sub postevent {
     # Insert the slug (try to, this will fail if this slug is already used)
     my $slug = LJ::canonicalize_slug( $req->{slug} );
     if ( defined $slug && length $slug > 0 ) {
-        $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+        $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
             undef, $ownerid, $jitemid, $slug );
-        if ( $u->err ) {
+        if ( $uowner->err ) {
             $res->{message} ||= 'Sorry, it looks like that slug has already been used. '
                 . 'Your entry has been posted without a slug, but you can still edit it to add a unique slug.';
         }
@@ -2284,14 +2284,14 @@ sub editevent {
     # present, we leave the slug alone.
     if ( exists $req->{slug} ) {
         LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
-        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
             undef, $ownerid, $itemid );
 
         my $slug = LJ::canonicalize_slug( $req->{slug} );
         if ( defined $slug && length $slug > 0 ) {
-            $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+            $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
                 undef, $ownerid, $itemid, $slug );
-            if ( $u->err ) {
+            if ( $uowner->err ) {
                 $add_message->( 'Sorry, it looks like that slug has already been used. '
                         . 'Your entry has been updated, but you can still edit it again to add a unique slug.'
                 );
