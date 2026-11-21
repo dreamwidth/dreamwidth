@@ -480,17 +480,15 @@ sub text_in {
 # <LJFUNC>
 # name: LJ::text_convert
 # des: convert old entries/comments to UTF-8 using user's default encoding.
-# args: dbs?, text, u, error
-# des-dbs: optional. Deprecated; a master/slave set of database handles.
+# args: text, u, error, opts
 # des-text: old possibly non-ASCII text to convert
 # des-u: user hashref of the journal's owner
 # des-error: ref to a scalar variable which is set to 1 on error
-#            (when user has no default encoding defined, but
-#            text needs to be translated).
+# des-opts: lossless => 1 requires a successful byte-for-byte round trip
 # returns: converted text or undef on error
 # </LJFUNC>
 sub text_convert {
-    my ( $text, $u, $error ) = @_;
+    my ( $text, $u, $error, %opts ) = @_;
 
     # maybe it's pure ASCII?
     return $text if LJ::is_ascii($text);
@@ -513,7 +511,20 @@ sub text_convert {
         return undef;
     }
 
-    return LJ::ConvUTF8->to_utf8( $name, $text );
+    return LJ::ConvUTF8->to_utf8( $name, $text ) unless $opts{lossless};
+
+    my $converted;
+    my $lossless = eval {
+        $converted = LJ::ConvUTF8->to_utf8( $name, $text );
+        defined $converted
+            && LJ::is_utf8($converted)
+            && ( LJ::ConvUTF8->from_utf8( $name, $converted ) // '' ) eq $text;
+    };
+    unless ($lossless) {
+        $$error = 1;
+        return undef;
+    }
+    return $converted;
 }
 
 # <LJFUNC>

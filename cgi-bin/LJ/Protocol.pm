@@ -1965,7 +1965,7 @@ sub _store_shared_official_edit {
     return $error;
 }
 
-sub _store_entry_visibility_edit {
+sub _store_locked_entry_edit {
     my ( $dbcm, $journal, $itemid, $oldevent, $store ) = @_;
     return undef unless $journal->is_innodb && $dbcm->begin_work;
 
@@ -2065,15 +2065,16 @@ sub editevent {
     # never gets set in the "flat" protocol path
     return fail( $err, 409 ) if length( $req->{event} ) >= LJ::BMAX_EVENT;
 
-    my $official_edit_lock;
-    if ( $uowner->is_community ) {
-        $official_edit_lock = DW::Locker->new->trylock(
-            "official-entry:$ownerid:$itemid",
-            class => 'official_entry',
-            wait  => 5
-        );
-        return fail( $err, 501 ) unless $official_edit_lock;
-    }
+    my ( $lock_prefix, $lock_class ) =
+        $uowner->is_community
+        ? ( 'official-entry', 'official_entry' )
+        : ( 'personal-entry', 'personal_entry' );
+    my $entry_lock = DW::Locker->new->trylock(
+        "$lock_prefix:$ownerid:$itemid",
+        class => $lock_class,
+        wait  => 5
+    );
+    return fail( $err, 501 ) unless $entry_lock;
 
     # fetch the old entry from master database so we know what we
     # really have to update later.  usually people just edit one part,
@@ -2216,6 +2217,7 @@ sub editevent {
     }
 
     my %converted_props;
+    my $normalize_encoding;
     if ( $flags->{partial_edit} && $curprops{$itemid}->{unknown8bit} ) {
         my $props = $req->{props};
         my $has_utf8_prop =
@@ -2225,6 +2227,7 @@ sub editevent {
             delete $props->{unknown8bit};
         }
         else {
+            $normalize_encoding = 1;
             my $old_props = $curprops{$itemid};
             %converted_props = map { $_ => $old_props->{$_} }
                 grep {
@@ -2232,13 +2235,17 @@ sub editevent {
                     && !LJ::is_ascii( $old_props->{$_} )
                     && _is_decodable_logprop($_)
                 } keys %$old_props;
-            my $unused;
-            LJ::item_toutf8(
-                $uowner,
-                $keep_subject ? \$req->{subject} : \$unused,
-                $keep_event   ? \$req->{event}   : \$unused,
-                \%converted_props
-            );
+            my @retained = map { \$converted_props{$_} } keys %converted_props;
+            push @retained, \$req->{subject} if $keep_subject;
+            push @retained, \$req->{event}   if $keep_event;
+            for my $value (@retained) {
+                next unless defined $$value;
+                my $error;
+                my $converted = LJ::text_convert( $$value, $uowner, \$error, lossless => 1 );
+                return fail( $err, 208, 'Cannot convert retained legacy entry data without loss' )
+                    unless defined $converted;
+                $$value = $converted;
+            }
         }
     }
 
@@ -2265,7 +2272,7 @@ sub editevent {
     my $prepared_embeds;
     unless ($keep_event) {
         $event = LJ::EmbedModule->transform_rte_post($event);
-        if ($other_author) {
+        if ( $other_author || $normalize_encoding ) {
             $prepared_embeds = LJ::EmbedModule->prepare_module_embed( \$event );
         }
         else {
@@ -2292,7 +2299,7 @@ sub editevent {
         LJ::Tags::get_security_level( $oldevent->{security}, $oldevent->{allowmask} );
     my $new_tag_security = LJ::Tags::get_security_level( $security, $qallowmask );
     my $reclassify_tags  = $old_tag_security != $new_tag_security;
-    my $defer_cache      = $other_author || $visibility_changed;
+    my $defer_cache      = $other_author || $visibility_changed || $normalize_encoding;
 
     my $qyear  = $req->{'year'} + 0;
     my $qmonth = $req->{'mon'} + 0;
@@ -2383,9 +2390,9 @@ sub editevent {
             $curprops{$itemid}->{revnum} + 0, $store );
         return fail( $err, $error ) if $error;
     }
-    elsif ($visibility_changed) {
+    elsif ( $visibility_changed || $normalize_encoding ) {
         return fail( $err, 501 )
-            unless _store_entry_visibility_edit( $dbcm, $uowner, $itemid, $oldevent, $store );
+            unless _store_locked_entry_edit( $dbcm, $uowner, $itemid, $oldevent, $store );
     }
     else {
         return fail( $err, 501, $uowner->errstr ) unless $store->();
