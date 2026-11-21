@@ -27,6 +27,9 @@ sub run {
     # bail very early
     return $ctx->ok if $data->{usejournal};
 
+    delete @{ $ctx->cache }{qw( fg_map fg_state )};
+    my ( $fg_map, $fg_revision ) = $class->groupmap_state($ctx);
+
     my ( @friends, @feeds );
     foreach my $friend ( $class->source_for($ctx)->friends ) {
 
@@ -55,8 +58,14 @@ sub run {
         #        } if $local_fid;
     }
 
-    my $result = $ctx->sink->merge_trust( \@friends )
-        or return $ctx->temp_fail('Could not save all imported access grants.');
+    my $has_custom = grep { $_->{groupmask} & ~1 } @friends;
+    my $result =
+        $ctx->sink->merge_trust( \@friends,
+        ( $has_custom ? ( group_revision => $fg_revision ) : () ),
+        ) or return $ctx->temp_fail('Could not save all imported access grants.');
+    return $ctx->fail(
+'Access filters changed after the imported filter map was created. Re-run the import after finishing filter changes.'
+    ) if $result->{stale_groups};
     return $ctx->fail( '%d imported access grant(s) were not allowed and were skipped.',
         $result->{rejected} )
         if $result->{rejected};

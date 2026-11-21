@@ -75,9 +75,24 @@ for this import (empty if it hasn't run). Read once per job.
 
 =cut
 
+sub groupmap_state {
+    my ( $class, $ctx ) = @_;
+    unless ( exists $ctx->cache->{fg_state} ) {
+        my $sink = $ctx->sink;
+        my ( $map, $rev ) =
+              $sink->can('groupmap_with_revision')
+            ? $sink->groupmap_with_revision
+            : ( $sink->groupmap, undef );
+        $ctx->cache->{fg_map}   = $map;
+        $ctx->cache->{fg_state} = [ $map, $rev ];
+    }
+    return @{ $ctx->cache->{fg_state} };
+}
+
 sub groupmap {
     my ( $class, $ctx ) = @_;
-    return $ctx->cache->{fg_map} ||= $ctx->sink->groupmap;
+    my ($map) = $class->groupmap_state($ctx);
+    return $map;
 }
 
 =head2 C<< $class->remap_groupmask( $ctx, $allowmask ) >>

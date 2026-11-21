@@ -35,14 +35,16 @@ my %VALID_SIZES =
 
 DW::Routing->register_regex(
     qr!^/file/(\d+)$!, \&media_handler,
-    user    => 1,
-    formats => 1,
+    user     => 1,
+    formats  => 1,
+    no_cache => 1,
 );
 DW::Routing->register_regex(
     qr!^/file/(\d+x\d+|full)(/\w:[\d\w]+)*/(\d+)$!,
     \&media_handler,
-    user    => 1,
-    formats => 1,
+    user     => 1,
+    formats  => 1,
+    no_cache => 1,
 );
 DW::Routing->register_string( '/file/list', \&media_manage_handler,   app => 1 );
 DW::Routing->register_string( '/file/edit', \&media_bulkedit_handler, app => 1 );
@@ -170,7 +172,15 @@ sub media_bulkedit_handler {
                 my $selection = delete $props{$displayid}{security};
                 my $mask      = 0;
                 if ( defined $selection ) {
-                    if ( $selection eq 'custom' ) {
+                    if ( $selection eq 'keep' ) {
+                        return media_security_error( $r, $r->HTTP_BAD_REQUEST,
+                            'Invalid image security or access filter. Reload and try again.' )
+                            unless $media->security eq 'usemask'
+                            && ( $media->allowmask & 1 )
+                            && ( $media->allowmask & ~1 );
+                        $selection = undef;
+                    }
+                    elsif ( $selection eq 'custom' ) {
                         $groups   //= $rv->{u}->trust_groups( force_database => 1 );
                         $revision //= $rv->{u}->trust_group_revision;
                         return media_security_error( $r, $r->SERVER_ERROR,
@@ -185,7 +195,8 @@ sub media_bulkedit_handler {
                     }
                     return media_security_error( $r, $r->HTTP_BAD_REQUEST,
                         'Invalid image security or access filter. Reload and try again.' )
-                        unless defined $mask && $selection =~ /\A(?:public|private|usemask)\z/;
+                        if defined $selection
+                        && ( !defined $mask || $selection !~ /\A(?:public|private|usemask)\z/ );
                 }
                 $updates{$displayid} = [ $media, $selection, $mask ];
             }
@@ -227,7 +238,20 @@ sub media_bulkedit_handler {
     foreach my $media (@media) {
         my $id = $media->displayid;
         $rv->{security_selection}{$id} = $media->security;
-        next unless $media->security eq 'usemask' && !( $media->allowmask & 1 );
+        next unless $media->security eq 'usemask';
+        if ( $media->allowmask & 1 ) {
+            next unless $media->allowmask & ~1;
+            $rv->{security_selection}{$id} = 'keep';
+            $rv->{security_options}{$id}   = [
+                @{ $rv->{security} },
+                { value => 'keep', text => 'Keep current (Access List + Custom)' },
+            ];
+            $rv->{selected_groups}{$id} = {
+                map  { $_->{groupnum} => 1 }
+                grep { $media->allowmask & ( 1 << $_->{groupnum} ) } @groups
+            };
+            next;
+        }
         $rv->{security_selection}{$id} = @groups ? 'custom' : 'private';
         $rv->{selected_groups}{$id}    = {
             map  { $_->{groupnum} => 1 }
@@ -261,9 +285,7 @@ sub media_handler {
         $r->status($code);
         return $r->NOT_FOUND if $code == 404;
 
-        # don't cache transient error responses
-        $r->header_out( "Cache-Control" => "no-cache" );
-
+        $r->no_cache;
         $r->print($message);
         return $r->OK;
     };

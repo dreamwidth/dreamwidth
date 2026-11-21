@@ -42,13 +42,23 @@ Returns a map of old-id to new-id, or undef if any group could not be saved.
 =cut
 
 sub merge_trust_groups {
-    my ( $class, $u, $groups ) = @_;
-    return {} unless $groups && @$groups;
-    return $u->with_trust_groups_lock( sub { _merge_trust_groups( $u, $groups ) } );
+    my ( $class, $u, $groups, %opts ) = @_;
+    if ( !$groups || !@$groups ) {
+        return {} unless ref $opts{revision} eq 'SCALAR';
+        return $u->with_trust_groups_lock(
+            sub {
+                my $revision = $u->trust_group_revision;
+                return undef unless defined $revision;
+                ${ $opts{revision} } = $revision;
+                return {};
+            }
+        );
+    }
+    return $u->with_trust_groups_lock( sub { _merge_trust_groups( $u, $groups, \%opts ) } );
 }
 
 sub _merge_trust_groups {
-    my ( $u, $groups ) = @_;
+    my ( $u, $groups, $opts ) = @_;
 
     # map our existing groups to name->id so we can use this list
     # later to map groups if we've imported before
@@ -89,6 +99,12 @@ sub _merge_trust_groups {
 
         return undef unless $id;
         $map{ $group->{id} } = $id;
+    }
+
+    if ( ref $opts->{revision} eq 'SCALAR' ) {
+        my $revision = $u->trust_group_revision;
+        return undef unless defined $revision;
+        ${ $opts->{revision} } = $revision;
     }
 
     return \%map;

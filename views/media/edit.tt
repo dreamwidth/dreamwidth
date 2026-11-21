@@ -72,7 +72,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                             label = dw.ml(".edit.security")
                             type = "select"
                             name="security-$obj.displayid"
-                            items = security
+                            items = security_options.item(obj.displayid) || security
                             selected = security_selection.item(obj.displayid)
                             labelSize = 4
                         -%]

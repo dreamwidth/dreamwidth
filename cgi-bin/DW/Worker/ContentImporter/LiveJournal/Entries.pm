@@ -77,7 +77,8 @@ sub run {
     ) if %has;
     $title->('post-prune');
 
-    my $groupmap = $class->groupmap($ctx);
+    delete @{ $ctx->cache }{qw( fg_map fg_state )};
+    my ( $groupmap, $group_revision ) = $class->groupmap_state($ctx);
 
     # this is a useful helper sub we use
     my $process_entry = sub {
@@ -151,8 +152,16 @@ sub run {
         $evt->{event} = $event;
 
         # actually post it
-        my ( $ok, $res ) =
-            $sink->post_entry( $evt, posterid => $posterid, errors => \@item_errors );
+        my ( $ok, $res ) = $sink->post_entry(
+            $evt,
+            posterid => $posterid,
+            errors   => \@item_errors,
+            (
+                $evt->{security} eq 'usemask' && ( $evt->{allowmask} & ~1 )
+                ? ( group_revision => $group_revision )
+                : ()
+            ),
+        );
         $sink->note( warning => target => $evt->{key}, text => $_ ) foreach @item_errors;
 
         # we don't need this text anymore, so nuke it to try to save memory

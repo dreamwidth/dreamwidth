@@ -126,6 +126,8 @@ test_psgi $app, sub {
             qr/relationship cleanup.*incomplete/i,
             'settings reports incomplete cleanup'
         );
+        my @cleanup_alerts = $settings->content =~ /Relationship cleanup is incomplete\./g;
+        is( scalar @cleanup_alerts, 1, 'settings renders the incomplete-cleanup alert once' );
         unlike(
             $settings->content,
             qr/Successfully changed settings/,

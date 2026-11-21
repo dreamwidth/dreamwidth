@@ -53,11 +53,34 @@ Returns a hashref with the count of rejected grants, or undef if a write should 
 
 sub merge_trust {
     my ( $class, $u, $opts, $friends ) = @_;
+    $opts ||= {};
+    my $check_rev    = exists $opts->{group_revision};
+    my $expected_rev = $opts->{group_revision};
+    return { rejected => 0, stale_groups => 1 }
+        if $check_rev && !defined $expected_rev;
+
+    if ($check_rev) {
+        my $current_rev = $u->trust_group_revision;
+        return undef unless defined $current_rev;
+        return { rejected => 0, stale_groups => 1 }
+            if $current_rev != $expected_rev;
+    }
+
     my $rejected = 0;
     foreach my $friend (@$friends) {
         my $to_u  = LJ::load_userid( $friend->{userid} ) or return undef;
-        my $trust = { mask => $friend->{groupmask}, nonotify => 1, policy_rejected => 0 };
+        my $trust = {
+            mask            => $friend->{groupmask},
+            nonotify        => 1,
+            policy_rejected => 0,
+            (
+                $check_rev
+                ? ( group_revision => $expected_rev, stale_groups => 0 )
+                : ()
+            ),
+        };
         next if $u->add_edge( $to_u, trust => $trust );
+        return { rejected => $rejected, stale_groups => 1 } if $trust->{stale_groups};
         return undef unless $trust->{policy_rejected};
         $rejected++;
     }
