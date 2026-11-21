@@ -74,8 +74,8 @@ sub _process {
     my $self = $_[0];
 
     $self->_extract_pin;
-    $self->_extract_post_headers;
-    $self->_extract_pin unless $self->{pin};
+    my $headers = $self->_extract_post_headers;
+    $self->_extract_post_headers($headers) if !$self->{pin} && $self->_extract_pin;
     $self->_check_pin_validity      or return $self->send_error;
     $self->_cleanup_mobile_carriers or return $self->send_error;
 

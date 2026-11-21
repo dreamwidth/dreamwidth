@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 113;
+use Test::More tests => 123;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -161,6 +161,43 @@ BODY
 {
     my $jitemid  = 5;
     my $preamble = "<!DOCTYPE html>\n<html>\n<head><title>Email title</title></head>\n";
+
+    my $pin_mime = build_message(
+        'Body PIN between settings',
+        'text/plain',
+"post-format: html\n+$emailpin\nlj-format: markdown\npost-security: private\n\nA private post.",
+        "$user\@$user_email_info->{POSTDOMAIN}"
+    );
+    my ( $pin_ok, $pin_msg ) = DW::EmailPost->get_handler($pin_mime)->process;
+    ok( $pin_ok, 'Posted an entry authenticated by a body PIN between settings' ) or diag $pin_msg;
+    my $pin_entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $pin_entry->security, 'private', 'Setting after the PIN sets private security' );
+    is(
+        $pin_entry->prop('editor'),
+        DW::Formats::validate('html_casual_latest'),
+        'Modern format setting before the PIN takes precedence over legacy format'
+    );
+    like( $pin_entry->event_raw, qr/\A\s*A private post\.\z/,
+        'Settings and PIN are not published' );
+
+    for my $case ( [ 'unclosed', '' ], [ 'closed', "\n-->\npost-icon: unknown" ] ) {
+        my ( $label, $closing ) = @$case;
+        my $mime = build_message(
+            "Setting with a $label HTML comment",
+            'text/html',
+"post-security: private\npost-format: html <!-- mail note\npost-security: public$closing\n\nMessage"
+        );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted an entry with a $label comment on a setting line" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private',
+            "Security setting inside a $label comment is not applied" );
+        is(
+            $entry->prop('editor'),
+            DW::Formats::validate('html_casual_latest'),
+            "Format setting before a $label comment still applies"
+        );
+    }
     for my $multipart ( 0, 1 ) {
         my $label   = $multipart ? 'multipart HTML fallback'        : 'HTML-only email';
         my $opening = $multipart ? "<!-- mail client -->\n<body>\n" : '<body>';
@@ -336,10 +373,10 @@ BODY
 }
 
 sub build_message {
-    my ( $subject, $type, $body ) = @_;
+    my ( $subject, $type, $body, $destination ) = @_;
     return MIME::Entity->build(
         From    => $user_email_info->{FROM_EMAIL},
-        To      => "$user+$emailpin\@$user_email_info->{POSTDOMAIN}",
+        To      => $destination // "$user+$emailpin\@$user_email_info->{POSTDOMAIN}",
         Date    => 'Mon, 1 Jan 2007 12:28:00 -0800',
         Subject => $subject,
         Type    => $type,
