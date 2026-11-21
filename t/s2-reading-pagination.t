@@ -15,6 +15,7 @@
 use strict;
 use warnings;
 
+use POSIX qw(tzset);
 use Test::More;
 use URI;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -24,70 +25,169 @@ use LJ::S2;
 no warnings 'redefine';
 local *LJ::S2::Page   = sub { return { head_content => '' }; };
 local *LJ::S2::Friend = sub { return {}; };
-local *LJ::S2::Entry_from_entryobj =
-    sub { return { time => { year => 2000, month => 1, day => 1 } }; };
+local *LJ::S2::Entry_from_entryobj = sub {
+    my ( undef, $entry ) = @_;
+    return {
+        time => { year => 2000, month => 1, day => 1 },
+        id   => join( ':', $entry->journalid, $entry->jitemid ),
+    };
+};
 local *LJ::Talk::init_s2journal_js          = sub { };
 local *LJ::Talk::init_s2journal_shortcut_js = sub { };
 local *LJ::need_res                         = sub { };
-local *S2::get_property_value               = sub { return 2; };
+local *S2::get_property_value               = sub { return 3; };
 use warnings 'redefine';
 
 with_fake_memcache {
-    my $reader = temp_user();
-    my $writer = temp_user();
+    local $ENV{TZ} = 'UTC+08';
+    tzset();
+    my $reader          = temp_user();
+    my $writer          = temp_user();
+    my $midnight_writer = temp_user();
     $reader->{_journalbase} = 'https://journal.example';
-    $reader->add_edge( $writer, watch => { nonotify => 1 } );
-    my $oldest = $writer->t_post_fake_entry();
-    $writer->t_post_fake_entry( body => "Reading page entry $_" ) for 1 .. 4;
-    my $date = LJ::mysql_date( $oldest->logtime_unix );
+    $reader->add_edge( $_, watch => { nonotify => 1 } ) for ( $writer, $midnight_writer );
+    $writer->add_edge( $reader, trust => { nonotify => 1 } );
+    my $now           = time();
+    my $start         = $now - $now % 86400 - 2 * 86400;
+    my $end           = $start + 86400;
+    my $date          = LJ::mysql_date( $start, 1 );
+    my $next_date     = LJ::mysql_date( $end, 1 );
+    my $previous_date = LJ::mysql_date( $start - 86400, 1 );
+    my $dbh           = LJ::get_db_writer();
+
+    my $post = sub {
+        my ( $journal, $time, $security ) = @_;
+        my $entry =
+            $journal->t_post_fake_entry( security => $security, body => "Fixture at $time" );
+        $journal->do(
+            'UPDATE log2 SET rlogtime=? WHERE journalid=? AND jitemid=?',
+            undef, $LJ::EndOfTime - $time,
+            $journal->id, $entry->jitemid
+        ) or die 'Could not set test posting time';
+        return join( ':', $journal->id, $entry->jitemid );
+    };
+
+    my @public = map { $post->( $writer, $start + $_, 'public' ) } 0 .. 8;
+    my $locked = $post->( $writer, $start + 9, 'friends' );
+    $post->( $writer, $start + 10, 'private' );
+    my $next        = $post->( $writer,          $end, 'public' );
+    my $new_journal = $post->( $midnight_writer, $end, 'public' );
+    $dbh->do( 'UPDATE userusage SET timecreate=FROM_UNIXTIME(?) WHERE userid=?',
+        undef, $start, $writer->id )
+        or die 'Could not set creation time';
+    $dbh->do( 'UPDATE userusage SET timecreate=FROM_UNIXTIME(?) WHERE userid=?',
+        undef, $end, $midnight_writer->id )
+        or die 'Could not set creation time';
+
+    for my $journal ( $writer, $midnight_writer ) {
+        LJ::MemCache::delete( [ $journal->id, 'tc:' . $journal->id ] );
+        LJ::MemCache::delete( [ $journal->id, 'log2lt:' . $journal->id ] );
+    }
 
     my $read_page = sub {
         my ( $viewer, %query ) = @_;
         LJ::set_remote($viewer);
-        return LJ::S2::FriendsPage( $reader, $viewer, { view => 'read', getargs => \%query } );
+        return LJ::S2::FriendsPage( $reader, $viewer,
+            { view => 'read', getargs => \%query, securityfilter => $query{security} } );
     };
-    my $older = sub {
-        my ($page) = @_;
-        return { URI->new( $page->{nav}->{backward_url} || '' )->query_form };
+    my $link = sub {
+        my ( $page, $direction ) = @_;
+        return { URI->new( $page->{nav}->{"${direction}_url"} || '' )->query_form };
+    };
+    my $older = sub { $link->( $_[0], 'backward' ) };
+    my $newer = sub { $link->( $_[0], 'forward' ) };
+    my $ids   = sub {
+        [ map { $_->{id} } @{ $_[0]->{entries} } ]
     };
 
     $reader->add_to_class('paid_user') or die 'Cannot make test reader paid';
     ok( $reader->can_use_daily_readpage, 'the paid test reader can browse by date' );
-    local $LJ::MAX_SCROLLBACK_FRIENDS = 1000;
+    local $LJ::MAX_SCROLLBACK_FRIENDS = 8;
 
-    is( $older->( $read_page->($reader) )->{skip}, 2, 'ordinary pages still use skip pagination' );
-    my $last = $read_page->( $reader, skip => 4, show => 'P', filter => 0 );
+    my %selection = ( show => 'P', filter => 0, security => 'public' );
+    my $first     = $read_page->( $reader, %selection );
+    is_deeply( $older->($first), { %selection, skip => 3 }, 'ordinary links preserve filters' );
+    my $second = $read_page->( $reader, %{ $older->($first) } );
+    is( $older->($second)->{skip}, 5, 'regular navigation links to its actual clamped offset' );
+    my $last = $read_page->( $reader, %{ $older->($second) } );
+    is_deeply( $newer->($last), { %selection, skip => 3 }, 'newer link reverses the short step' );
     is_deeply(
         $older->($last),
-        { date => $date, show => 'P', filter => 0 },
-'the last page links to the oldest entry’s posting date, retaining filters and dropping skip'
-    );
-    my $daily = $older->($last)->{date} && $read_page->( $reader, %{ $older->($last) } );
-    is( $daily && $older->($daily)->{skip}, 2, 'the date link opens daily pagination' );
-    my $yesterday = LJ::mysql_date( LJ::mysqldate_to_time($date) - 86400 );
-    is( $older->( $read_page->( $reader, date => $date, skip => 4 ) )->{date},
-        $yesterday, 'the last page for a day links to the previous day' );
-    is(
-        $older->( $read_page->( $reader, date => $yesterday ) )->{date},
-        LJ::mysql_date( LJ::mysqldate_to_time($yesterday) - 86400 ),
-        'an empty dated page still links to the previous day'
+        { %selection, date => $date },
+        'the regular limit links to the oldest visible UTC posting date with filters intact'
     );
 
-    local $LJ::MAX_SCROLLBACK_FRIENDS = 4;
-    is( $older->( $read_page->( $reader, skip => 2 ) )->{date},
-        $date, 'the entry-count limit also switches to a date' );
+    my %query = %{ $older->($last) };
+    my @seen;
+    for my $offset ( 0, 3, 6 ) {
+        my $day = $read_page->( $reader, %query );
+        push @seen, @{ $ids->($day) };
+        my %back = $offset ? ( date => $date ) : ( date => $next_date );
+        $back{skip} = $offset - 3 if $offset > 3;
+        is_deeply( $newer->($day), { %selection, %back }, "newer link at daily offset $offset" );
+        %query = %{ $older->($day) };
+    }
+    is_deeply(
+        \@seen,
+        [ reverse @public ],
+        'dated links reach every public post, including exact midnight and beyond the regular cap'
+    );
+    is_deeply(
+        \%query,
+        { %selection, date => $previous_date },
+        'only the final daily page links back a day'
+    );
+    my $adjacent = $read_page->( $reader, date => $next_date );
+    is_deeply(
+        [ sort @{ $ids->($adjacent) } ],
+        [ sort $next, $new_journal ],
+        'next midnight belongs only to the next day, including a journal created at that boundary'
+    );
+    is_deeply( $ids->( $read_page->( $reader, date => $date, security => 'access' ) ),
+        [$locked], 'access filtering returns the trusted entry, not the private or public ones' );
+    my $times = LJ::get_times_multi( { memcache_only => 1 }, $writer->id, $midnight_writer->id );
+    is( $times->{created}->{ $writer->id }, $start, 'the cached creation time is the day start' );
+    is( $times->{created}->{ $midnight_writer->id },
+        $end, 'another journal has its own creation time cached' );
+    is(
+        $older->( $read_page->( $reader, date => $previous_date ) )->{date},
+        LJ::mysql_date( $start - 2 * 86400, 1 ),
+        'an empty dated page still links to the previous day'
+    );
+    is( $older->( $read_page->( $reader, date => '1970-01-01' ) )->{date},
+        '1969-12-31', 'the Unix epoch is a valid date' );
+    is( $older->( $read_page->( $reader, date => '2025-02-30' ) )->{skip},
+        3, 'a nonexistent day falls back to regular pagination' );
+
+    local $LJ::MAX_SCROLLBACK_FRIENDS = 1000;
+    is( $older->( $read_page->( $reader, skip => 9 ) )->{date},
+        $date, 'running out of posts before the count limit also switches to a date' );
     ok(
-        !$older->( $read_page->( $writer, skip => 2 ) )->{date},
+        !$older->( $read_page->( $writer, skip => 9 ) )->{date},
         'someone else’s reading page does not offer date mode'
     );
+    for my $viewer ( $writer, undef ) {
+        my $regular = $read_page->($viewer);
+        my $dated   = $read_page->( $viewer, date => $date );
+        is_deeply( $ids->($dated), $ids->($regular),
+            'a non-owner date request shows regular posts' );
+        ok( !grep( { $_ eq $locked } @{ $ids->($dated) } ),
+            'a non-owner date request does not reveal the access-locked post' );
+    }
 
     $reader->remove_from_class('paid_user') or die 'Cannot make test reader free';
     ok( !$reader->can_use_daily_readpage, 'the free test reader cannot browse by date' );
     ok(
-        !$older->( $read_page->( $reader, skip => 2 ) )->{date},
+        !$older->( $read_page->( $reader, skip => 9 ) )->{date},
         'an account without the capability does not get a date link'
+    );
+    is_deeply(
+        $ids->( $read_page->( $reader, date => $date ) ),
+        $ids->( $read_page->($reader) ),
+        'a free owner date request shows regular posts'
     );
     LJ::unset_remote();
 };
+tzset();
 
 done_testing;

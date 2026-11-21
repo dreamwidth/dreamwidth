@@ -1740,17 +1740,13 @@ sub get_log2_row {
 # security, allowmask, journalid, jitemid, anum.
 
 sub get_log2_recent_log {
-    my ( $u, $cid, $update, $notafter, $events_date ) = @_;
+    my ( $u, $cid, $update, $notafter, $events_day ) = @_;
     my $jid = LJ::want_userid($u);
     $cid ||= $u->{'clusterid'} if ref $u;
 
     my $DATAVER = "4";    # 1 char
 
-    my $use_cache = 1;
-
-    # timestamp
-    $events_date = ( !defined $events_date || $events_date eq "" ) ? 0 : int $events_date;
-    $use_cache = 0 if $events_date;    # do not use memcache for dayly friends log
+    my $use_cache = !$events_day;
 
     my $memkey  = [ $jid, "log2lt:$jid" ];
     my $lockkey = $memkey->[1];
@@ -1874,17 +1870,17 @@ sub get_log2_recent_log {
          WHERE
                 journalid=?
          " . (
-        $events_date
-        ? "AND rlogtime <= ($LJ::EndOfTime - $events_date)
-               AND rlogtime >= ($LJ::EndOfTime - " . ( $events_date + 24 * 3600 ) . ")"
+        $events_day
+        ? "AND rlogtime <= ? AND rlogtime > ?
+           ORDER BY rlogtime, eventtime DESC, jitemid DESC"
         : "AND rlogtime <= ($LJ::EndOfTime - UNIX_TIMESTAMP()) + $max_age"
     );
 
     my $sth = $db->prepare($sql);
-    $sth->execute($jid);
+    $sth->execute( $jid, $events_day ? map { $LJ::EndOfTime - $_ } @$events_day : () );
     my @row = ();
     push @row, $_ while $_ = $sth->fetchrow_hashref;
-    @row = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} } @row;
+    @row = sort { $a->{'rlogtime'} <=> $b->{'rlogtime'} } @row unless $events_day;
     my $itemnum = 0;
 
     foreach my $item (@row) {
@@ -1924,7 +1920,7 @@ sub get_log2_recent_user {
 
     my $log = LJ::get_log2_recent_log(
         $opts->{'userid'},   $opts->{'clusterid'}, $opts->{'update'},
-        $opts->{'notafter'}, $opts->{events_date}
+        $opts->{'notafter'}, $opts->{events_day}
     );
 
     my $left     = $opts->{'itemshow'};
