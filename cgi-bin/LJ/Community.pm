@@ -352,7 +352,7 @@ sub join_community {
     return 1 if $u->watches($cu);
 
     # watch the comm
-    $u->add_edge( $cu, watch => {} );
+    return 1 unless $u->add_edge( $cu, watch => {} );
 
     # also automatically add to default view, as most useful behavior
     # this only applies if we are doing a quick / easy join, so it won't affect

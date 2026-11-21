@@ -61,7 +61,7 @@ Remembers the group map for the import, for entries and friends to use. Returns 
 
 =item C<< merge_trust( \@friends ) >>
 
-Returns true on success.
+Returns a hashref with the count of rejected grants, or undef on a retryable failure.
 
 =item C<< merge_interests( \@interests ) >>
 

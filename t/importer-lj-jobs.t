@@ -329,6 +329,31 @@ subtest 'LiveJournal access stages retry instead of reporting partial success' =
         1 | ( 1 << $map->{3} ),
         'retried grant uses the saved map'
     );
+
+    my $banned   = temp_user();
+    my $eligible = temp_user();
+    $u->ban_user($banned);
+    local *Test::TrustSource::friends = sub {
+        return map { { username => $_->user, groupmask => 9 } } ( $banned, $eligible );
+    };
+    local *DW::Worker::ContentImporter::LiveJournal::get_remapped_userids =
+        sub { return LJ::load_user( $_[2] )->id };
+    $lock = $u->lock_trust_groups or die 'cannot hold owner lock';
+    is( $friends->run($ctx)->status, 'temp_fail', 'write contention still retries a mixed batch' );
+    $lock->release;
+    my $outcome = $friends->run($ctx);
+    is( $outcome->status, 'fail', 'a rejected grant is reported without asking for a retry' );
+    like(
+        $outcome->message,
+        qr/1 imported access grant.*not allowed/i,
+        'reports the skipped grant'
+    );
+    ok( !$u->trustmask_from_primary($banned), 'the banned friend is not granted access' );
+    is(
+        $u->trustmask_from_primary($eligible),
+        1 | ( 1 << $map->{3} ),
+        'the following eligible friend receives the mapped grant'
+    );
 };
 
 done_testing();

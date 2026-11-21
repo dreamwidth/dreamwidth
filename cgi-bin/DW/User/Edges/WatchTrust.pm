@@ -55,8 +55,9 @@ DW::User::Edges::define_edge(
         type    => 'hashref',
         db_edge => 'T',
         options => {
-            mask     => { required => 0, type => 'int' },
-            nonotify => { required => 0, type => 'bool', default => 0 },
+            mask            => { required => 0, type => 'int' },
+            nonotify        => { required => 0, type => 'bool', default => 0 },
+            policy_rejected => { required => 0, type => 'bool' },
         },
         add_sub => \&_add_wt_edge,
         del_sub => \&_del_wt_edge,
@@ -77,14 +78,20 @@ sub _add_wt_edge {
     my $do_trust = $trust_edge ? 1 : 0;
     $trust_edge ||= {};
 
-    # throw errors if we're not allowed
-    return 0 if $do_watch && !$from_u->can_watch($to_u);
-    return 0 if $do_trust && !$from_u->can_trust($to_u);
+    my $policy_rejected =
+        exists $trust_edge->{policy_rejected}
+        ? \$trust_edge->{policy_rejected}
+        : undef;
+    $$policy_rejected = 0 if $policy_rejected;
+
+    my $lock = DW::User::_lock_trust_group_write($from_u) or return 0;
+    my $dbh = LJ::get_db_writer() or return 0;
+    my $current = LJ::load_userid( $from_u->id, 'force' ) or return 0;
+    return 0 if $do_watch && !$current->can_watch($to_u);
+    return 0 if $do_trust && !$current->can_trust( $to_u, policy_rejected => $policy_rejected );
 
     # get current record, so we know what to modify
-    my $lock = DW::User::_lock_trust_group_write($from_u) or return 0;
-    my $dbh  = LJ::get_db_writer()                        or return 0;
-    my $row  = $dbh->selectrow_hashref(
+    my $row = $dbh->selectrow_hashref(
         'SELECT fgcolor, bgcolor, groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
         undef, $from_u->id, $to_u->id
     );
@@ -1065,7 +1072,9 @@ sub can_trust {
     $u  = LJ::want_user($u) or confess 'invalid user object';
     $tu = LJ::want_user($tu);
 
-    my $errref = $opts{errref};
+    my $errref          = $opts{errref};
+    my $policy_rejected = $opts{policy_rejected};
+    $$policy_rejected = 1 if $policy_rejected;
 
     # the user must be an individual
     unless ( $u->is_individual ) {
@@ -1107,6 +1116,7 @@ sub can_trust {
     }
 
     # check limits
+    $$policy_rejected = 0 if $policy_rejected;
     return 0 unless _can_add_wt_edge( $u, $errref, { target => $tu } );
 
     # okay, good to go!

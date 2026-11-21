@@ -232,40 +232,41 @@ sub index_handler {
 
     # get most popular feeds from memcache (limit 100)
     my $popsyn = LJ::Feed::get_popular_feeds();
-    my @pop;
+    my ( @pop, @failed );
 
     # populate @pop and subscribe to any popular feeds they've chosen
     for ( 0 .. 99 ) {
         next unless defined $popsyn->[$_];
         my ( $user, $name, $suserid, $url, $count ) = @{ $popsyn->[$_] };
+        my $selected = $post_args->{'action:add'} && $post_args->{"add_$user"};
+        next if !$selected && @pop >= 20;
 
         my $suser = LJ::load_userid($suserid) or next;
 
         # skip suspended/deleted accounts & already watched feeds
         next if $watched{$suserid} || !$suser->is_visible;
 
-        if ( $post_args->{'action:add'} && $post_args->{"add_$user"} ) {
-            $remote->add_edge( $suser, watch => {} );
-            $remote->add_to_default_filters($suser);
+        my $feed = { user => $user, url => $url, count => $count, u => $suser, name => $name };
+        if ($selected) {
+            if ( $remote->add_edge( $suser, watch => {} ) ) {
+                $remote->add_to_default_filters($suser);
+            }
+            else {
+                push @failed, $feed;
+            }
         }
         else {
-            # @pop only holds the top 20 unsubscribed feeds
-            push @pop,
-                {
-                user  => $user,
-                url   => $url,
-                count => $count,
-                u     => $suser,
-                name  => $name
-                };
-            last if @pop >= 20;
+            push @pop, $feed;
         }
     }
 
     # if we got to this point, we need to render the index template
 
-    $rv->{poplist} = \@pop if @pop;
-    $rv->{xmlimg}  = LJ::img( 'xml', '', { border => 0 } );
+    splice @pop, @failed < 20 ? 20 - @failed : 0 if @pop + @failed > 20;
+    unshift @pop, @failed;
+    $rv->{subscription_failed} = 1     if @failed;
+    $rv->{poplist}             = \@pop if @pop;
+    $rv->{xmlimg} = LJ::img( 'xml', '', { border => 0 } );
 
     return DW::Template->render_template( 'feeds/index.tt', $rv );
 }
