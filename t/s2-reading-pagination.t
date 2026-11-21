@@ -145,6 +145,30 @@ with_fake_memcache {
     );
     is_deeply( $ids->( $read_page->( $reader, date => $date, security => 'access' ) ),
         [$locked], 'access filtering returns the trusted entry, not the private or public ones' );
+
+    my $utf8_group = "caf\xc3\xa9 & tea";
+    my $group_id   = $reader->create_trust_group( groupname => $utf8_group )
+        or die 'Cannot create non-ASCII trust group';
+    my %utf8_args = LJ::parse_args("date=$date&security=group%3Acaf%C3%A9%20%26%20tea");
+    LJ::set_remote($reader);
+    my $group_page = LJ::S2::FriendsPage( $reader, $reader,
+        { view => 'read', getargs => \%utf8_args, securityfilter => $group_id } );
+    is( $group_page->{filter_name},
+        $utf8_group, 'numeric trust group security filter preserves non-ASCII group name' );
+
+    for my $direction (qw(backward forward)) {
+        my %parsed = LJ::parse_args( URI->new( $group_page->{nav}->{"${direction}_url"} )->query );
+        is( $parsed{security}, "group:$utf8_group",
+            "$direction link preserves non-ASCII UTF-8 security=group:... bytes" );
+        my ($round_tripped_name) = $parsed{security} =~ /\Agroup:(.+)\z/;
+
+        # _trust_groups shifts the cached arrayref in place, which mutates fake memcache.
+        LJ::MemCache::delete( [ $reader->id, 'trust_group:' . $reader->id ] );
+        my $resolved = $reader->trust_groups( name => $round_tripped_name );
+        is( $resolved ? $resolved->{groupnum} : undef,
+            $group_id, "$direction link security group resolves back to the trust group" );
+    }
+
     my $times = LJ::get_times_multi( { memcache_only => 1 }, $writer->id, $midnight_writer->id );
     is( $times->{created}->{ $writer->id }, $start, 'the cached creation time is the day start' );
     is( $times->{created}->{ $midnight_writer->id },
