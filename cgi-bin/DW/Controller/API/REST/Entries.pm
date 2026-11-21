@@ -276,6 +276,9 @@ sub edit_entry {
         return $self->rest_error('404');
     }
 
+    return $self->rest_error( '400', 'Entry text must contain a non-whitespace character.' )
+        if exists $post->{text} && ( $post->{text} // '' ) !~ /\S/;
+
     # an omitted datetime keeps the entry's current date
     if ( $post->{datetime} ) {
         my ( $date, $time ) = split( / /, $post->{datetime} );
