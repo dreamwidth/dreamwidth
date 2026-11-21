@@ -238,14 +238,29 @@ sub _extract_post_headers {
     my $is_html = $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html';
     pos($body) = _html_header_offset($body) if $is_html;
 
-    my $start  = pos($body);
-    my $end    = $start;
-    my $markup = '';
-    my $inline_tag =
-qr{<(?:(?:b|em|i|s|small|span|strong|u)(?:[ \t][^<>\r\n]*)?|/(?:b|em|i|s|small|span|strong|u)[ \t]*)>}i;
-    my $value_text  = $is_html ? qr/(?:[^<\r\n]|$inline_tag)*+/   : qr/[^\r\n]*/;
+    my $start        = pos($body);
+    my $end          = $start;
+    my $markup       = '';
+    my $inline_name  = qr/(?:b|em|i|s|small|span|strong|u)/i;
+    my $inline_attrs = qr{
+        \s++
+        (?:
+            [^\s"'<>\/=]++
+            (?:
+                \s*+ = \s*+
+                (?:
+                    "[^"]*" \s*+
+                    | '[^']*' \s*+
+                    | [^\s"'=<>`]++ (?: \s++ | (?=\/?\s*+>) )
+                )
+                | (?: \s++ | (?=\/?\s*+>) )
+            )
+        )*+
+    }x;
+    my $inline_tag  = qr{<(?:$inline_name(?:$inline_attrs)?\/?>|\/$inline_name\s*+>)}i;
+    my $value_text  = $is_html ? qr/(?:[^<\r\n]|$inline_tag)*+/ : qr/[^\r\n]*/;
     my $value_start = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
-    my $value_end   = $is_html ? qr/(?=<)|\r?\n|\z/               : qr/\r?\n|\z/;
+    my $value_end   = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
 
     while (1) {
         if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
