@@ -424,6 +424,138 @@ sub meta_window {
         1, 'before more is fetched' );
 }
 
+for my $case (
+    [ 'empty first metadata window',  1, undef ],
+    [ 'empty middle metadata window', 0, undef ],
+    [ 'fractional metadata cursor',   1, '1.5' ],
+    [ 'malformed metadata cursor',    1, '7oops' ],
+    [ 'non-ASCII metadata cursor',    1, '7&#x0662;' ],
+    [ 'equal metadata cursor',        0, 4 ],
+    [ 'backward metadata cursor',     0, 2 ],
+    )
+{
+    my ( $name, $first_window_empty, $cursor ) = @$case;
+    subtest $name => sub {
+        my $empty   = meta_window( first => 1, last => 0, max => 7, next => $cursor );
+        my %windows = (
+            1 => $first_window_empty
+            ? $empty
+            : meta_window( first => 1, last => 3, max => 7, poster => 0 ),
+            4 => $empty,
+            7 => meta_window( first => 7, last => 7, max => 7, poster => 0 ),
+        );
+        my $site = Test::Site->new(
+            export => {
+                comment_meta => sub { delete $windows{ $_[0] } }
+            }
+        );
+
+        my $meta;
+        my $outcome = outcome_of( sub { $meta = source($site)->comment_meta } );
+        is( $outcome, undef, 'an empty window does not stop the import' );
+        is_deeply(
+            [ map { $_->[1] } @{ $site->{asked} } ],
+            [ 1, 4, 7 ],
+            'each window is requested once'
+        );
+        is_deeply(
+            [ sort { $a <=> $b } keys %{ $meta->{comments} // {} } ],
+            $first_window_empty ? [7] : [ 1, 2, 3, 7 ],
+            'later comments are still found'
+        );
+    };
+}
+
+for my $tag (qw( nextid maxid )) {
+    subtest "duplicate metadata $tag" => sub {
+        my %windows = (
+            1 => meta_window(
+                first  => 1,
+                last   => 1,
+                max    => '1&#54;',
+                next   => '1&#52;',
+                poster => 0
+            ),
+            14 => meta_window( first => 16, last => 16, poster => 0 ),
+        );
+        $windows{1} =~ s{(<$tag>[^<]+</$tag>)}{$1$1};
+        my $site = Test::Site->new(
+            export => {
+                comment_meta => sub { delete $windows{ $_[0] } }
+            }
+        );
+
+        my $meta;
+        my $outcome = outcome_of( sub { $meta = source($site)->comment_meta } );
+        is( $outcome, undef, 'the metadata import succeeds' );
+        is_deeply(
+            [ map { $_->[1] } @{ $site->{asked} } ],
+            [ 1, 14 ],
+            'only the two expected windows are requested'
+        );
+        is( $meta->{max_id}, 16, 'the maximum is kept as one element value' );
+        is_deeply(
+            [ sort keys %{ $meta->{comments} // {} } ],
+            [ 1, 16 ],
+            'the duplicate does not skip the later comment'
+        );
+    };
+}
+
+subtest 'metadata encoding retry' => sub {
+    my %windows = (
+        1 => meta_window(
+            first  => 1,
+            last   => 2,
+            max    => 4,
+            next   => 4,
+            poster => 10,
+            users  => [ [ 10, 'alice' ], [ 11, "caf\xe9" ] ],
+        ),
+        4 => meta_window( first => 4, last => 4, poster => 11 ),
+    );
+    my $site = Test::Site->new(
+        export => {
+            comment_meta => sub { delete $windows{ $_[0] } }
+        }
+    );
+
+    my @usermap;
+    my $meta = source($site)->comment_meta( after_window => sub { push @usermap, @{ $_[1] } } );
+    is_deeply( [ map { $_->[1] } @{ $site->{asked} } ], [ 1, 4 ], 'the cursor survives retry' );
+    is_deeply( [ sort keys %{ $meta->{comments} } ], [ 1, 2, 4 ],
+        'later comments are still found' );
+    is_deeply( \@usermap, [ [ 10, 'alice' ], [ 11, "caf\x{e9}" ] ], 'each user is reported once' );
+};
+
+subtest 'unparseable metadata window' => sub {
+    my %windows = (
+        1 => meta_window( first => 1, last => 3, max => 7, poster => 0 ),
+        4 => qq{<?xml version="1.0" encoding="utf-8"?><livejournal><usermap id="10" user="alice"/>},
+        7 => meta_window( first => 7, last => 7, poster => 0 ),
+    );
+    my $site = Test::Site->new(
+        export => {
+            comment_meta => sub { delete $windows{ $_[0] } }
+        }
+    );
+
+    my @after;
+    my $outcome;
+    {
+        local $SIG{__WARN__} = sub { };
+        $outcome = outcome_of(
+            sub {
+                source($site)->comment_meta( after_window => sub { push @after, [@_] } );
+            }
+        );
+    }
+    is( ref $outcome eq 'DW::Importer::Outcome' ? $outcome->status : $outcome,
+        'temp_fail', 'unparseable metadata is a temporary failure' );
+    is_deeply( \@after, [ [ 7, [] ] ], 'only the valid window is delivered' );
+    is_deeply( [ map { $_->[1] } @{ $site->{asked} } ], [ 1, 4 ], 'no later window is requested' );
+};
+
 # bodies
 sub body_window {
     my (%o) = @_;

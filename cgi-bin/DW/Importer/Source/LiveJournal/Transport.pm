@@ -24,7 +24,7 @@ DW::Importer::Source::LiveJournal::Transport - XML-RPC and HTTP for LiveJournal 
 
 The source adapter (L<DW::Importer::Source::LiveJournal>) does no I/O of its own: it asks
 its transport. This is the transport that talks to the real site. Tests, and anything
-else that wants to replay or fake a site, provide an object with the same three methods
+else that wants to replay or fake a site, provide an object with the following methods
 instead:
 
 =over
@@ -42,6 +42,11 @@ Fetches a page. Returns an L<HTTP::Response>.
 
 Fetches one window of the comment export (C<$mode> is C<comment_meta> or
 C<comment_body>) and returns its XML, or undef if it could not be fetched.
+
+=item C<< discard_comment_export( $mode, $startid, $numitems, $log ) >>
+
+Optional. Removes a cached window rejected by the metadata parser so a retry can
+fetch it again. Does nothing in a dry run.
 
 =back
 
@@ -184,18 +189,13 @@ sub session {
     return $self->{session} = ( $r && !$r->{fault} ) ? $r->{ljsession} : undef;
 }
 
-sub comment_export {
-    my ( $self, $mode, $startid, $numitems, $log ) = @_;
+sub _comment_export_location {
+    my ( $self, $mode, $startid, $numitems ) = @_;
     my $data   = $self->{data};
     my $authas = $data->{usejournal} ? "&authas=$data->{usejournal}" : '';
     my $url =
 "https://www.$data->{hostname}/export_comments.bml?get=$mode&startid=$startid&numitems=$numitems&props=1$authas";
 
-    # clear "request" cache of db handles to force revalidation, whenever fetching a block
-    # of comments, to avoid possibly using one that was idle too long without testing it.
-    $LJ::DBIRole->clear_req_cache();
-
-    # see if the export is cached, in blob storage so that a retry on another host finds it.
     # the cache belongs to one import (import_data_id is part of the key): retries of a job
     # reuse what was already downloaded, which stops a stuck job from hammering the target,
     # but a new import always fetches fresh data.
@@ -204,7 +204,30 @@ sub comment_export {
             . ( $data->{user} || $data->{username} )
             . ( $data->{usejournal} || '' ) . '#'
             . ( $data->{import_data_id} // 0 ) );
-    my $key    = "$data->{userid}/$md5";
+    return ( $url, "$data->{userid}/$md5", $md5 );
+}
+
+sub discard_comment_export {
+    my ( $self, $mode, $startid, $numitems, $log ) = @_;
+    return if $self->{dry_run};
+
+    my ( undef, $key, $md5 ) = $self->_comment_export_location( $mode, $startid, $numitems );
+    unless ( eval { DW::BlobStore->delete( importcache => $key ) } ) {
+        $log->( 'Could not discard cache file %s.xml: %s', $md5,
+            $@ || 'no cache file was removed' );
+    }
+}
+
+sub comment_export {
+    my ( $self, $mode, $startid, $numitems, $log ) = @_;
+    my $data = $self->{data};
+    my ( $url, $key, $md5 ) = $self->_comment_export_location( $mode, $startid, $numitems );
+
+    # clear "request" cache of db handles to force revalidation, whenever fetching a block
+    # of comments, to avoid possibly using one that was idle too long without testing it.
+    $LJ::DBIRole->clear_req_cache();
+
+    # see if the export is cached, in blob storage so that a retry on another host finds it.
     my $cached = eval { DW::BlobStore->retrieve( importcache => $key ) };
     if ($cached) {
         $log->( 'Using cached file %s.xml', $md5 );
