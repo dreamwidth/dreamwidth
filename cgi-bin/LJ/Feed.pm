@@ -86,19 +86,26 @@ sub make_feed {
     # for consistency, we call ditemids "itemid" in user-facing settings
     my $ditemid = defined $FORM{itemid} ? $FORM{itemid} + 0 : 0;
 
+    my $entries = {};
     if ($ditemid) {
         my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
 
-        if ( !$entry || !$entry->valid || !$entry->visible_to($remote) ) {
+        if (   !$entry
+            || !$entry->load_view_snapshot
+            || !$entry->correct_anum
+            || !$entry->visible_to($remote) )
+        {
             $opts->{'handler_return'} = 404;
             return undef;
         }
 
-        @itemids = $entry->jitemid;
+        my $itemid = $entry->jitemid;
+        $entries->{$itemid} = $entry;
+        @itemids = ($itemid);
 
         push @items,
             {
-            itemid      => $entry->jitemid,
+            itemid      => $itemid,
             anum        => $entry->anum,
             posterid    => $entry->poster->id,
             security    => $entry->security,
@@ -119,16 +126,17 @@ sub make_feed {
             friendsview   => 1,                  # this returns rlogtimes
             dateformat    => 'S2',               # S2 format time format is easier
         );
+        $entries = LJ::Entry->load_view_entries( $u, \@items );
+        @items   = grep { $entries->{ $_->{itemid} } } @items;
+        @itemids = map { $_->{itemid} } @items;
     }
 
     $opts->{'contenttype'} = 'text/xml; charset=' . $opts->{'saycharset'};
 
     ### load the log properties
     my %logprops = ();
-    my $logtext;
-    my $logdb = LJ::get_cluster_reader($u);
+    my $logdb    = LJ::get_cluster_reader($u);
     LJ::load_log_props2( $logdb, $u->{'userid'}, \@itemids, \%logprops );
-    $logtext = LJ::get_logtext2( $u, @itemids );
 
     # set last-modified header, then let apache figure out
     # whether we actually need to send the feed.
@@ -185,23 +193,19 @@ ENTRY:
 
         # load required data
         my $itemid    = $it->{'itemid'};
-        my $ditemid   = $itemid * 256 + $it->{'anum'};
-        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
+        my $entry_obj = $entries->{$itemid} or next;
+        my $ditemid   = $entry_obj->ditemid;
 
         next ENTRY if $posteru{ $it->{'posterid'} } && $posteru{ $it->{'posterid'} }->is_suspended;
-        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
+        next ENTRY if $entry_obj->is_suspended_for($remote);
 
         if ( $logprops{$itemid}->{'unknown8bit'} ) {
-            LJ::item_toutf8(
-                $u,
-                \$logtext->{$itemid}->[0],
-                \$logtext->{$itemid}->[1],
-                $logprops{$itemid}
-            );
+            my ( $skip_subj, $skip_evt );
+            LJ::item_toutf8( $u, \$skip_subj, \$skip_evt, $logprops{$itemid} );
         }
 
         # see if we have a subject and clean it
-        my $subject = $logtext->{$itemid}->[0];
+        my $subject = $entry_obj->subject_raw;
         if ($subject) {
             $subject =~ s/[\r\n]/ /g;
             LJ::CleanHTML::clean_subject_all( \$subject );
@@ -212,7 +216,7 @@ ENTRY:
         my $readmore  = qq{<b>(<a href="$entry_url">Read more ...</a>)</b>};
 
         # empty string so we don't waste time cleaning an entry that won't be used
-        my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $logtext->{$itemid}->[1];
+        my $event = $u->{'opt_synlevel'} eq 'title' ? '' : $entry_obj->event_raw;
 
         # clean the event, if non-empty
         if ($event) {
@@ -306,7 +310,7 @@ s!<(lj-)?poll-$pollid>!<div><a href="$LJ::SITEROOT/poll/?id=$pollid">View Poll: 
 
     # fix up the build date to use entry-time
     my $createtime =
-          $items[0]->{rlogtime}
+          @items && $items[0]->{rlogtime}
         ? $LJ::EndOfTime - $items[0]->{rlogtime}
         : $LJ::EndOfTime;
     $journalinfo->{builddate} = LJ::time_to_http($createtime);

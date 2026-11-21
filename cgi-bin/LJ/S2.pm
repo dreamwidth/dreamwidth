@@ -2520,7 +2520,7 @@ sub Page {
             my $activeentry_opts = { %{ $opts || {} }, no_entry_body => 1 };
 
             # only show the entries $remote has the permission to view
-            if ( $entry_obj->visible_to($remote) ) {
+            if ( $entry_obj->load_view_snapshot && $entry_obj->visible_to($remote) ) {
                 my $activeentry = Entry_from_entryobj( $u, $entry_obj, $activeentry_opts );
                 push @{ $p->{activeentries} }, $activeentry;
 

@@ -77,7 +77,7 @@ sub MonthPage {
     }
 
     $sth =
-        $dbcr->prepare( "SELECT l.jitemid, l.posterid, l.anum, l.day, "
+        $dbcr->prepare( "SELECT l.jitemid AS itemid, l.posterid, l.anum, l.day, "
             . "       DATE_FORMAT(l.eventtime, '$dateformat') AS 'alldatepart', "
             . "       l.replycount, l.security, l.allowmask "
             . "FROM log2 l "
@@ -95,6 +95,8 @@ sub MonthPage {
     }
     LJ::load_userids_multiple( [ map { $_, \$pu{$_} } keys %pu ], [$u] );
 
+    my $entries = LJ::Entry->load_view_entries( $u, \@items );
+
     my %day_entries;    # <day> -> [ Entry+ ]
 
     my $opt_text_subjects = S2::get_property_value( $ctx, "page_month_textsubjects" );
@@ -104,17 +106,14 @@ sub MonthPage {
 
 ENTRY:
     foreach my $item (@items) {
-        my ( $posterid, $itemid, $anum ) =
-            map { $item->{$_} } qw(posterid jitemid anum);
-        my $day = $item->{'day'};
-
-        my $ditemid   = $itemid * 256 + $anum;
-        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
+        my $entry_obj = $entries->{ $item->{itemid} } or next;
+        my $posterid  = $entry_obj->posterid;
+        my $day       = $item->{'day'};
 
         # don't show posts from suspended users or suspended posts
         next unless $pu{$posterid};
         next ENTRY if $pu{$posterid}->is_suspended && !$viewsome;
-        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
+        next ENTRY if $entry_obj->is_suspended_for($remote);
 
         # create the S2 entry
         my $entry = Entry_from_entryobj( $u, $entry_obj, $entry_opts );

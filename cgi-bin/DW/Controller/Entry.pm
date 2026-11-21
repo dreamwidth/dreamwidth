@@ -714,10 +714,10 @@ sub _render_maintainer_form {
             adult_content_enabled => LJ::is_enabled('adult_content'),
             remote                => $remote,
             action                => $opts{action} // LJ::create_url( undef, keep_args => 1 ),
-            shared_edit_url       => $entry->editable_by($remote)
-            ? LJ::create_url( undef, keep_args => 1, no_blank => 1, args => { moderate => '' } )
+            shared_edit_url       => $opts{can_edit}
+            ? LJ::create_url( undef, keep_args => 1, args => { moderate => undef } )
             : undef,
-            props                 => {
+            props => {
                 adult_content_maintainer_reason => $entry->prop('adult_content_maintainer_reason')
                     || '',
                 adult_content_maintainer  => $entry->prop('adult_content_maintainer')  || '',
@@ -748,11 +748,12 @@ sub _edit {
         unless $entry_obj->correct_anum( $ditemid % 256 );
 
     my $other_author = $entry_obj->posterid != $remote->userid;
-    my $can_moderate = $other_author
+    my $can_moderate =
+           $other_author
         && $journal->is_comm
         && !$journal->readonly
         && $entry_obj->deletable_by($remote);
-    my $can_edit = $entry_obj->editable_by($remote);
+    my $can_edit = $entry_obj->editable_by($remote) && ( !$other_author || !$journal->readonly );
     my $moderation_view = $can_moderate && ( $r->get_args->{moderate} || !$can_edit );
 
     my $errors   = DW::FormErrors->new;
@@ -765,12 +766,12 @@ sub _edit {
         return error_ml('error.invalidform')
             unless LJ::check_form_auth( $post->{lj_form_auth} );
         LJ::set_logprop(
-            $journal, $entry_obj->jitemid,
+            $journal,
+            $entry_obj->jitemid,
             {
-                adult_content_maintainer_reason =>
-                    $post->{prop_adult_content_maintainer_reason},
-                adult_content_maintainer  => $post->{prop_adult_content_maintainer},
-                opt_nocomments_maintainer => $post->{prop_opt_nocomments_maintainer} ? 1 : 0,
+                adult_content_maintainer_reason => $post->{prop_adult_content_maintainer_reason},
+                adult_content_maintainer        => $post->{prop_adult_content_maintainer},
+                opt_nocomments_maintainer       => $post->{prop_opt_nocomments_maintainer} ? 1 : 0,
             }
         );
         $r->status(302);
@@ -783,8 +784,7 @@ sub _edit {
     # the poster differs from the actor, so an owner's delete still falls
     # through to the generic edit/delete handling below unaffected.
     my $mode_delete = $post && $post->{'action:delete'};
-    if ( $post && ( $post->{'action:deletespam'} || ( $mode_delete && $other_author ) ) )
-    {
+    if ( $post && ( $post->{'action:deletespam'} || ( $mode_delete && $other_author ) ) ) {
         return error_ml('/entry/form.tt.error.nofind') unless $can_moderate;
         my $deletespam = $post->{'action:deletespam'};
 
@@ -823,7 +823,7 @@ sub _edit {
 
     if ($moderation_view) {
         return error_ml('error.invalidauth') if $post;
-        return _render_maintainer_form( $entry_obj, $journal, $remote );
+        return _render_maintainer_form( $entry_obj, $journal, $remote, can_edit => $can_edit );
     }
 
     return error_ml('/entry/form.tt.error.nofind')
@@ -947,7 +947,7 @@ sub _render_edit_form {
     my $shared_admin_edit = $opts{shared_admin_edit};
     $vars->{formdata}          = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
     $vars->{shared_admin_edit} = $shared_admin_edit;
-    $vars->{moderation_url} = LJ::create_url( undef, keep_args => 1, args => { moderate => 1 } )
+    $vars->{moderation_url}    = LJ::create_url( undef, keep_args => 1, args => { moderate => 1 } )
         if $shared_admin_edit && !$journal->readonly && $entry_obj->deletable_by($remote);
 
     # Now that we have {formdata}->{editor}, we can get the list of available

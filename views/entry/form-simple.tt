@@ -304,7 +304,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- END -%]
         [%- IF action.edit -%]
             [%- form.submit( name = "action:post", value = dw.ml( 'entryform.save' ) ) -%]
-            [%- form.submit( name = "action:delete", id = "js-delete-button", value = dw.ml( 'entryform.delete' ) ) -%]
+            [%- IF moderation_url -%]
+                <a href="[% moderation_url | html %]">Moderate this post</a>
+            [%- ELSE -%]
+                [%- form.submit( name = "action:delete", id = "js-delete-button", value = dw.ml( 'entryform.delete' ) ) -%]
+            [%- END -%]
         [%- ELSE -%]
             [%- post_journal = journalu ? journalu.user : remote.user -%]
             [%- form.submit( name = "action:post", id = "js-post-button",
