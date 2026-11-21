@@ -63,6 +63,13 @@ sub helper_preload {
     eval { $p->DESTROY(); };
 }
 
+sub _new_html_parser {
+    my ($data) = @_;
+    my $parser = HTML::TokeParser->new($data);
+    $parser->utf8_mode( !utf8::is_utf8($$data) );
+    return $parser;
+}
+
 # this treats normal characters and &entities; as single characters
 # also treats UTF-8 chars as single characters
 my $onechar;
@@ -205,7 +212,7 @@ sub clean {
     }
 
     # Create the HTML parser we'll use to navigate the text from here on out:
-    my $p = HTML::TokeParser->new($data);
+    my $p = _new_html_parser($data);
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -1412,7 +1419,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 # takes a reference to HTML and a base URL, and modifies HTML in place to use absolute URLs from the given base
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
-    my $p = HTML::TokeParser->new($data);
+    my $p = _new_html_parser($data);
 
     # where we look for relative URLs
     my $rel_source = {
