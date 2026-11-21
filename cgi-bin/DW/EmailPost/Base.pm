@@ -229,7 +229,8 @@ sub _extract_text {
 # Extract leading lj-* and post-* lines, including unrecognized header names.
 # The post-* values take precedence over their legacy lj-* equivalents.
 sub _extract_post_headers {
-    my $self = $_[0];
+    my ( $self, $headers ) = @_;
+    $headers //= { lj => {}, post => {} };
 
     my $body = $self->{body};
     pos($body) = 0;
@@ -237,22 +238,21 @@ sub _extract_post_headers {
     my $is_html = $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html';
     pos($body) = _html_header_offset($body) if $is_html;
 
-    my $start  = pos($body);
-    my $end    = $start;
-    my $markup = '';
-    my ( %lj_headers, %post_headers );
+    my $start     = pos($body);
+    my $end       = $start;
+    my $markup    = '';
+    my $value_end = $is_html ? qr/(?=<!--)|\r?\n|\z/ : qr/\r?\n|\z/;
     while (1) {
         if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
             pos($body) = _html_header_offset( $body, $end );
         }
         my $line_start = pos($body);
-        last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*)(?:\r?\n|\z)/igc;
+        last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*?)$value_end/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), LJ::trim($3) );
-        if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n<>][^\r\n]*)(?:\r?\n|\z)/gc ) {
+        if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n<>][^\r\n]*?)$value_end/gc ) {
             $value = LJ::trim($1);
         }
-        my $headers = $prefix eq 'lj' ? \%lj_headers : \%post_headers;
-        $headers->{$name} = $value;
+        $headers->{$prefix}{$name} = $value;
         $markup .= substr( $body, $end, $line_start - $end );
         $end = pos($body);
     }
@@ -260,9 +260,9 @@ sub _extract_post_headers {
     substr( $body, $start, $end - $start, $markup );
     $body =~ s/\A\s*//;
     $self->{body}         = $body;
-    $self->{post_headers} = { %lj_headers, %post_headers };
+    $self->{post_headers} = { %{ $headers->{lj} }, %{ $headers->{post} } };
 
-    return 1;
+    return $headers;
 }
 
 sub _html_header_offset {
