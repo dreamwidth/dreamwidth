@@ -308,26 +308,30 @@ sub _clean_body_and_subject {
     # check subject for rfc-1521 junk
     chomp $subject;
     if ( $subject =~ /^=\?/ ) {
-        my @subj_data = MIME::Words::decode_mimewords($subject);
-        my ( $string, $subject_charset ) = ( $subj_data[0][0], $subj_data[0][1] );
-        if (@subj_data) {
-            if ( $subject =~ /utf-8/i ) {
-                $subject = $string;
-            }
-            else {
+
+        # long subjects are split into several encoded words, each with its
+        # own charset, and unencoded text between them has no charset
+        my $decoded = '';
+        foreach my $word ( MIME::Words::decode_mimewords($subject) ) {
+            my ( $string, $subject_charset ) = @$word;
+
+            if ( defined $subject_charset && $subject_charset !~ /^UTF-?8\b/i ) {
                 unless ( Unicode::MapUTF8::utf8_supported_charset($subject_charset) ) {
                     $self->{error} = "Unknown charset encoding type. ($subject_charset)";
                     return;
                 }
 
-                $subject = Unicode::MapUTF8::to_utf8(
+                $string = Unicode::MapUTF8::to_utf8(
                     {
                         -string  => $string,
                         -charset => $subject_charset,
                     }
                 );
             }
+
+            $decoded .= $string;
         }
+        $subject = $decoded;
     }
 
     # set after processing to processed version
