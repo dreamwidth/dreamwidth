@@ -152,7 +152,7 @@ sub watch_items {
             ( $timeupdate->{ $_->[0] } || 0 ) >= $lastmax and    # reverse index
                 (
                   $events_date
-                ? $times->{created}->{ $_->[0] } < $events_date
+                ? $times->{created}->{ $_->[0] } < $events_date + 86400
                 : 1
                 )
             } @friends_buffer;

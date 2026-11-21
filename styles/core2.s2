@@ -793,6 +793,7 @@ class RecentNav
     var readonly string backward_url "URL to go backward in time, or blank if furthest back server will allow.";
     var int backward_skip   "Number of items we'd be skipping going back more.";
     var int backward_count  "Number of items we'd be potentially seeing going backward.";
+    var bool backward_by_date "Whether the backward link switches the reading page to date mode.";
 }
 
 class RecentPage extends Page
@@ -2804,6 +2805,10 @@ property string text_day_prev {
     example = "Previous Day";
     maxlength = 20;
 }
+property string text_reading_by_date {
+    des = "Text to link from the end of the reading page to the oldest displayed date";
+    noui = 1;
+}
 property string text_day_next {
     des = "Text to link to the next day";
     example = "Next Day";
@@ -2815,6 +2820,7 @@ set text_noentries_recent = "There are no entries to display.";
 set text_noentries_read = "There are no earlier entries to display. This page displays only the most recent 1000 entries posted within the last 14 days.";
 set text_noentries_day = "There were no entries on this day.";
 set text_day_prev = "Previous Day";
+set text_reading_by_date = "Earlier entries by date";
 set text_day_next = "Next Day";
 
 ##=======================================
@@ -5712,6 +5718,8 @@ function RecentPage::print_navigation( string{} opts ) [fixed] {
             if ( $.nav.backward_url != "" ) {
                 if ( $.nav.backward_count ) {
                     print safe """<li class="page-back"><a href="$.nav.backward_url">""" + get_plural_phrase( $.nav.backward_count, "text_skiplinks_back" ) + "</a></li>\n";
+                } elseif ( $.nav.backward_by_date ) {
+                    print safe """<li class="page-back"><a href="$.nav.backward_url">$*text_reading_by_date</a></li>\n""";
                 } else {
                     print safe """<li class="page-back"><a href="$.nav.backward_url">$*text_day_prev</a></li>\n""";
                 }

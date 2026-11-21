@@ -115,11 +115,12 @@ sub FriendsPage {
     my $maxskip = ( $LJ::MAX_SCROLLBACK_FRIENDS || 1000 ) - $itemshow;
     if ( $skip > $maxskip ) { $skip = $maxskip; }
     if ( $skip < 0 )        { $skip = 0; }
-    my $itemload = $itemshow + $skip;
-    my $get_date = $get->{date} || '';
+    my $itemload         = $itemshow + $skip;
+    my $get_date         = $get->{date} || '';
+    my $can_read_by_date = $remote && $u->equals($remote) && $u->can_use_daily_readpage;
 
     my $events_date =
-        ( $get_date =~ m!^(\d{4})-(\d\d)-(\d\d)$! )
+        ( $can_read_by_date && $get_date =~ m!^(\d{4})-(\d\d)-(\d\d)$! )
         ? LJ::mysqldate_to_time("$1-$2-$3")
         : 0;
 
@@ -201,7 +202,7 @@ sub FriendsPage {
         $friends{$_}->{'bgcolor'} = $friends_row{$_}->{'bgcolor'} || '#000000';
     }
 
-    return $p unless %friends;
+    return $p unless %friends || $events_date;
 
     my %posters;
     {
@@ -216,6 +217,7 @@ sub FriendsPage {
 
     my $eventnum      = 0;
     my $hiddenentries = 0;
+    my $oldest_post_time;
     $opts->{cut_disable} = ( $remote && $remote->prop('opt_cut_disable_reading') );
 
 ENTRY:
@@ -253,6 +255,7 @@ ENTRY:
 
         push @{ $p->{'entries'} }, $entry;
         $eventnum++;
+        $oldest_post_time = $LJ::EndOfTime - $item->{rlogtime};
 
         LJ::Hooks::run_hook( 'notify_event_displayed', $entry_obj );
     }    # end while
@@ -288,8 +291,8 @@ ENTRY:
 
     # these are the same for both previous and next links
     my %linkvars;
-    $linkvars{show} = $get->{show} if defined $get->{show} && $get->{show} =~ /^\w+$/;
-    $linkvars{date} = $get->{date} if $get->{date}         && $u->can_use_daily_readpage;
+    $linkvars{show}   = $get->{show}       if defined $get->{show} && $get->{show} =~ /^\w+$/;
+    $linkvars{date}   = $get_date          if $events_date;
     $linkvars{filter} = $get->{filter} + 0 if defined $get->{filter};
 
     # if we've skipped down, then we can skip back up
@@ -324,7 +327,6 @@ ENTRY:
         $nav->{'backward_url'}   = LJ::S2::make_link( $base, \%linkvars );
         $nav->{'backward_skip'}  = $newskip;
         $nav->{'backward_count'} = $itemshow;
-        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
     elsif ( $linkvars{date} ) {
 
@@ -334,8 +336,15 @@ ENTRY:
         $prevvars{date} = LJ::mysql_date($prevtime);
         delete $prevvars{skip};    # from forward case; not used here
         $nav->{'backward_url'} = LJ::S2::make_link( $base, \%prevvars );
-        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
+    elsif ( $can_read_by_date && $oldest_post_time ) {
+        delete $linkvars{skip};
+        $linkvars{date} = LJ::mysql_date($oldest_post_time);
+        $nav->{'backward_url'}     = LJ::S2::make_link( $base, \%linkvars );
+        $nav->{'backward_by_date'} = 1;
+    }
+    $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#
+        if $nav->{'backward_url'};
 
     $p->{nav} = $nav;
 
