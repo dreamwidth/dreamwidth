@@ -218,7 +218,7 @@ sub make_authas_select {
         }
         else {
             $ret = $foundation
-                ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline'>}
+                ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline' for='authas'>}
                 . $label
                 . q{</label></div>}
                 . q{<div class='columns small-9 medium-11'><div class='row'>}

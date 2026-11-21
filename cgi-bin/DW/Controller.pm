@@ -176,10 +176,7 @@ sub controller {
             LJ::make_authas_select( $vars->{remote}, { authas => $vars->{u}->user } );
 
         # foundation pages
-        $vars->{authas_form} =
-              "<form action='"
-            . LJ::create_url()
-            . "' method='get'>"
+        $vars->{authas_form} = "<form method='get'>"
             . LJ::make_authas_select( $vars->{remote},
             { authas => $vars->{u}->user, foundation => 1, %{ $authas_args || {} } } )
             . "</form>";
