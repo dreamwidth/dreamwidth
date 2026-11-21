@@ -149,10 +149,6 @@ sub verify_password {
     return LJ::Lang::ml('widget.createaccount.error.password.needsmoreuniquechars')
         unless scalar keys %unique_chars >= 4;
 
-    # contains at least one digit or symbol
-    return LJ::Lang::ml('widget.createaccount.error.password.needsnonletter')
-        if $password =~ /^[A-Za-z]+$/;
-
     # isn't similar to a common password
     my @common_passwords = grep { $_ } split( /\r?\n/, LJ::load_include('common-passwords') );
     foreach my $comm_pass ( $LJ::SITENAMESHORT, @common_passwords ) {

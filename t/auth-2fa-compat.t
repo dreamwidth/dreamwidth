@@ -317,15 +317,17 @@ for my $protected ( 0, 1 ) {
         $_->[0]->set_password( $_->[1] );
         $_->[0]->update_self( { status => 'A' } );
     }
+    local $LJ::DISABLED{password_check} = 0;
     local *DW::Controller::Settings::controller = sub {
         ( 1, { r => $request, remote => $self } );
     };
+    my $passphrase = 'SaffronNebulaMarble';
     local $request->{post} = {
         mode     => 'submit',
         user     => $other->user,
         password => 'Other-pass-42',
-        newpass1 => 'Replacement-pass-73',
-        newpass2 => 'Replacement-pass-73'
+        newpass1 => $passphrase,
+        newpass2 => $passphrase
     };
     isnt( DW::Controller::Settings::changepassword_handler(),
         'success', "Another account's password is checked against the logged-in account" );
@@ -333,9 +335,9 @@ for my $protected ( 0, 1 ) {
 
     $request->{post}{password} = 'Self-pass-42';
     is( DW::Controller::Settings::changepassword_handler(),
-        'success', 'Own password changes despite another username' );
-    ok( $self->check_password('Replacement-pass-73'), 'Logged-in account has the new password' );
-    ok( $other->check_password('Other-pass-42'),      'Other account is still unchanged' );
+        'success', 'Own password changes to an all-letter passphrase despite another username' );
+    ok( $self->check_password($passphrase),      'Logged-in account has the new passphrase' );
+    ok( $other->check_password('Other-pass-42'), 'Other account is still unchanged' );
 }
 
 # A 2FA-enabled WSSE account accepts its API key, but not its password.

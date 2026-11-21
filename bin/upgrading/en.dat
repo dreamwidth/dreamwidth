@@ -4828,8 +4828,6 @@ widget.createaccount.error.password.likeusername=Password must not be similar to
 
 widget.createaccount.error.password.needsmoreuniquechars=Your password must contain at least 4 unique characters.
 
-widget.createaccount.error.password.needsnonletter=Your password must contain at least one non-letter character (a digit or symbol).
-
 widget.createaccount.error.password.nomatch=Your passwords don't match.
 
 widget.createaccount.error.password.toolong=Password must not be longer than 30 characters.
