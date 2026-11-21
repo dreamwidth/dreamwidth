@@ -156,8 +156,6 @@
 
 .success=You've successfully saved your account settings.
 
-.success.deleteinactive2=You have successfully deleted all inactive tracked items.
-
 .success.header=Success!
 
 .success.next=What would you like to do next?

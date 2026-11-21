@@ -1,4 +1,4 @@
-[%# HTML fragment for the notification subscription interface on /manage/settings
+[%# Notification subscription settings
   #
   # Authors:
   #     Jen Griffin <kareila@livejournal.com>
@@ -10,59 +10,144 @@
   # 'perldoc perlartistic' or 'perldoc perlgpl'.
 -%]
 
-[%- CALL dw.active_resource_group( "jquery" ) -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[%- escaped_name = account_name | html -%]
+[%- sections.title = dw.ml('/manage/settings/index.bml.title.page', user = escaped_name) -%]
+[%- dw.need_res( { group => "foundation" },
+    "stc/css/components/inline-lists.css",
+    "stc/css/pages/manage/notifications.css",
+    "js/notifications.js" ) -%]
 
-[%- dw.need_res( { group => "jquery" }, "js/notifications.js",
-                 "js/components/jquery.select-all-special.js",
-                 "stc/css/components/select-all.css" ) -%]
+[%- settings_label = '/manage/settings/index.bml.cat.' -%]
+[%- subscription_label = '/tracking/subscribe-interface.tt.' -%]
 
-<div class='settings_content'>
-  <div class='notifications'>
+[%- BLOCK save_buttons %]
+    <button type="submit" class="button small">[% '.btn.save' | ml | html %]</button>
+    <button type="submit" name="deleteinactive" value="1" class="button small secondary"
+            data-confirm="[% '.confirm.deleteinactive' | ml | html %]">[% '.btn.deleteinactive' | ml | html %]</button>
+[% END -%]
 
-[% IF has_admin_form %]
-    <div id='settings_save' class='action-bar'>
-      <form action='[% site.root %]/manage/settings/' method='get'>
-    [% IF get_args.authas; form.hidden( name = 'authas', value = get_args.authas ); END %]
-    [% form.hidden( name = 'cat', value = "notifications" ) %]
-    [% form.textbox( label = dw.ml( '.user' ), name = 'user', id = 'user', size = 15,
-                     maxlength = site.maxlength_user, value = get_args.user ) %]
-    [% form.submit( value = dw.ml( ".user.submit" ) ) %]
-      </form>
+[% authas_form %]
+<nav aria-label="[% '/manage/settings/index.bml.title.anon' | ml | html %]">
+  <ul class="inline-list">
+[% FOREACH tab IN ['account', 'display', 'notifications', 'mobile', 'shortcuts', 'privacy', 'history', 'othersites'] %]
+    [% tab_label = dw.ml(settings_label _ tab) | html %]
+    [% IF tab == 'notifications' %]
+      <li aria-current="page"><strong>[% tab_label %]</strong></li>
+    [% ELSE %]
+      <li><a href="[% site.root %]/manage/settings/?cat=[% tab %]">[% tab_label %]</a></li>
+    [% END %]
+[% END %]
+  </ul>
+</nav>
+
+<p>[% dw.ml(settings_label _ 'notifications.desc', aopts = "href='$site.root/manage/circle/edit'") %]</p>
+
+[% IF can_view_other %]
+  <form action="[% site.root %]/manage/settings/notifications" method="get">
+    [% IF authas; form.hidden(name = 'authas', value = authas); END %]
+    <div class="row">
+      <div class="small-8 medium-5 columns">
+        [% form.textbox(label = dw.ml('.user'), name = 'user', maxlength = site.maxlength_user,
+                        value = lookup_user) %]
+      </div>
+      <div class="small-4 medium-7 columns">
+        <button type="submit" class="button small secondary">[% '.user.submit' | ml | html %]</button>
+      </div>
     </div>
+  </form>
 [% END %]
 
-[% IF has_user_form %]
-    <form class='table-form' id='settings_form' action='[% post_action %]' method='post'>
-  [% dw.form_auth %]
-[% END %]
-
-[%- btn_txt = '.btn.deleteinactive' | ml;
-    del_conf = '.confirm.deleteinactive' | ml;
-    del_btn = form.submit( name = 'deleteinactive', value = btn_txt, title = btn_txt,
-                           class => 'btn', onclick = "return confirm( '$del_conf' )" )
--%]
-
-
-[%- UNLESS has_admin_form; # reprint the save buttons here
--%]
-    <div id='settings_save' class='action-bar'>
-  [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
-  [% del_btn %]
-    </div>
-[%- END -%]
-
-    <div id='manageSettings'>
-
-[% subscribe_interface %]
-
-    </div>
-    <br />
+[% IF notice %]<div class="alert-box success" role="status">[% notice | html %]</div>[% END %]
+[% IF subscription_errors.size %]
+  <div class="alert-box alert" role="alert">
+    <strong>[% 'error.procrequest' | ml | html %]</strong>
+    <ul>[% FOREACH error IN subscription_errors %]<li>[% error %]</li>[% END %]</ul>
   </div>
+[% END %]
+
+[% IF viewing_self %]
+  <form id="settings_form" action="[% post_action | html %]" method="post">
+    [% dw.form_auth %]
+    [% PROCESS save_buttons %]
+[% END %]
+
+<div id="notification-settings">
+  [% FOREACH cat IN catdata %]
+    <fieldset id="category-[% cat.title_key | html %]">
+      <legend>[% dw.ml(subscription_label _ 'category.' _ cat.title_key) | html %]</legend>
+      [% IF cat.empty_blurb %]
+        <p><strong>[% dw.ml(subscription_label _ 'nosubs.title') | html %]</strong></p>
+        <p>[% dw.ml(subscription_label _ 'nosubs.text', img = dw.img('track', '', { alt => '' })) %]</p>
+      [% ELSE %]
+        <div class="row">
+          <div class="small-12 medium-8 columns">
+            <p>[% dw.ml(subscription_label _ 'notify_me', sitenameabbrev = site.nameabbrev) %]</p>
+          </div>
+          <div class="small-12 medium-4 columns">
+          [% IF viewing_self && cat.notify_headers.size && !cat.notify_headers.0.disabled %]
+            <label hidden data-email-select-all><input type="checkbox" /> [% '.check_all_email' | ml | html %]</label>
+          [% END %]
+          </div>
+        </div>
+
+        [% FOREACH sub IN cat.pending_subs %]
+          [% IF sub.special_sub %]
+            [% IF sub.upgrade_notice %]<p>[% sub.upgrade_notice %]</p>[% END %]
+          [% ELSIF sub.do_show %]
+            <div class="row" data-notification-row>
+              <div class="small-12 medium-8 columns end notification-event-col">
+                <span class="notification-option" id="event-[% sub.input_name | html %]">
+                  [% form.checkbox(name = sub.input_name, id = sub.input_name,
+                      selected = sub.selected, disabled = !viewing_self || sub.disabled,
+                      class = 'notification-inbox') %]
+                  [% IF sub.title.search('(?i)<(?:select|input)\b') %]
+                    <span class="notification-label">[% sub.title %]</span>
+                  [% ELSE %]
+                    <label for="[% sub.input_name | html %]" class="checkboxlabel notification-label">[% sub.title %]</label>
+                  [% END %]
+                </span>
+                [% IF viewing_self && sub.subscribed && !sub.disabled %]
+                  [% form.hidden(name = sub.input_name _ '-old', value = 1) %]
+                [% END %]
+                [% IF viewing_self && sub.subid %]
+                  <button type="submit" name="delete_subscription" value="[% sub.subid | html %]"
+                          class="button tiny secondary notification-delete"
+                          aria-describedby="event-[% sub.input_name | html %]">[% '.btn.delete' | ml | html %]</button>
+                [% END %]
+              </div>
+              [% FOREACH opt IN sub.notif_options %]
+                <div class="small-12 medium-4 columns" data-notification-email>
+                  <span class="notification-option">
+                    [% form.checkbox(name = opt.notify_input_name, id = opt.notify_input_name,
+                        label = dw.ml('.email'), selected = opt.note_selected,
+                        disabled = !viewing_self || opt.disabled, class = 'notification-email',
+                        'aria-describedby' = 'event-' _ sub.input_name) %]
+                  </span>
+                  [% IF viewing_self && !opt.note_pending && !opt.disabled %]
+                    [% form.hidden(name = opt.notify_input_name _ '-old', value = opt.has_subs) %]
+                  [% END %]
+                </div>
+              [% END %]
+            </div>
+          [% END %]
+        [% END %]
+
+        [% IF cat.special_subs %]
+          <p><small>[% dw.ml(subscription_label _ 'special_subs.note', sitenameabbrev = site.nameabbrev) %]</small></p>
+        [% END %]
+        [% IF cat.show_upgrade_note %]
+          <p><small>&dagger; [% dw.ml(subscription_label _ 'unavailable_subs.note') %]</small></p>
+        [% END %]
+      [% END %]
+    </fieldset>
+  [% END %]
+
+  [% pagination %]
+  <p>[% dw.ml(subscription_label _ 'subs.total', subscription_stats) %]</p>
 </div>
 
-<div id='settings_save' class='action-bar'>
-  [% IF has_user_form; form.submit( value = dw.ml( ".btn.save" ) ); END %]&nbsp;
-  [% IF viewing_self; del_btn; END %]
-</div>
-
-[% IF has_user_form; "</form>"; END %]
+[% IF viewing_self %]
+    [% PROCESS save_buttons %]
+  </form>
+[% END %]
