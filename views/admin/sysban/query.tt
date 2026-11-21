@@ -40,17 +40,18 @@
   <thead><tr>
     <th>[% '.col.value'  | ml %]</th>
     <th>[% '.col.exp'    | ml %]</th>
-    <th>[% '.col.change' | ml %]</th>
+    [% IF can_modify %]<th>[% '.col.change' | ml %]</th>[% END %]
     <th>[% '.col.note'   | ml %]</th>
-    <th>[% '.col.action' | ml %]</th>
+    [% IF can_modify %]<th>[% '.col.action' | ml %]</th>[% END %]
   </tr></thead>
 
 [%- FOREACH bankey IN existing_bans.keys -%]
 
   <tr>
-    <td>[% bankey %]</td>
+    <td>[% bankey | html %]</td>
     <td>[% localtime( existing_bans.$bankey.expire ) %]</td>
 
+    [% IF can_modify %]
     <form method='post' action='sysban'>
       [% dw.form_auth %]
       [% form.hidden( name = 'expire', value = existing_bans.$bankey.expire ) %]
@@ -75,6 +76,9 @@
         [% form.submit( name = 'modify',  value = dw.ml( '.btn.modify'  ) ) %]
       </td>
     </form>
+    [% ELSE %]
+    <td>[% existing_bans.$bankey.note | html %]</td>
+    [% END %]
   </tr>
 
 [%- END -%]
@@ -104,6 +108,7 @@
 [%- END -%]
 
 [%- ELSE -%]
-<p>[% '.txt.noresults' | ml( what = formdata.bantype ) %]</p>
+[% querytype = formdata.bantype | html %]
+<p>[% '.txt.noresults' | ml( what = querytype ) %]</p>
 [%- END -%]
 <p><b><a href="sysban">[% '.link.back' | ml %]</a></b></p>
