@@ -57,8 +57,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- FOREACH acct IN accounts -%]
     [%- UNLESS acct.current -%]
-        [%- WRAPPER components/modal.tt id="remove-account-${acct.userid}" class=["small", "account-switcher-modal"] -%]
-        <div role="dialog" aria-modal="true" aria-labelledby="remove-account-title-[% acct.userid %]" aria-describedby="remove-account-description-[% acct.userid %]">
+        [%- WRAPPER components/modal.tt id="remove-account-${acct.userid}" class=["small", "account-switcher-modal"]
+            labelledby="remove-account-title-${acct.userid}" describedby="remove-account-description-${acct.userid}" -%]
+        <div>
             <h2 id="remove-account-title-[% acct.userid %]">[% '.remove.title' | ml %]</h2>
             <p id="remove-account-description-[% acct.userid %]">[% '.remove.confirm' | ml( user = acct.u.ljuser_display ) %]</p>
             <form action="[% site.root %]/switchaccount" method="post">

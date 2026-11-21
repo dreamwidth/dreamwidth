@@ -8,7 +8,8 @@ function IconBrowser($el, options) {
     $.extend(iconBrowser, {
         element: $el,
         modal: $(modalSelector),
-        modalId: options.modalId
+        modalId: options.modalId,
+        focusAfterBrowse: options.focusAfterBrowse
     });
 
     $(options.triggerSelector).attr("data-reveal-id", options.modalId);
@@ -36,7 +37,6 @@ function IconBrowser($el, options) {
             if (e.namespace === "") return;
 
             scrollPositionDogear = $(window).scrollTop();
-            iconBrowser.modal.removeAttr('tabindex'); // WHY does foundation.reveal set this.
             iconBrowser.focusActive();
         })
         .on('closed.fndtn.reveal', modalSelector, function(e) {
@@ -45,24 +45,6 @@ function IconBrowser($el, options) {
 
             if ( Math.abs( $(window).scrollTop() - scrollPositionDogear ) > 500 ) {
                 $(window).scrollTop(scrollPositionDogear);
-            }
-
-            // the browser blew away the user's tab-through position, so restore
-            // it on whatever makes most sense to focus. Defaults to the icon
-            // menu, since that's what they just indirectly set a value for, but
-            // in comment forms we ask to focus the message body instead.
-            var $focusTarget = $el;
-            if ( options.focusAfterBrowse ) {
-                var $altTarget = $( options.focusAfterBrowse ).first();
-                if ( $altTarget.length === 1 ) {
-                    $focusTarget = $altTarget;
-                }
-            }
-            // Only force-reset the focus if we know it's still wrong! If the
-            // user somehow managed to focus something else before this handler
-            // fired, don't jerk them around.
-            if ( document.activeElement.tagName === 'BODY' ) {
-                $focusTarget.focus();
             }
         });
 }
@@ -264,6 +246,7 @@ IconBrowser.prototype = {
             this.element
                 .val(this.selectedKeyword)
                 .triggerHandler("change");
+            this.modal.data('revealReturnFocus', $(this.focusAfterBrowse)[0] || this.element[0]);
         }
 
         this.close();
