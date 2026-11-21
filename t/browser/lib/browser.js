@@ -21,10 +21,10 @@ const puppeteer = require("/opt/dw-screenshot/node_modules/puppeteer-core");
 const BASE = process.env.DW_BROWSER_BASE || "http://127.0.0.1:8080";
 const FIXTURES = path.join(__dirname, "..", "fixtures");
 
-function launch() {
+function launch(args = []) {
     return puppeteer.launch({
         executablePath: "/usr/bin/google-chrome-stable",
-        args: ["--no-sandbox", "--disable-gpu"],
+        args: ["--no-sandbox", "--disable-gpu", ...args],
         defaultViewport: { width: 1280, height: 1000 },
     });
 }
