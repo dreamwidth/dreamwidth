@@ -204,7 +204,7 @@ sub clean {
     }
 
     # Create the HTML parser we'll use to navigate the text from here on out:
-    my $p = HTML::TokeParser->new($data);
+    my $p = HTML::TokeParser->new( $data, utf8_mode => !utf8::is_utf8($$data) );
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
