@@ -28,6 +28,7 @@ use base qw(DW::EmailPost::Base);
 use strict;
 
 use LJ::Protocol;
+use LJ::Userpic;
 
 use Date::Parse;
 use IO::Handle;
@@ -179,7 +180,9 @@ sub _set_props {
     $props->{taglist} = $post_headers{tags};
     my $keyword = $post_headers{userpic} || $post_headers{icon} || undef;
     if ( defined $keyword && lc $keyword eq 'random' ) {
-        my @keywords = grep { length } map { $_->{value} } @{ $u->icon_keyword_menu };
+        my @icons = grep { !( $_->inactive || $_->expunged || $_->suspended ) }
+            LJ::Userpic->load_user_userpics($u);
+        my @keywords = grep { length } map { $_->keywords( raw => 1 ) } @icons;
         unless ( grep { $_ eq $keyword } @keywords ) {
             $keyword = @keywords ? $keywords[ int rand @keywords ] : undef;
         }

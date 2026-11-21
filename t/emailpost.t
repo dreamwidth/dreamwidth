@@ -16,12 +16,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 30;
+use Test::More tests => 33;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost;
 use LJ::Emailpost::Web;
+use LJ::Protocol;
 use LJ::Userpic;
 
 use LJ::Test;
@@ -155,7 +156,8 @@ sub add_icon {
     open( my $image, '<:raw', "$Bin/data/userpics/$file" ) or die "Open $file: $!";
     my $data = do { local $/; <$image> };
     my $icon = LJ::Userpic->create( $owner, data => \$data ) or die "Create icon: $file";
-    $icon->set_keywords($keywords);
+    $icon->set_keywords($keywords) if defined $keywords;
+    return $icon;
 }
 
 subtest 'email slug normalization and aliases' => sub {
@@ -197,6 +199,17 @@ subtest 'invalid and duplicate slugs fall back to numeric permalinks' => sub {
     is( $invalid && $invalid->slug, '', 'invalid slug is not saved' );
     my ($numeric) = email_entry( $u, $u, $emailpin, 'post-slug: 1234' );
     is( $numeric && $numeric->slug, '1234', 'numeric slugs are accepted' );
+};
+
+subtest 'a truncated email slug round-trips through its permalink' => sub {
+    my $prefix = 'a' x 99;
+    my ($entry) = email_entry( $u, $u, $emailpin, "post-slug: $prefix-b" );
+    ok( $entry && $entry->valid, 'the entry posts' ) or return;
+    is( $entry->slug, $prefix, 'a hyphen at the truncation boundary is dropped' );
+    my ($permalink) = $entry->url =~ m{/([^/]+)\.html$};
+    is( $permalink, $prefix, 'the permalink uses the same slug' );
+    my $lookup = LJ::Entry->new( $u, slug => $permalink );
+    is( $lookup && $lookup->jitemid, $entry->jitemid, 'the permalink resolves to the entry' );
 };
 
 subtest 'random icon uses selectable keywords without changing explicit keywords' => sub {
@@ -258,6 +271,96 @@ subtest 'new headers still respect PIN, journal permissions, and privacy' => sub
         "community entry uses the sender's icon" );
     is( $posted && $posted->security,  'usemask', 'entry remains access-only' );
     is( $posted && $posted->allowmask, 1,         'entry uses the community access list' );
+};
+
+subtest 'random icon uses only real keywords on eligible icons' => sub {
+    my $sender = temp_user();
+    LJ::Emailpost::Web::set_allowed_senders( $sender,
+        { $user_email_info->{FROM_EMAIL} => { get_errors => 1 } } );
+    $sender->set_prop( emailpost_pin => $emailpin );
+    my $unkeyworded = add_icon( $sender, 'good.png' );
+    my $inactive    = add_icon( $sender, 'good.jpg', 'inactive' );
+    $sender->do( q{UPDATE userpic2 SET state = 'I' WHERE userid = ? AND picid = ?},
+        undef, $sender->id, $inactive->id );
+    LJ::Userpic->delete_cache($sender);
+    is( scalar $unkeyworded->keywords( raw => 1 ), '', 'active icon has no real keyword' );
+    ok( LJ::Userpic->new( $sender, $inactive->id )->inactive, 'named icon is inactive' );
+
+    my ( $none, $message ) = email_entry( $sender, $sender, $emailpin, 'post-icon: random' );
+    ok( $none && $none->valid, 'no eligible keywords does not prevent posting' )
+        or do { diag $message; return };
+    ok(
+        $none && !length( $none->userpic_kw // '' ),
+        'does not assign a synthetic or inactive keyword'
+    );
+
+    my $eligible = add_icon( $sender, 'good.gif', 'pic#favorite' );
+    my ($selected) = email_entry( $sender, $sender, $emailpin, 'post-icon: RANDOM' );
+    is( $selected && $selected->userpic_kw, 'pic#favorite', 'a literal pic# keyword is eligible' );
+
+    $eligible->set_keywords('Random');
+    $unkeyworded->set_keywords('another');
+    srand(2314);
+    foreach ( 1 .. 4 ) {
+        my ($explicit) = email_entry( $sender, $sender, $emailpin, 'post-icon: Random' );
+        is( $explicit && $explicit->userpic_kw, 'Random', 'exact mixed-case keyword still works' );
+    }
+};
+
+subtest 'community slug changes use the community writer' => sub {
+    my $community = temp_comm();
+    LJ::set_rel( $community, $u, 'P' );
+
+    my @writes;
+    my $user_do = \&LJ::User::do;
+    no warnings 'redefine';
+    local *LJ::User::do = sub {
+        my ( $writer, $sql ) = @_;
+        push @writes, [ uc $1, $writer->id ] if $sql =~ /\A(INSERT|DELETE)\b.*\blogslugs\b/i;
+        return $user_do->(@_);
+    };
+
+    my ( $entry, $message ) =
+        email_entry( $u, $community, $emailpin, 'post-slug: Community First' );
+    ok( $entry && $entry->valid, 'community entry posts' ) or do { diag $message; return };
+    is( $entry->slug, 'community-first', 'community slug is stored' );
+    is_deeply( \@writes, [ [ INSERT => $community->id ] ], 'creation uses the community writer' );
+
+    my $edit_slug = sub {
+        my ($slug) = @_;
+        @writes = ();
+        LJ::start_request();
+        my $error  = 0;
+        my $result = LJ::Protocol::do_request(
+            'editevent',
+            {
+                username   => $u->user,
+                usejournal => $community->user,
+                ver        => $LJ::PROTOCOL_VER,
+                itemid     => $entry->jitemid,
+                event      => 'Updated community entry',
+                slug       => $slug,
+            },
+            \$error,
+            { noauth => 1 }
+        );
+        ok( $result && !$error, 'community edit succeeds' )
+            or diag LJ::Protocol::error_message($error);
+        return LJ::Entry->new( $community, jitemid => $entry->jitemid )->slug;
+    };
+
+    is( $edit_slug->('Community Second'), 'community-second', 'slug is replaced' );
+    is_deeply(
+        \@writes,
+        [ [ DELETE => $community->id ], [ INSERT => $community->id ] ],
+        'replacement uses the community writer for both writes'
+    );
+    ok( !LJ::Entry->new( $community, slug => 'community-first' ), 'old slug no longer resolves' );
+
+    is( $edit_slug->(''), '', 'slug is cleared' );
+    is_deeply( \@writes, [ [ DELETE => $community->id ] ], 'removal uses the community writer' );
+    ok( !LJ::Entry->new( $community, slug => 'community-second' ),
+        'removed slug no longer resolves' );
 };
 
 sub get_mime {

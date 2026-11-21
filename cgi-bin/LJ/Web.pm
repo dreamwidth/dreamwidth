@@ -3653,6 +3653,7 @@ sub canonicalize_slug {
     $str =~ s/-+/-/g;
     $str =~ s/^-|-$//g;
     $str = LJ::text_trim( $str, 255, 100 );
+    $str =~ s/-$//;
 
     return $str;
 }
