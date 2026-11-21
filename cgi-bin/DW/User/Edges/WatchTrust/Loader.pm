@@ -213,7 +213,7 @@ sub _wt_list_db {
 
     # get a lock
     my $lock = LJ::locker()->trylock( "get_wt_list:$userid", class => 'watchtrust', wait => 10 );
-    return {} unless $lock;
+    return $args{force_database} ? undef : {} unless $lock;
 
     my $release_lock = sub {
         $lock->release;
@@ -284,10 +284,16 @@ sub _wt_list_db {
     my @cols = qw/ to_userid fgcolor bgcolor groupmask showbydefault /;
 
     # try the SQL on the master database
+    unless ($dbh) {
+        return $release_lock->(undef) if $args{force_database};
+        confess 'No database writer available';
+    }
     my $sth = $dbh->prepare( 'SELECT to_userid, fgcolor, bgcolor, groupmask, showbydefault '
             . 'FROM wt_edges WHERE from_userid = ?' );
-    $sth->execute($userid);
-    confess $dbh->errstr if $dbh->err;
+    unless ( $sth && $sth->execute($userid) ) {
+        return $release_lock->(undef) if $args{force_database};
+        confess $dbh->errstr;
+    }
 
     # iterate over each row and prepare result
     while ( my @row = $sth->fetchrow_array ) {
@@ -310,6 +316,11 @@ sub _wt_list_db {
         foreach my $col ( @cols[ 1 .. $#cols ] ) {
             $rows{$to_userid}->{$col} = $row[ $idx++ ];
         }
+    }
+
+    if ( $sth->err ) {
+        return $release_lock->(undef) if $args{force_database};
+        confess $sth->errstr;
     }
 
     # now stuff in memcache

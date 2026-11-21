@@ -211,6 +211,31 @@ test_psgi $app, sub {
     ok( !$old_image->visible_to($viewer), 'custom image access fails closed on a contended read' );
     $lock->release;
 
+    my $list_lock = LJ::locker()->trylock( 'get_wt_list:' . $owner->id, class => 'watchtrust' );
+    ok( $list_lock, 'holds the list read lock without holding the owner lock' );
+    my $failed_membership_save = $request->(
+        POST $filters,
+        Content => [
+            @old_filters,
+            mode                                 => 'save',
+            'editfriend_maskhi_' . $viewer->user => 0,
+            'editfriend_masklo_' . $viewer->user => 1
+        ]
+    );
+    $list_lock->release if $list_lock;
+    like(
+        $failed_membership_save->content,
+        qr/reload the page and try again/i,
+        'Edit Access Filters reports an unavailable membership list'
+    );
+    unlike(
+        $failed_membership_save->content,
+        qr/Your access filters are now saved/i,
+        'an unavailable membership list cannot produce a success message'
+    );
+    ok( $owner->trustmask_from_primary($viewer) & $mask,
+        'a failed membership read leaves the existing membership unchanged' );
+
     ok( $owner->delete_trust_group( id => $filter ), 'deletes the old membership filter' );
     my $db = LJ::get_db_writer();
     $db->do(

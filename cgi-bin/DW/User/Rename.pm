@@ -581,7 +581,7 @@ sub break_email_redirection {
 
 =head2 C<< $self->delete_relationships >>
 
-Delete a list of relationships. Returns a string representation of which relationships were deleted.
+Delete a list of relationships. Returns codes for categories that completed without errors.
 
 =cut
 
@@ -590,15 +590,16 @@ sub delete_relationships {
 
     return unless $self->is_personal;
 
+    my %failed;
     if ( $opts{del_trusted_by} ) {
         foreach ( $self->trusted_by_users ) {
-            $_->remove_edge( $self, trust => {} );
+            $failed{TB} = 1 unless $_->remove_edge( $self, trust => {} );
         }
     }
 
     if ( $opts{del_watched_by} ) {
         foreach ( $self->watched_by_users ) {
-            $_->remove_edge( $self, watch => {} );
+            $failed{WB} = 1 unless $_->remove_edge( $self, watch => {} );
         }
     }
 
@@ -610,13 +611,13 @@ sub delete_relationships {
                 next;
             }
 
-            $self->remove_edge( $_, watch => {} );
+            $failed{W} = 1 unless $self->remove_edge( $_, watch => {} );
         }
     }
 
     if ( $opts{del_trusted} ) {
         foreach ( $self->trusted_users ) {
-            $self->remove_edge( $_, trust => {} );
+            $failed{T} = 1 unless $self->remove_edge( $_, trust => {} );
         }
     }
 
@@ -631,13 +632,13 @@ sub delete_relationships {
         }
 
         foreach (@watched_comms) {
-            $self->remove_edge( $_, watch => {} );
+            $failed{C} = 1 unless $self->remove_edge( $_, watch => {} );
         }
 
         my @ids         = $self->member_of_userids;
         my $memberships = LJ::load_userids(@ids) || {};
         foreach ( values %$memberships ) {
-            $self->leave_community($_);
+            $failed{C} = 1 unless $self->leave_community($_);
         }
     }
 
@@ -648,7 +649,7 @@ sub delete_relationships {
     push @del, "W"  if $opts{del_watched};
     push @del, "C"  if $opts{del_communities};
 
-    return join ":", @del;
+    return join ":", grep { !$failed{$_} } @del;
 }
 
 =head2 C<< $self->_rename_to_ex( $tousername ) >>

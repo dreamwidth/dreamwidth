@@ -130,21 +130,22 @@ sub execute {
     }
 
     #############################
+    # delete trusted-bys if we're changing to a person account. otherwise
+    # the owner can log in and read those users' entries.
+    if ( $type eq "person" ) {
+        foreach ( $u->trusted_by_users ) {
+            return $self->error("Could not remove all incoming trust; account was not converted.")
+                unless $_->remove_edge( $u, trust => { nonotify => 1 } );
+        }
+    }
+
+    #############################
     # update the 'community' row, as necessary.
     if ( $type eq "community" ) {
         $dbh->do( "INSERT INTO community VALUES (?, 'open', 'members')", undef, $u->id );
     }
     else {
         $dbh->do( "DELETE FROM community WHERE userid = ?", undef, $u->id );
-    }
-
-    #############################
-    # delete trusted-bys if we're changing to a person account. otherwise
-    # the owner can log in and read those users' entries.
-    if ( $type eq "person" ) {
-        foreach ( $u->trusted_by_users ) {
-            $_->remove_edge( $u, trust => { nonotify => 1 } );
-        }
     }
 
     #############################

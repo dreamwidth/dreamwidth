@@ -97,7 +97,8 @@ _c?>
             }
 
             # update users' trustmasks
-            my $members = $u->trust_list( force_database => 1 ) or return $mutation_error;
+            my $members = $u->trust_list( force_database => 1 );
+            return $mutation_error unless defined $members;
             foreach my $post_key ( keys %POST ) {
                 next unless $post_key =~ /^editfriend_maskhi_(\w+)$/;
                 my $username = $1;
@@ -141,7 +142,7 @@ _c?>
     my $revision = $u->trust_group_revision;
     my $trust_groups = $u->trust_groups( force_database => 1 );
     my $trust_list = $u->trust_list( force_database => 1 );
-    return $err->($load_error) unless defined $revision && $trust_groups && $trust_list;
+    return $err->($load_error) unless defined $revision && $trust_groups && defined $trust_list;
     $lock->release;
     my $trusted_us = LJ::load_userids( keys %$trust_list );
 
