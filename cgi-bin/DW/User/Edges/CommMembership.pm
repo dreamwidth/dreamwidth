@@ -147,13 +147,13 @@ sub can_join {
 
     # the user must be a personal account or identity account
     unless ( $u->is_individual ) {
-        $$errref = LJ::Lang::ml('edges.join.error.usernotindividual');
+        $$errref = LJ::Lang::ml('edges.join.error.usernotindividual') if $errref;
         return 0;
     }
 
     # the user must be visible
     unless ( $u->is_visible ) {
-        $$errref = LJ::Lang::ml('edges.join.error.usernotvisible');
+        $$errref = LJ::Lang::ml('edges.join.error.usernotvisible') if $errref;
         return 0;
     }
 
@@ -161,33 +161,35 @@ sub can_join {
 
         # the target must be a community
         unless ( $tu->is_community ) {
-            $$errref = LJ::Lang::ml('edges.join.error.targetnotcommunity');
+            $$errref = LJ::Lang::ml('edges.join.error.targetnotcommunity') if $errref;
             return 0;
         }
 
         # the target must be visible
         unless ( $tu->is_visible ) {
-            $$errref = LJ::Lang::ml('edges.join.error.targetnotvisible');
+            $$errref = LJ::Lang::ml('edges.join.error.targetnotvisible') if $errref;
             return 0;
         }
 
         # the target must not have banned the user
         if ( $tu->has_banned($u) ) {
-            $$errref = LJ::Lang::ml('edges.join.error.targetbanneduser');
+            $$errref = LJ::Lang::ml('edges.join.error.targetbanneduser') if $errref;
             return 0;
         }
 
         # make sure the user isn't underage and trying to join an adult community
         my $adult_content;
         unless ( $u->can_join_adult_comm( comm => $tu, adultref => \$adult_content ) ) {
-            if ( $adult_content eq "explicit" ) {
-                $$errref = LJ::Lang::ml('edges.join.error.userunderage');
-            }
+            if ($errref) {
+                if ( $adult_content eq "explicit" ) {
+                    $$errref = LJ::Lang::ml('edges.join.error.userunderage');
+                }
 
-            unless ( $u->best_guess_age ) {
-                $$errref .= " "
-                    . LJ::Lang::ml( 'edges.join.error.setage',
-                    { url => LJ::create_url("/manage/profile/") } );
+                unless ( $u->best_guess_age ) {
+                    $$errref .= " "
+                        . LJ::Lang::ml( 'edges.join.error.setage',
+                        { url => LJ::create_url("/manage/profile/") } );
+                }
             }
 
             return 0;
@@ -195,8 +197,8 @@ sub can_join {
 
         # the community must be open membership or we must be adding to a moderated community
         unless ( $tu->is_open_membership || $opts{moderated_add} ) {
-            $$errref         = LJ::Lang::ml('edges.join.error.targetnotopen');
-            $$membership_ref = 1;
+            $$errref = LJ::Lang::ml('edges.join.error.targetnotopen') if $errref;
+            $$membership_ref = 1 if $membership_ref;
             return 0;
         }
     }

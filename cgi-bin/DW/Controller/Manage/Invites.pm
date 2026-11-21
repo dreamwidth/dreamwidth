@@ -55,7 +55,7 @@ sub invites_handler {
         my ( @accepted, @rejected, @undecided );
 
         foreach my $invite (@$pending) {
-            my ( $commid, $maintid, $_date, $argline ) = @$invite;
+            my ( $commid, $_maintid, $_date, $argline ) = @$invite;
             my $args = {};
             LJ::decode_url_string( $argline, $args );
             my $cu = $us->{$commid};
@@ -67,7 +67,6 @@ sub invites_handler {
             if ( $response eq 'yes' ) {
                 if ( $u->accept_comm_invite($cu) ) {
                     push @accepted, [ $cu, [ grep { $args->{$_} } @allattribs ] ];
-                    $cu->notify_administrator_add( $u, $us->{$maintid} ) if $args->{admin};
                 }
             }
             elsif ( $response eq 'no' ) {
