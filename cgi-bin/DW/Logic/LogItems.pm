@@ -317,6 +317,8 @@ sub watch_items {
     # remove skipped ones
     splice( @items, 0, $skip ) if $skip;
 
+    @items = _load_checked_watch_text(@items);
+
     # get items
     foreach (@items) {
         $args{owners}->{ $_->{'ownerid'} } = 1;
@@ -334,6 +336,52 @@ sub watch_items {
 }
 *LJ::User::watch_items = \&watch_items;
 *DW::User::watch_items = \&watch_items;
+
+sub _load_checked_watch_text {
+    my (@items) = @_;
+    my ( %by_cluster, %visible );
+    push @{ $by_cluster{ $_->{clusterid} } }, $_ for @items;
+
+    for my $cluster ( keys %by_cluster ) {
+        my $db         = LJ::get_dbh( LJ::DB::master_role($cluster) ) or next;
+        my $candidates = $by_cluster{$cluster};
+        my $pairs      = join ', ', ('(?, ?)') x @$candidates;
+        my $rows       = $db->selectall_hashref(
+            'SELECT l.journalid, l.jitemid, l.anum, l.security, l.allowmask, t.subject, t.event
+                FROM log2 l JOIN logtext2 t USING (journalid, jitemid)
+                WHERE (l.journalid, l.jitemid) IN (' . $pairs . ')',
+            [ 'journalid', 'jitemid' ], undef,
+            map { ( $_->{journalid}, $_->{jitemid} ) } @$candidates
+        ) or next;
+
+        my %stale;
+        for my $item (@$candidates) {
+            my $row      = $rows->{ $item->{journalid} }{ $item->{jitemid} };
+            my $security = $row && $row->{security};
+            $security = 'private'
+                if $security
+                && $security eq 'usemask'
+                && !$row->{allowmask}
+                && $item->{security} eq 'private';
+            unless ( $row
+                && $row->{anum} == $item->{anum}
+                && $security eq $item->{security}
+                && ( $security ne 'usemask' || $row->{allowmask} == $item->{allowmask} ) )
+            {
+                $stale{ $item->{journalid} } = 1;
+                next;
+            }
+
+            my $entry = LJ::Entry->new_from_item_hash($item);
+            LJ::text_uncompress( \$row->{event} );
+            $entry->absorb_text( $row->{subject}, $row->{event} );
+            $visible{$item} = 1;
+        }
+        LJ::MemCache::delete( [ $_, "log2lt:$_" ] ) for keys %stale;
+    }
+
+    return grep { $visible{$_} } @items;
+}
 
 # name: $u->recent_items
 # des: Returns journal entries for a given account.
