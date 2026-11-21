@@ -27,6 +27,7 @@ use DW::External::Site;
 use DW::Request;
 use DW::Formats;
 use LJ::Utils;
+use LJ::TextUtil;
 use LJ::Global::Constants;
 use LJ::Event;
 use LJ::Subscription::Pending;
@@ -117,20 +118,7 @@ sub date_to_view_links {
 # returns: The auto-linkified text.
 # </LJFUNC>
 sub auto_linkify {
-    my $str   = shift;
-    my $match = sub {
-        my $str = shift;
-        if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
-            return "<a href='$1'>$1</a>$2";
-        }
-        else {
-            return "<a href='$str'>$str</a>";
-        }
-    };
-    $str =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge
-        if defined $str;
-
-    return $str;
+    return LJ::auto_link_urls( $_[0], sub { "<a href='$_[0]'>$_[0]</a>" } );
 }
 
 # return 1 if URL is a safe stylesheet that S1/S2/etc can pull in.
