@@ -87,19 +87,40 @@ sub sysban_error {
     return;
 }
 
+sub _claimed_sysban_error {
+    my ( $claimed_id, $allow_identifier_select ) = @_;
+    my $claimed  = $claimed_id->claimed_url;
+    my $delegate = $claimed_id->delegated_url;
+
+    # In OpenID 2.0 discovery, this marker asks the provider to choose an identity.
+    # It is not itself a claimed or delegated identity. Still check the provider endpoint.
+    my $select = 'http://specs.openid.net/auth/2.0/identifier_select';
+    if (   $allow_identifier_select
+        && $claimed_id->protocol_version == 2
+        && defined $claimed
+        && $claimed eq $select
+        && defined $delegate
+        && $delegate eq $select )
+    {
+        return sysban_error( $claimed_id->identity_server );
+    }
+
+    $delegate = LJ::trim($delegate);
+    return sysban_error(
+        $claimed,
+        $claimed_id->identity_server,
+        ( $delegate =~ m{\Ahttps?://}i ? $delegate : () )
+    );
+}
+
 sub claimed_sysban_error {
     my ($claimed_id) = @_;
-    my $delegate = $claimed_id->delegated_url;
-    return sysban_error(
-        $claimed_id->claimed_url,
-        $claimed_id->identity_server,
-        ( defined $delegate && $delegate =~ m{\Ahttps?://}i ? $delegate : () )
-    );
+    return _claimed_sysban_error( $claimed_id, 1 );
 }
 
 sub verified_sysban_error {
     my ($verified_id) = @_;
-    return claimed_sysban_error( $verified_id->{claimed_identity} );
+    return _claimed_sysban_error( $verified_id->{claimed_identity}, 0 );
 }
 
 sub consumer_secret {

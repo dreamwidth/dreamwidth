@@ -27,7 +27,7 @@ use LJ::MemCache;
 sub _openid_domain {
     my ( $value, $for_storage ) = @_;
     return unless defined $value;
-    $value = LJ::trim($value) if $for_storage;
+    $value = LJ::trim($value);
     return if $for_storage && $value =~ /[^\x00-\x7f]|%/;
     return if $value =~ /[\s<>]/;
     $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;

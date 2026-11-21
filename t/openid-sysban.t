@@ -257,6 +257,15 @@ with_fake_memcache {
                 ok( LJ::Sysban::sysban_check( 'openid_domain', $value ), "Bans $value" );
             }
 
+            ok(
+                LJ::Sysban::sysban_check( 'openid_domain', " \t$banned_url\r\n" ),
+                'A URL with surrounding whitespace still matches its domain ban'
+            );
+            ok(
+                !LJ::Sysban::sysban_check( 'openid_domain', "https://sub .$host/new" ),
+                'A hostname with embedded whitespace is still rejected as invalid'
+            );
+
             for my $value ( $allowed_url, "https://$host.elsewhere.test/" ) {
                 ok( !LJ::Sysban::sysban_check( 'openid_domain', $value ), "Allows $value" );
             }
@@ -381,6 +390,40 @@ with_fake_memcache {
                 $provider_url,
                 'A non-URL delegate is not treated as a domain'
             );
+        };
+
+        subtest 'allow provider selection when the marker domain is banned' => sub {
+            my @original_discovery =
+                ( $protocol_version, $discovered_url, $delegate_url, $provider_url );
+            my $admin = temp_user();
+            $admin->grant_priv( 'sysban', '*' );
+            local $LJ::T_NO_COMMAND_PRINT = 1;
+            LJ::set_remote($admin);
+            my $message =
+                LJ::Console->run_commands_text('sysban_add openid_domain specs.openid.net');
+            LJ::User->unset_remote;
+            my ($id) = $message =~ /Successfully created ban #(\d+)/;
+            push @banids, $id if $id;
+            ok( $id, 'The marker domain was banned' ) or diag $message;
+
+            my $identifier_select = 'http://specs.openid.net/auth/2.0/identifier_select';
+            $protocol_version = 2;
+            $discovered_url   = $identifier_select;
+            $delegate_url     = $identifier_select;
+            $provider_url     = 'https://provider.test/verify';
+            my $post_login = sub {
+                return $request->( POST $login_url, Content => [ openid_url => $allowed_url ] );
+            };
+            is( $post_login->()->header('Location'),
+                $provider_url, 'Login redirects to the allowed provider' );
+
+            $provider_url = $banned_url;
+            like( $post_login->()->content, $restricted, 'The provider endpoint is still checked' );
+            $provider_url = 'https://provider.test/verify';
+            $delegate_url = " $identifier_select ";
+            like( $post_login->()->content, $restricted, 'A padded URL is not the exact marker' );
+            ( $protocol_version, $discovered_url, $delegate_url, $provider_url ) =
+                @original_discovery;
         };
 
         subtest 'expire an OpenID domain ban' => sub {
