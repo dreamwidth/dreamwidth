@@ -254,6 +254,7 @@ sub save_groupmap {
             . join( ', ', map { "$_=>$map->{$_}" } sort { $a <=> $b } keys %$map ),
         record => {%$map},
     );
+    return 1;
 }
 
 sub merge_trust {
@@ -266,6 +267,7 @@ sub merge_trust {
             record  => {%$friend},
         );
     }
+    return 1;
 }
 
 sub merge_interests {

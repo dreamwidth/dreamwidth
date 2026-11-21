@@ -53,13 +53,15 @@ local C<jitemid>, C<parentid>, C<posterid> and C<entry_source>.
 
 =item C<< merge_trust_groups( \@groups ) >>
 
-Returns a map from the source's group ids to local ones.
+Returns a map from the source's group ids to local ones, or undef if saving failed.
 
 =item C<< save_groupmap( \%map ) >>
 
-Remembers the group map for the import, for entries and friends to use.
+Remembers the group map for the import, for entries and friends to use. Returns true on success.
 
 =item C<< merge_trust( \@friends ) >>
+
+Returns true on success.
 
 =item C<< merge_interests( \@interests ) >>
 

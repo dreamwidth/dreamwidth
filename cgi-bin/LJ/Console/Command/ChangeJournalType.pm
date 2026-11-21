@@ -133,9 +133,17 @@ sub execute {
     # delete trusted-bys if we're changing to a person account. otherwise
     # the owner can log in and read those users' entries.
     if ( $type eq "person" ) {
-        foreach ( $u->trusted_by_users ) {
+        my $read_error = 'Could not read incoming trust; account was not converted.';
+        return $self->error($read_error) unless $dbh;
+        my $grantors = $dbh->selectcol_arrayref(
+            'SELECT from_userid FROM wt_edges WHERE to_userid = ? AND groupmask & 1',
+            undef, $u->id );
+        return $self->error($read_error) unless $grantors && !$dbh->err;
+        my $users = LJ::load_userids(@$grantors) || {};
+        foreach my $grantor (@$grantors) {
+            my $user = $users->{$grantor};
             return $self->error("Could not remove all incoming trust; account was not converted.")
-                unless $_->remove_edge( $u, trust => { nonotify => 1 } );
+                unless $user && $user->remove_edge( $u, trust => { nonotify => 1 } );
         }
     }
 

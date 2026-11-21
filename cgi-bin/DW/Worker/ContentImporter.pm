@@ -47,14 +47,18 @@ $friends is a reference to an array of hashrefs, with each hashref with the foll
       groupmask => 1,       # groupmask
   }
 
+Returns true if all grants were saved, false otherwise.
+
 =cut
 
 sub merge_trust {
     my ( $class, $u, $opts, $friends ) = @_;
     foreach my $friend (@$friends) {
-        my $to_u = LJ::load_userid( $friend->{userid} );
-        $u->add_edge( $to_u, trust => { mask => $friend->{groupmask}, nonotify => 1, } );
+        my $to_u = LJ::load_userid( $friend->{userid} ) or return 0;
+        return 0
+            unless $u->add_edge( $to_u, trust => { mask => $friend->{groupmask}, nonotify => 1, } );
     }
+    return 1;
 }
 
 =head2 C<< $class->merge_watch( $user, $hashref, $friends ) >>
