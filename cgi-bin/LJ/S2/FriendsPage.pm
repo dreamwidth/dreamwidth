@@ -17,7 +17,7 @@ use strict;
 
 package LJ::S2;
 use DW::Logic::AdultContent;
-use URI::Escape qw(uri_escape_utf8);
+use URI::Escape qw(uri_escape);
 
 sub FriendsPage {
     my ( $u, $remote, $opts ) = @_;
@@ -300,7 +300,7 @@ ENTRY:
     $linkvars{show}   = $get->{show}       if defined $get->{show} && $get->{show} =~ /^\w+$/;
     $linkvars{date}   = $get_date          if $events_day;
     $linkvars{filter} = $get->{filter} + 0 if defined $get->{filter};
-    $linkvars{security} = uri_escape_utf8( $get->{security} )
+    $linkvars{security} = uri_escape( $get->{security} )
         if defined $opts->{securityfilter} && defined $get->{security};
 
     # if we've skipped down, then we can skip back up
