@@ -49,6 +49,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     name = "touser"
                     id = "touser"
                 ) -%]
+                [% IF form.data.journaltype == "C" %]
+                    <p>[% '.form.rename.membernotice' | ml %]</p>
+                [% END %]
             </div>
             <div class="formfield">
                 <fieldset>

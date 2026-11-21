@@ -50,6 +50,7 @@ use warnings;
 use DW::RenameToken;
 use DW::FormErrors;
 use DW::Cache;
+use LJ::Sendmail;
 
 =head1 API
 
@@ -170,7 +171,8 @@ sub can_rename_to {
         return 1 if DW::User::Rename::_are_same_person( $self, $tou );
 
         # person-to-community (only under restricted circumstances for the community)
-        return 1 if DW::User::Rename::_is_authorized_for_comm( $self, $tou );
+        return DW::User::Rename::_can_use_community_name( $self, $tou, $errors )
+            if $tou->is_community;
 
         $errors->add( 'touser', 'rename.error.unauthorized2', { to => $tou->ljuser_display } );
         return 0;
@@ -179,12 +181,10 @@ sub can_rename_to {
     elsif ( $self->is_community && LJ::isu( $opts{user} ) ) {
         my $admin = $opts{user};
 
-        # make sure that the community journal is under the admin's control
-        # and satisfies all other conditions that ensure we don't leave members hanging
         unless ( DW::User::Rename::_is_authorized_for_comm( $admin, $self ) ) {
             $errors->add(
                 $formid,
-                'rename.error.unauthorized.forcomm',
+                'rename.error.notcommunityadmin',
                 { comm => $self->ljuser_display }
             );
             return 0;
@@ -200,10 +200,8 @@ sub can_rename_to {
         # able to rename to another personal journal under admin's control
         return 1 if $tou->is_person && DW::User::Rename::_are_same_person( $admin, $tou );
 
-        # community-to-community
-        # we checked early on that the admin is authorized to rename this community
-        # so we don't need to check again here
-        return 1 if $tou->is_community;
+        return DW::User::Rename::_can_use_community_name( $admin, $tou, $errors )
+            if $tou->is_community;
     }
 
     # be strict in what we accept
@@ -244,7 +242,11 @@ sub rename {
         return 0 unless DW::User::Rename::_rename_to_ex( $tou, errors => $opts{errors} );
     }
 
-    return DW::User::Rename::_rename( $self, $tousername, %opts );
+    my $fromusername = $self->user;
+    return 0 unless DW::User::Rename::_rename( $self, $tousername, %opts );
+
+    DW::User::Rename::_notify_community_members( $self, $fromusername ) if $self->is_community;
+    return 1;
 }
 
 =head2 C<< $self->swap_usernames( $touser [, %opts ] ) >>
@@ -358,14 +360,56 @@ sub _is_authorized_for_comm {
     my ( $admin, $journal ) = @_;
 
     return 0 unless $admin->is_person && $journal->is_community;
-    return 0 unless $admin->can_manage_other($journal);
+    return $admin->can_manage_other($journal);
+}
 
-    # community must have no users, to avoid confusion
-    my @member_userids = $journal->member_userids;
-    return 0 if scalar @member_userids > 1;
-    return 0 if scalar @member_userids == 1 && $member_userids[0] != $admin->userid;
+sub _can_use_community_name {
+    my ( $admin, $journal, $errors ) = @_;
 
-    return 1;
+    return 1
+        if DW::User::Rename::_is_authorized_for_comm( $admin, $journal )
+        && !grep { $_ != $admin->userid } $journal->member_userids;
+
+    $errors->add( 'touser', 'rename.error.communitytarget', { comm => $journal->ljuser_display } );
+    return 0;
+}
+
+sub _notify_community_members {
+    my ( $community, $fromusername ) = @_;
+
+    my @memberids = $community->member_userids;
+    return unless @memberids;
+
+    my $subject = LJ::Lang::ml('rename.email.community.subject');
+    my $body    = LJ::Lang::ml(
+        'rename.email.community.body',
+        {
+            oldname => $fromusername,
+            newname => $community->user,
+            profile => $community->profile_url
+        }
+    );
+
+    foreach my $member ( values %{ LJ::load_userids(@memberids) } ) {
+        next unless $member && $member->is_visible && $member->is_validated;
+
+        my $email = $member->email_raw;
+        next unless defined $email && $email =~ /\A[^@\s]+\@[^@\s]+\z/;
+
+        my @errors;
+        LJ::check_email( $email, \@errors, { force_spelling => 1 } );
+        next if @errors;
+
+        LJ::send_mail(
+            {
+                to       => $email,
+                from     => $LJ::BOGUS_EMAIL,
+                fromname => $LJ::SITENAMESHORT,
+                subject  => $subject,
+                body     => $body,
+            }
+        );
+    }
 }
 
 =head2 C<< $self->_rename( $tousername, %opts ) >>
@@ -386,14 +430,14 @@ sub _rename {
 
     my $dbh = LJ::get_db_writer() or die "Could not get DB handle";
 
-    # FIXME: transactions possible?
-    foreach my $table (qw( user useridmap )) {
-        $dbh->do( "UPDATE $table SET user=? WHERE user=?", undef, $tousername, $fromusername );
-
-        if ( $dbh->err ) {
-            $errors->add_string( '', $dbh->errstr );
-            return 0;
-        }
+    my $changed = $dbh->do(
+        'UPDATE user JOIN useridmap USING (userid) SET user.user=?, useridmap.user=? '
+            . 'WHERE user.userid=? AND user.user=? AND useridmap.user=?',
+        undef, $tousername, $tousername, $self->userid, $fromusername, $fromusername
+    );
+    unless ( $changed && $changed > 0 ) {
+        $errors->add( 'touser', 'rename.error.usernamechanged' );
+        return 0;
     }
 
     # invalidate

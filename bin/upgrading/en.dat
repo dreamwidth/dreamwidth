@@ -2417,6 +2417,17 @@ redirect.error.usernotfound=Journal not found.
 
 redirect.link.to.journal=Go back to [[journal]].
 
+rename.email.community.body<<
+The community [[oldname]] was renamed to [[newname]]. Your membership has not changed.
+
+If you no longer want to be a member, you can leave from the community's profile:
+[[profile]]
+.
+
+rename.email.community.subject=A community you belong to was renamed
+
+rename.error.communitytarget=You can only rename to [[comm]] if you administer it and it has no members other than you.
+
 rename.error.invalidaccounttype=Only personal journals can own rename tokens.
 
 rename.error.invalidfrom=Tried to rename an invalid journal.
@@ -2430,6 +2441,8 @@ rename.error.invalidstatusto=You cannot rename to [[to]]; it must be either an a
 rename.error.invalidto=Username was in an invalid format.
 
 rename.error.isself=Cannot rename back to your own username.
+
+rename.error.notcommunityadmin=Only an administrator of [[comm]] can rename it.
 
 rename.error.noto=No username provided to rename to.
 
@@ -2449,9 +2462,9 @@ rename.error.tokentoofew=Too few tokens; you need two to perform a swap.
 
 rename.error.unauthorized2=[[to]] is not under your control. Both accounts need to have the same verified email address and the same password for this operation.
 
-rename.error.unauthorized.forcomm=The community [[comm]] must have no members, and must be under your control.
-
 rename.error.unknown=Cannot rename to "[[to]]".
+
+rename.error.usernamechanged=The rename could not be saved. Check that both usernames are still available for this rename and try again.
 
 rename.ex.toomanytries=We had some trouble trying to move aside the account you are trying to rename to ([[tousername]]). Please try again.
 
