@@ -18,29 +18,41 @@ use Getopt::Long;
 
 # parse input options
 my ( $list, $add, $modify, $banid, $status, $bandate, $banuntil, $banlength, $what, $value, $note );
+my $import_file;
 exit 1
     unless GetOptions(
-    'list'        => \$list,
-    'add'         => \$add,
-    'modify'      => \$modify,
-    'banid=s'     => \$banid,
-    'status=s'    => \$status,
-    'bandate=s'   => \$bandate,
-    'banuntil=s'  => \$banuntil,
-    'banlength=s' => \$banlength,
-    'what=s'      => \$what,
-    'value=s'     => \$value,
-    'note=s'      => \$note,
+    'list'                   => \$list,
+    'add'                    => \$add,
+    'modify'                 => \$modify,
+    'import-email-domains=s' => \$import_file,
+    'banid=s'                => \$banid,
+    'status=s'               => \$status,
+    'bandate=s'              => \$bandate,
+    'banuntil=s'             => \$banuntil,
+    'banlength=s'            => \$banlength,
+    'what=s'                 => \$what,
+    'value=s'                => \$value,
+    'note=s'                 => \$note,
     );
 
 # did they give valid input?
 my $an_opt = ( $what || $value || $status || $bandate || $banuntil || $banlength || $note );
+if ( defined $import_file ) {
+    die
+"Use --import-email-domains=FILE with --note=REASON and optional --banlength=DURATION only.\n"
+        if $list
+        || $add
+        || $modify
+        || @ARGV
+        || grep { defined } ( $banid, $status, $bandate, $banuntil, $what, $value );
+    die "Provide a nonblank --note of at most 255 characters for this import.\n"
+        unless defined $note && $note =~ /\S/ && length($note) <= 255;
+}
 unless (
-    (
-           $list && ( ( $banid && !$an_opt ) || ( !$banid && $an_opt ) )
-        || ( $add    && $what  && $value )
-        || ( $modify && $banid && $an_opt )
-    )
+    defined $import_file
+    || (   $list && ( ( $banid && !$an_opt ) || ( !$banid && $an_opt ) )
+        || ( $add && $what && $value )
+        || ( $modify && $banid && $an_opt ) )
     )
 {
 
@@ -54,6 +66,10 @@ unless (
         . "  --modify <--banid=?>\n"
         . "             [--status=? --bandate=datetime { --banuntil=datetime |\n"
         . "              --banlength=duration } --value=? --note=?]\n\n"
+        . "  --import-email-domains=FILE --note=REASON [--banlength=duration]\n"
+        . "             Review the list first. Use one domain per line (blank lines and # comments are ignored).\n"
+        . "             Domain bans also block subdomains. Large lists can slow email checks.\n"
+        . "             Bans are permanent unless a duration is given. Rejected lines do not undo valid bans.\n\n"
         . "datetime in format 'YYYY-MM-DD HH:MM:SS', duration in format 'N[dhms]' e.g. '5d' or '3h'.\n\n"
         . "examples:\n"
         . "  ljsysban.pl --list --what=ip --value=127.0.0.1\n"
@@ -67,6 +83,83 @@ BEGIN {
 }
 use LJ::Sysban;
 my $dbh = LJ::get_db_writer();
+
+if ( defined $import_file ) {
+    die "Cannot connect to the database writer.\n" unless $dbh;
+    open my $domains, '<', $import_file or die "Cannot open $import_file: $!\n";
+
+    my $expires = 0;
+    if ( defined $banlength ) {
+        my %seconds = ( d => 86400, h => 3600, m => 60, s => 1 );
+        die "--banlength must be a positive duration such as 3d, 5h, 60m, or 35s.\n"
+            unless $banlength =~ /\A(\d+)([dhms])\z/i && $1 > 0;
+        $expires = time() + $1 * $seconds{ lc $2 };
+        die "--banlength exceeds the supported date range.\n" if $expires > 2147483647;
+    }
+
+    my $active = $dbh->selectcol_arrayref(
+        q{SELECT value FROM sysban WHERE what = 'email_domain' AND status = 'active'
+          AND bandate <= NOW() AND (banuntil > NOW() OR banuntil = 0 OR banuntil IS NULL)}
+    );
+    die "Cannot read existing email domain bans: " . $dbh->errstr . "\n" if !$active || $dbh->err;
+
+    my %banned    = map { lc($_) => 1 } grep { defined } @$active;
+    my @protected = map { lc $_ } grep       { defined && length }
+        ( $LJ::DOMAIN, $LJ::EMAIL_POST_DOMAIN, $LJ::EMAIL_REPLY_DOMAIN );
+    my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/;
+    my ( $added, $duplicates, $rejected, $line_number ) = ( 0, 0, 0, 0 );
+
+    while (1) {
+        $! = 0;
+        my $line = <$domains>;
+        unless ( defined $line ) {
+            die "Cannot read $import_file: $!\n" if $!;
+            last;
+        }
+
+        ++$line_number;
+        my $domain = lc LJ::trim($line);
+        next if $domain eq '' || $domain =~ /\A#/;
+
+        my $error;
+        if ( length($domain) > 80 || $domain !~ /\A$label(?:\.$label)+\z/ ) {
+            $error = 'invalid email domain';
+        }
+        elsif ( grep { $domain eq $_ || $domain =~ /\.\Q$_\E\z/ || /\.\Q$domain\E\z/ } @protected )
+        {
+            $error = 'protected email domain';
+        }
+        elsif ( $banned{$domain} ) {
+            ++$duplicates;
+            next;
+        }
+        else {
+            my $result = LJ::Sysban::create(
+                what     => 'email_domain',
+                value    => $domain,
+                exptime  => $expires,
+                note     => $note,
+                noremote => 1,
+            );
+            if ( ref $result eq 'ERROR' ) {
+                $error = $result->{message};
+            }
+            else {
+                $banned{$domain} = 1;
+                ++$added;
+            }
+        }
+
+        if ( defined $error ) {
+            warn "Line $line_number: $error\n";
+            ++$rejected;
+        }
+    }
+
+    close $domains or die "Cannot close $import_file: $!\n";
+    print "Email domain import: $added added, $duplicates duplicates, $rejected rejected.\n";
+    exit( $rejected ? 1 : 0 );
+}
 
 # list bans
 if ($list) {
