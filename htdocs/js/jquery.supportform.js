@@ -10,6 +10,14 @@ function approve(e) {
     scrollTo( 0, y_pos );
 }
 
+function updateComposeBorders() {
+    var internalType = $( "[name=internaltype]" ).val();
+    var replyType = $( "[name=replytype]" ).val();
+
+    $( "#reply" ).attr( "data-support-reply-type", internalType === "bounce" ? null : replyType );
+    $( "#internal" ).attr( "data-support-reply-type", internalType === "internal" ? internalType : null );
+}
+
 $.supportform = {
     init: function() {
         var $faq_ref = $("<input type='text' size='3' />").change(function() {
@@ -36,6 +44,10 @@ $.supportform = {
         $( "#internaltype" ).change( function(e) {
             $( "#bounce_email" ).toggle( this.value == "bounce" );
         }).triggerHandler( "change" );
+
+        $( "[name=replytype], [name=internaltype]" ).change( updateComposeBorders );
+        $( window ).on( "pageshow", updateComposeBorders );
+        updateComposeBorders();
 
 
         $( "select, input" ).filter( "[name=changecat], [name=touch], [name=untouch], [name=approveans]" )
