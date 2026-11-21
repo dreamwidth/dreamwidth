@@ -8,4 +8,6 @@
 
 .entercommands=Enter Commands:
 
+.error.invalidform=This form has expired or your session has changed. Your commands were not run. Review them and select Execute to try again.
+
 .execute=Execute
