@@ -112,4 +112,42 @@ my $get_text = \&LJ::Lang::get_text;
 
 }
 
+$comm->update_self( { caps => 2 } );
+test_psgi $app, sub {
+    my $cb = shift;
+    my ( $admin_name, $community_name ) = ( $admin->user, $comm->user );
+
+    for my $route (qw(layers styles)) {
+        subtest "account switcher on the $route error page" => sub {
+            my $res = $cb->( GET "$base/$route?as=$admin_name&authas=$community_name" );
+            is( $res->code, 200, 'error page renders' );
+
+            my ($switcher) = grep { /<select\b[^>]*\bname="authas"/ }
+                $res->content =~ m{(<form\b[^>]*>.*?</form>)}sig;
+            ok( defined $switcher, 'the account select is inside a form' );
+            like(
+                $switcher // '',
+                qr{<form\b[^>]*\bmethod=(['"])get\1}i,
+                'switching accounts uses GET'
+            );
+            my $path = "/customize/advanced/$route";
+            like(
+                $switcher // '',
+                qr{<form\b[^>]*\baction=(['"])(?:https?://localhost)?\Q$path\E\1},
+                'switching accounts returns to the same customization tool'
+            );
+            like(
+                $switcher // '',
+                qr{<option value="\Q$admin_name\E"},
+                'the administrator can switch back to their personal account'
+            );
+            like(
+                $switcher // '',
+                qr{<option value="\Q$community_name\E" selected=},
+                'the current community is selected'
+            );
+        };
+    }
+};
+
 done_testing;
