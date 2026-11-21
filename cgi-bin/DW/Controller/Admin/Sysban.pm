@@ -88,12 +88,8 @@ sub sysban_controller {
         $vars->{skip}  = $form_args->{skip} || 0;
         $vars->{limit} = 20;
 
-        my $existing_bans = {};
-
-        LJ::Sysban::populate_full( $existing_bans, $form_args->{bantype}, $vars->{limit},
-            $vars->{skip} );
-
-        $vars->{existing_bans} = $existing_bans;
+        $vars->{existing_bans} =
+            LJ::Sysban::list_full_by_type( $form_args->{bantype}, $vars->{limit}, $vars->{skip} );
 
         return DW::Template->render_template( 'admin/sysban/query.tt', $vars );
     }
