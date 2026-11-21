@@ -15,7 +15,9 @@
 package LJ::Feed;
 use strict;
 
+use DW::Cache;
 use LJ::Entry;
+use Storable qw( nfreeze thaw );
 use XML::Atom::Person;
 use XML::Atom::Feed;
 
@@ -983,18 +985,27 @@ sub merge_feed {
         return ( 0, "Database Error: " . $dbh->errstr )
             if $dbh->err;
 
-        # clear memcache keys
+        # clear memcache and request cache keys
+        my ( $from_id, $to_id ) = ( $from_u->id, $to_u->id );
         foreach my $id (@ids) {
             LJ::memcache_kill( $id, 'wt_edges' );
             LJ::memcache_kill( $id, 'wt_list' );
             LJ::memcache_kill( $id, 'watched' );
+            LJ::MemCache::delete( [ $id, "trustmask:$id:$from_id" ] );
+            LJ::MemCache::delete( [ $id, "trustmask:$id:$to_id" ] );
+            DW::Cache->request->remove( 'trustmask', "$id:$from_id" );
+            DW::Cache->request->remove( 'trustmask', "$id:$to_id" );
         }
 
-        LJ::memcache_kill( $from_u->id, 'wt_edges_rev' );
-        LJ::memcache_kill( $from_u->id, 'watched_by' );
+        LJ::memcache_kill( $from_id, 'wt_edges_rev' );
+        LJ::memcache_kill( $from_id, 'watched_by' );
 
-        LJ::memcache_kill( $to_u->id, 'wt_edges_rev' );
-        LJ::memcache_kill( $to_u->id, 'watched_by' );
+        LJ::memcache_kill( $to_id, 'wt_edges_rev' );
+        LJ::memcache_kill( $to_id, 'watched_by' );
+
+        # 5) move 'from_user' reading filter memberships and settings to 'to_user'
+        my ( $cf_ok, $cf_err ) = _migrate_content_filters( $from_id, $to_id, \@ids );
+        return ( 0, $cf_err ) unless $cf_ok;
     }
 
     # log to statushistory
@@ -1004,6 +1015,85 @@ sub merge_feed {
     LJ::statushistory_add( $to_u,   $remote, 'synd_merge', $msg . " Old URL was $to_oldurl." );
 
     return ( 1, $msg );
+}
+
+sub _is_custom_filter_row {
+    my ($row) = @_;
+    return 0 unless ref $row eq 'HASH';
+    return 1 if $row->{adultcontent}        && $row->{adultcontent} ne 'any';
+    return 1 if $row->{postertype}          && $row->{postertype} ne 'any';
+    return 1 if $row->{tagmode}             && $row->{tagmode} ne 'any_of';
+    return 1 if ref $row->{tags} eq 'ARRAY' && @{ $row->{tags} };
+    return 0;
+}
+
+sub _migrate_content_filters {
+    my ( $from_id, $to_id, $ids ) = @_;
+
+    my $batch_size = 500;
+    for ( my $i = 0 ; $i < @$ids ; $i += $batch_size ) {
+        my $end = $i + $batch_size - 1;
+        $end = $#$ids if $end > $#$ids;
+        my @chunk = @$ids[ $i .. $end ];
+
+        my $users = LJ::load_userids(@chunk);
+        my %by_cluster;
+        foreach my $uid (@chunk) {
+            my $u = $users->{$uid} or next;
+            next unless $u->clusterid;
+            push @{ $by_cluster{ $u->clusterid } }, $uid;
+        }
+
+        foreach my $cid ( sort { $a <=> $b } keys %by_cluster ) {
+            my $cuids = $by_cluster{$cid};
+            my $dbcm  = LJ::get_cluster_master($cid)
+                or return ( 0, "Database Error: Unable to connect to cluster $cid." );
+
+            my $placeholders = join( ',', ('?') x @$cuids );
+            my $rows         = $dbcm->selectall_arrayref(
+                "SELECT userid, filterid, data FROM content_filter_data "
+                    . "WHERE userid IN ($placeholders)",
+                undef, @$cuids
+            );
+            return ( 0, "Database Error: " . $dbcm->errstr )
+                if $dbcm->err;
+
+            foreach my $row (@$rows) {
+                my ( $uid, $filterid, $raw ) = @$row;
+                next unless defined $raw;
+
+                my $data = do {
+                    local $@;
+                    eval { thaw($raw) }
+                };
+                next unless ref $data eq 'HASH' && exists $data->{$from_id};
+
+                my $from_row = delete $data->{$from_id};
+                if ( !exists $data->{$to_id} ) {
+                    $data->{$to_id} = ref $from_row eq 'HASH' ? $from_row : { tags => [] };
+                }
+                elsif ( _is_custom_filter_row($from_row) ) {
+                    $data->{$to_id} = $from_row;
+                }
+
+                $dbcm->do(
+                    'UPDATE content_filter_data SET data = ? WHERE userid = ? AND filterid = ?',
+                    undef, nfreeze($data), $uid, $filterid );
+                return ( 0, "Database Error: " . $dbcm->errstr )
+                    if $dbcm->err;
+
+                my $u = $users->{$uid};
+                $u->memc_delete("cfd:$filterid");
+                if ( $u->{_content_filters} ) {
+                    foreach my $cf ( @{ $u->{_content_filters} } ) {
+                        delete $cf->{_data} if $cf->id == $filterid;
+                    }
+                }
+            }
+        }
+    }
+
+    return ( 1, '' );
 }
 
 1;
