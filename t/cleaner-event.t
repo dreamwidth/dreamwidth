@@ -160,12 +160,12 @@ $entry_text = qq{
 <cut text="second"><a href="#second">2222</a></cut>};
 
 $orig_post = $entry_text;
-$cut_text  = qq{<a href="#first">111</a>};
+$cut_text  = qq{<a href="#first" rel="ugc">111</a>};
 $clean->( { cut_retrieve => 1 } );
 is( $orig_post, $cut_text, "Text under first cut, with HTML tags" );
 
 $orig_post = $entry_text;
-$cut_text  = qq{<a href="#second">2222</a>};
+$cut_text  = qq{<a href="#second" rel="ugc">2222</a>};
 $clean->( { cut_retrieve => 2 } );
 is( $orig_post, $cut_text, "Text under second cut, with HTML tags" );
 

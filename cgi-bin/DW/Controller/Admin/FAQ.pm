@@ -276,10 +276,10 @@ sub edit_handler {
 
         # Clean this as if it were an entry, but don't allow lj-cuts
         my $s_html = $fake_faq->summary_html;
-        LJ::CleanHTML::clean_event( \$s_html, { ljcut_disable => 1 } )
+        LJ::CleanHTML::clean_event( \$s_html, { ljcut_disable => 1, ugc_links => 0 } )
             if $vars->{preview_summary};
         my $a_html = $fake_faq->answer_raw;
-        LJ::CleanHTML::clean_event( \$a_html, { ljcut_disable => 1 } );
+        LJ::CleanHTML::clean_event( \$a_html, { ljcut_disable => 1, ugc_links => 0 } );
 
         $vars->{s_html} = $s_html;
         $vars->{a_html} = $a_html;
@@ -566,7 +566,7 @@ sub read_handler {
     $vars->{clean_content} = sub {
         my $txt = LJ::trim( $_[0] );
         $txt =~ s/\n( +)/"\n" . "&nbsp;&nbsp;"x length( $1 )/eg;
-        LJ::CleanHTML::clean_event( \$txt, { ljcut_disable => 1 } );
+        LJ::CleanHTML::clean_event( \$txt, { ljcut_disable => 1, ugc_links => 0 } );
         return $txt;
     };
 
