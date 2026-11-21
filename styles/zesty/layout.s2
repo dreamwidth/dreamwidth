@@ -1872,8 +1872,12 @@ function RecentPage::lay_back_forward() : void {
     <div class="back-forward">
     """;
     if ($.nav.backward_url != "") {
-        var string previous = $.nav.backward_count ? get_plural_phrase($.nav.backward_count, "text_skiplinks_back")
-                             : $.nav.backward_by_date ? $*text_reading_by_date : $*text_day_prev;
+        var string previous = $*text_day_prev;
+        if ($.nav.backward_count) {
+            $previous = get_plural_phrase($.nav.backward_count, "text_skiplinks_back");
+        } elseif ($.nav.backward_by_date) {
+            $previous = $*text_reading_by_date;
+        }
         """
         <div class="back">
             <a href="$.nav.backward_url" title="$previous" aria-label="$previous">&larr;</a>
