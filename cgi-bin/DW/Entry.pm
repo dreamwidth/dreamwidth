@@ -302,6 +302,8 @@ sub _form_to_backend {
             foreach my $bit (@custom_bits) {
                 $amask |= ( 1 << $bit );
             }
+            $errors->add( 'security', '.error.customgroups' )
+                if $errors && !$is_api && !$opts{allow_empty} && !$amask;
         }
     }
     $req->{security}  = $sec;
