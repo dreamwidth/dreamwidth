@@ -228,7 +228,7 @@ _c?>
         }
 
         if ($did_post) {
-            $entry->{$_} = $POST{$_} foreach keys %POST;
+            $entry->{$_} = $POST{$_} foreach grep { $_ ne 'tag_entry' } keys %POST;
 
         # Copy things over from the transform
         } elsif (LJ::did_post()) {

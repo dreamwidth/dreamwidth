@@ -479,7 +479,7 @@ body<=
                 $ret .= "<div class='warning-box'>$ML{'.invalid_encoding'} </div><br/>";
             }
 
-            $ret .= LJ::entry_form($entry, \$$head, \$onload);
+            $ret .= LJ::entry_form($entry, \$$head, \$onload, undef, $entry_obj);
             $ret .= "</form></div>";
             $ret .= "</td>";
 

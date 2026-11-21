@@ -33,6 +33,7 @@ use DW::Entry;
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
 use LJ::JSON;
+use LJ::Tags;
 
 use DW::External::Account;
 use DW::External::Site;
@@ -252,6 +253,10 @@ sub new_handler {
 
     # prepopulate if we haven't been through this form already
     $vars->{formdata} = $post || _prepopulate($get);
+    if ( !$vars->{usejournal} ) {
+        my $selected = $vars->{formdata}->{usejournal} // '';
+        $vars->{tag_permission} = $vars->{tag_permissions}->{$selected} // '';
+    }
 
     # Had to wait for formdata before figuring out the editors list -- if we
     # have a WIP form submission with errors, we want to reuse what the user
@@ -473,6 +478,10 @@ sub _init {
     #             # but always trust the time if we've been through the form already
     #             my $date_diff = ($opts->{'mode'} eq "edit") ? 1 : 0;
 
+    my %tag_permissions =
+        map { $_->user => LJ::Tags::entry_form_tag_permission( $_, $u, $form_opts->{entry} ) }
+        @journallist;
+
     $vars = {
         remote => $u,
 
@@ -481,6 +490,9 @@ sub _init {
 
         journallist => \@journallist,
         usejournal  => $usejournal,
+
+        tag_permissions => \%tag_permissions,
+        tag_permission  => $journalu ? $tag_permissions{ $journalu->user } : '',
 
         security         => \@security,
         customgroups     => \@custom_groups,
@@ -639,6 +651,7 @@ sub _edit {
         {
             usejournal => $journal->username,
             remote     => $remote,
+            entry      => $entry_obj,
 
             datetime             => $entry_obj->eventtime_mysql,
             trust_datetime_value => $trust_datetime_value,

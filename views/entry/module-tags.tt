@@ -21,17 +21,27 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "taglist"
             id = "js-taglist"
             class = "draft-autosave"
+            "aria-describedby" = "entry-tag-permission"
 
             cols = "20"
             rows = "1"
         ) -%]
     </div></div>
 
+    [% SET tag_message = tag_permission ? dw.ml("entryform.tags.permission.$tag_permission") : "" %]
+    <div class="row" role="status"><div class="columns">
+        <p id="entry-tag-permission" data-tag-permission="[% tag_permission | html %]"
+            data-create="[% dw.ml('entryform.tags.permission.create') | html %]"
+            data-existing="[% dw.ml('entryform.tags.permission.existing') | html %]"
+            data-none="[% dw.ml('entryform.tags.permission.none') | html %]"
+            [% UNLESS tag_permission %]hidden[% END %]>[% tag_message | html %]</p>
+    </div></div>
+
     [%- INCLUDE "components/tag-browser.tt" -%]
 
     <div class="row"><div class="columns tagselector-controls">
         [% IF journalu %]
-            <a id="js-taglist-link" target="_blank" href="[% journalu.journal_base %]/tag/">[% ".link.tagspage" | ml %]</a>
+            <a id="js-taglist-link" target="_blank" href="[% journalu.journal_base | html %]/tag/">[% ".link.tagspage" | ml %]</a>
         [% END %]
     </div></div>
 </div>

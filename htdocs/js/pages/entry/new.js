@@ -428,6 +428,17 @@ var postForm = (function($) {
     };
 
     var initTags = function($form) {
+        var $notice = $("#entry-tag-permission");
+        var $journal = $("#js-usejournal").filter("select");
+        if ( $notice.length && $journal.length ) {
+            $form.on("journalselect", function() {
+                var permission = $journal.find("option:selected").attr("data-tag-permission") || "";
+                $notice.attr("data-tag-permission", permission)
+                    .text(permission ? $notice.attr("data-" + permission) : "")
+                    .prop("hidden", !permission);
+            });
+        }
+
         $form.one("journalselect", function(e, journal) {
             var $taglist = $("#js-taglist");
             var canGetTags = hasRemote() && journal.name;
