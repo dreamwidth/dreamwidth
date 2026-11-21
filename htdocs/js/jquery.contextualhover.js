@@ -282,7 +282,7 @@ _renderPopup: function() {
     }
 
     if ( data.is_logged_in && data.is_comm ) {
-        if ( ! data.is_closed_membership || data.is_member ) {
+        if ( ! data.is_closed_membership || data.is_member || data.is_invited ) {
             if ( data.is_member )
                 this._addAction( data.url_leavecomm, "Leave", "leave" );
             else if ( data.is_invited )
@@ -391,6 +391,7 @@ _changeRelation: function($link) {
                         $.each(updatedProps,function(){
                             self.cachedResults[this] = data[this];
                         });
+                        if ( action == "accept" ) self.cachedResults.is_invited = false;
                     }
                     self._renderPopup();
                     $popup.find(".Relation").css( "min-height", $popup.data( "relheight" ) );
