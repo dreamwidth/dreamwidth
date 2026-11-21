@@ -18,9 +18,11 @@ use warnings;
 use Test::More;
 use HTML::Parser;
 use HTTP::Request::Common;
+use JSON::PP qw(decode_json);
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Protocol;
 use LJ::Test qw(temp_comm temp_user with_fake_memcache);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -99,6 +101,46 @@ with_fake_memcache {
 
     test_psgi $app, sub {
         my ($request) = @_;
+        subtest 'journal-level tag permission for a nonmember poster' => sub {
+            $community->set_prop( opt_tagpermissions => 'author_admin,private' );
+            my $username = $nonmember->user;
+            my $error    = 0;
+            my $post     = LJ::Protocol::do_request(
+                'postevent',
+                {
+                    ver        => $LJ::PROTOCOL_VER,
+                    username   => $username,
+                    usejournal => $journal,
+                    event      => 'A new community entry',
+                    props      => { taglist => 'test-tag' },
+                    tz         => 'guess',
+                },
+                \$error,
+                { noauth => 1, u => $nonmember }
+            );
+            ok( !$post, 'postevent rejects tags on a new entry' );
+            like( $error, qr/^312(?:$|:)/, 'postevent reports the tag permission error' );
+
+            my $rpc = $request->( GET "http://localhost/__rpc_gettags?as=$username&user=$journal" );
+            ok( $rpc->is_success, 'gettags returns a response' );
+            my $payload = decode_json( $rpc->content );
+            ok( $payload->{error}, 'gettags denies access' );
+            like( $payload->{alert} // '', qr/cannot use .* tags/, 'gettags denies tag use' );
+        };
+
+        subtest 'legacy community form redisplay' => sub {
+            $community->set_prop( opt_tagpermissions => 'public,private' );
+            my $username = $member->user;
+            my $result   = $request->(
+                POST "http://localhost/update?as=$username",
+                [ usejournal => $journal, showform => 1, tag_entry => 1 ],
+            );
+            my ($fields) = form_state( $result->content, 'usejournal' );
+            ok( $result->is_success && $fields->{prop_taglist},
+                'redisplays the legacy tags field' );
+            notice_is( $fields, 'existing', 'legacy redisplay with an unexpected form field' );
+        };
+
         for my $editor ( 'beta', 'legacy' ) {
             subtest $editor => sub {
                 my $beta        = $editor eq 'beta';
@@ -135,18 +177,22 @@ with_fake_memcache {
                         my ( $setting, @expected ) = @$case;
                         $community->set_prop( opt_tagpermissions => $setting );
                         my $scenario = "$role with $setting";
+                        my $new_permission =
+                            $role eq 'nonmember' && $setting eq 'author_admin,private'
+                            ? 'none'
+                            : $expected[$index];
                         my ( $new_fields, $options ) = $get_form->( $new, "$scenario new" );
                         notice_is( $new_fields, '', "$scenario personal target" );
                         ok( exists $options->{''}, "$scenario can switch back to personal" );
                         is( $options->{''}{'data-tag-permission'} // '',
                             '', "$scenario personal option has no community restriction" );
                         is( $options->{$journal}{'data-tag-permission'},
-                            $expected[$index],
+                            $new_permission,
                             "$scenario community option carries the effective permission" );
 
                         my ($direct) =
                             $get_form->( "$new?usejournal=$journal", "$scenario direct new" );
-                        notice_is( $direct, $expected[$index], "$scenario direct new" );
+                        notice_is( $direct, $new_permission, "$scenario direct new" );
 
                         my ($edit) = $get_form->( $edit_url->( $posts[$index] ), "$scenario edit" );
                         notice_is( $edit, $expected[$index], "$scenario edit" );

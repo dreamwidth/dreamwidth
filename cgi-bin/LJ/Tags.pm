@@ -534,7 +534,9 @@ sub entry_form_tag_permission {
     my ( $journal, $remote, $entry ) = @_;
     return '' unless $journal && $journal->is_community && $remote && LJ::is_enabled('tags');
     return 'create' if can_control_tags( $journal, $remote );
-    return can_add_entry_tags( $remote, $entry, $journal ) ? 'existing' : 'none';
+    my $can_add =
+        $entry ? can_add_entry_tags( $remote, $entry ) : can_add_tags( $journal, $remote );
+    return $can_add ? 'existing' : 'none';
 }
 
 # helper sub internal used by can_*_tags functions

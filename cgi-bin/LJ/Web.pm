@@ -20,6 +20,7 @@ use Carp;
 use POSIX;
 use Digest::MD5;
 use Digest::SHA1;
+use Scalar::Util qw(blessed);
 
 use DW::AccountSwitcher;
 use DW::Auth::Challenge;
@@ -967,7 +968,7 @@ sub create_url {
 # name: LJ::entry_form
 # class: web
 # des: Returns a properly formatted form for creating/editing entries.
-# args: head, onload, opts
+# args: opts, head, onload, errors, tag_entry
 # des-head: string reference for the <head> section (JavaScript previews, etc).
 # des-onload: string reference for JavaScript functions to be called on page load
 # des-opts: hashref of keys/values:
@@ -978,10 +979,11 @@ sub create_url {
 #           event: entry text;
 #           richtext: allow rich text formatting;
 #           auth_as_remote: bool option to authenticate as remote user, pre-filling pic/friend groups/etc.
+# des-tag_entry: optional LJ::Entry provided by the edit handler, not by form data.
 # return: form to include in BML pages.
 # </LJFUNC>
 sub entry_form {
-    my ( $opts, $head, $onload, $errors ) = @_;
+    my ( $opts, $head, $onload, $errors, $tag_entry ) = @_;
 
     my $out      = "";
     my $remote   = $opts->{remote};
@@ -1417,8 +1419,8 @@ RTE
 
             my $permission = LJ::Tags::entry_form_tag_permission(
                 LJ::load_user( $opts->{usejournal} ),
-                $opts->{auth_as_remote} ? $remote : undef,
-                $opts->{tag_entry}
+                $opts->{auth_as_remote}                             ? $remote    : undef,
+                blessed($tag_entry) && $tag_entry->isa('LJ::Entry') ? $tag_entry : undef
             );
             my %messages = map { $_ => LJ::ehtml( BML::ml("entryform.tags.permission.$_") ) }
                 qw(create existing none);
