@@ -27,7 +27,7 @@ DW::Routing->register_string( "/manage/logins", \&login_handler, app => 1 );
 sub login_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r = DW::Request->get;

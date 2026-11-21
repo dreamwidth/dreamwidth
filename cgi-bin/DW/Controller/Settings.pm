@@ -53,7 +53,8 @@ DW::Routing->register_string( "/manage2fa", \&manage2fa_handler, app => 1, no_ca
 sub account_status_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => { showall => 1 } );
+    my ( $ok, $rv ) =
+        controller( form_auth => 1, authas => { showall => 1 }, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
@@ -254,7 +255,7 @@ sub account_status_handler {
 sub manage2fa_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r         = $rv->{r};
@@ -387,7 +388,7 @@ sub _totp_setup_vars {
 sub changepassword_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r   = $rv->{r};
@@ -600,7 +601,7 @@ sub changepassword_handler {
 }
 
 sub lostinfo_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r         = $rv->{r};

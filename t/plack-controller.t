@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 # t/plack-controller.t
 #
-# Tests that DW::Controller::Login renders through the full Plack stack.
+# Tests shared controller behavior through the full Plack stack.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -18,6 +18,7 @@ use warnings;
 use v5.10;
 
 use Test::More;
+use Digest::SHA qw(hmac_sha256_hex);
 use HTTP::Request::Common;
 use Plack::Test;
 
@@ -25,6 +26,11 @@ BEGIN {
     $LJ::_T_CONFIG = 1;
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
 }
+
+use DW::API::Key;
+use LJ::JSON;
+use LJ::Session;
+use LJ::Test qw(temp_user);
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -44,6 +50,294 @@ test_psgi $app, sub {
     # token, so a shared cache serving one user's page to another would break
     # login with "Invalid form submission".
     like( $res->header('Cache-Control'), qr/no-cache/, "GET /login is marked no-cache" );
+};
+
+my $visible   = temp_user();
+my $deleted   = temp_user();
+my $suspended = temp_user();
+$deleted->update_self(   { statusvis => 'D' } );
+$suspended->update_self( { statusvis => 'S' } );
+
+my $deleted_session   = LJ::Session->create($deleted);
+my $suspended_session = LJ::Session->create($suspended);
+
+sub loggedin_cookie {
+    my ($session) = @_;
+    return 'ljloggedin=' . $session->loggedin_cookie_string;
+}
+
+sub master_cookies {
+    my ($session) = @_;
+    return 'ljmastersession=' . $session->master_cookie_string . '; ' . loggedin_cookie($session);
+}
+
+test_psgi $app, sub {
+    my $cb   = shift;
+    my $base = 'http://localhost';
+    local $LJ::IS_DEV_SERVER = 1;
+
+    is( $cb->( GET "$base/tools/search" )->code, 200, 'search still allows anonymous visitors' );
+    is( $cb->( GET "$base/tools/search?as=" . $visible->user )->code,
+        200, 'search allows a visible account' );
+    is( $cb->( GET "$base/manage/index" )->code,
+        302, 'account management still redirects anonymous visitors to login' );
+
+    for my $account ( $deleted, $suspended ) {
+        my $query  = '?as=' . $account->user;
+        my $status = $account->statusvis;
+        is( $cb->( GET "$base/tools/search$query" )->code,
+            403, "search rejects a signed-in account with status $status" );
+        is( $cb->( GET "$base/manage/index$query" )->code,
+            403, "account management rejects a signed-in account with status $status" );
+        for my $path ( '/accountstatus', '/logout', '/support/submit' ) {
+            is( $cb->( GET "$base$path$query" )->code,
+                200, "$path remains available with account status $status" );
+        }
+    }
+};
+
+subtest 'domain session recovery' => sub {
+    local $LJ::DOMAIN      = 'example.test';
+    local $LJ::DOMAIN_WEB  = 'www.example.test';
+    local $LJ::USER_DOMAIN = 'example.test';
+    local $LJ::SITEROOT    = 'https://www.example.test';
+    local $LJ::PROTOCOL    = 'https';
+
+    my $journal_host = $visible->user =~ tr/_/-/r;
+    my $journal      = "https://$journal_host.$LJ::USER_DOMAIN";
+    my $destination  = "$journal/entry/new";
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        for my $session ( $deleted_session, $suspended_session ) {
+            subtest 'account status ' . $session->owner->statusvis => sub {
+                my $master = master_cookies($session);
+                my $logged = loggedin_cookie($session);
+
+                is( $cb->( GET "$LJ::SITEROOT/tools/search", Cookie => $master )->code,
+                    403, 'the account still cannot use a restricted controller' );
+
+                my $bounce = $cb->( GET $destination, Cookie => $logged );
+                is( $bounce->code, 303, 'missing domain cookie starts recovery' );
+                my $recovery_url = $bounce->header('Location') // '';
+                like(
+                    $recovery_url,
+                    qr{^\Q$LJ::SITEROOT\E/misc/get_domain_session\?},
+                    'recovery goes to the main site'
+                );
+                return unless $recovery_url;
+
+                my $handoff = $cb->( GET $recovery_url, Cookie => $master );
+                is( $handoff->code, 303, 'master session can recover a domain cookie' );
+                my $helper_url = $handoff->header('Location') // '';
+                like(
+                    $helper_url,
+                    qr{^\Q$journal\E/__setdomsess\?},
+                    'handoff goes to the journal cookie endpoint'
+                );
+                return unless $helper_url;
+
+                my $helper = $cb->( GET $helper_url, Cookie => $logged );
+                is( $helper->header('Location'), $destination, 'returns to original journal URL' );
+                my ($domain_cookie) =
+                    map { /^(ljdomsess\.[^=]+=[^;]+)/ } $helper->headers->header('Set-Cookie');
+                ok( $domain_cookie, 'journal issued a domain session cookie' );
+                if ($domain_cookie) {
+                    my $result    = $cb->( GET $destination, Cookie => "$logged; $domain_cookie" );
+                    my $entry_url = "$LJ::SITEROOT/entry/$journal_host/new";
+                    is( $result->header('Location'), $entry_url,
+                        'recovered domain session reaches the journal route without another bounce'
+                    );
+                    is( $cb->( GET $entry_url, Cookie => $master )->code,
+                        403, 'the destination controller still denies the account' );
+                }
+            };
+        }
+    };
+};
+
+subtest 'account and support self-service' => sub {
+    my $base             = 'http://localhost';
+    my $deleted_cookie   = master_cookies($deleted_session);
+    my $suspended_cookie = master_cookies($suspended_session);
+
+    $deleted->update_self( { status => 'T' } );
+    my $action = LJ::register_authaction( $deleted->id, 'validateemail', $deleted->email_raw );
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        my $change = $cb->( GET "$base/changeemail", Cookie => $deleted_cookie );
+        is( $change->code, 200, 'deleted account can reach email maintenance' );
+        ok( $change->content =~ qr{<form action='[^']*/changeemail'},
+            'email change form is available' );
+
+        $change = $cb->( GET "$base/changeemail", Cookie => $suspended_cookie );
+        ok(
+            $change->content =~ qr{while your account is suspended},
+            'suspended account still cannot change its email'
+        );
+
+        $cb->( GET "$base/register?$action->{aaid}.invalid", Cookie => $deleted_cookie );
+        is( LJ::load_userid( $deleted->id )->email_status,
+            'T', 'invalid code does not verify email' );
+
+        my $confirm = $cb->( GET "$base/confirm/$action->{aaid}.$action->{authcode}" );
+        is( $confirm->code, 303, 'email link redirects to verification' );
+        my $verify = $cb->( GET $base . $confirm->header('Location'), Cookie => $deleted_cookie );
+        is( $verify->code, 200, 'deleted account can use its email verification link' );
+        is( LJ::load_userid( $deleted->id )->email_status, 'A', 'valid code verifies email' );
+
+        $deleted->set_prop( opt_getselfsupport => 1 );
+        my $support = "$base/support/changenotify";
+        is( $cb->( GET $support )->code, 302, 'support preferences still require login' );
+
+        $cb->( POST $support, Cookie => $deleted_cookie, Content => [ opt_getselfsupport => 0 ] );
+        is( LJ::load_userid( $deleted->id )->prop('opt_getselfsupport'),
+            1, 'support preferences do not change without form authentication' );
+
+        my $form = $cb->( GET $support, Cookie => $deleted_cookie );
+        is( $form->code, 200, 'deleted account can access support preferences' );
+        my ($fields) = $form->content =~ m{<form method='post' action='changenotify'>(.*?)</form>}s;
+        my ($token)  = ( $fields // '' ) =~ /name="lj_form_auth" value="([^"]+)"/;
+        ok( $token, 'support preferences include a form token' );
+        if ($token) {
+            my @categories = $fields =~ /name=["'](spcatid_\d+)["']/g;
+            $cb->(
+                POST $support,
+                Cookie  => $deleted_cookie,
+                Content => [ lj_form_auth => $token, map { $_ => 'off' } @categories ]
+            );
+            is( LJ::load_userid( $deleted->id )->prop('opt_getselfsupport') || 0,
+                0, 'deleted account can turn off its support notifications' );
+        }
+    };
+};
+
+subtest 'deleted account can manage eligible old email addresses' => sub {
+    my $account = temp_user();
+    $account->update_self( { statusvis => 'D', status => 'T' } );
+    my $cookie = master_cookies( LJ::Session->create($account) );
+    my $url    = 'http://localhost/tools/emailmanage';
+    my $email  = 'old-address@example.test';
+    my $time   = LJ::mysql_time( time() - 183 * 86400, 1 );
+    my $dbh    = LJ::get_db_writer();
+    $dbh->do(
+'INSERT INTO infohistory (userid, what, timechange, oldvalue, other) VALUES (?, ?, ?, ?, ?)',
+        undef, $account->id, 'email', $time, $email, ''
+    );
+    my $history_type = sub {
+        return $dbh->selectrow_array( 'SELECT what FROM infohistory WHERE userid=? AND oldvalue=?',
+            undef, $account->id, $email );
+    };
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        is( $cb->( GET $url )->code, 302, 'old-address management still requires login' );
+
+        $cb->( POST $url, Cookie => $cookie, Content => [ "$email-$time" => 1 ] );
+        is( $history_type->(), 'email', 'unverified account cannot remove old addresses' );
+
+        $account->update_self( { status => 'A' } );
+        my $other = master_cookies( LJ::Session->create($visible) );
+        $cb->(
+            POST "$url?authas=" . $account->user,
+            Cookie  => $other,
+            Content => [ "$email-$time" => 1 ]
+        );
+        is( $history_type->(), 'email', 'another user cannot remove the old address' );
+
+        my $form = $cb->( GET $url, Cookie => $cookie );
+        is( $form->code, 200, 'verified deleted account can review old addresses' );
+        like( $form->content, qr/\Q$email\E/, 'old address is listed' );
+        my ($token) = $form->content =~ /name="lj_form_auth" value="([^"]+)"/;
+        $cb->(
+            POST $url,
+            Cookie  => $cookie,
+            Content => [ lj_form_auth => ( $token // '' ), "$email-$time" => 1 ]
+        );
+        is( $history_type->(), 'emaildeleted', 'eligible old address is removed from history' );
+    };
+};
+
+subtest 'API account visibility' => sub {
+    my $base   = 'http://localhost/api/v1';
+    my $cookie = master_cookies($deleted_session);
+    my $key    = DW::API::Key->new_for_user($visible)->hash;
+    my $tags   = "$base/journals/" . $visible->user . '/tags';
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is( $cb->( GET $tags, Cookie => $cookie, Authorization => "Bearer $key" )->code,
+            200, 'REST authenticates with the visible bearer principal, not the cookie account' );
+
+        my $no_key = $cb->( GET $tags, Cookie => $cookie );
+        is( $no_key->code, 401, 'cookie session cannot replace the bearer key' );
+        is( $no_key->content_type, 'application/json', 'REST authentication error is JSON' );
+        my $no_key_body = eval { from_json( $no_key->content ) };
+        is_deeply(
+            $no_key_body,
+            { success => 0, error => 'Missing or invalid API key' },
+            'REST authentication error body'
+        );
+
+        for my $endpoint (qw(new edit)) {
+            my $response = $cb->( POST "$base/file/$endpoint", Cookie => $cookie );
+            is( $response->code, 403, "media $endpoint denies the invisible cookie account" );
+            is( $response->content_type, 'application/json', "media $endpoint denial is JSON" );
+            my $body = eval { from_json( $response->content ) } // {};
+            is( $body->{success}, 0, "media $endpoint reports failure" );
+            like( $body->{error}, qr/account is not active/,
+                "media $endpoint explains the denial" );
+        }
+    };
+};
+
+subtest 'Stripe webhook response handling' => sub {
+    local $LJ::DISABLED{payments}  = 0;
+    local $LJ::DOMAIN_SHOP         = 'localhost';
+    local $LJ::STRIPE{webhook_key} = 'test-webhook-key';
+
+    my $url       = 'http://localhost/shop/stripe-webhook';
+    my $event     = to_json( { type => 'test.unsupported' } );
+    my $timestamp = time();
+    my $signature = hmac_sha256_hex( "$timestamp.$event", $LJ::STRIPE{webhook_key} );
+
+    test_psgi $app, sub {
+        my $cb     = shift;
+        my $denied = $cb->(
+            POST $url,
+            Cookie             => master_cookies($deleted_session),
+            'Stripe-Signature' => "t=$timestamp,v1=$signature",
+            Content_Type       => 'application/json',
+            Content            => $event
+        );
+        is( $denied->code, 403, 'webhook preserves the controller denial status' );
+        is( $denied->content_type, 'application/json', 'webhook denial is JSON' );
+        my $body = eval { from_json( $denied->content ) } // {};
+        is( $body->{success}, 0, 'webhook returns one JSON failure response' );
+        like( $body->{error}, qr/account is not active/, 'webhook preserves the controller error' );
+
+        my $invalid = $cb->(
+            POST $url,
+            'Stripe-Signature' => "t=$timestamp,v1=invalid",
+            Content_Type       => 'application/json',
+            Content            => $event
+        );
+        is( $invalid->code, 400, 'cookieless webhook rejects an invalid signature' );
+        like( $invalid->content, qr/Invalid webhook signature/, 'signature failure is reported' );
+
+        my $signed = $cb->(
+            POST $url,
+            'Stripe-Signature' => "t=$timestamp,v1=$signature",
+            Content_Type       => 'application/json',
+            Content            => $event
+        );
+        is( $signed->code, 400, 'signed cookieless webhook rejects an unsupported event' );
+        like( $signed->content, qr/Unsupported event/, 'signed event reaches the Stripe engine' );
+    };
 };
 
 done_testing;

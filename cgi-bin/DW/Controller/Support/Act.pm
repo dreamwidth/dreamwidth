@@ -36,7 +36,7 @@ DW::Routing->register_string( '/support/act', \&act_handler, app => 1 );
 sub act_handler {
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $scope  = '/support/act.tt';

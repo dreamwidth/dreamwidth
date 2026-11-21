@@ -26,6 +26,7 @@ use URI;
 
 use DW::Captcha;
 use DW::Template;
+use LJ::JSON qw(to_json);
 
 our ( @ISA, @EXPORT );
 @ISA    = qw/ Exporter /;
@@ -78,6 +79,8 @@ sub render_success {
 # Supported arguments: (1 stands for any true value, 0 for any false value)
 # - anonymous => 1 -- lets anonymous (not logged in) visitors view the page
 # - anonymous => 0 -- doesn't (default)
+# - allow_invisible => 1 -- allows signed-in accounts that are not visible
+# - allow_invisible => 0 -- rejects signed-in accounts that are not visible (default)
 # - authas => 1  or { args } -- allows ?authas= in URL, generates authas form
 #                              (not permitted if anonymous => 1 specified)
 # - authas => 0 -- doesn't (default)
@@ -146,6 +149,26 @@ sub controller {
     unless ( $args{anonymous} ) {
         $vars->{remote}
             or return $fail->( needlogin() );
+    }
+
+    if ( !$args{allow_invisible} && $vars->{remote} && !$vars->{remote}->is_visible ) {
+        $r->status( $r->FORBIDDEN );
+        my $message = 'Your account is not active.';
+        my $route   = $r->pnote('routing_opts');
+        if ( $route && $route->format eq 'json' ) {
+            $r->print( to_json( { success => 0, error => $message } ) );
+            return $fail->( $r->OK );
+        }
+
+        return $fail->(
+            DW::Template->render_template(
+                'error.tt',
+                {
+                    message => "$message Check your "
+                        . "<a href='$LJ::SITEROOT/accountstatus'>account status</a> for details.",
+                }
+            )
+        );
     }
 
     # see if we should captcha this user

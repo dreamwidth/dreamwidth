@@ -35,7 +35,8 @@ DW::Routing->register_string( "/switchaccount",   \&switch_handler,          app
 DW::Routing->register_string( "/manage/accounts", \&manage_accounts_handler, app => 1 );
 
 sub captcha_handler {
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, skip_captcha => 1 );
+    my ( $ok, $rv ) =
+        controller( anonymous => 1, form_auth => 1, skip_captcha => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r        = DW::Request->get;
@@ -76,7 +77,7 @@ sub logout_handler {
 
     # We have to allow anonymous viewers because that's how we render the page that
     # tells the user they have successfully logged out
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r      = DW::Request->get;
@@ -128,7 +129,7 @@ sub logout_handler {
 # Switch the active account to another one signed in to this browser, or remove
 # one from the switcher. POST-only and CSRF-protected. Always redirects.
 sub switch_handler {
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r = DW::Request->get;
@@ -180,7 +181,7 @@ sub switch_handler {
 # browser, switch to or remove any of them, or add another. The switch/remove
 # actions post to /switchaccount; adding goes through /login?switch=1.
 sub manage_accounts_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( allow_invisible => 1 );
     return $rv unless $ok;
 
     my $remote = $rv->{remote};

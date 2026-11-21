@@ -1,7 +1,5 @@
 ;; -*- coding: utf-8 -*-
 
-.error.notactive=Your account must be active in order to create a community.  Please make sure your account isn't marked deleted or suspended and try again.
-
 .error.notconfirmed=You must <a href="[[confirm_url]]">confirm your email address</a> in order to create a community.
 
 .error.ratelimited=You have exceeded the maximum number of communities you can create in a week.  Please try again later.

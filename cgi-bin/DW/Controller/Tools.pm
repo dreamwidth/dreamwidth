@@ -230,7 +230,7 @@ sub opml_handler {
 }
 
 sub emailmanage_handler {
-    my ( $ok, $rv ) = controller( authas => 1 );
+    my ( $ok, $rv ) = controller( authas => 1, allow_invisible => 1 );
     return $rv unless $ok;
     my $remote = $rv->{remote};
     my $r      = DW::Request->get;

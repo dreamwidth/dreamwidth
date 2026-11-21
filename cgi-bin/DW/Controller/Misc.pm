@@ -152,7 +152,7 @@ sub feedping_handler {
 sub domain_session_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 0, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r   = $rv->{r};
