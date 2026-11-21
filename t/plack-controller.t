@@ -18,6 +18,7 @@ use warnings;
 use v5.10;
 
 use Test::More;
+use Digest::SHA qw(hmac_sha256_hex);
 use HTTP::Request::Common;
 use Plack::Test;
 
@@ -291,6 +292,51 @@ subtest 'API account visibility' => sub {
             like( $body->{error}, qr/account is not active/,
                 "media $endpoint explains the denial" );
         }
+    };
+};
+
+subtest 'Stripe webhook response handling' => sub {
+    local $LJ::DISABLED{payments}  = 0;
+    local $LJ::DOMAIN_SHOP         = 'localhost';
+    local $LJ::STRIPE{webhook_key} = 'test-webhook-key';
+
+    my $url       = 'http://localhost/shop/stripe-webhook';
+    my $event     = to_json( { type => 'test.unsupported' } );
+    my $timestamp = time();
+    my $signature = hmac_sha256_hex( "$timestamp.$event", $LJ::STRIPE{webhook_key} );
+
+    test_psgi $app, sub {
+        my $cb     = shift;
+        my $denied = $cb->(
+            POST $url,
+            Cookie             => master_cookies($deleted_session),
+            'Stripe-Signature' => "t=$timestamp,v1=$signature",
+            Content_Type       => 'application/json',
+            Content            => $event
+        );
+        is( $denied->code, 403, 'webhook preserves the controller denial status' );
+        is( $denied->content_type, 'application/json', 'webhook denial is JSON' );
+        my $body = eval { from_json( $denied->content ) } // {};
+        is( $body->{success}, 0, 'webhook returns one JSON failure response' );
+        like( $body->{error}, qr/account is not active/, 'webhook preserves the controller error' );
+
+        my $invalid = $cb->(
+            POST $url,
+            'Stripe-Signature' => "t=$timestamp,v1=invalid",
+            Content_Type       => 'application/json',
+            Content            => $event
+        );
+        is( $invalid->code, 400, 'cookieless webhook rejects an invalid signature' );
+        like( $invalid->content, qr/Invalid webhook signature/, 'signature failure is reported' );
+
+        my $signed = $cb->(
+            POST $url,
+            'Stripe-Signature' => "t=$timestamp,v1=$signature",
+            Content_Type       => 'application/json',
+            Content            => $event
+        );
+        is( $signed->code, 400, 'signed cookieless webhook rejects an unsupported event' );
+        like( $signed->content, qr/Unsupported event/, 'signed event reaches the Stripe engine' );
     };
 };
 
