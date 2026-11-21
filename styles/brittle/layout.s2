@@ -406,6 +406,37 @@ function Page::print_default_stylesheet() {
         """;
     }
 
+    var string header_navlinks_css = "";
+    if ( $*module_navlinks_section == "header" ) {
+        $header_navlinks_css = """
+#header .module-navlinks {
+    $navigation_module_font
+    margin: 0 0 .75em;
+    padding: 0 .25em;
+    }
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    }
+
+#header .module-navlinks a {
+    display: block;
+    padding: .35em .45em;
+    }
+
+#header .module-navlinks a.current { font-weight: bold; }
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus { text-decoration: underline; }
+
+@media $medium_media_query {
+    .two-columns-left #header .module-navlinks .module-list {
+        justify-content: flex-end;
+        }
+}
+""";
+    }
+
     print_custom_control_strip_css();
 
     """
@@ -497,6 +528,8 @@ q { font-style: italic; }
 #header h2 {
   $journal_subtitle_font
 }
+
+$header_navlinks_css
 
 /*--- footer ---*/
 #footer {
