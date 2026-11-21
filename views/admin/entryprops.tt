@@ -32,7 +32,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF entry -%]
     <hr>
     <div class="row"><div class="columns">
-        <strong>Subject:</strong> <a href="[%- entry.url -%]">[%- entry.subject -%]</a>
+        <strong>Subject:</strong> <a href="[% entry.url | html %]">[%- entry.subject -%]</a>
     </div></div>
     <div class="row"><div class="columns">
         <strong>Poster:</strong> [% entry.poster %]
@@ -41,24 +41,58 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <strong>Journal:</strong> [% entry.journal %]
     </div></div>
     <div class="row"><div class="columns">
-        <strong>Security</strong> [% entry.security %]
-        (journal wide minsecurity): [% entry.minsecurity %]
+        <strong>Security</strong> [% entry.security | html %]
+        (journal wide minsecurity): [% entry.minsecurity | html %]
     </div></div>
     <div class="row"><div class="columns">
-        <strong>User Date/Time:</strong> [% entry.user_time %]
+        <strong>User Date/Time:</strong> [% entry.user_time | html %]
     </div></div>
     <div class="row"><div class="columns">
-        <strong>Server Date/Time:</strong> [% entry.server_time %]
+        <strong>Server Date/Time:</strong> [% entry.server_time | html %]
     </div></div>
     <div class="row"><div class="columns">
-        <strong>Journal Adult Content:</strong> [% entry.adult_content %]
+        <strong>Journal Adult Content:</strong> [% entry.adult_content | html %]
     </div></div>
+    [%- IF saved -%]
+        <p role="status">Changes saved.</p>
+    [%- END -%]
+    [%- IF can_save -%]
+        <form method="POST">
+        [%- dw.form_auth -%]
+        [%- form.hidden( name = 'url', value = entry.edit_url ) -%]
+        [%- form.hidden( name = '_save', value = 1 ) -%]
+        <p>Only properties with an edit field can be changed here. Leave a field blank to remove its property; a literal 0 is not supported.</p>
+    [%- END -%]
     <ul>
     [%- FOR prop = props -%]
         <li>
-            <strong>[%- prop.name -%]:</strong> [% prop.value %]<br>
-            <small>[%- prop.description -%]</small>
+            [%- IF can_save && prop.field -%]
+                [%- form.hidden( name = prop.baseline_field, value = prop.baseline ) -%]
+                [%- IF prop.textarea_value -%]
+                    [%- form.textarea(
+                        label = prop.name,
+                        name = prop.field,
+                        value = prop.textarea_value,
+                        maxlength = max_prop_chars,
+                        rows = 2
+                    ) -%]
+                [%- ELSE -%]
+                    [%- form.textbox(
+                        label = prop.name,
+                        name = prop.field,
+                        value = prop.raw_value,
+                        maxlength = max_prop_chars
+                    ) -%]
+                [%- END -%]
+            [%- ELSE -%]
+                <strong>[%- prop.name | html -%]:</strong> [% prop.value | html %]<br>
+            [%- END -%]
+            <small>[%- prop.description | html -%]</small>
         </li>
     [%- END -%]
     </ul>
+    [%- IF can_save -%]
+        [%- form.submit( value = 'Save' ) -%]
+        </form>
+    [%- END -%]
 [%- END -%]
