@@ -46,7 +46,7 @@ $_->join_community( $community, 1, 1 ) for ( $author, $editor, $third, $member )
 $author->join_community( $other, 1, 1 );
 
 sub post_entry {
-    my ( $journal, $poster, $body, $official ) = @_;
+    my ( $journal, $poster, $body, $official, %props ) = @_;
     my $error;
     my $result = LJ::Protocol::do_request(
         'postevent',
@@ -58,7 +58,7 @@ sub post_entry {
             subject    => $body,
             event      => $body,
             security   => 'public',
-            props      => { admin_post => $official },
+            props      => { admin_post => $official, %props },
         },
         \$error,
         { noauth => 1, u => $poster, usejournal_okay => 1 },
@@ -666,6 +666,84 @@ $official->set_prop( statusvis => undef );
     my ($tag_info) = grep { $_->{name} eq $tag } values %{ LJ::Tags::get_usertags($community) };
     is( $tag_info->{security_level}, 'private', 'tag accounting reflects the private visibility' );
     LJ::MemCache::set_memcache($original_memcache);
+}
+
+{
+    no warnings 'redefine';
+    local @LJ::MEMCACHE_SERVERS = ('fake');
+    my $original_memcache = LJ::MemCache::get_memcache();
+    LJ::MemCache::set_memcache( LJ::Test::FakeMemCache->new );
+    my $racing = post_entry( $community, $author, 'Public before reading cache fill', 1 );
+    $member->add_edge( $community, watch => {} );
+    $editor->add_edge( $community, watch => {} );
+
+    my $read = sub {
+        my ($reader) = @_;
+        return
+            grep { $_->{journalid} == $community->id && $_->{jitemid} == $racing->jitemid }
+            $reader->watch_items( remote => $reader, itemshow => 100, skip => 0 );
+    };
+    ok( scalar $read->($member), 'the subscriber sees the publicly visible entry' );
+    my $cache_key = 'log2lt:' . $community->id;
+    LJ::MemCache::delete( [ $community->id, $cache_key ] );
+    LJ::start_request();
+
+    my $set         = \&LJ::MemCache::set;
+    my $interleaved = 0;
+    local *LJ::MemCache::set = sub {
+        my ($key) = @_;
+        if ( ref $key eq 'ARRAY' && $key->[1] eq $cache_key && !$interleaved++ ) {
+            is(
+                edit_entry(
+                    $racing, $editor, 'Private body after reading cache fill',
+                    security      => 'private',
+                    reuse_request => 1
+                ),
+                0,
+                'shared edit commits after the public row is selected, before publication'
+            );
+        }
+        return $set->(@_);
+    };
+    is( scalar $read->($member),
+        0, 'the in-flight reading page does not include the private entry' );
+    ok( $interleaved, 'the reading cache fill reached the interleaving point' );
+    LJ::start_request();
+    is( scalar $read->($member), 0, 'later reading pages do not include the private entry' );
+    LJ::start_request();
+    my ($visible) = $read->($editor);
+    ok( $visible, 'an admin can still see the private entry in their reading list' );
+    is(
+        $visible && LJ::Entry->new_from_item_hash($visible)->event_raw,
+        'Private body after reading cache fill',
+        'the admin reading list loads the body from the checked snapshot'
+    );
+    LJ::MemCache::set_memcache($original_memcache);
+}
+
+{
+    my @tags    = map { 'long label ' . ( 'x' x 25 ) . $_ } 1 .. 7;
+    my $taglist = join ', ', @tags;
+    my $long_post =
+        post_entry( $author, $author, 'New entry with long tag list', 0, taglist => $taglist );
+    my $saved_post = reload_entry($long_post);
+    is_deeply( [ sort $saved_post->tags ], \@tags, 'new entry saves every full tag' );
+    my $ordinary_tagged =
+        post_entry( $author, $author, 'Ordinary long tag list fixture', 0, taglist => 'old tag' );
+    my $shared_tagged =
+        post_entry( $community, $author, 'Shared long tag list fixture', 1, taglist => 'old tag' );
+    for my $fixture ( [ $ordinary_tagged, $author, 'ordinary' ],
+        [ $shared_tagged, $editor, 'shared' ] )
+    {
+        my ( $entry, $actor, $kind ) = @$fixture;
+        my $body = "Updated $kind entry with long tag list";
+        is( edit_entry( $entry, $actor, $body, props => { taglist => $taglist } ),
+            0, "$kind edit saves a tag list longer than the property column" );
+        my $saved = reload_entry($entry);
+        is_deeply( [ sort $saved->tags ], \@tags, "$kind edit saves every full tag" );
+        is( $saved->event_raw, $body, "$kind edit saves the body together with the tags" );
+        ok( !$saved->prop('taglist'), "$kind edit clears the outdated compatibility property" );
+    }
 }
 
 {

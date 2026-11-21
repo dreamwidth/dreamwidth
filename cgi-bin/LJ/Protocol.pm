@@ -1015,6 +1015,11 @@ sub getdaycounts {
     return $res;
 }
 
+sub _stored_taglist {
+    my ($taglist) = @_;
+    return length( $taglist // '' ) <= LJ::BMAX_PROP ? $taglist : undef;
+}
+
 sub common_event_validation {
     my ( $req, $err, $flags ) = @_;
 
@@ -1729,11 +1734,14 @@ sub postevent {
         foreach my $pname ( keys %{ $req->{'props'} } ) {
             next unless $req->{'props'}->{$pname};
             next if $pname eq "revnum" || $pname eq "revtime";
+            next if $pname eq 'taglist';
             my $p = LJ::get_prop( "log", $pname );
             next unless $p;
             next unless $req->{'props'}->{$pname};
             $propset->{$pname} = $req->{'props'}->{$pname};
         }
+        my $stored_taglist = _stored_taglist( $req->{props}->{taglist} );
+        $propset->{taglist} = $stored_taglist if $stored_taglist;
         my %logprops;
         LJ::set_logprop( $uowner, $jitemid, $propset, \%logprops ) if %$propset;
 
@@ -2379,8 +2387,12 @@ sub editevent {
         my $propset = {
             %converted_props,
             map { $_ => $req->{props}->{$_} }
-                grep { LJ::get_prop( 'log', $_ ) } keys %{ $req->{props} }
+                grep { $_ ne 'taglist' && LJ::get_prop( 'log', $_ ) } keys %{ $req->{props} }
         };
+        if ( exists $req->{props}->{taglist} || exists $propset->{taglist} ) {
+            $propset->{taglist} = _stored_taglist(
+                exists $req->{props}->{taglist} ? $req->{props}->{taglist} : $propset->{taglist} );
+        }
         $propset->{admin_post_editor} = 1 if $other_author;
         return LJ::set_logprop( $uowner, $itemid, $propset, undef, $defer_cache );
     };

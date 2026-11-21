@@ -522,8 +522,14 @@ sub _load_text {
     my $lt  = $ret->{ $self->{jitemid} };
     return 0 unless $lt;
 
-    $self->{subject} = $lt->[0];
-    $self->{event}   = $lt->[1];
+    return $self->absorb_text(@$lt);
+}
+
+sub absorb_text {
+    my ( $self, $subject, $event ) = @_;
+    delete @$self{qw(subject_orig event_orig)};
+    $self->{subject} = $subject;
+    $self->{event}   = $event;
 
     if ( $self->prop("unknown8bit") ) {
 
@@ -532,7 +538,8 @@ sub _load_text {
         $self->{event_orig}   = $self->{event};
 
         # FIXME: really convert all the props?  what if we binary-pack some in the future?
-        LJ::item_toutf8( $self->{u}, \$self->{'subject'}, \$self->{'event'}, $self->{props} );
+        my $props = $self->{_loaded_text} ? undef : $self->{props};
+        LJ::item_toutf8( $self->{u}, \$self->{'subject'}, \$self->{'event'}, $props );
     }
 
     $self->{_loaded_text} = 1;
