@@ -150,9 +150,8 @@ sub _get_queue_for_task {
     return ( $queue_name, $self->{queues}->{$queue_name} = $queue_url );
 }
 
-# Send a group of tasks to SQS. Returns 1 if all succeeded or undef if there was one
-# or more failures. TODO: might be nice to make it so callers can determine which messages
-# succeeded, maybe?
+# Bulk sends report request failures, not entry failures, so callers do not retry
+# already accepted tasks. A single-task send reports either kind of failure.
 sub send {
     my ( $self, @tasks ) = @_;
     return undef unless @tasks;
@@ -183,7 +182,7 @@ sub send {
         if ($failed) {
             $log->error( 'Failed to send ', $failed, ' SQS message(s) to queue: ', $queue_name );
             DW::Stats::increment( 'dw.taskqueue.action.send_error', $failed, $tags );
-            return undef;
+            return undef if !$res || @tasks == 1;
         }
 
         @messages   = ();
@@ -215,8 +214,6 @@ sub send {
         $send->() or return undef;
     }
 
-    # If any messages had failed, we would have early returned elsewhere when a
-    # call to $send failed
     return 1;
 }
 
