@@ -88,7 +88,7 @@ sub _categories {
             name     => LJ::Lang::ml("$scope.cat.notifications"),
             visible  => 1,
             disabled => !$u || $u->is_community,
-            form     => 1,
+            form     => 0,
             desc     => LJ::Lang::ml(
                 "$scope.cat.notifications.desc",
                 {
@@ -218,15 +218,13 @@ sub _notification_return_url {
     return $uri->as_string;
 }
 
-sub _tracking_redirect {
-    my ( $r, $location ) = @_;
+sub _settings_redirect {
+    my ( $r, $location, $status ) = @_;
 
-    # Plack defaults its generic redirect helper to 303.  The tracking form
-    # historically receives a 302 from this settings receiver.
     if ( $r->isa('DW::Request::Plack') ) {
-        $r->status(302);
+        $r->status($status);
         $r->header_out( Location => $location );
-        return $r->{res}->finalize;
+        return $r->res;
     }
     return $r->redirect($location);
 }
@@ -253,20 +251,6 @@ sub _settings_confirm_message {
     return LJ::ejs_string( LJ::Lang::ml('/settings/index.tt.form.confirm1') );
 }
 
-sub _notification_error_html {
-    my @items;
-    for my $item (@_) {
-        my $error = LJ::errobj($item) or next;
-        push @items, '<li>' . $error->as_html . '</li>';
-    }
-    return '' unless @items;
-    return
-          '<strong>'
-        . LJ::ehtml( LJ::Lang::ml('error.procrequest') )
-        . '</strong><ul>'
-        . join( '', @items ) . '</ul>';
-}
-
 sub _resource_setup {
 
     # The settings hub keeps the legacy (non-Foundation) chrome. res_includes
@@ -275,10 +259,8 @@ sub _resource_setup {
     # legacy sitescheme supplies the core JS (and the LiveJournal global).
     LJ::set_active_resource_group('jquery');
     LJ::need_res(
-        { group => 'jquery' }, 'stc/tabs.css',
-        'stc/settings.css',                           'js/settings.js',
-        'js/jquery.settings.js',                      'js/notifications.js',
-        'js/components/jquery.select-all-special.js', 'stc/css/components/select-all.css'
+        { group => 'jquery' }, 'stc/tabs.css', 'stc/settings.css', 'js/settings.js',
+        'js/jquery.settings.js'
     );
 }
 
@@ -316,56 +298,51 @@ sub settings_handler {
     my $inspection = $u && $u->user ne ( $authas || '' );
     return error_ml('error.invalidauth') if $inspection && $given_cat ne 'notifications';
 
+    my $delete_id = _delete_confirmation_id($get);
+    my $delete_sub;
+    if ( $given_cat eq 'notifications' ) {
+        my $viewing_self = !$inspection && $remote->equals($u);
+        my $url =
+            LJ::create_url( '/manage/settings/notifications', keep_args => [qw(authas user page)] );
+
+        if ( $r->did_post && !$viewing_self ) {
+            return error_ml('error.invalidform')
+                unless LJ::check_form_auth( $post->{lj_form_auth} );
+            return error_ml('error.invalidauth');
+        }
+        if ( $r->did_post && $post->{delete_subscription_confirm} ) {
+            return error_ml('error.invalidform')
+                unless LJ::check_form_auth( $post->{lj_form_auth} );
+            my $sub = _owned_subscription( $u, $post->{delete_subscription_id} );
+            return error_ml('error.invalidform') unless $sub;
+            $sub->delete;
+            return $r->redirect($url);
+        }
+        if ( !$r->did_post && $viewing_self && $delete_id ) {
+            $delete_sub = _owned_subscription( $u, $delete_id );
+            return error_ml('error.invalidform') unless $delete_sub;
+        }
+        else {
+            return _settings_redirect( $r, $url, $r->did_post ? 307 : 302 );
+        }
+    }
+
     my $category = $categories{$given_cat};
     my @settings = _settings_for_category( $u, $category );
     _resource_setup();
 
     my ( @messages, @errors );
     my $save_rv;
-    my $delete_id = _delete_confirmation_id($get);
-    my $delete_sub =
-        $delete_id && $u && $given_cat eq 'notifications' && !$inspection
-        ? _owned_subscription( $u, $delete_id )
-        : undef;
-    return error_ml('error.invalidform')
-        if $delete_id && $u && $given_cat eq 'notifications' && !$inspection && !$delete_sub;
-
     if ( $r->did_post ) {
         return error_ml('error.invalidform') unless LJ::check_form_auth( $post->{lj_form_auth} );
         return error_ml('error.invalidauth') if $inspection;
 
-        if ( $given_cat eq 'notifications' && $post->{delete_subscription_confirm} ) {
-            my $sub = _owned_subscription( $u, $post->{delete_subscription_id} );
-            return error_ml('error.invalidform') unless $sub;
-            $sub->delete;
-            push @messages, LJ::Lang::ml('/settings/index.tt.success');
-        }
-        elsif ( $given_cat eq 'notifications' && $post->{deleteinactive} ) {
-            $u->delete_all_inactive_subscriptions;
-            push @messages, LJ::Lang::ml('/settings/index.tt.success.deleteinactive2');
-        }
-        elsif ( $given_cat eq 'notifications' ) {
-            my @notification_errors = $u->save_subscriptions($post);
-            delete $u->{_subscriptions};
-            $save_rv = LJ::Setting->save_all( $u, $post, \@settings )
-                unless $post->{post_to_settings_page};
-            if ( @notification_errors || LJ::Setting->save_had_errors($save_rv) ) {
-                push @errors, _notification_error_html(@notification_errors);
-            }
-            else {
-                my $return = _notification_return_url( $r, $post->{ret_url} );
-                return _tracking_redirect( $r, $return ) if $return;
-                push @messages, LJ::Lang::ml('/settings/index.tt.success');
-            }
+        $save_rv = LJ::Setting->save_all( $u, $post, \@settings );
+        if ( LJ::Setting->save_had_errors($save_rv) ) {
+            push @errors, LJ::Lang::ml('/settings/index.tt.errors');
         }
         else {
-            $save_rv = LJ::Setting->save_all( $u, $post, \@settings );
-            if ( LJ::Setting->save_had_errors($save_rv) ) {
-                push @errors, LJ::Lang::ml('/settings/index.tt.errors');
-            }
-            else {
-                push @messages, LJ::Lang::ml('/settings/index.tt.success');
-            }
+            push @messages, LJ::Lang::ml('/settings/index.tt.success');
         }
     }
 
@@ -404,10 +381,9 @@ sub settings_handler {
             name     => $tab->{name},
             disabled => $tab->{disabled},
             active   => $tab_key eq $given_cat,
-            url      => $query->(
-                ( $u && $u->user ne ( $remote ? $remote->user : '' ) ? ( authas => $authas ) : () ),
-                cat => $tab_key
-            ),
+            url      => $tab_key eq 'notifications'
+            ? LJ::create_url( '/manage/settings/notifications', args => \%authas_arg )
+            : $query->( %authas_arg, cat => $tab_key ),
             };
     }
 
@@ -415,26 +391,6 @@ sub settings_handler {
     $form_args->{authas} = $authas if $u && $remote && $u->user ne $remote->user;
     $form_args->{page} = int( $get->{page} ) if $given_cat eq 'notifications' && $get->{page};
     my $post_action = $query->(%$form_args);
-    my $notification;
-    if ( $given_cat eq 'notifications' ) {
-        $u            = $u->subscription_default_setup if $u;
-        $notification = {
-            has_admin_form      => $can_view_other,
-            has_user_form       => !$inspection && $category->{form},
-            post_action         => $post_action,
-            delete_base_url     => $query->(%$form_args),
-            viewing_self        => !$inspection,
-            get_args            => $get,
-            subscribe_interface => LJ::subscribe_interface(
-                $u,
-                journal       => $u,
-                categories    => $u->subscription_categories_for_settings_page,
-                settings_page => 1,
-                num_per_page  => 250,
-                page          => int( $get->{page} || 0 )
-            ),
-        };
-    }
 
     my $vars = {
         u           => $u,
@@ -458,9 +414,7 @@ sub settings_handler {
         form_enabled      => $category->{form} && !$inspection,
         messages          => \@messages,
         errors            => \@errors,
-        notification      => $notification,
         delete_sub        => $delete_sub,
-        delete_id         => $delete_id,
         confirm_msg       => _settings_confirm_message(),
         community_linkbar => $u
             && $u->is_community ? $u->maintainer_linkbar('settingsaccount') : undef,

@@ -19,8 +19,7 @@
 [% FOREACH message IN messages %]<div class='success'>[% message %]</div>[% END %]
 [% FOREACH error IN errors %]<div class='error'>[% error %]</div>[% END %]
 
-[%# Both ordinary and notification forms use settings.js's dirty-form guard. %]
-[% IF form_enabled || (notification && notification.has_user_form) %]
+[% IF form_enabled %]
 <script>window.SettingsConfirmMsg = [% confirm_msg %];</script>
 [% END %]
 
@@ -36,27 +35,15 @@
     </ul>
     <div id='settings_nav_title' class='tab-header'><p>[% category_data.desc %]</p></div>
 
-    [% IF notification %]
-        [% IF delete_sub %]
-            <div class='settings_content notifications-delete-confirmation'>
-                <p>[% '.confirm.delete' | ml %]</p>
-                <form class='table-form' id='settings_form' action='[% form_action %]' method='post'>
-                    [% dw.form_auth %]
-                    [% form.hidden( name = 'delete_subscription_id', value = delete_sub.id ) %]
-                    [% form.submit( name = 'delete_subscription_confirm', value = dw.ml('.btn.delete') ) %]
-                </form>
-            </div>
-        [% ELSE %]
-            [% INCLUDE 'tracking/settings-interface.tt'
-    has_admin_form = notification.has_admin_form
-    has_user_form = notification.has_user_form
-    post_action = notification.post_action
-    viewing_self = notification.viewing_self
-    get_args = notification.get_args
-    subscribe_interface = notification.subscribe_interface
-    delete_base_url = notification.delete_base_url
-%]
-        [% END %]
+    [% IF delete_sub %]
+        <div class='settings_content notifications-delete-confirmation'>
+            <p>[% '.confirm.delete' | ml %]</p>
+            <form class='table-form' id='settings_form' action='[% form_action | html %]' method='post'>
+                [% dw.form_auth %]
+                [% form.hidden( name = 'delete_subscription_id', value = delete_sub.id ) %]
+                [% form.submit( name = 'delete_subscription_confirm', value = dw.ml('.btn.delete') ) %]
+            </form>
+        </div>
     [% ELSE %]
         <div class='settings_content'>
             <div class='[% category %]'>
