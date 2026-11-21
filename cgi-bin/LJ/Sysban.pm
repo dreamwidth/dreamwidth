@@ -244,7 +244,7 @@ sub sysban_check {
 
         return $dbr->selectrow_array(
             qq{
-                SELECT COUNT(*)
+                SELECT 1
                 FROM sysban
                 WHERE status = 'active'
                   AND what = ?
@@ -253,31 +253,48 @@ sub sysban_check {
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
+                LIMIT 1
             }, undef, $wh, $vl
-        );
+        ) ? 1 : 0;
     };
 
-    # helper variation for wildcard match of domain bans
+    # helper variation for matching domain bans and their subdomains
     my $check_subdomains = sub {
         my ($host) = @_;
-        return 0 unless $host && $host =~ /\./;
+        return 0 unless defined $host && $host =~ /\./;
 
-        # very similar to above, except in addition to exact match
-        # we also check for wildcard matches of larger banned domains
-        # e.g. foo.bar.org will match ban for "%.bar.org"
+        # Match the host and every dot-bounded parent suffix via indexed equality
+        # (e.g. foo.bar.org checks foo.bar.org, bar.org, org) instead of a
+        # per-row suffix LIKE scan.
+        my %seen;
+        my @candidates;
+        my $add_candidate = sub {
+            my ($candidate) = @_;
+            return unless length($candidate) && length($candidate) <= 320;
+            return if $seen{ lc $candidate }++;
+            push @candidates, $candidate;
+        };
+        $add_candidate->($host);
+        while ( $host =~ /\./g ) {
+            $add_candidate->( substr( $host, pos($host) ) );
+        }
+        return 0 unless @candidates;
 
+        my $placeholders = join( ', ', ('?') x @candidates );
         return $dbr->selectrow_array(
             qq{
-                SELECT COUNT(*) FROM sysban
+                SELECT 1
+                FROM sysban
                 WHERE status = 'active'
                   AND what = ?
-                  AND (value = ? OR ? LIKE CONCAT("%.", value))
+                  AND value IN ($placeholders)
                   AND NOW() > bandate
                   AND (NOW() < banuntil
                        OR banuntil = 0
                        OR banuntil IS NULL)
-            }, undef, 'email_domain', $host, $host
-        );
+                LIMIT 1
+            }, undef, 'email_domain', @candidates
+        ) ? 1 : 0;
     };
 
     # check both ban by email and ban by domain if we have an email address
@@ -499,9 +516,11 @@ sub block {
 # des-what: the criteria we're sysbanning on
 # des-value: the value we're banning
 # des-bandays: length of sysban (0 for forever)
+# des-banseconds: length of sysban in seconds (0 for forever, or at least 2)
 # des-exptime: when to expire (unix epoch time)
 # des-note: note to go with the ban (optional)
 # des-noremote: do not attribute ban to remote
+# des-require_audit: fail (and roll back where transactional) if statushistory_add fails
 # info: Takes args as a hash.
 # returns: BanID on success, error object on failure
 # </LJFUNC>
@@ -509,7 +528,14 @@ sub create {
 
     my %opts = @_;
 
-    unless ( $opts{what} && $opts{value} && ( defined $opts{bandays} || defined $opts{exptime} ) ) {
+    unless (
+           $opts{what}
+        && $opts{value}
+        && (   defined $opts{bandays}
+            || defined $opts{banseconds}
+            || defined $opts{exptime} )
+        )
+    {
         return bless { message => "Wrong arguments passed; should be a hash\n", }, 'ERROR';
     }
 
@@ -517,49 +543,105 @@ sub create {
         return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
 
+    if ( defined $opts{banseconds} ) {
+        unless ( $opts{banseconds} =~ /\A\d+\z/
+            && ( $opts{banseconds} == 0 || $opts{banseconds} >= 2 ) )
+        {
+            return
+                bless { message => "banseconds must be 0 or an integer of at least 2 seconds\n", },
+                'ERROR';
+        }
+    }
+
     my $dbh = LJ::get_db_writer();
+    return bless { message => "Cannot connect to database writer\n", }, 'ERROR'
+        unless $dbh;
+
+    # strip out leading/trailing whitespace
+    $opts{'value'} = LJ::trim( $opts{'value'} );
 
     my $banuntil = "NULL";
+    my @bind     = ( $opts{what}, $opts{value}, $opts{note} );
     if ( $opts{'bandays'} ) {
         $banuntil = "NOW() + INTERVAL " . $dbh->quote( $opts{'bandays'} ) . " DAY";
+    }
+    elsif ( $opts{banseconds} ) {
+        $banuntil = "DATE_ADD(NOW(), INTERVAL ? SECOND)";
+        push @bind, $opts{banseconds} + 0;
     }
     elsif ( $opts{exptime} ) {
         $banuntil = "FROM_UNIXTIME(" . ( $opts{exptime} + 0 ) . ")";
     }
 
-    # strip out leading/trailing whitespace
-    $opts{'value'} = LJ::trim( $opts{'value'} );
+    my $in_txn = 0;
+    if ( $opts{require_audit} && $dbh->{AutoCommit} ) {
+        $in_txn = eval { $dbh->begin_work ? 1 : 0 } ? 1 : 0;
+    }
 
     # do insert
     $dbh->do(
         "INSERT INTO sysban (what, value, note, bandate, banuntil)
               VALUES (?, ?, ?, NOW(), $banuntil)",
-        undef, $opts{what}, $opts{value}, $opts{note}
+        undef, @bind
     );
 
     if ( $dbh->err ) {
-        return bless { message => $dbh->errstr, }, 'ERROR';
+        my $err = $dbh->errstr;
+        eval { $dbh->rollback } if $in_txn;
+        return bless { message => $err, }, 'ERROR';
     }
 
     my $banid = $dbh->{'mysql_insertid'};
 
-    my $exptime = $opts{bandays} ? time() + 86400 * $opts{bandays} : 0;
-    $exptime = $opts{exptime} if $opts{exptime};
-
-    # special case: creating ip/uniq/spamreport ban
-    ban_do( $opts{what}, $opts{value}, $exptime );
+    my $exptime =
+          $opts{bandays}    ? time() + 86400 * $opts{bandays}
+        : $opts{banseconds} ? time() + $opts{banseconds}
+        : $opts{exptime}    ? $opts{exptime}
+        :                     0;
 
     # log in statushistory
-    my $remote = $opts{noremote} ? undef : LJ::get_remote();
-    $banuntil = $exptime ? LJ::mysql_time($exptime) : "forever";
+    my $remote       = $opts{noremote}     ? undef                    : LJ::get_remote();
+    my $banuntil_log = $exptime            ? LJ::mysql_time($exptime) : "forever";
+    my $note_log     = defined $opts{note} ? $opts{note}              : '';
 
-    LJ::statushistory_add( 0, $remote, 'sysban_add',
+    my $audit_ok = LJ::statushistory_add( 0, $remote, 'sysban_add',
               "banid=$banid; status=active; "
             . "bandate="
             . LJ::mysql_time()
-            . "; banuntil=$banuntil; "
+            . "; banuntil=$banuntil_log; "
             . "what=$opts{'what'}; value=$opts{'value'}; "
-            . "note=$opts{'note'};" );
+            . "note=$note_log;" );
+
+    if ( $opts{require_audit} && !$audit_ok ) {
+        my $audit_err   = $dbh->errstr || 'statushistory insert failed';
+        my $rolled_back = 0;
+        if ($in_txn) {
+            $rolled_back = eval { $dbh->rollback ? 1 : 0 } ? 1 : 0;
+        }
+        my $persisted =
+            $dbh->selectrow_array( 'SELECT 1 FROM sysban WHERE banid = ?', undef, $banid );
+        if ( $rolled_back && !$persisted ) {
+            return bless { message => "Audit log failed; ban rolled back ($audit_err)", }, 'ERROR';
+        }
+        return bless {
+            message =>
+                "Audit log failed; banid=$banid persisted without statushistory ($audit_err)",
+            banid     => $banid,
+            persisted => 1,
+            },
+            'ERROR';
+    }
+
+    if ($in_txn) {
+        unless ( eval { $dbh->commit } ) {
+            my $err = $dbh->errstr || $@ || 'transaction commit failed';
+            eval { $dbh->rollback };
+            return bless { message => $err, }, 'ERROR';
+        }
+    }
+
+    # special case: creating ip/uniq/spamreport ban
+    ban_do( $opts{what}, $opts{value}, $exptime );
 
     return $banid;
 }
