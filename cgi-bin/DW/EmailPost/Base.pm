@@ -247,6 +247,7 @@ sub _extract_post_headers {
             pos($body) = _html_header_offset( $body, $end );
         }
         my $line_start = pos($body);
+        last if $is_html && $body =~ /\G(?:[ \t]*\r?\n)*(?:lj|post)-[^:<\r\n]*</igc;
         last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*?)$value_end/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), LJ::trim($3) );
         if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n<>][^\r\n]*?)$value_end/gc ) {
