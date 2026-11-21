@@ -234,22 +234,30 @@ sub _extract_post_headers {
     my $body = $self->{body};
     pos($body) = 0;
 
-    if ( $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html' ) {
-        pos($body) = _html_header_offset($body);
-    }
+    my $is_html = $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html';
+    pos($body) = _html_header_offset($body) if $is_html;
 
-    my $start = pos($body);
+    my $start  = pos($body);
+    my $end    = $start;
+    my $markup = '';
     my ( %lj_headers, %post_headers );
-    while ( $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*)(?:\r?\n|\z)/igc ) {
+    while (1) {
+        if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
+            pos($body) = _html_header_offset( $body, $end );
+        }
+        my $line_start = pos($body);
+        last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):([^\r\n]*)(?:\r?\n|\z)/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), LJ::trim($3) );
         if ( !length($value) && $body =~ /\G[ \t]+([^ \t\r\n<>][^\r\n]*)(?:\r?\n|\z)/gc ) {
             $value = LJ::trim($1);
         }
         my $headers = $prefix eq 'lj' ? \%lj_headers : \%post_headers;
         $headers->{$name} = $value;
+        $markup .= substr( $body, $end, $line_start - $end );
+        $end = pos($body);
     }
 
-    substr( $body, $start, pos($body) - $start, '' );
+    substr( $body, $start, $end - $start, $markup );
     $body =~ s/\A\s*//;
     $self->{body}         = $body;
     $self->{post_headers} = { %lj_headers, %post_headers };
@@ -258,22 +266,30 @@ sub _extract_post_headers {
 }
 
 sub _html_header_offset {
-    my ($body)     = @_;
-    my $offset     = _html_body_offset($body);
-    my $line_start = $offset;
+    my ( $body, $after_header ) = @_;
+    my $offset       = $after_header // _html_body_offset($body);
+    my $line_start   = $offset;
     my $body_content = substr( $body, $offset );
     my $parser       = HTML::TokeParser->new( \$body_content );
-    my $wrapper      = qr{<(?:!doctype[ \t]+html|html|body|div|p)(?:[ \t][^<>\r\n]*)?>}i;
+    my $wrapper =
+        defined $after_header
+        ? qr{<(?:div|p)(?:[ \t][^<>\r\n]*)?>}i
+        : qr{<(?:!doctype[ \t]+html|html|body|div|p)(?:[ \t][^<>\r\n]*)?>}i;
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $text ) = @$token;
         if ( $type eq 'C' ) {
+            last if defined $after_header && $text !~ /\A<!--(?!-?>)(?:(?!--!?>)[\s\S])*+-->\z/;
             $offset += length $text;
         }
         elsif ( $type eq 'S' || $type eq 'D' ) {
             my $raw = $type eq 'S' ? $token->[4] : $text;
             last unless $raw =~ /\A$wrapper\z/;
             $offset += length $raw;
+        }
+        elsif ( $type eq 'E' && defined $after_header && $token->[2] =~ m{\A</(?:div|p)[ \t]*>\z}i )
+        {
+            $offset += length $token->[2];
         }
         elsif ( $type eq 'T' ) {
             $text =~ /\A((?:[ \t]*\r?\n)*)[ \t]*/;

@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 107;
+use Test::More tests => 125;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -275,6 +275,43 @@ BODY
                 "Text kept after $body_prefix in $label"
             );
         }
+    }
+
+    for my $case (
+        [ 'standalone comment', '<body>', "<!-- mail client -->\n", '</body>' ],
+        [
+            'comment and wrapper-only lines',         '<body><div><p>',
+            "\n</p>\n  <!-- mail\nclient -->\n<p>\n", '</p></div></body>'
+        ],
+        )
+    {
+        my ( $label, $opening, $separator, $closing ) = @$case;
+        my $message =
+            "$opening\npost-format: html\n${separator}post-security: private\n\nMessage$closing";
+        my $mime = build_message( "HTML with $label between settings", 'text/html', $message );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label between settings" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private', "Both settings apply across $label" );
+        unlike( $entry->event_raw, qr/post-(?:format|security):/,
+            "Both settings removed across $label" );
+    }
+
+    for my $case (
+        [ 'prose', 'text/html', "<!-- mail client -->\n<p>Introductory prose.</p>\n", '' ],
+        [ 'blockquote', 'text/html', "<!-- mail client -->\n<blockquote>\n", "\n</blockquote>" ],
+        [ 'unclosed comment', 'text/html',  "<!-- mail client\n",     '' ],
+        [ 'literal comment',  'text/plain', "<!-- mail client -->\n", '' ],
+        )
+    {
+        my ( $label, $type, $separator, $closing ) = @$case;
+        my $message = "post-format: html\n${separator}post-security: private$closing\n\nMessage";
+        my $mime    = build_message( "Setting after $label", $type, $message );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted entry with a setting after $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', "Setting after $label is not applied" );
+        like( $entry->event_raw, qr/post-security: private/, "Text after $label is retained" );
     }
 
     my $mime = build_message( 'Wrapped security header',
