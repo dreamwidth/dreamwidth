@@ -153,6 +153,10 @@
     # Similarly for the icon used by Facebook for previews on links
     #$FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/img/Swirly-d-square.png";
 
+    # Optional paths relative to $IMGPREFIX for the S2 SITELOGO and SITELOGOICON properties.
+    #$SITE_LOGO_IMAGE = "site-logo.png";
+    #$SITE_LOGO_ICON_IMAGE = "site-logo-icon.png";
+
     ###
     ### ESN (Event-Subscription-Notification)
     ###
