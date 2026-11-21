@@ -71,11 +71,17 @@ subtest 'journal policy preserves exemptions' => sub {
         R => [ 'required', '',         '',         'required', '',         'owner' ],
         F => [ 'required', 'required', '',         'required', 'required', 'owner' ],
         A => [ 'required', 'required', 'required', 'required', 'required', 'owner' ],
+        Z => [ 'required', 'required', 'required', 'required', 'required', 'owner' ],
     );
     no warnings qw(redefine once);
     for my $trusted ( 0, 1 ) {
         local *LJ::Session::trusted_anon_user = sub { return $trusted; };
-        for my $level (qw(N R F A)) {
+        for my $setting ( undef, '' ) {
+            $journal->{setting} = $setting;
+            is( LJ::Talk::Post::journal_captcha_policy( undef, $journal ),
+                '', 'unset or empty policy leaves the decision to the site' );
+        }
+        for my $level (qw(N R F A Z)) {
             $journal->{setting} = $level;
             for my $i ( 0 .. $#actors ) {
                 my $want = $expected{$level}[$i];
@@ -112,15 +118,29 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
     };
     $journal->{setting} = 'A';
     is( $check->(undef), 'journal_setting', 'journal policy supplies the reason' );
-    $enabled{anonpost} = 1;
+    {
+        local *DW::Captcha::site_enabled = sub { return 0; };
+        %enabled = ( comment_html_anon => 1 );
+        is( $check->( undef, '[*] item' ), '', 'site disable wins over journal and content rules' );
+    }
+    %enabled = ( authpost => 1 );
     $rate_ok = 0;
+    is( $check->( $actors[1] ), 'rate_limited', 'authpost alone activates the rate check' );
+    %enabled = ( anonpost => 1 );
     is( $check->(undef),    'rate_limited', 'rate limit has priority over journal setting' );
     is( $check->($journal), 'rate_limited', 'rate limit still applies to owner' );
     $rate_ok = 1;
     $sysban  = 1;
     is( $check->(undef), 'ip_sysban', 'IP check has priority over journal setting' );
-    $sysban            = 0;
-    $replycount        = 10;
+
+    for $trusted ( 0, 1 ) {
+        is( $check->( $actors[3] ), 'ip_sysban', 'unvalidated OpenID remains subject to IP bans' );
+    }
+    is( $check->( $actors[4] ), 'journal_setting',
+        'validated OpenID skips the anonymous IP check' );
+    $sysban     = 0;
+    $replycount = 10;
+    is( $check->($journal), '', 'a recent entry at the threshold keeps the owner exemption' );
     $entry->{age_days} = 31;
     is( $check->($journal), 'maxcomments', 'old-entry check still applies to owner' );
     $replycount = 0;
@@ -128,12 +148,13 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
     %enabled            = ( comment_html_anon => 1 );
     $journal->{setting} = 'R';
     $trusted            = 1;
-    is( $check->(undef),  '', 'trusted anonymous R bypass remains allowed' );
-    is( scalar @bypasses, 1,  'one bypass metric' );
+    is( $check->( undef, '[*] item' ), '',
+        'journal and anonymous content bypasses remain allowed' );
+    is( scalar @bypasses, 1, 'one bypass metric' );
     ok( scalar( grep { $_ eq 'reason:journal_setting' } @{ $bypasses[0] } ),
         'bypass retains journal setting reason' );
     $enabled{comment_html_auth} = 1;
-    is( $check->( undef, '<a href="https://example.test/">link</a>' ),
+    is( $check->( undef, 'https://one.example/ https://two.example/' ),
         'comment_html', 'later site HTML rule still overrides the bypass' );
     is( scalar @bypasses, 0, 'no bypass metric when a later rule requires CAPTCHA' );
 };

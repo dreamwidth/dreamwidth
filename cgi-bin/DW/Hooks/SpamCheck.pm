@@ -23,6 +23,23 @@ use Scalar::Util qw/reftype/;
 
 use LJ::Hooks;
 
+sub _blocked_domains {
+    return grep { length } split( /\r?\n/, LJ::load_include('spamblocklist') // '' );
+}
+
+sub _matching_domain {
+    my ( $text, @blocked_domains ) = @_;
+    return unless defined $text;
+
+    foreach my $domain (@blocked_domains) {
+        return $domain if $text =~ /\b\Q$domain\E\b/i;
+    }
+    return;
+}
+
+LJ::Hooks::register_hook( 'spam_blocklist_match',
+    sub { return _matching_domain( $_[0], _blocked_domains() ); } );
+
 LJ::Hooks::register_hook(
     'spam_check',
     sub {
@@ -31,28 +48,30 @@ LJ::Hooks::register_hook(
         return if $u->has_priv('siteadmin');    # some users can be trusted
 
         my $system          = LJ::load_user('system');
-        my @blocked_domains = grep { $_ } split( /\r?\n/, LJ::load_include('spamblocklist') );
+        my @blocked_domains = grep { $_ } _blocked_domains();
 
         my $check_item = sub {
             my ( $item, $loc ) = @_;
-            return unless defined $item;        # don't waste time iterating over undefined items
+            return unless defined $item;
 
             foreach my $domain (@blocked_domains) {
-                if ( $item =~ m|\b${domain}\b|i ) {
+                if ( $item =~ /\b${domain}\b/i ) {
                     $u->set_suspended( $system,
                         "auto-suspend for matching domain blocklist: $domain in $loc" );
                     return 1;
                 }
             }
+            return;
         };
 
-        if ( reftype $data eq reftype [] ) {
+        my $type = reftype($data) // '';
+        if ( $type eq 'ARRAY' ) {
             foreach my $item (@$data) {
                 my $suspended = $check_item->( $item, $location );
                 last if $suspended;
             }
         }
-        elsif ( reftype $data eq reftype {} ) {
+        elsif ( $type eq 'HASH' ) {
             foreach my $key ( keys %$data ) {
                 my $suspended = $check_item->( $data->{$key}, "$key of $location" );
                 last if $suspended;

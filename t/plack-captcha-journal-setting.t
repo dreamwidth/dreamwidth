@@ -76,6 +76,38 @@ with_fake_memcache {
                     delete $LJ::REQ_GLOBAL{form_auth_chal};
                     my $token = LJ::form_auth(1);
                     LJ::set_remote(undef);
+                    if ( !$viewer ) {
+                        $owner->set_prop( opt_show_captcha_to => 'N' );
+                        local %LJ::CAPTCHA_FOR = ( comment_html_anon => 1 );
+                        for my $body ( 'Thanks for your message!',
+                            'Two links: https://one.example/ https://two.example/' )
+                        {
+                            my $res = $cb->(
+                                POST "http://localhost/talkpost_do?as=$who",
+                                [
+                                    lj_form_auth => $token,
+                                    chrp1 =>
+                                        LJ::Talk::generate_chrp1( $owner->id, $entry->ditemid ),
+                                    journal       => $owner->user,
+                                    itemid        => $entry->ditemid,
+                                    usertype      => 'anonymous',
+                                    body          => $body,
+                                    subjecticon   => 'none',
+                                    submitpreview => 1,
+                                ]
+                            );
+                            is( $res->code, 200, 'anonymous preview renders' );
+                            like( $res->content, qr/\Q$body\E/, 'preview retains the draft' );
+                            if ( $body =~ /Two links/ ) {
+                                like( $res->content, qr/id="local-captcha"/,
+                                    'two links still require a challenge' );
+                            }
+                            else {
+                                unlike( $res->content, qr/id="local-captcha"/,
+                                    'an ordinary message does not require a challenge' );
+                            }
+                        }
+                    }
                     for my $setting ( 'N', 'A' ) {
                         $owner->set_prop( opt_show_captcha_to => $setting );
                         for my $preview ( 0, 1 ) {
