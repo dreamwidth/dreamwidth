@@ -140,17 +140,26 @@ async function checkJournalSwitching(browser, cookies, fixture) {
         assert.deepEqual(await groupState(), { hidden: false, disabled: false },
             "the personal groups can be selected again after the community response");
 
-        await page.select(journal, fixture.community);
-        await waitForCommunity();
-        const subject = "Community after custom access";
+        const subject = "Community before audience options arrive";
         await page.type('[name="subject"]', subject);
         await page.type('[name="event"]', "Synthetic community entry");
+        holdCommunity = true;
         await Promise.all([
-            page.waitForNavigation({ waitUntil: "networkidle2" }),
+            page.waitForRequest(request => isOptionsFor(request.url(), fixture.community)),
+            page.select(journal, fixture.community),
+        ]);
+        const [, submission] = await Promise.all([
+            page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+            page.waitForRequest(request => request.method() === "POST" &&
+                new URL(request.url()).pathname === "/entry/new"),
             page.click(post),
         ]);
+        assert.doesNotMatch(await page.$eval("body", body => body.innerText),
+            /Choose at least one access group/i, "posting before the reply does not require personal groups");
+        assert.equal(new URLSearchParams(submission.postData()).get("security"), "access",
+            "the pending community submission sends the members-only audience");
         assert.deepEqual(storedSecurity(fixture.community, subject), { security: "usemask", mask: 1 },
-            "the community saves with the selected members-only security");
+            "the community saves with members-only security before the reply");
         console.log("PASS: journal switching hides personal groups and preserves valid security");
     } finally {
         await page.close();
