@@ -67,7 +67,7 @@ sub post_entry {
 
 sub edit_entry {
     my ( $entry, $actor, $body, %changes ) = @_;
-    LJ::start_request();
+    LJ::start_request() unless delete $changes{reuse_request};
     $actor = LJ::load_userid( $actor->id );
     my $error;
     my $result = LJ::Protocol::do_request(
@@ -233,6 +233,41 @@ $editor = LJ::load_userid( $editor->id );
 }
 
 {
+    no warnings 'redefine';
+    my $partial      = post_entry( $community, $author, 'Original REST content', 1 );
+    my $path         = '/journals/' . $community->user . '/entries/' . $partial->ditemid;
+    my $trylock      = \&DW::Locker::trylock;
+    my $entry_lock   = 'official-entry:' . $community->id . ':' . $partial->jitemid;
+    my $author_saved = 0;
+    local *DW::Locker::trylock = sub {
+        if ( $_[1] eq $entry_lock && !$author_saved++ ) {
+            is(
+                edit_entry(
+                    $partial, $author, 'Author changed the body',
+                    subject       => 'Author changed the subject',
+                    props         => { taglist => 'author correction' },
+                    reuse_request => 1
+                ),
+                0,
+                'author saves subject, body and tags before the REST edit takes the lock'
+            );
+        }
+        return $trylock->(@_);
+    };
+    my ($response) = api_request(
+        POST => $path,
+        key  => DW::API::Key->new_for_user($editor)->hash,
+        json => { datetime => '2020-01-02 03:04' }
+    );
+    is( $response->code, 200, 'date-only REST edit succeeds' );
+    my $saved = reload_entry($partial);
+    like( $saved->eventtime_mysql, qr/^2020-01-02 03:04/, 'REST saves the requested date' );
+    is( $saved->subject_raw, 'Author changed the subject', 'REST preserves the newer subject' );
+    is( $saved->event_raw,   'Author changed the body',    'REST preserves the newer body' );
+    is_deeply( [ $saved->tags ], ['author correction'], 'REST preserves the newer tags' );
+}
+
+{
     my $moderated = post_entry( $community, $author, 'Read-only moderation fixture', 1 );
     $editor->update_self( { statusvis => 'O' } );
     LJ::start_request();
@@ -383,6 +418,49 @@ $official->set_prop( statusvis => undef );
         qr/<site-embed id="\d+"\/>/,
         'the updated entry references the committed embed'
     );
+}
+
+{
+    no warnings 'redefine';
+    local $LJ::DISABLED{embed_module} = 0;
+    local @LJ::MEMCACHE_SERVERS = ('fake');
+    my $original_memcache = LJ::MemCache::get_memcache();
+    LJ::MemCache::set_memcache( LJ::Test::FakeMemCache->new );
+    my $embedded = post_entry( $community, $author, 'Public embed queue fixture', 1 );
+    my $tag      = 'embed queue visibility';
+    is(
+        edit_entry( $embedded, $author, 'Public fixture with a tag', props => { taglist => $tag } ),
+        0,
+        'author tags the public entry'
+    );
+    is( reload_entry($embedded)->security, 'public', 'warm the public entry cache' );
+    ok(
+        LJ::MemCache::get(
+            [ $community->id, 'log2:' . $community->id . ':' . $embedded->jitemid ]
+        ),
+        'public entry visibility is cached'
+    );
+    my $dispatch       = \&DW::TaskQueue::dispatch;
+    my $media_attempts = 0;
+    local *DW::TaskQueue::dispatch = sub {
+        if ( grep { $_->isa('DW::Task::EmbedWorker') } @_[ 1 .. $#_ ] ) {
+            $media_attempts++;
+            die "Simulated embed lookup queue failure\n";
+        }
+        return $dispatch->(@_);
+    };
+    my $body  = 'Private embed edit <iframe src="https://www.youtube.com/embed/example"></iframe>';
+    my $error = eval { edit_entry( $embedded, $editor, $body, security => 'private' ) };
+    is( $media_attempts, 1, 'the recognized embed tries to queue a media lookup' );
+    is( $error // $@,    0, 'an unavailable media queue does not fail the committed edit' );
+    my $saved = reload_entry($embedded);
+    is( $saved->security, 'private', 'the cached entry is no longer public' );
+    ok( !$saved->visible_to(undef), 'the warmed cache does not expose the entry to readers' );
+    like( $saved->event_raw, qr/Private embed edit <site-embed /, 'the cached text is updated' );
+    is_deeply( [ $saved->tags ], [$tag], 'the tag is retained after the visibility change' );
+    my ($tag_info) = grep { $_->{name} eq $tag } values %{ LJ::Tags::get_usertags($community) };
+    is( $tag_info->{security_level}, 'private', 'tag accounting reflects the private visibility' );
+    LJ::MemCache::set_memcache($original_memcache);
 }
 
 like( edit_entry( $official, $author, 'False attribution', props => { admin_post_editor => 1 } ),
