@@ -84,7 +84,7 @@ sub media_manage_handler {
     $rv->{page}           = $r->get_args->{page} || '1';
     $rv->{view_type}      = $r->get_args->{view} || '';
     $rv->{maxpage}        = POSIX::ceil( scalar @media / 20 );
-    $rv->{valid_sizes}    = [%VALID_SIZES];
+    $rv->{valid_sizes}    = [ sort { $a <=> $b } keys %VALID_SIZES ];
     $rv->{convert_time}   = \&LJ::mysql_time;
     $rv->{adminmode}      = $adminmode ? 1 : 0;
     $rv->{user}           = $user;
@@ -346,14 +346,14 @@ sub media_index_handler {
 sub make_embed_url {
     my ( $obj, %opts ) = @_;
     my $url   = $obj->full_url;
+    my $src   = defined $opts{size} ? $obj->url( size => $opts{size} ) : $url;
     my $alt   = $obj->prop('alttext') || '';
     my $title = $obj->prop('title') || '';
     my $embed;
 
     if ( defined $opts{type} && $opts{type} eq 'thumbnail' ) {
-        my $thumb_url = $obj->url();
         $embed =
-              "<a href='$url'><img src='$thumb_url' alt='"
+              "<a href='$url'><img src='$src' alt='"
             . LJ::ehtml($alt)
             . "' title='"
             . LJ::ehtml($title)
@@ -361,7 +361,7 @@ sub make_embed_url {
     }
     else {
         $embed =
-            "<img src='$url' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "' />";
+            "<img src='$src' alt='" . LJ::ehtml($alt) . "' title='" . LJ::ehtml($title) . "' />";
     }
 
     return $embed;
