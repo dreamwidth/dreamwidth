@@ -3,6 +3,7 @@
 old: js/commentmanage.js
 jquery: js/jquery/jquery.ui.widget.js
 jquery: js/jquery.ajaxtip.js
+jquery: stc/jquery.ajaxtip.css
 jquery: js/jquery.commentmanage.js
 jquery: js/jquery/jquery.ui.core.js
 jquery: js/jquery/jquery.ui.dialog.js

@@ -1287,7 +1287,7 @@ sub preview_handler {
     }
 
     # Include helper CSS/JS for highest fidelity previews
-    LJ::Talk::init_s2journal_js( noqr => 1, siteskin => $siteskinned );
+    LJ::Talk::init_s2journal_js( noqr => 1 );
 
     if ($siteskinned) {
         my $vars = {
