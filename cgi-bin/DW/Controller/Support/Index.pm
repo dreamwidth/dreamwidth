@@ -30,7 +30,7 @@ DW::Routing->register_string( '/support/index', \&index_handler, app => 1 );
 sub index_handler {
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $remote = $rv->{remote};

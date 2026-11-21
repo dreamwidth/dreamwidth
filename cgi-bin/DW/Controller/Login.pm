@@ -37,7 +37,7 @@ DW::Routing->register_string( '/login', \&login_handler, app => 1, no_cache => 1
 DW::Routing->register_string( '/login/2fa', \&login_2fa_handler, app => 1, no_cache => 1 );
 
 sub login_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
@@ -317,7 +317,7 @@ sub login_handler {
 }
 
 sub login_2fa_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
     my $r           = $rv->{r};
     my $token       = $r->cookie('ljmfapending');
