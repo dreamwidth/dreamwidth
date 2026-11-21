@@ -193,6 +193,7 @@ sub get_upload_type {
 
 sub get_active_for_user {
     my ( $class, $u, %opts ) = @_;
+    my $oldest_first = delete $opts{oldest_first};
     confess 'Invalid user' unless LJ::isu($u);
     return () if $u->is_expunged;
 
@@ -216,7 +217,11 @@ sub get_active_for_user {
             warn "Failed to load media: $@";
         }
     }
-    return sort { $b->logtime <=> $a->logtime } @media;
+
+    # Break equal-second ties by ID so images keep their place across pages.
+    return $oldest_first
+        ? sort { $a->logtime <=> $b->logtime || $a->id <=> $b->id } @media
+        : sort { $b->logtime <=> $a->logtime || $b->id <=> $a->id } @media;
 }
 
 sub get_quota_for_user {
