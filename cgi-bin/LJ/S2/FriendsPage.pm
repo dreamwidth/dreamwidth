@@ -31,13 +31,11 @@ sub FriendsPage {
     $p->{'friends_title'}    = LJ::ehtml( $u->{'friendspagetitle'} );
     $p->{'friends_subtitle'} = LJ::ehtml( $u->{'friendspagesubtitle'} );
 
-    LJ::need_res( LJ::S2::tracking_popup_js() );
+    LJ::need_res( LJ::S2::tracking_popup_js($remote) );
 
     # include JS for quick reply, icon browser, and ajax cut tag
-    my $handle_with_siteviews = 0;    # not an option for FriendsPage?
     LJ::Talk::init_s2journal_js(
         iconbrowser => 1,
-        siteskin    => $handle_with_siteviews,
         lastn       => 1
     );
 

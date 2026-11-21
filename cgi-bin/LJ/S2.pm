@@ -208,7 +208,6 @@ sub make_journal {
             stc/jquery/jquery.ui.tooltip.css
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
-            stc/jquery/jquery.ui.theme.smoothness.css
 
             stc/canary.css
             )
@@ -1848,8 +1847,10 @@ sub use_journalstyle_entry_page {
 }
 
 sub tracking_popup_js {
-    return LJ::is_enabled('esn_ajax')
-        ? (
+    my ($remote) = @_;
+    return () unless LJ::is_enabled('esn_ajax');
+
+    return (
         { group => 'all' }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.widget.js
@@ -1862,9 +1863,9 @@ sub tracking_popup_js {
             stc/jquery/jquery.ui.tooltip.css
 
             js/jquery.esn.js
-            )
-        )
-        : ();
+            ),
+        ( $remote && $remote->can_use_esn ? ('stc/jquery/jquery.ui.theme.smoothness.css') : () ),
+    );
 }
 
 sub use_journalstyle_icons_page {
@@ -2073,6 +2074,7 @@ sub TagList {
     @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
 
     return "" if $opts->{no_entry_body};
+    LJ::need_res('stc/jquery/jquery.ui.theme.smoothness.css') if @$taglist;
     return "" unless $opts->{enable_tags_compatibility} && @$taglist;
     return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );
 }
