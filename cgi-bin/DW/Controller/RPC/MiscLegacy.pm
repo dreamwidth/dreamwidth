@@ -269,8 +269,7 @@ sub ctxpopup_handler {
         $ret{url_acceptinvite}     = "$LJ::SITEROOT/manage/invites";
         $ret{is_member}            = $remote->member_of($u) if $remote;
         $ret{is_closed_membership} = $u->is_closed_membership;
-        my $pending = $remote ? ( $remote->get_pending_invites || [] ) : [];
-        $ret{is_invited} = ( grep { $_->[0] == $u->id } @$pending ) ? 1 : 0;
+        $ret{is_invited}           = $remote ? $remote->should_offer_comm_invite($u) : 0;
 
         push @actions, 'join', 'leave', 'accept';
     }
