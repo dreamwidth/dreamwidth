@@ -648,9 +648,10 @@ or parsed.
 
 sub comment_meta {
     my ( $self, %opts ) = @_;
-    my $log = $opts{log} || sub { undef };
+    my $log       = $opts{log} || sub { undef };
+    my $transport = $self->{transport};
 
-    my ( %meta,          %usermap,       $lasttag );
+    my ( %meta, %usermap, $lasttag, $scalar_content );
     my ( $server_max_id, $window_max_id, $window_last_id );
     my $server_next_id = 1;
     my %window_meta;
@@ -660,7 +661,8 @@ sub comment_meta {
     my $meta_handler = sub {
 
         # this sub actually processes incoming meta information
-        $lasttag = $_[1];
+        $lasttag        = $_[1];
+        $scalar_content = undef;
         shift;
         shift;    # remove the Expat object and tag name
         my %temp = (@_);    # take the rest into our humble hash
@@ -681,7 +683,10 @@ sub comment_meta {
     };
     my $meta_closer = sub {
 
-        # we hit a closing tag so we're not in a tag anymore
+        if ( defined $scalar_content ) {
+            $window_max_id  = $scalar_content if $lasttag eq 'maxid';
+            $server_next_id = $scalar_content if $lasttag eq 'nextid';
+        }
         $lasttag = '';
     };
     my $meta_content = sub {
@@ -692,9 +697,7 @@ sub comment_meta {
             unless $lasttag eq 'maxid'
             || $lasttag eq 'nextid';
 
-        # save these values for later
-        $window_max_id  .= $_[1] if $lasttag eq 'maxid';
-        $server_next_id .= $_[1] if $lasttag eq 'nextid';
+        $scalar_content .= $_[1];
     };
 
     # hit up the server for metadata
@@ -707,23 +710,29 @@ sub comment_meta {
 
         $log->( 'Fetching metadata; max_id = %d, next_id = %d.', $server_max_id || 0, $start_id );
 
-        my $content =
-            $self->{transport}->comment_export( 'comment_meta', $start_id, $FETCH_META, $log );
+        my $content = $transport->comment_export( 'comment_meta', $start_id, $FETCH_META, $log );
         die DW::Importer::Outcome->temp_fail('Error fetching comment metadata from server.')
             unless $content;
 
         my $reset = sub {
-            ( $lasttag, $server_next_id, $window_max_id, $window_last_id ) =
-                ( '', undef, undef, $start_id - 1 );
+            ( $lasttag, $scalar_content, $server_next_id, $window_max_id, $window_last_id ) =
+                ( '', undef, undef, undef, $start_id - 1 );
             %window_meta    = ();
             @window_usermap = ();
         };
         $reset->();
 
-        die DW::Importer::Outcome->temp_fail('Error parsing comment metadata from server.')
-            unless $self->_parse_xml(
-            { Start => $meta_handler, Char => $meta_content, End => $meta_closer },
-            $content, $reset );
+        unless (
+            $self->_parse_xml(
+                { Start => $meta_handler, Char => $meta_content, End => $meta_closer },
+                $content, $reset
+            )
+            )
+        {
+            $transport->discard_comment_export( 'comment_meta', $start_id, $FETCH_META, $log )
+                if $transport->can('discard_comment_export');
+            die DW::Importer::Outcome->temp_fail('Error parsing comment metadata from server.');
+        }
 
         $server_max_id = $window_max_id + 0 if defined $window_max_id;
         @meta{ keys %window_meta } = values %window_meta;

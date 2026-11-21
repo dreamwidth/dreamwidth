@@ -466,6 +466,42 @@ for my $case (
     };
 }
 
+for my $tag (qw( nextid maxid )) {
+    subtest "duplicate metadata $tag" => sub {
+        my %windows = (
+            1 => meta_window(
+                first  => 1,
+                last   => 1,
+                max    => '1&#54;',
+                next   => '1&#52;',
+                poster => 0
+            ),
+            14 => meta_window( first => 16, last => 16, poster => 0 ),
+        );
+        $windows{1} =~ s{(<$tag>[^<]+</$tag>)}{$1$1};
+        my $site = Test::Site->new(
+            export => {
+                comment_meta => sub { delete $windows{ $_[0] } }
+            }
+        );
+
+        my $meta;
+        my $outcome = outcome_of( sub { $meta = source($site)->comment_meta } );
+        is( $outcome, undef, 'the metadata import succeeds' );
+        is_deeply(
+            [ map { $_->[1] } @{ $site->{asked} } ],
+            [ 1, 14 ],
+            'only the two expected windows are requested'
+        );
+        is( $meta->{max_id}, 16, 'the maximum is kept as one element value' );
+        is_deeply(
+            [ sort keys %{ $meta->{comments} // {} } ],
+            [ 1, 16 ],
+            'the duplicate does not skip the later comment'
+        );
+    };
+}
+
 subtest 'metadata encoding retry' => sub {
     my %windows = (
         1 => meta_window(
