@@ -20,6 +20,7 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"encoding/xml"
 	"fmt"
 	"image"
 	"image/png"
@@ -75,6 +76,15 @@ func TestDefaultHandlerUnavailableImage(t *testing.T) {
 	}
 	if !strings.Contains(failure.Body.String(), "Image unavailable") {
 		t.Error("placeholder does not explain why the image is missing")
+	}
+	var placeholder struct {
+		XMLName xml.Name `xml:"http://www.w3.org/2000/svg svg"`
+	}
+	if err := xml.Unmarshal(failure.Body.Bytes(), &placeholder); err != nil {
+		t.Errorf("unavailable image is not an SVG: %v", err)
+	}
+	if options := failure.Header().Get("X-Content-Type-Options"); options != "nosniff" {
+		t.Errorf("unavailable image content type options = %q; want nosniff", options)
 	}
 	if policy := failure.Header().Get("Cache-Control"); policy != "no-store" {
 		t.Errorf("unavailable image cache policy = %q; want no-store", policy)
