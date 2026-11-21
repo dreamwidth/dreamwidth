@@ -737,16 +737,22 @@ sub load_include {
 
     # we handle, so first if memcache...
     my $val = LJ::MemCache::get("includefile:$file");
-    return $val->[0] if ref $val eq 'ARRAY';
-    return $val if $val;
+    return $val if defined $val && length $val;
+
+    my $empty = LJ::MemCache::get("includefile_empty:$file");
+    if ( defined $empty ) {
+        return ''    if $empty eq 'empty';
+        return undef if $empty eq 'missing';
+    }
 
     # straight database hit
     my $dbh = LJ::get_db_writer();
     if ($dbh) {
         $val = $dbh->selectrow_array( 'SELECT inctext FROM includetext WHERE incname=?',
             undef, $file );
-        if ($val) {
+        if ( defined $val && length $val ) {
             LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
+            LJ::MemCache::delete("includefile_empty:$file");
             return $val;
         }
     }
@@ -759,8 +765,13 @@ sub load_include {
         local $/;
         $val = <$include>;
     }
-    LJ::MemCache::set( "includefile:$file", [$val], time() + 3600 )
-        if !length( $val // '' ) && $dbh && !$dbh->err;
+    if ( !length( $val // '' ) && $dbh && !$dbh->err ) {
+        LJ::MemCache::set(
+            "includefile_empty:$file",
+            defined $val ? 'empty' : 'missing',
+            time() + 3600
+        );
+    }
     return $val;
 }
 
