@@ -241,4 +241,44 @@ note("comment_html_auth: applies to logged-in users, so also to trusted anon");
     is( metric_count('dw.captcha.bypassed'), 0, "no bypass metric" );
 }
 
+subtest 'site content rules challenge spam signals, not ordinary text or HTML' => sub {
+    $journal->set_prop( opt_show_captcha_to => 'N' );
+    local %LJ::CAPTCHA_FOR = ( comment_html_anon => 1 );
+    my $load_include = \&LJ::load_include;
+    local *LJ::load_include = sub {
+        return "blocked.example\r\n" if $_[0] eq 'spamblocklist';
+        return $load_include->(@_);
+    };
+
+    for my $body (
+        'Thanks for your message!',
+        '<details><summary>One link</summary><a href="https://www.x.test/">link</a></details>',
+        'Use http instead of ftp here.',
+        'See [urls in the notes].',
+        'Not a match: blockedXexample or unblocked.example.',
+        )
+    {
+        is( $check->( body => $body ), '', "ordinary comment: $body" );
+    }
+
+    for my $body (
+        'One HTTPS://one.example/ and two www.two.example.',
+        '<a href="https://one.example/">first</a> <a href="ftp://two.example/">second</a>',
+        '[URL=https://example.test/]link[/URL]',
+        '[quote=Someone]text[/quote]',
+        'Visit sub.Blocked.example for details.',
+        )
+    {
+        is( $check->( body => $body ), 'comment_html', "suspicious comment: $body" );
+    }
+
+    is( $check->( commenter => $poster, body => 'Visit blocked.example.' ),
+        '', 'anonymous-only content rule does not apply to logged-in commenters' );
+    $LJ::CAPTCHA_FOR{comment_html_auth} = 1;
+    is( $check->( commenter => $poster, body => 'Visit blocked.example.' ),
+        'comment_html', 'all-commenter content rule checks the domain blocklist' );
+    %LJ::CAPTCHA_FOR = ();
+    is( $check->( body => 'Visit blocked.example.' ), '', 'site content rules can be disabled' );
+};
+
 done_testing();
