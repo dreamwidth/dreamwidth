@@ -36,7 +36,6 @@ function IconBrowser($el, options) {
             if (e.namespace === "") return;
 
             scrollPositionDogear = $(window).scrollTop();
-            iconBrowser.modal.removeAttr('tabindex'); // WHY does foundation.reveal set this.
             iconBrowser.focusActive();
         })
         .on('closed.fndtn.reveal', modalSelector, function(e) {

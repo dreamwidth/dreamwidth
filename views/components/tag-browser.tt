@@ -18,7 +18,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         "stc/css/components/tag-browser.css"
 ); -%]
 
-[%- WRAPPER components/modal.tt id="js-tag-browser" class="tag-browser" -%]
+[%- WRAPPER components/modal.tt id="js-tag-browser" class="tag-browser" label="Tag Browser" -%]
 <div class="row">
     <div class="columns medium-2 large-1">
         <label class='inline' for='js-tag-browser-search'>Search:</label>

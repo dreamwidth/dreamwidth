@@ -135,7 +135,7 @@ the table based way can be removed when the entire site is Foundation-based.
     <div class="row" id='account-links'>
     <div class="columns show-for-medium-up small-12" role="navigation" aria-label="[% 'sitescheme.navigation.accountlinks' | ml %]">
     <a href="[% site.root %]/login" class="button radius" data-reveal-id="nav-login-form">[% 'sitescheme.accountlinks.btn.login' | ml %]</a>
-    <div id='nav-login-form' class="reveal-modal" data-reveal>
+    <div id='nav-login-form' class="reveal-modal" data-reveal role="dialog" aria-hidden="true" aria-label="[% 'sitescheme.accountlinks.btn.login' | ml | html %]">
       <div class="row"><div class="columns">
       [% PROCESS 'login.tt' %]
 

@@ -138,12 +138,14 @@
 
     open : function (target, ajax_settings) {
       var self = this,
-          modal;
+          modal,
+          opener;
 
       if (target) {
         if (typeof target.selector !== 'undefined') {
           // Find the named node; only use the first one found, since the rest of the code assumes there's only one node
           modal = self.S('#' + target.data(self.data_attr('reveal-id'))).first();
+          opener = target[0];
         } else {
           modal = self.S(this.scope);
 
@@ -169,16 +171,9 @@
             .data('offset', this.cache_offset(modal));
         }
 
-        modal.attr('tabindex','0').attr('aria-hidden','false');
-
         this.key_up_on(modal);    // PATCH #3: turning on key up capture only when a reveal window is open
 
-        // Prevent namespace event from triggering twice
-        modal.on('open.fndtn.reveal', function(e) {
-          if (e.namespace !== 'fndtn.reveal') return;
-        });
-
-        modal.on('open.fndtn.reveal').trigger('open.fndtn.reveal');
+        modal.trigger('open.fndtn.reveal', [opener]);
 
         if (open_modal.length < 1) {
           this.toggle_bg(modal, true);
@@ -253,8 +248,6 @@
           self = this;
 
       if (open_modals.length > 0) {
-
-        modal.removeAttr('tabindex','0').attr('aria-hidden','true');
 
         this.locked = true;
         this.key_up_off(modal);   // PATCH #3: turning on key up capture only when a reveal window is open
