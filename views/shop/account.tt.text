@@ -20,18 +20,7 @@ the [[paid_num]] more days you might have expected.
 </p>
 .
 
-.error.premiumconvert.postdate<<
-<p>
-If you want to renew the account as a paid account, instead of a premium paid account,
-you'll need to adjust your order so that the paid time is scheduled to be applied on
-or after the account's expiration date of [[date]]. Doing this may result in up to a
-day's wait before the paid time is applied to the account.
-</p>
-.
-
 .giftfor.anonymous=Do you want to make this an anonymous gift?
-
-.giftfor.deliverydate=Delivery date:
 
 .giftfor.email=Email address to receive the account creation code for this account:
 
