@@ -15,11 +15,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Pay;
+use FindBin qw($Bin);
 use LJ::Test qw (temp_user);
+use LJ::Userpic;
 
 my $u1      = temp_user();
 my $paidmos = 0;
@@ -112,4 +114,45 @@ ok( !DW::Pay::add_paid_time( $u1, 'paid', 1 ), 'adding paid time fails' );
 
 assert( $u1, 'seed', "seed account after trying to add paid time" );
 
-################################################################################
+subtest 'paid expiration counts icons on older journal entries' => sub {
+    my $free_type = DW::Pay::default_typeid();
+    local $LJ::CAP{$free_type}->{userpics} = 2;
+    local $LJ::ALLOW_PICS_OVER_QUOTA = 0;
+    my $user = temp_user();
+    DW::Pay::add_paid_time( $user, 'paid', 1 ) or die DW::Pay::error_text();
+
+    my ( $default, $used, $unused ) = map {
+        open( my $image, '<:raw', "$Bin/data/userpics/$_" )
+            or die "Cannot open $_: $!";
+        my $data = do { local $/; <$image> };
+        LJ::Userpic->create( $user, data => \$data );
+    } qw(good.jpg good.png good.gif);
+    $default->make_default;
+    $used->set_keywords('used');
+
+    my $entry = $user->t_post_fake_entry;
+    my $mapid = $user->get_mapid_from_keyword('used') or die 'Missing icon mapping';
+    $entry->set_prop( 'picture_mapid', $mapid );
+    my $posted = time() - 90 * 86400;
+    $user->do(
+        'UPDATE log2 SET logtime=FROM_UNIXTIME(?), rlogtime=? WHERE journalid=? AND jitemid=?',
+        undef, $posted, $LJ::EndOfTime - $posted,
+        $user->id, $entry->jitemid
+    ) or die $user->errstr;
+
+    is( $entry->userpic_kw, 'used', 'the old entry uses the non-default icon' );
+    ok( DW::Pay::expire_user( $user, force => 1 ), 'expire paid time' );
+    is( $user->userpic_quota, 2, 'free quota applies' );
+    is_deeply(
+        [ map { $_->id } grep { !$_->inactive } LJ::Userpic->load_user_userpics($user) ],
+        [ $default->id, $used->id ],
+        'the default and the historically used icon stay active instead of the newest upload'
+    );
+
+    ok( DW::Pay::add_paid_time( $user, 'paid', 1 ), 'renew paid time' );
+    is_deeply(
+        [ map { $_->id } grep { !$_->inactive } LJ::Userpic->load_user_userpics($user) ],
+        [ $default->id, $used->id, $unused->id ],
+        'renewal reactivates the unused icon'
+    );
+};
