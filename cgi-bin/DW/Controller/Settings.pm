@@ -589,9 +589,11 @@ sub changepassword_handler {
             && !$r->did_post
             && $remote->{status} ne 'A',
 
-        needs_2fa => $needs_2fa,
-        authu     => $authu,
-        remote    => $remote,
+        password_minlength => $LJ::PASSWORD_MINLENGTH,
+        password_maxlength => $LJ::PASSWORD_MAXLENGTH,
+        needs_2fa          => $needs_2fa,
+        authu              => $authu,
+        remote             => $remote,
 
         formdata => $post || { user => $remote ? $remote->user : "" },
         errors   => $errors,
