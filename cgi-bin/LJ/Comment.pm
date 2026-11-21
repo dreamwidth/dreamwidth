@@ -233,9 +233,17 @@ sub create {
 sub absorb_row {
     my ( $self, %row ) = @_;
 
-    $self->{$_} = $row{$_} foreach (qw(nodetype nodeid parenttalkid posterid datepost state));
+    $self->{$_} = $row{$_}
+        foreach (qw(nodetype nodeid parenttalkid posterid datepost state screened_frozen));
     $self->{_loaded_row} = 1;
     delete $unloaded_singletons{ $self->singletonkey };
+}
+
+sub invalidate_row {
+    my ( $class, $journalid, $jtalkid ) = @_;
+    my $comment = $singletons{$journalid} && $singletons{$journalid}{$jtalkid};
+    return unless $comment && delete $comment->{_loaded_row};
+    $unloaded_singletons{ $comment->singletonkey } = $comment;
 }
 
 sub url {
@@ -933,7 +941,8 @@ sub is_deleted {
 }
 
 sub is_frozen {
-    return $_[0]->state eq 'F' ? 1 : 0;
+    __PACKAGE__->preload_rows;
+    return LJ::Talk::comment_is_frozen( $_[0] );
 }
 
 sub viewable_by_others {
