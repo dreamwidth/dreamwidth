@@ -1,0 +1,12 @@
+;; -*- coding: utf-8 -*-
+.back=Back to Manage Circle
+
+.cancel=Cancel
+
+.confirm.button=Remove These Members
+
+.explain=Review the list below and confirm that you want to remove subscriptions and access grants for purged accounts in your Circle.
+
+.none=There are no purged accounts to remove from your Circle.
+
+.title=Remove Purged Members

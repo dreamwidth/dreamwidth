@@ -40,7 +40,7 @@ sub edit_handler {
     my $u    = $rv->{u};
     my $vars = {};
 
-    my $view_banned = $GET->{view} eq 'banned';
+    my $view_banned = ( $GET->{view} // '' ) eq 'banned';
 
     return error_ml('error.invalidauth')
         unless $u;
@@ -48,6 +48,15 @@ sub edit_handler {
         if $u->is_community;
     return error_ml('.error.badjournaltype')
         unless $u->is_individual;
+
+    my $purge_error =
+          $u->is_suspended || $remote->is_suspended ? 'error.suspended.title'
+        : $u->is_readonly  || $remote->is_readonly  ? 'protocol.readonly'
+        :                                             undef;
+    if ( $r->did_post && ( $POST->{preview_purged} || $POST->{remove_purged} ) ) {
+        return error_ml($purge_error) if $purge_error;
+        return _manage_purged_members( $r, $u, $POST->{remove_purged} );
+    }
 
     unless ( $r->did_post ) {
         my @banned_userids = @{ $u->banned_userids || [] };
@@ -77,6 +86,7 @@ sub edit_handler {
         $vars->{trust_list}           = $trust_list;
         $vars->{u}                    = $u;
         $vars->{acttype}              = DW::Pay::get_account_type($u);
+        $vars->{show_purge} = !$purge_error && _purged_members( $us, $watch_list, $trust_list );
 
         if (@all_circle_userids) {
             my ( @person_userids, @comm_userids, @feed_userids );
@@ -282,6 +292,38 @@ sub edit_handler {
     }
 
     return DW::Template->render_template( 'manage/circle/edit/index.tt', $vars );
+}
+
+sub _purged_members {
+    my ( $users, $watch_list, $trust_list ) = @_;
+    return
+        grep { $_ && $_->is_expunged && ( $watch_list->{ $_->id } || $trust_list->{ $_->id } ) }
+        values %$users;
+}
+
+sub _manage_purged_members {
+    my ( $request, $owner, $confirmed ) = @_;
+    my $watch_list = $owner->watch_list;
+    my $trust_list = $owner->trust_list;
+    my $users      = LJ::load_userids( keys %$watch_list, keys %$trust_list );
+    my @purged     = _purged_members( $users, $watch_list, $trust_list );
+    my $circle_url = LJ::create_url( '/manage/circle/edit', keep_args => [qw( authas view )] );
+
+    if ($confirmed) {
+        for my $member (@purged) {
+            $owner->remove_edge( $member, watch => { nonotify => 1 }, trust => { nonotify => 1 } )
+                or return error_ml('/manage/circle/edit/index.tt.error.updating');
+        }
+        return $request->redirect($circle_url);
+    }
+
+    return DW::Template->render_template(
+        'manage/circle/edit/purge.tt',
+        {
+            circle_url     => $circle_url,
+            purged_members => [ sort { $a->user cmp $b->user } @purged ],
+        }
+    );
 }
 
 1;
