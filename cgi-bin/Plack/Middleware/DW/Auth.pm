@@ -75,7 +75,7 @@ sub call {
     # Pass ?as=<invalid> to view as logged out. NEVER enable in production.
     if ($LJ::IS_DEV_SERVER) {
         my $as = $r->get_args->{as};
-        if ( defined $as && $as =~ /^\w{1,25}$/ ) {
+        if ( defined $as && $as =~ /^\w{1,$LJ::USERNAME_MAXLENGTH}$/ ) {
             my $ru = LJ::load_user($as);
             LJ::set_remote($ru);    # might be undef, to allow for "view as logged out"
         }

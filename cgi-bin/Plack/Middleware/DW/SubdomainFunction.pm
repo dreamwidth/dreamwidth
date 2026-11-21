@@ -36,7 +36,7 @@ sub call {
 
     # Extract subdomain: match (subdomain).USER_DOMAIN, skip www
     if (   $LJ::USER_DOMAIN
-        && $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
+        && $host =~ /^(www\.)?([\w\-]{1,$LJ::USERNAME_MAXLENGTH})\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www" )
     {
         # www.username.domain → redirect to canonical (drop www prefix)
@@ -104,7 +104,7 @@ sub call {
 
             # "journal" function: URI contains /username/path
             my $uri = $r->path;
-            if ( $uri =~ m!^/(\w{1,25})(/.*)?$! ) {
+            if ( $uri =~ m!^/(\w{1,$LJ::USERNAME_MAXLENGTH})(/.*)?$! ) {
                 $env->{'dw.journal_user'} = $1;
                 $env->{'dw.journal_path'} = $2 || '/';
             }

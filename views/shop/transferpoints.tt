@@ -71,7 +71,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                         </div>
                     [% ELSE %]
                         <div class="columns medium-7">
-                            [% form.textbox(  name => 'foruser', maxlength => 25)  %]
+                            [% form.textbox(  name => 'foruser', maxlength => site.maxlength_user)  %]
                             [% IF errs.foruser %]<br /><strong>[% errs.foruser %]</strong>[% END %]
                         </div>
                     [% END %]
