@@ -17,6 +17,7 @@ use strict;
 
 package LJ::S2;
 use DW::Logic::AdultContent;
+use URI::Escape qw(uri_escape);
 
 sub FriendsPage {
     my ( $u, $remote, $opts ) = @_;
@@ -111,17 +112,22 @@ sub FriendsPage {
     if    ( $itemshow < 1 )  { $itemshow = 20; }
     elsif ( $itemshow > 50 ) { $itemshow = 50; }
 
+    my $get_date         = $get->{date} || '';
+    my $can_read_by_date = $remote && $u->equals($remote) && $u->can_use_daily_readpage;
+
+    my $events_day;
+    if ( $can_read_by_date && $get_date =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/ ) {
+        my $start = eval { LJ::mysqldate_to_time( $get_date, 1 ) };
+        if ( defined $start && LJ::mysql_date( $start, 1 ) eq $get_date ) {
+            $events_day = [ $start, $start + 86400 ];
+        }
+    }
+
     my $skip    = $get->{skip} ? $get->{skip} + 0 : 0;
     my $maxskip = ( $LJ::MAX_SCROLLBACK_FRIENDS || 1000 ) - $itemshow;
-    if ( $skip > $maxskip ) { $skip = $maxskip; }
-    if ( $skip < 0 )        { $skip = 0; }
-    my $itemload = $itemshow + $skip;
-    my $get_date = $get->{date} || '';
-
-    my $events_date =
-        ( $get_date =~ m!^(\d{4})-(\d\d)-(\d\d)$! )
-        ? LJ::mysqldate_to_time("$1-$2-$3")
-        : 0;
+    $maxskip = 0        if $maxskip < 0;
+    $skip    = $maxskip if !$events_day && $skip > $maxskip;
+    $skip    = 0        if $skip < 0;
 
     # allow toggling network mode
     $p->{friends_mode} = 'network'
@@ -142,7 +148,10 @@ sub FriendsPage {
 
     my $filter;
     if ( $opts->{securityfilter} ) {
-        my $filter = $u->trust_groups( id => $opts->{securityfilter} );
+        my $filter =
+              $opts->{securityfilter} =~ /\A[0-9]+\z/
+            ? $u->trust_groups( id => $opts->{securityfilter} )
+            : undef;
         $p->{filter_active} = 1;
         if ( defined $filter ) {
             $p->{filter_name} = $filter->{groupname};
@@ -188,7 +197,7 @@ sub FriendsPage {
         friendsoffriends => $opts->{view} eq 'network',
         security         => $opts->{securityfilter},
         dateformat       => 'S2',
-        events_date      => $events_date,
+        events_day       => $events_day,
     );
 
     my $is_prev_exist = scalar @items - $itemshow > 0 ? 1 : 0;
@@ -201,7 +210,7 @@ sub FriendsPage {
         $friends{$_}->{'bgcolor'} = $friends_row{$_}->{'bgcolor'} || '#000000';
     }
 
-    return $p unless %friends;
+    return $p unless %friends || $events_day;
 
     my %posters;
     {
@@ -214,8 +223,8 @@ sub FriendsPage {
             if @posterids;
     }
 
-    my $eventnum      = 0;
-    my $hiddenentries = 0;
+    my $eventnum = 0;
+    my $oldest_post_time;
     $opts->{cut_disable} = ( $remote && $remote->prop('opt_cut_disable_reading') );
 
 ENTRY:
@@ -235,7 +244,6 @@ ENTRY:
 
         # don't allow posts from suspended users or suspended posts
         if ( $po->is_suspended || ( $entry_obj && $entry_obj->is_suspended_for($remote) ) ) {
-            $hiddenentries++;    # Remember how many we've skipped for later
             next ENTRY;
         }
 
@@ -253,6 +261,7 @@ ENTRY:
 
         push @{ $p->{'entries'} }, $entry;
         $eventnum++;
+        $oldest_post_time = $LJ::EndOfTime - $item->{rlogtime};
 
         LJ::Hooks::run_hook( 'notify_event_displayed', $entry_obj );
     }    # end while
@@ -288,54 +297,59 @@ ENTRY:
 
     # these are the same for both previous and next links
     my %linkvars;
-    $linkvars{show} = $get->{show} if defined $get->{show} && $get->{show} =~ /^\w+$/;
-    $linkvars{date} = $get->{date} if $get->{date}         && $u->can_use_daily_readpage;
+    $linkvars{show}   = $get->{show}       if defined $get->{show} && $get->{show} =~ /^\w+$/;
+    $linkvars{date}   = $get_date          if $events_day;
     $linkvars{filter} = $get->{filter} + 0 if defined $get->{filter};
+    $linkvars{security} = uri_escape( $get->{security} )
+        if defined $opts->{securityfilter} && defined $get->{security};
 
     # if we've skipped down, then we can skip back up
     if ($skip) {
         my $newskip = $skip - $itemshow;
-        if   ( $newskip > 0 ) { $linkvars{'skip'} = $newskip; }
-        else                  { $newskip          = 0; }
-        $nav->{'forward_url'}   = LJ::S2::make_link( $base, \%linkvars );
+        $newskip = $skip - $skip % $itemshow
+            if !$events_day && $skip == $maxskip && $skip % $itemshow;
+        $newskip = 0 if $newskip < 0;
+        my %nextvars = %linkvars;
+        $nextvars{skip} = $newskip if $newskip;
+        $nav->{'forward_url'}   = LJ::S2::make_link( $base, \%nextvars );
         $nav->{'forward_skip'}  = $newskip;
         $nav->{'forward_count'} = $itemshow;
         $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
     }
-    elsif ( $linkvars{date} ) {
+    elsif ($events_day) {
 
         # next day when viewing by date
         my %nextvars = %linkvars;
-        my $nexttime = LJ::mysqldate_to_time( $linkvars{date} ) + 86400;
+        my $nexttime = $events_day->[1];
         unless ( $nexttime > time ) {
-            $nextvars{date} = LJ::mysql_date($nexttime);
+            $nextvars{date} = LJ::mysql_date( $nexttime, 1 );
             $nav->{'forward_url'} = LJ::S2::make_link( $base, \%nextvars );
             $p->{head_content} .= qq#<link rel="next" href="$nav->{forward_url}" />\n#;
         }
     }
 
-    ## unless we didn't even load as many as we were expecting on this
-    ## page, then there are more (unless there are exactly the number shown
-    ## on the page, but who cares about that ... well, we do now...)
-    # Must remember to count $hiddenentries or we'll have no skiplinks when > 1
-    unless ( ( $eventnum + $hiddenentries ) != $itemshow || $skip == $maxskip || !$is_prev_exist ) {
+    if ( $is_prev_exist && ( $events_day || $skip < $maxskip ) ) {
         my $newskip = $skip + $itemshow;
+        $newskip = $maxskip if !$events_day && $newskip > $maxskip;
         $linkvars{'skip'} = $newskip;
         $nav->{'backward_url'}   = LJ::S2::make_link( $base, \%linkvars );
         $nav->{'backward_skip'}  = $newskip;
         $nav->{'backward_count'} = $itemshow;
-        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
-    elsif ( $linkvars{date} ) {
+    elsif ($events_day) {
 
         # prev day when viewing by date
         my %prevvars = %linkvars;
-        my $prevtime = LJ::mysqldate_to_time( $linkvars{date} ) - 86400;
-        $prevvars{date} = LJ::mysql_date($prevtime);
-        delete $prevvars{skip};    # from forward case; not used here
+        $prevvars{date} = LJ::mysql_date( $events_day->[0] - 86400, 1 );
         $nav->{'backward_url'} = LJ::S2::make_link( $base, \%prevvars );
-        $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#;
     }
+    elsif ( $opts->{view} eq 'read' && $can_read_by_date && defined $oldest_post_time ) {
+        $linkvars{date} = LJ::mysql_date( $oldest_post_time, 1 );
+        $nav->{'backward_url'}     = LJ::S2::make_link( $base, \%linkvars );
+        $nav->{'backward_by_date'} = 1;
+    }
+    $p->{head_content} .= qq#<link rel="prev" href="$nav->{backward_url}" />\n#
+        if $nav->{'backward_url'};
 
     $p->{nav} = $nav;
 
