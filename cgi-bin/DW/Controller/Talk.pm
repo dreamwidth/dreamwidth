@@ -1,6 +1,7 @@
 package DW::Controller::Talk;
 
 use strict;
+use LJ::Comment;
 use LJ::JSON;
 use DW::Controller;
 use DW::Auth::Login;
@@ -1301,6 +1302,8 @@ sub talkscreen_handler {
     else {
         return error_ml('error.unknownmode');
     }
+
+    $vars->{threadlink} = LJ::Comment->new( $u, jtalkid => $qtalkid )->url if $vars->{done};
 
     return DW::Template->render_template( 'talkscreen.tt', $vars );
 }

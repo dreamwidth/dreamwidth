@@ -1,11 +1,16 @@
 [% IF done %]
     [%- sections.title = ".${action}.title" | ml -%]
     [%- CALL dw.active_resource_group( "foundation" ) -%]
-     <p>[% dw.ml(".${action}.body") %] [% dw.ml( '.link', { aopts => "href='$itemlink'" } ) %]</p>
+    [%- thread_href = threadlink | html -%]
+    [%- entry_href = itemlink | html -%]
+    <p>[% dw.ml(".${action}.body") %]
+       [% dw.ml( '.link.comment', { aopts => 'href="' _ thread_href _ '"' } ) %]
+       [% dw.ml( '.link', { aopts => 'href="' _ entry_href _ '"' } ) %]</p>
 [% ELSE %]
     [%- sections.title = ".${mode}.sure.title" | ml -%]
     [%- CALL dw.active_resource_group( "foundation" ) -%]
-    <p>[% dw.ml(".${mode}.sure.body", { aopts => "href='$commentlink'" }) %]</p>
+    [%- prompt_href = commentlink | html -%]
+    <p>[% dw.ml(".${mode}.sure.body", { aopts => 'href="' _ prompt_href _ '"' }) %]</p>
     <form method='POST' action='talkscreen'>
     <center>
     [% dw.form_auth() %]
