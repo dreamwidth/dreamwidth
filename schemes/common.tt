@@ -206,28 +206,32 @@ the table based way can be removed when the entire site is Foundation-based.
 [%- END -%] [%# end block.accountlinks %]
 
 [%- BLOCK block.pagediv -%]
-<div id="page">
-    [% PROCESS block.skiplink %]
+[% PROCESS block.skiplink %]
 
-    [%# Not using the HTML 5 <header> element for now
-    because of incompatibilities with JAWS and
-    Firefox %]
-    <div id="masthead" role="banner">
-        <span id="logo">
-            [% PROCESS block.logo %]
-        </span>
-    </div>
-
-    <div id="content" role="main" [% sections.contentopts %]>
-    <h1>[% sections.title %]</h1>
-    [% content %]
-    </div>
+[%# Not using the HTML 5 <header> element for now
+because of incompatibilities with JAWS and
+Firefox %]
+<div id="masthead" role="banner">
+    <span id="logo">
+        [% PROCESS block.logo %]
+    </span>
     [% PROCESS block.accountlinks %]
+</div>
+
+<div id="header-navigation">
     <nav role="navigation" aria-label="[% 'sitescheme.navigation.sitelinks' | ml %]">
         [% PROCESS block.menunav %]
     </nav>
     <div id="header-search" role="search">
         [% dw_scheme.search_render %]
+    </div>
+</div>
+
+<div id="page">
+    [%- PROCESS block.msgs -%]
+    <div id="content" role="main" [% sections.contentopts %]>
+    <h1>[% sections.title %]</h1>
+    [% content %]
     </div>
     <footer role="contentinfo">
         [% PROCESS block.footer %]
@@ -312,7 +316,6 @@ the table based way can be removed when the entire site is Foundation-based.
     [%# NOTE: Other site schemes override this block, so only gradation ends up with the class tag %]
     <body [% sections.bodyopts %]  class="gradation">
         <div id="canvas" [% canvas_opts %]>
-            [%- PROCESS block.msgs -%]
             [% PROCESS block.pagediv %]
         </div>
         [% dw_scheme.final_body_html %]

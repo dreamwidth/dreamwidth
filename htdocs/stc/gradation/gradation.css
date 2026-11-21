@@ -58,10 +58,6 @@ a:active,
     text-decoration: none;
 }
 
-#canvas {
-    padding-top: 1px;  /*to ensue margin*/
-    margin-top: 120px;
-}
 #page {
     padding-top: 1px;  /*to ensue margin*/
 }
@@ -71,10 +67,14 @@ a:active,
  * Header
  */
 #masthead {
-    position: absolute;
-    top: 30px;
-    right: 1em;
-    }
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-height: 120px;
+    padding: 0 1em .5em 0;
+}
+    #masthead #logo { margin: 30px 0 0 auto; }
     #sitename {
         font-weight: bold;
         font-size: 175%;
@@ -82,10 +82,9 @@ a:active,
     #sitename a { color: #ffffff; }
 
 #account-links {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100px;
+    position: relative;
+    order: -1;
+    min-height: 100px;
     padding-top: .5em;
     text-align: left;
     font-size: small;
@@ -135,9 +134,10 @@ a:active,
         border: none;
         }
 
-#header-search { position: absolute;
-    top: 120px;
-    right: 0;
+#header-navigation { position: relative; }
+
+#header-search {
+    position: relative;
     width: 100%;
     height: 2.5em;
     text-align: right;
@@ -161,7 +161,7 @@ body {
     background-color: #222222;
     }
 
-#canvas.vertical-nav {
+#canvas.vertical-nav #page {
     margin-left: 8.25em;
     min-height: 60em;
     background-color: #111111;
@@ -171,7 +171,7 @@ body {
 #canvas.vertical-nav #header-search { z-index: 100; }
 
 #canvas.vertical-nav nav { position: absolute;
-    top: 120px;
+    top: 0;
     left: 0;
     width: 8.25em;
     background-color: #222222;
@@ -196,11 +196,11 @@ nav .subnav a {font-weight: normal;
 
 /* Horizontal */
 
-#canvas.horizontal-nav { background-color: #111111; }
+#canvas.horizontal-nav #page { background-color: #111111; }
 
 #canvas.horizontal-nav nav {
     position: absolute;
-    top: 120px;
+    top: 0;
     left: 0;
     background-color: #444;
     height: 2.5em;
@@ -295,7 +295,6 @@ footer {
  */
 #content { margin: 0;
     padding: 1px 1em 1em 1.5em;
-    margin-top: 2em;
 }
 
 #content p {

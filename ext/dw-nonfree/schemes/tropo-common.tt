@@ -116,9 +116,9 @@ or redistribute it, with or without modifications.
     [% PROCESS block.head %]
     <body [% sections.bodyopts %] class="tropo tropo-[% tropo_color %]">
         <div id="canvas">
-            <div id="page">
-                [%- PROCESS block.skiplink -%]
+            [%- PROCESS block.skiplink -%]
 
+            <div id="masthead-band">
                 [%# Not using the HTML 5 <header> element for now
                 because of incompatibilities with JAWS and
                 Firefox %]
@@ -126,7 +126,17 @@ or redistribute it, with or without modifications.
                     <span id="logo">
                         [% PROCESS block.logo %]
                     </span>
+                    [% PROCESS block.accountlinks %]
                 </div>
+            </div>
+
+            <div id="page">
+                <nav role="navigation" aria-label="[% 'sitescheme.navigation.sitelinks' | ml %]">
+                    [% PROCESS block.menunav %]
+                    <div role="search">
+                    [% dw_scheme.search_render %]
+                    </div>
+                </nav>
 
                 <div id="content" role="main" [% sections.contentopts %]>
                     [%- PROCESS block.msgs -%]
@@ -134,21 +144,12 @@ or redistribute it, with or without modifications.
                 [% content %]
                 </div>
 
-                [% PROCESS block.accountlinks %]
-                
-                <nav role="navigation" aria-label="[% 'sitescheme.navigation.sitelinks' | ml %]">
-                    [% PROCESS block.menunav %]
-                    <div role="search">
-                    [% dw_scheme.search_render %]
-                    </div>
-                </nav>
                 <footer role="contentinfo">
                     [% PROCESS block.footer %]
                 </footer>
             </div>
         </div>
         [% dw_scheme.final_body_html %]
-     <div id="shim-alpha"> </div>
     </body>
 </html>
 [%- END -%]

@@ -153,9 +153,9 @@ footer {
  * Scheme-specific blocks
  */
 
-#shim-alpha {
+#masthead-band {
     background: #fff;
-    border-top: 0.5em solid #f3d2fc;
+    box-shadow: inset 0 0.5em #f3d2fc;
     border-bottom: 0.5em solid #5e3da6;
 }
 
