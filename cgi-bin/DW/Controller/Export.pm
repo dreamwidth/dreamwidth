@@ -26,12 +26,16 @@ use DW::Controller;
 use DW::FormErrors;
 
 use DW::Mood;
+use LJ::Comment;
+use LJ::Time;
+use Time::Local qw( timegm );
 use Unicode::MapUTF8;
 
 DW::Routing->register_string( '/export',    \&index_handler, app => 1 );
 DW::Routing->register_string( '/export_do', \&post_handler,  app => 1 );
 
-DW::Routing->register_string( '/export_comments', \&comment_handler, app => 1 );
+DW::Routing->register_string( '/export_comments',        \&comment_handler,         app => 1 );
+DW::Routing->register_string( '/export_posted_comments', \&posted_comments_handler, app => 1 );
 
 sub get_encodings {
     my ( %encodings, %encnames );
@@ -54,7 +58,8 @@ sub index_handler {
     my %e = %{ get_encodings() };
     push @enclist, ( $_ => $e{$_} ) foreach sort { $e{$a} cmp $e{$b} } keys %e;
 
-    $rv->{encodings} = \@enclist;
+    $rv->{encodings}            = \@enclist;
+    $rv->{show_posted_comments} = $rv->{u}->equals( $rv->{remote} );
 
     return DW::Template->render_template( 'export/index.tt', $rv );
 }
@@ -230,17 +235,18 @@ sub _dump_entry {
     my ( $e, $opts ) = @_;
 
     my $format = $opts->{format};
+    my $record = $opts->{record} // 'entry';
     my $entry  = "";
     my @vals   = ();
 
     if ( $format eq "xml" ) {
-        $entry .= "<entry>\n";
+        $entry .= "<$record>\n";
     }
 
     foreach my $f ( @{ $opts->{fields} } ) {
         my $v = $e->{$f} // '';
         if ( $format eq "csv" ) {
-            if ( $v =~ /[\"\n\,]/ ) {
+            if ( $v =~ /["\r\n,]/ ) {
                 $v =~ s/\"/\"\"/g;
                 $v = qq{"$v"};
             }
@@ -260,10 +266,80 @@ sub _dump_entry {
             my $v = shift @vals;
             $entry .= "<$f>" . $v . "</$f>\n";
         }
-        $entry .= "</entry>\n";
+        $entry .= "</$record>\n";
     }
 
     return $entry;
+}
+
+sub posted_comments_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r = $rv->{r};
+    return error_ml('bml.requirepost') unless $r->did_post;
+
+    my $post   = $r->post_args;
+    my $format = lc( $post->{format} // '' );
+    return error_ml('/export/index.tt.error.format') unless $format eq 'csv' || $format eq 'xml';
+
+    my $year  = $post->{year}  // '';
+    my $month = $post->{month} // '';
+    return error_ml('/export/index.tt.error.posted_date')
+        unless $year =~ /\A[0-9]{4}\z/ && $year >= 1970 && $month =~ /\A(?:0?[1-9]|1[0-2])\z/;
+    my $start = timegm( 0, 0, 0, 1, $month - 1,  $year );
+    my $end   = timegm( 0, 0, 0, 1, $month % 12, $year + ( $month == 12 ) );
+
+    my $author = $rv->{remote};
+    my $dbcr   = LJ::get_cluster_reader($author);
+    return error_ml('error.nodb') unless $dbcr;
+    my $rows = $dbcr->selectall_arrayref(
+        "SELECT journalid, nodeid, jtalkid FROM talkleft "
+            . "WHERE userid=? AND posttime>=? AND posttime<? AND nodetype='L' "
+            . "ORDER BY posttime, journalid, jtalkid",
+        undef, $author->id, $start, $end
+    );
+    return error_ml('error.nodb') if !$rows || $dbcr->err;
+
+    my @fields = qw(journal permalink datetime subject body icon_keyword);
+    my $opts   = { format => $format, fields => \@fields, record => 'comment' };
+    my $file   = sprintf( '%s-comments-%04d-%02d.%s', $author->user, $year, $month, $format );
+    $r->header_out( 'Content-Disposition' => "attachment; filename=$file" );
+    $r->header_out( 'Cache-Control'       => 'private, no-store' );
+    if ( $format eq 'csv' ) {
+        $r->content_type('text/csv; charset=utf-8');
+        $r->print( join( ',', @fields ) . "\n" );
+    }
+    else {
+        $r->content_type('application/xml; charset=utf-8');
+        $r->print(qq{<?xml version="1.0" encoding="UTF-8"?>\n<comments>\n});
+    }
+
+    foreach my $row (@$rows) {
+        my ( $journalid, $nodeid, $jtalkid ) = @$row;
+        my $journal = LJ::load_userid($journalid) or next;
+        my $comment = LJ::Comment->new( $journal, jtalkid => $jtalkid );
+        next unless $comment->valid && $comment->posterid == $author->id;
+        next unless $comment->nodetype eq 'L' && $comment->nodeid == $nodeid;
+        next if $comment->is_deleted || !$comment->visible_to($author);
+
+        $r->print(
+            _dump_entry(
+                {
+                    journal      => $journal->user,
+                    permalink    => $comment->url,
+                    datetime     => LJ::time_to_w3c( $comment->unixtime, '+0000' ),
+                    subject      => $comment->subject_raw,
+                    body         => $comment->body_raw,
+                    icon_keyword => $comment->userpic_kw,
+                },
+                $opts
+            )
+        );
+    }
+
+    $r->print("</comments>\n") if $format eq 'xml';
+    return $r->OK;
 }
 
 # /export_comments (also /export_comments.bml): XML export of a journal's
