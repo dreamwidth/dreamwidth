@@ -698,6 +698,7 @@ sub lostinfo_handler {
         foreach my $uid ( LJ::User->accounts_by_email($email) ) {
             my $u = LJ::load_userid($uid);
             next if !$u || $u->is_expunged;    # not purged
+            next if $u->is_community;
 
             # As the idea is to limit spam to one e-mail address,
             # if any of their usernames are over the limit, then
