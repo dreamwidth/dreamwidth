@@ -85,6 +85,9 @@ you run `worker-manager`; the devcontainer does not start it automatically.
 
 Choose one method so a local queue has only one consumer per task type. Enable
 the other workers required by the features you use as well.
+Community rename notices require `bin/worker/dw-community-rename-notice` in
+addition to `bin/worker/dw-send-email`. With worker-manager, enable
+`dw-community-rename-notice: 1` under `all:` as well.
 
 Configure the site's sender addresses and `$DOMAIN_EMAIL` for your provider.
 The old `%EMAIL_VIA_SES` hash remains supported when `%SMTP_SERVER` is unset;
