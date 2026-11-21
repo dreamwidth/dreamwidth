@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 30;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use File::Temp qw(tempdir);
@@ -24,8 +24,66 @@ use LJ::Test qw(with_fake_memcache);
 use DW::Task;
 use DW::Task::SynSuck;
 use DW::Task::DeleteEntry;
+use DW::TaskQueue;
 use DW::TaskQueue::LocalDisk;
+use DW::TaskQueue::SQS;
 use DW::TaskQueue::Dedup;
+
+{
+
+    package Local::PartialSQSSend;
+
+    sub SendMessageBatch {
+        my ( $self, %args ) = @_;
+        my @ids = map { $_->{Id} } @{ $args{Entries} };
+        push @{ $self->{requests} }, [ $args{QueueUrl}, @ids ];
+        my $rejected = !$self->{accept_all} && $ids[0] eq 'id-0';
+        return bless { failed => $rejected ? [ { Id => $ids[0] } ] : [] }, 'Local::SQSBatchResult';
+    }
+}
+
+{
+
+    package Local::SQSBatchResult;
+
+    sub Failed { return $_[0]->{failed}; }
+}
+
+{
+    no warnings 'redefine';
+    local *DW::TaskQueue::SQS::_get_queue_for_task = sub { return ( ( ref $_[1] ) x 2 ); };
+
+    my $sqs   = bless {}, 'Local::PartialSQSSend';
+    my $queue = bless { sqs => $sqs }, 'DW::TaskQueue::SQS';
+    my $task  = DW::Task::SynSuck->new( { userid => 42 } );
+
+    subtest 'Single-task SQS send reports entry rejection' => sub {
+        ok( !$queue->send($task), 'An unaccepted task must remain pending with the caller' );
+        local $sqs->{accept_all} = 1;
+        ok( $queue->send($task), 'An accepted task can be checkpointed' );
+    };
+
+    subtest 'A mixed SQS response does not abort or replay a bulk send' => sub {
+        $sqs->{requests} = [];
+        ok( $queue->send( ($task) x 11 ), 'Bulk caller does not retry already accepted entries' );
+        is_deeply(
+            $sqs->{requests},
+            [ [ ref $task, map { "id-$_" } 0 .. 9 ], [ ref $task, 'id-10' ] ],
+            'Later chunk is attempted and no chunk is replayed'
+        );
+    };
+
+    subtest 'A rejected task does not stop dispatch to other task types' => sub {
+        $sqs->{requests} = [];
+        my $other = DW::Task::DeleteEntry->new( { uid => 2 } );
+        ok( !DW::TaskQueue::dispatch( $queue, $task, $other ), 'Dispatch still reports failure' );
+        is_deeply(
+            [ sort map { $_->[0] } @{ $sqs->{requests} } ],
+            [ sort ( ref $task, ref $other ) ],
+            'Both queues are attempted regardless of dispatch order'
+        );
+    };
+}
 
 # --- Helper: create a LocalDisk instance pointed at a temp dir ---
 

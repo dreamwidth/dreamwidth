@@ -2898,6 +2898,32 @@ CREATE TABLE renames (
 )
 EOC
 
+register_tablecreate( 'community_rename_notice', <<'EOC');
+CREATE TABLE community_rename_notice (
+    noticeid BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    commid INT UNSIGNED NOT NULL,
+    oldname VARCHAR(25) NOT NULL,
+    newname VARCHAR(25) NOT NULL,
+    profile TEXT NOT NULL,
+    after_mailbox VARBINARY(200) NOT NULL DEFAULT '',
+    scanned TINYINT NOT NULL DEFAULT 0,
+
+    INDEX (commid)
+) ENGINE=InnoDB
+EOC
+
+register_tablecreate( 'community_rename_recipient', <<'EOC');
+CREATE TABLE community_rename_recipient (
+    noticeid BIGINT UNSIGNED NOT NULL,
+    mailbox VARBINARY(200) NOT NULL,
+    memberid INT UNSIGNED NOT NULL,
+    next_attempt INT UNSIGNED NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (noticeid, mailbox),
+    INDEX (noticeid, next_attempt)
+) ENGINE=InnoDB
+EOC
+
 register_tablecreate( "bannotes", <<'EOC');
 CREATE TABLE bannotes (
     journalid    INT UNSIGNED NOT NULL,
@@ -3130,6 +3156,17 @@ register_alter(
 
         my $dbh    = shift;
         my $runsql = shift;
+
+        foreach my $table (qw(community_rename_notice community_rename_recipient)) {
+            next unless table_relevant($table);
+            my ($engine) = $dbh->selectrow_array(
+                'SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() '
+                    . 'AND TABLE_NAME=?',
+                undef, $table
+            );
+            next unless defined $engine && lc($engine) ne 'innodb';
+            do_alter( $table, "ALTER TABLE $table ENGINE=InnoDB" );
+        }
 
         if ( column_type( "users_for_paid_accounts", "journaltype" ) eq "" ) {
             do_alter( "users_for_paid_accounts",

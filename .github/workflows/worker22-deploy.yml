@@ -20,6 +20,7 @@ on:
         - directory-meta
         - distribute-invites
         - dw-change-poster-id
+        - dw-community-rename-notice
         - dw-distribute-invites
         - dw-embeds
         - dw-esn-cluster-subs
@@ -150,6 +151,15 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-dw-change-poster-id-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (dw-community-rename-notice) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-community-rename-notice'
+        id: render-worker-container-dw-community-rename-notice
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-dw-community-rename-notice-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -513,6 +523,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-dw-change-poster-id.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-dw-change-poster-id-service"
+
+      - name: (dw-community-rename-notice) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-community-rename-notice'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-dw-community-rename-notice.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-dw-community-rename-notice-service"
 
       - name: (dw-distribute-invites) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'dw-distribute-invites'
