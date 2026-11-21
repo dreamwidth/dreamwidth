@@ -122,7 +122,6 @@ sub clean {
     my $auto_links  = !( $extractlinks || $opts->{noautolinks} );
 
     $auto_links  = 0 if $formatting ne 'html';
-    $cut         = 0 if $nodwtags;
     $at_mentions = 0 if $nodwtags;
 
     my $blocked_links =
