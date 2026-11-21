@@ -479,12 +479,13 @@ sub can_add_tags {
 sub can_add_entry_tags {
     return undef unless LJ::is_enabled("tags");
 
-    my ( $remote, $entry ) = @_;
+    my ( $remote, $entry, $new_entry_journal ) = @_;
     $remote = LJ::want_user($remote);
+    return undef unless $remote;
 
-    return undef unless $remote && $entry;
+    my $journal = $entry ? $entry->journal : $new_entry_journal;
+    return undef unless $journal;
 
-    my $journal = $entry->journal;
     return undef unless $remote->is_individual;
     return undef if $journal->has_banned($remote);
 
@@ -494,7 +495,7 @@ sub can_add_entry_tags {
     if ( $perms->{add} eq 'author_admin' ) {
 
         # is author
-        return 1 if $remote->equals( $entry->poster );
+        return 1 if !$entry || $remote->equals( $entry->poster );
 
         # is journal administrator
         return $remote->can_manage($journal);
@@ -528,6 +529,13 @@ sub can_control_tags {
     # get permission hashref and check it
     my $perms = LJ::Tags::get_permission_levels($u);
     return LJ::Tags::_remote_satisfies_permission( $u, $remote, $perms->{control} );
+}
+
+sub entry_form_tag_permission {
+    my ( $journal, $remote, $entry ) = @_;
+    return '' unless $journal && $journal->is_community && $remote && LJ::is_enabled('tags');
+    return 'create' if can_control_tags( $journal, $remote );
+    return can_add_entry_tags( $remote, $entry, $journal ) ? 'existing' : 'none';
 }
 
 # helper sub internal used by can_*_tags functions
