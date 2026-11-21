@@ -450,9 +450,9 @@ TOKEN:
             }
 
             # do some quick checking to see if this is an email address/URL, and if so, just
-            # escape it and ignore it
+            # escape it and ignore it. Use the source text: the parser lowercases tag names.
             if ( $tag =~ m!(?:\@|://)! ) {
-                $newdata .= LJ::ehtml("<$tag>");
+                $newdata .= LJ::ehtml( $token->[4] );
                 next;
             }
 

@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 45;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -238,6 +238,24 @@ note("various allowed/disallowed tags");
     $clean->();
     is( $orig_post, $clean_post, "blink tag allowed" );
 
+}
+
+note("URLs and email addresses in angle brackets");
+{
+    $orig_post  = qq{<https://maps.app.goo.gl/ShTY8EGczovcMSMWA>};
+    $clean_post = qq{&lt;https://maps.app.goo.gl/ShTY8EGczovcMSMWA&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL is escaped with its case intact" );
+
+    $orig_post  = qq{Write to <Someone\@Example.COM> today};
+    $clean_post = qq{Write to &lt;Someone\@Example.COM&gt; today};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed email address is escaped with its case intact" );
+
+    $orig_post  = qq{<http://Example.com/A onmouseover="alert(1)">};
+    $clean_post = qq{&lt;http://Example.com/A onmouseover=&quot;alert(1)&quot;&gt;};
+    $clean->();
+    is( $orig_post, $clean_post, "bracketed URL with attributes stays escaped text" );
 }
 
 note("mismatched and misnested tags");
