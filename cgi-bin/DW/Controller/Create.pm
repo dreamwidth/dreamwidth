@@ -475,6 +475,9 @@ sub setup_handler {
                 $post->{stateother} = $state_text || $post->{state};
             }
         }
+        elsif ( length( $post->{statedrop} // '' ) ) {
+            $errors->add( 'state', '/components/location.tt.error.state' );
+        }
         else {
             $post->{state} = $post->{stateother} // '';
         }

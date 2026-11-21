@@ -41,6 +41,46 @@ function value(page, selector) {
     return page.$eval(selector, field => field.value);
 }
 
+async function checkDelayedStateList(page) {
+    const isStateRequest = request => request.method() === "POST"
+        && new URL(request.url()).pathname.endsWith("/__rpc_load_state_codes");
+    const intercept = request => {
+        if (!isStateRequest(request)) return request.continue();
+    };
+    await page.setRequestInterception(true);
+    page.on("request", intercept);
+    const [request] = await Promise.all([
+        page.waitForRequest(isStateRequest),
+        page.select(country, "US"),
+    ]);
+    assert.equal(new URLSearchParams(request.postData()).get("country"), "US");
+    await page.select(country, "CA");
+    await enterState(page, "Ontario");
+    await page.evaluate(() => {
+        window.stateRequestSettled = new Promise(resolve => {
+            jQuery(document).one("ajaxStop", () => setTimeout(resolve, 0));
+        });
+    });
+    const [response] = await Promise.all([
+        page.waitForResponse(response => response.request() === request),
+        request.continue(),
+    ]);
+    assert.equal(response.status(), 200);
+    await page.evaluate(() => window.stateRequestSettled);
+    page.off("request", intercept);
+    await page.setRequestInterception(false);
+
+    assert.equal(await page.$eval(stateText, field => !field.disabled && field.getClientRects().length > 0),
+        true, "a late US response must not replace the Canadian text field");
+    assert.equal(await value(page, stateText), "Ontario");
+    await submit(page);
+    assertContinued(page, "Canadian free text still submits after the delayed response");
+    await page.goto(setup);
+    assert.equal(await value(page, country), "CA");
+    assert.equal(await value(page, stateText), "Ontario");
+    console.log("PASS: a delayed US response cannot discard a Canadian province");
+}
+
 (async () => {
     const fixture = createFixture("create-location");
     let browser;
@@ -82,6 +122,8 @@ function value(page, selector) {
 
         await page.setJavaScriptEnabled(true);
         await page.goto(setup);
+        await checkDelayedStateList(page);
+
         await page.select(country, "US");
         await page.waitForSelector(stateSelect, { visible: true });
         assert.deepEqual(await page.select(stateSelect, "WA"), ["WA"]);
@@ -94,6 +136,23 @@ function value(page, selector) {
 
         await page.setJavaScriptEnabled(false);
         await page.goto(setup);
+        await page.select(country, "CA");
+        await enterState(page, "Ontario");
+        await page.$eval(stateSelect, field => {
+            field.disabled = false;
+            field.value = "WA";
+        });
+        assert.equal(await value(page, stateSelect), "WA");
+        await submit(page);
+        assert.equal(new URL(page.url()).pathname, "/create/setup",
+            "a dropdown value for a free-text country must not advance account setup");
+        assert.match(await page.$eval("body", body => body.innerText), /valid state, region, or territory/);
+        assert.equal(await value(page, stateText), "Ontario", "the entered province remains editable");
+        await page.goto(setup);
+        assert.equal(await value(page, country), "US");
+        assert.equal(await value(page, stateText), "WA", "the rejected request does not change the saved state");
+        console.log("PASS: a dropdown value for a free-text country is rejected without saving");
+
         await page.select(country, "RU");
         await enterState(page, "Адыгея Республика");
         await submit(page);

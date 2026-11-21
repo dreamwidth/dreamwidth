@@ -21,15 +21,18 @@ CountryRegions.prototype = {
         }
     },
 
-    countryChanged: function(e) {
-        this.selectedCountry = this.countrySelect.val();
-
-        if ( this.countriesWithRegions[this.selectedCountry] ) {
-            $.post( $.endpoint( "load_state_codes" ), { "country" : this.selectedCountry } )
-                .then(this.updateStateOptions.bind(this));
-        }
-
+    countryChanged: function() {
+        var selectedCountry = this.countrySelect.val();
+        this.stateRequest = null;
         this.updateStateOptions();
+
+        if ( this.countriesWithRegions[selectedCountry] ) {
+            var request = $.post( $.endpoint( "load_state_codes" ), { "country" : selectedCountry } );
+            this.stateRequest = request;
+            request.then(function( stateData ) {
+                if ( this.stateRequest === request ) this.updateStateOptions( stateData );
+            }.bind(this));
+        }
     },
 
     updateStateOptions: function( stateData ) {
