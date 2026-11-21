@@ -126,6 +126,14 @@ sub notify {
         if ($LJ::_T_EMAIL_NOTIFICATION) {
             $LJ::_T_EMAIL_NOTIFICATION->( $u, $plain_body );
         }
+        elsif ( !length( $u->email_raw // '' ) ) {
+            $log->warn(
+                sprintf(
+                    'Skipping email notification for userid=%d evt_class=%s: no email address',
+                    $u->id, $ev->class
+                )
+            );
+        }
         elsif ( $u->{opt_htmlemail} eq 'N' ) {
             LJ::send_mail(
                 {
