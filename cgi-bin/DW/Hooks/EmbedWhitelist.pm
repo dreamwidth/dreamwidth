@@ -56,10 +56,11 @@ my %host_path_match = (
     "archive.org"   => [ qr!^/embed/!, 1 ],
     "audiomack.com" => [ qr!^/embed/!, 1 ],
 
-    "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
-    "player.bilibili.com"         => [ qr!^/player.html$!,    1 ],
-    "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
-    "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
+    "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!,                1 ],
+    "player.bilibili.com"         => [ qr!^/player.html$!,                   1 ],
+    "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,                 1 ],
+    "blorbo.social"               => [ qr!\A/@[A-Za-z0-9_]+/[0-9]+/embed\z!, 1 ],
+    "app.box.com"                 => [ qr!^/embed/s/!,                       1 ],
 
     "chirb.it"                => [ qr!^/wp/!,             1 ],
     "codepen.io"              => [ qr!^/enxaneta/embed/!, 1 ],
