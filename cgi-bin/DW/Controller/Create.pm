@@ -442,43 +442,41 @@ sub setup_handler {
         $post->{gender} = 'U' unless $post->{gender} =~ m/^[UMFO]$/;
 
         # location
-        my $state_from_dropdown = LJ::Lang::ml('states.head.defined');
-        $post->{stateother} //= "";
-        $post->{stateother} = "" if $post->{stateother} eq $state_from_dropdown;
-
         my %countries;
         DW::Countries->load( \%countries );
-
-        my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $post->{country} );
-        if ( $regions_cfg && $post->{stateother} ) {
-            $errors->add( 'statedrop', 'widget.location.error.locale.country_ne_state' );
-        }
-        elsif ( !$regions_cfg && $post->{statedrop} ) {
-            $errors->add( 'stateother', 'widget.location.error.locale.state_ne_country' );
-        }
 
         if ( $post->{country} && !defined $countries{ $post->{country} } ) {
             $errors->add( 'country', 'widget.location.error.locale.invalid_country' );
         }
 
-        # check if specified country has states
+        my $state_text  = LJ::trim( $post->{stateother} );
+        my $regions_cfg = LJ::Widget::Location->country_regions_cfg( $post->{country} );
         if ($regions_cfg) {
+            my %regions    = @{ LJ::Widget::Location->region_options($regions_cfg) };
+            my $state_code = $post->{statedrop} // '';
 
-            # if it is - use region select dropbox
-            $post->{state} = $post->{statedrop};
+            if ( !length $state_code && length $state_text ) {
+                $state_code = uc $state_text;
+                unless ( exists $regions{$state_code} ) {
+                    ($state_code) = grep { length $_ && lc $regions{$_} eq lc $state_text }
+                        keys %regions;
+                }
+            }
 
-            # mind save_region_code also
-            unless ( $regions_cfg->{save_region_code} ) {
-
-                # save region name instead of code
-                my $regions_arrayref = LJ::Widget::Location->region_options($regions_cfg);
-                my %regions_as_hash  = @$regions_arrayref;
-                $post->{state} = $regions_as_hash{ $post->{state} };
+            if ( !defined $state_code || !exists $regions{$state_code} ) {
+                $errors->add( 'state', '/components/location.tt.error.state' );
+            }
+            else {
+                $post->{statedrop} = $state_code;
+                $post->{state} =
+                    length $state_code && !$regions_cfg->{save_region_code}
+                    ? $regions{$state_code}
+                    : $state_code;
+                $post->{stateother} = $state_text || $post->{state};
             }
         }
         else {
-            # use state input box
-            $post->{state} = $post->{stateother};
+            $post->{state} = $post->{stateother} // '';
         }
 
         # interests

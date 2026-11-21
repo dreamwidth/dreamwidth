@@ -7,6 +7,7 @@ function CountryRegions( $element ) {
 
     this.initializeCountriesWithRegions( $element.data("country-regions").split(/\s+/) );
 
+    this.showStateOptions( this.stateSelect.find("option").length > 1 );
     this.countrySelect.change(this.countryChanged.bind(this));
 }
 
@@ -38,17 +39,21 @@ CountryRegions.prototype = {
         stateSelect.value = '';
 
         if ( stateData && stateData.states.length > 0 ) {
-            this.stateField.addClass( "has-state-options" );
-            this.stateText.val( '' );
-
             stateSelect.options[0] = new Option( stateData.head, "" );
             var states = stateData.states;
             for (var i = 0; i < states.length / 2; i++ ) {
                 stateSelect.options[i + 1] = new Option( states[2 * i + 1], states[2 * i] );
             }
-        } else {
-            this.stateField.removeClass( "has-state-options" );
         }
+
+        this.showStateOptions( stateSelect.options.length > 1 );
+    },
+
+    showStateOptions: function( hasOptions ) {
+        this.stateField.toggleClass( "has-state-options", hasOptions );
+        this.stateSelect.prop( "disabled", !hasOptions );
+        this.stateText.prop( "disabled", hasOptions );
+        if ( hasOptions ) this.stateText.val( '' );
     }
 };
 

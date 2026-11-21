@@ -3,3 +3,7 @@
 .field.country=Country
 
 .field.state=State / Region / Territory
+
+.error.state=Enter a valid state, region, or territory for the country you selected.
+
+.hint.state.nojs=Enter the name or official abbreviation of your state, region, or territory.
