@@ -42,8 +42,10 @@ sub nonquoted_text {
         # but this can be in various languages, so  not hardcoding the text
         last if m/^\s*-{3,}[^-]+-{3,}\s*$/;
 
-        # the bogus email we sent the comments as wrapped in <>
-        last if m/<\s?$LJ::BOGUS_EMAIL>/;
+        # the bogus email we sent the comments as, in a quoted header: <addr>,
+        # < addr>, <addr<mailto:addr>>, [mailto:addr] or &lt;addr&gt; (HTML replies).
+        # A bare mention of the address in the reply itself is kept.
+        last if $LJ::BOGUS_EMAIL && m/(?:<|&lt;|mailto:)\s?\Q$LJ::BOGUS_EMAIL\E/i;
 
         $num_lines++;
     }
