@@ -57,14 +57,21 @@ use Net::Subnet;
                #},
     );
 
-    # Schwartz DB configuration
+    # update-db.pl creates the default queue's sch_* tables in the master database.
+    # For a separate queue database, install doc/schwartz-schema.sql there and omit the prefix.
+    my $master = $DBINFO{master};
+    my $schwartz_dsn = "dbi:mysql:$master->{dbname}";
+    $schwartz_dsn .= ";host=$master->{host}" if $master->{host};
+    $schwartz_dsn .= ";port=$master->{port}" if $master->{port};
+    $schwartz_dsn .= ";mysql_socket=$master->{sock}" if $master->{sock};
     @THESCHWARTZ_DBS = (
-            {
-                dsn => 'dbi:mysql:dw_schwartz;host=localhost', # CHANGETHIS if on Dreamhack to dreamhack_username instead of dw_schwartz
-                user => 'dw', # CHANGETHIS if on Dreamhack to dh_username
-                pass => 'password',     # CHANGETHIS
-            },
-        );
+        {
+            dsn    => $schwartz_dsn,
+            user   => $master->{user},
+            pass   => $master->{pass},
+            prefix => 'sch_',
+        },
+    );
 
     # allow changelog posting.  this allows unauthenticated posts to the changelog
     # community from the IP and users specified.  this does not work on its own,
@@ -299,10 +306,6 @@ use Net::Subnet;
     #    master => {
     #        pass => ,
     #    },
-    #);
-
-    #%THESCHWARTZ_DBS = (
-    #    pass => ,
     #);
 
     # Which web pool/tier this install serves. Defaults to 'default'; production

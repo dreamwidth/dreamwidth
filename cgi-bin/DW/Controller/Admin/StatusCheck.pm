@@ -148,8 +148,7 @@ sub healthy_handler {
         foreach my $db (@LJ::THESCHWARTZ_DBS) {
             my $s_db = DBI->connect( $db->{dsn}, $db->{user}, $db->{pass} );
             if ($s_db) {
-                my $time = $s_db->selectrow_array(
-                    "DESCRIBE " . ( $db->{prefix} ? $db->{prefix} . "_job" : "job" ) );
+                my $time = $s_db->selectrow_array( "DESCRIBE " . ( $db->{prefix} || "" ) . "job" );
                 if ( !$time || $s_db->err ) {
                     push @fail, "schwartz $sid";
                 }
