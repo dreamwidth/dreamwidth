@@ -446,7 +446,9 @@ sub copy_text {
 
 =head2 [% form.password( label="A Label", id="elementid", name="elementname",... ) %]
 
-Return a password field with a matching label, if provided. Values are never prepopulated
+Return a password field with a matching label, if provided. Values are never
+populated from submitted form data. Use C<no_password_visibility> for compact
+layouts without room for a visibility button.
 
 =cut
 

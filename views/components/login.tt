@@ -8,13 +8,14 @@
 
     variables: 
     - 'short' - determines whether to render a compact version (for the controlstrip)
-    - 'remember_me_id' - optional checkbox ID when another login form is on the page
+    - 'login_id_prefix' - distinguishes the site header modal from the main login form
     - 'returnto' -
   %]
-  [%- BLOCK remember_me; # form element is in a different spot in controlstrip, sigh
+  [%- login_prefix = login_id_prefix || 'login';
+      BLOCK remember_me; # form element is in a different spot in controlstrip, sigh
     form.checkbox(
         value => 1,
-        id => (remember_me_id || "login_remember_me"),
+        id => "${login_prefix}_remember_me",
         name => "remember_me",
         label => dw.ml('sitescheme.accountlinks.login.rememberme' ),
         tabindex => (short ? "3" : "0")
@@ -31,7 +32,7 @@
         default => default_user,
         labelclass => (short ? "invisible" : ""),
         placeholder => (short ? dw.ml('/components/login.tt.login.username' ): ""),
-        id => "login_user",
+        id => "${login_prefix}_user",
         tabindex => (short ? "1" : "0")
         size => (short ? 7 : 20),
         'aria-required'=> "true"
@@ -39,16 +40,17 @@
     [%- form.password(
         label => dw.ml('sitescheme.accountlinks.login.password')
         name => "password",
-        id => "login_password",
+        id => "${login_prefix}_password",
         placeholder => (short ? dw.ml('/components/login.tt.login.password' ): ""),
         size => (short ? 7 : 20),
-        tabindex => (short ? "2" : "0")
+        tabindex => (short ? "2" : "0"),
+        no_password_visibility => short,
         labelclass => (short ? "invisible" : ""),
         'aria-required'=> "true"
     ) -%]
     [%- PROCESS remember_me IF !short -%]
     [%- form.submit(
-        id => "login_submit",
+        id => "${login_prefix}_submit",
           value = dw.ml( 'sitescheme.accountlinks.btn.login' ),
           class => (short ? "submit" : "submit expand"),
           tabindex => (short ? "4" : "0")

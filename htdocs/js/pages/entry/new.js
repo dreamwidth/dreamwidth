@@ -38,7 +38,7 @@ var postForm = (function($) {
             var action = form.action;
             var target = form.target;
 
-            var $password = $(form).find( "input[type='password']:enabled" );
+            var $password = $(form).find( "input[type='password']:enabled, input[data-password-field]:enabled" );
             $password.prop( "disabled", true );
 
             form.action = "/entry/preview";
