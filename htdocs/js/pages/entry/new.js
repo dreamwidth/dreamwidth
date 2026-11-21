@@ -169,39 +169,29 @@ var postForm = (function($) {
     var initSecurity = function($form, security_options, opts) {
         var $custom_groups = $("#js-custom-groups");
         var $custom_access_group_members = $("#js-custom-group-members");
-        var $custom_edit_button = $('<button class="secondary" data-reveal-id="js-custom-groups" aria-label="Edit custom entries">Edit</button>');
         var $security_select = $("#js-security");
+        var memberUpdate = 0;
 
-        // create an "edit custom groups" button
-        $security_select.closest(".fancy-select")
-                .after($custom_edit_button);
-
-        // show the custom groups modal
-        $security_select.change( function(e, init) {
-            var $this = $(this);
-
-            if ( $this.val() == "custom" ) {
-                if ( !init ) {
-                    $custom_groups.foundation('reveal', 'open');
-                }
-                $custom_edit_button.show();
-            } else {
-                $custom_edit_button.hide();
-            }
-        }).triggerHandler("change", true);
+        function updateCustomGroups() {
+            var custom = $security_select.val() === "custom";
+            $custom_groups.prop({ hidden: !custom, disabled: !custom });
+            if ( custom ) updatePostingMembers();
+        }
 
         // update the list of people who can see the entry
-        function updatePostingMembers(e, useCached) {
+        function updatePostingMembers() {
+            var journal = $form.data("journal");
+            if ( !journal ) return;
+            var update = ++memberUpdate;
             var members_data = []
             var requests = []
 
-            if(useCached && $custom_access_group_members.data("fetched")) return;
-            $custom_access_group_members.data("fetched", true);
-
             $custom_groups.find(":checkbox").each(function() {
                 if (this.checked) {
-                    requests.push($.getJSON("/__rpc_general?mode=list_filter_members&user=" + $form.data("journal") + "&filterid=" + this.value, function(data) {
-                        for ( member in data.filter_members.filterusers) {
+                    requests.push($.getJSON("/__rpc_general", {
+                        mode: "list_filter_members", user: journal, filterid: this.value
+                    }, function(data) {
+                        for ( var member in data.filter_members.filterusers) {
                             var the_name = data.filter_members.filterusers[member].fancy_username;
                             var position = members_data.indexOf(the_name);
                             if( position == -1) {
@@ -213,55 +203,21 @@ var postForm = (function($) {
             });
 
             $.when.apply($, requests).done(function() {
+                if ( update !== memberUpdate ) return;
                 var members_data_list = "";
                 members_data.sort();
                 members_data.forEach(function(member) {
                     members_data_list = members_data_list + "<li>" + member + "</li>";
                 });
                 
-                $custom_access_group_members.html(members_data_list);
+                $custom_access_group_members.html(members_data_list).parent()
+                    .prop("hidden", !members_data.length);
             });
         }
 
-        function saveCurrentGroups() {
-           $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
-        }
-
-        function onOpen() {
-            updatePostingMembers(undefined, true);
-            saveCurrentGroups();
-        }
-
-        function close(e) {
-            e.preventDefault();
-
-            // hide the modal (retains current state)
-            $custom_groups.foundation('reveal', 'close');
-            $custom_groups.detach().appendTo(".components.js-only");
-        }
-
-        function cancel() {
-            // reset to initial selected custom groups
-            var data = $custom_groups.data("original_data");
-            var groups = {};
-            for ( var i = 0; i < data.length; i++ ) {
-                groups[data[i].value] = true;
-            }
-
-            $custom_groups.find("input[name=custom_bit]").each(function(i, elem) {
-                if (groups[elem.value]) {
-                    $(elem).prop("checked", "checked")
-                } else {
-                    $(elem).removeProp("checked");
-                }
-            });
-        }
-
-        $custom_groups.find("input[name=custom_bit]").click(updatePostingMembers);
-        $(document).on('open.fndtn.reveal', "#js-custom-groups", onOpen);
-        $("#js-custom-groups-select").click(close);
-        $custom_groups.find(".close-reveal-modal").click(cancel);
-
+        $security_select.change(updateCustomGroups);
+        $custom_groups.on("change", "input[name=custom_bit]", updatePostingMembers);
+        updateCustomGroups();
 
         // update the options when journal changes
         function adjustSecurityDropdown(data, journal) {
@@ -309,7 +265,7 @@ var postForm = (function($) {
                         createOption( "private" )
                     ];
 
-                    if ( data.ret['friend_groups_exist'] )
+                    if ( data.ret['friend_groups_exist'] && $custom_groups.length )
                         opts.push( createOption( "custom" ) );
                 }
                 $security.append(opts.join(""));
@@ -347,6 +303,8 @@ var postForm = (function($) {
                 } else if ( ! opts.edit ) {
                     $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
                     { "user": journal.name }, function(data) { adjustSecurityDropdown(data, journal) } );
+                } else if ( $security_select.val() === "custom" ) {
+                    updatePostingMembers();
                 }
             }
         } );

@@ -3,4 +3,4 @@
 
 .header.custom_member=Posting Group Members
 
-.select=Select
+.instructions.nojs=These groups apply only when Security is set to custom filtered.
