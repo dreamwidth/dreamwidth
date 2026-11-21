@@ -17,7 +17,8 @@ const { readFileSync } = require("node:fs");
 const { launch } = require("./browser");
 
 async function submit(filename, url, visibility, edit, editorMode) {
-    const delayEditor = editorMode === "delay";
+    const roundTrip = editorMode === "roundtrip";
+    const delayEditor = editorMode === "delay" || roundTrip;
     const fallbackEditor = editorMode === "fallback";
     const origin = new URL(url).origin;
     const html = readFileSync(filename, "utf8")
@@ -71,6 +72,10 @@ async function submit(filename, url, visibility, edit, editorMode) {
         } else {
             await navigation;
             await page.waitForFunction(() => window.FCKeditor_LOADED);
+        }
+        if (roundTrip) {
+            await page.select("#editor", "html_casual1");
+            await page.select("#editor", "rte0");
         }
         if (edit && fallbackEditor) {
             await page.type("#entry-body", edit);

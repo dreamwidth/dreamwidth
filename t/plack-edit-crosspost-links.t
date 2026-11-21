@@ -150,7 +150,10 @@ with_fake_memcache {
             hide_crosspost_links => 1,
             lj_form_auth         => $simple_token
         );
-        ok( $simple_saved->content =~ /edit was successful/i, 'simple layout edit saves successfully' );
+        ok(
+            $simple_saved->content =~ /edit was successful/i,
+            'simple layout edit saves successfully'
+        );
         is( $links->(), '', 'saving from the simple layout also hides the link' );
     };
     LJ::delete_entry( $owner, $entry->jitemid, 0, $entry->anum );
@@ -190,12 +193,19 @@ with_fake_memcache {
         my $client  = shift;
         my @editors = ( 'advanced', 'simple', 'advanced with legacy format' );
         push @editors, 'advanced rich text', 'advanced rich text while loading',
-            'advanced rich text fallback' if $ENV{DW_TEST_RTE};
+            'advanced rich text loading format round trip', 'advanced rich text fallback'
+            if $ENV{DW_TEST_RTE};
+        my %editor_modes = (
+            'advanced rich text'                           => 'ready',
+            'advanced rich text while loading'             => 'delay',
+            'advanced rich text loading format round trip' => 'roundtrip',
+            'advanced rich text fallback'                  => 'fallback',
+        );
         for my $editor (@editors) {
             my $legacy_format = $editor eq 'advanced with legacy format';
-            my $delay_editor  = $editor eq 'advanced rich text while loading';
-            my $fallback      = $editor eq 'advanced rich text fallback';
-            my $rich_text     = $editor eq 'advanced rich text' || $delay_editor || $fallback;
+            my $editor_mode   = $editor_modes{$editor} // '';
+            my $rich_text     = $editor_mode ne '';
+            my $delay_editor  = $editor_mode eq 'delay' || $editor_mode eq 'roundtrip';
 
             $owner->set_prop( 'entry_editor2', $legacy_format ? 'html_raw0' : 'html_casual1' );
             my $body =
@@ -247,8 +257,7 @@ with_fake_memcache {
                     print {$html} $client->( GET $url )->content;
                     close $html or die $!;
                     open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
-                        $filename, $url, $hide, $changes{event} // '',
-                        ( $delay_editor ? 'delay' : $fallback ? 'fallback' : '' )
+                        $filename, $url, $hide, $changes{event} // '', $editor_mode
                         or die $!;
                     my $payload = do { local $/; <$browser> };
                     close $browser or die 'Could not submit the rich-text editor form in Chrome';
@@ -265,18 +274,14 @@ with_fake_memcache {
                         crosspost_entry      => 1,
                         crosspost            => $account_id,
                         editor               => $format,
-                        subject              => delete $changes{subject}  // 'test suite post.',
-                        event                => delete $changes{event}    // $body,
+                        subject              => delete $changes{subject} // 'test suite post.',
+                        event                => delete $changes{event} // $body,
                         security             => delete $changes{security} // 'public',
                         %changes,
                         ];
                 }
                 my $response = $client->($request);
-                like(
-                    $response->content,
-                    qr/edit was successful/i,
-                    "$editor save succeeds"
-                );
+                like( $response->content, qr/edit was successful/i, "$editor save succeeds" );
                 LJ::Entry->reset_singletons;
                 return LJ::Entry->new( $owner, ditemid => $id );
             };
