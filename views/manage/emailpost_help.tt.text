@@ -15,13 +15,15 @@
 
 .headers.options.example.format=("markdown" or "html"; defaults to "markdown")
 
-.headers.options.example.icon=icon keywords
+.headers.options.example.icon=icon keyword, or "random" to choose one (unless it matches your keyword)
 
 .headers.options.example.location=Paris, France
 
 .headers.options.example.mood=happy
 
 .headers.options.example.music=The Pixies: Where Is My Mind?
+
+.headers.options.example.slug=Paris Trip (becomes "paris-trip" in the entry URL; if unusable or already taken, the entry keeps its numeric URL)
 
 .headers.options.example.tags=greyhounds, potato, wool
 
