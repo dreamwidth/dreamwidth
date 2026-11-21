@@ -90,14 +90,8 @@ sub add_cookie {
     if ( $LJ::PROTOCOL eq "https" ) {
         $args{secure} = 1;
     }
-    else {    # if we're not secure, hopefully we're in a development environment
-        $args{SameSite} = 'Lax' if $LJ::IS_DEV_SERVER;
-
-        # TODO: test and see if the site works as expected with
-        # SameSite=Lax turned on for all cookies - Lax prevents
-        # cross-domain POST requests but GETs are allowed. Not
-        # setting it at all is equivalent to SameSite=None, which
-        # newer browsers only allow if the secure attribute is set.
+    elsif ($LJ::IS_DEV_SERVER) {
+        $args{SameSite} = 'Lax';
     }
 
     # extraneous parenthesis inside map {} needed to force BLOCK mode map

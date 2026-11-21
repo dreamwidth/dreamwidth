@@ -16,18 +16,19 @@ package LJ::OpenID;
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
 use LJ::OpenID::Cache;
+use LJ::Session;
 use Net::OpenID::Server;
 use Net::OpenID::Consumer;
 
 sub server {
-    my ( $get, $post ) = @_;
+    my ( $get, $post, $get_user ) = @_;
 
     my %args = ( %{ $get || {} }, %{ $post || {} } );
 
     return Net::OpenID::Server->new(
         args => \%args,
 
-        get_user    => \&LJ::get_remote,
+        get_user    => $get_user || \&LJ::get_remote,
         is_identity => sub {
             my ( $u, $ident ) = @_;
             return LJ::OpenID::is_identity( $u, $ident, $get );
@@ -40,6 +41,16 @@ sub server {
         secret_gen_interval => 3600,
         secret_expire_age   => 86400 * 14,
     );
+}
+
+sub provider_user {
+    my $remote = LJ::get_remote();
+    return $remote if $remote;
+
+    my $session = LJ::Session->session_from_openid_cookie or return undef;
+    my $owner = $session->owner or return undef;
+    return $owner unless $owner->is_locked;
+    return undef;
 }
 
 # Returns a Consumer object
