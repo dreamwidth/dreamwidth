@@ -2294,6 +2294,8 @@ sub format_eventtime {
 
 package LJ::Talk::Post;
 
+use HTML::Entities qw(decode_entities);
+use HTML::Parser;
 use Text::Wrap;
 use LJ::Entry;
 
@@ -3078,22 +3080,56 @@ sub journal_captcha_policy {
 sub _comment_html_is_suspicious {
     my ($body) = @_;
 
-    my $url_count = 0;
-    while (
-        $body =~ m{
+    my $url = qr{
         \b (?: (?:https?|ftp):// (?:\[[0-9a-f:.]+\]|[[:alnum:]]) | www\.[[:alnum:]] )
         [^\s<>"'\[\]]*
-    }igx
-        )
-    {
-        return 1 if ++$url_count == 2;
+    }ix;
+    my $url_count = () = $body =~ /$url/g;
+    if ( $url_count >= 2 && $body =~ /<a\b/i ) {
+        my ( $href, $label, $label_url_count );
+        my $parser = HTML::Parser->new( api_version => 3 );
+        $parser->report_tags('a');
+        $parser->handler(
+            start => sub {
+                my ( $attr, $raw ) = @_;
+                $href = $attr->{href};
+                undef $href
+                    unless defined $href && grep { decode_entities($_) eq $href } $raw =~ /$url/g;
+                ( $label, $label_url_count ) = ( '', 0 );
+            },
+            'attr,text'
+        );
+        $parser->handler(
+            text => sub {
+                return unless defined $href;
+                my ( $decoded, $raw ) = @_;
+                $label .= $decoded;
+                $label_url_count += () = $raw =~ /$url/g;
+            },
+            'dtext,text'
+        );
+        $parser->handler(
+            end => sub {
+                return unless defined $href;
+                --$url_count if $label_url_count == 1 && $label =~ /\A\s*\Q$href\E\s*\z/;
+                undef $href;
+            },
+            ''
+        );
+        $parser->parse($body)->eof;
     }
+    return 1 if $url_count >= 2;
 
-    return 1 if $body =~ /
-        \[\/? (?:b|i|u|s|strike|sub|sup|quote|code|list|img|url|email|font|size|color|
-        align|center|left|right|spoiler|table|tr|td|media|video|youtube|flash)
-        (?:=[^\]\r\n]*)?\]
-    /ix;
+    return 1 if $body =~ /\[\/?\*\]/;
+    my %opened;
+    while ( $body =~ /\[(\/?)([a-z][a-z0-9_-]*)(?:=[^\]\r\n]*)?\]/ig ) {
+        my ( $closing, $tag ) = ( $1, lc $2 );
+        return 1 if $tag =~ /\A(?:b|i|u|s|strike|sub|sup|quote|code|list|img|url|email|font|
+            size|color|align|center|left|right|spoiler|table|tr|td|media|video|youtube|flash|
+            attachment)\z/x;
+        return 1 if $closing && $opened{$tag};
+        $opened{$tag} = 1 unless $closing;
+    }
 
     return LJ::Hooks::run_hook( 'spam_blocklist_match', $body ) ? 1 : 0;
 }

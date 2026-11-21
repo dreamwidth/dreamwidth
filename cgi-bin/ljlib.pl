@@ -734,24 +734,30 @@ sub load_include {
 
     # we handle, so first if memcache...
     my $val = LJ::MemCache::get("includefile:$file");
+    return $val->[0] if ref $val eq 'ARRAY';
     return $val if $val;
 
     # straight database hit
     my $dbh = LJ::get_db_writer();
-    $val = $dbh->selectrow_array( "SELECT inctext FROM includetext " . "WHERE incname=?",
-        undef, $file );
-    LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
-    return $val if $val;
+    if ($dbh) {
+        $val = $dbh->selectrow_array( 'SELECT inctext FROM includetext WHERE incname=?',
+            undef, $file );
+        if ($val) {
+            LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
+            return $val;
+        }
+    }
 
     # if not in memcache, hit disk -- if it exists
     my $filename = "$LJ::HTDOCS/inc/$file";
-    return unless -e $filename;
-
-    # get it and return it
-    open( INCFILE, $filename )
-        or return "Could not open include file: $file.";
-    { local $/ = undef; $val = <INCFILE>; }
-    close INCFILE;
+    $val = undef;
+    if ( -e $filename ) {
+        open( my $include, '<', $filename ) or return "Could not open include file: $file.";
+        local $/;
+        $val = <$include>;
+    }
+    LJ::MemCache::set( "includefile:$file", [$val], time() + 3600 )
+        if !length( $val // '' ) && $dbh && !$dbh->err;
     return $val;
 }
 
