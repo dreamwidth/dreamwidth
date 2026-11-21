@@ -125,7 +125,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
             Firefox %]
             <div id="masthead" role="banner">
                 [% PROCESS block.userpic %]
-                [% PROCESS block.logo %]
+                <span id="logo">
+                    [% PROCESS block.logo %]
+                </span>
                 [% PROCESS block.accountlinks %]
             </div><!-- end masthead-->
             <div id="header-divider"> <div id="header-divider-insert"></div></div>
