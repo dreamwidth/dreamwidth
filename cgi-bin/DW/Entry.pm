@@ -110,7 +110,10 @@ sub _backend_to_form {
     if ( $security eq "usemask" ) {
         my $amask = $entry->allowmask;
 
-        if ( $amask == 1 ) {
+        if ( !$is_api && $amask == 0 ) {
+            $security = "private";
+        }
+        elsif ( $amask == 1 ) {
             $security = "access";
         }
         else {
