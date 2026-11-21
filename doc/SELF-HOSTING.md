@@ -89,6 +89,21 @@ Community rename notices require `bin/worker/dw-community-rename-notice` in
 addition to `bin/worker/dw-send-email`. With worker-manager, enable
 `dw-community-rename-notice: 1` under `all:` as well.
 
+Before rolling out the web change, apply the global database upgrade and start
+the notice worker. Renames require InnoDB for `user`, `useridmap` and `reluser`;
+convert legacy installations before enabling renames on them. The upgrade adds
+the InnoDB notice outbox and recipient tables. For hosted ECS deployments,
+provision the `worker-dw-community-rename-notice-service` service using the
+checked-in task definition and deploy `dw-community-rename-notice` via the
+worker deployment workflow. The notice worker polls MySQL; only the existing
+email worker needs a mail queue.
+
+Notices group case variants of the same address, not provider-specific aliases
+such as plus tags. The outbox checkpoints acknowledged mail submissions and
+retries rejections. It does not guarantee exactly-once delivery if the mail
+queue accepts a submission but its acknowledgement or the following database
+commit is lost.
+
 Configure the site's sender addresses and `$DOMAIN_EMAIL` for your provider.
 The old `%EMAIL_VIA_SES` hash remains supported when `%SMTP_SERVER` is unset;
 legacy scalar `$SMTP_SERVER` and `$MAIL_TO_THESCHWARTZ` settings do not configure

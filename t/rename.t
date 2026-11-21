@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 158;
+use Test::More tests => 159;
 use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -23,6 +23,7 @@ use LJ::Test qw( temp_user temp_comm );
 use DW::FormErrors;
 use DW::User::Rename;
 use DW::RenameToken;
+use DW::TaskQueue;
 
 my $create_users = sub {
     my %opts = @_;
@@ -539,15 +540,10 @@ subtest 'Community rename preserves memberships and notifies eligible members' =
 
     my @members_before    = sort { $a <=> $b } $community->member_userids;
     my $original_dispatch = DW::TaskQueue->can('dispatch');
-    my @notices;
     my @mail;
     no warnings 'redefine';
     local *DW::TaskQueue::dispatch = sub {
         my ( $class, $task ) = @_;
-        if ( $task->isa('DW::Task::CommunityRenameNotice') ) {
-            push @notices, $task;
-            return 1;
-        }
         return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
         push @mail, $task->args->[0];
         return 1;
@@ -572,11 +568,11 @@ subtest 'Community rename preserves memberships and notifies eligible members' =
     );
     ok( $community->rename( $newname, token => $token, user => $admin, redirect => 1 ),
         'Rename succeeds with members' );
-    is( scalar @notices, 1, 'Rename queues one background notice' );
-    if ( my $notice = shift @notices ) {
-        is_deeply( \@mail, [], 'The rename does not expand recipients' );
-        is( $notice->work, DW::Task::COMPLETED(), 'The notice finishes' );
-    }
+    is_deeply( \@mail, [], 'The rename does not expand recipients' );
+    ok(
+        DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'The worker finds and processes the committed notice'
+    );
 
     my $renamed = LJ::load_user($newname);
     my $old     = LJ::load_user($oldname);
@@ -745,43 +741,69 @@ subtest 'A failed source write rolls back the target move' => sub {
     ok( $actor->rename( $target_name, token => $token ), 'The same token works on retry' );
 };
 
+subtest 'An outbox write failure rolls back a community rename' => sub {
+    my $community = temp_comm();
+    my $target    = temp_comm();
+    my $admin     = temp_user();
+    my $oldname   = $community->user;
+    my $newname   = $target->user;
+    my $token     = new_token($admin);
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $target,    $admin, 'A' );
+
+    my $dbh         = LJ::get_db_writer();
+    my $original_do = $dbh->can('do');
+    no warnings 'redefine';
+    local *DBI::db::do = sub {
+        my ( $db, $sql ) = @_;
+        die 'simulated outbox write exception' if $sql =~ /^INSERT INTO community_rename_notice /;
+        return $original_do->(@_);
+    };
+    ok( !$community->rename( $newname, token => $token, user => $admin, redirect => 1 ),
+        'Rename fails closed if the durable notice cannot be written' );
+    is( LJ::load_userid( $community->id, 1 )->user, $oldname, 'Source name rolled back' );
+    is( LJ::load_userid( $target->id,    1 )->user, $newname, 'Destination name rolled back' );
+    is( token_status($token), 'U', 'The token remains unused' );
+};
+
 subtest 'Queue failures do not undo a rename or stop other notices' => sub {
     my $community = temp_comm();
     my $admin     = temp_user();
     my $oldname   = $community->user;
-    my $newname   = $oldname . '_renamed';
+    my $target    = temp_comm();
+    my $newname   = $target->user;
     my $token     = new_token($admin);
     LJ::set_rel( $community, $admin, 'A' );
-    my @mailboxes =
-        ( 'rename-fail@example.com', map { sprintf 'rename-next-%02d@example.com', $_ } 1 .. 25 );
+    LJ::set_rel( $target,    $admin, 'A' );
+    my @mailboxes = (
+        qw(rename-fail@example.com rename-leave@example.com),
+        map { sprintf 'rename-next-%02d@example.com', $_ } 1 .. 24
+    );
+    my $leaving;
+
     foreach my $mailbox (@mailboxes) {
         my $member = temp_user();
         LJ::set_rel( $community, $member, 'E' );
         LJ::update_user( $member, { status => 'A', email => $mailbox } );
+        $leaving = $member if $mailbox eq 'rename-leave@example.com';
     }
 
     my $original_dispatch = DW::TaskQueue->can('dispatch');
-    my ( $notice, @followups, @attempts );
+    my ( @security_events, @attempts );
     my $fail_recipient = 1;
     no warnings 'redefine';
     local *DW::TaskQueue::dispatch = sub {
         my ( $class, $task ) = @_;
-        if ( $task->isa('DW::Task::CommunityRenameNotice') ) {
-            if ($notice) {
-                push @followups, $task;
-                return 1;
-            }
-            $notice = $task;
-            is( token_status($token), 'A', 'The token is applied before handoff' );
-            is( LJ::load_user($oldname)->prop('renamedto'),
-                $newname, 'The redirect is in place before handoff' );
-            die 'simulated handoff exception';
+        if ( $task->isa('LJ::Event::SecurityAttributeChanged') ) {
+            push @security_events, $task;
+            die 'simulated security notification exception';
         }
         return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
         my ($recipient) = @{ $task->args->[0]->{rcpts} };
         push @attempts, $recipient;
         die 'simulated per-recipient exception'
-            if $fail_recipient && $recipient eq 'rename-fail@example.com';
+            if $fail_recipient && $recipient eq $mailboxes[0];
+        return undef if $fail_recipient && $recipient eq $mailboxes[1];
         return 1;
     };
     my $renamed =
@@ -789,27 +811,56 @@ subtest 'Queue failures do not undo a rename or stop other notices' => sub {
     is( $@, '', 'The failed enqueue does not throw from rename' );
     ok( $renamed, 'Rename reports success even if notification enqueue fails' );
     is( $community->user, $newname, 'The rename is committed' );
+    like( LJ::load_userid( $target->id, 1 )->user, qr/^ex_/, 'The destination moved aside' );
+    is( token_status($token), 'A', 'The source token was applied' );
+    my $redirect = LJ::load_user($oldname);
+    is( $redirect && $redirect->prop('renamedto'), $newname, 'The redirect is in place' );
+    is( scalar @security_events, 2, 'Both security events were attempted' );
+    is_deeply( \@attempts, [], 'The web request does not dispatch mail' );
 
-    my $work = $notice && $notice->work;
-    is( $work, DW::Task::COMPLETED(), 'The batch hands failed dispatch off to a retry job' );
+    my $poll = DW::Task::CommunityRenameNotice->can('process_pending');
+    ok( $poll, 'The worker can recover committed notices without a queue message' ) or return;
+    ok( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+        'The worker finds the notice' );
     is_deeply(
         \@attempts,
         [ @mailboxes[ 0 .. 24 ] ],
         'One bounded batch is attempted despite the first dispatch exception'
     );
-    is( scalar @followups, 2, 'Only a continuation and one recipient retry are queued' );
-    my ( $continuation, $retry ) = @followups;
-    is( $continuation && $continuation->work,
-        DW::Task::COMPLETED(), 'A later batch can finish without waiting for the failed dispatch' );
+    {
+        my $original_do = LJ::get_db_writer()->can('do');
+        local *DBI::db::do = sub {
+            my ( $db, $sql ) = @_;
+            die 'simulated continuation checkpoint exception'
+                if $sql =~ /^UPDATE community_rename_notice SET after_mailbox=/;
+            return $original_do->(@_);
+        };
+        is( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+            0, 'A failed continuation checkpoint leaves the next page pending' );
+    }
+    is( scalar @attempts, 25, 'No accepted mail is replayed when the next page fails' );
+    ok(
+        $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+        'A later batch can finish without waiting for the failed dispatch'
+    );
     is_deeply( \@attempts, \@mailboxes, 'All recipients are attempted' );
 
-    is( $retry && $retry->work, DW::Task::FAILED(),
-        'The isolated job requests a retry on failure' );
+    $leaving->leave_community($community);
+    LJ::get_db_writer()->do(
+        'UPDATE community_rename_recipient SET next_attempt=0 WHERE noticeid IN '
+            . '(SELECT noticeid FROM community_rename_notice WHERE commid=?)',
+        undef, $community->id
+    );
     @attempts       = ();
     $fail_recipient = 0;
-    $work           = $retry && DW::Task->deserialize( $retry->serialize )->work;
-    is( $work, DW::Task::COMPLETED(), 'The retry finishes' );
-    is_deeply( \@attempts, ['rename-fail@example.com'], 'Only the failed recipient is retried' );
+    ok( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ), 'The retry finishes' );
+    is_deeply(
+        \@attempts,
+        [ $mailboxes[0] ],
+        'Only the still-eligible failed recipient is retried'
+    );
+    is( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+        0, 'Polling again does not replay an accepted recipient or continuation' );
 };
 
 note("-- community-to-personal");

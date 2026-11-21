@@ -130,8 +130,7 @@
       "spot": true,
       "min_count": 1,
       "max_count": 1,
-      "target_cpu": 50,
-      "sqs_queue_name": "dw-prod-dw-task-communityrenamenotice"
+      "target_cpu": 50
     },
     "dw-search-copier": {
       "cpu": 256,

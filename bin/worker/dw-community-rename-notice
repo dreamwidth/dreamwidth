@@ -15,11 +15,12 @@ use strict;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
-use DW::TaskQueue;
+package LJ::Worker::CommunityRenameNotice;
+use base 'LJ::Worker::Manual';
+use DW::Task::CommunityRenameNotice;
 
-DW::TaskQueue->start_work(
-    'DW::Task::CommunityRenameNotice',
-    message_timeout_secs => 60,
-    exit_after_secs      => 300 + int( rand() * 600 ),
-    exit_after_messages  => 100,
-);
+sub work {
+    return DW::Task::CommunityRenameNotice->process_pending;
+}
+
+__PACKAGE__->run;
