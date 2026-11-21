@@ -26,6 +26,7 @@ use DW::API::Key;
 use DW::Request::Standard;
 use DW::Setting::SharedAdminPosts;
 use DW::Test::API qw(api_request);
+use LJ::Feed;
 use LJ::Protocol;
 use LJ::S2;
 use LJ::Session;
@@ -774,6 +775,386 @@ $official->set_prop( statusvis => undef );
         'the admin reading list loads the body from the checked snapshot'
     );
     LJ::MemCache::set_memcache($original_memcache);
+}
+
+{
+    local @LJ::MEMCACHE_SERVERS = ('fake');
+    my $original_memcache = LJ::MemCache::get_memcache();
+    LJ::MemCache::set_memcache( LJ::Test::FakeMemCache->new );
+
+    my $error;
+    my $posted = LJ::Protocol::do_request(
+        'postevent',
+        {
+            username   => $author->user,
+            usejournal => $author->user,
+            ver        => 1,
+            tz         => 'guess',
+            subject    => 'Zero-mask subject',
+            event      => 'Zero-mask personal body',
+            security   => 'usemask',
+            allowmask  => 0,
+        },
+        \$error,
+        { noauth => 1, u => $author },
+    );
+    ok( $posted, 'posted personal entry with security=usemask and allowmask=0' )
+        or diag("postevent failed: $error");
+    my $zero_mask = LJ::Entry->new( $author, jitemid => $posted->{itemid} );
+    my $db_row =
+        LJ::get_cluster_master($author)
+        ->selectrow_hashref( 'SELECT security, allowmask FROM log2 WHERE journalid=? AND jitemid=?',
+        undef, $author->id, $zero_mask->jitemid );
+    is( $db_row->{security},  'usemask', 'log2 stores security=usemask' );
+    is( $db_row->{allowmask}, 0,         'log2 stores allowmask=0' );
+
+    # Warm log2:<jid>:<jitemid> memcache so the next load unpacks security=private.
+    ok( LJ::get_log2_row( $author, $zero_mask->jitemid ),
+        'warm log2 memcache for zero-mask entry' );
+    LJ::start_request();
+    my $cached = LJ::Entry->new( $author, jitemid => $zero_mask->jitemid );
+    ok( $cached->valid, 'warm-cache zero-mask entry loads row metadata' );
+    is( $cached->security, 'private', 'warm log2 memcache unpacks zero-mask as private' );
+    is(
+        $cached->subject_raw,
+        'Zero-mask subject',
+        '_load_text loads subject for warm-cache zero-mask entry'
+    );
+    is(
+        $cached->event_raw,
+        'Zero-mask personal body',
+        '_load_text loads body for warm-cache zero-mask entry'
+    );
+    like(
+        $cached->event_html,
+        qr/Zero-mask personal body/,
+        'event_html renders warm-cache zero-mask entry'
+    );
+    my $snap_entry = reload_entry($official);
+    ok( $snap_entry->load_view_snapshot, 'load view snapshot on a public entry' );
+    my @snap_warns;
+    my $undef_snap_ret;
+    my $undef_snap_ok = eval {
+        local $SIG{__WARN__} = sub { push @snap_warns, @_ };
+        $undef_snap_ret = $snap_entry->absorb_view_snapshot(undef);
+        1;
+    };
+    ok( $undef_snap_ok && !$undef_snap_ret && !@snap_warns,
+        'absorb_view_snapshot(undef) returns false cleanly on a snapshotted entry' )
+        or diag( "err=" . ( $@ // '' ) . " warns=@snap_warns" );
+
+    # Warm log2lt:<jid> reading-page cache and verify a second warm read retains the entry.
+    $author->add_edge( $author, watch => {} );
+    LJ::start_request();
+    my @cold = grep { $_->{journalid} == $author->id && $_->{jitemid} == $zero_mask->jitemid }
+        $author->watch_items( remote => $author, itemshow => 50, skip => 0 );
+    is( scalar @cold, 1, 'cold reading page includes zero-mask personal entry' );
+    my $lt_key = [ $author->id, 'log2lt:' . $author->id ];
+    ok( LJ::MemCache::get($lt_key), 'log2lt cache is warmed after cold reading page' );
+
+    LJ::start_request();
+    my ($warm) = grep { $_->{journalid} == $author->id && $_->{jitemid} == $zero_mask->jitemid }
+        $author->watch_items( remote => $author, itemshow => 50, skip => 0 );
+    ok( $warm, 'warm-cache reading page retains zero-mask personal entry' );
+    is(
+        $warm && LJ::Entry->new_from_item_hash($warm)->event_raw,
+        'Zero-mask personal body',
+        'warm-cache reading page loads body for zero-mask personal entry'
+    );
+    ok( LJ::MemCache::get($lt_key),
+        'warm-cache reading page does not evict log2lt for a valid zero-mask entry' );
+
+    LJ::MemCache::set_memcache($original_memcache);
+}
+
+{
+    no warnings 'redefine';
+    my $month_racing = post_entry( $community, $author, 'Public month subject', 1 );
+    my ( $year, $month ) = $month_racing->eventtime_mysql =~ /^(\d{4})-(\d{2})-/;
+    my $load_userids = \&LJ::load_userids_multiple;
+    my $interleaved  = 0;
+    local *LJ::load_userids_multiple = sub {
+        my $ret = $load_userids->(@_);
+        if ( !$interleaved++ ) {
+            is(
+                edit_entry(
+                    $month_racing, $editor, 'Private month body',
+                    subject       => 'Private month subject',
+                    security      => 'private',
+                    reuse_request => 1,
+                ),
+                0,
+                'shared edit privatizes the entry during MonthPage rendering'
+            );
+        }
+        return $ret;
+    };
+    LJ::start_request();
+    DW::Request->reset;
+    my $month_req = DW::Request::Standard->new(
+        HTTP::Request->new( GET => $community->journal_base . "/$year/$month/" ) );
+    local $community->{_journalbase} = $community->journal_base;
+    local $community->{_s2styleid}   = $community->{_s2styleid} || 0;
+    my $ctx = [];
+    local $LJ::S2::CURR_CTX = $ctx;
+    my $page = LJ::S2::MonthPage(
+        $community,
+        undef,
+        {
+            getargs   => {},
+            ctx       => $ctx,
+            pathextra => "/$year/$month",
+            vhost     => 'www.dw.test',
+            r         => $month_req,
+        }
+    );
+    DW::Request->reset;
+    ok( $interleaved, 'MonthPage reached the interleaving point' );
+    my $subjects = join "\n", map { $_->{subject} // '' }
+        map { @{ $_->{entries} || [] } } @{ $page->{days} || [] };
+    unlike(
+        $subjects,
+        qr/Private month subject/,
+        'MonthPage does not leak a concurrently privatized entry subject'
+    );
+}
+
+{
+    no warnings 'redefine';
+    my $feed_racing = post_entry( $community, $author, 'Public feed body', 1 );
+    my $recent      = \&LJ::User::recent_items;
+    my $interleaved = 0;
+    local *LJ::User::recent_items = sub {
+        my @res = $recent->(@_);
+        if ( !$interleaved
+            && grep { $_->{itemid} == $feed_racing->jitemid } @res )
+        {
+            $interleaved = 1;
+            is(
+                edit_entry(
+                    $feed_racing, $editor, 'Private feed body',
+                    subject       => 'Private feed subject',
+                    security      => 'private',
+                    reuse_request => 1,
+                ),
+                0,
+                'shared edit privatizes the entry during journal Atom feed rendering'
+            );
+        }
+        return @res;
+    };
+    LJ::start_request();
+    DW::Request->reset;
+    my $req = DW::Request::Standard->new(
+        HTTP::Request->new( GET => $community->journal_base . '/data/atom' ) );
+    my $xml = LJ::Feed::make_feed( $req, $community, undef,
+        { pathextra => '/atom', saycharset => 'utf-8' } );
+    DW::Request->reset;
+    ok( $interleaved, 'journal Atom feed reached the interleaving point' );
+    unlike(
+        $xml // '',
+        qr/Private feed (?:subject|body)/,
+        'journal Atom feed does not leak a concurrently privatized entry'
+    );
+
+    my $single_feed = post_entry( $community, $author, 'Public single feed body', 1 );
+    my $visible_to  = \&LJ::Entry::visible_to;
+    my $single_race = 0;
+    local *LJ::Entry::visible_to = sub {
+        my ($entry) = @_;
+        my $visible = $visible_to->(@_);
+        if (   $visible
+            && $entry->journalid == $community->id
+            && $entry->jitemid == $single_feed->jitemid
+            && !$single_race )
+        {
+            $single_race = 1;
+            is(
+                edit_entry(
+                    $single_feed, $editor, 'Private single feed body',
+                    subject       => 'Private single feed subject',
+                    security      => 'private',
+                    reuse_request => 1,
+                ),
+                0,
+                'shared edit privatizes the entry after single-entry feed authorization'
+            );
+        }
+        return $visible;
+    };
+    LJ::start_request();
+    DW::Request->reset;
+    my $single_req = DW::Request::Standard->new(
+        HTTP::Request->new(
+            GET => $community->journal_base . '/data/atom?itemid=' . $single_feed->ditemid
+        )
+    );
+    my $single_xml = LJ::Feed::make_feed( $single_req, $community, undef,
+        { pathextra => '/atom', saycharset => 'utf-8' } );
+    DW::Request->reset;
+    ok( $single_race, 'single-entry Atom feed reached the interleaving point' );
+    like(
+        $single_xml // '',
+        qr/Public single feed body/,
+        'in-flight single-entry Atom feed keeps its authorized public snapshot'
+    );
+    unlike(
+        $single_xml // '',
+        qr/Private single feed (?:subject|body)/,
+        'single-entry Atom feed never leaks the replacement private revision'
+    );
+}
+
+{
+    no warnings 'redefine';
+    DW::Request->reset;
+    DW::Request::Standard->new( HTTP::Request->new( GET => 'http://www.dw.test/' ) );
+    my $member_session = LJ::Session->create( $member, exptype => 'long' );
+    DW::Request->reset;
+    my $member_cookie =
+          'ljmastersession='
+        . $member_session->master_cookie_string
+        . '; ljloggedin='
+        . $member_session->loggedin_cookie_string;
+
+    # EditTags controller interleaving
+    my $edittags_racing = post_entry( $community, $author, 'Public edittags body', 1 );
+    my $visible_to      = \&LJ::Entry::visible_to;
+    my $et_race         = 0;
+    {
+        local *LJ::Entry::visible_to = sub {
+            my ($entry) = @_;
+            my $visible = $visible_to->(@_);
+            if (   $visible
+                && $entry->journalid == $community->id
+                && $entry->jitemid == $edittags_racing->jitemid
+                && !$et_race )
+            {
+                $et_race = 1;
+                is(
+                    edit_entry(
+                        $edittags_racing, $editor, 'Private edittags body',
+                        subject       => 'Private edittags subject',
+                        security      => 'private',
+                        reuse_request => 1,
+                    ),
+                    0,
+                    'shared edit privatizes the entry after EditTags authorization'
+                );
+            }
+            return $visible;
+        };
+        my $et_url =
+              'http://www.dw.test/edittags?journal='
+            . $community->user
+            . '&itemid='
+            . $edittags_racing->ditemid;
+        my $et_res = $app_test->request( GET $et_url, Cookie => $member_cookie );
+        ok( $et_race, 'EditTags reached the interleaving point' );
+        is( $et_res->code, 200, 'in-flight EditTags request succeeds' );
+        like(
+            $et_res->content,
+            qr/Public edittags body/,
+            'EditTags renders the authorized public snapshot'
+        );
+        unlike(
+            $et_res->content,
+            qr/Private edittags (?:subject|body)/,
+            'EditTags never leaks the replacement private revision'
+        );
+    }
+
+    # Memories (/tools/memadd) controller interleaving
+    my $memadd_racing = post_entry( $community, $author, 'Public memadd subject', 1 );
+    my $mem_race      = 0;
+    {
+        local *LJ::Entry::visible_to = sub {
+            my ($entry) = @_;
+            my $visible = $visible_to->(@_);
+            if (   $visible
+                && $entry->journalid == $community->id
+                && $entry->jitemid == $memadd_racing->jitemid
+                && !$mem_race )
+            {
+                $mem_race = 1;
+                is(
+                    edit_entry(
+                        $memadd_racing, $editor, 'Private memadd body',
+                        subject       => 'Private memadd subject',
+                        security      => 'private',
+                        reuse_request => 1,
+                    ),
+                    0,
+                    'shared edit privatizes the entry after memadd authorization'
+                );
+            }
+            return $visible;
+        };
+        my $mem_url =
+              'http://www.dw.test/tools/memadd?journal='
+            . $community->user
+            . '&itemid='
+            . $memadd_racing->ditemid;
+        my $mem_res = $app_test->request( GET $mem_url, Cookie => $member_cookie );
+        ok( $mem_race, 'Memories memadd reached the interleaving point' );
+        is( $mem_res->code, 200, 'in-flight memadd request succeeds' );
+        like(
+            $mem_res->content,
+            qr/Public memadd subject/,
+            'memadd prefills the authorized public subject snapshot'
+        );
+        unlike(
+            $mem_res->content,
+            qr/Private memadd subject/,
+            'memadd never leaks the replacement private subject'
+        );
+    }
+
+    # LJ::Protocol::getevents interleaving
+    my $proto_racing = post_entry( $community, $author, 'Public getevents body', 1 );
+    my $load_props   = \&LJ::load_log_props2;
+    my $proto_race   = 0;
+    {
+        local *LJ::load_log_props2 = sub {
+            my $ret = $load_props->(@_);
+            if ( !$proto_race++ ) {
+                is(
+                    edit_entry(
+                        $proto_racing, $editor, 'Private getevents body',
+                        subject       => 'Private getevents subject',
+                        security      => 'private',
+                        reuse_request => 1,
+                    ),
+                    0,
+                    'shared edit privatizes the entry during getevents'
+                );
+            }
+            return $ret;
+        };
+        my $err;
+        my $res = LJ::Protocol::do_request(
+            'getevents',
+            {
+                username   => $member->user,
+                usejournal => $community->user,
+                ver        => 1,
+                selecttype => 'one',
+                itemid     => $proto_racing->jitemid,
+            },
+            \$err,
+            { noauth => 1, u => $member, usejournal_okay => 1 },
+        );
+        ok( $proto_race, 'getevents reached the interleaving point' );
+        ok( $res,        'getevents returned a response' );
+        my $combined = join "\n",
+            map { ( $_->{subject} // '' ) . "\n" . ( $_->{event} // '' ) }
+            @{ $res->{events} || [] };
+        unlike(
+            $combined,
+            qr/Private getevents (?:subject|body)/,
+            'getevents never leaks a concurrently privatized revision'
+        );
+    }
 }
 
 {

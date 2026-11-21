@@ -2784,16 +2784,13 @@ sub getevents {
     my $res     = {};
     my $events  = $res->{events} = [];
     my %evt_from_itemid;
+    my @candidates;
 
     while ( my ( $itemid, $eventtime, $logtime, $sec, $mask, $anum, $jposterid ) =
         $sth->fetchrow_array )
     {
-        $count++;
         my $evt = {};
         $evt->{itemid} = $itemid;
-        push @itemids, $itemid;
-
-        $evt_from_itemid{$itemid} = $evt;
 
         $evt->{eventtime} = $eventtime;
         $evt->{logtime}   = $logtime;
@@ -2805,7 +2802,35 @@ sub getevents {
         $evt->{poster} = LJ::get_username($jposterid)
             if $jposterid != $ownerid;
         $evt->{url} = LJ::item_link( $uowner, $itemid, $anum );
-        push @$events, $evt;
+        push @candidates,
+            {
+            journalid => $ownerid,
+            jitemid   => $itemid,
+            posterid  => $jposterid,
+            anum      => $anum,
+            security  => $sec,
+            allowmask => $mask,
+            evt       => $evt,
+            };
+    }
+
+    my $view_rows = LJ::Entry->get_view_rows( $uowner->clusterid, \@candidates );
+    return fail( $err, 502 ) unless $view_rows;
+
+    my $text = {};
+    foreach my $cand (@candidates) {
+        my $itemid = $cand->{jitemid};
+        my $row    = $view_rows->{$ownerid}{$itemid};
+        next unless LJ::Entry->matches_view_row( $cand, $row );
+
+        $count++;
+        push @itemids, $itemid;
+        $evt_from_itemid{$itemid} = $cand->{evt};
+        push @$events, $cand->{evt};
+
+        my $event = $row->{event};
+        LJ::text_uncompress( \$event );
+        $text->{$itemid} = [ $row->{subject}, $event ];
     }
 
     # load properties. Even if the caller doesn't want them, we need
@@ -2851,14 +2876,6 @@ sub getevents {
             }
         }
     }
-
-    ## load the text
-    my $text = LJ::DB::cond_no_cache(
-        $use_master,
-        sub {
-            return LJ::get_logtext2( $uowner, @itemids );
-        }
-    );
 
     foreach my $i (@itemids) {
         my $t   = $text->{$i};

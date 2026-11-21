@@ -488,18 +488,32 @@ sub get_view_rows {
 
 sub matches_view_row {
     my ( $class, $candidate, $row ) = @_;
+    return 0 unless $candidate && $row;
+
+    my $cand_sec  = $candidate->{security}  // '';
+    my $row_sec   = $row->{security}        // '';
+    my $cand_mask = $candidate->{allowmask} // 0;
+    my $row_mask  = $row->{allowmask}       // 0;
+
+    $cand_sec = 'private' if $cand_sec eq 'usemask' && !$cand_mask;
+    $row_sec  = 'private' if $row_sec eq 'usemask'  && !$row_mask;
+
     return
-           $row
+           defined $candidate->{anum}
+        && defined $row->{anum}
         && $row->{anum} == $candidate->{anum}
+        && defined $candidate->{posterid}
+        && defined $row->{posterid}
         && $row->{posterid} == $candidate->{posterid}
-        && $row->{security} eq $candidate->{security}
-        && ( $row->{security} ne 'usemask' || $row->{allowmask} == $candidate->{allowmask} );
+        && $row_sec eq $cand_sec
+        && ( $row_sec ne 'usemask' || $row_mask == $cand_mask );
 }
 
 sub absorb_view_snapshot {
     my ( $self, $row ) = @_;
+    return 0 unless $row;
     return 1 if $self->{_view_snapshot} && __PACKAGE__->matches_view_row( $row, $self );
-    return 0 if $self->{_view_snapshot} || !$row;
+    return 0 if $self->{_view_snapshot};
 
     my $event = $row->{event};
     LJ::text_uncompress( \$event );

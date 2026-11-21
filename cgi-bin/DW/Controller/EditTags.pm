@@ -24,6 +24,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use LJ::Entry;
 use LJ::Hooks;
 
 DW::Routing->register_string( '/edittags', \&edittags_handler, app => 1 );
@@ -51,16 +52,12 @@ sub edittags_handler {
     return error_ml("$scope.invalid.journal") unless $u->is_visible;
 
     my $ditemid = ( $GET->{itemid} || $POST->{itemid} ) + 0;
-    my $anum    = $ditemid % 256;
     my $jitemid = $ditemid >> 8;
     return error_ml("$scope.invalid.entry") unless $jitemid;
 
-    my $logrow = LJ::get_log2_row( $u, $jitemid );
-    return error_ml("$scope.invalid.entry") unless $logrow;
-    return error_ml("$scope.invalid.entry") unless $logrow->{anum} == $anum;
-
-    my $ent = LJ::Entry->new_from_item_hash($logrow)
-        or die "Unable to create entry object.\n";
+    my $ent = LJ::Entry->new( $u, ditemid => $ditemid );
+    return error_ml("$scope.invalid.entry")
+        unless $ent && $ent->load_view_snapshot && $ent->correct_anum;
     return error_ml("$scope.invalid.notauthorized")
         unless $ent->visible_to($remote);
 
@@ -78,8 +75,7 @@ sub edittags_handler {
         return $r->msg_redirect( "Tags successfully updated", $r->SUCCESS, $ent->url );
     }
 
-    my $lt2 = LJ::get_logtext2( $u, $jitemid );
-    my ( $subj, $evt ) = @{ $lt2->{$jitemid} || [] };
+    my ( $subj, $evt ) = ( $ent->subject_raw // '', $ent->event_raw );
     return error_ml("$scope.error.db") unless $evt;
 
     my ( %props, %opts );
