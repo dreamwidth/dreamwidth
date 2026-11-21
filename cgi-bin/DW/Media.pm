@@ -30,6 +30,13 @@ use DW::Media::Photo;
 
 use constant TYPE_PHOTO => 1;
 
+my %ACTIVE_SORT_ORDER = (
+    newest   => 'logtime DESC, mediaid DESC',
+    oldest   => 'logtime ASC, mediaid ASC',
+    largest  => 'filesize DESC, logtime DESC, mediaid DESC',
+    smallest => 'filesize ASC, logtime DESC, mediaid DESC',
+);
+
 sub new {
     my ( $class, %opts ) = @_;
     confess 'Need a user and mediaid key'
@@ -191,6 +198,11 @@ sub get_upload_type {
     return ( undef, undef );
 }
 
+sub normalize_sort_order {
+    my ( $class, $sort ) = @_;
+    return defined $sort && exists $ACTIVE_SORT_ORDER{$sort} ? $sort : 'newest';
+}
+
 sub get_active_for_user {
     my ( $class, $u, %opts ) = @_;
     my $oldest_first = delete $opts{oldest_first};
@@ -198,8 +210,10 @@ sub get_active_for_user {
     return () if $u->is_expunged;
 
     # get all active rows for this user
-    my $rows =
-        $u->selectcol_arrayref( q{SELECT mediaid FROM media WHERE userid = ? AND state = 'A'},
+    my $sort     = delete $opts{sort} // ( $oldest_first ? 'oldest' : 'newest' );
+    my $order_by = $ACTIVE_SORT_ORDER{ $class->normalize_sort_order($sort) };
+    my $rows     = $u->selectcol_arrayref(
+        "SELECT mediaid FROM media WHERE userid = ? AND state = 'A' ORDER BY $order_by",
         undef, $u->id );
     croak 'Failed to select rows: ' . $u->errstr . '.' if $u->err;
     return () unless $rows && ref $rows eq 'ARRAY';
@@ -217,11 +231,7 @@ sub get_active_for_user {
             warn "Failed to load media: $@";
         }
     }
-
-    # Break equal-second ties by ID so images keep their place across pages.
-    return $oldest_first
-        ? sort { $a->logtime <=> $b->logtime || $a->id <=> $b->id } @media
-        : sort { $b->logtime <=> $a->logtime || $b->id <=> $a->id } @media;
+    return @media;
 }
 
 sub get_quota_for_user {

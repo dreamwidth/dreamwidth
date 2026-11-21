@@ -22,6 +22,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use DW::BlobStore;
+use DW::Media;
 use DW::Routing;
 use DW::Request;
 use DW::Controller;
@@ -188,13 +189,23 @@ sub media_bulkedit_handler {
         }
     }
 
-    my $order = ( $r->get_args->{order} || '' ) eq 'oldest' ? 'oldest' : 'newest';
-    my @media = DW::Media->get_active_for_user(
-        $rv->{remote},
-        width        => 200,
-        height       => 200,
-        oldest_first => $order eq 'oldest'
-    );
+    my %nav_args = %{ $r->get_args };
+    my $order    = delete $nav_args{order};
+    if ( defined $order && !defined $nav_args{sort} ) {
+        $nav_args{sort} = $order eq 'oldest' ? 'oldest' : 'newest';
+    }
+    my $sort = DW::Media->normalize_sort_order( $nav_args{sort} );
+    my @media =
+        DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200, sort => $sort );
+
+    my $maxpage = POSIX::ceil( scalar @media / 20 );
+    my $page    = $nav_args{page} // 1;
+
+    # A bulk deletion can remove the current page while retaining the sort order.
+    $page = 1 unless $maxpage && $page =~ /\A[1-9][0-9]*\z/;
+    $page = $maxpage if $maxpage && $page > $maxpage;
+    $nav_args{page} = $page if exists $nav_args{page};
+    $nav_args{sort} = $sort if exists $nav_args{sort};
 
     my $media_usage = DW::Media->get_usage_for_user( $rv->{u} );
     my $media_quota = DW::Media->get_quota_for_user( $rv->{u} );
@@ -203,15 +214,13 @@ sub media_bulkedit_handler {
     $rv->{quota}      = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
     $rv->{percentage} = sprintf( "%0.1f%%",  $media_usage / $media_quota * 100 );
 
-    $rv->{order}   = $order;
-    $rv->{ehtml}   = \&LJ::ehtml;
-    $rv->{media}   = \@media;
-    $rv->{page}    = $r->get_args->{page} || '1';
-    $rv->{maxpage} = POSIX::ceil( scalar @media / 20 );
-
-    # A bulk deletion can remove the current page while retaining the sort order.
-    $rv->{page} = 1 unless $rv->{maxpage}          && $rv->{page} =~ /\A[1-9][0-9]*\z/;
-    $rv->{page} = $rv->{maxpage} if $rv->{maxpage} && $rv->{page} > $rv->{maxpage};
+    $rv->{ehtml}      = \&LJ::ehtml;
+    $rv->{media}      = \@media;
+    $rv->{page}       = $page;
+    $rv->{maxpage}    = $maxpage;
+    $rv->{sort}       = $sort;
+    $rv->{list_order} = $sort eq 'oldest' ? 'oldest' : 'newest';
+    $rv->{nav_args}   = \%nav_args;
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }
 
