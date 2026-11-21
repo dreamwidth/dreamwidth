@@ -148,6 +148,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     required = 'required'
                 ) -%]
             </div>
+            <div class="columns medium-4">
+                [%- form.textbox(
+                    label = dw.ml('.label.posted_day')
+                    name = 'day'
+                    id = 'comments-day'
+                    placeholder = 'dd'
+                    maxlength = 2
+                ) -%]
+            </div>
         </div>
 
         [%- form.select(

@@ -25,11 +25,17 @@ use DW::Template;
 use DW::Controller;
 use DW::FormErrors;
 
+use bytes ();
+use DW::Logic::AdultContent;
 use DW::Mood;
 use LJ::Comment;
 use LJ::Time;
 use Time::Local qw( timegm );
 use Unicode::MapUTF8;
+
+use constant POSTED_COMMENTS_LIMIT => 500;
+use constant POSTED_COMMENTS_BYTES => 8 * 1024 * 1024;
+use constant POSTED_COMMENTS_BATCH => 25;
 
 DW::Routing->register_string( '/export',    \&index_handler, app => 1 );
 DW::Routing->register_string( '/export_do', \&post_handler,  app => 1 );
@@ -285,61 +291,159 @@ sub posted_comments_handler {
 
     my $year  = $post->{year}  // '';
     my $month = $post->{month} // '';
+    my $day   = $post->{day}   // '';
     return error_ml('/export/index.tt.error.posted_date')
         unless $year =~ /\A[0-9]{4}\z/ && $year >= 1970 && $month =~ /\A(?:0?[1-9]|1[0-2])\z/;
     my $start = timegm( 0, 0, 0, 1, $month - 1,  $year );
     my $end   = timegm( 0, 0, 0, 1, $month % 12, $year + ( $month == 12 ) );
+    if ( length $day ) {
+        return error_ml('/export/index.tt.error.posted_day')
+            unless $day =~ /\A[0-9]{1,2}\z/ && $day >= 1 && $day <= ( $end - $start ) / 86400;
+        $start += ( $day - 1 ) * 86400;
+        $end = $start + 86400;
+    }
 
     my $author = $rv->{remote};
+    my $limit  = POSTED_COMMENTS_LIMIT + 1;
     my $dbcr   = LJ::get_cluster_reader($author);
-    return error_ml('error.nodb') unless $dbcr;
+    return _posted_comments_unavailable($r) unless $dbcr;
     my $rows = $dbcr->selectall_arrayref(
-        "SELECT journalid, nodeid, jtalkid FROM talkleft "
-            . "WHERE userid=? AND posttime>=? AND posttime<? AND nodetype='L' "
-            . "ORDER BY posttime, journalid, jtalkid",
+        "SELECT journalid, nodeid, jtalkid, posttime, nodetype FROM talkleft "
+            . "WHERE userid=? AND posttime>=? AND posttime<? LIMIT $limit",
         undef, $author->id, $start, $end
     );
-    return error_ml('error.nodb') if !$rows || $dbcr->err;
+    return _posted_comments_unavailable($r) if !$rows || $dbcr->err;
+    return _posted_comments_too_large( $r, $day ) if @$rows > POSTED_COMMENTS_LIMIT;
 
     my @fields = qw(journal permalink datetime subject body icon_keyword);
     my $opts   = { format => $format, fields => \@fields, record => 'comment' };
-    my $file   = sprintf( '%s-comments-%04d-%02d.%s', $author->user, $year, $month, $format );
-    $r->header_out( 'Content-Disposition' => "attachment; filename=$file" );
-    $r->header_out( 'Cache-Control'       => 'private, no-store' );
-    if ( $format eq 'csv' ) {
-        $r->content_type('text/csv; charset=utf-8');
-        $r->print( join( ',', @fields ) . "\n" );
-    }
-    else {
-        $r->content_type('application/xml; charset=utf-8');
-        $r->print(qq{<?xml version="1.0" encoding="UTF-8"?>\n<comments>\n});
-    }
+    my $prefix =
+        $format eq 'csv'
+        ? join( ',', @fields ) . "\n"
+        : qq{<?xml version="1.0" encoding="UTF-8"?>\n<comments>\n};
+    my $suffix = $format eq 'xml' ? "</comments>\n" : '';
+    my @output = ($prefix);
+    my $size   = bytes::length($prefix) + bytes::length($suffix);
 
-    foreach my $row (@$rows) {
-        my ( $journalid, $nodeid, $jtalkid ) = @$row;
-        my $journal = LJ::load_userid($journalid) or next;
-        my $comment = LJ::Comment->new( $journal, jtalkid => $jtalkid );
-        next unless $comment->valid && $comment->posterid == $author->id;
-        next unless $comment->nodetype eq 'L' && $comment->nodeid == $nodeid;
-        next if $comment->is_deleted || !$comment->visible_to($author);
+    my @ordered = sort { $a->[3] <=> $b->[3] || $a->[0] <=> $b->[0] || $a->[2] <=> $b->[2] } @$rows;
+    my %journal_ids = map { $_->[0] => 1 } @ordered;
+    my $journals    = LJ::load_userids( keys %journal_ids );
+    my $is_minor    = $author->is_minor;
+    my %seen;
+    while (@ordered) {
+        my @batch = splice @ordered, 0, POSTED_COMMENTS_BATCH;
+        my @candidates;
+        foreach my $row (@batch) {
+            next unless $row->[4] eq 'L';
+            my ( $journalid, $nodeid, $jtalkid ) = @$row;
+            my $journal = $journals->{$journalid} or next;
+            push @candidates, [ $nodeid, LJ::Comment->new( $journal, jtalkid => $jtalkid ) ];
+        }
+        LJ::Comment->preload_rows;
 
-        $r->print(
-            _dump_entry(
+        my ( @eligible, %by_journal );
+        foreach my $candidate (@candidates) {
+            my ( $nodeid, $comment ) = @$candidate;
+            next unless $comment->valid && $comment->posterid == $author->id;
+            next unless $comment->nodetype eq 'L' && $comment->nodeid == $nodeid;
+            next if $comment->is_deleted || !$comment->visible_to($author);
+            next if $seen{ $comment->singletonkey }++;
+            if ($is_minor) {
+                my $restriction = DW::Logic::AdultContent->interstitial_type(
+                    user    => $author,
+                    journal => $comment->journal,
+                    entry   => $comment->entry,
+                );
+                next if ( $restriction // '' ) eq 'explicit_blocked';
+            }
+            push @eligible, $comment;
+            push @{ $by_journal{ $comment->journalid } }, $comment;
+        }
+
+        my %text;
+        foreach my $journalid ( keys %by_journal ) {
+            my $loaded = eval {
+                _read_posted_comment_text( $author, $journals->{$journalid},
+                    $by_journal{$journalid} );
+            };
+            return _posted_comments_unavailable($r) unless $loaded;
+            $text{$journalid} = $loaded;
+        }
+
+        foreach my $comment (@eligible) {
+            my $raw   = $text{ $comment->journalid }->{ $comment->jtalkid } or next;
+            my $chunk = _dump_entry(
                 {
-                    journal      => $journal->user,
+                    journal      => $comment->journal->user,
                     permalink    => $comment->url,
                     datetime     => LJ::time_to_w3c( $comment->unixtime, '+0000' ),
-                    subject      => $comment->subject_raw,
-                    body         => $comment->body_raw,
+                    subject      => $raw->[0],
+                    body         => $raw->[1],
                     icon_keyword => $comment->userpic_kw,
                 },
                 $opts
-            )
-        );
+            );
+            $size += bytes::length($chunk);
+            return _posted_comments_too_large( $r, $day ) if $size > POSTED_COMMENTS_BYTES;
+            push @output, $chunk;
+        }
     }
 
-    $r->print("</comments>\n") if $format eq 'xml';
+    my $date = sprintf( '%04d-%02d', $year, $month );
+    $date .= sprintf( '-%02d', $day ) if length $day;
+    my $file = sprintf( '%s-comments-%s.%s', $author->user, $date, $format );
+    $r->header_out( 'Content-Disposition' => "attachment; filename=$file" );
+    $r->header_out( 'Cache-Control'       => 'private, no-store' );
+    $r->content_type(
+        $format eq 'csv' ? 'text/csv; charset=utf-8' : 'application/xml; charset=utf-8' );
+    $r->print($_) foreach @output, $suffix;
     return $r->OK;
+}
+
+sub _read_posted_comment_text {
+    my ( $author, $journal, $comments ) = @_;
+    my $primary  = LJ::get_cluster_master($journal) or return;
+    my %comments = map { $_->jtalkid => $_ } @$comments;
+    my $bind     = join ',', ('?') x keys %comments;
+    my $rows     = $primary->selectall_arrayref(
+        "SELECT c.jtalkid, c.nodeid, t.subject, t.body FROM talk2 c "
+            . "LEFT JOIN talktext2 t ON t.journalid=c.journalid AND t.jtalkid=c.jtalkid "
+            . "WHERE c.journalid=? AND c.posterid=? AND c.nodetype='L' AND c.state<>'D' "
+            . "AND c.jtalkid IN ($bind)",
+        undef, $journal->id, $author->id, keys %comments
+    );
+    return if !$rows || $primary->err;
+
+    my %text;
+    foreach my $row (@$rows) {
+        my ( $jtalkid, $nodeid, $subject, $body ) = @$row;
+        my $comment = $comments{$jtalkid};
+        next   unless $comment->nodeid == $nodeid;
+        return unless defined $body;
+        $subject //= '';
+        LJ::text_uncompress( \$subject );
+        LJ::text_uncompress( \$body );
+        LJ::item_toutf8( $journal, \$subject, \$body, $comment->props )
+            if $comment->prop('unknown8bit');
+        $text{$jtalkid} = [ $subject, $body ];
+    }
+    return \%text;
+}
+
+sub _posted_comments_unavailable {
+    my ($r) = @_;
+    $r->status(503);
+    return error_ml('/export/index.tt.error.posted_unavailable');
+}
+
+sub _posted_comments_too_large {
+    my ( $r, $day ) = @_;
+    $r->status(422);
+    return error_ml(
+        length $day
+        ? '/export/index.tt.error.posted_day_limit'
+        : '/export/index.tt.error.posted_month_limit'
+    );
 }
 
 # /export_comments (also /export_comments.bml): XML export of a journal's
