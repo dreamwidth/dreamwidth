@@ -110,7 +110,10 @@ sub _backend_to_form {
     if ( $security eq "usemask" ) {
         my $amask = $entry->allowmask;
 
-        if ( $amask == 1 ) {
+        if ( !$is_api && $amask == 0 ) {
+            $security = "private";
+        }
+        elsif ( $amask == 1 ) {
             $security = "access";
         }
         else {
@@ -302,6 +305,8 @@ sub _form_to_backend {
             foreach my $bit (@custom_bits) {
                 $amask |= ( 1 << $bit );
             }
+            $errors->add( 'security', '.error.customgroups' )
+                if $errors && !$is_api && !$opts{allow_empty} && !$amask;
         }
     }
     $req->{security}  = $sec;

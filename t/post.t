@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 104;
+use Test::More tests => 101;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -417,24 +417,6 @@ note("Post - security:custom");
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
     is( $entry->security,  "usemask", "Custom security" );
     is( $entry->allowmask, 6,         "Custom security allowmask" );
-}
-
-note("Post - security:custom no allowmask");
-{
-    my ( $req, $res, $u ) = post_with( security => "custom" );
-    is_deeply(
-        $req,
-        {
-            %$postdecoded_bare,
-            security  => "usemask",
-            allowmask => 0,
-        },
-        "decoded entry form for entry with custom security"
-    );
-
-    my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
-    is( $entry->security,  "usemask", "Custom security" );
-    is( $entry->allowmask, 0,         "Custom security allowmask" );
 }
 
 note("Post - security:public, but with allowmask (probably changed their mind)");

@@ -1,6 +1,8 @@
 # these get removed if found by texttool.pl
 #
 
+general /entry/module-access.tt.select
+
 general /allpics.bml.edit
 general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
