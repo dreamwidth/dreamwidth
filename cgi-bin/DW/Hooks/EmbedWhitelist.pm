@@ -169,7 +169,8 @@ my %complex_match = (
         if (   match_subdomain( "youtube.com", $_[0]->host )
             || match_subdomain( "youtube-nocookie.com", $_[0]->host ) )
         {
-            return ( 1, 1 ) if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $_[0]->path );
+            return ( 1, 1, 'strict-origin-when-cross-origin' )
+                if match_full_path( qr!/embed/[-_a-zA-Z0-9]{11,}!, $_[0]->path );
         }
     },
 
