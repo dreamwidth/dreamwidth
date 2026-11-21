@@ -118,11 +118,11 @@
 
       // PATCH #1: fixing multiple keyup event trigger from single key press
       self.S('body').off('keyup.fndtn.reveal').on('keyup.fndtn.reveal', function ( event ) {
-        var open_modal = self.S('[' + self.attr_name() + '].open'),
+        var open_modal = self.S('[' + self.attr_name() + '].open:not(.toback)').first(),
             settings = open_modal.data(self.attr_name(true) + '-init') || self.settings ;
         // PATCH #2: making sure that the close event can be called only while unlocked,
         //           so that multiple keyup.fndtn.reveal events don't prevent clean closing of the reveal window.
-        if ( settings && event.which === 27  && settings.close_on_esc && !self.locked) { // 27 is the keycode for the Escape key
+        if ( open_modal.length && event.which === 27  && settings.close_on_esc && !self.locked) { // 27 is the keycode for the Escape key
           self.close.call(self, open_modal);
         }
       });
@@ -194,10 +194,10 @@
             }
           }
 
-          // bl: add the open_modal that isn't already in the background to the openModals array
-          if(settings.multiple_opened) {
-            openModals.push(modal);
+          if (!settings.multiple_opened || open_modal.length === 0) {
+            openModals = [];
           }
+          openModals.push(modal);
 
           self.show(modal, settings.css.open);
         };
@@ -245,16 +245,17 @@
       var modal = modal && modal.length ? modal : this.S(this.scope),
           open_modals = this.S('[' + this.attr_name() + '].open'),
           settings = modal.data(this.attr_name(true) + '-init') || this.settings,
+          closesAll = !settings.multiple_opened || open_modals.length === 1 || modal.length > 1,
           self = this;
 
       if (open_modals.length > 0) {
 
         this.locked = true;
-        this.key_up_off(modal);   // PATCH #3: turning on key up capture only when a reveal window is open
+        if (closesAll) this.key_up_off(modal);   // PATCH #3: turning on key up capture only when a reveal window is open
 
         modal.trigger('close.fndtn.reveal');
 
-        if ((settings.multiple_opened && open_modals.length === 1) || !settings.multiple_opened || modal.length > 1) {
+        if (closesAll) {
           self.toggle_bg(modal, false);
           self.to_front(modal);
         }

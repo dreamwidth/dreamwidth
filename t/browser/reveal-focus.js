@@ -80,10 +80,21 @@ async function openingFocus(page) {
         const dialog = document.querySelector(selector);
         return dialog.classList.contains("open") && getComputedStyle(dialog).opacity !== "1";
     }, {}, modal);
+    await page.$eval(modal, (dialog) => {
+        document.addEventListener("focusin", ({ target }) => {
+            window.openingTabFocus = {
+                inside: dialog.contains(target),
+                animating: getComputedStyle(dialog).opacity !== "1",
+                hidden: !!target.closest('[aria-hidden="true"]'),
+                modal: dialog.getAttribute("aria-modal"),
+            };
+        }, { once: true });
+    });
     await page.keyboard.press("Tab");
-    const animatedTab = await focusInside(page, modal);
-    assert.deepEqual({ earlyTab, animatedTab }, { earlyTab: true, animatedTab: true },
-        "Tab does not move behind the dialog before it is visible or during its animation");
+    const focusedDuringTab = await page.evaluate(() => window.openingTabFocus);
+    assert.equal(earlyTab, true, "Tab stays on the opener while the dialog is not yet visible");
+    assert.deepEqual(focusedDuringTab, { inside: true, animating: true, hidden: false, modal: "true" },
+        "as Tab moves focus inside, the still-animating dialog is exposed as modal");
 }
 
 async function invalidOpener(page) {
@@ -112,14 +123,16 @@ async function invalidOpener(page) {
     assert.deepEqual(results, [true, true, true], "removed, hidden, and disabled openers fall back to the main content");
 }
 
-async function dialogTransition(page, stack) {
-    await page.$eval(modal, (dialog, stack) => {
+async function dialogTransition(page, stack, closeWithEscape = false) {
+    await page.$eval(modal, (dialog, stack, closeWithEscape) => {
         const settings = { ...window.jQuery(dialog).data("reveal-init"), multiple_opened: stack, animation: "none" };
         window.jQuery(dialog).data("reveal-init", settings);
         dialog.insertAdjacentHTML("beforeend", '<button type="button" id="next-dialog" data-reveal-id="second-dialog">Next</button>');
         document.body.insertAdjacentHTML("beforeend", '<div class="reveal-modal" id="second-dialog" data-reveal aria-hidden="true"><button type="button" class="close-reveal-modal">Close</button></div>');
-        window.jQuery("#second-dialog").data("reveal-init", { ...settings, animation: "fade" });
-    }, stack);
+        window.jQuery("#second-dialog").data("reveal-init", {
+            ...settings, animation: "fade", close_on_esc: !stack || closeWithEscape,
+        });
+    }, stack, closeWithEscape);
     await open(page);
     await page.focus("#next-dialog");
     await page.evaluate((selector) => {
@@ -135,12 +148,17 @@ async function dialogTransition(page, stack) {
         "opening a second dialog does not restore focus to the page in between");
     await assertNotModal(page, modal);
     assert.equal(await page.$eval(second, (dialog) => dialog.getAttribute("aria-modal")), "true");
-    await page.click(`${second} .close-reveal-modal`);
+    if (closeWithEscape) {
+        await page.keyboard.press("Escape");
+    } else {
+        await page.click(`${second} .close-reveal-modal`);
+    }
     await assertClosed(page, second, stack ? "#next-dialog" : trigger);
     await assertNotModal(page, second);
     if (stack) {
         assert.equal(await page.$eval(modal, (dialog) => dialog.getAttribute("aria-modal")), "true");
-        await page.click(closeButton);
+        await page.keyboard.press("Escape");
+        await page.waitForSelector(modal, { hidden: true, timeout: 3000 });
         await assertClosed(page);
         await assertNotModal(page, modal);
     }
@@ -287,7 +305,8 @@ async function main() {
             ["opening animation", openingFocus],
             ["invalidated opener", invalidOpener],
             ["replacement dialog", (page) => dialogTransition(page, false)],
-            ["stacked dialog", (page) => dialogTransition(page, true)],
+            ["stacked dialog: Escape twice", (page) => dialogTransition(page, true, true)],
+            ["stacked dialog: Close then Escape", (page) => dialogTransition(page, true)],
             ["dynamic, disabled, and radio controls", dynamicControls],
             ["Browse Icons selection and dismissal", browseIcons],
         ]) {

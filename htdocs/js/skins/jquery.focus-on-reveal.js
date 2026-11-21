@@ -87,15 +87,13 @@ jQuery(document).ready(function($) {
                 role: this.getAttribute('role'),
                 hidden: this.getAttribute('aria-hidden'),
                 tabIndex: this.getAttribute('tabindex')
-            }).attr('tabindex', '-1');
+            }).attr({ role: 'dialog', 'aria-hidden': 'false', 'aria-modal': 'true', tabindex: '-1' });
             stack.push(this);
         })
         .on('opened.fndtn.reveal', reveal, function(event) {
             if (event.namespace !== 'fndtn.reveal' || event.target !== this || !$(this).data('revealFocus')) return;
 
-            $(this).attr({ role: 'dialog', 'aria-hidden': 'false' });
             if (this !== foreground()) return;
-            this.setAttribute('aria-modal', 'true');
             if (!this.contains(document.activeElement)) focusInitial(this);
         })
         .on('closed.fndtn.reveal', reveal, function(event) {
