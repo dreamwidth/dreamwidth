@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use v5.10;
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
@@ -27,6 +27,7 @@ BEGIN {
 
 use DW::Request::Plack;
 use HTTP::Headers;
+use LJ::Session;
 
 # Helper to build a minimal PSGI env and return a fresh DW::Request::Plack.
 # Accepts overrides merged on top of the base env.  To supply a request body,
@@ -64,6 +65,39 @@ sub make_request {
     DW::Request->reset;
     return DW::Request::Plack->new($env);
 }
+
+subtest 'session cookie attributes' => sub {
+    plan tests => 12;
+
+    for my $protocol (qw(https http)) {
+        local $LJ::PROTOCOL      = $protocol;
+        local $LJ::IS_DEV_SERVER = $protocol eq 'http';
+        my $request   = make_request( 'psgi.url_scheme' => $protocol );
+        my $secure    = $protocol eq 'https';
+        my $same_site = $secure ? 'None' : 'Lax';
+
+        for my $name (qw(ljmastersession ljloggedin)) {
+            LJ::Session::set_cookie( $name => 'test-session', http_only => 1 );
+        }
+        LJ::Session::set_cookie( BMLschemepref => 'site' ) if $secure;
+
+        my %cookies = map { /^(\w+)=/; $1 => "$_" } $request->header_out('Set-Cookie');
+        for my $name (qw(ljmastersession ljloggedin)) {
+            my $cookie = $cookies{$name} // '';
+            like( $cookie, qr/;\s*SameSite=$same_site(?:;|$)/i,
+                "$name is $same_site on $protocol" );
+            my $has_secure = $cookie =~ /;\s*Secure(?:;|$)/i ? 1 : 0;
+            is( $has_secure, $secure ? 1 : 0, "$name Secure flag on $protocol" );
+            like( $cookie, qr/;\s*HttpOnly(?:;|$)/i, "$name stays HttpOnly" ) if $secure;
+        }
+        if ($secure) {
+            my $preference_cookie = $cookies{BMLschemepref} // '';
+            like( $preference_cookie, qr/^BMLschemepref=site;/, 'HTTPS preferences cookie is set' );
+            unlike( $preference_cookie, qr/;\s*SameSite=None(?:;|$)/i,
+                'HTTPS preferences cookie does not opt in to cross-site use' );
+        }
+    }
+};
 
 ###########################################################################
 # 1. uri — must return path only, not full URL

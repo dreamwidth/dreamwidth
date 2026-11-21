@@ -940,6 +940,11 @@ sub set_cookie {
     # so cookie will be deleted.
     $expires = 5 if $delete;
 
+    my $same_site;
+    if ( $LJ::PROTOCOL eq 'https' && ( $key eq 'ljmastersession' || $key eq 'ljloggedin' ) ) {
+        $same_site = 'None';
+    }
+
     $r->add_cookie(
         name     => $key,
         value    => $value,
@@ -947,6 +952,7 @@ sub set_cookie {
         domain   => $domain || undef,
         path     => $path || undef,
         httponly => $http_only ? 1 : 0,
+        SameSite => $same_site,
     );
 
 }
