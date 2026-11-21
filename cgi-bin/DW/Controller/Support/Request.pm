@@ -105,6 +105,11 @@ sub see_request_handler {
     my $user_url;
     my $auth = $GET->{'auth'};
 
+    # the reply form (support/request/form.tt) passes this on to
+    # /support/append_request, which needs it to accept a logged-out poster's reply;
+    # only pass on the request's real code
+    $vars->{auth} = $auth if $auth && $auth eq LJ::Support::mini_auth($sp);
+
     my $email = $sp->{'reqemail'};
 
     # Get remote username and journal URL, or example user's username and journal URL
