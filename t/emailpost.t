@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 98;
+use Test::More tests => 107;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -213,6 +213,18 @@ BODY
         [ 'implied body after closed head',  "$preamble$directive</html>" ],
         [ 'implied body with a div wrapper', "$preamble<div>$directive</div></html>" ],
         [ 'implied body after title',        "<head><title>Mail</title>$directive" ],
+        [
+            'comment immediately inside body',
+            "$implied_head<body><!-- mail client -->$directive</body>"
+        ],
+        [
+            'comment before an empty implied head',
+            "<!doctype html><!-- generated --><p>$directive</p>"
+        ],
+        [
+            'comments around body wrappers',
+"$implied_head<body> <!-- leading --><div><!-- between --><p>$directive</p></div></body>"
+        ],
         [
             'implied head and body',
             "$implied_head<p>\npost-secruity: synthetic group$directive</p>"

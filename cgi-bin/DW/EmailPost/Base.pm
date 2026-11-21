@@ -235,9 +235,7 @@ sub _extract_post_headers {
     pos($body) = 0;
 
     if ( $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html' ) {
-        pos($body) = _html_body_offset($body);
-        my $wrapper = qr{<(?:!doctype[ \t]+html|html|body|div|p)(?:[ \t][^<>\r\n]*)?>}i;
-        $body =~ /\G(?:(?:[ \t]*$wrapper)*[ \t]*\r?\n)+/gc;
+        pos($body) = _html_header_offset($body);
     }
 
     my $start = pos($body);
@@ -257,6 +255,38 @@ sub _extract_post_headers {
     $self->{post_headers} = { %lj_headers, %post_headers };
 
     return 1;
+}
+
+sub _html_header_offset {
+    my ($body)     = @_;
+    my $offset     = _html_body_offset($body);
+    my $line_start = $offset;
+    my $body_content = substr( $body, $offset );
+    my $parser       = HTML::TokeParser->new( \$body_content );
+    my $wrapper      = qr{<(?:!doctype[ \t]+html|html|body|div|p)(?:[ \t][^<>\r\n]*)?>}i;
+
+    while ( my $token = $parser->get_token ) {
+        my ( $type, $text ) = @$token;
+        if ( $type eq 'C' ) {
+            $offset += length $text;
+        }
+        elsif ( $type eq 'S' || $type eq 'D' ) {
+            my $raw = $type eq 'S' ? $token->[4] : $text;
+            last unless $raw =~ /\A$wrapper\z/;
+            $offset += length $raw;
+        }
+        elsif ( $type eq 'T' ) {
+            $text =~ /\A((?:[ \t]*\r?\n)*)[ \t]*/;
+            $line_start = $offset + length $1 if length $1;
+            last if $+[0] != length $text;
+            $offset += length $text;
+        }
+        else {
+            last;
+        }
+    }
+
+    return $line_start;
 }
 
 sub _html_body_offset {
@@ -325,7 +355,7 @@ sub _html_body_offset {
         }
     }
 
-    return $seen_head && !@head_content ? $offset : 0;
+    return @head_content ? 0 : $offset;
 }
 
 # given a content-type header, return a hash of content-type attributes
