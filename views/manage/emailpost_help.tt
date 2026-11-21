@@ -48,7 +48,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
   removetext_extra = '.optionalfeatures.removetext.example' | ml;
 
-  option_types = [ 'icon', 'format', 'tags', 'mood', 'music', 'location', 'comments' ];
+  option_types = [ 'icon', 'slug', 'format', 'tags', 'mood', 'music', 'location', 'comments' ];
   options_list = [ '', msg_body ];
 
   FOREACH opt IN option_types.reverse;

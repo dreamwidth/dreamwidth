@@ -100,6 +100,7 @@ sub _process {
         security   => $self->{security},
         allowmask  => $self->{amask},
         props      => $self->{props},
+        slug       => $self->{post_headers}{slug},
         tz         => $time->{zone},
         year       => $time->{year} + 1900,
         mon        => $time->{mon} + 1,
@@ -176,10 +177,14 @@ sub _set_props {
     # to user props.  If neither exist, the regular journal defaults
     # are used.
     $props->{taglist} = $post_headers{tags};
-    $props->{picture_keyword} =
-           $post_headers{userpic}
-        || $post_headers{icon}
-        || $u->{emailpost_userpic};
+    my $keyword = $post_headers{userpic} || $post_headers{icon} || undef;
+    if ( defined $keyword && lc $keyword eq 'random' ) {
+        my @keywords = grep { length } map { $_->{value} } @{ $u->icon_keyword_menu };
+        unless ( grep { $_ eq $keyword } @keywords ) {
+            $keyword = @keywords ? $keywords[ int rand @keywords ] : undef;
+        }
+    }
+    $props->{picture_keyword} = $keyword // $u->{emailpost_userpic};
     if ( my $id = DW::Mood->mood_id( $post_headers{mood} ) ) {
         $props->{current_moodid} = $id;
     }

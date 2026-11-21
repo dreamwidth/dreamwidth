@@ -2841,7 +2841,8 @@ If posting to a community, include the community name in the to address.
   To: [[comm]]
 
 Journal options are configured by using headers at the top of the message body, separated by a blank line from the rest of the message body.  Available headers:
-  post-icon (or post-userpic): icon keywords
+  post-icon (or post-userpic): icon keyword, or "random" (unless it matches your keyword)
+  post-slug: a custom URL slug, e.g. Paris Trip becomes paris-trip
   post-tags: tag1, tag2, tag3
   post-mood: mood name
   post-music: song name
