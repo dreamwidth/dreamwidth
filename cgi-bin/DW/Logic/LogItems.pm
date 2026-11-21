@@ -35,7 +35,7 @@ use Carp qw/ confess /;
 #           - friendsoffriends: load friends of friends, not just friends
 #           - security: (public|access) or a group number
 #           - showtypes: /[PICNYF]/
-#           - events_date: date to load events for ($u must have friendspage_per_day)
+#           - events_day: [start, end) of a UTC day ($u must have friendspage_per_day)
 #           - content_filter: object of type DW::User::ContentFilters::Filter
 # returns: Array of item hashrefs containing the same elements
 sub watch_items {
@@ -62,12 +62,12 @@ sub watch_items {
     my $getitems = $itemshow + $skip;
 
     # friendspage per day is allowed only for journals with the special cap 'friendspage_per_day'
-    my $events_date = $args{events_date};
-    $events_date = '' unless $remote && $u->can_use_daily_readpage;
+    my $events_day = $args{events_day};
+    undef $events_day unless $remote && $u->can_use_daily_readpage;
 
     my $filter  = $args{content_filter};
-    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600 * 24 * 14;                  # 2 week default.
-    my $lastmax = $LJ::EndOfTime - ( $events_date || ( time() - $max_age ) );
+    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600 * 24 * 14;    # 2 week default.
+    my $lastmax        = $LJ::EndOfTime - ( $events_day ? $events_day->[0] : time() - $max_age );
     my $lastmax_cutoff = 0
         ; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
 
@@ -128,12 +128,15 @@ sub watch_items {
         # get update times for all the friendids
         my $tu_opts = {};
         my $fcount  = scalar keys %$friends;
-        if ( $LJ::SLOPPY_FRIENDS_THRESHOLD && $fcount > $LJ::SLOPPY_FRIENDS_THRESHOLD ) {
+        if (  !$events_day
+            && $LJ::SLOPPY_FRIENDS_THRESHOLD
+            && $fcount > $LJ::SLOPPY_FRIENDS_THRESHOLD )
+        {
             $tu_opts->{memcache_only} = 1;
         }
 
         my $times =
-            $events_date
+            $events_day
             ? LJ::get_times_multi( $tu_opts, keys %$friends )
             : { updated => LJ::get_timeupdate_multi( $tu_opts, keys %$friends ) };
         my $timeupdate = $times->{updated};
@@ -149,12 +152,9 @@ sub watch_items {
         @friends_buffer =
             sort { $a->[1] <=> $b->[1] }
             grep {
-            ( $timeupdate->{ $_->[0] } || 0 ) >= $lastmax and    # reverse index
-                (
-                  $events_date
-                ? $times->{created}->{ $_->[0] } < $events_date + 86400
-                : 1
-                )
+                  $events_day
+                ? $_->[1] <= $lastmax && $times->{created}->{ $_->[0] } < $events_day->[1]
+                : ( $timeupdate->{ $_->[0] } || 0 ) >= $lastmax
             } @friends_buffer;
 
         # note that we've already loaded the friends
@@ -261,16 +261,16 @@ sub watch_items {
 
         my @newitems = LJ::get_log2_recent_user(
             {
-                clusterid   => $fr->[2],
-                userid      => $friendid,
-                remote      => $remote,
-                itemshow    => $itemsleft,
-                filter      => $filter,
-                notafter    => $lastmax,
-                dateformat  => $args{dateformat},
-                update      => $LJ::EndOfTime - $fr->[1],    # reverse back to normal
-                events_date => $events_date,
-                security    => $args{security},
+                clusterid  => $fr->[2],
+                userid     => $friendid,
+                remote     => $remote,
+                itemshow   => $itemsleft,
+                filter     => $filter,
+                notafter   => $lastmax,
+                dateformat => $args{dateformat},
+                update     => $LJ::EndOfTime - $fr->[1],    # reverse back to normal
+                events_day => $events_day,
+                security   => $args{security},
             }
         );
 
@@ -282,7 +282,7 @@ sub watch_items {
         if (@newitems) {
             push @items, @newitems;
 
-            $itemsleft--;
+            $itemsleft-- unless $events_day;
 
             my $evtime = sub { LJ::mysqldate_to_time( $_[0]->{eventtime} ) };
 
@@ -293,9 +293,14 @@ sub watch_items {
             # the same journal, but means everything if they are (which happens
             # almost never for a human, but all the time for RSS feeds)
             @items = sort {
-                       $a->{rlogtime} <=> $b->{rlogtime}
-                    || $evtime->($b) <=> $evtime->($a)
+                $a->{rlogtime} <=> $b->{rlogtime}
+                    || (
+                      $events_day
+                    ? $b->{eventtime} cmp $a->{eventtime}
+                    : $evtime->($b) <=> $evtime->($a)
+                    )
                     || $b->{jitemid} <=> $a->{jitemid}
+                    || ( $events_day ? $a->{ownerid} <=> $b->{ownerid} : 0 )
             } @items;
 
             # cut the list down to what we need.
