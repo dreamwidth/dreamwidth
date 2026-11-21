@@ -16,6 +16,18 @@ $alert-box-error-color: $alert-color !default;
   &.alert { @include alert-style($alert-box-error-color);}
   &.secondary { @include alert-style($secondary-color);}
 
+  &.shared-error a {
+    &, &:visited, &:hover, &:focus {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  }
+
   ul, ol { font-size: inherit; margin-bottom: 0; }
 }
 

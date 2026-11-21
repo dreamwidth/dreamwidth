@@ -14,4 +14,4 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [% opts.authas_form %]
-<div class="alert-box alert radius">[% message %]</div>
+<div class="alert-box alert radius shared-error">[% message %]</div>
