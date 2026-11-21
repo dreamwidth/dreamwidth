@@ -111,14 +111,11 @@ sub RecentPage {
         $p->{'head_content'} .= qq{<meta name="ICBM" content="$icbm" />\n};
     }
 
-    LJ::need_res( LJ::S2::tracking_popup_js() );
+    LJ::need_res( LJ::S2::tracking_popup_js($remote) );
 
     # include JS for quick reply, icon browser, and ajax cut tag
-    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref}
-        && ${ $opts->{handle_with_siteviews_ref} };
     LJ::Talk::init_s2journal_js(
         iconbrowser => 1,
-        siteskin    => $handle_with_siteviews,
         lastn       => 1
     );
 

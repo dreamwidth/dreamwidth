@@ -1,6 +1,6 @@
 /* HTML structure:
 
-<div class="ui-tooltip ui-widget ... ContextualPopup">
+<div class="ui-tooltip ContextualPopup">
     <div class="ui-tooltip-content">
             <div class="Userpic">
                 <a href=""><img src="" alt=""></a>
@@ -22,6 +22,22 @@
     width: 20em;
     text-align: left;
     overflow: auto;
+    background: #fff;
+    color: #262c33;
+    border: 1px solid #909aa5;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .24);
+}
+
+.ui-tooltip.ContextualPopup {
+    border-width: 1px;
+}
+
+.gradation .ContextualPopup {
+    background: #252a30;
+    color: #f2f4f7;
+    border-color: #808b96;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .65);
 }
 
 .ContextualPopup .Userpic {
@@ -48,8 +64,18 @@
 }
 
 .ContextualPopup a {
+    color: #154779;
     text-decoration: none;
     border-bottom: none;
+}
+
+.gradation .ContextualPopup a {
+    color: #afd5ff;
+}
+
+.ContextualPopup a:hover,
+.ContextualPopup a:focus {
+    text-decoration: underline;
 }
 
 .ContextualPopup .Relation {
