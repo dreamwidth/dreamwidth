@@ -291,7 +291,15 @@ var postForm = (function($) {
         $form.bind( "journalselect", function(e, journal) {
             var update = ++journalUpdate;
             journalAllowsCustom = !!journal.name && !journal.iscomm;
-            updateCustomGroups();
+            var wasCustom = $security_select.val() === "custom";
+            if ( journal.iscomm ) {
+                $security_select.find("option[value='custom']").prop("disabled", true);
+            }
+            if ( journal.iscomm && wasCustom ) {
+                $security_select.val("access").trigger("change");
+            } else {
+                updateCustomGroups();
+            }
             if ( $security_select.length > 0 ) {
                 if ( !journal.name ) {
                     // no custom groups
