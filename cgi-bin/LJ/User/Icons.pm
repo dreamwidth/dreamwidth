@@ -71,15 +71,6 @@ sub activate_userpics {
     if ( scalar @active > $allowed ) {
         my $to_ban = scalar @active - $allowed;
 
-        # find first jitemid greater than time 2 months ago using rlogtime index
-        # ($LJ::EndOfTime - UnixTime)
-        my $jitemid = $dbcr->selectrow_array(
-            "SELECT jitemid FROM log2 USE INDEX (rlogtime) "
-                . "WHERE journalid=? AND rlogtime > ? LIMIT 1",
-            undef, $userid, $LJ::EndOfTime - time() + 86400 * 60
-        );
-
-        # query all pickws in logprop2 with jitemid > that value
         my %count_kw = ();
         my $propid;
         if ($have_mapid) {
@@ -89,10 +80,11 @@ sub activate_userpics {
             $propid = LJ::get_prop( "log", "picture_keyword" )->{id};
         }
         my $sth =
-            $dbcr->prepare( "SELECT value, COUNT(*) FROM logprop2 "
-                . "WHERE journalid=? AND jitemid > ? AND propid=?"
-                . "GROUP BY value" );
-        $sth->execute( $userid, $jitemid || 0, $propid );
+            $dbcr->prepare( "SELECT props.value, COUNT(*) FROM logprop2 props "
+                . "JOIN log2 entry ON entry.journalid=props.journalid AND entry.jitemid=props.jitemid "
+                . "WHERE props.journalid=? AND entry.posterid=? AND props.propid=? "
+                . "GROUP BY props.value" );
+        $sth->execute( $userid, $userid, $propid );
         while ( my ( $value, $ct ) = $sth->fetchrow_array ) {
 
             # keyword => count
