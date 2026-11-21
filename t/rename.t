@@ -15,7 +15,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 153;
+use Test::More tests => 152;
+use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -434,10 +435,9 @@ note("-- username issues");
 
 note("-- community-to-unregistered");
 {
-    my $admin       = temp_user();
-    my $fromu       = temp_comm();
-    my $oldusername = $fromu->username;
-    my $tousername  = $fromu->username . "_renameto";
+    my $admin      = temp_user();
+    my $fromu      = temp_comm();
+    my $tousername = $fromu->username . "_renameto";
 
     ok( !$admin->can_manage($fromu), "User cannot manage community fromu." );
     ok(
@@ -466,18 +466,100 @@ note("-- community-to-unregistered");
 
     ok( !$fromu->can_rename_to($tousername),
         "Cannot rename community without providing a user doing the renaming" );
-
-    my $member = temp_user();
-    $member->join_community($fromu);
-    ok( !$fromu->can_rename_to( $oldusername, user => $admin ),
-        "Cannot rename a community with members" );
-
-    $member->leave_community($fromu);
-    ok(
-        $fromu->can_rename_to( $oldusername, user => $admin ),
-        "Can rename community again, no members."
-    );
 }
+
+subtest 'Community rename preserves memberships and notifies eligible members' => sub {
+    my $community = temp_comm();
+    my $oldname   = $community->user;
+    my $newname   = $oldname . '_renamed';
+    my $admin     = temp_user();
+    my $coadmin   = temp_user();
+    my $watcher   = temp_user();
+
+    LJ::update_user( $admin,   { status => 'A', email => 'rename-admin@example.com' } );
+    LJ::update_user( $coadmin, { status => 'A', email => 'rename-coadmin@example.com' } );
+    LJ::update_user( $watcher, { status => 'A', email => 'rename-watcher@example.com' } );
+    LJ::set_rel( $community, $admin,   'A' );
+    LJ::set_rel( $community, $coadmin, 'A' );
+    $watcher->add_edge( $community, watch => {} );
+
+    my $make_member = sub {
+        my (%fields) = @_;
+        my $member = temp_user();
+        LJ::set_rel( $community, $member, 'E' );
+        LJ::update_user( $member, { status => 'A', %fields } );
+        return $member;
+    };
+
+    my $member = $make_member->( email => 'rename-member@example.com' );
+    my $second = $make_member->( email => 'rename-second@example.com' );
+    $make_member->( email => 'rename-unverified@example.com', status    => 'N' );
+    $make_member->( email => 'rename-deleted@example.com',    statusvis => 'D' );
+    $make_member->( email => 'rename-suspended@example.com',  statusvis => 'S' );
+    $make_member->( email => 'rename-purged@example.com',     statusvis => 'X' );
+    $make_member->( email => 'rename-invalid@@example.com' );
+    $make_member->( email => '' );
+    LJ::set_rel( $community, $coadmin, 'E' );
+
+    my @members_before    = sort { $a <=> $b } $community->member_userids;
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @mail;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @mail, $task->args->[0];
+        return 1;
+    };
+
+    my $token = new_token($admin);
+    ok( !$community->rename( $newname, token => new_token($member), user => $member ),
+        'A member without admin rights cannot rename the community' );
+    my $occupied = temp_comm();
+    LJ::set_rel( $occupied, $admin,  'A' );
+    LJ::set_rel( $occupied, $second, 'E' );
+    ok(
+        !$community->rename( $occupied->user, token => $token, user => $admin ),
+        'A rename cannot displace another community that has members'
+    );
+    is( $community->user, $oldname, 'Denied rename does not change the name' );
+    is_deeply( \@mail, [], 'Denied rename does not queue mail' );
+
+    ok(
+        $community->can_rename_to( $newname, user => $admin ),
+        'Admin can rename a community with members'
+    );
+    ok( $community->rename( $newname, token => $token, user => $admin, redirect => 1 ),
+        'Rename succeeds with members' );
+
+    my $renamed = LJ::load_user($newname);
+    my $old     = LJ::load_user($oldname);
+    is( $renamed && $renamed->userid, $community->userid, 'The new name keeps the same ID' );
+    my ($mapped_name) = LJ::get_db_writer()
+        ->selectrow_array( 'SELECT user FROM useridmap WHERE userid=?', undef, $community->userid );
+    is( $mapped_name, $newname, 'The name map and community account agree' );
+    ok( $old && $old->is_redirect, 'The old name is a redirect' );
+    is( $old && $old->prop('renamedto'), $newname, 'The old name redirects to the new name' );
+    is_deeply( [ sort { $a <=> $b } $community->member_userids ],
+        \@members_before, 'The full membership list stays intact' );
+    ok( $renamed && $member->member_of($renamed) && $second->member_of($renamed),
+        'Members still belong to the renamed community' );
+    ok( $renamed && $admin->can_manage_other($renamed) && $coadmin->can_manage_other($renamed),
+        'Both admins still manage the renamed community' );
+    is_deeply(
+        [ sort map { @{ $_->{rcpts} } } @mail ],
+        [qw( rename-coadmin@example.com rename-member@example.com rename-second@example.com )],
+        'Only active members with verified, valid addresses receive email'
+    );
+    is( scalar @mail, 3, 'Each member gets a separate notice' );
+
+    foreach my $message (@mail) {
+        my ( undef, $body ) = split /\r?\n\r?\n/, $message->{data}, 2;
+        $body = decode_qp( $body // '' );
+        like( $body, qr/\Q$oldname\E/, 'The email body names the old community' );
+        like( $body, qr/\Q$newname\E/, 'The email body names the renamed community' );
+    }
+};
 
 note("-- community-to-personal");
 {
