@@ -19,29 +19,26 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% sections.head = BLOCK %]
 <script>
-function updateEmbed ( evt ) {
-    var thumbnail_value = evt.target.value;
-    var name = evt.target.id.replace(/thumbnail_sizes/, 'embed-thumb');
-    var url = document.getElementById(name).value;
-    document.getElementById(name).value = url.replace(/\d{3,4}x\d{3,4}/, thumbnail_value + 'x' + thumbnail_value);
-}
-
-window.onload = function() {
-  var dropdowns = document.getElementsByClassName('embed-select');
-  for (var i = 0; i < dropdowns.length; i++) {
-    dropdowns[i].style = '';
-    dropdowns[i].classList = "columns large-2 embed-select"
-}
-
-  var textboxes = document.getElementsByClassName('embed-thumb');
-  for (var i = 0; i < textboxes.length; i++) {
-    textboxes[i].classList.remove('large-9')
-    textboxes[i].classList.add('large-7')
-}
-};
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.embed-select select').forEach(function (select) {
+        var field = document.getElementById(select.getAttribute('aria-controls'));
+        var fieldColumn = field.parentElement;
+        select.parentElement.hidden = false;
+        fieldColumn.classList.remove('large-9');
+        fieldColumn.classList.add('large-6');
+        select.addEventListener('change', function () {
+            var size = select.value;
+            field.value = field.defaultValue.replace(/( src='[^']*\/file\/)\d+x\d+\//,
+                function (match, prefix) {
+                    return prefix + (size === 'original' ? '' : size + 'x' + size + '/');
+                });
+        });
+    });
+});
 </script>
 <style type="text/css">
     #content input { height: auto; width: auto; display: inline; }
+    #content .embed input { width: 100%; }
 </style>
 [% END  # sections.head %]
 
@@ -80,6 +77,24 @@ window.onload = function() {
 [% first_index = (page - 1) * 20 %]
 [% last_index = page * 20 - 1 < media.size ? page * 20 - 1 : media.max %]
 [% media_page = media.slice(first_index, last_index) %]
+[% thumbnail_size = 320; image_size = 800 %]
+
+[% BLOCK embed_row %]
+    <div class="embed row">
+        <div class="columns large-3"><label for="[% field_id | html %]">[% label | html %]</label></div>
+        <div class="columns large-9">
+            [%- form.textbox( id = field_id, value = make_embed_url(obj, 'type', embed_type, 'size', size) ) -%]
+        </div>
+        <div class="columns large-3 embed-select" hidden>
+            <select id="[% select_id | html %]" aria-controls="[% field_id | html %]" aria-label="[% size_label | html %]">
+                [%- FOREACH option IN valid_sizes %]
+                <option value="[% option %]"[% IF option == size %] selected[% END %]>[% option %] px</option>
+                [%- END %]
+                <option value="original">Original</option>
+            </select>
+        </div>
+    </div>
+[% END %]
 
 [% IF view_type == 'grid' %]
 <ul id="media-grid">
@@ -89,18 +104,9 @@ window.onload = function() {
             <div class='media'><img src="[% obj.url %]" alt='[% obj.prop('alttext') %]'/></div>
             <div class='details'><div class='name'>[% obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext %]</div>
             <span class='dimensions'>[% obj.orig_filesize / 1000 | format('%d') %] kb | [% obj.orig_width %] x [% obj.orig_height %] px</span></div>
-            <div class='embed row'>
-            <div class="columns large-3"><label for="embed-thumb-[% obj.displayid %]">[% dw.ml(".embed.short") %]</label></div>
-            <div class="columns large-9 embed-thumb">[%- form.textbox( id = "embed-thumb-$obj.displayid" value = make_embed_url(obj, 'type', 'thumbnail', 'size', 100)) -%]</div>
-            <div class="embed-select" style = 'display:none;'>
-            [%- form.select( "items"   = valid_sizes.nsort
-                             "id"    = "thumbnail_sizes-$obj.displayid"
-                             "class" = "select"
-                             "onChange" = "return updateEmbed(event);"
-                           )
-            -%]
-            </div>
-            </div>
+            [%- INCLUDE embed_row field_id = "embed-thumb-$obj.displayid" select_id = "thumbnail_sizes-$obj.displayid"
+                label = dw.ml('.embed.short') size_label = 'Thumbnail embed size'
+                embed_type = 'thumbnail' size = thumbnail_size %]
         </div>
         </li>
     [%- END -%]
@@ -120,25 +126,12 @@ window.onload = function() {
             [% IF obj.prop('description') != '' %]
             <div class='description'>[% obj.prop('description') %]</div>
             [% END %]
-            <div class='embed'>
-            [%- INCLUDE 'media/field-row.tt' label = dw.ml(".embed.full") id = "embed-full-$obj.displayid" value = make_embed_url(obj) type="text" labelSize=3 %]
-            </div>
-            <div class='embed row'>
-                <div class="large-3 columns">
-                    <label for="embed-thumb-[% obj.displayid %]">[% dw.ml(".embed.thumbnail") %]</label>
-                </div>
-                <div class="large-9 columns embed-thumb">
-                        [%- form.textbox( id = "embed-thumb-$obj.displayid" value = make_embed_url(obj, 'type', 'thumbnail', 'size', 100)) -%]
-                </div>
-            <div class="embed-select" style = 'display:none;'>
-            [%- form.select( "items"   = valid_sizes.nsort
-                             "id"    = "thumbnail_sizes-$obj.displayid"
-                             "class" = "select"
-                             "onChange" = "return updateEmbed(event);"
-                           )
-            -%]
-            </div>
-            </div>
+            [%- INCLUDE embed_row field_id = "embed-full-$obj.displayid" select_id = "image_sizes-$obj.displayid"
+                label = dw.ml('.embed.full') size_label = 'Image embed size'
+                embed_type = 'image' size = image_size %]
+            [%- INCLUDE embed_row field_id = "embed-thumb-$obj.displayid" select_id = "thumbnail_sizes-$obj.displayid"
+                label = dw.ml('.embed.thumbnail') size_label = 'Thumbnail embed size'
+                embed_type = 'thumbnail' size = thumbnail_size %]
             </div>
         </div>
         </div>
