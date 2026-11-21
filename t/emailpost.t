@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 137;
+use Test::More tests => 150;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -403,6 +403,57 @@ BODY
         $entry->event_raw,
         qr{<blockquote>\s*post-security: private\s*</blockquote>},
         'The blockquote and quoted directive are retained'
+    );
+
+    for my $case (
+        [ 'on a setting line', 'post-foo: bar', '<blockquote>', '</blockquote>' ],
+        [ 'after a continued value', "post-foo:\n  bar", '<div class="gmail_quote">', '</div>' ],
+        )
+    {
+        my ( $label, $setting, $opening, $closing ) = @$case;
+        my $mime = build_message(
+            "Quote $label",
+            'text/html',
+"post-security: private\n$setting$opening\npost-security: public\nQuoted text.\n$closing"
+        );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted an HTML quote $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private', "The private setting still applies $label" );
+        like(
+            $entry->event_raw,
+            qr{\Q$opening\E\s*post-security: public\s+Quoted text\.\s*\Q$closing\E},
+            "The quote markup and text are retained $label"
+        );
+    }
+
+    $mime = build_message(
+        'HTML bare setting followed by wrapped privacy setting',
+        'text/html',
+        "post-format: html\n<p>post-security: private</p>\n<p>Message</p>"
+    );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted HTML with bare setting before wrapped setting' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'private', 'Wrapped setting after bare setting still applies' );
+    unlike( $entry->event_raw, qr/post-security:/i, 'Wrapped setting line is removed' );
+
+    $mime = build_message(
+        'HTML with wrapped and formatted settings',
+        'text/html',
+        "<p>post-security: private</p>\n"
+            . "<p>post-location: <b>Somewhere</b><br>post-format: html</p>\n<p>Message</p>"
+    );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted HTML with wrapped and formatted settings' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'private', 'A closing paragraph tag ends the security value' );
+    is( $entry->prop('current_location'),
+        'Somewhere', 'Inline formatting is not part of the value' );
+    is(
+        $entry->prop('editor'),
+        DW::Formats::validate('html_casual_latest'),
+        'A break tag separates settings'
     );
 }
 
