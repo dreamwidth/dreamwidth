@@ -289,6 +289,8 @@ sub watch {
         }
     }
     else {
+        # S2 profile modules omit links with no URL; guests can log in from the home page.
+        $link->{url}      = "$LJ::SITEROOT/" if !$remote && $u->is_visible;
         $link->{title_ml} = 'userlinkbar.addsub.title.loggedout';
         if ( $u->is_community ) {
             $link->{class} = "addsub_comm_disabled disabled";
@@ -345,6 +347,7 @@ sub post {
     elsif ( $u->is_community ) {
         return $self->fix_link(
             {
+                url      => $remote ? undef : "$LJ::SITEROOT/",
                 text_ml  => 'userlinkbar.post',
                 title_ml => $remote
                 ? 'userlinkbar.post.title.cantpost'
@@ -459,9 +462,9 @@ sub tellafriend {
     my $remote = $self->{remote};
     my $user   = $u->user;
 
-    if ( $remote && !$u->is_identity && LJ::is_enabled('tellafriend') ) {
+    if ( !$u->is_identity && LJ::is_enabled('tellafriend') ) {
         my $link = {
-            url     => "tools/tellafriend?user=$user",
+            url     => $remote ? "tools/tellafriend?user=$user" : "$LJ::SITEROOT/",
             image   => "$LJ::IMGPREFIX/silk/profile/tellafriend.png",
             width   => 16,
             height  => 16,
