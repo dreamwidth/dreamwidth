@@ -518,6 +518,7 @@ sub EntryPage {
             js/jquery/jquery.ui.position.js
             stc/jquery/jquery.ui.core.css
             stc/jquery/jquery.ui.tooltip.css
+            stc/jquery.ajaxtip.css
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
             stc/jquery.commentmanage.css
