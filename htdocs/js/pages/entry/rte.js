@@ -79,11 +79,12 @@ function LJUser(textArea) {
 function useRichText(textArea, statPrefix, raw) {
     var rte = new FCKeditor();
     var t = rte._IsCompatibleBrowser();
-    if (!t) return;
+    if (!t) return false;
 
-    var entry_html = document.getElementById(textArea).value;
+    const body = document.getElementById(textArea);
+    const plainTextBody = body.value;
 
-    entry_html = convertToHTMLTags(entry_html, statPrefix);
+    var entry_html = convertToHTMLTags(plainTextBody, statPrefix);
     if (!raw) {
         entry_html = entry_html.replace(/\n/g, '<br />');
     }
@@ -95,14 +96,16 @@ function useRichText(textArea, statPrefix, raw) {
         oFCKeditor.BasePath = statPrefix + "/fck/";
         oFCKeditor.Height = 350;
         oFCKeditor.ToolbarSet = "Update";
-        document.getElementById(textArea).value = entry_html;
         oFCKeditor.ReplaceTextarea();
+        if (body.style.display !== 'none') return false;
+        pendingRichTextBody = plainTextBody;
+        body.value = entry_html;
 
     } else {
-        if (! FCKeditorAPI) return;
+        if (!FCKeditor_LOADED || typeof FCKeditorAPI === 'undefined') return false;
         var oEditor = FCKeditorAPI.GetInstance(textArea);
         editor_frame.style.display = "block";
-        document.getElementById(textArea).style.display = "none";
+        body.style.display = "none";
         oEditor.SetData(entry_html);
 
         oEditor.Focus();
@@ -111,14 +114,28 @@ function useRichText(textArea, statPrefix, raw) {
     }
 
    LJUser(textArea);
-
+   return true;
 }
 
 function usePlainText(textArea, raw) {
-    if (! FCKeditorAPI) return;
+    const body = document.getElementById(textArea);
+    var editor_frame = document.getElementById(textArea + '___Frame');
+    if (!FCKeditor_LOADED) {
+        if (typeof FCKeditorAPI !== 'undefined') {
+            const queue = FCKeditorAPI._FunctionQueue;
+            const loadToolbar = editor_frame.contentWindow.LoadToolbar;
+            if (queue.Functions.includes(loadToolbar)) queue.Remove(loadToolbar);
+        }
+        editor_frame.remove();
+        document.getElementById(textArea + '___Config').remove();
+        body.value = pendingRichTextBody;
+        pendingRichTextBody = undefined;
+        body.style.display = "block";
+        return;
+    }
+    if (typeof FCKeditorAPI === 'undefined') return;
     var oEditor = FCKeditorAPI.GetInstance(textArea);
     if (! oEditor) return;
-    var editor_frame = document.getElementById(textArea + '___Frame');
 
     var html = oEditor.GetXHTML(false);
     html = convertToTags(html);
@@ -128,11 +145,11 @@ function usePlainText(textArea, raw) {
         html = html.replace(/&nbsp;/g, ' ');
     }
 
-    document.getElementById(textArea).value = html;
+    body.value = html;
     oEditor.Focus();
 
     editor_frame.style.display = "none";
-    document.getElementById(textArea).style.display = "block";
+    body.style.display = "block";
 
     // Hack for handling submitHandler
     oEditor.switched_rte_on = '0';
@@ -191,17 +208,23 @@ function generate_pollHTML(ljtags, pollID) {
 
 // Constant used to check if FCKeditorAPI is loaded
 var FCKeditor_LOADED = false;
+let pendingRichTextBody;
+let originalRichTextBody;
+let initialRichTextHTML;
 
 function FCKeditor_OnComplete( editorInstance ) {
+    if (originalRichTextBody !== undefined) {
+        initialRichTextHTML = editorInstance.GetXHTML(false);
+    }
     editorInstance.Events.AttachEvent( 'OnAfterLinkedFieldUpdate', doLinkedFieldUpdate) ;
+    pendingRichTextBody = undefined;
     FCKeditor_LOADED = true;
 }
 
 function doLinkedFieldUpdate(oEditor) {
     var html = oEditor.GetXHTML(false);
-    var tags = convertToTags(html);
-
-    document.getElementById('entry-body').value = tags;
+    document.getElementById('entry-body').value =
+        html === initialRichTextHTML ? originalRichTextBody : convertToTags(html);
 }
 
 function convertToTags(html) {
@@ -237,22 +260,31 @@ var raw = document.querySelector('#editor').value == 'html_raw0';
 
 window.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('#editor').value == 'rte0') {
-        useRichText('entry-body', '/stc/', raw);
-        use_rte = true;
+        const body = document.getElementById('entry-body');
+        use_rte = useRichText('entry-body', '/stc/', raw);
+        if (use_rte && postFormInitData.edit) {
+            originalRichTextBody = pendingRichTextBody;
+            body.form.addEventListener('formdata', event => {
+                if (pendingRichTextBody !== undefined) {
+                    event.formData.set(body.name, pendingRichTextBody);
+                }
+            });
+        }
       }
 })
 
 
 // Watch the format select for changes, and add or destroy the RTE as necessary
 document.querySelector('#editor').addEventListener('change', e => {
-    let format = e.target.value;
-    if (format == 'rte0') {
-        useRichText('entry-body', '/stc/', raw);
-        use_rte = true;
+    const format = e.target.value;
+    if (format === 'rte0' && !use_rte) {
+        if (document.getElementById('entry-body').value !== originalRichTextBody) {
+            originalRichTextBody = initialRichTextHTML = undefined;
+        }
+        use_rte = useRichText('entry-body', '/stc/', raw);
+    } else if (format !== 'rte0' && use_rte) {
+        if (FCKeditor_LOADED) originalRichTextBody = initialRichTextHTML = undefined;
+        usePlainText('entry-body', format === 'html_raw0');
+        use_rte = false;
     }
-    if (format != 'rte0' && use_rte) {
-        let raw = format == 'html_raw0';
-      usePlainText('entry-body', raw);
-      use_rte = false;
-    }
-  });
+});

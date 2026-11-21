@@ -572,6 +572,11 @@ sub _edit {
                 allow_empty => $mode_delete,
                 errors      => $errors
             );
+            if ( defined $post->{hide_crosspost_links}
+                && $post->{hide_crosspost_links} =~ /\A[01]\z/ )
+            {
+                $form_req->{props}{opt_hide_xpost_links} = $post->{hide_crosspost_links};
+            }
 
             # check for spam domains
             LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
@@ -658,14 +663,16 @@ sub _edit {
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
 
-    $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{formdata}            = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
+    $vars->{has_crosspost_links} = $entry_obj->has_crosspost_links;
+    $vars->{hide_crosspost_links} =
+          $post && defined $post->{hide_crosspost_links}
+        ? $post->{hide_crosspost_links}
+        : $entry_obj->prop('opt_hide_xpost_links') || 0;
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
-    $vars->{editors} = DW::Formats::select_items(
-        current   => $vars->{formdata}->{editor},
-        preferred => $remote->prop('entry_editor2'),
-    );
+    $vars->{editors} = DW::Formats::select_items( current => $vars->{formdata}->{editor} );
 
     # The template helper uses "formdata" to set the default values for fields,
     # so we'll update it in place with what DW::Formats thinks we should use.
@@ -779,7 +786,8 @@ sub _queue_crosspost {
                         auth_response  => $submitted->{resp},
                     }
                 );
-            }
+            },
+            $opts{unchanged_crossposts},
         );
 
         foreach my $crosspost ( @{ $xpost_successes || [] } ) {
@@ -986,7 +994,8 @@ sub _do_post {
 sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
-    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
+    my %flags = ( check_crosspost_visibility => 1 );
+    my $res   = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth, \%flags );
     return %$res if $res->{errors};
 
     my $remote  = $auth->{poster};
@@ -1097,11 +1106,12 @@ sub _do_edit {
 
     my @crossposts = _queue_crosspost(
         $form_req,
-        remote  => $remote,
-        journal => $journal,
-        deleted => $deleted,
-        ditemid => $ditemid,
-        editurl => $edit_url,
+        remote               => $remote,
+        journal              => $journal,
+        deleted              => $deleted,
+        ditemid              => $ditemid,
+        editurl              => $edit_url,
+        unchanged_crossposts => $flags{unchanged_crossposts},
     );
 
     my $poststatus = {
