@@ -26,6 +26,7 @@ use URI;
 
 use DW::Captcha;
 use DW::Template;
+use LJ::JSON qw(to_json);
 
 our ( @ISA, @EXPORT );
 @ISA    = qw/ Exporter /;
@@ -152,11 +153,18 @@ sub controller {
 
     if ( !$args{allow_invisible} && $vars->{remote} && !$vars->{remote}->is_visible ) {
         $r->status( $r->FORBIDDEN );
+        my $message = 'Your account is not active.';
+        my $route   = $r->pnote('routing_opts');
+        if ( $route && $route->format eq 'json' ) {
+            $r->print( to_json( { success => 0, error => $message } ) );
+            return $fail->( $r->OK );
+        }
+
         return $fail->(
             DW::Template->render_template(
                 'error.tt',
                 {
-                    message => "Your account is not active. Check your "
+                    message => "$message Check your "
                         . "<a href='$LJ::SITEROOT/accountstatus'>account status</a> for details.",
                 }
             )
