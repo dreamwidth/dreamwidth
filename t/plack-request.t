@@ -72,9 +72,8 @@ subtest 'session cookie attributes' => sub {
     for my $protocol (qw(https http)) {
         local $LJ::PROTOCOL      = $protocol;
         local $LJ::IS_DEV_SERVER = $protocol eq 'http';
-        my $request   = make_request( 'psgi.url_scheme' => $protocol );
-        my $secure    = $protocol eq 'https';
-        my $same_site = $secure ? 'None' : 'Lax';
+        my $request = make_request( 'psgi.url_scheme' => $protocol );
+        my $secure  = $protocol eq 'https';
 
         for my $name (qw(ljmastersession ljloggedin)) {
             LJ::Session::set_cookie( $name => 'test-session', http_only => 1 );
@@ -84,8 +83,13 @@ subtest 'session cookie attributes' => sub {
         my %cookies = map { /^(\w+)=/; $1 => "$_" } $request->header_out('Set-Cookie');
         for my $name (qw(ljmastersession ljloggedin)) {
             my $cookie = $cookies{$name} // '';
-            like( $cookie, qr/;\s*SameSite=$same_site(?:;|$)/i,
-                "$name is $same_site on $protocol" );
+            if ($secure) {
+                unlike( $cookie, qr/;\s*SameSite=None(?:;|$)/i,
+                    "$name does not opt in to cross-site use" );
+            }
+            else {
+                like( $cookie, qr/;\s*SameSite=Lax(?:;|$)/i, "$name is Lax on HTTP dev" );
+            }
             my $has_secure = $cookie =~ /;\s*Secure(?:;|$)/i ? 1 : 0;
             is( $has_secure, $secure ? 1 : 0, "$name Secure flag on $protocol" );
             like( $cookie, qr/;\s*HttpOnly(?:;|$)/i, "$name stays HttpOnly" ) if $secure;
