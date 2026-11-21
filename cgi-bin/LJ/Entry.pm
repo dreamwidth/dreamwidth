@@ -464,9 +464,82 @@ sub preload_rows {
 
 sub absorb_row {
     my ( $self, %row ) = @_;
+    return if $self->{_view_snapshot};
 
     $self->{$_} = $row{$_} foreach (qw(allowmask posterid eventtime logtime security anum));
     $self->{_loaded_row} = 1;
+}
+
+sub get_view_rows {
+    my ( $class, $cluster, $items ) = @_;
+    return {} unless @$items;
+
+    my $db    = LJ::get_dbh( LJ::DB::master_role($cluster) ) or return;
+    my $pairs = join ', ', ('(?, ?)') x @$items;
+    return $db->selectall_hashref(
+        'SELECT l.journalid, l.jitemid, l.posterid, l.eventtime, l.logtime,
+                l.anum, l.security, l.allowmask, t.subject, t.event
+         FROM log2 l JOIN logtext2 t USING (journalid, jitemid)
+         WHERE (l.journalid, l.jitemid) IN (' . $pairs . ')',
+        [ 'journalid', 'jitemid' ], undef,
+        map { ( $_->{journalid}, $_->{jitemid} ) } @$items
+    );
+}
+
+sub matches_view_row {
+    my ( $class, $candidate, $row ) = @_;
+    return
+           $row
+        && $row->{anum} == $candidate->{anum}
+        && $row->{posterid} == $candidate->{posterid}
+        && $row->{security} eq $candidate->{security}
+        && ( $row->{security} ne 'usemask' || $row->{allowmask} == $candidate->{allowmask} );
+}
+
+sub absorb_view_snapshot {
+    my ( $self, $row ) = @_;
+    return 1 if $self->{_view_snapshot} && __PACKAGE__->matches_view_row( $row, $self );
+    return 0 if $self->{_view_snapshot} || !$row;
+
+    my $event = $row->{event};
+    LJ::text_uncompress( \$event );
+    $self->absorb_row(%$row);
+    $self->{_view_snapshot} = 1;
+    return $self->absorb_text( $row->{subject}, $event );
+}
+
+sub _read_view_row {
+    my ($self) = @_;
+    my ( $jid, $itemid ) = ( $self->journalid, $self->jitemid );
+    my $rows = __PACKAGE__->get_view_rows( $self->journal->clusterid,
+        [ { journalid => $jid, jitemid => $itemid } ] )
+        or return;
+    return $rows->{$jid}{$itemid};
+}
+
+sub load_view_snapshot {
+    my ($self) = @_;
+    return 1 if $self->{_view_snapshot};
+    return $self->absorb_view_snapshot( $self->_read_view_row );
+}
+
+sub load_view_entries {
+    my ( $class, $journal, $items ) = @_;
+    my $jid = $journal->id;
+    my $rows =
+        $class->get_view_rows( $journal->clusterid,
+        [ map { { journalid => $jid, jitemid => $_->{itemid} } } @$items ] )
+        or return {};
+
+    my %entries;
+    for my $item (@$items) {
+        my $itemid = $item->{itemid};
+        my $row    = $rows->{$jid}{$itemid};
+        next unless $class->matches_view_row( $item, $row );
+        my $entry = $class->new( $journal, jitemid => $itemid );
+        $entries{$itemid} = $entry if $entry->absorb_view_snapshot($row);
+    }
+    return \%entries;
 }
 
 # class method:
@@ -518,11 +591,10 @@ sub _load_text {
     my $self = $_[0];
     return 1 if $self->{_loaded_text};
 
-    my $ret = LJ::get_logtext2( $self->{'u'}, $self->{'jitemid'} );
-    my $lt  = $ret->{ $self->{jitemid} };
-    return 0 unless $lt;
+    my $row = $self->_read_view_row;
+    return 0 if $self->{_loaded_row} && !__PACKAGE__->matches_view_row( $self, $row );
 
-    return $self->absorb_text(@$lt);
+    return $self->absorb_view_snapshot($row);
 }
 
 sub absorb_text {
@@ -1765,7 +1837,7 @@ sub get_log2_row {
 # both should have the same display behavior, but we don't store the security value in memcache
     $row = pack( $LJ::LOGMEMCFMT, $item->{'posterid'}, $eventtime, $logtime, $sec,
         $item->{'ditemid'} );
-    LJ::MemCache::set( $memkey, $row );
+    LJ::MemCache::add( $memkey, $row );
 
     return $item;
 }

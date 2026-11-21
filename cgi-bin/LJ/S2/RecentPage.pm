@@ -189,6 +189,8 @@ sub RecentPage {
 
     die $err if $err;
 
+    my $entries = LJ::Entry->load_view_entries( $u, \@items );
+
     # Prepare sticky entries for S2.
     # Only show sticky entry on first page of Recent Entries.
     # Do not show stickies unless they have the relevant permissions.
@@ -201,7 +203,10 @@ sub RecentPage {
         foreach my $sticky_entry ( $u->sticky_entries ) {
 
             # only show if visible to user
-            if ( $sticky_entry && $sticky_entry->visible_to( $remote, $get->{viewall} ) ) {
+            if (   $sticky_entry
+                && $sticky_entry->load_view_snapshot
+                && $sticky_entry->visible_to( $remote, $get->{viewall} ) )
+            {
 
                 # create S2 entry object and show first on page
                 my $entry = Entry_from_entryobj( $u, $sticky_entry, $opts );
@@ -227,20 +232,16 @@ sub RecentPage {
 
 ENTRY:
     foreach my $item (@items) {
-        my ( $posterid, $itemid, $anum ) =
-            map { $item->{$_} } qw(posterid itemid anum);
 
         # need to increment before possibly doing a next, so that the skiplinks will work
         $itemnum++;
 
-        my $ditemid = $itemid * 256 + $anum;
-        next if $itemnum > 0 && $show_sticky_entries && $sticky_entries->{$ditemid};
-
-        my $entry_obj = LJ::Entry->new( $u, ditemid => $ditemid );
+        my $entry_obj = $entries->{ $item->{itemid} } or next;
+        next if $itemnum > 0 && $show_sticky_entries && $sticky_entries->{ $entry_obj->ditemid };
 
 # don't show posts from suspended users or suspended posts unless the user doing the viewing says to (and is allowed)
-        next ENTRY if $entry_obj && $entry_obj->poster->is_suspended && !$viewsome;
-        next ENTRY if $entry_obj && $entry_obj->is_suspended_for($remote);
+        next ENTRY if $entry_obj->poster->is_suspended && !$viewsome;
+        next ENTRY if $entry_obj->is_suspended_for($remote);
 
         # create S2 entry, journal posted to is $u
         my $entry = $lastentry = Entry_from_entryobj( $u, $entry_obj, $opts );
