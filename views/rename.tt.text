@@ -59,7 +59,7 @@
 
 .form.rename.header=Rename
 
-.form.rename.membernotice=After the rename, current members with a verified email address will get an email with the new name. Their memberships will not change.
+.form.rename.membernotice=After the rename, Dreamwidth queues an email with the new name for visible members with a verified email address. Their memberships will not change.
 
 .form.rename.oldusername.header.c=What do you want to do with your community's old username?
 

@@ -174,15 +174,16 @@ sub send {
             ' bytes to queue: ', $queue_name );
         my $res =
             eval { $self->{sqs}->SendMessageBatch( QueueUrl => $queue_url, Entries => \@messages ) };
-        if ( $@ && $@->isa('Paws::Exception') ) {
-            $log->error( 'Failed to send SQS message batch: ', $@->message );
-            DW::Stats::increment( 'dw.taskqueue.action.send_error', scalar(@messages), $tags );
-            return undef;
+        my $failed = $res ? scalar @{ $res->Failed || [] } : scalar @messages;
+        my $sent   = scalar(@messages) - $failed;
+        if ($sent) {
+            DW::Stats::increment( 'dw.taskqueue.action.send_ok', $sent, $tags );
+            DW::Stats::increment( 'dw.taskqueue.sent_messages',  $sent, $tags );
         }
-        else {
-            $log->debug( 'Successfully sent ', scalar(@messages), ' messages.' );
-            DW::Stats::increment( 'dw.taskqueue.action.send_ok', scalar(@messages), $tags );
-            DW::Stats::increment( 'dw.taskqueue.sent_messages',  scalar(@messages), $tags );
+        if ($failed) {
+            $log->error( 'Failed to send ', $failed, ' SQS message(s) to queue: ', $queue_name );
+            DW::Stats::increment( 'dw.taskqueue.action.send_error', $failed, $tags );
+            return undef;
         }
 
         @messages   = ();

@@ -16,76 +16,165 @@ package DW::Task::CommunityRenameNotice;
 use strict;
 use warnings;
 
-use base 'DW::Task';
-use DW::TaskQueue;
 use LJ::Sendmail;
 use Log::Log4perl;
 
 use constant BATCH_SIZE => 25;
+use constant RETRY_SECS => 60;
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
-sub work {
-    my ($self)   = @_;
-    my ($notice) = @{ $self->args };
+my $eligible_members = q{
+    FROM reluser
+    JOIN user ON user.userid=reluser.targetid
+    JOIN email ON email.userid=user.userid
+   WHERE reluser.userid=? AND reluser.type='E'
+     AND user.status='A' AND user.statusvis='V' AND user.clusterid<>0
+};
+my $mailbox = 'CAST(LOWER(email.email) AS BINARY)';
 
+sub enqueue {
+    my ( $class, $dbh, @details ) = @_;
+
+    return $dbh->do(
+'INSERT INTO community_rename_notice (commid, oldname, newname, profile) VALUES (?, ?, ?, ?)',
+        undef, @details
+    );
+}
+
+sub process_pending {
+    my ( $class, $commid ) = @_;
+
+    my $worked = eval {
+        my $dbh = LJ::get_db_writer() or die 'No community rename notice writer';
+        local $dbh->{RaiseError} = 1;
+        local $dbh->{PrintError} = 0;
+        _process_batch( $dbh, $commid );
+    };
+    $log->error('Could not advance the community rename notice outbox') if $@;
+    return $worked // 0;
+}
+
+sub _process_batch {
+    my ( $dbh, $commid ) = @_;
+
+    my $batch = _transaction(
+        $dbh,
+        sub {
+            my $filter = defined $commid ? 'AND n.commid=?' : '';
+            my $notice = $dbh->selectrow_hashref(
+                "SELECT n.* FROM community_rename_notice n WHERE (n.scanned=0 OR COALESCE((
+                     SELECT MIN(r.next_attempt) FROM community_rename_recipient r
+                      WHERE r.noticeid=n.noticeid
+                 ), 0)<=UNIX_TIMESTAMP()) $filter ORDER BY n.noticeid LIMIT 1 FOR UPDATE",
+                undef, defined $commid ? ($commid) : (),
+            ) or return;
+
+            my $ready = _ready_recipients( $dbh, $notice->{noticeid} );
+            unless ( @$ready || $notice->{scanned} ) {
+                _stage_page( $dbh, $notice );
+                $ready = _ready_recipients( $dbh, $notice->{noticeid} );
+            }
+            return [ $notice, $ready ];
+        }
+    ) or return 0;
+
+    my ( $notice, $ready ) = @$batch;
     my $subject = LJ::Lang::ml('rename.email.community.subject');
     my $body    = LJ::Lang::ml( 'rename.email.community.body',
         { map { $_ => $notice->{$_} } qw( oldname newname profile ) } );
 
-    if ( $notice->{retry_address} ) {
-        return _try_queue_email( $notice->{retry_address}, $subject, $body )
-            ? DW::Task::COMPLETED
-            : DW::Task::FAILED;
+    foreach my $recipient (@$ready) {
+        _transaction( $dbh, sub { _deliver( $dbh, $notice, $recipient, $subject, $body ) } );
     }
 
-    my $batch = eval { _mailboxes( $notice->{commid}, $notice->{after} // '' ) };
-    unless ($batch) {
-        $log->error('Could not read community rename notice recipients');
-        return DW::Task::FAILED;
-    }
-
-    my $more = @$batch > BATCH_SIZE;
-    pop @$batch if $more;
-    my @followups;
-    foreach my $row (@$batch) {
-        my ( undef, $address ) = @$row;
-        push @followups, { %$notice, retry_address => $address }
-            unless _try_queue_email( $address, $subject, $body );
-    }
-    unshift @followups, { %$notice, after => $batch->[-1][0] } if $more;
-
-    my $failed = 0;
-    foreach my $followup (@followups) {
-        next if eval { DW::TaskQueue->dispatch( ref($self)->new($followup) ) };
-        $log->error('Could not enqueue a community rename notice follow-up');
-        $failed = 1;
-    }
-
-    return $failed ? DW::Task::FAILED : DW::Task::COMPLETED;
+    $dbh->do(
+        'DELETE FROM community_rename_notice WHERE noticeid=? AND scanned=1 AND NOT EXISTS '
+            . '(SELECT 1 FROM community_rename_recipient WHERE noticeid=?)',
+        undef,
+        ( $notice->{noticeid} ) x 2
+    );
+    return 1;
 }
 
-sub _mailboxes {
-    my ( $commid, $after ) = @_;
-    my $dbh = LJ::get_db_writer() or return;
-    my $sql = q{
-        SELECT CAST(LOWER(email.email) AS BINARY) AS mailbox, MIN(BINARY email.email)
-          FROM reluser
-          JOIN user ON user.userid=reluser.targetid
-          JOIN email ON email.userid=user.userid
-         WHERE reluser.userid=? AND reluser.type='E'
-           AND user.status='A' AND user.statusvis='V' AND user.clusterid<>0
-           AND CAST(LOWER(email.email) AS BINARY)>?
-         GROUP BY mailbox ORDER BY mailbox LIMIT ?
-    };
-    my $batch = $dbh->selectall_arrayref( $sql, undef, $commid, $after, BATCH_SIZE + 1 );
-    return $dbh->err ? undef : $batch;
+sub _ready_recipients {
+    my ( $dbh, $noticeid ) = @_;
+
+    return $dbh->selectcol_arrayref(
+        'SELECT mailbox FROM community_rename_recipient WHERE noticeid=? '
+            . 'AND next_attempt<=UNIX_TIMESTAMP() ORDER BY next_attempt, mailbox LIMIT ?',
+        undef, $noticeid, BATCH_SIZE
+    );
 }
 
-sub _try_queue_email {
-    my $queued = eval { _queue_email(@_) };
-    $log->error('Could not queue a community rename notice email') unless $queued;
-    return $queued;
+sub _stage_page {
+    my ( $dbh, $notice ) = @_;
+
+    my $page = $dbh->selectall_arrayref(
+        "SELECT $mailbox AS mailbox, MIN(user.userid) $eligible_members
+            AND $mailbox>? GROUP BY mailbox ORDER BY mailbox LIMIT ?",
+        undef, $notice->{commid}, $notice->{after_mailbox}, BATCH_SIZE + 1
+    );
+    my $more = @$page > BATCH_SIZE;
+    pop @$page if $more;
+    foreach my $row (@$page) {
+        $dbh->do(
+            'INSERT INTO community_rename_recipient (noticeid, mailbox, memberid) VALUES (?, ?, ?)',
+            undef, $notice->{noticeid}, @$row
+        );
+    }
+    $dbh->do(
+        'UPDATE community_rename_notice SET after_mailbox=?, scanned=? WHERE noticeid=?',
+        undef,
+        @$page ? $page->[-1][0] : $notice->{after_mailbox},
+        $more ? 0 : 1,
+        $notice->{noticeid}
+    );
+}
+
+sub _deliver {
+    my ( $dbh, $notice, $recipient, $subject, $body ) = @_;
+    my @key = ( $notice->{noticeid}, $recipient );
+
+    my ($memberid) = $dbh->selectrow_array(
+        'SELECT memberid FROM community_rename_recipient WHERE noticeid=? AND mailbox=? '
+            . 'AND next_attempt<=UNIX_TIMESTAMP() FOR UPDATE',
+        undef, @key
+    );
+    return unless $memberid;
+
+    my $lookup = "SELECT email.email $eligible_members AND $mailbox=?";
+    my ($address) = $dbh->selectrow_array( "$lookup AND user.userid=?",
+        undef, $notice->{commid}, $recipient, $memberid );
+    ($address) = $dbh->selectrow_array( "$lookup LIMIT 1", undef, $notice->{commid}, $recipient )
+        unless defined $address;
+
+    if ( !defined $address || eval { _queue_email( $address, $subject, $body ) } ) {
+        $dbh->do( 'DELETE FROM community_rename_recipient WHERE noticeid=? AND mailbox=?',
+            undef, @key );
+    }
+    else {
+        $log->error('Could not queue a community rename notice email; will retry');
+        $dbh->do(
+            'UPDATE community_rename_recipient SET next_attempt=UNIX_TIMESTAMP()+? '
+                . 'WHERE noticeid=? AND mailbox=?',
+            undef, RETRY_SECS, @key
+        );
+    }
+}
+
+sub _transaction {
+    my ( $dbh, $work ) = @_;
+
+    $dbh->begin_work;
+    my $result;
+    my $ok = eval { $result = $work->(); $dbh->commit; 1 };
+    unless ($ok) {
+        my $error = $@;
+        $dbh->rollback unless $dbh->{AutoCommit};
+        die $error;
+    }
+    return $result;
 }
 
 sub _queue_email {

@@ -51,7 +51,6 @@ use DW::RenameToken;
 use DW::FormErrors;
 use DW::Cache;
 use DW::Task::CommunityRenameNotice;
-use DW::TaskQueue;
 use Log::Log4perl;
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
@@ -247,13 +246,17 @@ sub rename {
                 $aside_name = _unused_ex_username( $dbh, $tousername, $errors ) or return 0;
                 return 0 unless _write_username( $dbh, $target, $tousername, $aside_name );
             }
-            return _write_username( $dbh, $source, $fromusername, $tousername );
+            return 0 unless _write_username( $dbh, $source, $fromusername, $tousername );
+            return 1 unless $source->is_community;
+
+            local $source->{user} = $tousername;
+            return DW::Task::CommunityRenameNotice->enqueue( $dbh, $source->id, $fromusername,
+                $tousername, $source->profile_url );
         }
     );
 
     _finish_move_aside( $target, $tousername, $aside_name ) if $target;
     _finish_rename( $self, $fromusername, $tousername, %opts );
-    _queue_community_notice( $self, $fromusername, $tousername ) if $source->is_community;
     return 1;
 }
 
@@ -411,24 +414,6 @@ sub _can_use_community_name {
     return 0;
 }
 
-sub _queue_community_notice {
-    my ( $community, $fromusername, $tousername ) = @_;
-
-    my $queued = eval {
-        DW::TaskQueue->dispatch(
-            DW::Task::CommunityRenameNotice->new(
-                {
-                    commid  => $community->id,
-                    oldname => $fromusername,
-                    newname => $tousername,
-                    profile => $community->profile_url,
-                }
-            )
-        );
-    };
-    $log->error('Could not enqueue community rename notice') unless $queued;
-}
-
 sub _change_usernames {
     my ( $errors, $change ) = @_;
 
@@ -503,14 +488,17 @@ sub _finish_rename {
     $self->infohistory_add( "username", $fromusername );
 
     # notification
-    LJ::Event::SecurityAttributeChanged->new(
-        $self,
-        {
-            action       => 'account_renamed',
-            ip           => eval { BML::get_remote_ip() } || "[unknown]",
-            old_username => $fromusername,
-        }
-    )->fire;
+    my $notified = eval {
+        LJ::Event::SecurityAttributeChanged->new(
+            $self,
+            {
+                action       => 'account_renamed',
+                ip           => eval { BML::get_remote_ip() } || "[unknown]",
+                old_username => $fromusername,
+            }
+        )->fire;
+    };
+    $log->error('Could not dispatch account rename security event') unless $notified;
 
     return 1;
 }

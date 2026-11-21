@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;
+use Test::More tests => 28;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use File::Temp qw(tempdir);
@@ -25,7 +25,29 @@ use DW::Task;
 use DW::Task::SynSuck;
 use DW::Task::DeleteEntry;
 use DW::TaskQueue::LocalDisk;
+use DW::TaskQueue::SQS;
 use DW::TaskQueue::Dedup;
+
+{
+
+    package Local::PartialSQSSend;
+
+    sub SendMessageBatch {
+        return Paws::SQS::SendMessageBatchResult->new(
+            Successful =>
+                [ { Id => 'id-0', MD5OfMessageBody => 'checksum', MessageId => 'accepted' } ],
+            Failed => [ { Id => 'id-1', Code => 'RequestThrottled', SenderFault => 0 } ],
+        );
+    }
+}
+
+subtest 'SQS still reports entry rejection on a successful request' => sub {
+    my $task  = DW::Task::SynSuck->new( { userid => 42 } );
+    my $queue = bless { sqs => bless( {}, 'Local::PartialSQSSend' ), }, 'DW::TaskQueue::SQS';
+    no warnings 'redefine';
+    local *DW::TaskQueue::SQS::_get_queue_for_task = sub { return ( 'test', 'test-url' ); };
+    ok( !$queue->send( $task, $task ), 'A rejected entry makes the batch result false' );
+};
 
 # --- Helper: create a LocalDisk instance pointed at a temp dir ---
 
