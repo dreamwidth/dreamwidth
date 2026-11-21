@@ -28,7 +28,6 @@ available through Apache::Request and similar modules.
 package DW::Request;
 
 use strict;
-use Hash::MultiValue;
 use Carp qw/ cluck /;
 
 use DW::Request::Standard;

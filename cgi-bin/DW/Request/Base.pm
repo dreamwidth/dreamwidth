@@ -20,7 +20,9 @@ use strict;
 use Carp qw/ croak confess cluck /;
 use CGI::Cookie;
 use CGI::Util qw( unescape );
+use Hash::MultiValue;
 use LJ::JSON;
+use LJ::TextUtil;
 
 use fields (
     'cookies_in',
@@ -226,25 +228,9 @@ sub json {
     return $self->{json_obj} = $obj;
 }
 
-# FIXME: This relies on the behavior parse_args
-#   and the \0 seperated arguments. This should be cleaned
-#   up at the same point parse_args is.
 sub _string_to_multivalue {
     my ( $class, $input, %opts ) = @_;
-    my %gets = LJ::parse_args($input);
-
-    my @out;
-    foreach my $key ( keys %gets ) {
-
-        # -1 keeps trailing empties (repeated params); split('') returns (), so
-        # guard the all-empty case too. Both would otherwise drop empty fields.
-        my @parts = defined $gets{$key} ? split( /\0/, $gets{$key}, -1 ) : ('');
-        @parts = ('') unless @parts;
-
-        push @out, map { $opts{lowercase} ? lc $key : $key => $_ } @parts;
-    }
-
-    return Hash::MultiValue->new(@out);
+    return LJ::parse_args( $input, %opts );
 }
 
 # simply sets the location header and returns REDIRECT

@@ -260,7 +260,7 @@ sub render {
     my $r      = DW::Request->get;
     my $remote = LJ::get_remote();
 
-    my %GET = LJ::parse_args($args);
+    my %GET = %{ LJ::parse_args($args) };
 
     # Try DW::Routing first for user-context controllers
     my $ret = DW::Routing->call( username => $user );

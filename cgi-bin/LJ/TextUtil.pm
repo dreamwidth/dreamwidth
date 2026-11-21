@@ -15,6 +15,7 @@ package LJ;
 use strict;
 
 use LJ::ConvUTF8;
+use Hash::MultiValue;
 use HTML::TokeParser;
 use HTML::Entities;
 use Carp qw(cluck);
@@ -59,34 +60,20 @@ sub get_urls {
     return ( $_[0] =~ m!https?://[^\s\"\'\<\>]+!g );
 }
 
-# similar to decode_url_string below, but a nicer calling convention.  returns
-# a hash of items parsed from the string passed in as the only argument.
-
-# FIXME: This method using \0 is being used in legacy locations
-#  however should be factored out ( to Hash::MultiValue )
-#  as soon as the need for the legacy use is removed.
 sub parse_args {
-    my $args = $_[0];
-    return unless defined $args;
+    my ( $args, %opts ) = @_;
 
-    my %GET;
-    foreach my $pair ( split /&/, $args ) {
-        my ( $name, $value ) = split /=/, $pair;
+    my @params;
+    foreach my $pair ( split /&/, $args // '' ) {
+        next unless length $pair;
 
-        if ( defined $value ) {
-            $value =~ tr/+/ /;
-            $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-        }
-        else {
-            $value = '';
-        }
-
-        $name =~ tr/+/ /;
-        $name =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-
-        $GET{$name} .= $GET{$name} ? "\0$value" : $value;
+        my ( $name, $value ) = split /=/, $pair, 2;
+        $name = LJ::durl($name);
+        $name = lc $name if $opts{lowercase};
+        push @params, $name, LJ::durl($value);
     }
-    return %GET;
+
+    return Hash::MultiValue->new(@params);
 }
 
 # <LJFUNC>
