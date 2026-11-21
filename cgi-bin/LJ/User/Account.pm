@@ -19,6 +19,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
+use IO::Socket::SSL qw(SSL_VERIFY_PEER);
 use LJ::DB;
 use LJ::Identity;
 
@@ -1033,18 +1034,6 @@ sub load_existing_identity_user {
             undef, $type, $ident );
     }
 
-    if (  !$uid
-        && $type eq 'O'
-        && $ident =~ m!\Ahttp://([a-z0-9][a-z0-9-]*[a-z0-9])\.insanejournal\.com/\z! )
-    {
-        my $username = $1;
-        if ( $username =~ tr/-/_/ ) {
-            $uid = $dbh->selectrow_array(
-                "SELECT userid FROM identitymap WHERE " . "idtype=? AND identity=?",
-                undef, $type, "http://$username.insanejournal.com/" );
-        }
-    }
-
     return $uid ? LJ::load_userid($uid) : undef;
 }
 
@@ -1053,6 +1042,27 @@ sub load_identity_user {
     my ( $type, $ident, $vident ) = @_;
 
     my $u = load_existing_identity_user( $type, $ident );
+    if (  !$u
+        && $type eq 'O'
+        && $vident
+        && $ident eq $vident->url
+        && $ident =~ m!\Ahttps://([a-z0-9][a-z0-9-]{0,61}[a-z0-9])\.insanejournal\.com/\z! )
+    {
+        my $username = $1;
+        if ( $username =~ tr/-/_/ ) {
+            my $legacy_host = "$username.insanejournal.com";
+            if ( my $legacy = load_existing_identity_user( 'O', "http://$legacy_host/" ) ) {
+                my $ua = LJ::get_useragent( role => 'OpenID', timeout => 5 );
+                $ua->ssl_opts( verify_hostname => 1, SSL_verify_mode => SSL_VERIFY_PEER );
+                $ua->max_redirect(0);
+                my $response = $ua->head("https://$legacy_host/");
+                return undef
+                    unless $response->code =~ /\A30[1278]\z/
+                    && ( $response->header('Location') // '' ) eq $ident;
+                $u = $legacy;
+            }
+        }
+    }
 
     # If the user is marked as expunged, move identity mapping aside
     # and continue to create new account.

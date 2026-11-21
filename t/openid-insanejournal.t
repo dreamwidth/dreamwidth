@@ -15,6 +15,10 @@
 use strict;
 use warnings;
 
+use HTTP::Response;
+use LWP::UserAgent;
+use Net::OpenID::ClaimedIdentity;
+use Net::OpenID::VerifiedIdentity;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -26,9 +30,50 @@ my $verified_url = "https://dw-openid-$suffix.insanejournal.com/";
 my $legacy       = LJ::User::load_identity_user( 'O', $legacy_url );
 BAIL_OUT('Could not create the legacy OpenID fixture') unless $legacy;
 
-my $claimed = LJ::User::load_identity_user( 'O', $verified_url );
-is( $claimed && $claimed->id,
-    $legacy->id, 'the verified InsaneJournal URL resolves to the existing legacy account' );
+ok(
+    !LJ::User::load_existing_identity_user( 'O', $verified_url ),
+    'an ordinary URL lookup does not match the legacy account'
+);
+
+{
+    no warnings 'redefine';
+    my $identity = Net::OpenID::VerifiedIdentity->new(
+        claimed_identity => Net::OpenID::ClaimedIdentity->new( identity => $verified_url ) );
+    my $redirect          = HTTP::Response->new(503);
+    my $secure_legacy_url = "https://dw_openid_$suffix.insanejournal.com/";
+    local *LJ::get_useragent = sub {
+        my $agent = LWP::UserAgent->new;
+        $agent->add_handler(
+            request_send => sub {
+                my ($request) = @_;
+                return $redirect
+                    if $request->method eq 'HEAD' && $request->uri->as_string eq $secure_legacy_url;
+                return HTTP::Response->new(404);
+            }
+        );
+        return $agent;
+    };
+
+    ok(
+        !LJ::User::load_identity_user( 'O', $verified_url, $identity ),
+        'the provider must be reachable to confirm the legacy account'
+    );
+
+    $redirect = HTTP::Response->new( 302, undef, [ Location => "${verified_url}profile" ] );
+    ok(
+        !LJ::User::load_identity_user( 'O', $verified_url, $identity ),
+        'a redirect to a different URL does not confirm the legacy account'
+    );
+    ok(
+        !LJ::User::load_existing_identity_user( 'O', $verified_url ),
+        'failed confirmation does not create a separate canonical account'
+    );
+
+    $redirect = HTTP::Response->new( 302, undef, [ Location => $verified_url ] );
+    my $claimed = LJ::User::load_identity_user( 'O', $verified_url, $identity );
+    is( $claimed && $claimed->id,
+        $legacy->id, 'the provider-confirmed URL resolves to the existing legacy account' );
+}
 
 ok(
     !LJ::User::load_existing_identity_user( 'O', "${verified_url}other/" ),
