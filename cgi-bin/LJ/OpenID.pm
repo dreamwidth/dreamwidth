@@ -15,6 +15,7 @@ package LJ::OpenID;
 
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
+use IO::Socket::SSL qw(SSL_VERIFY_PEER);
 use LJ::OpenID::Cache;
 use Net::OpenID::Server;
 use Net::OpenID::Consumer;
@@ -42,15 +43,40 @@ sub server {
     );
 }
 
+sub useragent {
+    my (%opts) = @_;
+
+    # always use a paranoid useragent with TLS verification enabled
+    my $ua = LJ::get_useragent(
+        role     => "OpenID",
+        timeout  => $opts{timeout} // 10,
+        max_size => $opts{max_size},
+    );
+    return unless $ua;
+
+    $ua->ssl_opts(
+        verify_hostname => 1,
+        SSL_verify_mode => SSL_VERIFY_PEER,
+    );
+
+    # identify the site rather than sending LWP's default libwww-perl agent,
+    # which Cloudflare's Browser Integrity Check rejects with 403 (error 1010)
+    my $agent =
+        $LJ::SITENAME
+        ? ( $LJ::ADMIN_EMAIL ? "$LJ::SITENAME ($LJ::ADMIN_EMAIL)" : $LJ::SITENAME )
+        : 'Dreamwidth OpenID';
+    $ua->agent($agent);
+
+    return $ua;
+}
+
 # Returns a Consumer object
 # When planning to verify identity, needs GET
 # arguments passed in
 sub consumer {
     my $get_args = shift || {};
 
-    # always use a paranoid useragent
-    my $ua = LJ::get_useragent(
-        role     => "OpenID",
+    my $ua = useragent(
         timeout  => 10,
         max_size => 1024 * 300,
     );
