@@ -18,7 +18,8 @@ use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
 use DW::Auth::TOTP;
 
-use constant VERSION => 1;
+use constant VERSION       => 1;
+use constant OPENID_COOKIE => '__Secure-ljopenid';
 
 # how long a trust cookie vouches for a browser after it was last signed:
 # the "long" session length, so the bypass never outlives the session that
@@ -294,6 +295,10 @@ sub update_master_cookie {
         http_only  => 1,
         @expires,
     );
+
+    if ( $LJ::PROTOCOL eq 'https' ) {
+        _set_openid_cookie( $sess->domsess_cookie_string(OPENID_COOKIE), @expires );
+    }
 
     $sess->owner->preload_props('schemepref');
 
@@ -770,6 +775,30 @@ sub clear_master_cookie {
         path       => '/',
         delete     => 1
     );
+
+    _set_openid_cookie( '', delete => 1 ) if $LJ::PROTOCOL eq 'https';
+}
+
+sub _set_openid_cookie {
+    my ( $value, @opts ) = @_;
+    return set_cookie(
+        OPENID_COOKIE() => $value,
+        domain          => $LJ::DOMAIN_WEB || $LJ::DOMAIN,
+        path            => '/openid/server',
+        http_only       => 1,
+        same_site       => 'None',
+        @opts,
+    );
+}
+
+sub session_from_openid_cookie {
+    my ($class) = @_;
+    return undef unless $LJ::PROTOCOL eq 'https';
+
+    my $request = DW::Request->get or return undef;
+    my $value = $request->cookie(OPENID_COOKIE) or return undef;
+    return valid_domain_cookie( OPENID_COOKIE, $value, undef,
+        { ignore_li_cook => 1, ignore_age => 1 } );
 }
 
 # CLASS method for getting the length of a given session type in seconds
@@ -931,6 +960,7 @@ sub set_cookie {
     my $path      = delete $opts{path};
     my $expires   = delete $opts{expires};
     my $delete    = delete $opts{delete};
+    my $same_site = delete $opts{same_site};
     croak( "Invalid cookie options: " . join( ", ", keys %opts ) ) if %opts;
 
     # expires can be absolute or relative.  this is gross or clever, your pick.
@@ -939,11 +969,6 @@ sub set_cookie {
     # set expires to 5 seconds after 1970.  definitely in the past.
     # so cookie will be deleted.
     $expires = 5 if $delete;
-
-    my $same_site;
-    if ( $LJ::PROTOCOL eq 'https' && ( $key eq 'ljmastersession' || $key eq 'ljloggedin' ) ) {
-        $same_site = 'None';
-    }
 
     $r->add_cookie(
         name     => $key,
