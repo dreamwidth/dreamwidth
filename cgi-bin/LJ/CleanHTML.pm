@@ -1559,8 +1559,11 @@ sub ExpandLJURL {
     return "$LJ::SITEROOT/$uri";
 }
 
+# Subjects may contain strikeout (s, del). clean() closes any allowed tag left
+# open and drops stray closing tags, so misclosed markup cannot spill out of the
+# permalink anchor that archive views (e.g. month view) wrap around a subject.
 my $subject_eat    = [qw[ head title style layer iframe applet object xml param base ]];
-my $subject_allow  = [qw[a b i u em strong cite]];
+my $subject_allow  = [qw[a b i u em strong cite s del]];
 my $subject_remove = [qw[bgsound embed object caption link font noscript]];
 
 sub clean_subject {
