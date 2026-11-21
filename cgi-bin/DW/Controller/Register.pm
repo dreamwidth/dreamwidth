@@ -42,7 +42,7 @@ sub confirm_handler {
 }
 
 sub main_handler {
-    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
