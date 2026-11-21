@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 138;
+use Test::More tests => 157;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -432,6 +432,64 @@ BODY
         $entry->prop('editor'),
         DW::Formats::validate('html_casual_latest'),
         'A break tag separates settings'
+    );
+
+    $mime = build_message(
+        'HTML setting with attributed inline formatting before privacy setting',
+        'text/html',
+        "post-location: <span style=\"font-weight:bold\">Somewhere</span>\n"
+            . "post-security: private\n\nMessage"
+    );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted HTML with attributed inline formatting on a setting value' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->prop('current_location'),
+        'Somewhere', 'Attributed inline formatting is stripped from the value' );
+    is( $entry->security, 'private', 'Privacy setting after attributed inline tag still applies' );
+    unlike(
+        $entry->event_raw,
+        qr/post-(?:location|security):/i,
+        'Settings with attributed inline formatting are removed'
+    );
+
+    for my $case (
+        [
+            'break tag', 'post-format: html<br><!-- generated -->post-security: private<br>Message',
+        ],
+        [ 'explicit body', '<body><!-- generated -->post-security: private<br>Message</body>', ],
+        [
+            'bare div wrapper',
+            '<div><!-- generated -->post-security: private</div><div>Message</div>',
+        ],
+        )
+    {
+        my ( $label, $message ) = @$case;
+        my $mime = build_message( "Compact HTML comment after $label", 'text/html', $message );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted compact HTML with comment after $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private',
+            "Privacy setting after compact HTML comment ($label) applies" );
+        unlike( $entry->event_raw, qr/post-security:/i,
+            "Privacy setting after compact HTML comment ($label) is removed" );
+        like( $entry->event_raw, qr/Message/,
+            "Message body after compact HTML comment ($label) is retained" );
+    }
+
+    $mime = build_message(
+        'Inline closed comment before trailing text on setting line',
+        'text/html',
+        "post-security: private\npost-format: html <!-- note -->post-security: public\n\nMessage"
+    );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Posted HTML with inline closed comment on a setting line' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'private',
+        'Trailing setting after same-line inline comment is not applied' );
+    like(
+        $entry->event_raw,
+        qr/post-security: public/,
+        'Text after same-line inline comment is retained'
     );
 }
 
