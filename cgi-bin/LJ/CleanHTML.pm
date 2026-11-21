@@ -206,6 +206,9 @@ sub clean {
     # Create the HTML parser we'll use to navigate the text from here on out:
     my $p = HTML::TokeParser->new($data);
 
+    # Entity references must decode to UTF-8 bytes, like the rest of the entry.
+    $p->utf8_mode(1);
+
     # Set up state variables:
     my @canonical_urls;    # extracted links
 
