@@ -1967,8 +1967,10 @@ sub _store_shared_official_edit {
 
 sub editevent {
     my ( $req, $err, $flags ) = @_;
-    my $res     = {};
-    my $deleted = 0;
+    my $res          = {};
+    my $deleted      = 0;
+    my $keep_event   = $flags->{partial_edit} && !defined $req->{event};
+    my $keep_subject = $flags->{partial_edit} && !defined $req->{subject};
     un_utf8_request($req);
 
     my $add_message = sub {
@@ -2089,7 +2091,7 @@ sub editevent {
     my $entry = LJ::Entry->new( $uowner, jitemid => $itemid );
 
     # simple logic for deleting an entry
-    if ( !$flags->{'use_old_content'} && $req->{'event'} !~ /\S/ ) {
+    if ( !$flags->{'use_old_content'} && !$keep_event && $req->{'event'} !~ /\S/ ) {
         return fail( $err, 304 )
             if ( $other_author || $u->is_readonly ) && !$u->can_manage($uowner);
         $deleted = 1;
@@ -2163,6 +2165,9 @@ sub editevent {
     return undef
         unless common_event_validation( $req, $err, $flags );
 
+    $req->{event}   = $oldevent->{event}   if $keep_event;
+    $req->{subject} = $oldevent->{subject} if $keep_subject;
+
     delete $req->{props}->{admin_post}
         if $req->{props}->{admin_post} && !( $uowner->is_community && $u->can_manage($uowner) );
 
@@ -2201,13 +2206,15 @@ sub editevent {
 
     my $event  = $req->{'event'};
     my $owneru = LJ::load_userid($ownerid);
-    $event = LJ::EmbedModule->transform_rte_post($event);
     my $prepared_embeds;
-    if ($other_author) {
-        $prepared_embeds = LJ::EmbedModule->prepare_module_embed( \$event );
-    }
-    else {
-        LJ::EmbedModule->parse_module_embed( $owneru, \$event );
+    unless ($keep_event) {
+        $event = LJ::EmbedModule->transform_rte_post($event);
+        if ($other_author) {
+            $prepared_embeds = LJ::EmbedModule->prepare_module_embed( \$event );
+        }
+        else {
+            LJ::EmbedModule->parse_module_embed( $owneru, \$event );
+        }
     }
 
     my $eventtime =
@@ -2353,7 +2360,6 @@ sub editevent {
         my $error = _store_shared_official_edit( $dbcm, $entry, $u,
             $curprops{$itemid}->{revnum} + 0, $store );
         return fail( $err, $error ) if $error;
-        $_->() for @after_commit;
         LJ::MemCache::delete( [ $ownerid, "logprop:$ownerid:$itemid" ] );
         LJ::MemCache::delete( [ $ownerid, "log2lt:$ownerid" ] ) if defined $log2_cache_row;
     }
@@ -2477,6 +2483,12 @@ sub editevent {
     if ( defined $oldevent->{'anum'} ) {
         $res->{'anum'} = $oldevent->{'anum'};
         $res->{'url'}  = $entry->url;
+    }
+
+    for my $publish_embed (@after_commit) {
+        local $@;
+        eval { $publish_embed->(); 1 }
+            or $log->warn("Failed to publish embed for $ownerid:$itemid: $@");
     }
 
     DW::Stats::increment( 'dw.action.entry.edit', 1,

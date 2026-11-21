@@ -154,31 +154,19 @@ sub _backend_to_form {
 sub _form_to_backend {
     my ( $is_api, $req, $post, %opts ) = @_;
 
-    my $errors = $opts{errors};
+    my $errors       = $opts{errors};
+    my $partial_edit = $is_api && $opts{partial_edit};
 
     # handle event subject and body, and normalize prop some prop names in the API
     if ($is_api) {
         $req->{subject} = $post->{subject} if defined $post->{subject};
-        $req->{event} =
-            defined $post->{text} && length $post->{text} ? $post->{text} : $req->{event} // "";
+        $req->{event}   = $post->{text}    if defined $post->{text} && length $post->{text};
+        $req->{event} //= '' unless $partial_edit;
 
         $post->{taglist}              = delete $post->{tags} if defined $post->{tags};
         $post->{prop_picture_keyword} = delete $post->{icon} if defined $post->{icon};
         $post->{current_mood_other} = delete $post->{current_mood} if defined $post->{current_mood};
 
-        # When editing, $req holds the entry's current values from _backend_to_form.
-        # Fields the client left out keep those values, because the code below
-        # treats a missing field as "turn this off". New entries start with an
-        # empty $req, so they still get the defaults.
-        foreach my $field (
-            qw( taglist entrytime_outoforder age_restriction age_restriction_reason
-            entry_slug opt_screening comment_settings custom_bit )
-            )
-        {
-            $post->{$field} = $req->{$field}
-                if !defined $post->{$field} && defined $req->{$field};
-        }
-        $post->{admin_post} //= $req->{flags_adminpost};
     }
     else {
         $req->{subject} = $post->{subject};
@@ -225,7 +213,8 @@ sub _form_to_backend {
     $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
     $props->{picture_keyword} = $post->{prop_picture_keyword}
         if defined $post->{prop_picture_keyword};
-    $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
+    $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0
+        if !$partial_edit || defined $post->{entrytime_outoforder};
 
     unless ($is_api) {
 
@@ -236,11 +225,12 @@ sub _form_to_backend {
 
     # old implementation of comments
     # FIXME: remove this before taking the page out of beta
-    $props->{opt_screening} = $post->{opt_screening};
-    $props->{opt_nocomments} =
-        $post->{comment_settings} && $post->{comment_settings} eq "nocomments" ? 1 : 0;
-    $props->{opt_noemail} =
-        $post->{comment_settings} && $post->{comment_settings} eq "noemail" ? 1 : 0;
+    $props->{opt_screening} = $post->{opt_screening}
+        if !$partial_edit || defined $post->{opt_screening};
+    if ( !$partial_edit || defined $post->{comment_settings} ) {
+        $props->{opt_nocomments} = ( $post->{comment_settings} // '' ) eq 'nocomments' ? 1 : 0;
+        $props->{opt_noemail}    = ( $post->{comment_settings} // '' ) eq 'noemail'    ? 1 : 0;
+    }
 
     # see if an "other" mood they typed in has an equivalent moodid
     if ( $props->{current_mood} ) {
@@ -256,7 +246,8 @@ sub _form_to_backend {
     }
 
     # nuke taglists that are just blank
-    $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
+    $props->{taglist} = ''
+        if ( !$partial_edit || defined $props->{taglist} ) && $props->{taglist} !~ /\S/;
 
     if ( LJ::is_enabled('adult_content') ) {
         my $restriction_key = $post->{age_restriction} || '';
@@ -266,28 +257,30 @@ sub _form_to_backend {
             'discretion' => 'concepts',
             'restricted' => 'explicit',
         }->{$restriction_key}
-            || "";
+            || ''
+            if !$partial_edit
+            || defined $post->{age_restriction};
 
-        $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
+        $props->{adult_content_reason} = $post->{age_restriction_reason} || ''
+            if !$partial_edit || defined $post->{age_restriction_reason};
     }
 
     # Set entry slug if it's been specified
-    $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' );
+    $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' )
+        if !$partial_edit || defined $post->{entry_slug};
 
     # Check if this is a community.
     $props->{admin_post} =
         $is_api
         ? ( $post->{admin_post} // $props->{admin_post} // 0 )
-        : ( $post->{flags_adminpost} || 0 );
+        : ( $post->{flags_adminpost} || 0 )
+        if !$partial_edit || defined $post->{admin_post};
 
     # entry security
-    my $sec   = "public";
-    my $amask = 0;
-    {
-        my $security =
-            $is_api
-            ? ( $post->{security} || $req->{security} || "" )
-            : ( $post->{security} || "" );
+    if ( !$partial_edit || defined $post->{security} ) {
+        my $sec      = 'public';
+        my $amask    = 0;
+        my $security = $post->{security} || '';
         if ( $security eq "private" ) {
             $sec = "private";
         }
@@ -303,9 +296,9 @@ sub _form_to_backend {
                 $amask |= ( 1 << $bit );
             }
         }
+        $req->{security}  = $sec;
+        $req->{allowmask} = $amask;
     }
-    $req->{security}  = $sec;
-    $req->{allowmask} = $amask;
 
     # date/time
     my ( $year, $month, $day ) = split( /\D/, $post->{entrytime_date} || "" );
@@ -364,7 +357,7 @@ sub _save_new_entry {
 }
 
 sub _save_editted_entry {
-    my ( $ditemid, $form_req, $auth ) = @_;
+    my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
     my $req = {
         ver        => $LJ::PROTOCOL_VER,
@@ -381,8 +374,9 @@ sub _save_editted_entry {
         $req,
         \$err,
         {
-            noauth => 1,
-            u      => $auth->{poster},
+            noauth       => 1,
+            u            => $auth->{poster},
+            partial_edit => $opts{partial_edit},
         }
     );
 

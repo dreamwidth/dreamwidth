@@ -284,9 +284,8 @@ sub edit_entry {
         $post->{trust_datetime} = 1;
     }
 
-    my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
-    DW::Entry::_form_to_backend( 1, $form_req, $post );
-    delete @{$form_req}{qw(security allowmask)} unless defined $post->{security};
+    my $form_req = {};
+    DW::Entry::_form_to_backend( 1, $form_req, $post, partial_edit => 1 );
 
     # check for spam domains
     LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
@@ -302,7 +301,7 @@ sub edit_entry {
 sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
-    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
+    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth, partial_edit => 1 );
     return { success => 0, errors => [ $res->{errors} ] } if $res->{errors};
 
     my $remote  = $auth->{remote};
