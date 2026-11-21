@@ -17,7 +17,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="row">
     <div class="small-12 medium-6 columns">
-        <div class="panel">
+        <div class="panel shop-category-panel">
             <h2>[% '.title.paidacc' | ml %]</h2>
             <ul>
                 [% IF remote AND remote.is_personal %]
@@ -35,7 +35,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
     </div>
     <div class="small-12 medium-6 columns">
-        <div class="panel">
+        <div class="panel shop-category-panel">
             <h2>[% '.title.points' | ml(site=site.nameshort) %]</h2>
             [% IF NOT shop_config.points %]
                 <p>[% '.points.unavailable' | ml %]</p>
@@ -53,7 +53,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div class="row">
     <div class="small-12 medium-6 columns">
-        <div class="panel">
+        <div class="panel shop-category-panel">
             <h2>[% '.title.renames' | ml %]</h2>
             [% IF NOT shop_config.rename %]
                 <p>[% '.renames.unavailable' | ml %]</p>
@@ -68,7 +68,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
     </div>
     <div class="small-12 medium-6 columns">
-        <div class="panel">
+        <div class="panel shop-category-panel">
             <h2>[% '.title.icons' | ml %]</h2>
             [% IF shop_config.icons %]
                 <ul>
