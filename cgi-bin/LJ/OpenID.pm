@@ -72,6 +72,20 @@ sub consumer {
     return $csr;
 }
 
+sub discover_identity {
+    my ( $consumer, $url ) = @_;
+
+    if ( defined $url
+        && $url =~ m{\A(?:https?://)?([a-z0-9]+(?:[-_]+[a-z0-9]+)+)\.livejournal\.com/?\z}i )
+    {
+        my $journal = lc $1;
+        $journal =~ tr/_/-/;
+        $url = "https://$journal.livejournal.com/";
+    }
+
+    return $consumer->claimed_identity($url);
+}
+
 sub consumer_secret {
     my $time = shift;
     return server_secret( $time - $time % 3600 );
