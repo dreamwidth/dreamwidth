@@ -388,15 +388,16 @@ package LJ;
 sub statushistory_add {
     my ( $userid, $actid, $shtype, $notes ) = @_;
     my $dbh = LJ::get_db_writer();
+    return 0 unless $dbh;
 
     $userid = LJ::want_userid($userid) + 0;
     $actid  = LJ::want_userid($actid) + 0;
 
-    my $qshtype = $dbh->quote($shtype);
-    my $qnotes  = $dbh->quote($notes);
-
-    $dbh->do( "INSERT INTO statushistory (userid, adminid, shtype, notes) "
-            . "VALUES ($userid, $actid, $qshtype, $qnotes)" );
+    $dbh->do(
+        "INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) "
+            . "VALUES (?, ?, ?, NOW(), ?)",
+        undef, $userid, $actid, $shtype, $notes
+    );
     return $dbh->err ? 0 : 1;
 }
 
