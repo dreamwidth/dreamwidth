@@ -262,29 +262,51 @@ sub _extract_post_headers {
 sub _html_body_offset {
     my ($body) = @_;
     my $parser = HTML::TokeParser->new( \$body );
-    my ( $offset, $seen_head, $in_head, $metadata ) = ( 0, 0, 0, '' );
+    my ( $offset, $seen_head, $closed_head ) = ( 0, 0, 0 );
+    my @head_content;
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $tag ) = @$token;
         if ( $type eq 'S' ) {
-            return $offset + length $token->[4] if !$metadata && $tag eq 'body';
-            if ($in_head) {
-                last if $metadata;
-                $metadata = $tag if $tag =~ /\A(?:title|style|script)\z/;
-                last unless $metadata || $tag =~ /\A(?:base|link|meta)\z/;
+            if (@head_content) {
+                if ( $head_content[-1] eq 'template' ) {
+                    last if $tag =~ /\A(?:html|head|body|frameset)\z/;
+                    push @head_content, $tag if $tag eq 'template';
+                }
+                else {
+                    last
+                        unless $head_content[-1] eq 'noscript' && $tag =~ /\A(?:link|meta|style)\z/;
+                    push @head_content, $tag if $tag eq 'style';
+                }
             }
-            else {
-                $seen_head = $in_head = 1 if $tag eq 'head';
-                last unless $in_head || $tag eq 'html';
+            elsif ( $tag eq 'body' ) {
+                return $offset + length $token->[4];
+            }
+            elsif ( $tag ne 'html' || $seen_head ) {
+                last if $closed_head;
+                if ( $tag =~ /\A(?:title|style|script|noscript|template)\z/ ) {
+                    push @head_content, $tag;
+                }
+                elsif ( $tag !~ /\A(?:base|link|meta)\z/ && ( $tag ne 'head' || $seen_head ) ) {
+                    last;
+                }
+                $seen_head = 1;
             }
             $offset += length $token->[4];
         }
         elsif ( $type eq 'E' ) {
-            if ( $metadata && $tag eq $metadata ) {
-                $metadata = '';
+            if (@head_content) {
+                if ( $tag eq $head_content[-1] ) {
+                    pop @head_content;
+                }
+                elsif ($head_content[-1] ne 'template'
+                    || $tag =~ /\A(?:html|head|body|frameset)\z/ )
+                {
+                    last;
+                }
             }
-            elsif ( $in_head && !$metadata && $tag eq 'head' ) {
-                $in_head = 0;
+            elsif ( !$closed_head && $tag eq 'head' ) {
+                $seen_head = $closed_head = 1;
             }
             else {
                 last;
@@ -293,7 +315,8 @@ sub _html_body_offset {
         }
         elsif ($type eq 'C'
             || ( $type eq 'D' && $tag =~ /\A<!doctype\s+html\b/i )
-            || ( $type eq 'T' && ( $metadata || $tag !~ /\S/ ) ) )
+            || ( $type eq 'T' && $tag !~ /[^ \t\r\n\f]/ )
+            || ( $type eq 'T' && @head_content && $head_content[-1] ne 'noscript' ) )
         {
             $offset += length $tag;
         }
@@ -302,7 +325,7 @@ sub _html_body_offset {
         }
     }
 
-    return $seen_head && !$metadata ? $offset : 0;
+    return $seen_head && !@head_content ? $offset : 0;
 }
 
 # given a content-type header, return a hash of content-type attributes
