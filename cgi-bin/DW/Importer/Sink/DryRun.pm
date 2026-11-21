@@ -194,7 +194,7 @@ sub merge_tags {
 }
 
 sub merge_trust_groups {
-    my ( $self, $groups ) = @_;
+    my ( $self, $groups, %opts ) = @_;
 
     my $current = $self->u->trust_groups || {};
     my %by_name = map { $current->{$_}->{groupname} => $_ } keys %$current;
@@ -241,12 +241,16 @@ sub merge_trust_groups {
             record  => { %$group, local_id => $id },
         );
     }
+    if ( ref $opts{revision} eq 'SCALAR' ) {
+        ${ $opts{revision} } = $self->u->trust_group_revision // 0;
+    }
     return \%map;
 }
 
 sub save_groupmap {
-    my ( $self, $map ) = @_;
-    $self->{world}->{groupmap} = {%$map};
+    my ( $self, $map, $revision ) = @_;
+    $self->{world}->{groupmap}          = {%$map};
+    $self->{world}->{groupmap_revision} = $revision;
     $self->_record(
         type    => 'groupmap',
         target  => 'groupmap',
@@ -254,10 +258,11 @@ sub save_groupmap {
             . join( ', ', map { "$_=>$map->{$_}" } sort { $a <=> $b } keys %$map ),
         record => {%$map},
     );
+    return 1;
 }
 
 sub merge_trust {
-    my ( $self, $friends ) = @_;
+    my ( $self, $friends, %opts ) = @_;
     foreach my $friend (@$friends) {
         $self->_record(
             type    => 'trust',
@@ -266,6 +271,7 @@ sub merge_trust {
             record  => {%$friend},
         );
     }
+    return { rejected => 0 };
 }
 
 sub merge_interests {
@@ -369,6 +375,13 @@ sub xpost_map { my $self = shift; return $self->{live}->xpost_map(@_) }
 sub groupmap {
     my ($self) = @_;
     return $self->{world}->{groupmap} || $self->{live}->groupmap;
+}
+
+sub groupmap_with_revision {
+    my ($self) = @_;
+    return ( $self->{world}->{groupmap}, $self->{world}->{groupmap_revision} )
+        if defined $self->{world}->{groupmap};
+    return $self->{live}->groupmap_with_revision;
 }
 
 sub usermap_lookup {

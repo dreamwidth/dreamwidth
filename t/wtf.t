@@ -266,6 +266,7 @@ $hr = $u1->trust_group_members( id => 1 );
 ok( scalar( keys %$hr ) == 1, 'validate one member in group 1' );
 
 ################################################################################
+$u1->edit_trust_group( id => 3, groupname => 'bar group 3', _force_create => 1 );
 $u1->edit_trustmask( $u2, add => [ 1, 3 ] );
 ok( $u1->trustmask($u2) == 11, 'add more groups' );
 
@@ -280,9 +281,6 @@ ok( $u1->trust_group_contains( $u2, 4 ) == 1, 'group 4 contains u2' );
 ok( $u1->trust_group_contains( $u2, 5 ) == 0, 'group 5 does not contain u2' );
 
 ################################################################################
-
-# have to create a group with a known id for these tests
-$u1->edit_trust_group( id => 3, groupname => 'bar group 3', _force_create => 1 );
 
 ok( $u1->trust_group_contains( $u2, 3 ) == 1, 'group 3 contains u2' );
 ok( $u1->trust_group_contains( $u2, 4 ) == 1, 'group 4 contains u2' );

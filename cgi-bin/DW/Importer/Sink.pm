@@ -53,13 +53,15 @@ local C<jitemid>, C<parentid>, C<posterid> and C<entry_source>.
 
 =item C<< merge_trust_groups( \@groups ) >>
 
-Returns a map from the source's group ids to local ones.
+Returns a map from the source's group ids to local ones, or undef if saving failed.
 
 =item C<< save_groupmap( \%map ) >>
 
-Remembers the group map for the import, for entries and friends to use.
+Remembers the group map for the import, for entries and friends to use. Returns true on success.
 
 =item C<< merge_trust( \@friends ) >>
+
+Returns a hashref with the count of rejected grants, or undef on a retryable failure.
 
 =item C<< merge_interests( \@interests ) >>
 
@@ -99,6 +101,11 @@ Remote entry id to local id of the entries we crossposted to that account.
 
 =item C<< groupmap >>
 
+=item C<< groupmap_with_revision >>
+
+Returns C<( \%map, $revision )>, where C<$revision> is the trust group revision captured when the
+map was built (or undef if unversioned).
+
 =item C<< usermap_lookup( $hostname, $username ) >>
 
 Returns C<( $userid, $feed_userid )>.
@@ -134,7 +141,7 @@ foreach my $method (
     qw( post_entry update_entry_icon insert_comment update_comment merge_tags merge_trust_groups
     save_groupmap merge_trust merge_interests merge_bio import_userpics identity_user
     save_usermap dispatch_search_copy entry_map comment_map xpost_map groupmap
-    usermap_lookup precache )
+    groupmap_with_revision usermap_lookup precache )
     )
 {
     no strict 'refs';

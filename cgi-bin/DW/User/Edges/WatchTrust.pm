@@ -55,8 +55,11 @@ DW::User::Edges::define_edge(
         type    => 'hashref',
         db_edge => 'T',
         options => {
-            mask     => { required => 0, type => 'int' },
-            nonotify => { required => 0, type => 'bool', default => 0 },
+            mask            => { required => 0, type => 'int' },
+            nonotify        => { required => 0, type => 'bool', default => 0 },
+            policy_rejected => { required => 0, type => 'bool' },
+            group_revision  => { required => 0, type => 'int' },
+            stale_groups    => { required => 0, type => 'bool' },
         },
         add_sub => \&_add_wt_edge,
         del_sub => \&_del_wt_edge,
@@ -77,17 +80,39 @@ sub _add_wt_edge {
     my $do_trust = $trust_edge ? 1 : 0;
     $trust_edge ||= {};
 
-    # throw errors if we're not allowed
-    return 0 if $do_watch && !$from_u->can_watch($to_u);
-    return 0 if $do_trust && !$from_u->can_trust($to_u);
+    my $policy_rejected =
+        exists $trust_edge->{policy_rejected}
+        ? \$trust_edge->{policy_rejected}
+        : undef;
+    $$policy_rejected = 0 if $policy_rejected;
+    my $stale_groups =
+        exists $trust_edge->{stale_groups}
+        ? \$trust_edge->{stale_groups}
+        : undef;
+    $$stale_groups = 0 if $stale_groups;
+
+    my $lock = DW::User::_lock_trust_group_write($from_u) or return 0;
+    my $dbh = LJ::get_db_writer() or return 0;
+    my $current = LJ::load_userid( $from_u->id, 'force' ) or return 0;
+    return 0 if $do_watch && !$current->can_watch($to_u);
+    return 0 if $do_trust && !$current->can_trust( $to_u, policy_rejected => $policy_rejected );
+    if ( $do_trust && exists $trust_edge->{group_revision} ) {
+        my $current_rev = $current->trust_group_revision;
+        return 0 unless defined $current_rev;
+        if ( !defined $trust_edge->{group_revision}
+            || $current_rev != $trust_edge->{group_revision} )
+        {
+            $$stale_groups = 1 if $stale_groups;
+            return 0;
+        }
+    }
 
     # get current record, so we know what to modify
-    my $dbh = LJ::get_db_writer();
     my $row = $dbh->selectrow_hashref(
         'SELECT fgcolor, bgcolor, groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
         undef, $from_u->id, $to_u->id
     );
-    confess $dbh->errstr if $dbh->err;
+    return 0 if $dbh->err;
     $row ||= { groupmask => 0 };
 
     # store some existing trust/watch values for use later
@@ -138,7 +163,7 @@ sub _add_wt_edge {
 'REPLACE INTO wt_edges (from_userid, to_userid, fgcolor, bgcolor, groupmask) VALUES (?, ?, ?, ?, ?)',
         undef, $from_u->id, $to_u->id, $fgcol, $bgcol, $mask
     );
-    confess $dbh->errstr if $dbh->err;
+    return 0 if $dbh->err;
 
     # delete friend-of memcache keys for anyone who was added
     my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
@@ -197,9 +222,12 @@ sub _del_wt_edge {
     my $do_watch = $de_watch ? 1 : 0;
     my $do_trust = $de_trust ? 1 : 0;
 
-    # get what we know
-    my $does_watch = $from_u->watches($to_u);
-    my $does_trust = $from_u->trusts($to_u);
+    my $lock = DW::User::_lock_trust_group_write($from_u) or return 0;
+    my $existing_mask =
+        DW::User::Edges::WatchTrust::Loader::_trustmask_from_primary( $from_u->id, $to_u->id );
+    return 0 unless defined $existing_mask;
+    my $does_watch = $existing_mask & ( 1 << 61 );
+    my $does_trust = $existing_mask & 1;
     return 1 unless $does_watch || $does_trust;
 
     # make sure we have a valid edge to remove
@@ -225,7 +253,7 @@ sub _del_wt_edge {
     }
     else {
 
-        my $mask = $de_trust ? 1 << 61 : $from_u->trustmask($to_u);
+        my $mask = $de_trust ? 1 << 61 : $existing_mask & ~( 7 << 61 );
 
         $dbh->do( 'UPDATE wt_edges SET groupmask = ? WHERE from_userid = ? AND to_userid = ?',
             undef, $mask, $from_u->id, $to_u->id );
@@ -340,14 +368,16 @@ sub trustmask {
     # if we still have an argument, we need to set someone's mask
     if ( scalar(@_) == 3 ) {
 
-        # make sure we trust them... we have to do this here because otherwise we could
-        # implicitly create a trust relationship when one doesn't exist
-        confess 'attempted to set trustmask on non-trusted edge'
-            unless $from_u->trusts($to_u);
-
-        # we update the mask by re-adding the trust edge; this is the simplest way
-        # that ensures we do everything "properly"
-        $from_u->add_edge( $to_u, trust => { mask => $_[2], nonotify => 1 } );
+        my $mask = $_[2];
+        return $from_u->with_trust_groups_lock(
+            sub {
+                my $current = $from_u->trustmask_from_primary($to_u);
+                return 0 unless defined $current && $current & 1;
+                return 0
+                    unless $from_u->add_edge( $to_u, trust => { mask => $mask, nonotify => 1 } );
+                return ( $mask & ~( 7 << 61 ) ) | 1;
+            }
+        ) || 0;
     }
 
     # note: we mask out the top three bits (i.e., the reserved bits and the watch bit)
@@ -355,6 +385,14 @@ sub trustmask {
     return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_u->id, $to_u->id ) & ~( 7 << 61 );
 }
 *LJ::User::trustmask = \&trustmask;
+
+sub trustmask_from_primary {
+    my ( $from_u, $to_u ) = @_;
+    my $mask =
+        DW::User::Edges::WatchTrust::Loader::_trustmask_from_primary( $from_u->id, $to_u->id );
+    return defined $mask ? $mask & ~( 7 << 61 ) : undef;
+}
+*LJ::User::trustmask_from_primary = \&trustmask_from_primary;
 
 # name: LJ::User::get_birthdays
 # des: get the upcoming birthdays for friends of a user. shows birthdays 3 months away by default
@@ -715,6 +753,7 @@ sub watch_list {
 # gets a hashref of trust group requested.  arguments is a hash of options
 #   id => NNN,      id of group to get
 #   name => "ZZZ",  name of group to get
+#   force_database => 1, bypass cache and read on the writer
 #
 # returns undef if group not found
 #
@@ -727,11 +766,77 @@ sub trust_groups {
     confess 'invalid bit number' if $bit < 0 || $bit > 60;
     my $name = delete( $opts{name} );
     $name = lc $name if defined $name;
+    my $force_database = delete $opts{force_database};
     confess 'invalid arguments' if %opts;
 
-    return DW::User::Edges::WatchTrust::Loader::_trust_groups( $u, $bit, $name );
+    return DW::User::Edges::WatchTrust::Loader::_trust_groups( $u, $bit, $name, $force_database );
 }
 *LJ::User::trust_groups = \&trust_groups;
+
+sub lock_trust_groups {
+    my ( $u, %opts ) = @_;
+    return LJ::locker()->trylock( 'trustgroup:' . $u->id, class => 'trustgroup', %opts );
+}
+*LJ::User::lock_trust_groups = \&lock_trust_groups;
+
+our %trust_group_write_locks;
+
+sub _lock_trust_group_write {
+    my ($u) = @_;
+    return $trust_group_write_locks{ $u->id } || $u->lock_trust_groups( wait => 2 );
+}
+
+sub with_trust_groups_lock {
+    my ( $u, $callback ) = @_;
+    my $lock = _lock_trust_group_write($u) or return undef;
+    local $trust_group_write_locks{ $u->id } = $lock;
+    return $callback->();
+}
+*LJ::User::with_trust_groups_lock = \&with_trust_groups_lock;
+
+sub trust_group_revision {
+    my ($u) = @_;
+    my $db = LJ::get_db_writer() or return undef;
+    my ($revision) =
+        $db->selectrow_array( q{SELECT max FROM usercounter WHERE journalid = ? AND area = 'G'},
+        undef, $u->id );
+    return $db->err ? undef : $revision // 0;
+}
+*LJ::User::trust_group_revision = \&trust_group_revision;
+
+sub _clear_media_group_bit {
+    my ( $u, $bit ) = @_;
+    $u->do(
+        q{UPDATE media SET allowmask = allowmask & ~(1 << ?)
+          WHERE userid = ? AND security = 'usemask' AND allowmask & (1 << ?)},
+        undef, $bit, $u->id, $bit
+    );
+    return !$u->err;
+}
+
+sub _clear_wt_group_bit {
+    my ( $u, $bit ) = @_;
+    my $dbh     = LJ::get_db_writer() or return 0;
+    my $userid  = $u->id;
+    my $members = $dbh->selectcol_arrayref(
+        q{SELECT to_userid FROM wt_edges WHERE from_userid = ? AND groupmask & (1 << ?)},
+        undef, $userid, $bit );
+    return 0 if $dbh->err;
+
+    $dbh->do(
+        q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?)
+          WHERE from_userid = ? AND groupmask & (1 << ?)},
+        undef, $bit, $userid, $bit
+    );
+    return 0 if $dbh->err;
+
+    foreach my $tid (@$members) {
+        LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
+        DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
+    }
+    LJ::memcache_kill( $userid, 'wt_list' );
+    return 1;
+}
 
 # edits a new trust_group, arguments is a hash of options
 #   id => NNN,           (optional) bit/ID of the group to edit (1..60)
@@ -748,7 +853,8 @@ sub create_trust_group {
     my ( $u, %opts ) = @_;
     $u = LJ::want_user($u)
         or confess 'invalid user object';
-    my $grp = $u->trust_groups;
+    my $lock = _lock_trust_group_write($u)             or return 0;
+    my $grp  = $u->trust_groups( force_database => 1 ) or return 0;
 
     # calculate an id to use
     my $id = ( delete( $opts{id} ) // 0 ) + 0;
@@ -769,10 +875,7 @@ sub create_trust_group {
     confess 'name not provided'
         unless $opts{groupname};
 
-    # now perform an edit with our chosen id
-    return $id
-        if $u->edit_trust_group( id => $id, _force_create => 1, %opts );
-    return 0;
+    return _write_trust_group( $u, $id, undef, %opts ) ? $id : 0;
 }
 *LJ::User::create_trust_group = \&create_trust_group;
 
@@ -798,15 +901,24 @@ sub edit_trust_group {
     return 1 unless %opts;
 
     # get current trust groups
-    my $grps = $u->trust_groups;
-    return 0 unless exists $grps->{$id} || $opts{_force_create};
+    my $lock = _lock_trust_group_write($u)             or return 0;
+    my $grps = $u->trust_groups( force_database => 1 ) or return 0;
+    my $group = $grps->{$id};
+    return 0 unless $group || ( $id >= 1 && $opts{_force_create} );
+
+    return _write_trust_group( $u, $id, $group, %opts );
+}
+*LJ::User::edit_trust_group = \&edit_trust_group;
+
+sub _write_trust_group {
+    my ( $u, $id, $group, %opts ) = @_;
+    unless ($group) {
+        return 0 unless _clear_media_group_bit( $u, $id ) && _clear_wt_group_bit( $u, $id );
+        return 0 unless LJ::alloc_user_counter( $u, 'G' );
+    }
 
     # now calculate what to change
-    my %change = (
-        sortorder => $grps->{$id}->{sortorder},
-        groupname => $grps->{$id}->{groupname},
-        is_public => $grps->{$id}->{is_public},
-    );
+    my %change = %{ $group || {} };
     $change{sortorder} = $opts{sortorder}
         if exists $opts{sortorder} && $opts{sortorder} =~ /^\d+$/;
     $change{groupname} = DW::User::Edges::WatchTrust::valid_group_name( $opts{groupname} )
@@ -824,13 +936,12 @@ sub edit_trust_group {
         $change{sortorder} || 50,
         $change{is_public} || 0
     );
-    confess $u->errstr if $u->err;
+    return 0 if $u->err;
 
     # kill memcache and return
     LJ::memcache_kill( $u, 'trust_group' );
     return 1;
 }
-*LJ::User::edit_trust_group = \&edit_trust_group;
 
 # deletes a trust_group, arguments is a hash of options
 #   id => NNN,       delete by id (1..60)
@@ -846,8 +957,8 @@ sub delete_trust_group {
     my ( $u, %opts ) = @_;
     $u = LJ::want_user($u) or confess 'invalid user object';
 
-    # use existing accessor to figure out what group they mean
-    my $grp = $u->trust_groups( id => $opts{id}, name => $opts{name} );
+    my $lock = _lock_trust_group_write($u) or return 0;
+    my $grp  = $u->trust_groups( id => $opts{id}, name => $opts{name}, force_database => 1 );
     return 0 unless $grp;
 
     # set bit to remove
@@ -885,30 +996,15 @@ sub delete_trust_group {
     # notify the tags system so it can do its thing
     LJ::Tags::deleted_trust_group( $u, $bit );
 
-    # used here down
-    my $dbh = LJ::get_db_writer()
-        or return 0;
+    return 0 unless _clear_wt_group_bit( $u, $bit );
 
-    # iterate over everybody in this group and remove the bit
-    my $tglist = $u->trust_group_members( id => $bit, force_database => 1 );
-    foreach my $tid ( keys %{ $tglist || {} } ) {
-        $dbh->do(
-q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
-            undef, $bit, $u->id, $tid
-        );
-
-        # don't forget memcache
-        LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
-        DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
-    }
-
-    # finally remove the trust group, huzzah
+    # Invalidate rendered choices and clear media before freeing the slot under the same lock.
+    return 0 unless LJ::alloc_user_counter( $u, 'G' ) && _clear_media_group_bit( $u, $bit );
     $u->do( q{DELETE FROM trust_groups WHERE userid = ? AND groupnum = ?}, undef, $u->id, $bit );
     return 0 if $u->err;
 
     # invalidate memcache of friends/groups
     LJ::memcache_kill( $u->id, "trust_group" );
-    LJ::memcache_kill( $u->id, "wt_list" );
 
     # sister mary of the holy hand grenade says hi and apologies if any of the
     # above failed.  we think it worked by this point, though.
@@ -942,48 +1038,33 @@ sub edit_trustmask {
     my ( $u, $tu, %opts ) = @_;
     $u  = LJ::want_user($u)  or confess 'invalid user object';
     $tu = LJ::want_user($tu) or confess 'invalid target user object';
-    return 0 unless $u->trusts($tu);
 
     # there's got to be a better way of doing this... but we want our arrays to only
     # contain valid group ids
     my @add = grep { $_ >= 1 && $_ <= 60 }
-        map { $_ + 0 } @{ ref $opts{add} ? $opts{add} : [ $opts{add} ] };
+        map { $_ + 0 } @{ ref $opts{add} ? $opts{add} : [ $opts{add} // 0 ] };
     my @del = grep { $_ >= 1 && $_ <= 60 }
-        map { $_ + 0 } @{ ref $opts{remove} ? $opts{remove} : [ $opts{remove} ] };
+        map { $_ + 0 } @{ ref $opts{remove} ? $opts{remove} : [ $opts{remove} // 0 ] };
     my @set = grep { $_ >= 1 && $_ <= 60 }
-        map { $_ + 0 } @{ ref $opts{set} ? $opts{set} : [ $opts{set} ] };
+        map { $_ + 0 } @{ ref $opts{set} ? $opts{set} : [ $opts{set} // 0 ] };
     my $do_clear = ( ref $opts{set} eq 'ARRAY' && scalar(@set) == 0 ) ? 1 : 0;
-    return 1 unless @add || @del || @set || $do_clear;
+    return $u->with_trust_groups_lock(
+        sub {
+            my $mask = $u->trustmask_from_primary($tu);
+            return 0 unless defined $mask && $mask & 1;
+            return 1 unless @add || @del || @set || $do_clear;
 
-    # this is a special case, they said "set => []" with an empty arrayref,
-    # so we remove this person's membership from all groups
-    if ($do_clear) {
-        $u->trustmask( $tu, 0 );
-        return 1;
-    }
-
-    # if we're only doing a set, we can do that easily too
-    if (@set) {
-        my $mask = 0;
-        $mask += ( 1 << $_ ) foreach @set;
-        $u->trustmask( $tu, $mask );
-        return 1;
-    }
-
-    # hard path, we need to break down a user's mask and then update it
-    # and send out a new one
-    my $mask   = $u->trustmask($tu);
-    my %groups = map { $_ => 1 } grep { $mask & ( 1 << $_ ) } 1 .. 60;
-
-    # now process adds/deletes
-    $groups{$_} = 1 foreach @add;
-    delete $groups{$_} foreach @del;
-
-    # now set it back and we're done
-    $mask = 0;
-    $mask += ( 1 << $_ ) foreach keys %groups;
-    $u->trustmask( $tu, $mask );
-    return 1;
+            if ( @set || $do_clear ) {
+                $mask = 1;
+                $mask |= 1 << $_ foreach @set;
+            }
+            else {
+                $mask |= 1 << $_ foreach @add;
+                $mask &= ~( 1 << $_ ) foreach @del;
+            }
+            return $u->add_edge( $tu, trust => { mask => $mask, nonotify => 1 } );
+        }
+    ) || 0;
 }
 *LJ::User::edit_trustmask = \&edit_trustmask;
 
@@ -1008,7 +1089,9 @@ sub can_trust {
     $u  = LJ::want_user($u) or confess 'invalid user object';
     $tu = LJ::want_user($tu);
 
-    my $errref = $opts{errref};
+    my $errref          = $opts{errref};
+    my $policy_rejected = $opts{policy_rejected};
+    $$policy_rejected = 1 if $policy_rejected;
 
     # the user must be an individual
     unless ( $u->is_individual ) {
@@ -1050,6 +1133,7 @@ sub can_trust {
     }
 
     # check limits
+    $$policy_rejected = 0 if $policy_rejected;
     return 0 unless _can_add_wt_edge( $u, $errref, { target => $tu } );
 
     # okay, good to go!

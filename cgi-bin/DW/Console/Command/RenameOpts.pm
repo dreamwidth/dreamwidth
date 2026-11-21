@@ -84,11 +84,10 @@ sub execute {
                 $self->error("Unable to break redirection");
             }
         }
-        elsif ( $cmd eq 'del_trusted_by' )  { $u->delete_relationships( del_trusted_by  => 1 ) }
-        elsif ( $cmd eq 'del_watched_by' )  { $u->delete_relationships( del_watched_by  => 1 ) }
-        elsif ( $cmd eq 'del_trusted' )     { $u->delete_relationships( del_trusted     => 1 ) }
-        elsif ( $cmd eq 'del_watched' )     { $u->delete_relationships( del_watched     => 1 ) }
-        elsif ( $cmd eq 'del_communities' ) { $u->delete_relationships( del_communities => 1 ) }
+        else {
+            return $self->error('Could not remove all requested relationships.')
+                unless $u->delete_relationships( $cmd => 1 );
+        }
     }
 
     $self->print('Done.');

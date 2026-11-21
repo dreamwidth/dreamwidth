@@ -72,6 +72,16 @@ sub rename_handler {
         # if it's a success, and false if it failed
         my $errors  = DW::FormErrors->new;
         my $post_ok = handle_post( $token, $post_args, errors => $errors );
+        if ( $post_ok && @{ $post_ok->{incomplete_relationships} } ) {
+            my $message = LJ::Lang::ml( '/rename.tt.success', $post_ok );
+            return DW::Template->render_template(
+                'success.tt',
+                {
+                    message =>
+"$message Rename completed, but the requested relationship cleanup is incomplete."
+                }
+            );
+        }
         return success_ml( "/rename.tt.success", $post_ok ) if $post_ok;
 
         $vars->{errors} = $errors;
@@ -190,16 +200,24 @@ sub handle_post {
     }
 
     # try the rename and see if there are any errors
+    my @incomplete;
     $journal->rename(
         $tousername,
         user           => LJ::get_remote(),
         token          => $token,
         redirect       => $redirect_journal,
         redirect_email => $other_opts{email},
-        %del_rel, errors => $errors
+        %del_rel,
+        errors                   => $errors,
+        incomplete_relationships => \@incomplete,
     );
 
-    return { from => $fromusername, to => $journal->user } unless $errors->exist;
+    return {
+        from                     => $fromusername,
+        to                       => $journal->user,
+        incomplete_relationships => \@incomplete
+        }
+        unless $errors->exist;
 
     # the list of errors should be present in the caller
     return 0;
@@ -450,7 +468,10 @@ sub handle_admin_post {
         $rename_opts{break_redirect}->{email} = !$other_opts{email};
     }
 
-    $opts{journal}->apply_rename_opts(%rename_opts);
+    my $incomplete = $opts{journal}->apply_rename_opts(%rename_opts);
+    $errors->add_string( '',
+        'Relationship cleanup is incomplete. Some requested changes may already have been applied.'
+    ) if @$incomplete;
 
     return $errors->exist ? 0 : 1;
 }

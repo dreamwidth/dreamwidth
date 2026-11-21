@@ -30,6 +30,32 @@ use DW::Media::Photo;
 
 use constant TYPE_PHOTO => 1;
 
+sub allowmask_for_groups {
+    my ( $class, $owned, $revision, $groups, $require_revision ) = @_;
+    my $mask = 0;
+    foreach my $group (@$groups) {
+        return undef unless defined $group && !ref $group;
+        my ( $id, $version ) = $group =~ /\A([1-9][0-9]?)(?::([0-9]+))?\z/;
+        return undef unless defined $id && $id <= 60 && $owned->{$id};
+        return undef if defined $version ? $version ne $revision : $require_revision;
+        $mask |= 1 << $id;
+    }
+    return $mask;
+}
+
+sub validated_allowmask {
+    my ( $class, $owned, $digits ) = @_;
+    return undef unless defined $digits && !ref $digits && $digits =~ /\A[0-9]+\z/;
+    $digits =~ s/\A0+(?=[0-9])//;
+    return undef if length($digits) > 19;
+    my $mask = int $digits;
+    return undef if $mask >= ( 1 << 61 );
+
+    my $allowed = 1;
+    $allowed |= 1 << $_ for grep { $_ >= 1 && $_ <= 60 } keys %$owned;
+    return ( $mask & $allowed ) == $mask ? $mask : undef;
+}
+
 sub new {
     my ( $class, %opts ) = @_;
     confess 'Need a user and mediaid key'
@@ -116,10 +142,20 @@ sub upload_media {
     }
     croak 'Invalid security for uploaded file.'
         unless $sec =~ /^(?:public|private|usemask)$/;
+    my $lock;
     if ( $sec eq 'usemask' ) {
+        my $user = $opts{user};
+        $lock = $user->lock_trust_groups( wait => 2 ) or return undef;
+        my $groups = $user->trust_groups( force_database => 1 ) or return undef;
+        if ( defined $opts{group_revision} ) {
+            my $revision = $user->trust_group_revision;
+            return undef unless defined $revision;
+            $opts{allowmask} = 0 if $opts{group_revision} ne $revision;
+        }
 
         # default allowmask of 0 unless defined otherwise
-        $opts{allowmask} //= 0;
+        $opts{allowmask} = $class->validated_allowmask( $groups, $opts{allowmask} // 0 );
+        croak 'Invalid access mask for uploaded file.' unless defined $opts{allowmask};
     }
     else {
         $opts{allowmask} = 0;
@@ -147,6 +183,7 @@ sub upload_media {
     );
     croak "Failed to insert media row: " . $opts{user}->errstr . "."
         if $opts{user}->err;
+    $lock->release if $lock;
 
     $opts{user}->do(
         q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesize)
