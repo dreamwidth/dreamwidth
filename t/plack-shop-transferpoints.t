@@ -88,6 +88,7 @@ ok(
 unlike( $invalid_recipient->content, qr/<not-an-account>/, 'invalid input is HTML escaped' );
 my $retry = form_inputs( $invalid_recipient->content );
 is( $retry->{foruser}->{value}, '<not-an-account>', 'the recipient can be corrected' );
+is( $retry->{points}->{value}, 1, 'correcting the recipient preserves the amount' );
 ok( $retry->{anon}->{checked}, 'correcting the form does not opt out of anonymity' );
 ok( !$retry->{confirm},        'invalid recipient cannot reach confirmation' );
 
@@ -98,7 +99,9 @@ ok(
     $too_many->content =~ /<small class="error"[^>]*>/,
     'the amount problem renders a Foundation field error'
 );
-ok( !form_inputs( $too_many->content )->{confirm}, 'the invalid amount cannot be confirmed' );
+my $balance_retry = form_inputs( $too_many->content );
+is( $balance_retry->{points}->{value}, 31, 'an insufficient balance does not clear the amount' );
+ok( !$balance_retry->{confirm}, 'the invalid amount cannot be confirmed' );
 is( LJ::load_userid( $sender->id, 1 )->shop_points,
     30, 'invalid submissions do not debit the sender' );
 is( LJ::load_userid( $recipient->id, 1 )->shop_points,
