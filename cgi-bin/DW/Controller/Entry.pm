@@ -175,7 +175,7 @@ sub new_handler {
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
-            unless LJ::text_in($post);
+            unless DW::Entry::validate_form_text($post);
 
         my $okay_formauth = !$remote || LJ::check_form_auth( $post->{lj_form_auth} );
 
@@ -553,7 +553,7 @@ sub _edit {
         my $mode_delete  = $post->{"action:delete"}  ? 1 : 0;
 
         $errors->add( undef, 'bml.badinput.body1' )
-            unless LJ::text_in($post);
+            unless $mode_delete || DW::Entry::validate_form_text($post);
 
         my $okay_formauth = LJ::check_form_auth( $post->{lj_form_auth} );
         $errors->add( undef, "error.invalidform" )

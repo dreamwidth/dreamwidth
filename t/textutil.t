@@ -16,11 +16,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 40;
+use Test::More tests => 41;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use LJ::TextUtil;
 use LJ::Hooks;
+use DW::Entry;
+use Hash::MultiValue;
 
 note("html breaks");
 ok( LJ::has_too_many( "abcdn<br />" x 1, linebreaks => 0 ), "0 max, 1 break" );
@@ -79,6 +81,35 @@ note("text_in - invalid UTF-8");
 ok( !LJ::text_in("\xff\xfe"),       "invalid bytes fail text_in" );
 ok( !LJ::text_in("hello\x80world"), "lone continuation byte fails" );
 ok( !LJ::text_in("caf\xc3"),        "truncated multi-byte sequence fails" );
+
+subtest 'entry form text validation' => sub {
+    my $subject = "\xe2\x80\x98A new journey\xe2\x80\xa6\xe2\x80\x99";
+    my $event   = "caf\xc3\xa9, cafe\xcc\x81, \xf0\x9f\x8e\x89\t\r\n2000";
+    my %fields  = ( subject => "$subject\x08", event => "\x0b$event\x1f", taglist => 'one, two' );
+    my %legacy  = %fields;
+    my $modern  = Hash::MultiValue->new(%fields);
+
+    foreach my $post ( \%legacy, $modern ) {
+        ok( DW::Entry::validate_form_text($post), 'entry with pasted controls is accepted' );
+        is( $post->{subject}, $subject, 'punctuation survives subject cleanup byte for byte' );
+        is( $post->{event}, $event, 'accented text, combining mark, emoji and whitespace survive' );
+        ok( !utf8::is_utf8( $post->{subject} ), 'subject stays raw UTF-8 bytes' );
+        ok( !utf8::is_utf8( $post->{event} ),   'body stays raw UTF-8 bytes' );
+        is( $post->{taglist}, $fields{taglist}, 'unrelated fields are unchanged' );
+        ok( LJ::text_in( $post->{event} ), 'normalized body passes protocol validation' );
+    }
+
+    local $@ = 'prior error';
+    foreach my $malformed ( "\xc3\x08\xa9", "\xf0\x9f\x8e", "\xc0\xaf", "\xed\xa0\x80", "\x80",
+        "2000\x00" )
+    {
+        my $post = Hash::MultiValue->new( subject => $fields{subject}, event => $malformed );
+        ok( !DW::Entry::validate_form_text($post), 'malformed UTF-8 or NUL is rejected' );
+        is( $post->{subject}, $fields{subject}, 'failed validation leaves the subject alone' );
+        is( $post->{event},   $malformed,       'failed validation leaves the body alone' );
+        is( $@,               'prior error',    'failed validation does not clobber $@' );
+    }
+};
 
 note("text_trim - UTF-8 safety");
 is( LJ::text_trim( "abcdef", 3, 0 ), "abc", "text_trim respects byte limit on ASCII" );
