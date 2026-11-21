@@ -168,6 +168,103 @@ sub profile_handler {
     my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
     my @dropdown = ( '' => '' );
     push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
+    my %services_by_id = map { $_->{service_id} => $_ } @services;
+
+    my @db_service_rows;
+    my %existing_db_accts;
+    my %legacy_service_ids;
+    if (%$profile_accts) {
+        foreach my $site (@services) {
+            my $s_id = $site->{service_id};
+            next unless $profile_accts->{$s_id};
+            foreach my $acct ( @{ $profile_accts->{$s_id} } ) {
+                my ( $a_id, $val ) = @$acct;
+                $existing_db_accts{"$s_id:$a_id"} = 1;
+                push @db_service_rows,
+                    {
+                    service => $site,
+                    dbid    => $a_id,
+                    value   => $val,
+                    };
+            }
+        }
+    }
+    else {
+        foreach my $site (@services) {
+            next unless $site->{userprop};
+            my $val = $u->{ $site->{userprop} };
+            next unless $val;
+            $legacy_service_ids{ $site->{service_id} } = 1;
+            push @db_service_rows,
+                {
+                service => $site,
+                dbid    => 0,
+                value   => $val,
+                };
+        }
+    }
+
+    my $build_service_rows = sub {
+        my ( $pending_existing, $pending_legacy, $pending_new ) = @_;
+        my @rows;
+        my $ct = 1;
+
+        foreach my $row (@db_service_rows) {
+            my $s_id      = $row->{service}{service_id};
+            my $a_id      = $row->{dbid};
+            my $val       = $row->{value};
+            my $submitted = 0;
+
+            if ($a_id) {
+                if ( $pending_existing && exists $pending_existing->{"$s_id:$a_id"} ) {
+                    $val       = $pending_existing->{"$s_id:$a_id"};
+                    $submitted = 1;
+                }
+            }
+            elsif ( $pending_legacy && exists $pending_legacy->{$s_id} ) {
+                $val       = $pending_legacy->{$s_id};
+                $submitted = 1;
+            }
+
+            push @rows,
+                {
+                ct        => $ct++,
+                service   => $row->{service},
+                dbid      => $a_id,
+                value     => $val // '',
+                submitted => $submitted,
+                };
+        }
+
+        my @overflow_new;
+        foreach my $row ( @{ $pending_new || [] } ) {
+            if ( $ct <= 26 ) {
+                push @rows,
+                    {
+                    ct        => $ct++,
+                    site      => $row->{site},
+                    value     => $row->{value} // '',
+                    submitted => 1,
+                    };
+            }
+            else {
+                push @overflow_new, { %$row, submitted => 1 };
+            }
+        }
+
+        while ( $ct <= 26 ) {
+            push @rows,
+                {
+                ct    => $ct++,
+                site  => '',
+                value => '',
+                };
+        }
+
+        return ( \@rows, \@overflow_new );
+    };
+
+    my ($service_rows) = $build_service_rows->();
 
     # Email display
     # This is one prop in the backend, but two form fields on the settings page
@@ -196,6 +293,7 @@ sub profile_handler {
         checked          => $checked,
         cur              => $cur,
         profile_accts    => $profile_accts,
+        service_rows     => $service_rows,
         profile_email    => DW::Setting::ProfileEmail->option($u),
         location => LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 ),
         set_profile_settings_extra => LJ::Hooks::run_hook( "profile_settings_extra", $u )
@@ -262,13 +360,44 @@ sub profile_handler {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
-        my %services_by_id = map { $_->{service_id} => $_ } @services;
-        my %new_accts;
+        my %pending_existing;
+        my %pending_legacy;
+        my @pending_new;
         foreach my $ct ( 1 .. 26 ) {
-            my $s_id  = $POST->{"extservice_site_$ct"} // '';
-            my $site  = $services_by_id{$s_id} or next;
-            my $field = "extservice_val_$ct";
-            my $val   = $POST->{$field} // '';
+            my $s_id = $POST->{"extservice_site_$ct"} // '';
+            my $a_id = $POST->{"extservice_dbid_$ct"} // '';
+            my $val  = $POST->{"extservice_val_$ct"}  // '';
+
+            if ($a_id) {
+
+                # Only reconcile existing rows whose (service_id, account_id)
+                # identity still exists in the database.
+                next unless $existing_db_accts{"$s_id:$a_id"};
+                $pending_existing{"$s_id:$a_id"} = $val;
+            }
+            elsif ( $legacy_service_ids{$s_id} && !exists $pending_legacy{$s_id} ) {
+                $pending_legacy{$s_id} = $val;
+            }
+            elsif ( $s_id ne '' || $val ne '' ) {
+                my $site_id = $services_by_id{$s_id} ? $s_id : '';
+                push @pending_new, { site => $site_id, value => $val }
+                    if $site_id ne '' || $val ne '';
+            }
+        }
+
+        my ( $post_service_rows, $overflow_new ) =
+            $build_service_rows->( \%pending_existing, \%pending_legacy, \@pending_new );
+        $vars->{service_rows} = $post_service_rows;
+
+        my %new_accts;
+        foreach my $row ( @$post_service_rows, @$overflow_new ) {
+            next unless $row->{submitted};
+            my $site = $row->{service} || $services_by_id{ $row->{site} // '' };
+            next unless $site;
+
+            my $s_id  = $site->{service_id};
+            my $field = $row->{ct} ? "extservice_val_$row->{ct}" : '';
+            my $val   = $row->{value} // '';
 
             if ( $site->{name} eq 'mastodon' ) {
                 $val = LJ::trim($val);
@@ -279,7 +408,7 @@ sub profile_handler {
             }
             $val = LJ::text_trim( $val, 255, $site->{maxlen} );
 
-            if ( my $a_id = $POST->{"extservice_dbid_$ct"} ) {
+            if ( my $a_id = $row->{dbid} ) {
                 push @{ $new_accts{$s_id} }, [ $a_id, $val ];
             }
             elsif ( $val ne '' ) {
