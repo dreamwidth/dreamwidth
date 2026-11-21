@@ -72,13 +72,14 @@ while ( $themes =~ /^#NEWLAYER: (\S+)\s*\n(.*?)(?=^#NEWLAYER:|\z)/msg ) {
     load_style_layer( ++$layer_id, 'theme', $source );
     $abyss_id = $layer_id if $name eq 'abstractia/abyss';
     my $body = page_background_css($layer_id);
-    if ( $image && $repeat eq 'no-repeat' ) {
-        my ($width) = imgsize("$ENV{LJHOME}/htdocs/img/styles/$image");
-        BAIL_OUT("Cannot read the width of $image") unless $width;
+    if ( $image && ( $repeat // '' ) eq 'no-repeat' ) {
+        my ( $width, $height ) = imgsize("$ENV{LJHOME}/htdocs/img/styles/$image");
+        BAIL_OUT("Cannot read the dimensions of $image") unless $width && $height;
+        my $size = "max(100%, ${width}px, calc(100vh * $width / $height)) auto";
         like(
             $body,
-            qr/background-size:\s*max\(100%,\s*${width}px\) auto;/,
-            "$name scales up without shrinking below its original width"
+            qr/background-size:\s*\Q$size\E;/,
+            "$name fills wide and tall viewports without shrinking below its original size"
         );
     }
     else {
