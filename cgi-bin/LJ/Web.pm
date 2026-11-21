@@ -1836,13 +1836,10 @@ sub control_strip {
                 ? "This is a closed community"
                 : $links{join_community};
 
-            unless ($memberof) {
-                my $pending = $remote->get_pending_invites || [];
-                if ( grep { $_->[0] == $journal->id } @$pending ) {
-                    $membership_action =
-                        "<a href='$LJ::SITEROOT/manage/invites'>"
-                        . $ml{'web.controlstrip.links.acceptinvite'} . "</a>";
-                }
+            if ( !$memberof && $remote->should_offer_comm_invite($journal) ) {
+                $membership_action =
+                    "<a href='$LJ::SITEROOT/manage/invites'>"
+                    . $ml{'web.controlstrip.links.acceptinvite'} . "</a>";
             }
 
             if ( $remote->can_manage_other($journal) ) {

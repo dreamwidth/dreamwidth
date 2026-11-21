@@ -246,6 +246,18 @@ sub get_pending_invites {
     return $pending;
 }
 
+sub should_offer_comm_invite {
+    my ( $user, $community ) = @_;
+    my $pending = $user->get_pending_invites || [];
+    my ($invite) = grep { $_->[0] == $community->id } @$pending;
+    return 0 unless $invite;
+    return 1 unless $community->has_banned($user);
+
+    my %args;
+    LJ::decode_url_string( $invite->[3], \%args );
+    return $args{member} ? 0 : 1;
+}
+
 # des: Revokes a list of outstanding invitations to a community.
 # args: community user object, list of userids to revoke invitations for
 # returns: 1 if success, undef if error

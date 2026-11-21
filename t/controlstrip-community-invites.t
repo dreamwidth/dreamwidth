@@ -20,10 +20,12 @@ use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::AccountSwitcher;
+use DW::Controller::RPC::MiscLegacy;
 use DW::Request::Standard;
 use DW::Template;
 use HTTP::Request;
 use LJ::Community;
+use LJ::JSON qw( from_json );
 use LJ::Lang;
 use LJ::Session;
 use LJ::Test qw( temp_user temp_comm );
@@ -58,21 +60,34 @@ for my $cu ( $comm, $othercomm ) {
     $cu->set_prop( stylesys => 1 );
 }
 
-sub strip_actions {
-    my ( $remote, $journal ) = @_;
+sub viewer_request {
+    my ( $remote, $path ) = @_;
     LJ::start_request();
     DW::Request->reset;
-    my $request = HTTP::Request->new( GET => 'http://www.example.test/' );
+    my $request = HTTP::Request->new( GET => "http://www.example.test$path" );
     $request->header( Host => 'www.example.test' );
-    DW::Request::Standard->new($request);
+    my $dw_request = DW::Request::Standard->new($request);
     LJ::Session->create( $remote, nolog => 1, defer_login => 1 )
         or die "Cannot create test session"
         if $remote && !$remote->session;
     LJ::set_remote($remote);
+    return $dw_request;
+}
+
+sub strip_actions {
+    my ( $remote, $journal ) = @_;
+    viewer_request( $remote, '/' );
 
     # The real request router supplies the journal for the visibility hook.
     local $LJ::ACTIVE_JOURNAL = $journal;
     return LJ::control_strip( user => $journal->user, view => 'recent' );
+}
+
+sub hover_info {
+    my ( $remote, $journal ) = @_;
+    my $request = viewer_request( $remote, '/__rpc_ctxpopup?mode=getinfo&user=' . $journal->user );
+    DW::Controller::RPC::MiscLegacy::ctxpopup_handler();
+    return from_json( $request->response_content );
 }
 
 my $accept     = qr{<a href='\Q$LJ::SITEROOT\E/manage/invites'>[^<]+</a>};
@@ -111,7 +126,44 @@ $actions = strip_actions( $outsider, $comm );
 like( $actions, qr/This is a closed community/, 'closed status remains for uninvited visitors' );
 unlike( $actions, $accept, 'closed community does not offer acceptance to uninvited visitors' );
 unlike( $actions, $join,   'closed community does not offer Join to uninvited visitors' );
+
+my $hover = hover_info( $viewer, $comm );
+ok( $hover->{success} && $hover->{is_invited}, 'hover offers acceptance before the ban' );
+viewer_request( $admin, '/' );
+ok( $comm->ban_user($viewer), 'community bans the invited nonmember' );
+ok( scalar( grep { $_->[0] == $comm->id } @{ $viewer->get_pending_invites } ),
+    'membership invitation remains pending after the ban' );
+$actions = strip_actions( $viewer, $comm );
+like( $actions, qr/This is a closed community/, 'closed status for banned non-watcher' );
+unlike( $actions, $accept, 'strip does not offer acceptance to banned non-watcher' );
+$hover = hover_info( $viewer, $comm );
+ok(
+    $hover->{success} && $hover->{is_closed_membership},
+    'hover still describes the closed community'
+);
+is( $hover->{is_invited}, 0, 'hover does not offer acceptance to the banned invitee' );
+
 ok( $viewer->add_edge( $comm, watch => { nonotify => 1 } ), 'resubscribe while invited' );
+$actions = strip_actions( $viewer, $comm );
+like( $actions, qr/This is a closed community/, 'closed status for banned watcher' );
+unlike( $actions, $accept, 'strip does not offer acceptance to banned watcher' );
+viewer_request( $admin, '/' );
+ok( $comm->unban_user_multi( $viewer->id ), 'community lifts the ban' );
+like( strip_actions( $viewer, $comm ),
+    $accept, 'strip offers the pending invite again after unban' );
+ok(
+    hover_info( $viewer, $comm )->{is_invited},
+    'hover offers the pending invite again after unban'
+);
+
+ok( $outsider->send_comm_invite( $comm, $admin, ['post'] ), 'issue a posting-only invitation' );
+viewer_request( $admin, '/' );
+ok( $comm->ban_user($outsider), 'community bans the recipient of the posting-only invitation' );
+like( strip_actions( $outsider, $comm ),
+    $accept, 'ban does not hide a posting-only invitation in the strip' );
+ok( hover_info( $outsider, $comm )->{is_invited},
+    'ban does not hide a posting-only invitation in the hover' );
+
 $comm->set_comm_settings( $admin, { membership => 'moderated' } );
 
 $viewer->do(
