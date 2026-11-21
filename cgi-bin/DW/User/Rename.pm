@@ -50,7 +50,11 @@ use warnings;
 use DW::RenameToken;
 use DW::FormErrors;
 use DW::Cache;
-use LJ::Sendmail;
+use DW::Task::CommunityRenameNotice;
+use DW::TaskQueue;
+use Log::Log4perl;
+
+my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 =head1 API
 
@@ -67,6 +71,11 @@ Optional arguments are:
 
 sub can_rename_to {
     my ( $self, $tousername, %opts ) = @_;
+    return _can_rename_to( $self, $tousername, \&LJ::load_user, undef, %opts );
+}
+
+sub _can_rename_to {
+    my ( $self, $tousername, $load_target, $dbh, %opts ) = @_;
 
     my $errors = $opts{errors}    || DW::FormErrors->new;
     my $formid = $opts{form_from} || 'authas';
@@ -160,7 +169,7 @@ sub can_rename_to {
     if ( $self->is_personal ) {
 
         # able to rename to unregistered accounts
-        my $tou = LJ::load_user($tousername);
+        my $tou = $load_target->($tousername);
 
         # check basic stuff that is common for all types of renames
         my $rv = $check_basics->( $self, $tou );
@@ -171,7 +180,7 @@ sub can_rename_to {
         return 1 if DW::User::Rename::_are_same_person( $self, $tou );
 
         # person-to-community (only under restricted circumstances for the community)
-        return DW::User::Rename::_can_use_community_name( $self, $tou, $errors )
+        return _can_use_community_name( $self, $tou, $errors, $dbh )
             if $tou->is_community;
 
         $errors->add( 'touser', 'rename.error.unauthorized2', { to => $tou->ljuser_display } );
@@ -181,7 +190,7 @@ sub can_rename_to {
     elsif ( $self->is_community && LJ::isu( $opts{user} ) ) {
         my $admin = $opts{user};
 
-        unless ( DW::User::Rename::_is_authorized_for_comm( $admin, $self ) ) {
+        unless ( _is_authorized_for_comm( $admin, $self, $dbh ) ) {
             $errors->add(
                 $formid,
                 'rename.error.notcommunityadmin',
@@ -190,7 +199,7 @@ sub can_rename_to {
             return 0;
         }
 
-        my $tou = LJ::load_user($tousername);
+        my $tou = $load_target->($tousername);
 
         # check basic stuff that is common for all renames
         my $rv = $check_basics->( $self, $tou );
@@ -200,7 +209,7 @@ sub can_rename_to {
         # able to rename to another personal journal under admin's control
         return 1 if $tou->is_person && DW::User::Rename::_are_same_person( $admin, $tou );
 
-        return DW::User::Rename::_can_use_community_name( $admin, $tou, $errors )
+        return _can_use_community_name( $admin, $tou, $errors, $dbh )
             if $tou->is_community;
     }
 
@@ -225,27 +234,39 @@ Optional arguments are:
 sub rename {
     my ( $self, $tousername, %opts ) = @_;
 
-    my $errors = $opts{errors} || DW::FormErrors->new;
+    my $errors = $opts{errors} ||= DW::FormErrors->new;
 
-    my $remote = LJ::isu( $opts{user} ) ? $opts{user} : $self;
     $errors->add( 'token', 'rename.error.tokeninvalid' )
         unless $opts{token} && $opts{token}->isa("DW::RenameToken");
     $errors->add( 'token', 'rename.error.tokenapplied' )
         if $opts{token} && ( $opts{token}->applied || $opts{token}->revoked );
 
-    my $can_rename_to = $self->can_rename_to( $tousername, %opts );
-
-    return 0 if $errors->exist || !$can_rename_to;
-
-    $tousername = LJ::canonical_username($tousername);
-    if ( my $tou = LJ::load_user($tousername) ) {
-        return 0 unless DW::User::Rename::_rename_to_ex( $tou, errors => $opts{errors} );
-    }
+    return 0 if $errors->exist;
 
     my $fromusername = $self->user;
-    return 0 unless DW::User::Rename::_rename( $self, $tousername, %opts );
+    my ( $source, $target, $aside_name );
+    return 0 unless _change_usernames(
+        $errors,
+        sub {
+            my ($dbh) = @_;
+            $source = _lock_username( $dbh, $fromusername );
+            return 0 unless $source && $source->id == $self->id;
+            my $load_target = sub { $target = _lock_username( $dbh, $_[0] ) };
+            return 0 unless _can_rename_to( $source, $tousername, $load_target, $dbh, %opts );
 
-    DW::User::Rename::_notify_community_members( $self, $fromusername ) if $self->is_community;
+            $tousername = LJ::canonical_username($tousername);
+            $target     = $load_target->($tousername) if $opts{force};
+            if ($target) {
+                $aside_name = _unused_ex_username( $dbh, $tousername, $errors ) or return 0;
+                return 0 unless _write_username( $dbh, $target, $tousername, $aside_name );
+            }
+            return _write_username( $dbh, $source, $fromusername, $tousername );
+        }
+    );
+
+    _finish_move_aside( $target, $tousername, $aside_name ) if $target;
+    _finish_rename( $self, $fromusername, $tousername, %opts );
+    _queue_community_notice( $self, $fromusername, $tousername ) if $source->is_community;
     return 1;
 }
 
@@ -258,7 +279,7 @@ Swap the usernames of these two users.
 sub swap_usernames {
     my ( $u1, $u2, %opts ) = @_;
 
-    my $errors = $opts{errors} || DW::FormErrors->new;
+    my $errors = $opts{errors} ||= DW::FormErrors->new;
 
     my $admin  = LJ::isu( $opts{user} ) ? $opts{user} : $u1;
     my @tokens = @{ $opts{tokens} || [] };
@@ -274,9 +295,10 @@ sub swap_usernames {
             && $check_uids->{ $token->ownerid };
 
         $errors->add( 'token', 'rename.error.tokenapplied' )
-            if $token->applied || $token->revoked;
+            if $token && ( $token->applied || $token->revoked );
     }
 
+    return 0 if $errors->exist;
     if ( scalar @tokens >= 2 ) {
         $errors->add( 'token', 'rename.error.tokenduplicate' )
             if ( $tokens[0]->token eq $tokens[1]->token );
@@ -285,29 +307,41 @@ sub swap_usernames {
         $errors->add( 'token', 'rename.error.tokentoofew' );
     }
 
-    my %admin_opts = $u2->is_community ? ( user => $admin ) : ();
-
-    my $can_rename = $u1->can_rename_to( $u2->username, %opts, %admin_opts )
-        && $u2->can_rename_to( $u1->username, %opts, %admin_opts );
-    return 0 if $errors->exist || !$can_rename;
+    return 0 if $errors->exist;
 
     my $u1name = $u1->user;
     my $u2name = $u2->user;
+    my ( $aside_name, %admin_opts );
+    return 0 unless _change_usernames(
+        $errors,
+        sub {
+            my ($dbh) = @_;
+            my %locked = map { $_ => _lock_username( $dbh, $_ ) } sort ( $u1name, $u2name );
+            my ( $first, $second ) = @locked{ $u1name, $u2name };
+            return 0 unless $first && $first->id == $u1->id && $second && $second->id == $u2->id;
 
-    my $did_rename = 1;
-    $did_rename &&= DW::User::Rename::_rename_to_ex( $u2, errors => $opts{errors} );
-    return 0 unless $did_rename;
+            %admin_opts = $second->is_community ? ( user => $admin ) : ();
+            my $load_target = sub { $locked{ $_[0] } };
+            return 0
+                unless _can_rename_to( $first, $u2name, $load_target, $dbh, %opts, %admin_opts )
+                && _can_rename_to( $second, $u1name, $load_target, $dbh, %opts, %admin_opts );
+
+            $aside_name = _unused_ex_username( $dbh, $u2name, $errors ) or return 0;
+            return
+                   _write_username( $dbh, $second, $u2name, $aside_name )
+                && _write_username( $dbh, $first,  $u1name,     $u2name )
+                && _write_username( $dbh, $second, $aside_name, $u1name );
+        }
+    );
+
+    _finish_move_aside( $u2, $u2name, $aside_name );
 
     # ugh, but need it to avoid duplicate timestamps in infohistory
     sleep(1);
 
-    $did_rename &&=
-        DW::User::Rename::_rename( $u1, $u2name, %opts, %admin_opts, token => $tokens[0] );
-    return 0 unless $did_rename;
-
-    $did_rename &&=
-        DW::User::Rename::_rename( $u2, $u1name, %opts, %admin_opts, token => $tokens[1] );
-    return $did_rename;
+    _finish_rename( $u1, $u1name,     $u2name, %opts, %admin_opts, token => $tokens[0] );
+    _finish_rename( $u2, $aside_name, $u1name, %opts, %admin_opts, token => $tokens[1] );
+    return 1;
 }
 
 =head2 C<< $self->_clear_from_cache >>
@@ -326,7 +360,9 @@ sub _clear_from_cache {
     LJ::memcache_kill( $self->userid, "userid" );
 
     delete $LJ::CACHE_USERNAME{ $self->userid };
+    delete @LJ::CACHE_USERID{ $fromusername, $tousername };
     DW::Cache->request->remove( 'user_name', $fromusername );
+    DW::Cache->request->remove( 'user_name', $tousername );
     DW::Cache->request->remove( 'user_id',   $self->userid );
 }
 
@@ -357,95 +393,106 @@ Internal function to determine whether an account can control / manage another a
 =cut
 
 sub _is_authorized_for_comm {
-    my ( $admin, $journal ) = @_;
+    my ( $admin, $journal, $dbh ) = @_;
 
     return 0 unless $admin->is_person && $journal->is_community;
+    return 0 if $admin->id == $journal->id;
+    if ($dbh) {
+        return $dbh->selectrow_array(
+            "SELECT targetid FROM reluser WHERE userid=? AND type='A' AND targetid=? FOR UPDATE",
+            undef, $journal->id, $admin->id );
+    }
     return $admin->can_manage_other($journal);
 }
 
 sub _can_use_community_name {
-    my ( $admin, $journal, $errors ) = @_;
+    my ( $admin, $journal, $errors, $locked_dbh ) = @_;
 
-    return 1
-        if DW::User::Rename::_is_authorized_for_comm( $admin, $journal )
-        && !grep { $_ != $admin->userid } $journal->member_userids;
+    my $allowed = eval {
+        my $dbh = $locked_dbh || LJ::get_db_writer();
+        if ( $dbh && _is_authorized_for_comm( $admin, $journal, $dbh ) ) {
+            my $sql = "SELECT targetid FROM reluser FORCE INDEX (PRIMARY) "
+                . "WHERE userid=? AND type='E' AND targetid<>? LIMIT 1";
+            $sql .= ' FOR UPDATE' if $locked_dbh;
+            my $members = $dbh->selectcol_arrayref( $sql, undef, $journal->id, $admin->id );
+            defined $members && !$dbh->err && !@$members;
+        }
+    };
+    return 1 if $allowed;
 
     $errors->add( 'touser', 'rename.error.communitytarget', { comm => $journal->ljuser_display } );
     return 0;
 }
 
-sub _notify_community_members {
-    my ( $community, $fromusername ) = @_;
+sub _queue_community_notice {
+    my ( $community, $fromusername, $tousername ) = @_;
 
-    my @memberids = $community->member_userids;
-    return unless @memberids;
-
-    my $subject = LJ::Lang::ml('rename.email.community.subject');
-    my $body    = LJ::Lang::ml(
-        'rename.email.community.body',
-        {
-            oldname => $fromusername,
-            newname => $community->user,
-            profile => $community->profile_url
-        }
-    );
-
-    foreach my $member ( values %{ LJ::load_userids(@memberids) } ) {
-        next unless $member && $member->is_visible && $member->is_validated;
-
-        my $email = $member->email_raw;
-        next unless defined $email && $email =~ /\A[^@\s]+\@[^@\s]+\z/;
-
-        my @errors;
-        LJ::check_email( $email, \@errors, { force_spelling => 1 } );
-        next if @errors;
-
-        LJ::send_mail(
-            {
-                to       => $email,
-                from     => $LJ::BOGUS_EMAIL,
-                fromname => $LJ::SITENAMESHORT,
-                subject  => $subject,
-                body     => $body,
-            }
+    my $queued = eval {
+        DW::TaskQueue->dispatch(
+            DW::Task::CommunityRenameNotice->new(
+                {
+                    commid  => $community->id,
+                    oldname => $fromusername,
+                    newname => $tousername,
+                    profile => $community->profile_url,
+                }
+            )
         );
-    }
+    };
+    $log->error('Could not enqueue community rename notice') unless $queued;
 }
 
-=head2 C<< $self->_rename( $tousername, %opts ) >>
+sub _change_usernames {
+    my ( $errors, $change ) = @_;
 
-Internal function to do renames. Low-level, no error-checking on inputs. Only call
-this when you are sure that all conditions for a rename are satisfied. Returns 1 on
-success, 0 on failure.
+    my $changed = eval {
+        my $dbh = LJ::get_db_writer() or die 'No username writer';
+        local $dbh->{RaiseError} = 1;
+        local $dbh->{PrintError} = 0;
+        $dbh->do('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+        $dbh->begin_work;
 
-=cut
+        my $committed = eval {
+            my ($transactional_tables) = $dbh->selectrow_array(
+                "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() "
+                    . "AND table_name IN ('user', 'useridmap', 'reluser') AND engine='InnoDB'" );
+            $transactional_tables == 3 && $change->($dbh) && $dbh->commit;
+        };
+        $dbh->rollback unless $committed || $dbh->{AutoCommit};
+        $committed;
+    };
+    $errors->add( 'touser', 'rename.error.usernamechanged' ) unless $changed || $errors->exist;
+    return $changed;
+}
 
-sub _rename {
-    my ( $self, $tousername, %opts ) = @_;
+sub _lock_username {
+    my ( $dbh, $username ) = @_;
 
-    my $errors = $opts{errors} || DW::FormErrors->new;
-    my $token  = $opts{token};
+    my $row =
+        $dbh->selectrow_hashref( 'SELECT * FROM user WHERE user=? FOR UPDATE', undef, $username );
+    my ($mapped_id) = $dbh->selectrow_array( 'SELECT userid FROM useridmap WHERE user=? FOR UPDATE',
+        undef, $username );
+    die 'Inconsistent username mapping' if ( $row ? $row->{userid} : 0 ) != ( $mapped_id || 0 );
+    return $row ? LJ::User->new_from_row($row) : undef;
+}
 
-    my $fromusername = $self->user;
-
-    my $dbh = LJ::get_db_writer() or die "Could not get DB handle";
+sub _write_username {
+    my ( $dbh, $user, $fromusername, $tousername ) = @_;
 
     my $changed = $dbh->do(
         'UPDATE user JOIN useridmap USING (userid) SET user.user=?, useridmap.user=? '
             . 'WHERE user.userid=? AND user.user=? AND useridmap.user=?',
-        undef, $tousername, $tousername, $self->userid, $fromusername, $fromusername
+        undef, $tousername, $tousername, $user->id, $fromusername, $fromusername
     );
-    unless ( $changed && $changed > 0 ) {
-        $errors->add( 'touser', 'rename.error.usernamechanged' );
-        return 0;
-    }
+    return $changed && $changed > 0;
+}
 
-    # invalidate
-    DW::User::Rename::_clear_from_cache( $self, $fromusername, $tousername );
+sub _finish_rename {
+    my ( $self, $fromusername, $tousername, %opts ) = @_;
 
-    # ...existing code...
+    _clear_from_cache( $self, $fromusername, $tousername );
 
-    $token->apply( userid => $self->userid, from => $fromusername, to => $tousername );
+    $opts{token}->apply( userid => $self->userid, from => $fromusername, to => $tousername );
 
     $self->apply_rename_opts(
         from     => $fromusername,
@@ -708,41 +755,26 @@ sub delete_relationships {
     return join ":", @del;
 }
 
-=head2 C<< $self->_rename_to_ex( $tousername ) >>
+sub _unused_ex_username {
+    my ( $dbh, $username, $errors ) = @_;
 
-Internal function to do renames away from the current username. Low-level, no error-checking on inputs. Accepts a username, renames the user to a form of ex_oldusernam123.
-
-=cut
-
-sub _rename_to_ex {
-    my ( $u, %opts ) = @_;
-
-    my $errors = $opts{errors} || DW::FormErrors->new;
-
-    my $dbh = LJ::get_db_writer() or die "Could not get DB handle";
-
-    # move the current username out of the way, if it's an existing user
-    my $tries = 0;
-
-    while ( $tries < 10 ) {
-
-        # take the first nineteen characters of the old username + a random number
-        my $ex_user = substr( $u->user, 0, 19 ) . int( rand(999) );
-
-        # do the rename if the user doesn't already exist
-        return DW::User::Rename::_rename(
-            $u, "ex_$ex_user",
-            redirect => 0,
-            token    => DW::RenameToken->create_token( systemtoken => 1 )
-            )
-            unless $dbh->selectrow_array( "SELECT COUNT(*) from user WHERE user=?", undef,
-            $ex_user );
-
-        $tries++;
+    for ( 1 .. 10 ) {
+        my $ex_user = 'ex_' . substr( $username, 0, 19 ) . int( rand(999) );
+        return $ex_user unless _lock_username( $dbh, $ex_user );
     }
 
-    $errors->add( '', "rename.ex.toomanytries", { tousername => $u->user } );
-    return 0;
+    $errors->add( '', 'rename.ex.toomanytries', { tousername => $username } );
+    return;
+}
+
+sub _finish_move_aside {
+    my ( $user, $fromusername, $aside_name ) = @_;
+
+    _finish_rename(
+        $user, $fromusername, $aside_name,
+        redirect => 0,
+        token    => DW::RenameToken->create_token( systemtoken => 1 )
+    );
 }
 
 *LJ::User::can_rename_to  = \&can_rename_to;
