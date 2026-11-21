@@ -31,12 +31,10 @@ table td.services {
     border-bottom-style: solid;
     display: flex;
     align-items: stretch;
-    flex-wrap: wrap;
 
     .field_name {
         flex-basis: 38%;
         flex-shrink: 0;
-        height: 100%;
         padding: 0.75em;
 
         &.service_new {
@@ -48,10 +46,20 @@ table td.services {
         }
     }
 
-    input {
-        flex-shrink: 1;
-        flex-grow: 1;
-        margin: 0.25em 0.25em;
+    .service_value {
+        flex: 1;
+        min-width: 0;
+        padding: 0.25em;
+
+        input {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        small.error {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
     }
 }
 
@@ -123,9 +131,9 @@ table td.services {
 @media #{$small-only} {
     .service_block {
         flex-basis: 100%;
+        flex-wrap: wrap;
 
-        .field_name {
-            height: auto;
+        .field_name, .service_value {
             flex-basis: 100%;
         }
     }

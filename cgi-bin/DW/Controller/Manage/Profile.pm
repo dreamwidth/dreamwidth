@@ -287,6 +287,22 @@ sub profile_handler {
             }
         }
 
+        my $valid_interests;
+        unless ( $POST->{'interests_absent'} ) {
+            my $maxinterests = $u->count_max_interests;
+            my @ints         = LJ::interest_string_to_list( $POST->{'interests'} );
+
+            if ( @ints > $maxinterests ) {
+                $errors->add( 'interests', 'error.interest.excessive2',
+                    { intcount => scalar(@ints), maxinterests => $maxinterests } );
+            }
+            else {
+                my @interrors;
+                $valid_interests = [ LJ::validate_interest_list( \@interrors, @ints ) ];
+                map { $errors->add( 'interests', @$_ ) } @interrors;
+            }
+        }
+
         # Field validation is done; bail before any saving if it failed. The
         # Location widget below both validates AND persists immediately, so
         # running it after a validation error would partially save.
@@ -432,38 +448,7 @@ sub profile_handler {
         LJ::EmbedModule->parse_module_embed( $u, \$POST->{'bio'} );
         $u->set_bio( $POST->{'bio'} );
 
-        # update interests
-        unless ( $POST->{'interests_absent'} ) {
-            my $maxinterests = $u->count_max_interests;
-
-            my @ints      = LJ::interest_string_to_list( $POST->{'interests'} );
-            my $intcount  = scalar(@ints);
-            my @interrors = ();
-
-            # Don't bother validating the interests if there are already too many
-            if ( $intcount > $maxinterests ) {
-                $errors->add(
-                    'interests',
-                    'error.interest.excessive2',
-                    {
-                        intcount     => $intcount,
-                        maxinterests => $maxinterests
-                    }
-                );
-            }
-            else {
-                # Clean interests, and make sure they're valid
-                my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
-                if ( @interrors > 0 ) {
-                    map { $errors->add( 'interests', @$_ ) } @interrors;
-                }
-                else {
-                    my $updated_interests_str = join( ", ", @valid_ints );
-                    $u->set_interests( \@valid_ints );
-                    $vars->{interests} = $updated_interests_str;
-                }
-            }
-        }
+        $u->set_interests($valid_interests) if $valid_interests;
 
         LJ::Hooks::run_hooks( 'profile_save', $u, \%saved, $POST );
         LJ::Hooks::run_hooks( 'spam_check',   $u, $POST,   'userbio' );
@@ -496,13 +481,6 @@ sub profile_handler {
                 . "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>"
                 . LJ::Lang::ml("$scope.success.editicons")
                 . "</a></li></ul>";
-        }
-
-        # interest validation (above) can add errors after the main save; if so,
-        # re-render with them instead of reporting success
-        if ( $errors->exist ) {
-            $vars->{errors} = $errors;
-            return DW::Template->render_template( 'manage/profile.tt', $vars );
         }
 
         return $r->msg_redirect( $success_msg, $r->SUCCESS, $profile_url );
