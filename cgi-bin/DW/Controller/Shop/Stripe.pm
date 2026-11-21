@@ -50,6 +50,7 @@ sub stripe_checkout_handler {
 
 sub stripe_webhook_handler {
     my ( $ok, $rv ) = _stripe_controller( anonymous => 1 );
+    return $rv unless $ok;
 
     my $r        = $rv->{r};
     my $raw_json = $r->content;
