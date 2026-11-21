@@ -47,18 +47,21 @@ $friends is a reference to an array of hashrefs, with each hashref with the foll
       groupmask => 1,       # groupmask
   }
 
-Returns true if all grants were saved, false otherwise.
+Returns a hashref with the count of rejected grants, or undef if a write should be retried.
 
 =cut
 
 sub merge_trust {
     my ( $class, $u, $opts, $friends ) = @_;
+    my $rejected = 0;
     foreach my $friend (@$friends) {
-        my $to_u = LJ::load_userid( $friend->{userid} ) or return 0;
-        return 0
-            unless $u->add_edge( $to_u, trust => { mask => $friend->{groupmask}, nonotify => 1, } );
+        my $to_u  = LJ::load_userid( $friend->{userid} ) or return undef;
+        my $trust = { mask => $friend->{groupmask}, nonotify => 1, policy_rejected => 0 };
+        next if $u->add_edge( $to_u, trust => $trust );
+        return undef unless $trust->{policy_rejected};
+        $rejected++;
     }
-    return 1;
+    return { rejected => $rejected };
 }
 
 =head2 C<< $class->merge_watch( $user, $hashref, $friends ) >>

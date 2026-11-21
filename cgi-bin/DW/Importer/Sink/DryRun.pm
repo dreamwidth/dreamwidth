@@ -267,7 +267,7 @@ sub merge_trust {
             record  => {%$friend},
         );
     }
-    return 1;
+    return { rejected => 0 };
 }
 
 sub merge_interests {
