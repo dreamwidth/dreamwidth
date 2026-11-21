@@ -263,6 +263,7 @@
             </tr>
             <tr role="row">
             <td colspan=3 class="services" role="cell">
+             <p class="helper">[% dw.ml('.fn.mastodon.handle') %]</p>
              <div class="other_services">
         [% ct = 1; %]
         [% MACRO service(p, val, ct) BLOCK %]
@@ -272,7 +273,7 @@
                 [% form.hidden( name => "extservice_dbid_$ct", value => val.0 ) IF val.0 %]
                 [% form.textbox( name => "extservice_val_$ct",
                                 id => "extservice_val_$ct",
-                                value => val.1,
+                                default => val.1,
                                 title => "$p.title Username",
                                 size => 20,
                                 class => "inline",
@@ -308,7 +309,6 @@
                 </div>
                 [% form.textbox(name => "extservice_val_$ct",
                                 id => "extservice_val_$ct",
-                                value => '',
                                 title => "Username \#$ct",
                                 size => '20',
                                 class => 'inline'

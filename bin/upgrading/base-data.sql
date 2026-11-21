@@ -367,6 +367,7 @@ INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_form
 UPDATE profile_services SET userprop='last_fm_user', imgfile='lastfm.gif', title_ml='profile.service.lastfm', url_format='//www.last.fm/user/%s', maxlen=255 WHERE name='lastfm';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('livejournal', 'livejournal', 'livejournal.gif', 'profile.service.livejournal', '//%s.livejournal.com', 30);
 UPDATE profile_services SET userprop='livejournal', imgfile='livejournal.gif', title_ml='profile.service.livejournal', url_format='//%s.livejournal.com', maxlen=30 WHERE name='livejournal';
+INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('mastodon', NULL, 'mastodon.svg', 'profile.service.mastodon', NULL, 255);
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('medium', 'medium', 'medium.png', 'profile.service.medium', '//medium.com/@%s/latest', 25);
 UPDATE profile_services SET userprop='medium', imgfile='medium.png', title_ml='profile.service.medium', url_format='//medium.com/@%s/latest', maxlen=25 WHERE name='medium';
 INSERT IGNORE INTO profile_services (name, userprop, imgfile, title_ml, url_format, maxlen) VALUES ('patreon', 'patreon', 'patreon.png', 'profile.service.patreon', '//www.patreon.com/%s', 255);
