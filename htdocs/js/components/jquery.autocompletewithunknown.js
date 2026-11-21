@@ -143,6 +143,11 @@
                             $(this).closest(".autocomplete-container").removeClass("focus");
                         });
 
+                var description = self.element.attr("aria-describedby");
+                if (description) {
+                    self.uiAutocompleteInput.attr("aria-describedby", description);
+                }
+
                 if ( self.options.grow ) {
                     self.uiAutocomplete.closest(".row").parent().find(".tagselector-controls")
                         .append("<div class='autocomplete-count-container right'><span id='"+self.options.id+"_count_label'>characters per tag:</span> <span id='"+self.options.id+"_count' class='autocomplete-count'>50</span></div>");
