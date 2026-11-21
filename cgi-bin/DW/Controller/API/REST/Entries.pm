@@ -179,9 +179,7 @@ sub rest_get {
     if ( defined $ditemid && $ditemid ne "" ) {
         my $item = LJ::Entry->new( $journal, ditemid => $ditemid );
 
-        # $item will always exist, even if it's not actually a real entry id
-        # however, entries must have content, so no content means it's a bad object.
-        return $self->rest_error('404') unless $item->event_html;
+        return $self->rest_error('404') unless $item->load_view_snapshot && $item->correct_anum;
 
         return $self->rest_error('403') unless $item->visible_to($remote);
 
@@ -235,9 +233,10 @@ sub rest_get {
             posterid      => $journal->is_community && $poster ? $poster->id : undef,
         );
 
+        my $loaded = LJ::Entry->load_view_entries( $journal, \@items );
         my @entries;
         foreach my $it (@items) {
-            my $item  = LJ::Entry->new( $journal, jitemid => $it->{itemid} );
+            my $item  = $loaded->{ $it->{itemid} } or next;
             my $entry = $item->TO_JSON($remote);
             push @entries, $entry;
         }

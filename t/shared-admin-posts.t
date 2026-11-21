@@ -670,10 +670,61 @@ $official->set_prop( statusvis => undef );
 
 {
     no warnings 'redefine';
+    my $public  = 'Original public permalink text';
+    my $private = 'Replacement private permalink text';
+    my $racing  = post_entry( $community, $author, $public, 1 );
+    my $url     = 'http://www.dw.test/users/' . $community->user . '/' . $racing->ditemid . '.html';
+    my $visible_to  = \&LJ::Entry::visible_to;
+    my $interleaved = 0;
+    local *LJ::Entry::visible_to = sub {
+        my ($entry) = @_;
+        my $visible = $visible_to->(@_);
+        if (   $visible
+            && $entry->journalid == $community->id
+            && $entry->jitemid == $racing->jitemid
+            && !$interleaved )
+        {
+            $interleaved = 1;
+            is(
+                edit_entry( $racing, $editor, $private, security => 'private', reuse_request => 1 ),
+                0,
+                'the shared edit commits after the permalink authorizes the public revision'
+            );
+        }
+        return $visible;
+    };
+    local *LJ::make_journal = sub {
+        my ( undef, undef, $remote, $opts ) = @_;
+        my $ctx = [];
+        local $LJ::S2::CURR_CTX = $ctx;
+        my ( undef, $rendered ) =
+            LJ::S2::EntryPage_entry( $community, $remote, { %$opts, getargs => {}, ctx => $ctx } );
+        return $rendered ? $rendered->{text} : '';
+    };
+
+    my $during = $app_test->request( GET $url );
+    ok( $interleaved, 'the rendered permalink reached the overlap point' );
+    is( $during->code, 200, 'the original permalink request succeeds' );
+    like( $during->content, qr/\Q$public\E/,
+        'the in-flight public permalink renders its original text' );
+    unlike( $during->content, qr/\Q$private\E/,
+        'the public permalink never renders the private revision' );
+    my $after = $app_test->request( GET $url );
+    is( $after->code, 404, 'a later anonymous permalink request is denied' );
+    unlike( $after->content, qr/\Q$public\E|\Q$private\E/,
+        'a later anonymous view cannot read either revision' );
+}
+
+{
+    no warnings 'redefine';
     local @LJ::MEMCACHE_SERVERS = ('fake');
     my $original_memcache = LJ::MemCache::get_memcache();
     LJ::MemCache::set_memcache( LJ::Test::FakeMemCache->new );
-    my $racing = post_entry( $community, $author, 'Public before reading cache fill', 1 );
+    my $sentinel = post_entry( $community, $author, 'Oldest visible page fixture',      1 );
+    my $older    = post_entry( $community, $author, 'Older visible page fixture',       1 );
+    my $racing   = post_entry( $community, $author, 'Public before reading cache fill', 1 );
+    my $newer    = post_entry( $community, $author, 'Newer visible page fixture',       1 );
+    post_entry( $community, $author, 'Newest visible page fixture', 1 );
     $member->add_edge( $community, watch => {} );
     $editor->add_edge( $community, watch => {} );
 
@@ -705,8 +756,12 @@ $official->set_prop( statusvis => undef );
         }
         return $set->(@_);
     };
-    is( scalar $read->($member),
-        0, 'the in-flight reading page does not include the private entry' );
+    my @page = $member->watch_items( remote => $member, itemshow => 3, skip => 1 );
+    is_deeply(
+        [ map { $_->{jitemid} } @page ],
+        [ map { $_->jitemid } ( $newer, $older, $sentinel ) ],
+'the reading page skips the private candidate and refills both the page and its older-link sentinel'
+    );
     ok( $interleaved, 'the reading cache fill reached the interleaving point' );
     LJ::start_request();
     is( scalar $read->($member), 0, 'later reading pages do not include the private entry' );
