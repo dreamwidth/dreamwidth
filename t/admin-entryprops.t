@@ -18,6 +18,7 @@ use Test::More;
 use Encode qw(encode_utf8);
 use File::Temp qw(tempdir);
 use HTTP::Request::Common;
+use MIME::Base64 qw(encode_base64);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Controller::Admin::Props;
@@ -77,28 +78,38 @@ ok( $viewer->grant_priv( 'canview', 'entryprops' ), 'grant the view privilege' )
 my $view = post_entryprops( $viewer, url => $entry_url );
 like( $view, qr/Original music/, 'viewer can look up the existing property' );
 unlike( $view, qr/\bname=['"]_save['"]/, 'viewer does not see an editor' );
-post_entryprops( $viewer, url => $entry_url, _save => 1, prop_current_music => 'Viewer edit' );
-is( persisted_music(), 'Original music', 'a direct save by a viewer does not write' );
 
 my $admin = temp_user();
 ok( $admin->grant_priv( 'siteadmin', 'entryprops' ), 'grant the edit privilege' );
-post_entryprops( $admin, url => $entry_url, _save => 1, prop_current_music => 'No view privilege' );
-is( persisted_music(), 'Original music', 'the edit privilege alone cannot write' );
-ok( $admin->grant_priv( 'canview', 'entryprops' ), 'grant the editor the view privilege' );
+ok( $admin->grant_priv( 'canview',   'entryprops' ), 'grant the editor the view privilege' );
 
 my $form = post_entryprops( $admin, url => $entry_url );
 like( $form, qr/\bname=['"]_save['"]/, 'authorized administrator sees an editor' );
 my ($auth) = $form =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
 ok( $auth, 'editor includes a form-auth token' );
 
+my $edit_only = temp_user();
+ok( $edit_only->grant_priv( 'siteadmin', 'entryprops' ), 'grant only the edit privilege' );
+foreach my $actor ( $viewer, $edit_only ) {
+    my $denied = post_entryprops(
+        $actor,
+        url   => $entry_url,
+        _save => 1,
+        baseline( $form, 'current_music' ), prop_current_music => 'Unauthorized edit',
+    );
+    like( $denied, qr/<h1>Error<\/h1>/, 'save without both privileges is rejected' );
+    is( persisted_music(), 'Original music', 'missing privilege prevents a write' );
+}
+
 my $not_saved = post_entryprops(
     $admin,
-    url                => $entry_url,
-    _save              => 1,
-    lj_form_auth       => '',
+    url          => $entry_url,
+    _save        => 1,
+    lj_form_auth => '',
+    baseline( $form, 'current_music' ),
     prop_current_music => 'No form auth'
 );
-unlike( $not_saved, qr/Original music/, 'a save without form auth does not show the editor' );
+like( $not_saved, qr/<h1>Error<\/h1>/, 'a save without form auth is rejected' );
 is( persisted_music(), 'Original music', 'missing form auth prevents a write' );
 
 foreach my $bad_url ( undef, 'not-an-entry', "$entry_path/9999999.html",
@@ -244,5 +255,58 @@ unlike(
     qr/\bname=['"]prop_current_music['"]/,
     'a cleared property cannot be added back through the editor'
 );
+
+foreach my $protected ( [ statusvis => 'S', 'V' ], [ opt_backdated => '1', '' ],
+    [ revnum => '1', '2' ] )
+{
+    my ( $name, $original, $value ) = @$protected;
+    is( persisted_prop($name), $original, "$name starts with the expected stored value" );
+    my $denied = post_entryprops(
+        $admin,
+        url              => $entry_url,
+        _save            => 1,
+        "baseline_$name" => encode_base64( $original, '' ),
+        "prop_$name"     => $value,
+        baseline( $suspended_form, 'current_location' ), prop_current_location => 'Do not save',
+    );
+    like( $denied, qr/entry property is read-only/, "$name is rejected by the save handler" );
+    is( persisted_prop($name), $original, "$name remains unchanged after the rejected save" );
+    is( persisted_prop('current_location'), 'New location', 'the companion edit is not saved' );
+}
+
+my $absent = post_entryprops(
+    $admin,
+    url                    => $entry_url,
+    _save                  => 1,
+    baseline_current_music => '',
+    prop_current_music     => 'Re-add music',
+);
+like( $absent, qr/changed since you opened/, 'the save handler rejects an absent property' );
+is( persisted_music(), undef, 'the absent property is not created' );
+
+{
+    no warnings 'redefine';
+    local *LJ::statushistory_add = sub { return 0 };
+    my @warnings;
+    local $SIG{__WARN__} = sub { push @warnings, @_ };
+    my $partial = post_entryprops(
+        $admin,
+        url   => $entry_url,
+        _save => 1,
+        baseline( $suspended_form, 'current_location' ), prop_current_location => 'Audit failed',
+    );
+    like(
+        $partial,
+        qr/audit record could not be written/,
+        'the response reports the audit failure'
+    );
+    is( persisted_prop('current_location'),
+        'Audit failed', 'the committed edit is not rolled back' );
+    like(
+        join( '', @warnings ),
+        qr/Could not write entryprops audit record/,
+        'the server logs the audit failure'
+    );
+}
 
 done_testing;
