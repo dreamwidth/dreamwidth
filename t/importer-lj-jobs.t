@@ -21,6 +21,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use HTTP::Response;
+use DW::Media;
 use LJ::Comment;
 use LJ::Test qw( temp_user );
 use Storable qw( thaw );
@@ -354,6 +355,113 @@ subtest 'LiveJournal access stages retry instead of reporting partial success' =
         1 | ( 1 << $map->{3} ),
         'the following eligible friend receives the mapped grant'
     );
+
+    # Stale groupmap: a filter slot deleted and replaced between FriendGroups and Friends
+    # (including across a retry) must not grant membership in the replacement filter.
+    {
+        my $replaced_friend = temp_user();
+        my $old_slot        = $map->{3};
+        local *Test::TrustSource::friends = sub {
+            return ( { username => $replaced_friend->user, groupmask => 9 } );
+        };
+        local *DW::Worker::ContentImporter::LiveJournal::get_remapped_userids =
+            sub { return LJ::load_user( $_[2] )->id };
+
+        # First attempt hits contention (triggering retry), then the slot is replaced
+        $lock = $u->lock_trust_groups or die 'cannot hold owner lock';
+        is( $friends->run($ctx)->status, 'temp_fail', 'initial attempt retries on contention' );
+        $lock->release;
+
+        ok( $u->delete_trust_group( id => $old_slot ), 'deletes original imported filter slot' );
+        is( $u->create_trust_group( id => $old_slot, groupname => 'Private replacement' ),
+            $old_slot, 'reuses the same slot for a different filter' );
+        $LJ::CAP{$_}{media_file_quota} = 10 for keys %LJ::CAP;
+        my $replacement_img = DW::Media->upload_media(
+            user      => $u,
+            file      => 'htdocs/img/videoplaceholder.png',
+            security  => 'usemask',
+            allowmask => 1 << $old_slot,
+        );
+        ok( $replacement_img, 'created image secured to the replacement filter' );
+
+        # Retry with the stale map (both on reused ctx and on a fresh ctx) must fail closed
+        my $stale_retry = $friends->run($ctx);
+        is( $stale_retry->status, 'fail', 'retry after slot replacement fails closed' );
+        like(
+            $stale_retry->message,
+            qr/access filters changed|stale/i,
+            'reports the stale filter map'
+        );
+        ok( !$u->trustmask_from_primary($replaced_friend),
+            'stale retry grants no membership in the replacement filter' );
+        ok( !$replacement_img->visible_to($replaced_friend),
+            'stale retry cannot grant image access to the replacement filter' );
+
+        my $fresh_ctx = DW::Importer::Context->new(
+            u    => $u,
+            data => $data,
+            sink => DW::Importer::Sink::Live->new( u => $u, data => $data ),
+        );
+        $fresh_ctx->cache->{source} = bless {}, 'Test::TrustSource';
+        my $stale_fresh = $friends->run($fresh_ctx);
+        is( $stale_fresh->status, 'fail', 'fresh friends job also rejects the stale map' );
+        ok(
+            !$u->trustmask_from_primary($replaced_friend),
+            'fresh run grants no membership in the replacement filter'
+        );
+
+   # Sibling entries path: an imported custom-secured entry with a stale map fails closed to private
+        my $entry_ctx = DW::Importer::Context->new(
+            u    => $u,
+            data => $data,
+            sink => DW::Importer::Sink::Live->new( u => $u, data => $data ),
+        );
+        local $remote->{answer} = sub {
+            my ( $mode, $hash ) = @_;
+            my $custom_evt = {
+                itemid    => 3,
+                anum      => 11,
+                subject   => 'stale custom entry',
+                event     => 'body',
+                security  => 'usemask',
+                allowmask => 1 << 3,
+                eventtime => '2009-03-06 05:06:07',
+                logtime   => '2009-03-06 05:06:08',
+                props     => {},
+            };
+            return { events => [$custom_evt] } if $hash->{selecttype} eq 'lastn';
+            return { events => [$custom_evt] };
+        };
+        $dbh->do(
+            "UPDATE import_items SET status = 'queued' WHERE userid = ? AND item = 'lj_entries'",
+            undef, $u->id );
+        my $entry_job = run_job($entries_class);
+        is( $entry_job->{state}, 'completed', 'entries job completes with fail-closed fallback' );
+        my $entry_map = DW::Worker::ContentImporter::Local::Entries->get_entry_map($u);
+        my $posted_id = $entry_map->{ "$host/someone/" . ( 3 * 256 + 11 ) };
+        ok( $posted_id, 'entry with stale map was imported' );
+        my $posted = LJ::Entry->new( $u, jitemid => $posted_id );
+        is( $posted->security, 'private', 'stale custom entry fails closed to private' );
+        is( $posted->allowmask, 0, 'stale custom entry does not bind to replacement filter' );
+
+   # Re-running FriendGroups refreshes the map to the current revision and allows Friends to succeed
+        is( $groups->run($ctx)->status, 'ok', 're-running group stage refreshes the map' );
+        my $refreshed_map = $sink->groupmap;
+        ok(
+            $refreshed_map->{3} && $refreshed_map->{3} != $old_slot,
+            'refreshed group gets a new slot distinct from the replacement filter'
+        );
+        is( $friends->run($ctx)->status, 'ok', 'friends stage succeeds with the refreshed map' );
+        is(
+            $u->trustmask_from_primary($replaced_friend),
+            1 | ( 1 << $refreshed_map->{3} ),
+            'refreshed grant targets only the refreshed filter'
+        );
+        ok( !$replacement_img->visible_to($replaced_friend),
+            'refreshed grant still cannot access the replacement filter image' );
+
+        $replacement_img->delete if $replacement_img;
+    }
 };
 
 done_testing();

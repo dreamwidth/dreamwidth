@@ -58,6 +58,8 @@ DW::User::Edges::define_edge(
             mask            => { required => 0, type => 'int' },
             nonotify        => { required => 0, type => 'bool', default => 0 },
             policy_rejected => { required => 0, type => 'bool' },
+            group_revision  => { required => 0, type => 'int' },
+            stale_groups    => { required => 0, type => 'bool' },
         },
         add_sub => \&_add_wt_edge,
         del_sub => \&_del_wt_edge,
@@ -83,12 +85,27 @@ sub _add_wt_edge {
         ? \$trust_edge->{policy_rejected}
         : undef;
     $$policy_rejected = 0 if $policy_rejected;
+    my $stale_groups =
+        exists $trust_edge->{stale_groups}
+        ? \$trust_edge->{stale_groups}
+        : undef;
+    $$stale_groups = 0 if $stale_groups;
 
     my $lock = DW::User::_lock_trust_group_write($from_u) or return 0;
     my $dbh = LJ::get_db_writer() or return 0;
     my $current = LJ::load_userid( $from_u->id, 'force' ) or return 0;
     return 0 if $do_watch && !$current->can_watch($to_u);
     return 0 if $do_trust && !$current->can_trust( $to_u, policy_rejected => $policy_rejected );
+    if ( $do_trust && exists $trust_edge->{group_revision} ) {
+        my $current_rev = $current->trust_group_revision;
+        return 0 unless defined $current_rev;
+        if ( !defined $trust_edge->{group_revision}
+            || $current_rev != $trust_edge->{group_revision} )
+        {
+            $$stale_groups = 1 if $stale_groups;
+            return 0;
+        }
+    }
 
     # get current record, so we know what to modify
     my $row = $dbh->selectrow_hashref(

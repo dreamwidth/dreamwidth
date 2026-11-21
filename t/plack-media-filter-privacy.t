@@ -22,6 +22,7 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Media;
 use DW::Cache;
 use LJ::Console;
+use LJ::Hooks;
 use LJ::JSON;
 use LJ::Protocol;
 use LJ::Test qw(temp_user);
@@ -29,7 +30,7 @@ use LJ::Test qw(temp_user);
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-$LJ::CAP{$_}{media_file_quota} = 10 for keys %LJ::CAP;
+LJ::Hooks::register_hook( 'check_cap_media_file_quota', sub { 10 } );
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'mediaFilterTest';
 
 my $owner  = temp_user();
@@ -99,6 +100,64 @@ test_psgi $app, sub {
         is( $api->( allowmask => $valid_mask )->code, 200,         "accepts raw mask $valid_mask" );
         is( $load->()->allowmask,                     $valid_mask, 'stores the exact legacy mask' );
     }
+
+    # Mixed mask (bit 0 + custom filter) must survive a metadata-only save through Bulk Edit
+    {
+        my $mixed_form = $request->( GET $edit );
+        is( $mixed_form->code, 200, 'bulk edit loads for an image with a mixed mask' );
+        my ($auth) = $mixed_form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        my ($select_html) =
+            $mixed_form->content =~ m{<select[^>]*name=["']security-$id["'][^>]*>(.*?)</select>}s;
+        my ($selected_sec);
+        if ( defined $select_html ) {
+            if (   $select_html =~ m{<option[^>]*selected[^>]*value=["']([^"']+)["']}s
+                || $select_html =~ m{<option[^>]*value=["']([^"']+)["'][^>]*selected}s )
+            {
+                $selected_sec = $1;
+            }
+        }
+        my @checked_groups =
+            $mixed_form->content =~ m{name="group-$id" value="([^"]+)"[^>]*checked}g;
+        ok( defined $auth && defined $selected_sec, 'reads rendered mixed-mask security selector' );
+
+        my $meta_save = $request->(
+            POST $edit,
+            Content => [
+                lj_form_auth   => $auth,
+                'action:edit'  => 1,
+                "title-$id"    => 'Mixed mask title',
+                "security-$id" => $selected_sec,
+                map { ( "group-$id" => $_ ) } @checked_groups,
+            ]
+        );
+        is( $meta_save->code, 200, 'metadata-only bulk edit succeeds on a mixed mask' );
+        my $after_meta = $load->();
+        is( $after_meta->prop('title'), 'Mixed mask title', 'metadata update is saved' );
+        is( $after_meta->security,      'usemask',          'mixed mask security stays usemask' );
+        is( $after_meta->allowmask, $mask | 1, 'metadata-only bulk save preserves the mixed mask' );
+
+        my $to_access = $request->(
+            POST $edit,
+            Content => [
+                lj_form_auth   => $auth,
+                'action:edit'  => 1,
+                "security-$id" => 'usemask',
+            ]
+        );
+        is( $to_access->code,     200, 'explicitly switching to Access List succeeds' );
+        is( $load->()->allowmask, 1,   'switching to Access List clears custom bits' );
+
+        my $bad_keep = $request->(
+            POST $edit,
+            Content => [
+                lj_form_auth   => $auth,
+                'action:edit'  => 1,
+                "security-$id" => 'keep',
+            ]
+        );
+        is( $bad_keep->code, 400, 'keep security option is rejected for a non-mixed mask' );
+    }
+
     is( $api->( groups => [] )->code, 200, 'accepts an empty API selection' );
     is( $load->()->allowmask,         0,   'empty API selection stores no access bits' );
     ok( !$load->()->visible_to($viewer), 'empty API selection denies a trusted viewer' );
@@ -292,6 +351,91 @@ test_psgi $app, sub {
         POST $circle, Content => [ @fresh_circle, 'action:accessfilters' => 1, "bit_$filter" => 1 ]
     );
     ok( $load->()->visible_to($viewer), 'a fresh explicit membership grant authorizes the image' );
+
+    # Actual HTTP media delivery (full-size and resized variant): cache policy and revocation
+    {
+        my $outsider = temp_user();
+        $owner->add_edge( $outsider, trust => { nonotify => 1 } );
+        my $large_fixture = 'htdocs/img/styles/abstractia/northernlights.png';
+        my $photo         = DW::Media->upload_media(
+            user     => $owner,
+            file     => $large_fixture,
+            security => 'public',
+        );
+        ok( $photo, 'uploaded a photo larger than 200x200 for delivery tests' );
+        my $thumb = DW::Media->new(
+            user    => $owner,
+            mediaid => $photo->id,
+            width   => 200,
+            height  => 200,
+        );
+        ok( $thumb && $thumb->versionid != $photo->id, 'generated a distinct 200x200 variant' );
+        my $full_url  = $photo->full_url;
+        my $thumb_url = $thumb->url;
+        my $path_thumb_url =
+            "$host/~" . $owner->user . '/file/200x200/' . $photo->displayid . '.' . $photo->ext;
+
+        my $check_no_store = sub {
+            my ( $res, $label ) = @_;
+            my $cc = $res->header('Cache-Control') // '';
+            like( $cc, qr/\bno-store\b/i,        "$label Cache-Control sets no-store" );
+            like( $cc, qr/\bno-cache\b/i,        "$label Cache-Control sets no-cache" );
+            like( $cc, qr/\bmust-revalidate\b/i, "$label Cache-Control sets must-revalidate" );
+            is( $res->header('Expires'), '0', "$label sets Expires: 0" );
+        };
+
+        for my $case (
+            [ 'full',           $full_url ],
+            [ 'thumbnail',      $thumb_url ],
+            [ 'path-thumbnail', $path_thumb_url ]
+            )
+        {
+            my ( $kind, $url ) = @$case;
+            my $pub = $request->( GET $url );
+            is( $pub->code,                   200,         "public $kind delivery returns 200" );
+            is( $pub->header('Content-Type'), 'image/png', "public $kind returns PNG content" );
+            $check_no_store->( $pub, "public $kind" );
+        }
+
+        ok( $photo->set_security( security => 'usemask', allowmask => $mask ),
+            'narrowed photo from public to custom filter' );
+
+        for my $case (
+            [ 'full',           $full_url ],
+            [ 'thumbnail',      $thumb_url ],
+            [ 'path-thumbnail', $path_thumb_url ]
+            )
+        {
+            my ( $kind, $url ) = @$case;
+            my $anon = $request->( GET $url );
+            is( $anon->code, 403, "anonymous viewer denied $kind after narrowing" );
+            $check_no_store->( $anon, "denied anonymous $kind" );
+
+            my $other = $request->( GET "$url?as=" . $outsider->user );
+            is( $other->code, 403, "non-member trusted viewer denied $kind" );
+
+            my $allowed = $request->( GET "$url?as=" . $viewer->user );
+            is( $allowed->code, 200, "entitled filter member receives $kind" );
+            is( $allowed->header('Content-Type'), 'image/png', "entitled $kind returns PNG bytes" );
+            $check_no_store->( $allowed, "authorized custom $kind" );
+        }
+
+        ok( $owner->edit_trustmask( $viewer, remove => $filter ),
+            'revoked viewer from custom filter' );
+        for my $case (
+            [ 'full',           $full_url ],
+            [ 'thumbnail',      $thumb_url ],
+            [ 'path-thumbnail', $path_thumb_url ]
+            )
+        {
+            my ( $kind, $url ) = @$case;
+            my $revoked = $request->( GET "$url?as=" . $viewer->user );
+            is( $revoked->code, 403, "revoked viewer is denied $kind" );
+            $check_no_store->( $revoked, "revoked $kind" );
+        }
+
+        $photo->delete if $photo;
+    }
 };
 
 $image->delete;

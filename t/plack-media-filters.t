@@ -20,13 +20,14 @@ use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Media;
+use LJ::Hooks;
 use LJ::JSON;
 use LJ::Test qw(temp_user);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-$LJ::CAP{$_}{media_file_quota} = 10 for keys %LJ::CAP;
+LJ::Hooks::register_hook( 'check_cap_media_file_quota', sub { 10 } );
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'mediaFilterTest';
 
 {

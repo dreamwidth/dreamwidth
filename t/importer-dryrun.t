@@ -117,10 +117,10 @@ my %dry = ( userid => $u->id, import_data_id => 1, transport => $site );
 # memcache is watched too: a dry run may read through it but must put nothing in it
 my $fake_memcache = LJ::Test::FakeMemCache->new;
 my $real_memcache = LJ::MemCache::get_memcache();
-local @LJ::MEMCACHE_SERVERS = ('fake');
 
 sub dry_run_chain_watching_memcache {
     my (%args) = @_;
+    local @LJ::MEMCACHE_SERVERS = ('fake');
     LJ::MemCache::set_memcache($fake_memcache);
     my $report = eval { DW::Importer::Job->dry_run_chain(%args) };
     my $error  = $@;
