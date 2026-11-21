@@ -111,11 +111,12 @@ sub save_groupmap {
 
     my $dbh = LJ::get_db_writer()
         or croak 'unable to get global database handle';
-    $dbh->do(
+    my $rows = $dbh->do(
         q{UPDATE import_data SET groupmap = ?
           WHERE userid = ? AND import_data_id = ?},
         undef, nfreeze($map), $self->{u}->id, $data->{import_data_id}
     );
+    return defined $rows;
 }
 
 sub merge_trust {

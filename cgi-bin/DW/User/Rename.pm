@@ -403,7 +403,7 @@ sub _rename {
 
     $token->apply( userid => $self->userid, from => $fromusername, to => $tousername );
 
-    $self->apply_rename_opts(
+    my $incomplete = $self->apply_rename_opts(
         from     => $fromusername,
         to       => $tousername,
         redirect => {
@@ -416,6 +416,7 @@ sub _rename {
         },
         user => $opts{user},
     );
+    @{ $opts{incomplete_relationships} } = @$incomplete if $opts{incomplete_relationships};
 
     # update current object to new username, and update the email under the new username
     $self->{user} = $tousername;
@@ -439,7 +440,8 @@ sub _rename {
 
 =head2 C<< $self->apply_rename_opts >>
 
-Apply the stated rename options. Will log.
+Apply the stated rename options. Logs completed changes and returns an arrayref of incomplete
+relationship category codes.
 
 
 Arguments are:
@@ -513,7 +515,8 @@ sub apply_rename_opts {
         $extra_args{break} = join( ":", @break );
     }
 
-    $extra_args{del} = $self->delete_relationships( %{ $opts{del} } )
+    my @incomplete;
+    $extra_args{del} = $self->delete_relationships( %{ $opts{del} }, incomplete => \@incomplete )
         if %{ $opts{del} || {} };
 
     $extra_args{from} = $from if $from;
@@ -528,6 +531,7 @@ sub apply_rename_opts {
         }
     ) unless $self->is_expunged;    # if expunged, we don't need this info anymore
                                     # also, would error; don't have a cluster 0
+    return \@incomplete;
 }
 
 =head2 C<< $self->break_redirects >>
@@ -595,6 +599,7 @@ sub break_email_redirection {
 =head2 C<< $self->delete_relationships >>
 
 Delete a list of relationships. Returns codes for categories that completed without errors.
+If passed C<incomplete>, fills that arrayref with the category codes that did not complete.
 
 =cut
 
@@ -662,6 +667,7 @@ sub delete_relationships {
     push @del, "W"  if $opts{del_watched};
     push @del, "C"  if $opts{del_communities};
 
+    @{ $opts{incomplete} } = grep { $failed{$_} } @del if $opts{incomplete};
     return join ":", grep { !$failed{$_} } @del;
 }
 

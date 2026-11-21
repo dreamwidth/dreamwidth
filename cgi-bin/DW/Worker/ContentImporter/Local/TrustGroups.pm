@@ -37,24 +37,30 @@ $groups is a reference to an array of hashrefs, with each hashref with the follo
     id => 1,                 # The ID the group uses
   }
 
-Returns a map of old-id to new-id.
+Returns a map of old-id to new-id, or undef if any group could not be saved.
 
 =cut
 
 sub merge_trust_groups {
     my ( $class, $u, $groups ) = @_;
+    return {} unless $groups && @$groups;
+    return $u->with_trust_groups_lock( sub { _merge_trust_groups( $u, $groups ) } );
+}
+
+sub _merge_trust_groups {
+    my ( $u, $groups ) = @_;
 
     # map our existing groups to name->id so we can use this list
     # later to map groups if we've imported before
     my %name_map;
-    my $cur_groups = $u->trust_groups || {};
+    my $cur_groups = $u->trust_groups( force_database => 1 ) or return undef;
     foreach my $id ( keys %$cur_groups ) {
         $name_map{ $cur_groups->{$id}->{groupname} } = $id;
     }
 
     # now map new groups
     my %map;
-    foreach my $group ( @{ $groups || [] } ) {
+    foreach my $group (@$groups) {
 
         # we assume the incoming group is valid
         my $name   = $group->{name};
@@ -65,12 +71,13 @@ sub merge_trust_groups {
 
         if ( defined $name_map{$name} ) {
             $id = $name_map{$name};
-            $u->edit_trust_group(
+            return undef
+                unless $u->edit_trust_group(
                 id        => $id,
                 groupname => $name,
                 sortorder => $sort,
                 is_public => $public
-            );
+                );
         }
         else {
             $id = $u->create_trust_group(
@@ -80,7 +87,8 @@ sub merge_trust_groups {
             );
         }
 
-        $map{ $group->{id} } = $id if $id;
+        return undef unless $id;
+        $map{ $group->{id} } = $id;
     }
 
     return \%map;

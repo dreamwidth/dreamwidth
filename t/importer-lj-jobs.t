@@ -26,9 +26,13 @@ use LJ::Test qw( temp_user );
 use Storable qw( thaw );
 
 use DW::Importer::Job;
+use DW::Importer::Context;
+use DW::Importer::Sink::Live;
 use DW::Logic::Importer;
 use DW::Worker::ContentImporter::LiveJournal::Comments;
 use DW::Worker::ContentImporter::LiveJournal::Entries;
+use DW::Worker::ContentImporter::LiveJournal::FriendGroups;
+use DW::Worker::ContentImporter::LiveJournal::Friends;
 use DW::Worker::ContentImporter::Local::Comments;
 use DW::Worker::ContentImporter::Local::Entries;
 
@@ -276,5 +280,55 @@ sub events {
     like( $status->{text}, qr/^1 comments were not imported/, 'the user is told one was skipped' );
     is( status_of('lj_comments'), 'succeeded', 'the item succeeded' );
 }
+
+{
+
+    package Test::TrustSource;
+
+    sub trust_groups {
+        return ( { id => 3, name => 'Imported access', sortorder => 50, public => 0 } );
+    }
+    sub friends { return ( { username => 'friend', groupmask => 9 } ) }
+}
+
+subtest 'LiveJournal access stages retry instead of reporting partial success' => sub {
+    my $friend = temp_user();
+    my $data   = { userid => $u->id, import_data_id => 1 };
+    my $sink   = DW::Importer::Sink::Live->new( u => $u, data => $data );
+    my $ctx    = DW::Importer::Context->new( u => $u, data => $data, sink => $sink );
+    $ctx->cache->{source} = bless {}, 'Test::TrustSource';
+    no warnings 'redefine';
+    local *DW::Worker::ContentImporter::LiveJournal::get_remapped_userids =
+        sub { return $friend->id };
+
+    my $groups  = 'DW::Worker::ContentImporter::LiveJournal::FriendGroups';
+    my $friends = 'DW::Worker::ContentImporter::LiveJournal::Friends';
+    my $lock    = $u->lock_trust_groups or die 'cannot hold owner lock';
+    is( $groups->run($ctx)->status, 'temp_fail', 'contended group creation retries the stage' );
+    my $saved_map = sub {
+        return $dbh->selectrow_array(
+            'SELECT groupmap FROM import_data WHERE userid = ? AND import_data_id = 1',
+            undef, $u->id );
+    };
+    ok( !defined $saved_map->(), 'failed creation does not publish a partial map' );
+    $lock->release;
+
+    is( $groups->run($ctx)->status, 'ok', 'group stage can run again' );
+    my $map = $sink->groupmap;
+    ok( $map->{3}, 'the complete map is saved' );
+    $lock = $u->lock_trust_groups or die 'cannot hold owner lock';
+    is( $groups->run($ctx)->status, 'temp_fail', 'contended group update also retries the stage' );
+    is_deeply( $sink->groupmap, $map, 'failed update preserves the prior map' );
+    is( $friends->run($ctx)->status, 'temp_fail', 'contended grant retries the friends stage' );
+    ok( !$u->trustmask_from_primary($friend), 'no grant is written during contention' );
+    $lock->release;
+
+    is( $friends->run($ctx)->status, 'ok', 'friends stage can run again' );
+    is(
+        $u->trustmask_from_primary($friend),
+        1 | ( 1 << $map->{3} ),
+        'retried grant uses the saved map'
+    );
+};
 
 done_testing();

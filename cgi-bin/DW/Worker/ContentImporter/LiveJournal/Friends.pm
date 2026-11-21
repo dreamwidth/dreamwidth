@@ -55,7 +55,8 @@ sub run {
         #        } if $local_fid;
     }
 
-    $ctx->sink->merge_trust( \@friends );
+    $ctx->sink->merge_trust( \@friends )
+        or return $ctx->temp_fail('Could not save all imported access grants.');
 
     #    DW::Worker::ContentImporter->merge_watch( $u, $opts, \@feeds );
 

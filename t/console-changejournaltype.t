@@ -76,6 +76,15 @@ subtest 'failed trust cleanup prevents conversion' => sub {
     like( $run->( 'change_journal_type ' . $blocked_comm->user . " community $owner" ),
         qr/^success:/, 'converts the journal to a community with incoming trust' );
     is( $u2->trustmask_from_primary($blocked_comm), 1, 'the community has an incoming trust edge' );
+    my $get_cache = \&LJ::MemCache::get;
+    no warnings 'redefine';
+    local *LJ::MemCache::get = sub {
+        my ($key) = @_;
+        return pack( 'N', 50000 )
+            if ref $key eq 'ARRAY' && $key->[1] eq 'trusted_by:' . $blocked_comm->id;
+        return $get_cache->(@_);
+    };
+    is( scalar( $blocked_comm->trusted_by_userids ), 0, 'cached reverse list omits the grant' );
 
     my $lock = $u2->lock_trust_groups;
     ok( $lock, 'holds the trust owner lock' );
@@ -96,6 +105,9 @@ subtest 'failed trust cleanup prevents conversion' => sub {
         ),
         'the community settings row remains'
     );
+    like( $run->( 'change_journal_type ' . $blocked_comm->user . " person $owner" ),
+        qr/^success:/, 'conversion succeeds after contention ends' );
+    is( $u2->trustmask_from_primary($blocked_comm) || 0, 0, 'writer-only grant is removed' );
 };
 
 foreach my $to (qw(person community)) {

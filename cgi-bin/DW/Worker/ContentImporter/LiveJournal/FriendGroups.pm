@@ -24,10 +24,12 @@ sub run {
     my $sink = $ctx->sink;
 
     my @groups = $class->source_for($ctx)->trust_groups;
-    my $map    = $sink->merge_trust_groups( \@groups );
+    my $map    = $sink->merge_trust_groups( \@groups )
+        or return $ctx->temp_fail('Could not save all imported access filters.');
 
     # store the merged map; the friends and entries jobs read it
-    $sink->save_groupmap($map);
+    $sink->save_groupmap($map)
+        or return $ctx->temp_fail('Could not save the imported access filter map.');
 
     return $ctx->ok;
 }
