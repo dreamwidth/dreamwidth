@@ -18,6 +18,7 @@ body<=
 <?_code
 {
     use strict;
+    use LJ::Talk;
     use vars qw(%GET %POST);
     BML::decl_params(_default => qr/./);
 
@@ -51,6 +52,7 @@ body<=
     $getextra .= "usejournal=$usejournal&" if $usejournal;
     chop $getextra;
     $getextra = "?$getextra" if $getextra;
+    $getextra = LJ::Talk::talkargs($getextra, LJ::viewing_style_args(%GET));
 
     my $entry_chooser = sub {
         my $ret;
@@ -192,7 +194,8 @@ body<=
                 $disabled_save++;
             }
 
-            return BML::redirect( "/entry/" . $u_for_entry->user . "/$ditemid/edit" )
+            return BML::redirect( LJ::Talk::talkargs(
+                "/entry/" . $u_for_entry->user . "/$ditemid/edit", LJ::viewing_style_args(%GET) ) )
                     if ! $disabled_save && LJ::BetaFeatures->user_in_beta( $remote => "updatepage" );
 
             ###
@@ -276,10 +279,12 @@ body<=
 
                 my $deleted = $req{event} ? 0 : 1;
                 my $journalu = $usejournal ? $usejournal_u : $u;
-                my $j_base = $journalu->journal_base;
-                my $entry_url = $entry_obj->url;
+                my $style_args = LJ::viewing_style_args(%GET);
+                my $j_base = LJ::Talk::talkargs($journalu->journal_base, $style_args);
+                my $entry_url = $entry_obj->url(style_opts => LJ::viewing_style_opts(%GET));
                 my $edititemlink = "/editjournal?itemid=$ditemid";
                 my $edit_url = $edititemlink . "&journal=" . $journalu->user;
+                $edit_url = LJ::Talk::talkargs($edit_url, $style_args);
 
                 # update crosspost if we're posting to our own journal and have
                 # selected crosspost.
@@ -308,7 +313,7 @@ body<=
                                           map {"<li><div style='color: red;'><strong>"
                                                . BML::ml('xpost.request.failed',
                                                          {account => $_->displayname,
-                                                          'editurl' => $edititemlink})
+                                                          'editurl' => $edit_url})
                                                . " </strong></div></li>"}
                                               @{$xpost_failures});
                     $xpost_result .= "</ul>\n";

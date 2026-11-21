@@ -33,6 +33,7 @@ use DW::Entry;
 use Hash::MultiValue;
 use HTTP::Status qw( :constants );
 use LJ::JSON;
+use LJ::Talk;
 
 use DW::External::Account;
 use DW::External::Site;
@@ -895,21 +896,23 @@ sub _do_post {
         $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
             if $res->{message};
 
-        my $u       = $auth->{poster};
-        my $journal = $auth->{journal};
+        my $u          = $auth->{poster};
+        my $journal    = $auth->{journal};
+        my $style_args = LJ::viewing_style_args( %{ DW::Request->get->get_args } );
 
         # we updated successfully! Now tell the user
         my $poststatus = {
             status    => 'posted',
             ml_string => $journal->is_community ? ".new.community" : ".new.journal",
-            url       => $journal->journal_base . "/",
+            url       => LJ::Talk::talkargs( $journal->journal_base . "/", $style_args ),
         };
 
         # bunch of helpful links
-        my $juser        = $journal->user;
-        my $ditemid      = $res->{itemid} * 256 + $res->{anum};
-        my $itemlink     = $res->{url};
-        my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+        my $juser    = $journal->user;
+        my $ditemid  = $res->{itemid} * 256 + $res->{anum};
+        my $itemlink = LJ::Talk::talkargs( $res->{url}, $style_args );
+        my $edititemlink =
+            LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit", $style_args );
 
         my @links = (
             {
@@ -928,7 +931,9 @@ sub _do_post {
 
         push @links,
             {
-            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            url => LJ::Talk::talkargs(
+                $journal->journal_base . "?poster=" . $auth->{poster}->user, $style_args
+            ),
             ml_string => ".links.myentries"
             }
             if $journal->is_community;
@@ -1012,8 +1017,9 @@ sub _do_edit {
     # bunch of helpful links:
     my $juser         = $journal->user;
     my $comm_modifier = $journal->is_community ? '.comm' : '';
-    my $entry_url     = $res->{url};
-    my $edit_url      = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+    my $style_args    = LJ::viewing_style_args( %{ DW::Request->get->get_args } );
+    my $entry_url     = LJ::Talk::talkargs( $res->{url}, $style_args );
+    my $edit_url = LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit", $style_args );
 
     my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
     if ( $remote->can_manage($journal) ) {
@@ -1035,7 +1041,9 @@ sub _do_edit {
 
         push @links,
             {
-            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            url => LJ::Talk::talkargs(
+                $journal->journal_base . "?poster=" . $auth->{poster}->user, $style_args
+            ),
             ml_string => ".links.myentries"
             }
             if $journal->is_community;
@@ -1072,7 +1080,9 @@ sub _do_edit {
 
         push @links,
             {
-            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            url => LJ::Talk::talkargs(
+                $journal->journal_base . "?poster=" . $auth->{poster}->user, $style_args
+            ),
             ml_string => ".links.myentries"
             }
             if $journal->is_community;
@@ -1107,7 +1117,7 @@ sub _do_edit {
     my $poststatus = {
         status    => $deleted ? 'deleted' : 'edited',
         ml_string => $poststatus_ml,
-        url       => $journal->journal_base . "/",
+        url       => LJ::Talk::talkargs( $journal->journal_base . "/", $style_args ),
     };
 
     $render_ret = DW::Template->render_template(
