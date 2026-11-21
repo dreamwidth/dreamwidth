@@ -32,7 +32,7 @@ sub history_handler {
     my $args = $r->get_args;
     $args = $r->post_args if $r->did_post;
 
-    my ( $ok, $rv ) = controller( anonymous => 0, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 0, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $vars = {};

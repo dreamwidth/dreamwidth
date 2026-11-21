@@ -31,7 +31,7 @@ DW::Routing->register_string( '/support/see_request', \&see_request_handler, app
 sub see_request_handler {
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller( anonymous => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $scope = '/support/see_request.tt';
