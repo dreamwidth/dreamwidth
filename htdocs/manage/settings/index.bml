@@ -20,7 +20,7 @@ body<=
     use vars qw(%GET %POST $title $windowtitle $headextra @errors @warnings);
 
     use LJ::Setting;
-    use DW::Template;
+    use DW::Request;
 
     BML::set_language_scope('/manage/settings/index.bml');
 
@@ -37,11 +37,11 @@ body<=
 
     $authas = $GET{authas} || $remote->user if $remote;
 
-    my $can_view_other = $remote && $remote->has_priv( "canview", "subscriptions" );
-
-    if ( $can_view_other && $GET{user} && $GET{cat} && $GET{cat} eq 'notifications' ) {
-        # impersonation mode - check for $u->user ne $authas
-        $u = LJ::load_user( $GET{user} );
+    if ( $remote && ($GET{cat} || '') eq 'notifications' ) {
+        my $url = LJ::create_url( '/manage/settings/notifications', keep_args => [qw(authas user page)] );
+        return BML::redirect($url) unless LJ::did_post();
+        DW::Request->get->header_out( Location => $url );
+        return BML::http_response(307, '');
     }
 
     if ( $remote && ! defined $u ) {
@@ -135,8 +135,7 @@ body<=
             name => $ML{'.cat.notifications'},
             visible => 1,
             disabled => !$u || $u->is_community ? 1 : 0,
-            form => 1,
-            desc => BML::ml( '.cat.notifications.desc', { aopts => "href='$LJ::SITEROOT/manage/circle/edit'" } ),
+            form => 0,
             settings => [],
         },
         mobile => {
@@ -233,15 +232,6 @@ body<=
         $given_cat = "display";
     }
 
-    if ( $u && $u->user ne $authas ) {
-        # can only impersonate notification settings -
-        # if invisible or disabled, print this error
-        return LJ::bad_input( $ML{'error.invalidauth'} )
-            if $given_cat ne 'notifications';
-        # don't allow editing
-        $cats_with_settings{notifications}->{form} = 0;
-    }
-
     my @settings = @{$cats_with_settings{$given_cat}->{settings}};
 
     # remove any settings that don't exist for this category
@@ -267,55 +257,13 @@ body<=
         return LJ::bad_input($ML{'error.invalidform'})
             unless LJ::check_form_auth();
 
-        # can't make changes while impersonating
-        return LJ::bad_input( $ML{'error.invalidauth'} )
-            if $u && $u->user ne $authas;
+        $save_rv = LJ::Setting->save_all($u, \%POST, \@settings);
 
-        if ( $given_cat eq "notifications" && $POST{deleteinactive} ) {
-            $u->delete_all_inactive_subscriptions;
-            $submit_msg .= "<?errorbar $ML{'.success.deleteinactive2'} errorbar?><br />";
-        } elsif ( $given_cat eq "notifications" ) {
-
-            my @notif_errors = $u->save_subscriptions( \%POST );
-            delete $u->{_subscriptions};
-
-            return BML::redirect($POST{ret_url}) if $POST{ret_url} && !scalar @notif_errors;
-
-            # save the LJ::Setting notifications too
-            unless ($POST{post_to_settings_page}) {
-                $save_rv = LJ::Setting->save_all($u, \%POST, \@settings);
-            }
-
-            if (scalar @notif_errors || LJ::Setting->save_had_errors($save_rv)) {
-                $submit_msg .= LJ::error_list(@notif_errors) . "<br />";
-            } else {
-                $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />";
-            }
+        if (LJ::Setting->save_had_errors($save_rv)) {
+            $submit_msg .= "<?errorbar $ML{'.errors'} errorbar?><br />";
         } else {
-            $save_rv = LJ::Setting->save_all($u, \%POST, \@settings);
-
-            if (LJ::Setting->save_had_errors($save_rv)) {
-                $submit_msg .= "<?errorbar $ML{'.errors'} errorbar?><br />";
-            } else {
-                $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />";
-            }
+            $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />";
         }
-    }
-
-    if ( $given_cat eq "notifications" && $u->user eq $authas ) {
-        # look for deletions from GET
-        my $deleted_subs = 0;
-        foreach my $subscr ($u->subscriptions) {
-            my $id = $subscr->id;
-            next unless $id;
-
-            if ($GET{"deletesub_$id"}) {
-                $subscr->delete;
-                $deleted_subs = 1;
-            }
-        }
-        $submit_msg .= "<?warningbar $ML{'.success'} warningbar?><br />"
-            if $deleted_subs;
     }
 
     my $ret = "<div id='settings_page'>";
@@ -361,7 +309,10 @@ body<=
             $ret .= "<li class='tab disabled'>$cats_with_settings{$cat}->{name}</li>";
         } else {
             my $active_class = $cat eq $given_cat ? " class='active'" : "";
-            $ret .= "<li class='tab'><a href='$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$cat'$active_class>$cats_with_settings{$cat}->{name}</a></li>";
+            my $url = $cat eq 'notifications'
+                ? "$LJ::SITEROOT/manage/settings/notifications$getextra"
+                : "$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$cat";
+            $ret .= "<li class='tab'><a href='$url'$active_class>$cats_with_settings{$cat}->{name}</a></li>";
         }
     }
     $ret .= "</ul>";
@@ -370,29 +321,7 @@ body<=
     $ret .= $cats_with_settings{$given_cat}->{desc};
     $ret .= "</p></div>";
 
-    if ($given_cat eq "notifications") {
-
-        $u = $u->subscription_default_setup;
-
-        my $template_vars = {
-            has_admin_form      => $can_view_other,
-            has_user_form       => $cats_with_settings{$given_cat}->{form},
-            post_action         => "$LJ::SITEROOT/manage/settings/$getextra${getsep}cat=$given_cat",
-            viewing_self        => ( $u->user eq $authas ) ? 1 : 0,
-            get_args            => \%GET,
-            subscribe_interface => LJ::subscribe_interface(
-                $u,
-                journal       => $u,
-                categories    => $u->subscription_categories_for_settings_page,
-                settings_page => 1,
-                num_per_page  => 250,
-                page          => int( $GET{page} || 0 ),
-            )
-        };
-
-        $ret .= DW::Template->template_string( 'tracking/settings-interface.tt', $template_vars );
-
-    } else {
+    {
 
         $ret .= "<div class='settings_content'>";
         $ret .= "<div class='$given_cat'>";

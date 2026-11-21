@@ -3353,6 +3353,11 @@ sub rte_js_vars {
 
 # prints out UI for subscribing to some events
 sub subscribe_interface {
+    my $page_vars = subscription_interface_data(@_);
+    return DW::Template->template_string( 'tracking/subscribe-interface.tt', $page_vars );
+}
+
+sub subscription_interface_data {
     my ( $u, %opts ) = @_;
 
     croak "subscribe_interface wants a \$u" unless LJ::isu($u);
@@ -3369,7 +3374,8 @@ sub subscribe_interface {
     croak "Invalid options passed to subscribe_interface" if ( scalar keys %opts );
 
     my @notify_classes = LJ::NotificationMethod->all_classes;
-    return "No notification methods" unless @notify_classes;
+    @notify_classes = grep { /^LJ::NotificationMethod::(?:Inbox|Email)$/ } @notify_classes
+        if $settings_page;
 
     my $page_vars = { settings_page => $settings_page };
     $page_vars->{ntypeids} = join ',', map { $_->ntypeid } @notify_classes;
@@ -3408,8 +3414,8 @@ sub subscribe_interface {
         $cat_data->{notify_headers} = [];
 
         foreach my $notify_class (@notify_classes) {
-            my $title   = eval { $notify_class->title($u) } or next;
-            my $ntypeid = $notify_class->ntypeid            or next;
+            my $title   = $settings_page ? '' : ( eval { $notify_class->title($u) } or next );
+            my $ntypeid = $notify_class->ntypeid or next;
 
             # create the checkall box for this event type.
             my $disabled = !$notify_class->configured_for_user($u);
@@ -3482,7 +3488,7 @@ sub subscribe_interface {
                         "/__rpc_esn_subs",
                         subid  => $subid,
                         action => 'delsub'
-                    );
+                    ) unless $settings_page;
                 }
 
                 $sub_data->{do_show} = $do_show;
@@ -3549,7 +3555,7 @@ sub subscribe_interface {
         }
     );
 
-    return DW::Template->template_string( 'tracking/subscribe-interface.tt', $page_vars );
+    return $page_vars;
 }
 
 # returns a placeholder link
