@@ -156,7 +156,7 @@ sub openid_claim_handler {
     my $csr             = LJ::OpenID::consumer();
     my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
-    my $claimed_id = eval { $csr->claimed_identity($url); };
+    my $claimed_id = eval { LJ::OpenID::discover_identity( $csr, $url ); };
     return $err->($@) if $@;
 
     unless ($claimed_id) {
@@ -333,7 +333,7 @@ sub openid_login_handler {
 
         my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
-        my $claimed_id = eval { $csr->claimed_identity($url); };
+        my $claimed_id = eval { LJ::OpenID::discover_identity( $csr, $url ); };
         return error_ml( '/openid/login.tt.error.claimed_identity', { err => $@ } ) if $@;
 
         unless ($claimed_id) {

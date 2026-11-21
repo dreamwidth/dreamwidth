@@ -820,7 +820,7 @@ sub authenticate_user_and_mutate_form {
 
             my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
-            my $claimed_id = $csr->claimed_identity( $form->{oidurl} );
+            my $claimed_id = LJ::OpenID::discover_identity( $csr, $form->{oidurl} );
 
             unless ($claimed_id) {
                 return $err->(
