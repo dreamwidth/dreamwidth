@@ -54,7 +54,11 @@ sub send_mail {
     # Record stats about who called us. This is pretty gross, but there are many, many
     # callers so it seems easier to amend this instead of going back and redefining
     # the LJ::send_mail API. For now.
-    my ( $package, $filename, $line ) = caller;
+    my $caller_depth = 0;
+    my ( $package, $filename, $line ) = caller($caller_depth);
+    while ( defined $filename && $filename eq __FILE__ && caller( $caller_depth + 1 ) ) {
+        ( $package, $filename, $line ) = caller( ++$caller_depth );
+    }
     DW::Stats::increment( 'dw.mail.send', 1, [ 'caller:' . "$package/$line" ] );
 
     # did they pass a MIME::Lite object already?
@@ -62,6 +66,7 @@ sub send_mail {
 
         my $clean_name = sub {
             my ( $name, $email ) = @_;
+            return '' unless defined $email && length $email;
             return $email unless $name;
             $name =~ s/[\n\t\"<>]//g;
             return $name ? "\"$name\" <$email>" : $email;
@@ -164,15 +169,44 @@ sub send_mail {
     # at this point $msg is a MIME::Lite
 
     # Enqueue in the task system for sending out by a worker
-    my $starttime = [ gettimeofday() ];
-    my ($env_from) = map { $_->address } Mail::Address->parse( $msg->get('From') );
+    my ($env_from) =
+        grep { defined && length } map { $_->address } Mail::Address->parse( $msg->get('From') );
     my @rcpts;
-    push @rcpts, map { $_->address } Mail::Address->parse( $msg->get($_) ) foreach (qw(To Cc Bcc));
-    my $host;
-    if ( @rcpts == 1 ) {
-        $rcpts[0] =~ /(.+)@(.+)$/;
-        $host = lc($2) . '@' . lc($1);    # we store it reversed in database
+    foreach my $hdr (qw(To Cc Bcc)) {
+        push @rcpts,
+            grep { defined && length } map { $_->address } Mail::Address->parse( $msg->get($hdr) );
     }
+
+    unless (@rcpts) {
+        my $caller_sub   = ( caller( $caller_depth + 1 ) )[3] // '(main)';
+        my @header_flags = map {
+            my @vals = $msg->get($_);
+            sprintf( '%s=%d', lc $_, ( grep { defined && /\S/ } @vals ) ? 1 : 0 );
+        } qw(From To Cc Bcc);
+        my $input_type  = ref $opt eq 'MIME::Lite' ? 'MIME::Lite' : 'hashref';
+        my $mdc_summary = '';
+        if ( ref $opt eq 'HASH' && ref $opt->{logger_mdc} eq 'HASH' ) {
+            my @pairs;
+            foreach my $k ( sort keys %{ $opt->{logger_mdc} } ) {
+                my $v = $opt->{logger_mdc}{$k};
+                next unless defined $v && !ref $v;
+                ( my $safe_k = $k ) =~ s/[\r\n\s]+/_/g;
+                ( my $safe_v = $v ) =~ s/[\r\n]+/ /g;
+                push @pairs, "$safe_k=$safe_v";
+            }
+            $mdc_summary = ' mdc={' . join( ', ', @pairs ) . '}' if @pairs;
+        }
+        $log->warn(
+            sprintf(
+                'Refusing to enqueue email with no recipients (caller=%s/%s sub=%s input=%s %s%s)',
+                $package, $line, $caller_sub,
+                $input_type, join( ' ', @header_flags ), $mdc_summary
+            )
+        );
+        DW::Stats::increment( 'dw.mail.send.no_recipients', 1, [ 'caller:' . "$package/$line" ] );
+        return 0;
+    }
+
     my $h = DW::TaskQueue->dispatch(
         DW::Task::SendEmail->new(
             {
