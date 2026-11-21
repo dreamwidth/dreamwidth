@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 83;
+use Test::More tests => 98;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -207,11 +207,25 @@ BODY
         unlike( $entry->event_raw, qr/post-security:/, "Leading directive removed in $label" );
     }
 
-    my $directive = "\npost-security: private\n\nMessage";
+    my $directive    = "\npost-security: private\n\nMessage";
+    my $implied_head = '<!doctype html><title>Mail</title>';
     for my $case (
         [ 'implied body after closed head',  "$preamble$directive</html>" ],
         [ 'implied body with a div wrapper', "$preamble<div>$directive</div></html>" ],
         [ 'implied body after title',        "<head><title>Mail</title>$directive" ],
+        [
+            'implied head and body',
+            "$implied_head<p>\npost-secruity: synthetic group$directive</p>"
+        ],
+        [
+            'head with noscript metadata',
+            '<head><title>Mail</title><noscript><link rel="stylesheet" href="mail.css">'
+                . "<style>p { color: black }</style></noscript></head>$directive"
+        ],
+        [
+            'head with a nested template',
+            "$implied_head<template><template><p>Inert content</p></template></template>$directive"
+        ],
         )
     {
         my ( $label, $message ) = @$case;
@@ -220,15 +234,24 @@ BODY
         ok( $ok, "Posted HTML with $label" ) or diag $msg;
         my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
         is( $entry->security, 'private', "Leading directive sets private security with $label" );
-        unlike( $entry->event_raw, qr/post-security:/, "Leading directive removed with $label" );
+        unlike(
+            $entry->event_raw,
+            qr/post-(?:security|secruity):/,
+            "Leading directives removed with $label"
+        );
     }
 
-    for my $opening ( '<body>', '' ) {
-        my $label = $opening ? 'explicit body' : 'implied body';
+    for my $case (
+        [ 'explicit body', "$preamble<body>" ],
+        [ 'implied body',  $preamble ],
+        [ 'implied head',  $implied_head ],
+        )
+    {
+        my ( $label, $opening ) = @$case;
         for my $body_prefix ( '<p>Introductory prose.</p>', '<blockquote>' ) {
             my $closing = $body_prefix eq '<blockquote>' ? "\n</blockquote>" : '';
-            my $message = $preamble
-                . "$opening\n$body_prefix\npost-security: private$closing\n</body>\n</html>";
+            my $message =
+                "$opening\n$body_prefix\npost-security: private$closing\n</body>\n</html>";
             my $mime = build_message( "HTML with $label and $body_prefix", 'text/html', $message );
             my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
             ok( $ok, "Posted HTML with $label and $body_prefix" ) or diag $msg;
