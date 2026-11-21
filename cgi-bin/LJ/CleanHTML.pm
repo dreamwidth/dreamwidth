@@ -15,6 +15,7 @@ package LJ::CleanHTML;
 use strict;
 
 use URI;
+use URI::Escape qw(uri_escape);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
 use HTML::TokeParser;
@@ -60,6 +61,13 @@ sub mangle_email_address {
 sub helper_preload {
     my $p = HTML::TokeParser->new("");
     eval { $p->DESTROY(); };
+}
+
+sub _new_html_parser {
+    my ($data) = @_;
+    my $parser = HTML::TokeParser->new($data);
+    $parser->utf8_mode( !utf8::is_utf8($$data) );
+    return $parser;
 }
 
 # this treats normal characters and &entities; as single characters
@@ -204,7 +212,7 @@ sub clean {
     }
 
     # Create the HTML parser we'll use to navigate the text from here on out:
-    my $p = HTML::TokeParser->new($data);
+    my $p = _new_html_parser($data);
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -882,7 +890,8 @@ TOKEN:
                     }
 
                     unless ( $hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei ) {
-                        $hash->{href} = canonical_url( $hash->{href}, 1 );
+                        $hash->{href} =
+                            _escape_non_ascii_web_url( canonical_url( $hash->{href}, 1 ) );
                     }
                 }
 
@@ -908,7 +917,7 @@ TOKEN:
 
                     my $sanitize_url = sub {
                         my $url = canonical_url( $_[0], 1 );
-                        return $url if $to_external_site;
+                        return _escape_non_ascii_web_url($url) if $to_external_site;
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
@@ -1410,7 +1419,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 # takes a reference to HTML and a base URL, and modifies HTML in place to use absolute URLs from the given base
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
-    my $p = HTML::TokeParser->new($data);
+    my $p = _new_html_parser($data);
 
     # where we look for relative URLs
     my $rel_source = {
@@ -1888,8 +1897,16 @@ sub canonical_url {
     return $url;
 }
 
+sub _escape_non_ascii_web_url {
+    my ($url) = @_;
+    return $url if LJ::is_ascii($url) || $url !~ m!\A(?:https?:)?//!i;
+
+    return uri_escape( LJ::no_utf8_flag($url), '^\x00-\x7F' );
+}
+
 sub https_url {
     my ( $url, %opts ) = @_;
+    $url = _escape_non_ascii_web_url($url);
 
     # https:// and the relative // protocol don't need proxying
     return $url if $url =~ m!^(?:https://|//)!;
