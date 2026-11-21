@@ -5437,7 +5437,7 @@ function EntryLite::print_userpic() {
     print "<div class=\"userpic\">";
     if ( defined $this.userpic )
     {
-        if ( $*use_shared_pic )
+        if ( $*use_shared_pic and not $this isa Comment )
         {
             print """<a href="$this.journal.userpic_listing_url">""";
         }
