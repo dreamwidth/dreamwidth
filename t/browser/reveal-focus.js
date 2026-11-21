@@ -59,6 +59,169 @@ async function assertClosed(page, dialogSelector = modal, opener = trigger) {
         "dismissing the dialog returns focus to its trigger");
 }
 
+async function focusInside(page, selector) {
+    return page.$eval(selector, (element) => element.contains(document.activeElement));
+}
+
+async function assertNotModal(page, selector) {
+    assert.equal(await page.$eval(selector, (element) => element.hasAttribute("aria-modal")), false);
+}
+
+async function openingFocus(page) {
+    await page.$eval(modal, (dialog) => {
+        const settings = window.jQuery(dialog).data("reveal-init");
+        window.jQuery(dialog).data("reveal-init", { ...settings, animation_speed: 1200 });
+    });
+    await page.focus(trigger);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Tab");
+    const earlyTab = await page.evaluate((opener) => document.activeElement.matches(opener), trigger);
+    await page.waitForFunction((selector) => {
+        const dialog = document.querySelector(selector);
+        return dialog.classList.contains("open") && getComputedStyle(dialog).opacity !== "1";
+    }, {}, modal);
+    await page.keyboard.press("Tab");
+    const animatedTab = await focusInside(page, modal);
+    assert.deepEqual({ earlyTab, animatedTab }, { earlyTab: true, animatedTab: true },
+        "Tab does not move behind the dialog before it is visible or during its animation");
+}
+
+async function invalidOpener(page) {
+    const results = [];
+    for (const invalidate of ["remove", "hide", "disable"]) {
+        await page.reload({ waitUntil: "networkidle2" });
+        if (invalidate === "disable") {
+            await page.$eval(trigger, (opener) => {
+                const button = document.createElement("button");
+                button.setAttribute("data-reveal-id", opener.getAttribute("data-reveal-id"));
+                button.textContent = opener.textContent;
+                opener.replaceWith(button);
+            });
+        }
+        await open(page);
+        await page.$eval(trigger, (opener, action) => {
+            if (action === "remove") opener.remove();
+            if (action === "hide") opener.hidden = true;
+            if (action === "disable") opener.disabled = true;
+        }, invalidate);
+        await page.keyboard.press("Escape");
+        await page.waitForSelector(modal, { hidden: true });
+        await assertNotModal(page, modal);
+        results.push(await page.evaluate(() => document.activeElement.matches("#content, main")));
+    }
+    assert.deepEqual(results, [true, true, true], "removed, hidden, and disabled openers fall back to the main content");
+}
+
+async function dialogTransition(page, stack) {
+    await page.$eval(modal, (dialog, stack) => {
+        const settings = { ...window.jQuery(dialog).data("reveal-init"), multiple_opened: stack, animation: "none" };
+        window.jQuery(dialog).data("reveal-init", settings);
+        dialog.insertAdjacentHTML("beforeend", '<button type="button" id="next-dialog" data-reveal-id="second-dialog">Next</button>');
+        document.body.insertAdjacentHTML("beforeend", '<div class="reveal-modal" id="second-dialog" data-reveal aria-hidden="true"><button type="button" class="close-reveal-modal">Close</button></div>');
+        window.jQuery("#second-dialog").data("reveal-init", { ...settings, animation: "fade" });
+    }, stack);
+    await open(page);
+    await page.focus("#next-dialog");
+    await page.evaluate((selector) => {
+        window.pageFocusDuringTransition = false;
+        document.addEventListener("focusin", (event) => {
+            if (event.target.matches(selector)) window.pageFocusDuringTransition = true;
+        });
+    }, trigger);
+    await page.keyboard.press("Enter");
+    const second = "#second-dialog";
+    await waitUntilOpen(page, second);
+    assert.equal(await page.evaluate(() => window.pageFocusDuringTransition), false,
+        "opening a second dialog does not restore focus to the page in between");
+    await assertNotModal(page, modal);
+    assert.equal(await page.$eval(second, (dialog) => dialog.getAttribute("aria-modal")), "true");
+    await page.click(`${second} .close-reveal-modal`);
+    await assertClosed(page, second, stack ? "#next-dialog" : trigger);
+    await assertNotModal(page, second);
+    if (stack) {
+        assert.equal(await page.$eval(modal, (dialog) => dialog.getAttribute("aria-modal")), "true");
+        await page.click(closeButton);
+        await assertClosed(page);
+        await assertNotModal(page, modal);
+    }
+}
+
+async function dynamicControls(page) {
+    await open(page);
+    await page.$eval(modal, (dialog) => {
+        dialog.querySelectorAll("input, button, a[href]").forEach((control) => { control.tabIndex = -1; });
+        dialog.insertAdjacentHTML("beforeend", `
+            <button type="button" id="first-stop">First</button>
+            <button type="button" disabled>Disabled</button>
+            <input type="radio" name="focus-test" id="radio-unchecked">
+            <input type="radio" name="focus-test" id="radio-checked" checked>
+            <button type="button" id="last-stop">Last</button>`);
+    });
+    await page.focus("#first-stop");
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "radio-checked");
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "last-stop");
+    await page.$eval("#first-stop", (button) => { button.disabled = true; });
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "radio-checked");
+}
+
+async function browseIcons(page) {
+    await page.addScriptTag({ url: `${BASE}/js/components/jquery.icon-browser.js` });
+    await page.evaluate(() => {
+        document.body.insertAdjacentHTML("beforeend", `
+            <button type="button" id="browse-icons">Browse Icons</button>
+            <select id="reply-icon"><option value="">Default</option><option value="test">Test</option></select>
+            <textarea id="reply-body"></textarea>
+            <div class="reveal-modal" id="icon-picker" data-reveal aria-hidden="true">
+                <input id="js-icon-browser-search" type="search" aria-label="Search">
+                <div id="js-icon-browser-content"><ul></ul></div>
+                <button type="button" class="close-reveal-modal">Close</button>
+            </div>`);
+        window.jQuery("#reply-icon").iconBrowser({
+            triggerSelector: "#browse-icons", modalId: "icon-picker",
+            focusAfterBrowse: "#reply-body", preferences: {},
+        });
+    });
+    await page.setRequestInterception(true);
+    page.on("request", (request) => {
+        if (!new URL(request.url()).pathname.endsWith("/__rpc_userpicselect")) return request.continue();
+        return request.respond({
+            contentType: "application/json",
+            body: JSON.stringify({ ids: [1], pics: { 1: {
+                url: "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=",
+                keywords: ["test"], alt: "Test icon", comment: "", width: 1, height: 1,
+            } } }),
+        });
+    });
+    const picker = "#icon-picker";
+    const opener = "#browse-icons";
+    await page.click(opener);
+    await waitUntilOpen(page, picker);
+    const icon = `${picker} .icon-browser-icon-button`;
+    await page.waitForSelector(icon, { visible: true });
+    await page.focus("#js-icon-browser-search");
+    await page.keyboard.press("Tab");
+    assert.equal(await focusInside(page, icon), true, "AJAX-loaded icon joins the Tab cycle");
+    await page.keyboard.press("Enter");
+    await page.waitForSelector(picker, { hidden: true });
+    assert.equal(await page.$eval("#reply-icon", (select) => select.value), "test");
+    const selectionFocus = await focusInside(page, "#reply-body");
+    for (const dismiss of [
+        () => page.keyboard.press("Escape"),
+        () => page.click(`${picker} .close-reveal-modal`),
+        () => page.mouse.click(5, 950),
+    ]) {
+        await page.click(opener);
+        await waitUntilOpen(page, picker);
+        await dismiss();
+        await assertClosed(page, picker, opener);
+        await assertNotModal(page, picker);
+    }
+    assert.equal(selectionFocus, true, "selecting an icon returns focus to the comment body");
+}
+
 async function main() {
     const browser = await launch();
     try {
@@ -118,6 +281,29 @@ async function main() {
         await page.keyboard.press("Escape");
         await assertClosed(page, entryModal, entryTrigger);
         console.log("PASS: a programmatically opened dialog with no tabbable controls holds and restores focus");
+
+        const failures = [];
+        for (const [name, check] of [
+            ["opening animation", openingFocus],
+            ["invalidated opener", invalidOpener],
+            ["replacement dialog", (page) => dialogTransition(page, false)],
+            ["stacked dialog", (page) => dialogTransition(page, true)],
+            ["dynamic, disabled, and radio controls", dynamicControls],
+            ["Browse Icons selection and dismissal", browseIcons],
+        ]) {
+            const scenario = await browser.newPage();
+            try {
+                await scenario.goto(`${BASE}/site/?skin=celerity`, { waitUntil: "networkidle2" });
+                await check(scenario);
+                console.log(`PASS: ${name}`);
+            } catch (error) {
+                console.error(`FAIL: ${name}`, error);
+                failures.push(name);
+            } finally {
+                await scenario.close();
+            }
+        }
+        assert.deepEqual(failures, [], "Reveal focus regressions");
     } finally {
         await browser.close();
     }
