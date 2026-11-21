@@ -34,6 +34,7 @@ use LJ::Directory::Search;
 use LJ::Directory::Constraint;
 use LJ::PageStats;
 use LJ::JSON;
+use LJ::Tags;
 
 # <LJFUNC>
 # name: LJ::img
@@ -1065,7 +1066,16 @@ sub entry_form {
                 $out .= "</p>\n";
             }
             elsif ( $res && ref $res->{'usejournals'} eq 'ARRAY' ) {
-                my $submitprefix = BML::ml('entryform.update3');
+                my $submitprefix    = BML::ml('entryform.update3');
+                my @journal_options = map {
+                    my $permission =
+                        LJ::Tags::entry_form_tag_permission( LJ::load_user($_), $remote );
+                    {
+                        value => $_,
+                        text  => $_,
+                        data  => $permission ? { 'tag-permission' => $permission } : {},
+                    };
+                } @{ $res->{'usejournals'} };
                 $out .= "<p id='usejournal_list' class='pkg'>\n";
                 $out .=
                       "<label for='usejournal' class='left'>"
@@ -1085,7 +1095,7 @@ sub entry_form {
                     },
                     "",
                     $remote->{'user'},
-                    map { $_, $_ } @{ $res->{'usejournals'} }
+                    @journal_options
                 ) . "\n";
                 $out .= "</p>\n";
             }
@@ -1392,17 +1402,31 @@ RTE
                 . "</label>";
             $out .= LJ::html_text(
                 {
-                    'name'     => 'prop_taglist',
-                    'id'       => 'prop_taglist',
-                    'class'    => 'text',
-                    'size'     => '35',
-                    'value'    => $opts->{'prop_taglist'},
-                    'tabindex' => $tabindex->(),
-                    'raw'      => "autocomplete='off'",
+                    'name'             => 'prop_taglist',
+                    'id'               => 'prop_taglist',
+                    'class'            => 'text',
+                    'size'             => '35',
+                    'value'            => $opts->{'prop_taglist'},
+                    'tabindex'         => $tabindex->(),
+                    'autocomplete'     => 'off',
+                    'aria-describedby' => 'entry-tag-permission',
                 }
             );
             $out .= LJ::help_icon_html('addtags');
             $out .= "</p>";
+
+            my $permission = LJ::Tags::entry_form_tag_permission(
+                LJ::load_user( $opts->{usejournal} ),
+                $opts->{auth_as_remote} ? $remote : undef,
+                $opts->{tag_entry}
+            );
+            my %messages = map { $_ => LJ::ehtml( BML::ml("entryform.tags.permission.$_") ) }
+                qw(create existing none);
+            $out .= "<div role='status'><p id='entry-tag-permission' class='pkg'";
+            $out .= " data-tag-permission='" . LJ::ehtml($permission) . "'";
+            $out .= " data-$_='$messages{$_}'" for qw(create existing none);
+            $out .= $permission ? ">$messages{$permission}" : ' hidden>';
+            $out .= '</p></div>';
         }
 
         $out .= "<p class='pkg'>\n";

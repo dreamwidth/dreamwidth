@@ -471,6 +471,7 @@ body<=
             $entry->{prop_xpost} = $entry_obj->prop( 'xpost' );
 
             $entry->{$_} = $POST{$_} foreach keys %POST;
+            $entry->{tag_entry} = $entry_obj;
             $entry->{'richtext_default'} = $entry->{"prop_used_rte"} ? 1 : 0,
 
             my $onload;

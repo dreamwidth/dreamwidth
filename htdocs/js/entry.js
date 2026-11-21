@@ -133,6 +133,7 @@ function altlogin (e) {
     mood_preview.style.display = 'none';
 
     changeSubmit('Post to Journal');
+    setEntryTagPermission('');
 
     $('xpostdiv').style.display = 'none';
 
@@ -355,12 +356,24 @@ function settime( dateUpdatedText, fromButton ) {
 }
 
 var inputObjs = new Array();
+function setEntryTagPermission(permission) {
+    var notice = document.getElementById('entry-tag-permission');
+    if (!notice) return;
+
+    notice.setAttribute('data-tag-permission', permission);
+    notice.textContent = permission ? notice.getAttribute('data-' + permission) : '';
+    notice.hidden = !permission;
+}
+
 function getUserTags(defaultjournal) {
     if (!defaultjournal) return;
 
     var user = defaultjournal;
-    if ($('usejournal') && $('usejournal').value != "") {
-        user = $('usejournal').value;
+    var journalSelect = document.getElementById('usejournal');
+    if (journalSelect && journalSelect.options) {
+        var option = journalSelect.options[journalSelect.selectedIndex];
+        setEntryTagPermission(option ? option.getAttribute('data-tag-permission') || '' : '');
+        user = journalSelect.value || defaultjournal;
     }
 
     HTTPReq.getJSON({

@@ -709,6 +709,12 @@ entryform.switchuser=Switch account
 
 entryform.tags=Tags:
 
+entryform.tags.permission.create=You can add existing tags and create new tags in this community.
+
+entryform.tags.permission.existing=You can add existing tags, but you cannot create new tags in this community.
+
+entryform.tags.permission.none=You cannot add tags to entries in this community.
+
 entryform.update=Update Journal
 
 entryform.update2=Save to
