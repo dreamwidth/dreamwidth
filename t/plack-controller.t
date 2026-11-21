@@ -71,15 +71,16 @@ subtest 'OpenID trust settings require a form token' => sub {
 
         my $invalid_token = $token // '';
         $invalid_token =~ s/([0-9a-f])$/$1 eq '0' ? '1' : '0'/e;
+        my @deletion = ( "delete:$endpoint" => 1 );
         for my $token_case ( [ 'missing', [] ], [ 'invalid', [ lj_form_auth => $invalid_token ] ] )
         {
             my ( $label, $fields ) = @$token_case;
-            my $res = $cb->( POST $url, Content => $fields );
-            like( $res->content, qr/Invalid form submission/i, "rejects a $label token" );
+            my $res = $cb->( POST $url, Content => [ @deletion, @$fields ] );
+            like( $res->content, qr/Invalid form submission/i, "rejects the $label token" );
             ok( LJ::OpenID::is_trusted( $owner, $site ), 'trust record is unchanged' );
         }
 
-        $cb->( POST $url, Content => [ lj_form_auth => $token, "delete:$endpoint" => 1 ] );
+        $cb->( POST $url, Content => [ @deletion, lj_form_auth => $token ] );
         ok( !LJ::OpenID::is_trusted( $owner, $site ), 'a valid form can remove trust' );
     };
 };
@@ -127,6 +128,17 @@ subtest 'HTTPS OpenID credential only authenticates at the provider' => sub {
         is( $scope->( $cookie_client->request( GET 'http://localhost/login' ) ),
             '', 'HTTP development login does not set the scoped cookie' );
     }
+    my $regular_cookies;
+    {
+        no warnings 'redefine';
+        local *LJ::get_secret = sub { return undef };
+
+        my $response = $cookie_client->request( GET "$LJ::SITEROOT/login" );
+        is( $scope->($response), '', 'no scoped credential is issued without a signing key' );
+        my @regular = grep { /^lj(?:mastersession|loggedin)=/ } $response->header('Set-Cookie');
+        is( scalar @regular, 2, 'ordinary login still sets both cookies without a signing key' );
+        $regular_cookies = join '; ', map { ( split /;/, $_, 2 )[0] } @regular;
+    }
 
     my $asserted_identity = sub {
         my ( $cb, $cookie ) = @_;
@@ -154,6 +166,39 @@ subtest 'HTTPS OpenID credential only authenticates at the provider' => sub {
         );
         is( $asserted_identity->($cb),
             undef, 'provider does not assert an identity without a session' );
+        {
+            no warnings 'redefine';
+            my $get_secret  = \&LJ::get_secret;
+            my $key_lookups = 0;
+            local *LJ::get_secret = sub {
+                return $get_secret->(@_) unless @_;
+                ++$key_lookups;
+                return undef;
+            };
+            my $hmac             = \&LJ::Session::hmac_sha1_hex;
+            my $missing_hmac_key = 0;
+            local *LJ::Session::hmac_sha1_hex = sub {
+                unless ( defined $_[1] && length $_[1] ) {
+                    ++$missing_hmac_key;
+                    return '';
+                }
+                return $hmac->(@_);
+            };
+
+            my ( $name, $value ) = split /=/, $credential, 2;
+            my $malformed = LJ::durl($value);
+            $malformed =~ s/:t[0-9]+:/:tinvalid:/;
+            is( $asserted_identity->( $cb, "$name=" . LJ::eurl($malformed) ),
+                undef, 'provider rejects a malformed signing timestamp' );
+            is( $key_lookups, 0, 'malformed timestamps do not reach the signing-key store' );
+            is( $asserted_identity->( $cb, $credential ),
+                undef, 'provider rejects a credential whose signing key is unavailable' );
+            is( $key_lookups, 1, 'provider checks the signing key for a well-formed credential' );
+            is( $missing_hmac_key, 0, 'verification never computes an HMAC without a key' );
+            my $signed_in = $cb->( GET "$LJ::SITEROOT/openid/options", Cookie => $regular_cookies );
+            like( $signed_in->content, qr/\Q$site\E/,
+                'ordinary login still shows the saved trusted site without the scoped key' );
+        }
         my $options = $cb->( GET "$LJ::SITEROOT/openid/options", Cookie => $credential // '' );
         like( $options->header('Location') // '',
             qr{/login\?}, 'the scoped credential does not log the user in to options' );
