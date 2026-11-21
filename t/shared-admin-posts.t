@@ -17,6 +17,7 @@ use warnings;
 
 use Test::More;
 use HTTP::Request;
+use HTTP::Request::Common qw(GET POST);
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -27,6 +28,7 @@ use DW::Setting::SharedAdminPosts;
 use DW::Test::API qw(api_request);
 use LJ::Protocol;
 use LJ::S2;
+use LJ::Session;
 use LJ::Test qw(temp_user temp_comm);
 
 my $community = temp_comm();
@@ -272,14 +274,15 @@ $editor = LJ::load_userid( $editor->id );
     $personal->update_self( { status => 'A', oldenc => 1 } );
     my $key     = DW::API::Key->new_for_user($personal)->hash;
     my %visible = ( subject => "Caf\xc3\xa9", text => "Cr\xc3\xa8me" );
-    for my $field (qw(subject text)) {
+    for my $field (qw(subject text current_music)) {
         my $entry  = post_entry( $personal, $personal, "Legacy $field fixture", 0 );
         my $itemid = $entry->jitemid;
         LJ::get_cluster_master($personal)
             ->do( 'UPDATE logtext2 SET subject = ?, event = ? WHERE journalid = ? AND jitemid = ?',
             undef, "Caf\xe9", "Cr\xe8me", $personal->id, $itemid )
             or BAIL_OUT('Could not store legacy fixture text');
-        $entry->set_prop( unknown8bit => 1 );
+        $entry->set_prop( unknown8bit   => 1 );
+        $entry->set_prop( current_music => "D\xe9j\xe0" );
         LJ::MemCache::delete(
             [ $personal->id, join( ':', 'logtext', $personal->clusterid, $personal->id, $itemid ) ]
         );
@@ -300,19 +303,27 @@ $editor = LJ::load_userid( $editor->id );
         is( $saved->event_raw,   $visible{text},    'date-only edit preserves the legacy body' );
 
         $saved->set_prop( unknown8bit => 1 );
-        ($response) = api_request( POST => $path, key => $key, json => { $field => 'New text' } );
+        my $new_value = $field eq 'current_music' ? "Pi\xf1ata" : 'New text';
+        ($response) = api_request( POST => $path, key => $key, json => { $field => $new_value } );
         is( $response->code, 200, "a legacy entry accepts a $field-only edit" );
         $saved = reload_entry($entry);
-        ok( !$saved->prop('unknown8bit'), 'a content edit clears the legacy encoding marker' );
+        ok( !$saved->prop('unknown8bit'), 'a UTF-8 edit clears the legacy encoding marker' );
+        my ( $read_response, $read ) = api_request( GET => $path, key => $key );
+        is( $read_response->code, 200, 'the edited legacy entry is readable over REST' );
         is(
-            $saved->subject_raw,
+            $read->{subject_raw},
             $field eq 'subject' ? 'New text' : $visible{subject},
             "a $field-only edit saves the expected subject"
         );
         is(
-            $saved->event_raw,
+            $read->{body_raw},
             $field eq 'text' ? 'New text' : $visible{text},
             "a $field-only edit saves the expected body"
+        );
+        is(
+            $read->{current_music},
+            $field eq 'current_music' ? "Pi\xc3\xb1ata" : "D\xc3\xa9j\xc3\xa0",
+            "a $field-only edit saves the expected music"
         );
     }
 }
@@ -329,6 +340,30 @@ $editor = LJ::load_userid( $editor->id );
     my $saved = reload_entry($entry);
     ok( $saved->valid, 'the whitespace-only update does not delete the entry' );
     is( $saved->event_raw, 'Keep this official entry', 'the saved body is unchanged' );
+}
+
+{
+    my $entry   = post_entry( $community, $author, 'Keep this official web entry', 1 );
+    my $url     = 'http://www.dw.test/entry/' . $community->user . '/' . $entry->ditemid . '/edit';
+    my $session = LJ::Session->create( $editor, exptype => 'long' );
+    my $cookie =
+          'ljmastersession='
+        . $session->master_cookie_string
+        . '; ljloggedin='
+        . $session->loggedin_cookie_string;
+    my $form = $app_test->request( GET $url, Cookie => $cookie );
+    my ($token) = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+    is( $form->code, 200, 'authenticated shared editor can open the web form' );
+    ok( $token, 'the edit form supplies a CSRF token' );
+    my $response = $app_test->request(
+        POST $url,
+        Cookie  => $cookie,
+        Content => [ lj_form_auth => $token, 'action:post' => 1, event => " \t\n" ]
+    );
+    like( $response->content, qr/Must provide entry text/, 'shared web save rejects blank text' );
+    my $saved = reload_entry($entry);
+    ok( $saved->valid, 'the blank web save does not delete the entry' );
+    is( $saved->event_raw, 'Keep this official web entry', 'the web entry body is unchanged' );
 }
 
 {

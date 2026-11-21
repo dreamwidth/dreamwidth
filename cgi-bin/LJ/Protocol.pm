@@ -1987,6 +1987,13 @@ sub _store_entry_visibility_edit {
     return $saved;
 }
 
+sub _is_decodable_logprop {
+    my ($name) = @_;
+    return 0 if $name eq 'xpost' || $name eq 'xpostdetail';
+    my $prop = LJ::get_prop( 'log', $name );
+    return $prop && $prop->{datatype} eq 'char';
+}
+
 sub editevent {
     my ( $req, $err, $flags ) = @_;
     my $res          = {};
@@ -2190,20 +2197,6 @@ sub editevent {
     $req->{event}   = $oldevent->{event}   if $keep_event;
     $req->{subject} = $oldevent->{subject} if $keep_subject;
 
-    if ( $curprops{$itemid}->{unknown8bit} ) {
-        if ( $keep_event && $keep_subject ) {
-            delete $req->{props}->{unknown8bit};
-        }
-        elsif ( $keep_event || $keep_subject ) {
-            my $unused;
-            LJ::item_toutf8(
-                $uowner,
-                $keep_subject ? \$req->{subject} : \$unused,
-                $keep_event   ? \$req->{event}   : \$unused
-            );
-        }
-    }
-
     delete $req->{props}->{admin_post}
         if $req->{props}->{admin_post} && !( $uowner->is_community && $u->can_manage($uowner) );
 
@@ -2220,6 +2213,33 @@ sub editevent {
             create => $flags->{create_unknown_picture_mapid} || 0 )
             if defined $req->{props}->{picture_keyword};
         delete $req->{props}->{picture_keyword};
+    }
+
+    my %converted_props;
+    if ( $flags->{partial_edit} && $curprops{$itemid}->{unknown8bit} ) {
+        my $props = $req->{props};
+        my $has_utf8_prop =
+            grep { !LJ::is_ascii( $props->{$_} ) && _is_decodable_logprop($_) } keys %$props;
+
+        if ( $keep_event && $keep_subject && !$has_utf8_prop ) {
+            delete $props->{unknown8bit};
+        }
+        else {
+            my $old_props = $curprops{$itemid};
+            %converted_props = map { $_ => $old_props->{$_} }
+                grep {
+                       !exists $props->{$_}
+                    && !LJ::is_ascii( $old_props->{$_} )
+                    && _is_decodable_logprop($_)
+                } keys %$old_props;
+            my $unused;
+            LJ::item_toutf8(
+                $uowner,
+                $keep_subject ? \$req->{subject} : \$unused,
+                $keep_event   ? \$req->{event}   : \$unused,
+                \%converted_props
+            );
+        }
     }
 
     ## handle meta-data (properties)
@@ -2350,8 +2370,9 @@ sub editevent {
         $req->{props}->{revnum}  = ( $curprops{$itemid}->{revnum} || 0 ) + 1;
         $req->{props}->{revtime} = time();
         my $propset = {
+            %converted_props,
             map { $_ => $req->{props}->{$_} }
-            grep { LJ::get_prop( 'log', $_ ) } keys %{ $req->{props} }
+                grep { LJ::get_prop( 'log', $_ ) } keys %{ $req->{props} }
         };
         $propset->{admin_post_editor} = 1 if $other_author;
         return LJ::set_logprop( $uowner, $itemid, $propset, undef, $defer_cache );
