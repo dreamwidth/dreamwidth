@@ -15,6 +15,7 @@ package LJ::CleanHTML;
 use strict;
 
 use URI;
+use URI::Escape qw(uri_escape);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
 use HTML::TokeParser;
@@ -928,7 +929,8 @@ TOKEN:
                     }
 
                     unless ( $hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei ) {
-                        $hash->{href} = canonical_url( $hash->{href}, 1 );
+                        $hash->{href} =
+                            _escape_non_ascii_web_url( canonical_url( $hash->{href}, 1 ) );
                     }
                 }
 
@@ -954,7 +956,7 @@ TOKEN:
 
                     my $sanitize_url = sub {
                         my $url = canonical_url( $_[0], 1 );
-                        return $url if $to_external_site;
+                        return _escape_non_ascii_web_url($url) if $to_external_site;
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
@@ -1912,8 +1914,16 @@ sub canonical_url {
     return $url;
 }
 
+sub _escape_non_ascii_web_url {
+    my ($url) = @_;
+    return $url if LJ::is_ascii($url) || $url !~ m!\A(?:https?:)?//!i;
+
+    return uri_escape( LJ::no_utf8_flag($url), '^\x00-\x7F' );
+}
+
 sub https_url {
     my ( $url, %opts ) = @_;
+    $url = _escape_non_ascii_web_url($url);
 
     # https:// and the relative // protocol don't need proxying
     return $url if $url =~ m!^(?:https://|//)!;
