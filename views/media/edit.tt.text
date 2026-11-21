@@ -6,6 +6,16 @@
 
 .new=Upload Images
 
+.sort.label=Sort by:
+
+.sort.newest=Newest first
+
+.sort.oldest=Oldest first
+
+.sort.largest=Largest original first
+
+.sort.smallest=Smallest original first
+
 .edit.title=Title
 
 .edit.alt=Short Description

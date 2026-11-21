@@ -37,14 +37,27 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [% END %]
 
 [% IF media.size %]
+<dl class="sub-nav" id="media-sort">
+    <dt>[% '.sort.label' | ml | html %]</dt>
+    [% FOREACH order IN ['newest', 'oldest', 'largest', 'smallest'] %]
+        <dd[% IF order == sort %] class="active"[% END %]>
+            <a href="[% dw.create_url('/file/edit', {
+                keep_args => 1, cur_args => nav_args, args => { sort => order, page => undef }
+            }) | html %]"[% IF order == sort %] aria-current="page"[% END %]>[% '.sort.' _ order | ml | html %]</a>
+        </dd>
+    [% END %]
+</dl>
 [% IF maxpage > 1 %]
     <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
         current => page,
-        total_pages => maxpage, -%]
+        total_pages => maxpage,
+        cur_args => nav_args -%]
     </div>
 [% END %]
-<form id="media-manage" method="POST" action="[%site.root%]/file/edit">
+<form id="media-manage" method="POST" action="[% dw.create_url('/file/edit', {
+    keep_args => 1, cur_args => nav_args
+}) | html %]">
 [%- dw.form_auth -%]
 <div id="media-list">
     [% first_index = (page - 1) * 20 %]
@@ -113,7 +126,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="pagination-wrapper">
     [%- INCLUDE components/pagination.tt
         current => page,
-        total_pages => maxpage, -%]
+        total_pages => maxpage,
+        cur_args => nav_args -%]
     </div>
 [% END %]
 [% END %]
