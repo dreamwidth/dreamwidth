@@ -18,6 +18,7 @@ package DW::Entry;
 
 use strict;
 use Carp qw/ croak confess /;
+use Encode qw( decode FB_CROAK LEAVE_SRC );
 
 my %form_to_props = (
 
@@ -27,6 +28,35 @@ my %form_to_props = (
     current_music      => "current_music",
     current_location   => "current_location",
 );
+
+sub validate_form_text {
+    my ($post) = @_;
+    my %cleaned;
+
+    foreach my $field (qw(subject event)) {
+        my @values = ref($post) eq 'HASH' ? ( $post->{$field} ) : $post->get_all($field);
+        return 0 if @values > 1;
+        my ($text) = @values;
+        next unless defined $text;
+
+        return 0 if $text =~ /\x00/;
+        local $@;
+        return 0 unless eval { decode( 'UTF-8', $text, FB_CROAK | LEAVE_SRC ); 1 };
+
+        $cleaned{$field} = $text if $text =~ s/[\x01-\x08\x0b\x0c\x0e-\x1f]//g;
+    }
+
+    foreach my $field ( keys %cleaned ) {
+        if ( ref($post) eq 'HASH' ) {
+            $post->{$field} = $cleaned{$field};
+        }
+        else {
+            $post->set( $field, $cleaned{$field} );
+        }
+    }
+
+    return 1;
+}
 
 # given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
 sub _backend_to_form {
@@ -185,8 +215,9 @@ sub _form_to_backend {
         $req->{event}   = $post->{event} || "";
     }
 
+    my $missing_event = $is_api ? $req->{event} eq "" : $req->{event} !~ /\S/;
     $errors->add( undef, "/entry/form.tt.error.noentry" )
-        if $errors && $req->{event} eq "" && !$opts{allow_empty};
+        if $errors && $missing_event && !$opts{allow_empty};
 
     # warn the user of any bad markup errors
     my $clean_event = $post->{event};
