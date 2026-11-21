@@ -22,6 +22,8 @@ use Carp qw/ confess /;
 use IO::Socket::SSL qw(SSL_VERIFY_PEER);
 use LJ::DB;
 use LJ::Identity;
+use LJ::OpenID;
+use Scalar::Util qw( blessed );
 
 use DW::Pay;
 use DW::Cache;
@@ -1037,6 +1039,50 @@ sub load_existing_identity_user {
     return $uid ? LJ::load_userid($uid) : undef;
 }
 
+my $INSANEJOURNAL_OPENID_SERVER = 'https://www.insanejournal.com/openid/server.bml';
+
+sub _is_verified_insanejournal_identity {
+    my ( $ident, $vident ) = @_;
+
+    return 0 unless blessed($vident) && $vident->isa('Net::OpenID::VerifiedIdentity');
+    return 0 unless defined $vident->url && $vident->url eq $ident;
+
+    # Require the consumer that discovered and verified this assertion to have
+    # TLS peer and hostname verification enabled on its user agent.
+    my $csr = $vident->{consumer};
+    return 0 unless blessed($csr) && $csr->isa('Net::OpenID::Consumer');
+    my $ua = $csr->ua;
+    return 0 unless blessed($ua) && $ua->can('ssl_opts');
+    return 0
+        unless $ua->ssl_opts('verify_hostname')
+        && ( ( $ua->ssl_opts('SSL_verify_mode') // 0 ) & SSL_VERIFY_PEER );
+
+    # Bind the assertion directly to InsaneJournal's HTTPS OpenID endpoint
+    # with no delegation to another identity URL.
+    my $cident = $vident->{claimed_identity};
+    return 0 unless blessed($cident) && $cident->isa('Net::OpenID::ClaimedIdentity');
+    return 0 unless defined $cident->claimed_url && $cident->claimed_url eq $ident;
+    return 0
+        unless defined $cident->identity_server
+        && $cident->identity_server eq $INSANEJOURNAL_OPENID_SERVER;
+    return 0
+        if defined $cident->delegated_url && $cident->delegated_url ne $ident;
+
+    my $signed = $vident->signed_fields;
+    return 0 unless ref $signed eq 'HASH';
+    return 0 unless ( $signed->{identity} // '' ) eq $ident;
+    return 0 if defined $signed->{claimed_id} && $signed->{claimed_id} ne $ident;
+    return 0
+        if defined $signed->{op_endpoint}
+        && $signed->{op_endpoint} ne $INSANEJOURNAL_OPENID_SERVER;
+    if ( ( $cident->protocol_version // 1 ) >= 2 ) {
+        return 0 unless ( $signed->{claimed_id}  // '' ) eq $ident;
+        return 0 unless ( $signed->{op_endpoint} // '' ) eq $INSANEJOURNAL_OPENID_SERVER;
+    }
+
+    return 1;
+}
+
 # class function - load an identity user, and if we've never seen them before create a user account for them
 sub load_identity_user {
     my ( $type, $ident, $vident ) = @_;
@@ -1045,20 +1091,60 @@ sub load_identity_user {
     if (  !$u
         && $type eq 'O'
         && $vident
-        && $ident eq $vident->url
         && $ident =~ m!\Ahttps://([a-z0-9][a-z0-9-]{0,61}[a-z0-9])\.insanejournal\.com/\z! )
     {
-        my $username = $1;
+        my $slug     = $1;
+        my $username = $slug;
         if ( $username =~ tr/-/_/ ) {
-            my $legacy_host = "$username.insanejournal.com";
-            if ( my $legacy = load_existing_identity_user( 'O', "http://$legacy_host/" ) ) {
-                my $ua = LJ::get_useragent( role => 'OpenID', timeout => 5 );
-                $ua->ssl_opts( verify_hostname => 1, SSL_verify_mode => SSL_VERIFY_PEER );
+            my $legacy_host  = "$username.insanejournal.com";
+            my $legacy_ident = "http://$legacy_host/";
+            if ( my $legacy = load_existing_identity_user( 'O', $legacy_ident ) ) {
+                return undef
+                    unless _is_verified_insanejournal_identity( $ident, $vident );
+
+                my $ua = LJ::OpenID::useragent( timeout => 5 );
+                return undef unless $ua;
                 $ua->max_redirect(0);
                 my $response = $ua->head("https://$legacy_host/");
                 return undef
-                    unless $response->code =~ /\A30[1278]\z/
+                    unless $response
+                    && $response->code =~ /\A30[1278]\z/
                     && ( $response->header('Location') // '' ) eq $ident;
+
+                unless ( $legacy->is_expunged ) {
+                    my $canonical_http = "http://$slug.insanejournal.com/";
+                    my $dbh            = LJ::get_db_writer()
+                        or return undef;
+
+                    # Keep exact precedence if a separate canonical row appeared concurrently.
+                    return undef
+                        if $dbh->selectrow_array(
+                        "SELECT userid FROM identitymap WHERE idtype=? AND identity=? LIMIT 1",
+                        undef, 'O', $ident );
+
+                    my $updated = $dbh->do(
+                        "UPDATE IGNORE identitymap SET identity=? "
+                            . "WHERE idtype=? AND identity=? AND userid=?",
+                        undef, $canonical_http, 'O', $legacy_ident, $legacy->id
+                    );
+                    if ( $updated && $updated == 1 ) {
+                        delete $legacy->{_identity};
+                        LJ::MemCache::delete( [ $legacy->id, "ident:" . $legacy->id ] );
+                        LJ::MemCache::delete("uidof:$legacy_ident");
+                        LJ::MemCache::delete("uidof:$canonical_http");
+                        LJ::MemCache::delete("uidof:$ident");
+                        $legacy->infohistory_add( 'identity', $legacy_ident );
+                    }
+                    else {
+                        my $existing_uid = $dbh->selectrow_array(
+                            "SELECT userid FROM identitymap WHERE idtype=? AND identity=? LIMIT 1",
+                            undef, 'O', $canonical_http
+                        );
+                        return undef unless $existing_uid && $existing_uid == $legacy->id;
+                        delete $legacy->{_identity};
+                    }
+                }
+
                 $u = $legacy;
             }
         }
