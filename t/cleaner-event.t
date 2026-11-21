@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 45;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::CleanHTML;
@@ -140,6 +140,25 @@ $clean->( { remove_fonts => 1, remove_sizes => 1 } );
 ok( $orig_post =~ /^$clean_post$/, "CSS fonts and sizes removed" );
 
 note("cut tags");
+
+my $details = '<details><summary>Outer</summary>'
+    . '<details><summary>Inner</summary>Contents</details></details>';
+my $details_with_open = qr{
+    \A<details\s+open(?:="[^"]*")?><summary>Outer</summary>
+    <details\s+open(?:="[^"]*")?><summary>Inner</summary>Contents</details></details>\z
+}x;
+
+$orig_post = $details;
+$clean->();
+is( $orig_post, $details, 'Details stay closed by default' );
+
+$orig_post = $details;
+$clean->( { ljcut_disable => 1 } );
+is( $orig_post, $details, 'Disabling cut tags alone leaves Details closed' );
+
+$orig_post = $details;
+$clean->( { details_open => 1 } );
+like( $orig_post, $details_with_open, 'Opening Details expands nested Details too' );
 
 # get cut text
 my $cut_text;

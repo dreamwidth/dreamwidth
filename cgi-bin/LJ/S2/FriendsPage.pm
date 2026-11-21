@@ -246,6 +246,7 @@ ENTRY:
         $opts->{cleanhtml_extra} = {
             maximgheight    => $maximgheight,
             maximgwidth     => $maximgwidth,
+            details_open    => $opts->{cut_disable},
             imageplaceundef => $remote ? $remote->{'opt_imageundef'} : undef
         };
 
