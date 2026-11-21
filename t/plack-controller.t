@@ -214,6 +214,52 @@ subtest 'account and support self-service' => sub {
     };
 };
 
+subtest 'deleted account can manage eligible old email addresses' => sub {
+    my $account = temp_user();
+    $account->update_self( { statusvis => 'D', status => 'T' } );
+    my $cookie = master_cookies( LJ::Session->create($account) );
+    my $url    = 'http://localhost/tools/emailmanage';
+    my $email  = 'old-address@example.test';
+    my $time   = LJ::mysql_time( time() - 183 * 86400, 1 );
+    my $dbh    = LJ::get_db_writer();
+    $dbh->do(
+'INSERT INTO infohistory (userid, what, timechange, oldvalue, other) VALUES (?, ?, ?, ?, ?)',
+        undef, $account->id, 'email', $time, $email, ''
+    );
+    my $history_type = sub {
+        return $dbh->selectrow_array( 'SELECT what FROM infohistory WHERE userid=? AND oldvalue=?',
+            undef, $account->id, $email );
+    };
+
+    test_psgi $app, sub {
+        my $cb = shift;
+        is( $cb->( GET $url )->code, 302, 'old-address management still requires login' );
+
+        $cb->( POST $url, Cookie => $cookie, Content => [ "$email-$time" => 1 ] );
+        is( $history_type->(), 'email', 'unverified account cannot remove old addresses' );
+
+        $account->update_self( { status => 'A' } );
+        my $other = master_cookies( LJ::Session->create($visible) );
+        $cb->(
+            POST "$url?authas=" . $account->user,
+            Cookie  => $other,
+            Content => [ "$email-$time" => 1 ]
+        );
+        is( $history_type->(), 'email', 'another user cannot remove the old address' );
+
+        my $form = $cb->( GET $url, Cookie => $cookie );
+        is( $form->code, 200, 'verified deleted account can review old addresses' );
+        like( $form->content, qr/\Q$email\E/, 'old address is listed' );
+        my ($token) = $form->content =~ /name="lj_form_auth" value="([^"]+)"/;
+        $cb->(
+            POST $url,
+            Cookie  => $cookie,
+            Content => [ lj_form_auth => ( $token // '' ), "$email-$time" => 1 ]
+        );
+        is( $history_type->(), 'emaildeleted', 'eligible old address is removed from history' );
+    };
+};
+
 subtest 'API account visibility' => sub {
     my $base   = 'http://localhost/api/v1';
     my $cookie = master_cookies($deleted_session);
