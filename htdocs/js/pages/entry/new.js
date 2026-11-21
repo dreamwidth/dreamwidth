@@ -170,18 +170,29 @@ var postForm = (function($) {
         var $custom_groups = $("#js-custom-groups");
         var $custom_access_group_members = $("#js-custom-group-members");
         var $security_select = $("#js-security");
+        var journalAllowsCustom = false;
+        var journalUpdate = 0;
         var memberUpdate = 0;
 
+        function usesCustomGroups() {
+            return journalAllowsCustom && $security_select.val() === "custom";
+        }
+
         function updateCustomGroups() {
-            var custom = $security_select.val() === "custom";
+            var custom = usesCustomGroups();
             $custom_groups.prop({ hidden: !custom, disabled: !custom });
-            if ( custom ) updatePostingMembers();
+            if ( custom ) {
+                updatePostingMembers();
+            } else {
+                ++memberUpdate;
+                $custom_access_group_members.empty().parent().prop("hidden", true);
+            }
         }
 
         // update the list of people who can see the entry
         function updatePostingMembers() {
             var journal = $form.data("journal");
-            if ( !journal ) return;
+            if ( !journal || !usesCustomGroups() ) return;
             var update = ++memberUpdate;
             var members_data = []
             var requests = []
@@ -241,70 +252,56 @@ var postForm = (function($) {
                     '>' + security.label + '</option>';
             }
 
-            var $security = $("#js-security");
-            var oldval = $security.closest('select').find('option').filter(':selected').val();
-            var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
+            var info = data.ret || {};
+            var isCommunity = info.is_comm;
+            var oldval = $security_select.val();
+            var minsecurity = info.minsecurity;
+            var options;
 
-            $security.empty();
-            if ( data.ret ) {
-                if ( data.ret["minsecurity"] == "friends" ) data.ret["minsecurity"] = "access";
-
-                var opts;
-                if ( data.ret['is_comm'] ) {
-                    opts = [
-                        createOption( "public" ),
-                        createOption( "members" )
-                    ];
-
-                    if ( data.ret['can_manage'] )
-                        opts.push( createOption( "admin" ) );
-                } else {
-                    opts = [
-                        createOption( "public" ),
-                        createOption( "access" ),
-                        createOption( "private" )
-                    ];
-
-                    if ( data.ret['friend_groups_exist'] && $custom_groups.length )
-                        opts.push( createOption( "custom" ) );
+            if ( isCommunity ) {
+                options = ["public", "members"];
+                if ( info.can_manage ) {
+                    options.push("admin");
+                } else if ( minsecurity === "private" ) {
+                    minsecurity = "access";
                 }
-                $security.append(opts.join(""));
-
-                // select the minsecurity value and disable the values with lesser security
-                var minsecrank = rank[data.ret['minsecurity']] || 0;
-                $security.val(rank[oldval] >= minsecrank ? oldval : data.ret['minsecurity']);
-                if ( data.ret['minsecurity'] == 'access' ) {
-                    $security.find("option[value='public']").prop("disabled", true);
-                } else if ( data.ret['minsecurity'] == 'private' ) {
-                    $security.find("option[value='public'],option[value='access'],option[value='custom']")
-                        .prop("disabled", true);
+                if ( oldval === "custom" || (oldval === "private" && !info.can_manage) ) {
+                    oldval = "access";
                 }
-
-                $security.trigger( "change" );
             } else {
-                $security
-                    .append([
-                        createOption( "public" ),
-                        createOption( "access" ),
-                        createOption( "private" )
-                    ].join(""))
-                    .val(oldval)
-                    .trigger( "change" );
+                options = ["public", "access", "private"];
+                if ( info.friend_groups_exist && $custom_groups.length ) {
+                    options.push("custom");
+                }
             }
 
+            $security_select.html(options.map(createOption).join(""));
+            if ( minsecurity === "friends" || minsecurity === "access" ) {
+                $security_select.find("option[value='public']").prop("disabled", true);
+            } else if ( minsecurity === "private" ) {
+                $security_select.find("option:not([value='private'])").prop("disabled", true);
+            }
+
+            var $enabled = $security_select.find("option:enabled");
+            var $preferred = $enabled.filter(function() { return this.value === oldval; });
+            $security_select.val(($preferred.length ? $preferred : $enabled.first()).val())
+                .trigger("change");
         }
 
         $form.bind( "journalselect", function(e, journal) {
-            var anon = ! journal.name;
+            var update = ++journalUpdate;
+            journalAllowsCustom = !!journal.name && !journal.iscomm;
+            updateCustomGroups();
             if ( $security_select.length > 0 ) {
-                if ( anon ) {
+                if ( !journal.name ) {
                     // no custom groups
                     adjustSecurityDropdown({})
                 } else if ( ! opts.edit ) {
-                    $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
-                    { "user": journal.name }, function(data) { adjustSecurityDropdown(data, journal) } );
-                } else if ( $security_select.val() === "custom" ) {
-                    updatePostingMembers();
+                    $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions", { user: journal.name },
+                        function(data) {
+                            if ( update === journalUpdate ) adjustSecurityDropdown(data, journal);
+                        }
+                    );
                 }
             }
         } );

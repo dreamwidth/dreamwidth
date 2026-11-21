@@ -64,4 +64,18 @@ $user->update_self( { status => 'A', statusvis => 'V' } );
 my @bits = map { $user->create_trust_group( groupname => $_ ) }
     ( 'Book Club', 'Neighbors', 'Writing Group' );
 
-print encode_json( { user => $user->user, password => $password, bits => \@bits } ), "\n";
+my $community;
+until ($community) {
+    $community = LJ::User->create_community(
+        user         => $prefix . LJ::rand_chars(4),
+        name         => 'Custom access browser test community',
+        admin_userid => $user->id,
+        membership   => 'open',
+        postlevel    => 'members',
+    );
+}
+croak 'Custom security fixture cannot post to its community' unless $user->can_post_to($community);
+
+print encode_json(
+    { user => $user->user, password => $password, bits => \@bits, community => $community->user } ),
+    "\n";
