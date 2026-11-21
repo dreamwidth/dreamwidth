@@ -35,6 +35,7 @@ use LJ::Comment;
 use LJ::Event::JournalNewComment;
 use LJ::Event::JournalNewComment::Edited;
 use LJ::Global::Constants;
+use LJ::Hooks;
 use LJ::JSON;
 use LJ::OpenID;
 use LJ::S2;
@@ -2983,7 +2984,7 @@ sub require_captcha_test {
     }
 
     ##
-    ## 4. Test preliminary limit on comment.
+    ## 2. Test preliminary limit on comment.
     ## We must check it before we will allow owner to pass.
     ##
     if ( LJ::Talk::get_replycount( $journal, $ditemid >> 8 ) >=
@@ -2997,7 +2998,7 @@ sub require_captcha_test {
     }
 
     ##
-    ## 2. Owner exemption, then custom journal settings.
+    ## 3. Owner exemption, then custom journal settings.
     ##
     my $journal_policy =
         journal_captcha_policy( $commenter, $journal, $anon_commenter, $trusted_anon );
@@ -3006,8 +3007,7 @@ sub require_captcha_test {
     $bypassed //= 'journal_setting' if $journal_policy eq 'trusted_anon';
 
     ##
-    ## 4. Global (site) settings
-    ## See if they have any tags or URLs in the comment's body
+    ## 4. Global (site) checks for suspicious comment content.
     ##
     if (
         $body
@@ -3046,41 +3046,39 @@ sub journal_captcha_policy {
 
     return 'owner' if !$anon_commenter && $commenter->equals($journal);
 
-    my $setting = $journal->prop('opt_show_captcha_to') || 'N';
-    if ( $setting eq 'R' && $anon_commenter ) {
+    my $setting = $journal->prop('opt_show_captcha_to') // '';
+    return '' if $setting eq '' || $setting eq 'N';
+    if ( $setting eq 'R' ) {
+        return '' unless $anon_commenter;
         return $trusted_anon ? 'trusted_anon' : 'required';
     }
-    return 'required' if $setting eq 'F' && !$journal->trusts_or_has_member($commenter);
-    return 'required' if $setting eq 'A';
-    return '';
+    return '' if $setting eq 'F' && $journal->trusts_or_has_member($commenter);
+    return 'required';
 }
 
 # The suspicious-content heuristics behind the comment_html captcha pages:
-# non-whitelisted HTML, multiple URLs, BBCode-style [url, or classic spam text.
+# multiple URLs, BBCode, or a match on the site's spam domain blocklist.
 sub _comment_html_is_suspicious {
     my ($body) = @_;
 
-    if ( $body =~ /<[a-z]/i ) {
-
-        # strip white-listed bare tags w/o attributes,
-        # then see if they still have HTML.  if so, it's
-        # questionable.  (can do evil spammy-like stuff w/
-        # attributes and other elements)
-        my $body_copy = $body;
-        $body_copy =~ s/<(?:q|blockquote|b|strong|i|em|cite|sub|sup|var|del|tt|code|pre|p)>//ig;
-        return 1 if $body_copy =~ /<[a-z]/i;
+    my $url_count = 0;
+    while (
+        $body =~ m{
+        \b (?: (?:https?|ftp):// (?:\[[0-9a-f:.]+\]|[[:alnum:]]) | www\.[[:alnum:]] )
+        [^\s<>"'\[\]]*
+    }igx
+        )
+    {
+        return 1 if ++$url_count == 2;
     }
 
-    # multiple URLs is questionable too
-    return 1 if $body =~ /\b(?:http|ftp|www)\b.+\b(?:http|ftp|www)\b/s;
+    return 1 if $body =~ /
+        \[\/? (?:b|i|u|s|strike|sub|sup|quote|code|list|img|url|email|font|size|color|
+        align|center|left|right|spoiler|table|tr|td|media|video|youtube|flash)
+        (?:=[^\]\r\n]*)?\]
+    /ix;
 
-    # or if they're not even using HTML
-    return 1 if $body =~ /\[url/is;
-
-    # or if it's obviously spam
-    return 1 if $body =~ /\s*message\s*/is;
-
-    return 0;
+    return LJ::Hooks::run_hook( 'spam_blocklist_match', $body ) ? 1 : 0;
 }
 
 # Does what it says on the tin.

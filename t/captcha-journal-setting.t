@@ -71,11 +71,12 @@ subtest 'journal policy preserves exemptions' => sub {
         R => [ 'required', '',         '',         'required', '',         'owner' ],
         F => [ 'required', 'required', '',         'required', 'required', 'owner' ],
         A => [ 'required', 'required', 'required', 'required', 'required', 'owner' ],
+        Z => [ 'required', 'required', 'required', 'required', 'required', 'owner' ],
     );
     no warnings qw(redefine once);
     for my $trusted ( 0, 1 ) {
         local *LJ::Session::trusted_anon_user = sub { return $trusted; };
-        for my $level (qw(N R F A)) {
+        for my $level (qw(N R F A Z)) {
             $journal->{setting} = $level;
             for my $i ( 0 .. $#actors ) {
                 my $want = $expected{$level}[$i];
@@ -133,7 +134,7 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
     ok( scalar( grep { $_ eq 'reason:journal_setting' } @{ $bypasses[0] } ),
         'bypass retains journal setting reason' );
     $enabled{comment_html_auth} = 1;
-    is( $check->( undef, '<a href="https://example.test/">link</a>' ),
+    is( $check->( undef, 'https://one.example/ https://two.example/' ),
         'comment_html', 'later site HTML rule still overrides the bypass' );
     is( scalar @bypasses, 0, 'no bypass metric when a later rule requires CAPTCHA' );
 };
