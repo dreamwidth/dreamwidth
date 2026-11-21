@@ -793,62 +793,40 @@ sub module_content {
 
     # try memcache
     my $memkey = $class->memkey( $journalid, $moduleid, $preview );
-    my ( $content, $linktext, $url );    # for direct linking
-    my $cref = LJ::MemCache::get($memkey);
-    $content  = $cref->{content};
-    $linktext = $cref->{linktext};
-    $url      = $cref->{url};
-    my ( $dbload, $dbid );               # module id from the database
+    my $cref   = LJ::MemCache::get($memkey);
+    my $dbload = !defined $cref->{content};
 
-    unless ( defined $content ) {
+    if ($dbload) {
         my $table_name = ($preview) ? 'embedcontent_preview' : 'embedcontent';
-        ( $content, $dbid, $linktext, $url ) = $journal->selectrow_array(
+        my ( $content, $dbid, $linktext, $url ) = $journal->selectrow_array(
             "SELECT "
                 . "content, moduleid, linktext, url FROM $table_name "
                 . "WHERE moduleid=? AND userid=?",
             undef, $moduleid, $journalid
         );
         die $journal->errstr if $journal->err;
-        $dbload = 1;
+
+        # if we didn't get a moduleid out of the database then this entry is not valid
+        $cref = {
+            content  => defined $dbid ? ( $content // '' ) : "[Invalid lj-embed id $moduleid]",
+            linktext => $linktext,
+            url      => $url,
+        };
+        LJ::MemCache::set( $memkey, $cref );
     }
 
-    $content ||= '';
-
+    my $content = $cref->{content} || '';
     LJ::text_uncompress( \$content ) if $content =~ s/^C-//;
 
     # clean js out of content
     LJ::CleanHTML::clean_embed( \$content, { display_as_content => $display } );
 
-    my $return_content;
-
-    # if we got stuff out of database
-    if ($dbload) {
-
-        # if we didn't get a moduleid out of the database then this entry is not valid
-        $return_content = {
-            content  => defined $dbid ? $content : "[Invalid lj-embed id $moduleid]",
-            linktext => $linktext,
-            url      => $url,
-        };
-
-        # save in memcache
-        LJ::MemCache::set( $memkey, $return_content );
-    }
-    else {
-        # get rid of whitespace around the content
-        $return_content = {
-            content  => LJ::trim($content) || '',
-            linktext => $linktext,
-            url      => $url,
-        };
-    }
-
-    return $return_content;
+    return { %$cref, content => $dbload ? $content : LJ::trim($content) || '', };
 }
 
 sub memkey {
     my ( $class, $journalid, $moduleid, $preview ) = @_;
-    my $pfx = $preview ? 'embedcontpreview2' : 'embedcont2';
+    my $pfx = $preview ? 'embedcontpreview3' : 'embedcont3';
     return [ $journalid, "$pfx:$journalid:$moduleid" ];
 }
 
