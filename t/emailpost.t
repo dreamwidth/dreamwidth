@@ -16,16 +16,18 @@
 use strict;
 use warnings;
 
-use Test::More tests => 30;
+use Test::More tests => 34;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost;
 use LJ::Emailpost::Web;
+use LJ::Userpic;
 
 use LJ::Test;
 use FindBin qw($Bin);
 use File::Temp;
+use MIME::Entity;
 use MIME::Parser;
 
 local $LJ::T_ALLOW_EMAILPOST = 1;    # override caps
@@ -143,6 +145,140 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
     );
     $u->set_prop( timezone => undef );
 }
+
+my $post_count = 0;
+
+sub email_entry {
+    my ( $poster, $journal, $pin, @headers ) = @_;
+    LJ::start_request();
+    my $destination = $poster->user;
+    $destination .= '.' . $journal->user unless $poster->equals($journal);
+    my $body = 'Testing email headers ' . ++$post_count;
+    my $mime = MIME::Entity->build(
+        From    => $user_email_info->{FROM_EMAIL},
+        To      => "$destination+$pin\@$user_email_info->{POSTDOMAIN}",
+        Date    => 'Mon, 1 Jan 2007 12:30:00 -0800',
+        Subject => $body,
+        Data    => join( "\n", @headers, '', $body, '' ),
+    );
+    my ( $posted, $message ) = DW::EmailPost->get_handler($mime)->process;
+    return ( undef, $message ) unless $posted;
+
+    my $itemid = $journal->selectrow_array( 'SELECT MAX(jitemid) FROM log2 WHERE journalid = ?',
+        undef, $journal->id );
+    my $entry = $itemid && LJ::Entry->new( $journal, jitemid => $itemid );
+    return ( $entry, $message );
+}
+
+sub add_icon {
+    my ( $owner, $file, $keywords ) = @_;
+    open( my $image, '<:raw', "$Bin/data/userpics/$file" ) or die "Open $file: $!";
+    my $data = do { local $/; <$image> };
+    my $icon = LJ::Userpic->create( $owner, data => \$data ) or die "Create icon: $file";
+    $icon->set_keywords($keywords);
+}
+
+subtest 'email slug normalization and aliases' => sub {
+    my ( $slugged, $message ) =
+        email_entry( $u, $u, $emailpin, 'lj-slug: ignored', 'Post-Slug: Paris -- Trip!' );
+    ok( $slugged && $slugged->valid, 'posted with a slug' ) or diag $message;
+    is( $slugged && $slugged->slug, 'paris-trip', 'post-slug overrides and normalizes lj-slug' );
+    like( $slugged && $slugged->url, qr{/paris-trip\.html$}, 'permalink uses the normalized slug' );
+    like(
+        $slugged && $slugged->event_raw,
+        qr/^Testing email headers \d+$/,
+        'no slug header is left in the entry body'
+    );
+
+    my ($legacy) = email_entry( $u, $u, $emailpin, 'lj-slug: Old Style' );
+    is( $legacy && $legacy->slug, 'old-style', 'lj-slug works on its own' );
+
+    my ($plain) = email_entry( $u, $u, $emailpin, 'post-mood: happy' );
+    is( $plain && $plain->slug, '', 'omitting the slug still gives a numeric permalink' );
+};
+
+subtest 'invalid and duplicate slugs fall back to numeric permalinks' => sub {
+    my ($first) = email_entry( $u, $u, $emailpin, 'post-slug: Unique Name' );
+    is( $first && $first->slug, 'unique-name', 'first entry claims the slug' );
+
+    my ($duplicate) = email_entry( $u, $u, $emailpin, 'post-slug: UNIQUE--NAME' );
+    ok( $duplicate && $duplicate->valid, 'duplicate slug does not prevent posting' );
+    is( $duplicate && $duplicate->slug, '', 'duplicate has no slug' );
+    like( $duplicate && $duplicate->url, qr{/\d+\.html$}, 'duplicate uses its numeric permalink' );
+    my $lookup = LJ::Entry->new( $u, slug => 'unique-name' );
+    is(
+        $lookup && $lookup->jitemid,
+        $first  && $first->jitemid,
+        'slug still resolves to first entry'
+    );
+
+    my ($invalid) = email_entry( $u, $u, $emailpin, 'post-slug: ..?!' );
+    ok( $invalid && $invalid->valid, 'a slug that normalizes to empty does not prevent posting' );
+    is( $invalid && $invalid->slug, '', 'invalid slug is not saved' );
+    my ($numeric) = email_entry( $u, $u, $emailpin, 'post-slug: 1234' );
+    is( $numeric && $numeric->slug, '1234', 'numeric slugs are accepted' );
+};
+
+subtest 'random icon uses selectable keywords without changing explicit keywords' => sub {
+    my ($no_icon) = email_entry( $u, $u, $emailpin, 'post-icon: random' );
+    ok( $no_icon && !$no_icon->userpic, 'random works with no icons' );
+
+    add_icon( $u, 'good.png', 'alpha' );
+    my ($only_icon) = email_entry( $u, $u, $emailpin, 'lj-userpic: RANDOM' );
+    is( $only_icon && $only_icon->userpic_kw, 'alpha', 'random can select the only icon' );
+
+    add_icon( $u, 'good.jpg', 'beta, gamma' );
+    my %selectable = map { $_ => 1 } qw(alpha beta gamma);
+    my %picked;
+    srand(2314);
+    foreach ( 1 .. 16 ) {
+        my ($random) = email_entry( $u, $u, $emailpin, 'post-icon: random' );
+        $picked{ ( $random && $random->userpic_kw ) // '' }++;
+    }
+    is_deeply( [ grep { !$selectable{$_} } sort keys %picked ],
+        [], 'each random selection is a valid keyword, never the default option' );
+    cmp_ok( scalar keys %picked, '>', 1, 'random selections can vary between entries' );
+
+    $u->set_prop( emailpost_userpic => 'gamma' );
+    my ($default) = email_entry( $u, $u, $emailpin, 'post-mood: happy' );
+    is( $default && $default->userpic_kw, 'gamma', 'omitted header uses email posting default' );
+    my ($named) = email_entry( $u, $u, $emailpin, 'post-icon: random', 'post-userpic: beta' );
+    is( $named && $named->userpic_kw, 'beta', 'explicit userpic wins over the icon alias' );
+
+    add_icon( $u, 'good.gif', 'random' );
+    my ($literal) = email_entry( $u, $u, $emailpin, 'post-icon: random' );
+    is( $literal && $literal->userpic_kw, 'random', 'existing keyword named random still works' );
+};
+
+subtest 'new headers still respect PIN, journal permissions, and privacy' => sub {
+    my $community = temp_comm();
+    $u->update_self( { status => 'A' } );
+    my @headers = ( 'post-slug: Unique Name', 'post-icon: RANDOM', 'post-security: access' );
+    my ( $denied, $denial ) = email_entry( $u, $community, 'wrongpin', @headers );
+    ok( !$denied, 'headers do not bypass the email PIN' );
+    like( $denial, qr/Invalid PIN/, 'posting first checks the PIN' );
+
+    ( $denied, $denial ) = email_entry( $u, $community, $emailpin, @headers );
+    ok( !$denied, 'headers do not grant permission to post to a community' );
+    like( $denial, qr/access|permission/i, 'posting reports an authorization error' );
+    ok( !LJ::Entry->new( $community, slug => 'unique-name' ),
+        'rejected posts do not claim the slug' );
+
+    LJ::set_rel( $community, $u, 'P' );
+    my ( $posted, $message ) = email_entry( $u, $community, $emailpin, @headers );
+    ok( $posted && $posted->valid, 'authorized community post succeeds' ) or diag $message;
+    is( $posted && $posted->slug, 'unique-name', 'slug uniqueness is scoped to the journal' );
+    ok( $posted && $posted->poster->equals($u), 'sender is the community entry author' );
+    like(
+        $posted && $posted->userpic_kw,
+        qr/\A(?:alpha|beta|gamma|random)\z/,
+        'random keyword comes from the sender rather than the community'
+    );
+    ok( $posted && $posted->userpic && $posted->userpic->userid == $u->id,
+        "community entry uses the sender's icon" );
+    is( $posted && $posted->security,  'usemask', 'entry remains access-only' );
+    is( $posted && $posted->allowmask, 1,         'entry uses the community access list' );
+};
 
 sub get_mime {
     my ( $filepart, $replace ) = @_;
