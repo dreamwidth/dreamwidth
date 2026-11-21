@@ -427,14 +427,14 @@ with_fake_memcache {
         };
 
         subtest 'expire an OpenID domain ban' => sub {
+            my $admin = temp_user();
+            $admin->grant_priv( 'sysban', 'openid_domain' );
             if ($banid) {
                 my $result = LJ::Sysban::modify(
+                    actor   => $admin,
                     banid   => $banid,
-                    expire  => 0,
                     bandays => 'X',
                     note    => 'lifted',
-                    what    => 'openid_domain',
-                    value   => $host,
                 );
                 isnt( ref $result, 'ERROR', 'The ban can be edited and expired' );
                 my $bans =
@@ -447,8 +447,6 @@ with_fake_memcache {
             }
             ok( !LJ::Sysban::sysban_check( 'openid_domain', $banned_url ),
                 'The expired ban no longer matches' );
-            my $admin = temp_user();
-            $admin->grant_priv( 'sysban', '*' );
             local $LJ::T_NO_COMMAND_PRINT = 1;
             LJ::set_remote($admin);
             my $message = LJ::Console->run_commands_text("sysban_add openid_domain $host");
