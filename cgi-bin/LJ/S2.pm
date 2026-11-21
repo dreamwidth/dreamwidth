@@ -137,6 +137,8 @@ sub make_journal {
     }
 
     $opts->{'ctx'} = $ctx;
+    $opts->{show_tag_navigation} =
+        $view eq 'entry' || $view eq 'reply' || ( $view eq 'lastn' && $opts->{tags} );
     $LJ::S2::CURR_CTX = $ctx;
 
     foreach ( "name", "url", "urlname" ) { LJ::text_out( \$u->{$_} ); }
@@ -207,6 +209,7 @@ sub make_journal {
 
             stc/jquery/jquery.ui.core.css
             stc/jquery/jquery.ui.tooltip.css
+            stc/jquery.ajaxtip.css
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
 
@@ -1854,6 +1857,7 @@ sub tracking_popup_js {
 
             stc/jquery/jquery.ui.core.css
             stc/jquery/jquery.ui.tooltip.css
+            stc/jquery.ajaxtip.css
 
             js/jquery.esn.js
             ),
@@ -2067,7 +2071,8 @@ sub TagList {
     @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
 
     return "" if $opts->{no_entry_body};
-    LJ::need_res('stc/jquery/jquery.ui.theme.smoothness.css') if @$taglist;
+    LJ::need_res('stc/jquery/jquery.ui.theme.smoothness.css')
+        if @$taglist && $opts->{show_tag_navigation};
     return "" unless $opts->{enable_tags_compatibility} && @$taglist;
     return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );
 }
