@@ -268,6 +268,70 @@ $editor = LJ::load_userid( $editor->id );
 }
 
 {
+    my $personal = temp_user();
+    $personal->update_self( { status => 'A', oldenc => 1 } );
+    my $key     = DW::API::Key->new_for_user($personal)->hash;
+    my %visible = ( subject => "Caf\xc3\xa9", text => "Cr\xc3\xa8me" );
+    for my $field (qw(subject text)) {
+        my $entry  = post_entry( $personal, $personal, "Legacy $field fixture", 0 );
+        my $itemid = $entry->jitemid;
+        LJ::get_cluster_master($personal)
+            ->do( 'UPDATE logtext2 SET subject = ?, event = ? WHERE journalid = ? AND jitemid = ?',
+            undef, "Caf\xe9", "Cr\xe8me", $personal->id, $itemid )
+            or BAIL_OUT('Could not store legacy fixture text');
+        $entry->set_prop( unknown8bit => 1 );
+        LJ::MemCache::delete(
+            [ $personal->id, join( ':', 'logtext', $personal->clusterid, $personal->id, $itemid ) ]
+        );
+        my $path   = '/journals/' . $personal->user . '/entries/' . $entry->ditemid;
+        my $before = reload_entry($entry);
+        is( $before->subject_raw, $visible{subject}, 'legacy subject decodes before editing' );
+        is( $before->event_raw,   $visible{text},    'legacy body decodes before editing' );
+
+        my ($response) = api_request(
+            POST => $path,
+            key  => $key,
+            json => { datetime => '2020-01-02 03:04' }
+        );
+        is( $response->code, 200, 'date-only edit succeeds for legacy entry' );
+        my $saved = reload_entry($entry);
+        ok( $saved->prop('unknown8bit'), 'date-only edit preserves the legacy encoding marker' );
+        is( $saved->subject_raw, $visible{subject}, 'date-only edit preserves the legacy subject' );
+        is( $saved->event_raw,   $visible{text},    'date-only edit preserves the legacy body' );
+
+        $saved->set_prop( unknown8bit => 1 );
+        ($response) = api_request( POST => $path, key => $key, json => { $field => 'New text' } );
+        is( $response->code, 200, "a legacy entry accepts a $field-only edit" );
+        $saved = reload_entry($entry);
+        ok( !$saved->prop('unknown8bit'), 'a content edit clears the legacy encoding marker' );
+        is(
+            $saved->subject_raw,
+            $field eq 'subject' ? 'New text' : $visible{subject},
+            "a $field-only edit saves the expected subject"
+        );
+        is(
+            $saved->event_raw,
+            $field eq 'text' ? 'New text' : $visible{text},
+            "a $field-only edit saves the expected body"
+        );
+    }
+}
+
+{
+    my $entry      = post_entry( $community, $author, 'Keep this official entry', 1 );
+    my $path       = '/journals/' . $community->user . '/entries/' . $entry->ditemid;
+    my ($response) = api_request(
+        POST => $path,
+        key  => DW::API::Key->new_for_user($editor)->hash,
+        json => { text => " \t\n" }
+    );
+    is( $response->code, 400, 'authenticated shared REST edit rejects a whitespace-only body' );
+    my $saved = reload_entry($entry);
+    ok( $saved->valid, 'the whitespace-only update does not delete the entry' );
+    is( $saved->event_raw, 'Keep this official entry', 'the saved body is unchanged' );
+}
+
+{
     my $moderated = post_entry( $community, $author, 'Read-only moderation fixture', 1 );
     $editor->update_self( { statusvis => 'O' } );
     LJ::start_request();
@@ -461,6 +525,59 @@ $official->set_prop( statusvis => undef );
     my ($tag_info) = grep { $_->{name} eq $tag } values %{ LJ::Tags::get_usertags($community) };
     is( $tag_info->{security_level}, 'private', 'tag accounting reflects the private visibility' );
     LJ::MemCache::set_memcache($original_memcache);
+}
+
+{
+    my $entry = post_entry( $community, $author, 'Tag permissions fixture', 1 );
+    my $tag   = 'existing public tag';
+    is( edit_entry( $entry, $author, 'Tagged entry', props => { taglist => $tag } ),
+        0, 'author applies a public tag' );
+    LJ::set_rel( $community, $editor, 'B' );
+    ok( !LJ::Tags::can_add_entry_tags( $editor, $entry ), 'the shared editor cannot add tags' );
+    ok( !LJ::Tags::can_control_tags( $community, $editor ), 'the shared editor cannot edit tags' );
+    is(
+        edit_entry(
+            $entry, $editor, 'Private entry',
+            security => 'private',
+            props    => { taglist => 'unauthorized replacement' }
+        ),
+        0,
+        'tag permission denial does not prevent a shared visibility edit'
+    );
+    LJ::clear_rel( $community, $editor, 'B' );
+    my $saved = reload_entry($entry);
+    is( $saved->security, 'private', 'the entry becomes private' );
+    is_deeply( [ $saved->tags ], [$tag], 'the tag list is unchanged' );
+    my ($tag_info) = grep { $_->{name} eq $tag } values %{ LJ::Tags::get_usertags($community) };
+    is( $tag_info->{security_level}, 'private', 'the existing tag follows the new visibility' );
+}
+
+for my $actor ( $editor, $author ) {
+    no warnings 'redefine';
+    my $kind  = $actor->equals($author) ? 'author' : 'shared';
+    my $entry = post_entry( $community, $author, "Tag write fixture for $kind", 1 );
+    my $tag   = "tag write failure for $kind";
+    is( edit_entry( $entry, $author, 'Original tagged entry', props => { taglist => $tag } ),
+        0, 'author applies a tag before a failing write' );
+    my $write         = \&LJ::User::do;
+    my $failed_writes = 0;
+    local *LJ::User::do = sub {
+        my ( $journal, $sql ) = @_;
+        if ( $journal->equals($community) && $sql =~ /\A(?:INSERT|REPLACE)\s+INTO logkwsum\b/i ) {
+            $failed_writes++;
+            return $write->( $journal, 'UPDATE logkwsum SET nonexistent_test_column = 0' );
+        }
+        return $write->(@_);
+    };
+    my $error = eval { edit_entry( $entry, $actor, 'Should not save', security => 'private' ) };
+    ok( $failed_writes, "$kind edit attempts a tag accounting write" );
+    like( $error // $@, qr/^501\b/, "$kind edit reports the failed write" );
+    my $saved = reload_entry($entry);
+    is( $saved->security, 'public', "$kind edit rolls back entry visibility" );
+    is( $saved->event_raw, 'Original tagged entry', "$kind edit leaves the body unchanged" );
+    is_deeply( [ $saved->tags ], [$tag], "$kind edit retains the existing tag" );
+    my ($tag_info) = grep { $_->{name} eq $tag } values %{ LJ::Tags::get_usertags($community) };
+    is( $tag_info->{security_level}, 'public', "$kind edit leaves tag visibility consistent" );
 }
 
 like( edit_entry( $official, $author, 'False attribution', props => { admin_post_editor => 1 } ),

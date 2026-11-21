@@ -695,6 +695,40 @@ sub get_security_level {
     return $mask;
 }
 
+=head2 reclassify_logtags
+
+Move an entry's existing tags from one summary mask to another. The caller
+holds the log2 row lock in its write transaction and clears the journal's
+tag cache after commit.
+
+=cut
+
+sub reclassify_logtags {
+    my ( $u, $jitemid, $old_security, $new_security ) = @_;
+    my $journalid   = $u->id;
+    my $decremented = $u->do(
+        q{UPDATE logtags AS tags JOIN logkwsum AS counts USING (journalid, kwid)
+            SET counts.entryct = counts.entryct - 1
+            WHERE tags.journalid = ? AND tags.jitemid = ? AND counts.security = ?
+                AND counts.entryct > 0},
+        undef, $journalid, $jitemid, $old_security
+    );
+    return undef unless defined $decremented;
+    return undef
+        if $decremented > 0 && !$u->do(
+        q{DELETE counts FROM logtags AS tags JOIN logkwsum AS counts USING (journalid, kwid)
+            WHERE tags.journalid = ? AND tags.jitemid = ? AND counts.security = ?
+                AND counts.entryct = 0},
+        undef, $journalid, $jitemid, $old_security
+        );
+    return $u->do(
+        q{INSERT INTO logkwsum (journalid, kwid, security, entryct)
+            SELECT journalid, kwid, ?, 1 FROM logtags WHERE journalid = ? AND jitemid = ?
+            ON DUPLICATE KEY UPDATE entryct = logkwsum.entryct + 1},
+        undef, $new_security, $journalid, $jitemid
+    );
+}
+
 # <LJFUNC>
 # name: LJ::Tags::update_logtags
 # class: tags
@@ -878,14 +912,6 @@ sub update_logtags {
     # value (a delta; +/-N) to be applied to that row later
     my %security;
 
-    # get the security of this post for use in %security; do this now so
-    # we don't interrupt the transaction below
-    my $l2row = $opts->{previous_security} || LJ::get_log2_row( $u, $jitemid );
-    return undef unless $l2row;
-
-    # calculate security masks
-    my $sec = LJ::Tags::get_security_level( $l2row->{security}, $l2row->{allowmask} );
-
     # setup a rollback bail path so that we can undo everything we've done
     # if anything fails in the middle; and if the rollback fails, scream loudly
     # and burst into flames!
@@ -895,7 +921,15 @@ sub update_logtags {
     };
 
     # start the big transaction, for great justice!
-    $u->begin_work;
+    return undef unless $u->begin_work;
+
+    my $l2row = $u->selectrow_hashref(
+        'SELECT security, allowmask FROM log2 WHERE journalid = ? AND jitemid = ? FOR UPDATE',
+        undef, $u->id, $jitemid );
+    return $rollback->() if $u->err;
+    $l2row ||= $opts->{previous_security};
+    return $rollback->() unless $l2row;
+    my $sec = LJ::Tags::get_security_level( $l2row->{security}, $l2row->{allowmask} );
 
     # process additions first
     my @bind;

@@ -1965,6 +1965,28 @@ sub _store_shared_official_edit {
     return $error;
 }
 
+sub _store_entry_visibility_edit {
+    my ( $dbcm, $journal, $itemid, $oldevent, $store ) = @_;
+    return undef unless $journal->is_innodb && $dbcm->begin_work;
+
+    my $saved = eval {
+        my $current = $dbcm->selectrow_hashref(
+            'SELECT anum, security, allowmask FROM log2 WHERE journalid=? AND jitemid=? FOR UPDATE',
+            undef, $journal->id, $itemid
+        );
+               $current
+            && $current->{anum} == $oldevent->{anum}
+            && $current->{security} eq $oldevent->{security}
+            && $current->{allowmask} == $oldevent->{allowmask}
+            && $store->()
+            && $dbcm->commit;
+    };
+    my $exception = $@;
+    $dbcm->rollback unless $dbcm->{AutoCommit};
+    die $exception if $exception;
+    return $saved;
+}
+
 sub editevent {
     my ( $req, $err, $flags ) = @_;
     my $res          = {};
@@ -2075,7 +2097,7 @@ sub editevent {
     ### load existing meta-data
     my %curprops;
     my $other_author = $posterid != $oldevent->{posterid};
-    LJ::DB::cond_no_cache( $uowner->is_community,
+    LJ::DB::cond_no_cache( $uowner->is_community || $flags->{partial_edit},
         sub { LJ::load_log_props2( $dbcm, $ownerid, [$itemid], \%curprops ) } );
 
     # xpost helper for later
@@ -2168,6 +2190,20 @@ sub editevent {
     $req->{event}   = $oldevent->{event}   if $keep_event;
     $req->{subject} = $oldevent->{subject} if $keep_subject;
 
+    if ( $curprops{$itemid}->{unknown8bit} ) {
+        if ( $keep_event && $keep_subject ) {
+            delete $req->{props}->{unknown8bit};
+        }
+        elsif ( $keep_event || $keep_subject ) {
+            my $unused;
+            LJ::item_toutf8(
+                $uowner,
+                $keep_subject ? \$req->{subject} : \$unused,
+                $keep_event   ? \$req->{event}   : \$unused
+            );
+        }
+    }
+
     delete $req->{props}->{admin_post}
         if $req->{props}->{admin_post} && !( $uowner->is_community && $u->can_manage($uowner) );
 
@@ -2230,31 +2266,13 @@ sub editevent {
         $qallowmask = $oldevent->{allowmask};
     }
 
-    my $do_tags = $req->{props} && defined $req->{props}->{taglist};
-    my $do_tags_security;
-    my $entry_tags;
-
-    if ( $oldevent->{security} ne $security || $qallowmask != $oldevent->{allowmask} ) {
-
-        # FIXME: this is a hopefully temporary hack which deletes tags from the entry
-        # when the security has changed.  the real fix is to make update_logtags aware
-        # of security changes so it can update logkwsum appropriately.
-
-        # we need to fix security on this entry's tags; if the user didn't give us a
-        # tag list to work with, we use the existing tags on this entry
-        unless ($do_tags) {
-            $entry_tags              = LJ::Tags::get_logtags( $uowner, $itemid );
-            $entry_tags              = $entry_tags->{$itemid};
-            $entry_tags              = join( ',', sort values %{ $entry_tags || {} } );
-            $req->{props}->{taglist} = $entry_tags;
-        }
-
-        # FIXME: temporary hack until we can make update_logtags recognize entry security edits
-        if ( LJ::Tags::can_control_tags( $uowner, $u ) || LJ::Tags::can_add_tags( $uowner, $u ) ) {
-            LJ::Tags::delete_logtags( $uowner, $itemid ) unless $other_author;
-            $do_tags_security = 1;
-        }
-    }
+    my $visibility_changed =
+        $oldevent->{security} ne $security || $qallowmask != $oldevent->{allowmask};
+    my $old_tag_security =
+        LJ::Tags::get_security_level( $oldevent->{security}, $oldevent->{allowmask} );
+    my $new_tag_security = LJ::Tags::get_security_level( $security, $qallowmask );
+    my $reclassify_tags  = $old_tag_security != $new_tag_security;
+    my $defer_cache      = $other_author || $visibility_changed;
 
     my $qyear  = $req->{'year'} + 0;
     my $qmonth = $req->{'mon'} + 0;
@@ -2280,36 +2298,16 @@ sub editevent {
         $text_changed = !$flags->{'use_old_content'}
             && ( $event ne $oldevent->{'event'} || $req->{'subject'} ne $oldevent->{'subject'} );
         if (   $eventtime ne $oldevent->{'eventtime'}
-            || $security ne $oldevent->{'security'}
-            || ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} )
-            || $qallowmask != $oldevent->{'allowmask'} )
+            || $visibility_changed
+            || ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} ) )
         {
-            # are they changing their most recent post?
-            if (   $u->equals($uowner)
-                && $u->prop("newesteventtime") eq $oldevent->{eventtime} )
-            {
-
-                if ( !$curprops{$itemid}->{opt_backdated} && $req->{props}{opt_backdated} ) {
-
-                    # if they set the backdated flag, then we no longer know
-                    # the newesteventtime.
-                    $u->set_prop( "newesteventtime", undef );
-                }
-                elsif ( $eventtime ne $oldevent->{eventtime} ) {
-
-                    # otherwise, if they changed time on this event,
-                    # the newesteventtime is this event's new time.
-                    $u->set_prop( "newesteventtime", $eventtime );
-                }
-            }
-
-            my $qsecurity = $uowner->quote($security);
             my $sql =
                   "UPDATE log2 SET eventtime=$qeventtime, revttime=$LJ::EndOfTime-"
-                . "UNIX_TIMESTAMP($qeventtime), year=$qyear, month=$qmonth, day=$qday, "
-                . "security=$qsecurity, allowmask=$qallowmask WHERE journalid=$ownerid "
-                . "AND jitemid=$itemid";
-            return undef unless $other_author ? $uowner->do($sql) : $uowner->log2_do( undef, $sql );
+                . "UNIX_TIMESTAMP($qeventtime), year=$qyear, month=$qmonth, day=$qday";
+            $sql .= ', security=' . $uowner->quote($security) . ", allowmask=$qallowmask"
+                if $visibility_changed;
+            $sql .= " WHERE journalid=$ownerid AND jitemid=$itemid";
+            return undef unless $defer_cache ? $uowner->do($sql) : $uowner->log2_do( undef, $sql );
 
             # update memcached
             my $sec = $qallowmask;
@@ -2324,9 +2322,7 @@ sub editevent {
 
         }
 
-        if (   $security ne $oldevent->{'security'}
-            || $qallowmask != $oldevent->{'allowmask'} )
-        {
+        if ($visibility_changed) {
             if ( $security eq "public" || $security eq "private" ) {
                 $uowner->do("DELETE FROM logsec2 WHERE journalid=$ownerid AND jitemid=$itemid");
             }
@@ -2336,6 +2332,11 @@ sub editevent {
             }
             return undef if $uowner->err;
         }
+
+        return undef
+            if $reclassify_tags
+            && !LJ::Tags::reclassify_logtags( $uowner, $itemid, $old_tag_security,
+            $new_tag_security );
 
         if ($text_changed) {
             return undef
@@ -2353,27 +2354,53 @@ sub editevent {
             grep { LJ::get_prop( 'log', $_ ) } keys %{ $req->{props} }
         };
         $propset->{admin_post_editor} = 1 if $other_author;
-        return LJ::set_logprop( $uowner, $itemid, $propset, undef, $other_author );
+        return LJ::set_logprop( $uowner, $itemid, $propset, undef, $defer_cache );
     };
 
     if ($other_author) {
         my $error = _store_shared_official_edit( $dbcm, $entry, $u,
             $curprops{$itemid}->{revnum} + 0, $store );
         return fail( $err, $error ) if $error;
-        LJ::MemCache::delete( [ $ownerid, "logprop:$ownerid:$itemid" ] );
-        LJ::MemCache::delete( [ $ownerid, "log2lt:$ownerid" ] ) if defined $log2_cache_row;
+    }
+    elsif ($visibility_changed) {
+        return fail( $err, 501 )
+            unless _store_entry_visibility_edit( $dbcm, $uowner, $itemid, $oldevent, $store );
     }
     else {
         return fail( $err, 501, $uowner->errstr ) unless $store->();
     }
 
-    LJ::MemCache::set( [ $ownerid, "log2:$ownerid:$itemid" ], $log2_cache_row )
-        if defined $log2_cache_row;
+    if ($defer_cache) {
+        LJ::MemCache::delete( [ $ownerid, "logprop:$ownerid:$itemid" ] );
+        LJ::MemCache::delete( [ $ownerid, "log2lt:$ownerid" ] ) if defined $log2_cache_row;
+    }
+    LJ::Tags::reset_cache($uowner) if $reclassify_tags;
+
+    if ( defined $log2_cache_row ) {
+        my $cache_key = [ $ownerid, "log2:$ownerid:$itemid" ];
+        if ( $uowner->is_community || $visibility_changed ) {
+            LJ::MemCache::set( $cache_key, $log2_cache_row );
+        }
+        else {
+            LJ::MemCache::delete($cache_key);
+        }
+    }
     LJ::MemCache::set( [ $ownerid, "logtext:$clusterid:$ownerid:$itemid" ],
         [ $req->{'subject'}, $event ] );
     $uowner->dudata_set( 'L', $itemid, length($event) + length( $req->{'subject'} ) )
         if $text_changed;
-    LJ::Tags::delete_logtags( $uowner, $itemid, $oldevent ) if $other_author && $do_tags_security;
+
+    if (   defined $log2_cache_row
+        && $u->equals($uowner)
+        && $u->prop('newesteventtime') eq $oldevent->{eventtime} )
+    {
+        if ( !$curprops{$itemid}->{opt_backdated} && $req->{props}->{opt_backdated} ) {
+            $u->set_prop( 'newesteventtime', undef );
+        }
+        elsif ( $eventtime ne $oldevent->{eventtime} ) {
+            $u->set_prop( 'newesteventtime', $eventtime );
+        }
+    }
 
     my $clean_event = $event;
     my $errref;
@@ -2393,36 +2420,17 @@ sub editevent {
         )
     ) if $errref;
 
-    if ($do_tags) {
-
-        # we only want to update the tags if they've been modified
-        # so load the original entry tags
-        unless ($entry_tags) {
-            $entry_tags = LJ::Tags::get_logtags( $uowner, $itemid );
-            $entry_tags = $entry_tags->{$itemid};
-            $entry_tags = join( ',', sort values %{ $entry_tags || {} } );
-        }
-
+    if ( defined $req->{props}->{taglist} ) {
+        my $entry_tags = LJ::Tags::get_logtags( $uowner, $itemid );
+        $entry_tags = join( ',', sort values %{ $entry_tags->{$itemid} || {} } );
         my $request_tags = [];
         LJ::Tags::is_valid_tagstring( $req->{props}->{taglist}, $request_tags );
-        $request_tags = join( ",", sort @{ $request_tags || [] } );
-        $do_tags      = ( $request_tags ne $entry_tags );
-    }
-
-    # handle tags if they're defined
-    if ( $do_tags || $do_tags_security ) {
-        my $tagerr = "";
-        my $rv     = LJ::Tags::update_logtags(
-            $uowner, $itemid,
-            {
-                set_string => $req->{props}->{taglist},
-                remote     => $u,
-                err_ref    => \$tagerr,
-            }
-        );
-
-      # we only want to warn if we tried to edit the tags, not if we just tried to edit the security
-        $add_message->($tagerr) if $tagerr && $do_tags;
+        if ( join( ',', sort @$request_tags ) ne $entry_tags ) {
+            my $tagerr = '';
+            LJ::Tags::update_logtags( $uowner, $itemid,
+                { set_string => $req->{props}->{taglist}, remote => $u, err_ref => \$tagerr } );
+            $add_message->($tagerr) if $tagerr;
+        }
     }
 
     # deal with backdated changes.  if the entry's rlogtime is

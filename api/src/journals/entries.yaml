@@ -44,7 +44,7 @@ paths:
                   description: Entry subject line
                 text:
                   type: string
-                  description: Entry text
+                  description: Entry text. Must contain at least one non-whitespace character.
                   minLength: 1
                 icon:
                   type: string
