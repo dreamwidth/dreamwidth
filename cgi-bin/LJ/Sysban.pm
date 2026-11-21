@@ -24,6 +24,12 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
 
+sub can_manage_type {
+    my ( $actor, $what ) = @_;
+    return 0 unless $actor && defined $what && length $what && $what ne '*';
+    return $actor->has_priv( 'sysban', $what );
+}
+
 sub _openid_domain {
     my ( $value, $for_storage ) = @_;
     return unless defined $value;
@@ -411,7 +417,7 @@ sub _db_sysban_populate_full {
         $dbh->prepare( "SELECT banid, value, "
             . "UNIX_TIMESTAMP(banuntil), note "
             . "FROM sysban "
-            . "WHERE status='active' AND what=? "
+            . "WHERE status='active' AND CAST(what AS BINARY)=? "
             . "AND NOW() > bandate "
             . "AND (NOW() < banuntil OR banuntil IS NULL)"
             . $limitsql );
@@ -455,17 +461,12 @@ sub populate_full_by_value_with_expired {
 
 sub _db_sysban_populate_full_by_value {
     my ( $value, $no_expired, @types ) = @_;
+    return {} unless @types;
+
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
-    my $in_what = "";
-    my $has_all = 0;
-
-    $in_what = join ", ", map { $dbh->quote($_) } @types
-        unless $has_all;
-    $in_what = " AND what IN ( $in_what )"
-        if $in_what;
-
+    my $in_what  = join ', ', ('?') x @types;
     my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
 
     # build cache from db
@@ -474,12 +475,12 @@ sub _db_sysban_populate_full_by_value {
            FROM sysban
            WHERE status = 'active'
                  AND value = ?
-                 $in_what
+                 AND CAST(what AS BINARY) IN ( $in_what )
                  AND NOW() > bandate
                  $banuntil
         }
     );
-    $sth->execute($value);
+    $sth->execute( $value, @types );
     return undef if $sth->err;
 
     my $where;
@@ -724,34 +725,36 @@ sub validate {
 # <LJFUNC>
 # name: LJ::Sysban::modify
 # des: modifies the expiry or note field of an entry
-# args: banid, bandays, expiry, expirenow, note (passed in as hash)
+# args: actor, banid, bandays, note (passed in as hash)
+# des-actor: the moderator making the change
 # des-banid: the ban ID we're modifying
 # des-bandays: the new expiry
-# des-expire: the old expiry
 # des-note: the new note (optional)
-# des-what: the ban type
-# des-value: the ban value
-# returns: ERROR object on success, error message on failure
+# returns: ban ID on success, ERROR object on failure
 # </LJFUNC>
 sub modify {
-    my %opts = @_;
-    unless ( $opts{'banid'} && defined $opts{'expire'} ) {
-        return bless {
-            message => "Arguments must be passed as a hash; ban ID and
-                        old expiry are required\n",
-            },
-            'ERROR';
-    }
+    my %opts  = @_;
+    my $actor = $opts{actor};
+    return bless { message => 'Cannot modify this ban' }, 'ERROR'
+        unless $actor && ( $opts{banid} // '' ) =~ /\A[1-9][0-9]*\z/;
 
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
         return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
 
     my $dbh = LJ::get_db_writer();
+    return bless { message => 'Cannot modify this ban' }, 'ERROR' unless $dbh;
 
-    my $banid   = $dbh->quote( $opts{'banid'} );
-    my $expire  = $opts{'expire'};
-    my $bandays = $opts{'bandays'};
+    my $ban = $dbh->selectrow_hashref(
+        'SELECT banid, what, value, UNIX_TIMESTAMP(banuntil) AS expire FROM sysban WHERE banid = ?',
+        undef, $opts{banid}
+    );
+    return bless { message => 'Cannot modify this ban' }, 'ERROR'
+        unless $ban && can_manage_type( $actor, $ban->{what} );
+
+    my $banid   = $ban->{banid};
+    my $expire  = $ban->{expire} || 0;
+    my $bandays = $opts{bandays};
 
     my $banuntil = "NULL";
     if ($bandays) {
@@ -771,29 +774,27 @@ sub modify {
         }
     }
 
-    $dbh->do(
-        "UPDATE sysban SET banuntil=$banuntil,note=?
-             WHERE banid=$banid",
-        undef, $opts{note}
-    );
+    my $matched = $dbh->do(
+        "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=? AND CAST(what AS BINARY)=?",
+        undef, $opts{note}, $banid, $ban->{what} );
 
     if ( $dbh->err ) {
         return bless { message => $dbh->errstr, }, 'ERROR';
     }
+    return bless { message => 'Cannot modify this ban' }, 'ERROR' unless $matched && $matched > 0;
 
     # log in statushistory
-    my $remote = LJ::get_remote();
-    $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
+    $banuntil = $bandays ? LJ::mysql_time($expire) : "forever";
 
-    LJ::statushistory_add( 0, $remote, 'sysban_modify',
+    LJ::statushistory_add( 0, $actor, 'sysban_modify',
               "banid=$banid; status=active; "
             . "bandate="
             . LJ::mysql_time()
             . "; banuntil=$banuntil; "
-            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "what=$ban->{what}; value=$ban->{value}; "
             . "note=$opts{'note'};" );
 
-    return $dbh->{'mysql_insertid'};
+    return $banid;
 
 }
 
