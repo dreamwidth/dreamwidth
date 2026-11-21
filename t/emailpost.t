@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 123;
+use Test::More tests => 125;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -197,6 +197,18 @@ BODY
             DW::Formats::validate('html_casual_latest'),
             "Format setting before a $label comment still applies"
         );
+    }
+    {
+        my $mime = build_message(
+            'HTML comment before the setting delimiter',
+            'text/html',
+            "post-security: private\npost-foo <!-- note: x\npost-security: public\n-->\n\nMessage"
+        );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, 'Posted an entry with a comment before the setting delimiter' ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private',
+            'A colon inside an HTML comment is not a setting delimiter' );
     }
     for my $multipart ( 0, 1 ) {
         my $label   = $multipart ? 'multipart HTML fallback'        : 'HTML-only email';
