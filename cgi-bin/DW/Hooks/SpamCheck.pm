@@ -48,25 +48,30 @@ LJ::Hooks::register_hook(
         return if $u->has_priv('siteadmin');    # some users can be trusted
 
         my $system          = LJ::load_user('system');
-        my @blocked_domains = _blocked_domains();
+        my @blocked_domains = grep { $_ } _blocked_domains();
 
         my $check_item = sub {
             my ( $item, $loc ) = @_;
-            my $domain = _matching_domain( $item, @blocked_domains );
-            return unless defined $domain;
+            return unless defined $item;
 
-            $u->set_suspended( $system,
-                "auto-suspend for matching domain blocklist: $domain in $loc" );
-            return 1;
+            foreach my $domain (@blocked_domains) {
+                if ( $item =~ /\b${domain}\b/i ) {
+                    $u->set_suspended( $system,
+                        "auto-suspend for matching domain blocklist: $domain in $loc" );
+                    return 1;
+                }
+            }
+            return;
         };
 
-        if ( reftype $data eq reftype [] ) {
+        my $type = reftype($data) // '';
+        if ( $type eq 'ARRAY' ) {
             foreach my $item (@$data) {
                 my $suspended = $check_item->( $item, $location );
                 last if $suspended;
             }
         }
-        elsif ( reftype $data eq reftype {} ) {
+        elsif ( $type eq 'HASH' ) {
             foreach my $key ( keys %$data ) {
                 my $suspended = $check_item->( $data->{$key}, "$key of $location" );
                 last if $suspended;

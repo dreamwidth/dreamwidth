@@ -49,6 +49,10 @@ my $journal = temp_user();
 $journal->update_self( { status => 'A' } );
 my $poster = temp_user();
 $poster->update_self( { status => 'A' } );
+my $literal = temp_user();
+my $pattern = temp_user();
+my $admin   = temp_user();
+$admin->grant_priv( 'siteadmin', 'users' );
 
 no warnings 'redefine';
 local *DW::Request::get             = sub { $req };
@@ -244,41 +248,83 @@ note("comment_html_auth: applies to logged-in users, so also to trusted anon");
 subtest 'site content rules challenge spam signals, not ordinary text or HTML' => sub {
     $journal->set_prop( opt_show_captcha_to => 'N' );
     local %LJ::CAPTCHA_FOR = ( comment_html_anon => 1 );
-    my $load_include = \&LJ::load_include;
-    local *LJ::load_include = sub {
-        return "blocked.example\r\n" if $_[0] eq 'spamblocklist';
-        return $load_include->(@_);
+    LJ::Test::with_fake_memcache {
+        LJ::MemCache::set( 'includefile:spamblocklist', "blocked.example\r\n" );
+
+        for my $body (
+            'Thanks for your message!',
+            '<details><summary>One link</summary><a href="https://www.x.test/">link</a></details>',
+            '<a href="https://example.test/">https://example.test/</a>',
+'<a href="https://example.test/?x=1&amp;y=2"><b>https://example.test/?x=1&amp;y=2</b></a>',
+            'Use http instead of ftp here.',
+            'See [notes] and [urls in the notes].',
+            'Not a match: blockedXexample or unblocked.example.',
+            )
+        {
+            is( $check->( body => $body ), '', "ordinary comment: $body" );
+        }
+
+        for my $body (
+            'One HTTPS://one.example/ and two www.two.example.',
+            '<a href="https://one.example/">first</a> <a href="ftp://two.example/">second</a>',
+            '<a href="https://one.example/">https://one.example/</a> https://two.example/',
+            '<a href="https://one.example/">https://two.example/</a>',
+            '<a href="https://one.example/">https://one.example/</a> '
+            . '<a href="https://one.example/">https://one.example/</a>',
+            '[URL=https://example.test/]link[/URL]',
+            '[quote=Someone]text[/quote]',
+            '[attachment=0]example.png[/attachment]',
+            '[*] First item',
+            '[custom_tag]text[/custom_tag]',
+            'Visit sub.Blocked.example for details.',
+            )
+        {
+            is( $check->( body => $body ), 'comment_html', "suspicious comment: $body" );
+        }
+
+        is( $check->( commenter => $poster, body => 'Visit blocked.example.' ),
+            '', 'anonymous-only content rule does not apply to logged-in commenters' );
+        $LJ::CAPTCHA_FOR{comment_html_auth} = 1;
+        is( $check->( commenter => $poster, body => 'Visit blocked.example.' ),
+            'comment_html', 'all-commenter content rule checks the domain blocklist' );
+        ok( !$poster->is_suspended, 'CAPTCHA evaluation does not suspend a signed-in commenter' );
+        %LJ::CAPTCHA_FOR = ();
+        is( $check->( body => 'Visit blocked.example.' ), '',
+            'site content rules can be disabled' );
     };
+};
 
-    for my $body (
-        'Thanks for your message!',
-        '<details><summary>One link</summary><a href="https://www.x.test/">link</a></details>',
-        'Use http instead of ftp here.',
-        'See [urls in the notes].',
-        'Not a match: blockedXexample or unblocked.example.',
-        )
-    {
-        is( $check->( body => $body ), '', "ordinary comment: $body" );
-    }
+subtest 'existing spam hook applies configured regexes and suspends only matching accounts' => sub {
+    LJ::Test::with_fake_memcache {
+        LJ::MemCache::set( 'includefile:spamblocklist', "literal.example\r\nregex[.]example\n" );
+        LJ::Hooks::run_hooks( 'spam_check', $pattern, 'unliteral.example and regexXexample',
+            'profile' );
+        ok( !$pattern->is_suspended, 'near matches do not suspend' );
+        LJ::Hooks::run_hooks( 'spam_check', $pattern, [ undef, 'regex.example' ], 'profile' );
+        ok( $pattern->is_suspended, 'existing configured regex still suspends' );
+        LJ::Hooks::run_hooks( 'spam_check', $literal, { body => 'literal.example' }, 'entry' );
+        ok( $literal->is_suspended, 'a literal domain still suspends' );
+        LJ::Hooks::run_hooks( 'spam_check', $admin, 'literal.example', 'profile' );
+        ok( !$admin->is_suspended, 'site admins are exempt from auto-suspension' );
+    };
+};
 
-    for my $body (
-        'One HTTPS://one.example/ and two www.two.example.',
-        '<a href="https://one.example/">first</a> <a href="ftp://two.example/">second</a>',
-        '[URL=https://example.test/]link[/URL]',
-        '[quote=Someone]text[/quote]',
-        'Visit sub.Blocked.example for details.',
-        )
-    {
-        is( $check->( body => $body ), 'comment_html', "suspicious comment: $body" );
-    }
+subtest 'an empty blocklist is cached without hiding a writer outage' => sub {
+    $journal->set_prop( opt_show_captcha_to => 'N' );
+    local %LJ::CAPTCHA_FOR = ( comment_html_anon => 1 );
+    my $get_writer = \&LJ::get_db_writer;
+    LJ::Test::with_fake_memcache {
+        my $available = 0;
+        my $lookups   = 0;
+        local *LJ::get_db_writer =
+            sub { ++$lookups; return $available ? $get_writer->(@_) : undef; };
 
-    is( $check->( commenter => $poster, body => 'Visit blocked.example.' ),
-        '', 'anonymous-only content rule does not apply to logged-in commenters' );
-    $LJ::CAPTCHA_FOR{comment_html_auth} = 1;
-    is( $check->( commenter => $poster, body => 'Visit blocked.example.' ),
-        'comment_html', 'all-commenter content rule checks the domain blocklist' );
-    %LJ::CAPTCHA_FOR = ();
-    is( $check->( body => 'Visit blocked.example.' ), '', 'site content rules can be disabled' );
+        is( $check->( body => 'Ordinary prose.' ), '', 'missing writer does not break the gate' );
+        $available = 1;
+        is( $check->( body => 'Ordinary prose.' ), '', 'empty list is not suspicious' );
+        is( $check->( body => 'Ordinary prose.' ), '', 'cached empty list is not suspicious' );
+        is( $lookups, 2, 'retries after outage but not after a successful empty lookup' );
+    };
 };
 
 done_testing();
