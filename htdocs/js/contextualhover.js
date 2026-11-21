@@ -330,7 +330,7 @@ ContextualPopup.renderPopup = function (ctxPopupId) {
         if (data.is_logged_in && data.is_comm) {
             var membership      = document.createElement("span");
 
-            if (!data.is_closed_membership || data.is_member) {
+            if (!data.is_closed_membership || data.is_member || data.is_invited) {
                 var membershipLink  = document.createElement("a");
 
                 var membership_action;
@@ -660,6 +660,7 @@ ContextualPopup.changeRelation = function (info, ctxPopupId, action, evt) {
             updatedProps.forEach(function (prop) {
                 ContextualPopup.cachedResults[ctxPopupId + ""][prop] = data[prop];
             });
+            if (action == "accept") ContextualPopup.cachedResults[ctxPopupId + ""].is_invited = false;
         }
 
         // if the popup is up, reload it

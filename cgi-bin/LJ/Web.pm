@@ -1828,15 +1828,18 @@ sub control_strip {
             push( @$actionlinks, $links{'track_user'} );
         }
         elsif ( $journal->is_community ) {
-            my $watching          = $remote->watches($journal);
-            my $memberof          = $remote->member_of($journal);
-            my $haspostingaccess  = $remote->can_post_to($journal);
-            my $isclosedcommunity = $journal->is_closed_membership;
+            my $watching         = $remote->watches($journal);
+            my $memberof         = $remote->member_of($journal);
+            my $haspostingaccess = $remote->can_post_to($journal);
+            my $membership_action =
+                $journal->is_closed_membership
+                ? "This is a closed community"
+                : $links{join_community};
 
-            unless ( $memberof || $isclosedcommunity ) {
+            unless ($memberof) {
                 my $pending = $remote->get_pending_invites || [];
                 if ( grep { $_->[0] == $journal->id } @$pending ) {
-                    $links{join_community} =
+                    $membership_action =
                         "<a href='$LJ::SITEROOT/manage/invites'>"
                         . $ml{'web.controlstrip.links.acceptinvite'} . "</a>";
                 }
@@ -1871,10 +1874,7 @@ sub control_strip {
                 $template_args->{'statustext'} = $statustext{watcher};
                 push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
-                push( @$actionlinks,
-                    $isclosedcommunity
-                    ? "This is a closed community"
-                    : $links{join_community} );
+                push( @$actionlinks, $membership_action );
                 push( @$actionlinks, $links{unwatch_community} );
                 push( @$actionlinks, $links{track_community} );
 
@@ -1892,10 +1892,7 @@ sub control_strip {
                 $template_args->{'statustext'} = $statustext{community};
                 push( @$actionlinks, $links{post_to_community} )
                     if $haspostingaccess;
-                push( @$actionlinks,
-                    $isclosedcommunity
-                    ? "This is a closed community"
-                    : $links{join_community} );
+                push( @$actionlinks, $membership_action );
                 push( @$actionlinks, $links{watch_community}, $links{track_community} );
             }
         }

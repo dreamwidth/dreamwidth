@@ -101,9 +101,17 @@ unlike( $actions, $join, 'invited watcher does not get a join request link' );
 
 $comm->set_comm_settings( $admin, { membership => 'closed' } );
 $actions = strip_actions( $viewer, $comm );
-like( $actions, qr/This is a closed community/, 'closed community status is preserved' );
-unlike( $actions, $accept, 'closed community does not offer invitation acceptance' );
-unlike( $actions, $join,   'closed community does not offer Join' );
+like( $actions, $accept, 'closed community offers acceptance to an invited watcher' );
+unlike( $actions, $join, 'closed community does not offer Join to an invited watcher' );
+ok( $viewer->remove_edge( $comm, watch => { nonotify => 1 } ), 'unsubscribe while invited' );
+$actions = strip_actions( $viewer, $comm );
+like( $actions, $accept, 'closed community offers acceptance to an invited non-watcher' );
+unlike( $actions, $join, 'closed community does not offer Join to an invited non-watcher' );
+$actions = strip_actions( $outsider, $comm );
+like( $actions, qr/This is a closed community/, 'closed status remains for uninvited visitors' );
+unlike( $actions, $accept, 'closed community does not offer acceptance to uninvited visitors' );
+unlike( $actions, $join,   'closed community does not offer Join to uninvited visitors' );
+ok( $viewer->add_edge( $comm, watch => { nonotify => 1 } ), 'resubscribe while invited' );
 $comm->set_comm_settings( $admin, { membership => 'moderated' } );
 
 $viewer->do(
