@@ -33,13 +33,15 @@ exit 1
     'note=s'      => \$note,
     );
 
+die "--value must not be empty.\n" if $modify && defined $value && $value !~ /\S/;
+
 # did they give valid input?
 my $an_opt = ( $what || $value || $status || $bandate || $banuntil || $banlength || $note );
 unless (
     (
            $list && ( ( $banid && !$an_opt ) || ( !$banid && $an_opt ) )
-        || ( $add    && $what  && $value )
-        || ( $modify && $banid && $an_opt )
+        || ( $add && $what && $value )
+        || ( $modify && $banid && ( $an_opt || defined $value ) )
     )
     )
 {
@@ -160,8 +162,8 @@ if ($modify) {
     die "No sysban with ID $banid\n" unless $ban;
 
     my $old_type = $ban->{what};
-    $value = LJ::Sysban::normalize_value( $what || $old_type, $value || $ban->{value} )
-        if $what || $value;
+    $value = LJ::Sysban::normalize_value( $what || $old_type, $value // $ban->{value} )
+        if $what || defined $value;
 
     my @set = ();
 
@@ -172,7 +174,7 @@ if ($modify) {
     }
 
     # value - must have a value
-    if ( $value && $value ne $ban->{'value'} ) {
+    if ( defined $value && length $value && $value ne $ban->{'value'} ) {
         $ban->{'value'} = $value;
         push @set, "value=" . $dbh->quote( $ban->{'value'} );
     }

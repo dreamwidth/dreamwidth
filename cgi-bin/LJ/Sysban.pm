@@ -41,9 +41,15 @@ sub _canonical_ipv6 {
 sub _canonical_ip {
     my ($value) = @_;
     return unless defined $value;
-    return _canonical_ipv6($value) if index( $value, ':' ) >= 0;
-    return $value if $value =~ /\A[0-9.]+\z/ && inet_pton( AF_INET, $value );
-    return;
+    if ( index( $value, '.' ) >= 0 ) {
+        my ( $prefix, $dotted ) = $value =~ /\A(.*:)?((?:[0-9]{1,3}\.){3}[0-9]{1,3})\z/;
+        return unless defined $dotted;
+        my @octets = split /\./, $dotted;
+        return if grep { $_ > 255 } @octets;
+        $value = ( $prefix // '' ) . join '.', map { 0 + $_ } @octets;
+        return $value unless defined $prefix;
+    }
+    return _canonical_ipv6($value);
 }
 
 sub normalize_value {
@@ -77,7 +83,7 @@ sub _ip_ban_active {
     my ( $bans, $value, $now ) = @_;
     return 0 unless defined $value;
 
-    my $canonical = _canonical_ipv6($value);
+    my $canonical = _canonical_ip($value);
     for my $ip ( $value, defined $canonical && $canonical ne $value ? ($canonical) : () ) {
         my $expires = $bans->{$ip};
         return 1 if defined $expires && ( !$expires || $expires > $now );
@@ -121,7 +127,7 @@ sub tempban_check {
     my @keys = map { "tempban:$what:$_" } @$values;
     if ( $what eq 'ip' ) {
         for my $value (@$values) {
-            my $canonical = _canonical_ipv6($value);
+            my $canonical = _canonical_ip($value);
             push @keys, "tempban:ip:$canonical" if defined $canonical && $canonical ne $value;
         }
     }

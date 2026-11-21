@@ -122,6 +122,48 @@ subtest 'Native and mapped IPv4 resolve to the same IP ban' => sub {
     };
 };
 
+subtest 'Legacy zero-padded IPv4 rows use decimal octets' => sub {
+    with_fake_memcache {
+        my $ipv4   = '192.0.2.10';
+        my $padded = '192.000.002.010';
+        for my $type (qw(ip noanon_ip talk_ip_test)) {
+            for my $stored ( $padded, "::ffff:$padded" ) {
+                my $banid = seed_ban( $type, $stored, 'zero-padded legacy row' );
+                my $label = "$type: $stored";
+
+                ok( LJ::sysban_check( $type, $ipv4 ),   "$label enforces the decimal address" );
+                ok( LJ::sysban_check( $type, $padded ), "$label enforces the padded spelling" );
+                like(
+                    LJ::Sysban::validate( $type, $ipv4 ) // '',
+                    qr/already banned/,
+                    "$label prevents a duplicate"
+                );
+                my $result = LJ::Sysban::populate_full_by_value( $ipv4, $type );
+                is_deeply( [ map { $_->{banid} } @{ $result->{$type} // [] } ],
+                    [$banid], "$label is found by admin lookup" );
+
+                $dbh->do( 'DELETE FROM sysban WHERE banid = ?', undef, $banid );
+                LJ::Sysban::ban_do($type);
+            }
+        }
+    };
+};
+
+subtest 'Operator rejects blank replacement values without expiring the ban' => sub {
+    my $ipv4  = '192.0.2.10';
+    my $banid = seed_ban( 'ip', $ipv4, 'blank replacement test' );
+    for my $replacement ( " \t ", '' ) {
+        my ( $modified, $output ) =
+            sysban_cli( '--modify', '--banid', $banid, '--value', $replacement,
+            '--banuntil', '2000-01-01 00:00:00',
+            );
+        ok( !$modified, 'Operator rejects the blank replacement' );
+        my $row = $dbh->selectrow_arrayref( 'SELECT value, banuntil FROM sysban WHERE banid = ?',
+            undef, $banid );
+        is_deeply( $row, [ $ipv4, undef ], 'Neither the address nor the expiry changes' );
+    }
+};
+
 subtest 'Operator normalizes padded writes and handles equivalent edits' => sub {
     my $note = 'operator normalization test';
     my ( $added, $output ) = sysban_cli(
