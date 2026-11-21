@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 191;
+use Test::More tests => 192;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -101,6 +101,35 @@ qq{<object width="640" height="385"><param name="movie" value="http://www.exampl
     }
 
     my $id = "ABC123abc-_";
+    subtest 'referrer policy for displayed YouTube players', sub {
+        foreach my $host ( 'www.youtube.com', 'www.youtube-nocookie.com' ) {
+            my $html = qq{<iframe src="https://$host/embed/$id"></iframe>};
+            LJ::CleanHTML::clean_embed( \$html, { display_as_content => 1 } );
+            is(
+                $html,
+qq{<iframe src="//$host/embed/$id" referrerpolicy="strict-origin-when-cross-origin"></iframe>},
+                "$host gets an origin-only cross-origin referrer by default"
+            );
+        }
+
+        my $html =
+qq{<iframe src="https://www.youtube.com/embed/$id" referrerpolicy="no-referrer"></iframe>};
+        LJ::CleanHTML::clean_embed( \$html, { display_as_content => 1 } );
+        is(
+            $html,
+            qq{<iframe src="//www.youtube.com/embed/$id" referrerpolicy="no-referrer"></iframe>},
+            'an explicit referrer policy is preserved'
+        );
+
+        $html = q{<iframe src="https://player.vimeo.com/video/123456789"></iframe>};
+        LJ::CleanHTML::clean_embed( \$html, { display_as_content => 1 } );
+        is(
+            $html,
+            q{<iframe src="//player.vimeo.com/video/123456789"></iframe>},
+            'other providers do not get a referrer policy'
+        );
+    };
+
     note("trusted site: youtube");
     $orig_post =
 qq{<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
