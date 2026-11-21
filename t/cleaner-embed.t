@@ -17,13 +17,47 @@
 use strict;
 use warnings;
 
-use Test::More tests => 192;
+use Test::More tests => 193;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use LJ::CleanHTML;
 use LJ::EmbedModule;
-use LJ::Test qw( temp_user );
+use LJ::Test qw( temp_user with_fake_memcache );
+
+subtest 'display does not add a referrer policy to the editing source' => sub {
+    with_fake_memcache {
+        my $journal  = temp_user();
+        my $moduleid = LJ::EmbedModule->save_module(
+            journal  => $journal,
+            contents => q{<iframe src="https://www.youtube.com/embed/ABC123abc-_"></iframe>},
+        );
+        my $memkey = LJ::EmbedModule->memkey( $journal->userid, $moduleid );
+        LJ::MemCache::delete($memkey);
+        ok( !defined LJ::MemCache::get($memkey), 'display starts with a cold cache' );
+
+        my $displayed = LJ::EmbedModule->module_content(
+            journalid          => $journal->userid,
+            moduleid           => $moduleid,
+            display_as_content => 1,
+        )->{content};
+        like(
+            $displayed,
+            qr/referrerpolicy="strict-origin-when-cross-origin"/,
+            'the displayed player gets the default referrer policy'
+        );
+        ok( defined LJ::MemCache::get($memkey), 'the display read warms the cache' );
+
+        my $editing = qq{<site-embed id="$moduleid"/>};
+        LJ::EmbedModule->expand_entry( $journal, \$editing, edit => 1 );
+        like(
+            $editing,
+            qr{<iframe src="(?:https:)?//www\.youtube\.com/embed/ABC123abc-_"},
+            'editing still expands the stored iframe'
+        );
+        unlike( $editing, qr/\breferrerpolicy=/, 'the editing source has no referrer policy' );
+    };
+};
 
 note("Testing clean_embed (we provide the contents to be cleaned directly)");
 {
