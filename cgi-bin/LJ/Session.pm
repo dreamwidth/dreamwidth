@@ -254,7 +254,8 @@ sub domsess_cookie_string {
 
     # compute a signed domain key
     my ( $time, $key ) = LJ::get_secret();
-    my $sig = domsess_signature( $time, $sess, $domcook );
+    return undef unless $key;
+    my $sig = domsess_signature( $time, $sess, $domcook, $key );
 
     # the cookie
     my $ver = VERSION;
@@ -297,7 +298,8 @@ sub update_master_cookie {
     );
 
     if ( $LJ::PROTOCOL eq 'https' ) {
-        _set_openid_cookie( $sess->domsess_cookie_string(OPENID_COOKIE), @expires );
+        my $cookie = $sess->domsess_cookie_string(OPENID_COOKIE);
+        _set_openid_cookie( $cookie, @expires ) if defined $cookie;
     }
 
     $sess->owner->preload_props('schemepref');
@@ -470,6 +472,7 @@ sub helper_url {
 
         my $sess   = $u->session;
         my $cookie = $sess->domsess_cookie_string($domcook);
+        return $dest unless defined $cookie;
         return
               $url
             . "__setdomsess?dest="
@@ -855,12 +858,9 @@ sub setdomsess_handler {
 ############################################################################
 
 sub domsess_signature {
-    my ( $time, $sess, $domcook ) = @_;
+    my ( $time, $sess, $domcook, $secret ) = @_;
 
-    my $u      = $sess->owner;
-    my $secret = LJ::get_secret($time);
-
-    my $data = join( "-", $sess->{auth}, $domcook, $u->{userid}, $sess->{sessid}, $time );
+    my $data = join( "-", $sess->{auth}, $domcook, $sess->{userid}, $sess->{sessid}, $time );
     my $sig  = hmac_sha1_hex( $data, $secret );
     return $sig;
 }
@@ -1021,6 +1021,7 @@ sub valid_domain_cookie {
     return $not_valid->("bogus params") if $bogus;
     return $not_valid->("wrong gen") unless valid_cookie_generation($gen);
     return $not_valid->("wrong ver") if $version != VERSION;
+    return $not_valid->("invalid signing time") unless defined $time && $time =~ /\A[1-9][0-9]*\z/;
 
     # have to be relatively new.  these shouldn't last longer than a day
     # or so anyway.
@@ -1045,8 +1046,10 @@ sub valid_domain_cookie {
             unless $sess_licook eq $li_cook;
     }
 
-    my $correct_sig = domsess_signature( $time, $sess, $domcook );
-    return $not_valid->("signature wrong") unless $correct_sig eq $sig;
+    my $secret = LJ::get_secret($time)
+        or return $not_valid->("no signing key");
+    my $correct_sig = domsess_signature( $time, $sess, $domcook, $secret );
+    return $not_valid->("signature wrong") unless defined $sig && $correct_sig eq $sig;
 
     return $sess;
 }
