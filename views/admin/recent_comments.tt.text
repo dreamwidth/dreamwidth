@@ -17,4 +17,4 @@
 
 .txt.nolink=link unavailable
 
-.txt.row=[[hours]] hr ago in [[journal]]: 
+.txt.row=[[timestamp]] ([[hours]] hr ago) in [[journal]]: 
