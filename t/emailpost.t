@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 157;
+use Test::More tests => 169;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -451,6 +451,32 @@ BODY
         qr/post-(?:location|security):/i,
         'Settings with attributed inline formatting are removed'
     );
+
+    for my $case (
+        [ 'quoted greater-than attribute', 'post-location: <span title="5 > 3">Somewhere</span>', ],
+        [ 'quoted less-than attribute',    "post-location: <span title='a < b'>Somewhere</span>", ],
+        [
+            'multiline opening tag attribute',
+            "post-location: <span\nstyle=\"font-weight:bold\">Somewhere</span>",
+        ],
+        )
+    {
+        my ( $label, $location_line ) = @$case;
+        my $mime = build_message( "HTML setting with $label",
+            'text/html', "$location_line\npost-security: private\n\nMessage" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->prop('current_location'),
+            'Somewhere', "Stored location strips inline tag with $label" );
+        is( $entry->security, 'private',
+            "Privacy setting after inline tag with $label still applies" );
+        unlike(
+            $entry->event_raw,
+            qr/post-(?:location|security):/i,
+            "Settings with $label are removed"
+        );
+    }
 
     for my $case (
         [
