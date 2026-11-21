@@ -63,9 +63,13 @@
     border: 3px dashed #afaf00;
 }
 
+.request-form textarea[data-support-reply-type] {
+    box-shadow: 0 0 0 2px currentColor;
+}
+
 .request-form textarea[data-support-reply-type]:focus {
     outline: 2px solid currentColor;
-    outline-offset: 2px;
+    outline-offset: 4px;
 }
 
 fieldset.internal {
