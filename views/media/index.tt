@@ -56,12 +56,22 @@ window.onload = function() {
 [%- IF user -%]
     <p>[% '.intro.admin' | ml(user => user) %]</p>
 [%- ELSE -%]
-    <p>[% '.intro2' | ml(aopts1 => '/file/edit', aopts2 => '/file/new') %]</p>
+    <p>[% '.intro2' | ml(aopts1 => dw.create_url('/file/edit', args => { order => order }), aopts2 => '/file/new') %]</p>
 
     <p>[% '.usage' | ml( usage => usage, percentage => percentage, quota => quota ) %]</p>
 [%- END -%]
 
 [% IF media.size %]
+<form method="GET">
+    [% form.hidden( name = 'view', value = view_type ) %]
+    [% form.hidden( name = 'user', value = user ) IF user %]
+    [% form.select( name = 'order', id = 'media-order', label = dw.ml('.order.label'),
+        selected = order, items = [
+            { value = 'newest', text = dw.ml('.order.newest') },
+            { value = 'oldest', text = dw.ml('.order.oldest') }
+        ] ) %]
+    [% form.submit( value = dw.ml('.order.submit') ) %]
+</form>
 <p>
 [% IF view_type == 'grid' %]
     <a href="[% dw.create_url( undef, keep_args => 1, args => { view => 'list' } ) %]">[% '.view.list' | ml %]</a> | [% '.view.grid' | ml %]
@@ -86,8 +96,8 @@ window.onload = function() {
     [%- FOREACH obj IN media_page -%]
         <li class='media-item'>
         <div class='inner'>
-            <div class='media'><img src="[% obj.url %]" alt='[% obj.prop('alttext') %]'/></div>
-            <div class='details'><div class='name'>[% obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext %]</div>
+            <div class='media'><img src="[% obj.url %]" alt="[% obj.prop('alttext') | html %]"/></div>
+            <div class='details'><div class='name'>[% ( obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext ) | html %]</div>
             <span class='dimensions'>[% obj.orig_filesize / 1000 | format('%d') %] kb | [% obj.orig_width %] x [% obj.orig_height %] px</span></div>
             <div class='embed row'>
             <div class="columns large-3"><label for="embed-thumb-[% obj.displayid %]">[% dw.ml(".embed.short") %]</label></div>
@@ -111,14 +121,14 @@ window.onload = function() {
         <div class='media-item [% loop.count % 2 ? 'even' : 'odd' %] row'>
         <div class='inner'>
             <div class='media large-3 column'>
-            <img src="[% obj.url %]" alt='[% obj.prop('alttext') %]' />
+            <img src="[% obj.url %]" alt="[% obj.prop('alttext') | html %]" />
             </div>
             <div class='large-9 column'>
-            <div class='details'><span class='name'>[% obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext %]</span><br />
+            <div class='details'><span class='name'>[% ( obj.prop('title') != '' ? obj.prop('title') : obj.displayid _ "." _ obj.ext ) | html %]</span><br />
                         <span class='time'>[% convert_time(obj.logtime, "1") %] UTC<span><br />
                 <span class='dimensions'>[% obj.orig_filesize / 1000 | format('%d') %] kb | [% obj.orig_width %] x [% obj.orig_height %] px</span></div>
             [% IF obj.prop('description') != '' %]
-            <div class='description'>[% obj.prop('description') %]</div>
+            <div class='description'>[% obj.prop('description') | html %]</div>
             [% END %]
             <div class='embed'>
             [%- INCLUDE 'media/field-row.tt' label = dw.ml(".embed.full") id = "embed-full-$obj.displayid" value = make_embed_url(obj) type="text" labelSize=3 %]
