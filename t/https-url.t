@@ -47,6 +47,21 @@ my @urls = (
 
     # link that includes a space - will be transformed into %20 by the browser
     [ "http://example.com/a%20b.png", DW::Proxy::get_proxy_url("http://example.com/a b.png") ],
+
+    # links that include non-ASCII characters - the browser requests them as
+    # percent-encoded UTF-8, whether the URL is UTF-8 bytes or characters
+    [
+        "http://example.com/%D1%80%D0%B0-1.jpg",
+        DW::Proxy::get_proxy_url("http://example.com/\xD1\x80\xD0\xB0-1.jpg")
+    ],
+    [
+        "http://example.com/%D1%80%D0%B0-1.jpg",
+        DW::Proxy::get_proxy_url("http://example.com/\x{0440}\x{0430}-1.jpg")
+    ],
+    [
+        "http://example.com/a.php?f=%D1%80%D0%B0",
+        DW::Proxy::get_proxy_url("http://example.com/a.php?f=\xD1\x80\xD0\xB0")
+    ],
 );
 
 local %LJ::KNOWN_HTTPS_SITES = qw( xkcd.com 1 blogspot.com 1 );
