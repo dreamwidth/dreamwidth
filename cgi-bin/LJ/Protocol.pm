@@ -242,8 +242,12 @@ sub addcomment {
     if ( $req->{journal} ) {
         $journal = LJ::load_user( $req->{journal} ) or return fail( $err, 100 );
         my $entry = LJ::Entry->new( $journal, ditemid => $req->{ditemid} );
-        return fail( $err, 214 )
-            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $entry );
+        my $captcha_reason =
+            LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $entry );
+        if ($captcha_reason) {
+            $flags->{captcha_reason} = $captcha_reason;
+            return fail( $err, 214 );
+        }
     }
     else {
         $journal = $u;
