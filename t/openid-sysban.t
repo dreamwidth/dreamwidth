@@ -250,6 +250,21 @@ with_fake_memcache {
             );
         };
 
+        subtest 'ignore noncanonical OpenID ban types' => sub {
+            for my $what ( 'OPENID_DOMAIN', 'openid_domain ' ) {
+                my $lookalike_host = ( $what =~ / $/ ? 'padded-' : 'mixed-case-' ) . $host;
+                $dbh->do(
+'INSERT INTO sysban (what, value, bandate) VALUES (?, ?, NOW() - INTERVAL 1 SECOND)',
+                    undef, $what, $lookalike_host
+                ) or die $dbh->errstr;
+                push @banids, $dbh->{mysql_insertid};
+                ok( !LJ::Sysban::sysban_check( 'openid_domain', "https://$lookalike_host/" ),
+                    "The row with type '$what' does not ban its domain" );
+                is( LJ::Sysban::validate( 'openid_domain', $lookalike_host ),
+                    0, "The row with type '$what' does not prevent a canonical ban" );
+            }
+        };
+
         subtest 'match and enforce the active ban' => sub {
             for my $value ( $host, uc($host), "http://$host/", $banned_url,
                 "https://DEEP.SUB.$host.:8443/profile?x=1" )
@@ -390,6 +405,21 @@ with_fake_memcache {
                 $provider_url,
                 'A non-URL delegate is not treated as a domain'
             );
+        };
+
+        subtest 'check discovered provider URLs with whitespace' => sub {
+            my ( $original_discovery, $original_provider ) = ( $discovered_url, $provider_url );
+            $discovered_url = $allowed_url;
+            $provider_url   = "https://sub.$host/verify here?q=one two";
+            like( $request->( POST $login_url, Content => [ openid_url => $allowed_url ] )->content,
+                $restricted, 'Whitespace outside the hostname does not hide a banned provider' );
+            $provider_url = "https://sub .$host/verify";
+            unlike(
+                $request->( POST $login_url, Content => [ openid_url => $allowed_url ] )->content,
+                $restricted, 'A hostname containing whitespace does not match' );
+            ok( !LJ::Sysban::sysban_check( 'openid_domain', "https://sub.$host/verify here" ),
+                'The submitted-URL check still rejects embedded whitespace' );
+            ( $discovered_url, $provider_url ) = ( $original_discovery, $original_provider );
         };
 
         subtest 'allow provider selection when the marker domain is banned' => sub {

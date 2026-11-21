@@ -31,12 +31,14 @@ sub can_manage_type {
 }
 
 sub _openid_domain {
-    my ( $value, $for_storage ) = @_;
+    my ( $value, %opts ) = @_;
     return unless defined $value;
     $value = LJ::trim($value);
-    return if $for_storage && $value =~ /[^\x00-\x7f]|%/;
-    return if $value =~ /[\s<>]/;
-    $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;
+    return if $opts{storage} && $value =~ /[^\x00-\x7f]|%/;
+    unless ( $opts{discovered} ) {
+        return if $value =~ /[\s<>]/;
+        $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;
+    }
     return unless $value =~ m{\Ahttps?://}i;
 
     if ( $value =~ /[^\x00-\x7f]/ ) {
@@ -55,7 +57,7 @@ sub _openid_domain {
     my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/;
     return unless $host =~ /\A$label(?:\.$label)+\z/;
 
-    if ($for_storage) {
+    if ( $opts{storage} ) {
         return if length($host) > 80 || defined $uri->userinfo;
         return if $uri->path ne '' && $uri->path ne '/';
         return if defined $uri->query || defined $uri->fragment;
@@ -64,23 +66,31 @@ sub _openid_domain {
 }
 
 sub parse_openid_domain {
-    my $host = _openid_domain( $_[0], 1 );
+    my $host = _openid_domain( $_[0], storage => 1 );
     return ( $host, undef ) if defined $host;
     return ( undef,
         'Invalid OpenID domain: enter an ASCII domain such as example.org (use Punycode for IDNs)'
     );
 }
 
+sub openid_discovered_sysban_check {
+    my $host = _openid_domain( $_[0], discovered => 1 );
+    return 0 unless defined $host;
+    return _domain_ban_matches( LJ::get_db_reader(), 'openid_domain', $host );
+}
+
 sub _domain_ban_matches {
     my ( $db, $type, $host ) = @_;
     return 0 unless $db && $host && $host =~ /\./;
 
-    my $starts = $type eq 'openid_domain' ? '<=' : '<';
+    my $is_openid   = $type eq 'openid_domain';
+    my $starts      = $is_openid ? '<=' : '<';
+    my $type_column = $is_openid ? 'CAST(what AS BINARY)' : 'what';
     return $db->selectrow_array(
         qq{
             SELECT COUNT(*) FROM sysban
             WHERE status = 'active'
-              AND what = ?
+              AND $type_column = ?
               AND (value = ? OR ? LIKE CONCAT("%.", value))
               AND bandate $starts NOW()
               AND (NOW() < banuntil

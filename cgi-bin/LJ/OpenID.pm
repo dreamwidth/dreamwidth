@@ -74,10 +74,18 @@ sub consumer {
 }
 
 sub sysban_error {
+    return _sysban_error( 0, @_ );
+}
+
+sub _sysban_error {
+    my ( $discovered, @urls ) = @_;
     my %checked;
-    foreach my $url (@_) {
+    foreach my $url (@urls) {
         next unless defined $url && !$checked{$url}++;
-        next unless LJ::Sysban::sysban_check( 'openid_domain', $url );
+        next
+            unless $discovered
+            ? LJ::Sysban::openid_discovered_sysban_check($url)
+            : LJ::Sysban::sysban_check( 'openid_domain', $url );
 
         my $sitename = LJ::ehtml($LJ::SITENAMESHORT);
         return
@@ -102,12 +110,12 @@ sub _claimed_sysban_error {
         && defined $delegate
         && $delegate eq $select )
     {
-        return sysban_error( $claimed_id->identity_server );
+        return _sysban_error( 1, $claimed_id->identity_server );
     }
 
     $delegate = LJ::trim($delegate);
-    return sysban_error(
-        $claimed,
+    return _sysban_error(
+        1, $claimed,
         $claimed_id->identity_server,
         ( $delegate =~ m{\Ahttps?://}i ? $delegate : () )
     );
