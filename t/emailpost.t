@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 34;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -199,6 +199,21 @@ subtest 'invalid and duplicate slugs fall back to numeric permalinks' => sub {
     is( $invalid && $invalid->slug, '', 'invalid slug is not saved' );
     my ($numeric) = email_entry( $u, $u, $emailpin, 'post-slug: 1234' );
     is( $numeric && $numeric->slug, '1234', 'numeric slugs are accepted' );
+};
+
+subtest 'a zero email slug round-trips through its dated permalink' => sub {
+    my ( $entry, $message ) = email_entry( $u, $u, $emailpin, 'post-slug: 0' );
+    ok( $entry && $entry->valid, 'the entry posts' ) or return diag $message;
+
+    my $journalid = $u->id;
+    my $itemid    = $entry->jitemid;
+    LJ::MemCache::delete( [ $journalid, "logslug:$journalid:$itemid" ] );
+    LJ::start_request();
+    my $reloaded = LJ::Entry->new( $u, jitemid => $itemid );
+    is( $reloaded->slug, '0', 'the uncached entry still has the zero slug' );
+    like( $reloaded->url, qr{/\d{4}/\d{2}/\d{2}/0\.html$}, 'permalink uses the dated zero slug' );
+    my $lookup = LJ::Entry->new( $u, slug => '0' );
+    is( $lookup && $lookup->jitemid, $itemid, 'the zero slug resolves to the entry' );
 };
 
 subtest 'a truncated email slug round-trips through its permalink' => sub {
