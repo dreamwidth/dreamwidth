@@ -26,6 +26,7 @@ _c?>
     use DW::Auth::Login;
     use DW::Auth::TOTP;
     use LJ::Talk;
+    use DW::Entry;
     BML::decl_params(_default => qr/./);
 
     # $_[1] is a pre-request scratch area
@@ -40,7 +41,7 @@ _c?>
     $$title = $ML{'.title2'};
 
     # invalid text input?
-    unless (LJ::text_in(\%POST)) {
+    unless (DW::Entry::validate_form_text(\%POST) && LJ::text_in(\%POST)) {
         $$body = "<?badinput?>";
         return;
     }

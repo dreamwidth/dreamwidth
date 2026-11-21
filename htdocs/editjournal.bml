@@ -20,6 +20,7 @@ body<=
     use strict;
     use LJ::Talk;
     use vars qw(%GET %POST);
+    use DW::Entry;
     BML::decl_params(_default => qr/./);
 
     my $head     = \$_[1]->{'head'};
@@ -240,6 +241,10 @@ body<=
             # they clicked the save or delete button
             if (!$spellcheck_html && ($POST{'action:save'} || $POST{'action:delete'} || $POST{'action:deletespam'})) {
                 return LJ::bad_input($ML{'error.invalidform'}) unless LJ::check_form_auth();
+
+                if ($POST{'action:save'} && !$POST{'action:delete'} && !$POST{'action:deletespam'}) {
+                    return "<?badinput?>" unless DW::Entry::validate_form_text(\%POST);
+                }
 
                 my %req = ( 'mode' => 'editevent',
                             'ver' => $LJ::PROTOCOL_VER,
