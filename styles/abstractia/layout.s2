@@ -1219,8 +1219,10 @@ q {
     text-decoration: underline;
 }
 
-.entry-content ul:first-child li, .entry-content ol:first-child li {
-    list-style-position: inside;
+/* Keep first-content lists clear of floated userpics without moving markers into the text. */
+.entry-content ul:first-child,
+.entry-content ol:first-child {
+    display: flow-root;
 }
 
 /* ensure comment content stretches out horizontally so it's readable */
