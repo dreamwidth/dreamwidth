@@ -190,6 +190,14 @@ sub _save_entryprop_changes {
         return;
     }
 
+    my $audit_note = 'Entry ' . $entry->ditemid . ': ' . join( ', ', @names );
+    my $recorded   = eval { LJ::statushistory_add( $journal, $remote, 'entryprops', $audit_note ) };
+    unless ($recorded) {
+        warn sprintf "Could not write entryprops audit record for journal %d, admin %d: %s\n",
+            $journal->id, $remote->id, $audit_note;
+        $errors->add_string( '', 'Changes were saved, but the audit record could not be written.' );
+    }
+
     LJ::MemCache::delete( [ $journal->id, 'logprop:' . join( ':', @entry_key ) ] );
     foreach my $name (@names) {
         my $value = $changes->{$name}{value};
@@ -200,12 +208,6 @@ sub _save_entryprop_changes {
             delete $entry_props->{$name};
         }
     }
-    my $recorded = eval {
-        LJ::statushistory_add( $journal, $remote, 'entryprops',
-            'Entry ' . $entry->ditemid . ': ' . join( ', ', @names ) );
-    };
-    $errors->add_string( '', 'Changes were saved, but the audit record could not be written.' )
-        unless $recorded;
     return 1;
 }
 
