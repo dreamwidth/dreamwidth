@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use DateTime;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
@@ -23,9 +24,13 @@ use HTTP::Request::Common;
 use LJ::Protocol;
 use LJ::Test qw( temp_user );
 use Plack::Test;
+use Time::Local qw( timegm );
 
-my $owner   = temp_user();
-my $author  = temp_user();
+local $LJ::DISABLED{adult_content} = 0;
+my $owner  = temp_user();
+my $author = temp_user();
+$author->set_prop( init_bdate         => DateTime->now->subtract( years => 17 )->ymd );
+$author->set_prop( hide_adult_content => 'concepts' );
 my $entry   = $owner->t_post_fake_entry( subject => 'entry-only-subject' );
 my $parent  = $entry->t_enter_comment( u => $owner, body => 'other-author-body' );
 my $comment = $parent->t_reply(
@@ -43,6 +48,25 @@ ok( $restricted->visible_to($author), 'restricted entry is visible before revoca
 $restricted->t_enter_comment( u => $author, state => 'S', body => 'revoked-body' );
 ok( $owner->remove_edge( $author, trust => { nonotify => 1 } ), 'revoke access after posting' );
 ok( !$restricted->visible_to($author), 'restricted entry is no longer visible' );
+my $explicit = $owner->t_post_fake_entry( subject => 'Explicit fixture entry' );
+$explicit->t_enter_comment( u => $author, body => 'age-blocked-body' );
+$explicit->set_prop( adult_content => 'explicit' );
+my $concepts = $owner->t_post_fake_entry( subject => 'Concepts fixture entry' );
+$concepts->t_enter_comment( u => $author, body => 'soft-warning-body' );
+$concepts->set_prop( adult_content => 'concepts' );
+
+my $author_db = LJ::get_cluster_master($author);
+my $owner_db  = LJ::get_cluster_master($owner);
+my $retime    = sub {
+    my ( $target, $timestamp ) = @_;
+    $author_db->do( 'UPDATE talkleft SET posttime=? WHERE userid=? AND journalid=? AND jtalkid=?',
+        undef, $timestamp, $author->id, $owner->id, $target->jtalkid );
+};
+$author_db->do(
+    q{INSERT INTO talkleft (userid, posttime, journalid, nodetype, nodeid, jtalkid)
+        VALUES (?, ?, ?, 'L', ?, ?)},
+    undef, $author->id, $parent->unixtime, $owner->id, $entry->jitemid, $parent->jtalkid
+);
 
 DW::Request->reset;
 DW::Request::Standard->new( GET 'http://www.dw.test/' );
@@ -97,13 +121,14 @@ like(
     'includes the timestamp in UTC'
 );
 like( $xml_body, qr/own-screened-body/, 'includes my screened comment when I can see it' );
+like( $xml_body, qr/soft-warning-body/, 'a soft viewing warning does not block my comment' );
 unlike(
     $xml_body,
-    qr/entry-only-subject|other-author-body|revoked-body|deleted-body/,
-    'excludes other authors, entry content, revoked access and deleted comments'
+    qr/entry-only-subject|other-author-body|revoked-body|deleted-body|age-blocked-body/,
+    'excludes stale foreign index rows, revoked access, deleted comments and the hard age block'
 );
 my @comments = $xml_body =~ /<comment>/g;
-is( scalar @comments, 2, 'only the two eligible comments are exported' );
+is( scalar @comments, 3, 'only eligible comments are exported' );
 
 my $csv      = $download->('csv');
 my $csv_body = $csv->header('Content-Disposition') ? $csv->content : '';
@@ -121,7 +146,77 @@ like(
     'empty export outside the selected month'
 );
 ok( !$download->( 'xml', month => 13 )->header('Content-Disposition'), 'rejects invalid dates' );
+ok( !$download->( 'xml', year => 2023, month => 2, day => 29 )->header('Content-Disposition'),
+    'rejects a nonexistent day' );
 ok( !$download->( 'xml', lj_form_auth => '' )->header('Content-Disposition'),
     'rejects missing form authorization' );
+
+my $boundary = $entry->t_enter_comment( u => $author, body => 'day-end-boundary' );
+my $adjacent = $entry->t_enter_comment( u => $author, body => 'next-month-boundary' );
+my $march = timegm( 0, 0, 0, 1, 2, 2024 );
+$retime->( $boundary, $march - 1 );
+$retime->( $adjacent, $march );
+my $leap_day = $download->( 'xml', year => 2024, month => 2, day => 29 );
+like( $leap_day->header('Content-Disposition'), qr/-2024-02-29\.xml/, 'day in filename' );
+like( $leap_day->content, qr/day-end-boundary/, 'includes the last second of the leap day' );
+unlike( $leap_day->content, qr/next-month-boundary/, 'excludes the next UTC month' );
+
+my $unavailable = $entry->t_enter_comment( u => $author, body => 'missing-text-fixture' );
+$retime->( $unavailable, $march - 1 );
+$owner_db->do( 'DELETE FROM talktext2 WHERE journalid=? AND jtalkid=?',
+    undef, $owner->id, $unavailable->jtalkid );
+my $retry = $download->( 'xml', year => 2024, month => 2 );
+is( $retry->code, 503, 'live comment without text makes the whole export retryable' );
+ok( !$retry->header('Content-Disposition'), 'retry response is not an attachment' );
+like( $retry->content, qr/try again later/i, 'retry response explains how to proceed' );
+unlike( $retry->content, qr/day-end-boundary/, 'retry response contains no partial export' );
+LJ::Talk::delete_comment( $owner, $entry->jitemid, $unavailable->jtalkid, 'A' );
+
+my $vanishing = $entry->t_enter_comment( u => $author, body => 'vanishing-body' );
+$retime->( $vanishing, $march - 1 );
+my $vanishing_id = $vanishing->jtalkid;
+{
+    my $load_text = \&DW::Controller::Export::_read_posted_comment_text;
+    my $removed;
+    no warnings 'redefine';
+    local *DW::Controller::Export::_read_posted_comment_text = sub {
+        my ( undef, $journal, $comments ) = @_;
+        if (  !$removed
+            && $journal->id == $owner->id
+            && grep { $_->jtalkid == $vanishing_id } @$comments )
+        {
+            $removed = LJ::Talk::delete_comment( $owner, $entry->jitemid, $vanishing_id, 'A' );
+        }
+        return $load_text->(@_);
+    };
+    my $recovered = $download->( 'xml', year => 2024, month => 2 );
+    ok( $removed, 'fixture was deleted between eligibility and text reads' );
+    is( $recovered->code, 200, 'confirmed deletion does not abort the download' );
+    like( $recovered->content, qr/day-end-boundary/, 'keeps the remaining eligible comment' );
+    unlike( $recovered->content, qr/vanishing-body/, 'omits the disappeared comment' );
+}
+
+my @index_rows = (q{(?, ?, ?, 'L', ?, ?)}) x 500;
+$author_db->do(
+    'INSERT INTO talkleft (userid, posttime, journalid, nodetype, nodeid, jtalkid) VALUES '
+        . join( ',', @index_rows ),
+    undef,
+    ( $author->id, $march - 86401, $owner->id, $entry->jitemid, $boundary->jtalkid ) x 500
+);
+my $oversized = $download->( 'xml', year => 2024, month => 2 );
+is( $oversized->code, 422, 'rejects a month over the candidate limit' );
+ok( !$oversized->header('Content-Disposition'), 'row limit does not produce a partial archive' );
+like( $oversized->content, qr/select a day/i, 'month limit offers a narrower download' );
+my $narrow = $download->( 'xml', year => 2024, month => 2, day => 29 );
+like( $narrow->content, qr/day-end-boundary/, 'the narrower request succeeds' );
+
+my $january = timegm( 0, 0, 0, 1, 0, 2024 );
+for my $number ( 1 .. 26 ) {
+    my $large = $entry->t_enter_comment( u => $author, body => $number . ( '&' x 65000 ) );
+    $retime->( $large, $january + ( $number % 2 ) * 86400 );
+}
+my $too_many_bytes = $download->( 'xml', year => 2024, month => 1 );
+is( $too_many_bytes->code, 422, 'caps response bytes after XML escaping below the row limit' );
+ok( !$too_many_bytes->header('Content-Disposition'), 'byte limit does not produce an attachment' );
 
 done_testing;
