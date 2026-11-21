@@ -262,6 +262,31 @@ sub profile_handler {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
+        my %services_by_id = map { $_->{service_id} => $_ } @services;
+        my %new_accts;
+        foreach my $ct ( 1 .. 26 ) {
+            my $s_id  = $POST->{"extservice_site_$ct"} // '';
+            my $site  = $services_by_id{$s_id} or next;
+            my $field = "extservice_val_$ct";
+            my $val   = $POST->{$field} // '';
+
+            if ( $site->{name} eq 'mastodon' ) {
+                $val = LJ::trim($val);
+                if ( $val ne '' && !DW::External::ProfileServices->account_url( $site, $val ) ) {
+                    $errors->add( $field, "$scope.error.mastodon.handle" );
+                    next;
+                }
+            }
+            $val = LJ::text_trim( $val, 255, $site->{maxlen} );
+
+            if ( my $a_id = $POST->{"extservice_dbid_$ct"} ) {
+                push @{ $new_accts{$s_id} }, [ $a_id, $val ];
+            }
+            elsif ( $val ne '' ) {
+                push @{ $new_accts{$s_id} }, $val;
+            }
+        }
+
         # Field validation is done; bail before any saving if it failed. The
         # Location widget below both validates AND persists immediately, so
         # running it after a validation error would partially save.
@@ -392,24 +417,6 @@ sub profile_handler {
                 $prop{$uprop} = $eff_val;
             }
             $u->set_prop( \%prop, undef, { skip_db => 1 } );
-
-            # update external services
-            my %services = map { $_->{service_id} => $_ } @{ DW::External::ProfileServices->list };
-            my %new_accts;
-
-            foreach my $ct ( 1 .. 26 ) {
-                my $s_id = $POST->{"extservice_site_$ct"};
-                next unless $s_id;
-                my $val = $POST->{"extservice_val_$ct"} // '';
-                $val = LJ::text_trim( $val, 255, $services{$s_id}->{maxlen} );
-                $new_accts{$s_id} //= [];
-                if ( my $a_id = $POST->{"extservice_dbid_$ct"} ) {
-                    push @{ $new_accts{$s_id} }, [ $a_id, $val ];
-                }
-                else {
-                    push @{ $new_accts{$s_id} }, $val if $val ne '';
-                }
-            }
 
             $u->save_profile_accts( \%new_accts );
 

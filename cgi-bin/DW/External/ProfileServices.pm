@@ -57,6 +57,21 @@ sub userprops {
     return \@userprops;
 }
 
+sub account_url {
+    my ( $class, $site, $acct ) = @_;
+
+    if ( $site->{name} eq 'mastodon' ) {
+        return unless length($acct) <= $site->{maxlen};
+        my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
+        my ( $username, $host ) = $acct =~ /\A\@?([a-z0-9_]+)\@($label(?:\.$label)+)\z/iaa;
+        return unless defined $host;
+        return 'https://' . lc($host) . '/@' . $username;
+    }
+
+    return unless defined $site->{url_format};
+    return sprintf( $site->{url_format}, LJ::eurl($acct) );
+}
+
 ### user methods
 
 sub load_profile_accts {
@@ -120,14 +135,19 @@ sub save_profile_accts {
 
                 # update the value of the existing row
                 $u->do(
-                    "UPDATE user_profile_accts SET value = ? WHERE account_id = ? AND userid = ?",
-                    undef, $val->[1], $val->[0], $uid );
+                    "UPDATE user_profile_accts SET value = ?"
+                        . " WHERE account_id = ? AND userid = ? AND service_id = ?",
+                    undef, $val->[1], $val->[0], $uid, $s_id
+                );
             }
             elsif ( ref $val ) {
 
                 # delete the existing row
-                $u->do( "DELETE FROM user_profile_accts WHERE account_id = ? AND userid = ?",
-                    undef, $val->[0], $uid );
+                $u->do(
+                    "DELETE FROM user_profile_accts WHERE account_id = ? AND userid = ?"
+                        . " AND service_id = ?",
+                    undef, $val->[0], $uid, $s_id
+                );
             }
             else {
                 # new addition or legacy upgrade
