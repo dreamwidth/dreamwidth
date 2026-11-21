@@ -269,23 +269,42 @@ $editor = LJ::load_userid( $editor->id );
     is_deeply( [ $saved->tags ], ['author correction'], 'REST preserves the newer tags' );
 }
 
+sub legacy_entry {
+    my ($personal) = @_;
+    my $entry  = post_entry( $personal, $personal, 'Legacy fixture', 0 );
+    my $itemid = $entry->jitemid;
+    LJ::get_cluster_master($personal)
+        ->do( 'UPDATE logtext2 SET subject = ?, event = ? WHERE journalid = ? AND jitemid = ?',
+        undef, "Caf\xe9", "Cr\xe8me", $personal->id, $itemid )
+        or BAIL_OUT('Could not store legacy fixture text');
+    $entry->set_prop( unknown8bit   => 1 );
+    $entry->set_prop( current_music => "D\xe9j\xe0" );
+    $entry->set_prop( current_mood  => "Fianc\xe9" );
+    LJ::MemCache::delete(
+        [ $personal->id, join( ':', 'logtext', $personal->clusterid, $personal->id, $itemid ) ] );
+    return $entry;
+}
+
+sub legacy_storage {
+    my ($entry)  = @_;
+    my $personal = $entry->journal;
+    my $db       = LJ::get_cluster_master($personal);
+    my @text     = $db->selectrow_array(
+        'SELECT subject, event FROM logtext2 WHERE journalid = ? AND jitemid = ?',
+        undef, $personal->id, $entry->jitemid );
+    my $props = $db->selectall_arrayref(
+        'SELECT propid, value FROM logprop2 WHERE journalid = ? AND jitemid = ? ORDER BY propid',
+        undef, $personal->id, $entry->jitemid );
+    return [ \@text, $props ];
+}
+
 {
     my $personal = temp_user();
     $personal->update_self( { status => 'A', oldenc => 1 } );
     my $key     = DW::API::Key->new_for_user($personal)->hash;
     my %visible = ( subject => "Caf\xc3\xa9", text => "Cr\xc3\xa8me" );
     for my $field (qw(subject text current_music)) {
-        my $entry  = post_entry( $personal, $personal, "Legacy $field fixture", 0 );
-        my $itemid = $entry->jitemid;
-        LJ::get_cluster_master($personal)
-            ->do( 'UPDATE logtext2 SET subject = ?, event = ? WHERE journalid = ? AND jitemid = ?',
-            undef, "Caf\xe9", "Cr\xe8me", $personal->id, $itemid )
-            or BAIL_OUT('Could not store legacy fixture text');
-        $entry->set_prop( unknown8bit   => 1 );
-        $entry->set_prop( current_music => "D\xe9j\xe0" );
-        LJ::MemCache::delete(
-            [ $personal->id, join( ':', 'logtext', $personal->clusterid, $personal->id, $itemid ) ]
-        );
+        my $entry  = legacy_entry($personal);
         my $path   = '/journals/' . $personal->user . '/entries/' . $entry->ditemid;
         my $before = reload_entry($entry);
         is( $before->subject_raw, $visible{subject}, 'legacy subject decodes before editing' );
@@ -326,6 +345,93 @@ $editor = LJ::load_userid( $editor->id );
             "a $field-only edit saves the expected music"
         );
     }
+}
+
+{
+    no warnings 'redefine';
+    my $personal = temp_user();
+    $personal->update_self( { status => 'A', oldenc => 1 } );
+    my $entry              = legacy_entry($personal);
+    my $path               = '/journals/' . $personal->user . '/entries/' . $entry->ditemid;
+    my $trylock            = \&DW::Locker::trylock;
+    my $validate           = \&LJ::Protocol::common_event_validation;
+    my $entry_lock         = 'personal-entry:' . $personal->id . ':' . $entry->jitemid;
+    my $author_saved       = 0;
+    my $save_newer_content = sub {
+        return if $author_saved++;
+        is(
+            edit_entry(
+                $entry, $personal, 'Newer body',
+                subject       => 'Newer subject',
+                props         => { current_mood => 'Newer mood' },
+                reuse_request => 1
+            ),
+            0,
+            'the concurrent author edit saves newer text'
+        );
+    };
+    local *DW::Locker::trylock = sub {
+        $save_newer_content->() if $_[1] eq $entry_lock;
+        return $trylock->(@_);
+    };
+    local *LJ::Protocol::common_event_validation = sub {
+        $save_newer_content->() if $_[2]->{partial_edit};
+        return $validate->(@_);
+    };
+    my ($response) = api_request(
+        POST => $path,
+        key  => DW::API::Key->new_for_user($personal)->hash,
+        json => { current_music => "Pi\xf1ata" }
+    );
+    is( $response->code, 200, 'the metadata-only edit succeeds after the author edit' );
+    my $saved = reload_entry($entry);
+    is( $saved->subject_raw, 'Newer subject', 'legacy metadata edit preserves the newer subject' );
+    is( $saved->event_raw,   'Newer body',    'legacy metadata edit preserves the newer body' );
+    is( $saved->prop('current_music'), "Pi\xc3\xb1ata", 'the requested metadata is saved' );
+}
+
+for my $oldenc ( 0, 127 ) {
+    my $personal = temp_user();
+    $personal->update_self( { status => 'A', oldenc => $oldenc } );
+    my $entry      = legacy_entry($personal);
+    my $before     = legacy_storage($entry);
+    my $path       = '/journals/' . $personal->user . '/entries/' . $entry->ditemid;
+    my ($response) = api_request(
+        POST => $path,
+        key  => DW::API::Key->new_for_user($personal)->hash,
+        json => { current_music => "Pi\xf1ata" }
+    );
+    is( $response->code, 400, "normalization rejects an unknown charset ($oldenc)" );
+    is_deeply( legacy_storage($entry), $before,
+        'unknown charset preserves raw text, props and marker' );
+}
+
+{
+    no warnings 'redefine';
+    my $personal = temp_user();
+    $personal->update_self( { status => 'A', oldenc => 1 } );
+    my $entry         = legacy_entry($personal);
+    my $before        = legacy_storage($entry);
+    my $path          = '/journals/' . $personal->user . '/entries/' . $entry->ditemid;
+    my $write         = \&LJ::User::do;
+    my $failed_writes = 0;
+    local *LJ::User::do = sub {
+        my ( $journal, $sql ) = @_;
+        if ( $journal->equals($personal) && $sql =~ /\ADELETE FROM logprop2\b/ ) {
+            $failed_writes++;
+            return $write->( $journal, 'UPDATE logprop2 SET nonexistent_test_column = 0' );
+        }
+        return $write->(@_);
+    };
+    my ($response) = api_request(
+        POST => $path,
+        key  => DW::API::Key->new_for_user($personal)->hash,
+        json => { current_music => "Pi\xf1ata" }
+    );
+    ok( $failed_writes, 'the save attempts to remove the marker after rewriting text and props' );
+    cmp_ok( $response->code, '>=', 400, 'the save reports the failed marker write' );
+    is_deeply( legacy_storage($entry), $before,
+        'failed normalization rolls back raw text, props and marker' );
 }
 
 {
