@@ -105,8 +105,6 @@ sub sysban_controller {
             expire  => $form_args->{expire},
             bandays => $form_args->{bandays},
             note    => $form_args->{note},
-            what    => $form_args->{bantype},
-            value   => $form_args->{value},
         );
 
         return error_ml( "$scope.error.modify", { message => $modify->{message} } )

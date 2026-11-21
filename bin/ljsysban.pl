@@ -33,13 +33,15 @@ exit 1
     'note=s'      => \$note,
     );
 
+die "--value must not be empty.\n" if $modify && defined $value && $value !~ /\S/;
+
 # did they give valid input?
 my $an_opt = ( $what || $value || $status || $bandate || $banuntil || $banlength || $note );
 unless (
     (
            $list && ( ( $banid && !$an_opt ) || ( !$banid && $an_opt ) )
-        || ( $add    && $what  && $value )
-        || ( $modify && $banid && $an_opt )
+        || ( $add && $what && $value )
+        || ( $modify && $banid && ( $an_opt || defined $value ) )
     )
     )
 {
@@ -52,7 +54,7 @@ unless (
         . "  --add    <--what=? --value=?\n"
         . "             [--status=? --bandate=datetime { --banuntil=datetime | --banlength=duration } --note=?]>\n\n"
         . "  --modify <--banid=?>\n"
-        . "             [--status=? --bandate=datetime { --banuntil=datetime |\n"
+        . "             [--what=? --status=? --bandate=datetime { --banuntil=datetime |\n"
         . "              --banlength=duration } --value=? --note=?]\n\n"
         . "datetime in format 'YYYY-MM-DD HH:MM:SS', duration in format 'N[dhms]' e.g. '5d' or '3h'.\n\n"
         . "examples:\n"
@@ -71,13 +73,18 @@ my $dbh = LJ::get_db_writer();
 # list bans
 if ($list) {
     my $where;
+    my @values;
     if ($banid) {
         $where = "banid=" . $dbh->quote($banid);
     }
     else {
         my @where = ();
-        push @where, ( "what=" . $dbh->quote($what) )         if $what;
-        push @where, ( "value=" . $dbh->quote($value) )       if $value;
+        push @where, ( "what=" . $dbh->quote($what) ) if $what;
+        if ($value) {
+            my ( $match, @bind ) = LJ::Sysban::value_match_sql($value);
+            push @where, $match;
+            @values = @bind;
+        }
         push @where, ( "status=" . $dbh->quote($status) )     if $status;
         push @where, ( "bandate=" . $dbh->quote($bandate) )   if $bandate;
         push @where, ( "banuntil=" . $dbh->quote($banuntil) ) if $banuntil;
@@ -86,7 +93,7 @@ if ($list) {
     }
 
     my $sth = $dbh->prepare("SELECT * FROM sysban WHERE $where ORDER BY bandate ASC");
-    $sth->execute;
+    $sth->execute(@values);
     my $ct;
     while ( my $ban = $sth->fetchrow_hashref ) {
         print "> banid: $ban->{'banid'}, status: $ban->{'status'}, ";
@@ -117,6 +124,8 @@ if ($banlength) {
 if ($add) {
 
     $status = ( $status eq 'expired' ? 'expired' : 'active' );
+    $value  = LJ::Sysban::normalize_value( $what, $value );
+    die "--value must not be empty.\n" unless length $value;
 
     $dbh->do(
         "INSERT INTO sysban (status, what, value, note, bandate, banuntil)"
@@ -150,17 +159,13 @@ if ($modify) {
     # load selected ban
     my $ban = $dbh->selectrow_hashref( "SELECT * FROM sysban WHERE banid=?", undef, $banid );
     die $dbh->errstr if $dbh->err;
+    die "No sysban with ID $banid\n" unless $ban;
+
+    my $old_type = $ban->{what};
+    $value = LJ::Sysban::normalize_value( $what || $old_type, $value // $ban->{value} )
+        if $what || defined $value;
 
     my @set = ();
-
-    # ip/uniq ban and we're going to change the value
-    if (   ( $value && $value ne $ban->{'value'} )
-        || $banuntil && $banuntil ne $ban->{'banuntil'}
-        || ( $status && $status ne $ban->{'status'} && $status eq 'expired' ) )
-    {
-
-        LJ::Sysban::ban_undo( $ban->{what}, $value || $ban->{value} );
-    }
 
     # what - must have a value
     if ( $what && $what ne $ban->{'what'} ) {
@@ -168,33 +173,22 @@ if ($modify) {
         push @set, "what=" . $dbh->quote( $ban->{'what'} );
     }
 
-    # ip/uniq ban and we are going to change the value
-    if (   ( $value && $value ne $ban->{'value'} )
-        || $banuntil && $banuntil ne $ban->{'banuntil'}
-        || ( $status && $status ne $ban->{'status'} && $status eq 'active' ) )
-    {
-
-        my $new_value    = $value || $ban->{value};
-        my $new_banuntil = LJ::mysqldate_to_time( $banuntil || $ban->{banuntil} );
-
-        LJ::Sysban::ban_do( $ban->{what}, $new_value, $new_banuntil );
-    }
-
     # value - must have a value
-    if ( $value && $value ne $ban->{'value'} ) {
+    if ( defined $value && length $value && $value ne $ban->{'value'} ) {
         $ban->{'value'} = $value;
         push @set, "value=" . $dbh->quote( $ban->{'value'} );
     }
 
     # status - must have a value
+    $status = $status eq 'expired' ? 'expired' : 'active' if $status;
     if ( $status && $status ne $ban->{'status'} ) {
-        $ban->{'status'} = ( $status eq 'expired' ? 'expired' : 'active' );
+        $ban->{'status'} = $status;
         push @set, "status=" . $dbh->quote( $ban->{'status'} );
     }
 
     # banuntil
-    if ( $banuntil && $banuntil ne $ban->{'banuntil'} ) {
-        $ban->{'banuntil'} = ( $banuntil && $banuntil ne 'NULL' ) ? $banuntil : 0;
+    if ( $banuntil && $banuntil ne ( $ban->{'banuntil'} // 'NULL' ) ) {
+        $ban->{'banuntil'} = $banuntil ne 'NULL' ? $banuntil : undef;
         push @set,
             "banuntil=" . ( $ban->{'banuntil'} ? $dbh->quote( $ban->{'banuntil'} ) : 'NULL' );
     }
@@ -211,9 +205,18 @@ if ($modify) {
         push @set, "note=" . $dbh->quote( $ban->{'note'} );
     }
 
+    unless (@set) {
+        print "UNCHANGED: banid=$banid\n";
+        exit;
+    }
+
     # do update
-    $dbh->do( "UPDATE sysban SET " . join( ", ", @set ) . " WHERE banid=?", undef,
-        $ban->{'banid'} );
+    my $updated = $dbh->do( "UPDATE sysban SET " . join( ", ", @set ) . " WHERE banid=?",
+        undef, $ban->{'banid'} );
+    die $dbh->errstr unless defined $updated;
+
+    LJ::Sysban::ban_do($old_type);
+    LJ::Sysban::ban_do( $ban->{what} ) if $ban->{what} ne $old_type;
 
     # log in statushistory
     my $msg;
