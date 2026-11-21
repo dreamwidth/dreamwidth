@@ -1033,6 +1033,18 @@ sub load_existing_identity_user {
             undef, $type, $ident );
     }
 
+    if (  !$uid
+        && $type eq 'O'
+        && $ident =~ m!\Ahttp://([a-z0-9][a-z0-9-]*[a-z0-9])\.insanejournal\.com/\z! )
+    {
+        my $username = $1;
+        if ( $username =~ tr/-/_/ ) {
+            $uid = $dbh->selectrow_array(
+                "SELECT userid FROM identitymap WHERE " . "idtype=? AND identity=?",
+                undef, $type, "http://$username.insanejournal.com/" );
+        }
+    }
+
     return $uid ? LJ::load_userid($uid) : undef;
 }
 
