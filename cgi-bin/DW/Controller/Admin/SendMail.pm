@@ -88,10 +88,11 @@ sub form_controller {
         my $subject = LJ::trim( $args->{subject} );
         my $message = LJ::trim( $args->{message} );
 
-        $errors->add( 'name',    '.error.name' ) unless $name && length $name <= 255;
+        $errors->add( 'name', '.error.name' )
+            unless length $name && length $name <= 255 && $name !~ /[\r\n]/;
         $errors->add( 'subject', '.error.subject' )
-            unless $subject && length $subject <= 255 && $subject !~ /[\r\n]/;
-        $errors->add( 'message', '.error.message' ) unless $message;
+            unless length $subject && length $subject <= 255 && $subject !~ /[\r\n]/;
+        $errors->add( 'message', '.error.message' ) unless length $message;
 
         unless ( $errors->exist ) {
             my $saved =
@@ -172,7 +173,8 @@ sub index_controller {
     my $errors = DW::FormErrors->new;
     my $args   = $r->post_args;
 
-    $rv->{formdata} = $args;
+    $rv->{formdata}        = $args;
+    $rv->{reqsubj_checked} = !$r->did_post || $args->{reqsubj};
 
     # form processing
     if ( $r->did_post && $args->{load_form} ) {

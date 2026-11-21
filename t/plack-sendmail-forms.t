@@ -15,8 +15,9 @@
 use strict;
 use warnings;
 
-use Encode qw(encode_utf8);
+use Encode qw(decode_utf8 encode_utf8);
 use HTML::Entities qw(decode_entities);
+use HTML::Parser;
 use HTTP::Request::Common qw(GET POST);
 use Plack::Test;
 use Test::More;
@@ -28,6 +29,8 @@ use LJ::Test qw(temp_user);
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 my $client = Plack::Test->create($app);
+
+local *LJ::send_mail = sub { die 'Unexpected email delivery' };
 
 my $admin  = temp_user();
 my $viewer = temp_user();
@@ -62,14 +65,59 @@ sub field {
 }
 
 sub body_field {
-    my ($res)   = @_;
-    my ($value) = $res->content =~ /<textarea\b[^>]*\bname="message"[^>]*>(.*?)<\/textarea>/s;
+    my ( $res, $name ) = @_;
+    $name //= 'message';
+    my ($value) = $res->content =~ /<textarea\b[^>]*\bname="$name"[^>]*>(.*?)<\/textarea>/s;
     return decode_entities( $value // '' );
 }
 
 sub submit {
     my ( $path, $user, @fields ) = @_;
     return $client->request( POST url( $path, $user ), Content => \@fields );
+}
+
+sub form_controls {
+    my ($res) = @_;
+    my %forms;
+    my ( $owner, $anonymous );
+    my $parser = HTML::Parser->new(
+        api_version => 3,
+        start_h     => [
+            sub {
+                my ( $tag, $attrs ) = @_;
+                if ( $tag eq 'form' ) {
+                    $owner = $attrs->{id} // ++$anonymous;
+                }
+                elsif ( $tag =~ /\A(?:button|input|select|textarea)\z/ ) {
+                    my $form = $attrs->{form} // $owner;
+                    push @{ $forms{$form} }, { tag => $tag, %$attrs } if defined $form;
+                }
+            },
+            'tagname, attr'
+        ],
+        end_h => [ sub { undef $owner if $_[0] eq 'form' }, 'tagname' ]
+    );
+    $parser->parse( decode_utf8( $res->content ) );
+    $parser->eof;
+    return values %forms;
+}
+
+sub form_with_control {
+    my ( $name, @forms ) = @_;
+    for my $controls (@forms) {
+        return $controls if grep { ( $_->{name} // '' ) eq $name } @$controls;
+    }
+    return [];
+}
+
+sub submit_labels {
+    my ($controls) = @_;
+    my @labels;
+    for my $control (@$controls) {
+        my $type = $control->{type} // ( $control->{tag} eq 'button' ? 'submit' : '' );
+        push @labels, $control->{value} if $type eq 'submit' || $type eq 'image';
+    }
+    return \@labels;
 }
 
 my $anonymous = $client->request( GET url($forms) );
@@ -130,6 +178,10 @@ my $long_subject = submit(
 like( $long_subject->content, qr/Enter a single-line subject/, 'rejects an oversized subject' );
 ok( !stored(), 'oversized subject is not stored' );
 
+my $multiline_name =
+    submit( $forms, $admin, %{ { %fields, name => "First\r\nSecond" } }, lj_form_auth => $auth );
+like( $multiline_name->content, qr/Enter a single-line name/, 'rejects a multiline name' );
+
 my $create = submit( $forms, $admin, %fields, lj_form_auth => $auth );
 is( $create->code, 303, 'create redirects to GET' );
 my $row = stored();
@@ -145,6 +197,25 @@ is( field( $edit, 'subject' ), $subject, 'editor prefills subject' );
 is( body_field($edit), $body, 'editor prefills body as text' );
 unlike( $edit->content, qr/<script>sendmail_test\(\)<\/script>/, 'editor cannot execute body' );
 
+my $zero = submit(
+    $forms, $admin,
+    action       => 'save',
+    name         => '0',
+    subject      => '0',
+    message      => '0',
+    id           => $formid,
+    lj_form_auth => token($edit)
+);
+is( $zero->code, 303, 'accepts zero as nonempty text in every field' );
+is_deeply(
+    $dbh->selectrow_arrayref(
+        'SELECT name, subject, message FROM siteadmin_email_forms WHERE formid = ?',
+        undef, $formid
+    ),
+    [ '0', '0', '0' ],
+    'persists zero in every field'
+);
+
 my $updated = encode_utf8("R\x{e9}vis\x{e9}") . ' ' . $subject;
 my $save    = submit(
     $forms, $admin, %{ { %fields, subject => $updated } },
@@ -154,7 +225,15 @@ my $save    = submit(
 is( $save->code, 303, 'edit redirects to GET' );
 is_deeply( stored(), [ $formid, $name, $updated, $body ], 'edit updates the same form' );
 
-my $compose = $client->request( GET url( $index, $admin ) );
+my $compose       = $client->request( GET url( $index, $admin ) );
+my @controls      = form_controls($compose);
+my $send_controls = form_with_control( 'sendto', @controls );
+is_deeply( submit_labels($send_controls),
+    ['Send Message'], 'compose has only one submit control so Enter sends instead of loading' );
+my $load_controls = form_with_control( 'form_id', @controls );
+is_deeply( submit_labels($load_controls), ['Load form message'], 'selector has its own form' );
+my %load_fields = map { ( $_->{name}, $_->{value} ) }
+    grep { $_->{name} && ( $_->{type} // '' ) eq 'hidden' } @$load_controls;
 like( $compose->content, qr{href="(?:/admin/sendmail/)?forms"}, 'compose links to manager' );
 like(
     $compose->content,
@@ -173,17 +252,16 @@ my @draft = (
     subject => 'Draft subject',
     message => 'Draft body'
 );
-my $load = submit(
-    $index, $admin, @draft,
-    load_form    => 1,
-    form_id      => $formid,
-    lj_form_auth => token($compose)
-);
+my $load = submit( $index, $admin, @draft, %load_fields, form_id => $formid );
 is( $load->code, 200, 'load renders the compose form' );
 is( field( $load, 'subject' ), $updated, 'loads saved subject' );
 is( body_field($load), $body, 'loads saved body' );
 is( field( $load, 'sendto' ), 'recipient@example.invalid', 'keeps recipient' );
 is( field( $load, 'request' ), '17', 'keeps support request' );
+is( body_field( $load, 'notes' ), 'Keep this', 'keeps team notes' );
+my $loaded_compose = form_with_control( 'sendto', form_controls($load) );
+my ($reqsubj) = grep { ( $_->{name} // '' ) eq 'reqsubj' } @$loaded_compose;
+ok( $reqsubj && !exists $reqsubj->{checked}, 'keeps support subject option unchecked' );
 unlike( $load->content, qr/<script>sendmail_test\(\)<\/script>/, 'compose cannot execute body' );
 my ($sent_after) =
     $dbh->selectrow_array( 'SELECT COUNT(*) FROM siteadmin_email_history WHERE remoteid = ?',
@@ -204,12 +282,7 @@ my $stale = submit( $forms, $admin, %fields, id => $formid, lj_form_auth => $aut
 like( $stale->content, qr/form message could not be found/i,
     'edit cannot recreate a deleted form' );
 ok( !stored(), 'stale edits do not write a row' );
-my $missing = submit(
-    $index, $admin, @draft,
-    load_form    => 1,
-    form_id      => $formid,
-    lj_form_auth => token($compose)
-);
+my $missing = submit( $index, $admin, @draft, %load_fields, form_id => $formid );
 like(
     $missing->content,
     qr/form message could not be found/i,
@@ -217,5 +290,10 @@ like(
 );
 is( field( $missing, 'subject' ), 'Draft subject', 'missing selection keeps subject' );
 is( body_field($missing), 'Draft body', 'missing selection keeps body' );
+
+my $send = submit( $index, $admin, %{ { @draft, sendto => '' } }, lj_form_auth => token($compose) );
+like( $send->content, qr/specify a recipient/, 'compose-only POST validates the recipient' );
+is( field( $send, 'subject' ), 'Draft subject', 'compose-only POST keeps the edited subject' );
+is( body_field($send), 'Draft body', 'compose-only POST keeps the edited body' );
 
 done_testing;

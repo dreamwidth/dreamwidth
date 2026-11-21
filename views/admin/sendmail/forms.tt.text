@@ -1,3 +1,4 @@
+;; -*- coding: utf-8 -*-
 # Error messages for the admin sendmail form manager.
 #
 # Authors:
@@ -16,6 +17,6 @@
 
 .error.missing=The form message could not be found.
 
-.error.name=Enter a name no longer than 255 bytes.
+.error.name=Enter a single-line name no longer than 255 bytes.
 
 .error.subject=Enter a single-line subject no longer than 255 bytes.
