@@ -25,6 +25,7 @@ use Encode qw(encode_utf8);
 use File::Temp;
 use HTML::TokeParser;
 use HTTP::Response;
+use LJ::CleanHTML;
 use LJ::Entry;
 use LJ::SynSuck;
 use LJ::Test qw(temp_feed);
@@ -52,11 +53,15 @@ my $rss = encode_utf8(<<'RSS');
 <description><![CDATA[<p>
 <img alt="raw" src="http://images.example.test/разъёмы.jpg"
     srcset="http://images.example.test/小.jpg 320w, http://images.example.test/大.jpg 640w">
+<img alt="named-entity" src="http://images.example.test/разъёмы-&eacute;.jpg">
+<img alt="numeric-entity" src="http://images.example.test/猫&#xE9;.jpg">
+<img alt="wide-entity" src="http://images.example.test/猫&#x1F600;.jpg">
 <img alt="encoded" src="http://images.example.test/%d1%80.jpg?crop=a%2fb">
 <img alt="query" src="http://images.example.test/caf%C3%A9/猫.jpg?name=😀&amp;size=2">
 <img alt="ascii" src="http://images.example.test/plain.jpg?size=2&amp;fit=cover">
 <img alt="https" src="https://images.example.test/猫.jpg">
 <img alt="relative" src="../猫.jpg">
+<img alt="relative-entity" src="../猫&#x1F600;.jpg">
 <img alt="unsafe" src="JaVaScRiPt:猫" srcset="data:image/png,猫">
 <a title="absolute" href="https://news.example.test/новости?name=猫&amp;id=a%2fb">News</a>
 <a title="relative" href="../новости">Relative</a>
@@ -106,6 +111,21 @@ is(
     'each responsive image URL is encoded and signed'
 );
 is(
+    $images{'named-entity'}{src},
+    $proxy->('%D1%80%D0%B0%D0%B7%D1%8A%D1%91%D0%BC%D1%8B-%C3%A9.jpg'),
+    'named character reference and literal Cyrillic are encoded and signed'
+);
+is(
+    $images{'numeric-entity'}{src},
+    $proxy->('%E7%8C%AB%C3%A9.jpg'),
+    'Latin-1-range character reference and literal UTF-8 are encoded and signed'
+);
+is(
+    $images{'wide-entity'}{src},
+    $proxy->('%E7%8C%AB%F0%9F%98%80.jpg'),
+    'wide character reference and literal UTF-8 are encoded and signed'
+);
+is(
     $images{encoded}{src},
     $proxy->('%d1%80.jpg?crop=a%2fb'),
     'existing percent escapes are preserved verbatim'
@@ -129,6 +149,11 @@ is(
     $images{relative}{src},
     'https://news.example.test/%E7%8C%AB.jpg',
     'relative image URL resolves against the feed item URL'
+);
+is(
+    $images{'relative-entity'}{src},
+    'https://news.example.test/%E7%8C%AB%F0%9F%98%80.jpg',
+    'relative image URL preserves literal UTF-8 and a wide character reference'
 );
 
 my $news_path = '%D0%BD%D0%BE%D0%B2%D0%BE%D1%81%D1%82%D0%B8';
@@ -155,5 +180,22 @@ ok(
     'entity-obfuscated javascript link is stripped'
 );
 ok( $links{data} && !exists $links{data}{href}, 'data link is stripped' );
+
+my $character_html = '<img src="https://images.example.test/猫&#x1F600;.jpg">';
+LJ::CleanHTML::clean_event( \$character_html, { preformatted => 1 } );
+like(
+    $character_html,
+    qr{src="https://images\.example\.test/%E7%8C%AB%F0%9F%98%80\.jpg"},
+    'cleaner also encodes the correct URL from a Perl character string'
+);
+
+my $character_relative_html = '<p>猫<img src="../猫&#x1F600;.jpg"></p>';
+LJ::CleanHTML::resolve_relative_urls( \$character_relative_html,
+    'https://news.example.test/posts/item' );
+is(
+    $character_relative_html,
+    '<p>猫<img src="https://news.example.test/%E7%8C%AB%F0%9F%98%80.jpg"></p>',
+    'relative resolution preserves surrounding characters and escapes the URL'
+);
 
 done_testing();

@@ -63,6 +63,13 @@ sub helper_preload {
     eval { $p->DESTROY(); };
 }
 
+sub _new_html_parser {
+    my ( $class, $data ) = @_;
+    my $parser = $class->new($data);
+    $parser->utf8_mode( !utf8::is_utf8($$data) );
+    return $parser;
+}
+
 # this treats normal characters and &entities; as single characters
 # also treats UTF-8 chars as single characters
 my $onechar;
@@ -207,7 +214,7 @@ sub clean {
     # Create the HTML parser we'll use to navigate the text from here on out.
     # It numbers the tokens it hands out (1, 2, 3 ... in source order), so we can
     # say exactly which token a report or a lookup is about.
-    my $p = LJ::CleanHTML::NumberedTokens->new($data);
+    my $p = _new_html_parser( 'LJ::CleanHTML::NumberedTokens', $data );
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -296,7 +303,7 @@ sub clean {
         $eaten{iframe} = 1;
 
         my $n    = 0;
-        my $scan = LJ::CleanHTML::NumberedTokens->new($data);
+        my $scan = _new_html_parser( 'LJ::CleanHTML::NumberedTokens', $data );
         while ( my $t = $scan->get_token ) {
             $n++;
             next unless $t->[0] eq 'E';
@@ -1434,7 +1441,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 # takes a reference to HTML and a base URL, and modifies HTML in place to use absolute URLs from the given base
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
-    my $p = HTML::TokeParser->new($data);
+    my $p = _new_html_parser( 'HTML::TokeParser', $data );
 
     # where we look for relative URLs
     my $rel_source = {
