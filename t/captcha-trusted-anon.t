@@ -24,7 +24,11 @@ use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use LJ::Test qw(temp_user);
+use HTTP::Request;
+use HTTP::Request::Common;
 use DW::Captcha;
+use DW::Controller::Admin::FileEdit;
+use DW::Request::Standard;
 use LJ::Talk;
 
 # Minimal fake request so we can drive the gates without a live stack.
@@ -53,6 +57,8 @@ my $literal = temp_user();
 my $pattern = temp_user();
 my $admin   = temp_user();
 $admin->grant_priv( 'siteadmin', 'users' );
+
+my $orig_dw_request_get = \&DW::Request::get;
 
 no warnings 'redefine';
 local *DW::Request::get             = sub { $req };
@@ -323,8 +329,73 @@ subtest 'an empty blocklist is cached without hiding a writer outage' => sub {
         $available = 1;
         is( $check->( body => 'Ordinary prose.' ), '', 'empty list is not suspicious' );
         is( $check->( body => 'Ordinary prose.' ), '', 'cached empty list is not suspicious' );
+        is( LJ::load_include('spamblocklist'), '', 'cached empty include returns empty string' );
         is( $lookups, 2, 'retries after outage but not after a successful empty lookup' );
+        ok(
+            !ref LJ::MemCache::get('includefile:spamblocklist'),
+            'includefile key never stores a reference'
+        );
+
+        LJ::MemCache::set( 'includefile:spamblocklist', "blocked.example\r\n" );
+        is( $check->( body => 'Visit blocked.example.' ),
+            'comment_html', 'plain text in includefile key overrides a cached empty marker' );
     };
 };
+
+subtest 'load_include preserves legacy key format, missing includes, and FileEdit invalidation' =>
+    sub {
+    my $get_writer = \&LJ::get_db_writer;
+    local *DW::Request::get = $orig_dw_request_get;
+
+    my $file = 'test-include-3182';
+    $admin->grant_priv( 'fileedit', $file );
+    my $dbh = $get_writer->();
+    $dbh->do( 'DELETE FROM includetext WHERE incname=?', undef, $file );
+
+    eval {
+        LJ::Test::with_fake_memcache {
+            my $lookups = 0;
+            local *LJ::get_db_writer = sub { ++$lookups; return $get_writer->(@_); };
+
+            is( LJ::load_include($file), undef, 'missing include returns undef' );
+            is( LJ::load_include($file), undef, 'cached missing include returns undef' );
+            is( $lookups,                1,     'missing include hits memcache on repeat lookup' );
+            ok( !ref LJ::MemCache::get("includefile:$file"),
+                'missing include never stores a reference under includefile key' );
+
+            LJ::MemCache::set( 'includefile:common-passwords', '' );
+            ok( length( LJ::load_include('common-passwords') // '' ),
+                'legacy empty string in includefile key does not hide disk fallback' );
+
+            LJ::start_request();
+            DW::Request->reset;
+            DW::Request::Standard->new( HTTP::Request->new( GET => 'http://www.dw.test/' ) );
+            LJ::set_remote($admin);
+            my $auth = LJ::form_auth(1);
+
+            DW::Request->reset;
+            DW::Request::Standard->new(
+                POST 'http://www.dw.test/admin/fileedit/index',
+                Content => [
+                    lj_form_auth => $auth,
+                    mode         => 'save',
+                    file         => $file,
+                    contents     => "saved.example\n",
+                ]
+            );
+            LJ::set_remote($admin);
+            DW::Controller::Admin::FileEdit::index_controller();
+
+            is( LJ::MemCache::get("includefile:$file"),
+                "saved.example\n", 'FileEdit stores plain text under includefile key' );
+            LJ::MemCache::delete("includefile:$file");
+            is( LJ::load_include($file),
+                "saved.example\n", 'evicting includefile key still loads saved content from DB' );
+        };
+    };
+    my $err = $@;
+    $dbh->do( 'DELETE FROM includetext WHERE incname=?', undef, $file );
+    die $err if $err;
+    };
 
 done_testing();

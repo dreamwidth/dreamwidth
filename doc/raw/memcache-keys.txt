@@ -74,6 +74,7 @@ rate:tracked:<userid> == cluster tracking on login, posts, and comments
 ml.<lang>.<dmid>.<code>
 
 includefile:<name> == text of an include file (includetext table)
+includefile_empty:<name> == cached empty or missing marker ('empty' or 'missing') for an include file
 
 <intid> introw:<intid> -- arrayref of [ $intid, $interest, $intcount ]
 <uid>   intids:<uid>   -- arrayref of intids for this userid
