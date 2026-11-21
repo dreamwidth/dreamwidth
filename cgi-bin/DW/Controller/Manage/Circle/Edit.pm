@@ -128,6 +128,16 @@ sub edit_handler {
 
     # if they did a post, then process their changes
     if ( $r->did_post ) {
+        my $save_failed = sub {
+            $r->status(409);
+            return DW::Template->render_template(
+                'error.tt',
+                {
+                    message =>
+'Could not save all Circle changes. Some changes may already be saved. Review your Circle and try again.'
+                }
+            );
+        };
 
         # this hash is used to keep track of who we've processed via the add
         # interface, since anyone who's in both the add and edit interfaces should
@@ -168,7 +178,7 @@ sub edit_handler {
                         trust => {
                             nonotify => $trusted_nonotify ? 1 : 0,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
                 elsif ( !$edit_color_only ) {
                     $u->remove_edge(
@@ -176,7 +186,7 @@ sub edit_handler {
                         trust => {
                             nonotify => $trusted_nonotify ? 0 : 1,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
                 if ( $POST->{"editfriend_add_${num}_watch"} || $edit_color_only ) {
                     my $fg = LJ::color_todb( $POST->{"editfriend_add_${num}_fg"} );
@@ -188,7 +198,7 @@ sub edit_handler {
                             bgcolor  => $bg,
                             nonotify => $watched_nonotify ? 1 : 0,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
                 elsif ( !$edit_color_only ) {
                     $u->remove_edge(
@@ -196,7 +206,7 @@ sub edit_handler {
                         watch => {
                             nonotify => $watched_nonotify ? 0 : 1,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
             }
             elsif ( $key =~ /^editfriend_edit_(\d+)_user/ ) {
@@ -214,7 +224,7 @@ sub edit_handler {
                         trust => {
                             nonotify => $trusted_nonotify ? 1 : 0,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
                 else {
                     $u->remove_edge(
@@ -222,7 +232,7 @@ sub edit_handler {
                         trust => {
                             nonotify => $trusted_nonotify ? 0 : 1,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
 
                 if ( $POST->{"editfriend_edit_${uid}_watch"} ) {
@@ -231,7 +241,7 @@ sub edit_handler {
                         watch => {
                             nonotify => $watched_nonotify ? 1 : 0,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
                 else {
                     $u->remove_edge(
@@ -239,7 +249,7 @@ sub edit_handler {
                         watch => {
                             nonotify => $watched_nonotify ? 0 : 1,
                         }
-                    );
+                    ) or return $save_failed->();
                 }
 
                 if ( $other_u->is_community ) {

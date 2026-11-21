@@ -60,6 +60,18 @@ subtest 'access lists' => sub {
     ( $res, $body ) = api_request( GET => "$base/accesslists", key => $okey );
     ok( ( grep { $_->{id} == $id && $_->{name} eq 'friends' } @$body ), 'list includes it' );
 
+    my $lock = $owner->lock_trust_groups;
+    ok( $lock, 'holds the access list lock on a separate connection' );
+    ($res) = api_request(
+        POST => "$base/accesslists/$id",
+        key  => $okey,
+        json => [ $member->user ]
+    );
+    is( $res->code, 500, 'a contended membership grant reports failure' );
+    is( $owner->trustmask_from_primary($member),
+        1, 'the contended grant leaves membership unchanged' );
+    $lock->release if $lock;
+
     ( $res, $body ) = api_request(
         POST => "$base/accesslists/$id",
         key  => $okey,

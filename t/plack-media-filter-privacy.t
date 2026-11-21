@@ -21,7 +21,9 @@ use Plack::Test;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Media;
 use DW::Cache;
+use LJ::Console;
 use LJ::JSON;
+use LJ::Protocol;
 use LJ::Test qw(temp_user);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -138,12 +140,23 @@ test_psgi $app, sub {
     };
     my @old_circle  = $form_data->($circle);
     my @old_filters = $form_data->($filters);
+    my $circle_bulk = "$host/manage/circle/edit?$as_owner";
+    my @bulk_auth   = $form_data->($circle_bulk);
     my @membership  = (
         'editfriend_maskhi_' . $viewer->user => $mask >> 31,
         'editfriend_masklo_' . $viewer->user => 1
     );
 
     ok( $owner->add_edge( $viewer, watch => { nonotify => 1 } ), 'also watches the old member' );
+    my $old_image = $load->();
+    my $console   = sub {
+        my ($command) = @_;
+        local $LJ::T_NO_COMMAND_PRINT = 1;
+        LJ::set_remote($owner);
+        my $response = LJ::Console->run_commands_text($command);
+        LJ::set_remote(undef);
+        return $response;
+    };
     $lock = $owner->lock_trust_groups;
     ok(
         !$owner->add_edge( $viewer, watch => { nonotify => 1 } ),
@@ -171,7 +184,31 @@ test_psgi $app, sub {
         'a contended deletion is not reported as saved' );
     ok( $owner->trust_groups( id => $filter, force_database => 1 ),
         'the contended filter remains' );
-    ok( $load->()->visible_to($viewer), 'a contended deletion does not change membership' );
+    my $failed_revoke = $request->(
+        POST $circle_bulk,
+        Content => [ @bulk_auth, 'editfriend_edit_' . $viewer->id . '_user' => 1 ]
+    );
+    is( $failed_revoke->code, 409, 'Bulk Manage Circle reports the contended revocation' );
+    like( $console->( 'manage_circle del_access ' . $viewer->user ),
+        qr/^error:/, 'the console reports the contended revocation' );
+
+    foreach my $action (
+        [ settrustgroups    => { $filter => { name => 'New name' } } ],
+        [ deletetrustgroups => [$filter] ],
+        [ add => [ { username => $viewer->user, groupmask => 1 } ] ],
+        [ add => [ { username => $viewer->user, edge      => 0 } ] ]
+        )
+    {
+        my $error = 0;
+        LJ::Protocol::do_request( 'editcircle', { username => $owner->user, @$action },
+            \$error, { noauth => 1 } );
+        like( $error, qr/^5\d\d(?:$|:)/, "editcircle reports a contended $action->[0] mutation" );
+    }
+    ok(
+        $owner->trustmask_from_primary($viewer) & $mask,
+        'contended revocations leave membership unchanged'
+    );
+    ok( !$old_image->visible_to($viewer), 'custom image access fails closed on a contended read' );
     $lock->release;
 
     ok( $owner->delete_trust_group( id => $filter ), 'deletes the old membership filter' );
@@ -181,6 +218,11 @@ test_psgi $app, sub {
         undef, $mask, $owner->id, $viewer->id );
     is( $owner->create_trust_group( id => $filter, groupname => 'Art exchange' ),
         $filter, 'allocates the same slot even when an orphaned edge bit exists' );
+    my $new_member = temp_user();
+    ok( $owner->add_edge( $new_member, trust => { mask => $mask, nonotify => 1 } ),
+        'a different viewer joins only the replacement filter' );
+    ok( !$old_image->visible_to($new_member),
+        'an old image snapshot cannot grant access to a replacement filter member' );
     is( $api->( groups => [$filter] )->code, 200, 'a fresh image save selects the replacement' );
     ok( !$load->()->visible_to($viewer), 'allocation does not inherit orphaned membership' );
     $owner->edit_trustmask( $viewer, remove => $filter );
@@ -190,6 +232,17 @@ test_psgi $app, sub {
     LJ::MemCache::set( $memkey, $mask | 1, 3600 );
     DW::Cache->request->set( 'trustmask', $key, $mask | 1 );
     ok( !$load->()->visible_to($viewer), 'image authorization ignores stale cached membership' );
+    my $grant = 'manage_circle add_access ' . $viewer->user;
+    like( $console->($grant), qr/Done\./, 'the console can grant ordinary access' );
+    is( $owner->trustmask_from_primary($viewer),
+        1, 'an ordinary console grant does not restore stale custom membership' );
+    like( $console->("$grant 59"), qr/^error:/, 'the console rejects an unallocated filter slot' );
+    is( $owner->trustmask_from_primary($viewer),
+        1, 'invalid console selection does not write bits' );
+    like( $console->("$grant $filter"), qr/Done\./, 'the console accepts an existing filter slot' );
+    is( $owner->trustmask_from_primary($viewer),
+        $mask | 1, 'an explicit console selection grants the current filter' );
+    $owner->trustmask( $viewer, 1 );
     LJ::MemCache::delete($memkey);
     DW::Cache->request->remove( 'trustmask', $key );
 
