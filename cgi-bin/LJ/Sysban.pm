@@ -18,9 +18,87 @@ package LJ::Sysban;
 use strict;
 use v5.10;
 use Log::Log4perl;
+use URI;
+use URI::Escape qw(uri_escape);
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use LJ::MemCache;
+
+sub can_manage_type {
+    my ( $actor, $what ) = @_;
+    return 0 unless $actor && defined $what && length $what && $what ne '*';
+    return $actor->has_priv( 'sysban', $what );
+}
+
+sub _openid_domain {
+    my ( $value, %opts ) = @_;
+    return unless defined $value;
+    $value = LJ::trim($value);
+    return if $opts{storage} && $value =~ /[^\x00-\x7f]|%/;
+    unless ( $opts{discovered} ) {
+        return if $value =~ /[\s<>]/;
+        $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;
+    }
+    return unless $value =~ m{\Ahttps?://}i;
+
+    if ( $value =~ /[^\x00-\x7f]/ ) {
+        utf8::encode($value) if utf8::is_utf8($value);
+        $value = uri_escape( $value, '\x80-\xff' );
+    }
+    my $uri  = URI->new($value);
+    my $host = $uri->host // '';
+    if ( $host =~ /[^\x00-\x7f]/ ) {
+        return unless utf8::decode($host) && $host =~ /\A(?:[a-z0-9.-]|[^\x00-\x7f])+\z/i;
+        $uri->host($host);
+        $host = $uri->host // '';
+    }
+    $host = lc($host);
+    $host =~ s/\.\z//;
+    my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/;
+    return unless $host =~ /\A$label(?:\.$label)+\z/;
+
+    if ( $opts{storage} ) {
+        return if length($host) > 80 || defined $uri->userinfo;
+        return if $uri->path ne '' && $uri->path ne '/';
+        return if defined $uri->query || defined $uri->fragment;
+    }
+    return $host;
+}
+
+sub parse_openid_domain {
+    my $host = _openid_domain( $_[0], storage => 1 );
+    return ( $host, undef ) if defined $host;
+    return ( undef,
+        'Invalid OpenID domain: enter an ASCII domain such as example.org (use Punycode for IDNs)'
+    );
+}
+
+sub openid_discovered_sysban_check {
+    my $host = _openid_domain( $_[0], discovered => 1 );
+    return 0 unless defined $host;
+    return _domain_ban_matches( LJ::get_db_reader(), 'openid_domain', $host );
+}
+
+sub _domain_ban_matches {
+    my ( $db, $type, $host ) = @_;
+    return 0 unless $db && $host && $host =~ /\./;
+
+    my $is_openid   = $type eq 'openid_domain';
+    my $starts      = $is_openid ? '<=' : '<';
+    my $type_column = $is_openid ? 'CAST(what AS BINARY)' : 'what';
+    return $db->selectrow_array(
+        qq{
+            SELECT COUNT(*) FROM sysban
+            WHERE status = 'active'
+              AND $type_column = ?
+              AND (value = ? OR ? LIKE CONCAT("%.", value))
+              AND bandate $starts NOW()
+              AND (NOW() < banuntil
+                   OR banuntil = 0
+                   OR banuntil IS NULL)
+        }, undef, $type, $host, $host
+    );
+}
 
 =head1 Methods
 
@@ -257,28 +335,9 @@ sub sysban_check {
         );
     };
 
-    # helper variation for wildcard match of domain bans
-    my $check_subdomains = sub {
-        my ($host) = @_;
-        return 0 unless $host && $host =~ /\./;
-
-        # very similar to above, except in addition to exact match
-        # we also check for wildcard matches of larger banned domains
-        # e.g. foo.bar.org will match ban for "%.bar.org"
-
-        return $dbr->selectrow_array(
-            qq{
-                SELECT COUNT(*) FROM sysban
-                WHERE status = 'active'
-                  AND what = ?
-                  AND (value = ? OR ? LIKE CONCAT("%.", value))
-                  AND NOW() > bandate
-                  AND (NOW() < banuntil
-                       OR banuntil = 0
-                       OR banuntil IS NULL)
-            }, undef, 'email_domain', $host, $host
-        );
-    };
+    if ( $what eq 'openid_domain' ) {
+        return _domain_ban_matches( $dbr, $what, scalar _openid_domain($value) );
+    }
 
     # check both ban by email and ban by domain if we have an email address
     if ( $what eq 'email' ) {
@@ -289,7 +348,7 @@ sub sysban_check {
 
         # see if this domain is banned, either directly
         # or else as part of a larger domain ban
-        return 1 if $check_subdomains->($1);
+        return 1 if _domain_ban_matches( $dbr, 'email_domain', $1 );
 
         # account for GMail troll tricks
         my @domains = split( /\./, $1 );
@@ -368,7 +427,7 @@ sub _db_sysban_populate_full {
         $dbh->prepare( "SELECT banid, value, "
             . "UNIX_TIMESTAMP(banuntil), note "
             . "FROM sysban "
-            . "WHERE status='active' AND what=? "
+            . "WHERE status='active' AND CAST(what AS BINARY)=? "
             . "AND NOW() > bandate "
             . "AND (NOW() < banuntil OR banuntil IS NULL)"
             . $limitsql );
@@ -412,17 +471,12 @@ sub populate_full_by_value_with_expired {
 
 sub _db_sysban_populate_full_by_value {
     my ( $value, $no_expired, @types ) = @_;
+    return {} unless @types;
+
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
-    my $in_what = "";
-    my $has_all = 0;
-
-    $in_what = join ", ", map { $dbh->quote($_) } @types
-        unless $has_all;
-    $in_what = " AND what IN ( $in_what )"
-        if $in_what;
-
+    my $in_what  = join ', ', ('?') x @types;
     my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
 
     # build cache from db
@@ -431,12 +485,12 @@ sub _db_sysban_populate_full_by_value {
            FROM sysban
            WHERE status = 'active'
                  AND value = ?
-                 $in_what
+                 AND CAST(what AS BINARY) IN ( $in_what )
                  AND NOW() > bandate
                  $banuntil
         }
     );
-    $sth->execute($value);
+    $sth->execute( $value, @types );
     return undef if $sth->err;
 
     my $where;
@@ -541,6 +595,11 @@ sub create {
 
     # strip out leading/trailing whitespace
     $opts{'value'} = LJ::trim( $opts{'value'} );
+    if ( $opts{what} eq 'openid_domain' ) {
+        my ( $host, $error ) = parse_openid_domain( $opts{value} );
+        return bless { message => $error }, 'ERROR' if $error;
+        $opts{value} = $host;
+    }
 
     # do insert
     $dbh->do(
@@ -586,6 +645,14 @@ sub create {
 # </LJFUNC>
 sub validate {
     my ( $what, $value, $opts, $post ) = @_;
+
+    if ( $what eq 'openid_domain' ) {
+        my ( $host, $error ) = parse_openid_domain($value);
+        return $error if $error;
+        return 'This is already banned'
+            if !$opts->{skipexisting} && _domain_ban_matches( LJ::get_db_writer(), $what, $host );
+        return 0;
+    }
 
     # bail early if the ban already exists
     return "This is already banned"
@@ -668,34 +735,36 @@ sub validate {
 # <LJFUNC>
 # name: LJ::Sysban::modify
 # des: modifies the expiry or note field of an entry
-# args: banid, bandays, expiry, expirenow, note (passed in as hash)
+# args: actor, banid, bandays, note (passed in as hash)
+# des-actor: the moderator making the change
 # des-banid: the ban ID we're modifying
 # des-bandays: the new expiry
-# des-expire: the old expiry
 # des-note: the new note (optional)
-# des-what: the ban type
-# des-value: the ban value
-# returns: ERROR object on success, error message on failure
+# returns: ban ID on success, ERROR object on failure
 # </LJFUNC>
 sub modify {
-    my %opts = @_;
-    unless ( $opts{'banid'} && defined $opts{'expire'} ) {
-        return bless {
-            message => "Arguments must be passed as a hash; ban ID and
-                        old expiry are required\n",
-            },
-            'ERROR';
-    }
+    my %opts  = @_;
+    my $actor = $opts{actor};
+    return bless { message => 'Cannot modify this ban' }, 'ERROR'
+        unless $actor && ( $opts{banid} // '' ) =~ /\A[1-9][0-9]*\z/;
 
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
         return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
 
     my $dbh = LJ::get_db_writer();
+    return bless { message => 'Cannot modify this ban' }, 'ERROR' unless $dbh;
 
-    my $banid   = $dbh->quote( $opts{'banid'} );
-    my $expire  = $opts{'expire'};
-    my $bandays = $opts{'bandays'};
+    my $ban = $dbh->selectrow_hashref(
+        'SELECT banid, what, value, UNIX_TIMESTAMP(banuntil) AS expire FROM sysban WHERE banid = ?',
+        undef, $opts{banid}
+    );
+    return bless { message => 'Cannot modify this ban' }, 'ERROR'
+        unless $ban && can_manage_type( $actor, $ban->{what} );
+
+    my $banid   = $ban->{banid};
+    my $expire  = $ban->{expire} || 0;
+    my $bandays = $opts{bandays};
 
     my $banuntil = "NULL";
     if ($bandays) {
@@ -715,29 +784,27 @@ sub modify {
         }
     }
 
-    $dbh->do(
-        "UPDATE sysban SET banuntil=$banuntil,note=?
-             WHERE banid=$banid",
-        undef, $opts{note}
-    );
+    my $matched = $dbh->do(
+        "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=? AND CAST(what AS BINARY)=?",
+        undef, $opts{note}, $banid, $ban->{what} );
 
     if ( $dbh->err ) {
         return bless { message => $dbh->errstr, }, 'ERROR';
     }
+    return bless { message => 'Cannot modify this ban' }, 'ERROR' unless $matched && $matched > 0;
 
     # log in statushistory
-    my $remote = LJ::get_remote();
-    $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
+    $banuntil = $bandays ? LJ::mysql_time($expire) : "forever";
 
-    LJ::statushistory_add( 0, $remote, 'sysban_modify',
+    LJ::statushistory_add( 0, $actor, 'sysban_modify',
               "banid=$banid; status=active; "
             . "bandate="
             . LJ::mysql_time()
             . "; banuntil=$banuntil; "
-            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "what=$ban->{what}; value=$ban->{value}; "
             . "note=$opts{'note'};" );
 
-    return $dbh->{'mysql_insertid'};
+    return $banid;
 
 }
 

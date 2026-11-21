@@ -152,6 +152,8 @@ sub openid_claim_handler {
     my $url  = LJ::trim( $args->{openid_url} );
     return $err->('.error.required') unless $url;
     return $err->('.error.invalidchars') if $url =~ /[\<\>\s]/;
+    my $ban_error = LJ::OpenID::sysban_error($url);
+    return $err->($ban_error) if $ban_error;
 
     my $csr             = LJ::OpenID::consumer();
     my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
@@ -168,6 +170,9 @@ sub openid_claim_handler {
         ) if $$tried_local_ref;
         return $err->( $csr->err );
     }
+
+    $ban_error = LJ::OpenID::claimed_sysban_error($claimed_id);
+    return $err->($ban_error) if $ban_error;
 
     my $check_url = $claimed_id->check_url(
         return_to      => "$LJ::SITEROOT/openid/claimed",
@@ -211,6 +216,8 @@ sub openid_claimed_handler {
 
     my $url = $vident->url;
     return $err->('.error.invalidchars') if $url =~ /[\<\>\s]/;
+    my $ban_error = LJ::OpenID::verified_sysban_error($vident);
+    return $err->($ban_error) if $ban_error;
 
     my $ou = LJ::User::load_identity_user( 'O', $url, $vident );
     return $err->('.error.failed_vivification') unless $ou;
@@ -286,6 +293,9 @@ sub openid_claim_confirm_handler {
     return $err->('.error.invalid_account')
         unless $ou && $ou->is_identity;
 
+    my $ban_error = LJ::OpenID::sysban_error( $ou->openid_identity );
+    return $err->($ban_error) if $ban_error;
+
     if ( my $cbu = $ou->claimed_by ) {
         return $err->('.error.already_claimed_self')
             if $cbu->equals($u);
@@ -325,12 +335,18 @@ sub openid_login_handler {
     my $query_args  = $continue_to ? "?continue_to=" . LJ::eurl($continue_to) : "";
     my $return_to   = "$LJ::SITEROOT/openid/login" . $query_args;
 
+    my $error_page = sub {
+        return DW::Template->render_template( 'error.tt', { message => $_[0] } );
+    };
+
     if ( $r->did_post ) {
-        my $csr = LJ::OpenID::consumer();
         my $url = $r->post_args->{'openid_url'};
 
         return error_ml('/openid/login.tt.error.invalidcharacters') if $url =~ /[\<\>\s]/;
+        my $ban_error = LJ::OpenID::sysban_error($url);
+        return $error_page->($ban_error) if $ban_error;
 
+        my $csr             = LJ::OpenID::consumer();
         my $tried_local_ref = LJ::OpenID::blocked_hosts($csr);
 
         my $claimed_id = eval { $csr->claimed_identity($url); };
@@ -342,6 +358,9 @@ sub openid_login_handler {
                 if $$tried_local_ref;
             return error_ml( '/openid/login.tt.error.loading_identity', { err => $csr->err } );
         }
+
+        $ban_error = LJ::OpenID::claimed_sysban_error($claimed_id);
+        return $error_page->($ban_error) if $ban_error;
 
         my $check_url = $claimed_id->check_url(
             return_to      => $return_to,
