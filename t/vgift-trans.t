@@ -21,9 +21,11 @@ use Test::More;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw (temp_user);
 
+use DW::BlobStore;
+use DW::VirtualGift;
 use DW::VirtualGiftTransaction;
 
-plan tests => 30;
+plan tests => 31;
 
 my $u1 = temp_user();
 my $u2 = temp_user();
@@ -31,9 +33,8 @@ my $ts = time();
 
 # workaround: new_cart breaks if no uniq
 local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = LJ::UniqCookie->generate_uniq_ident;
-local $LJ::MOGILEFS_CONFIG{hosts} = undef;    # not interested in testing images
-local $LJ::T_SUPPRESS_EMAIL       = 1;
-local $LJ::SHOP{vgifts}           = [];
+local $LJ::T_SUPPRESS_EMAIL           = 1;
+local $LJ::SHOP{vgifts}               = [];
 
 my $error;
 
@@ -59,6 +60,35 @@ ok( !$dupe, 'vgift with duplicate name not created' );
 is( $error, LJ::Lang::ml('vgift.error.create.samename'), 'expected error message' );
 
 undef $error;
+
+subtest 'edit virtual gift images' => sub {
+    ok( !DW::VirtualGift->can('img_memkey'), 'obsolete image cache method is gone' );
+
+    my $image_data = sub {
+        my ($extension) = @_;
+        open my $fixture, '<:raw', "$ENV{LJHOME}/t/data/userpics/good.$extension" or die $!;
+        return do { local $/; <$fixture> };
+    };
+    my $small = $image_data->('gif');
+    my $large = $image_data->('png');
+
+    ok( $vgift->edit( img_small => \$small, img_large => \$large, error => \$error ),
+        'saved both images' )
+        or diag($error);
+
+    my $invalid = 'not an image';
+    ok( !$vgift->edit( img_small => \$invalid, error => \$error ), 'rejected invalid image' );
+    like( $error, qr/Unable to save small image/, 'reported which image failed' );
+    undef $error;
+
+    my $reloaded = DW::VirtualGift->new( $vgift->id );
+    is( $reloaded->mime_small, 'image/gif', 'persisted small image type' );
+    is( $reloaded->mime_large, 'image/png', 'persisted large image type' );
+    is_deeply( DW::BlobStore->retrieve( vgifts => $reloaded->img_mogkey('small') ),
+        \$small, 'rejected upload did not replace the small image' );
+    is_deeply( DW::BlobStore->retrieve( vgifts => $reloaded->img_mogkey('large') ),
+        \$large, 'large image content persisted' );
+};
 
 # attempt to fake a transaction (10 tests)
 my $cart;
