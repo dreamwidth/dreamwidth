@@ -159,54 +159,44 @@ sub accesslist_get {
 
 sub accesslist_edit {
     my ( $self, $args ) = @_;
-
-    my $user   = LJ::load_user( $args->{path}{username} );
-    my $remote = $args->{user};
-    return $self->rest_error("404") unless $user;
-    return $self->rest_error("403") unless $user == $remote;
-
-    my $journals = $args->{body};
-    my $id       = $args->{path}{accesslistid};
-
-    my $trust_group = $user->trust_groups( id => $id );
-    return $self->rest_error( "400", "Access filter doesn't exist." ) unless $trust_group;
-
-    foreach my $journal ( @{$journals} ) {
-        my $trusted_u = LJ::load_user($journal);
-
-        # User might have been removed from circle between load and
-        # submit; don't re-add.
-        next unless $trusted_u && $user->trusts($trusted_u);
-        $user->edit_trustmask( $trusted_u, add => $id );
-    }
-
-    # respond with the updated list, as a GET would
-    return accesslist_get( $self, $args );
+    return _edit_accesslist_members( $self, $args, add => $args->{body} );
 }
 
 sub accesslist_delete {
     my ( $self, $args ) = @_;
+    return _edit_accesslist_members( $self, $args, remove => $args->{query}{journal} );
+}
+
+sub _edit_accesslist_members {
+    my ( $self, $args, $action, $journals ) = @_;
 
     my $user   = LJ::load_user( $args->{path}{username} );
     my $remote = $args->{user};
     return $self->rest_error("404") unless $user;
     return $self->rest_error("403") unless $user == $remote;
 
-    my $journals = $args->{query}{journal};
-    my $id       = $args->{path}{accesslistid};
+    my $id = $args->{path}{accesslistid};
 
-    my $trust_group = $user->trust_groups( id => $id );
-    return $self->rest_error( "400", "Access filter doesn't exist." ) unless $trust_group;
+    my $status = $user->with_trust_groups_lock(
+        sub {
+            my $groups = $user->trust_groups( force_database => 1 ) or return 500;
+            return 400 unless $groups->{$id};
 
-    foreach my $journal ( @{$journals} ) {
-        my $trusted_u = LJ::load_user($journal);
+            foreach my $journal (@$journals) {
+                my $trusted_u = LJ::load_user($journal) or next;
+                my $mask      = $user->trustmask_from_primary($trusted_u);
+                return 500 unless defined $mask;
+                next       unless $mask & 1;
+                return 500 unless $user->edit_trustmask( $trusted_u, $action => $id );
+            }
+            return 200;
+        }
+    ) // 500;
 
-        # User might have been removed from circle between load and
-        # submit; don't re-add.
-        next unless $trusted_u && $user->trusts($trusted_u);
-        $user->edit_trustmask( $trusted_u, remove => $id );
-    }
-    return $self->rest_ok();
+    return $self->rest_error( '400', "Access filter doesn't exist." ) if $status == 400;
+    return $self->rest_error( '500', "Couldn't save all access filter membership changes." )
+        if $status == 500;
+    return $action eq 'add' ? accesslist_get( $self, $args ) : $self->rest_ok();
 }
 ################################################
 # /journals/{journal}/tags
