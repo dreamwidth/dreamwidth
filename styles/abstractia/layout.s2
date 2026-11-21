@@ -539,11 +539,67 @@ function EntryPage::print_comment (Comment c) {
     $c->print_wrapper_end();
 }
 
+function abstractia_page_background_css() : string {
+    var string background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    if ($*image_background_page_repeat != "no-repeat") {
+        return $background;
+    }
+
+    var int{} image_widths = {
+        "abstractia/abyss-page.jpg" => 1800,
+        "abstractia/aulait-page.jpg" => 1800,
+        "abstractia/aurora.jpg" => 1915,
+        "abstractia/blackberry.jpg" => 1800,
+        "abstractia/bubblegum-page.jpg" => 1800,
+        "abstractia/bubbles.jpg" => 1800,
+        "abstractia/burgundy.jpg" => 1800,
+        "abstractia/burnished-page.jpg" => 1800,
+        "abstractia/cocoa.jpg" => 1800,
+        "abstractia/darkcarnival-page.jpg" => 1800,
+        "abstractia/deepforest.jpg" => 1800,
+        "abstractia/dusk.jpg" => 1800,
+        "abstractia/electricmayhem.jpg" => 1915,
+        "abstractia/electricmayhemii.jpg" => 1915,
+        "abstractia/emerald.jpg" => 1800,
+        "abstractia/eternalsunshine.jpg" => 1800,
+        "abstractia/evergreen.jpg" => 1800,
+        "abstractia/fabulosity.jpg" => 1800,
+        "abstractia/loveless.jpg" => 1780,
+        "abstractia/lucky-page.jpg" => 1800,
+        "abstractia/makewaves-page.jpg" => 1800,
+        "abstractia/midnight-page.jpg" => 1800,
+        "abstractia/moss.jpg" => 1800,
+        "abstractia/nightfall.jpg" => 1800,
+        "abstractia/obsession.jpg" => 1800,
+        "abstractia/oceanfloor-page.jpg" => 1800,
+        "abstractia/oceanic.jpg" => 1800,
+        "abstractia/oceanicii.jpg" => 1800,
+        "abstractia/persephone.jpg" => 1800,
+        "abstractia/pulse-page.jpg" => 1800,
+        "abstractia/radioactive-page.jpg" => 1800,
+        "abstractia/seaglass.jpg" => 1800,
+        "abstractia/sky-page.jpg" => 1800,
+        "abstractia/smoke-page.jpg" => 1800,
+        "abstractia/sylph.jpg" => 1915,
+        "abstractia/toxic-page.jpg" => 1800,
+        "abstractia/tropicalsunset-page.jpg" => 1800,
+        "abstractia/twinkle-page.jpg" => 1800,
+        "abstractia/valentine-page.jpg" => 1800,
+        "abstractia/violetnight.jpg" => 1800,
+        "abstractia/vision.jpg" => 1800
+    };
+    var int image_width = $image_widths{$*image_background_page_url};
+    if ($image_width > 0) {
+        $background = $background + "\n    background-size: max(100%, ${image_width}px) auto;";
+    }
+    return $background;
+}
+
 function Page::print_default_stylesheet() {
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
 
-    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string page_background = abstractia_page_background_css();
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
         $header_background = """
