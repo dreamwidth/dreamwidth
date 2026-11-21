@@ -271,14 +271,15 @@
                 <div class='field_name'>[% p.title %]</div>
                 [% form.hidden( name => "extservice_site_$ct", value => p.service_id ) %]
                 [% form.hidden( name => "extservice_dbid_$ct", value => val.0 ) IF val.0 %]
-                [% form.textbox( name => "extservice_val_$ct",
-                                id => "extservice_val_$ct",
-                                default => val.1,
-                                title => "$p.title Username",
-                                size => 20,
-                                class => "inline",
-                                maxlength => p.maxlen )
-                                %]
+                <div class="service_value">
+                    [% form.textbox( name => "extservice_val_$ct",
+                                     id => "extservice_val_$ct",
+                                     default => val.1,
+                                     title => "$p.title Username",
+                                     size => 20,
+                                     class => "inline",
+                                     maxlength => p.maxlen ) %]
+                </div>
             </div>
         [% END %]
 
@@ -304,15 +305,17 @@
 
             [% WHILE ct <= 26 %]
                 <div class="service_block">
-                <div class='field_name service_new'>
-                [% form.select( name => "extservice_site_$ct" , class = "inline", items => service_dropdown ) %]
-                </div>
-                [% form.textbox(name => "extservice_val_$ct",
-                                id => "extservice_val_$ct",
-                                title => "Username \#$ct",
-                                size => '20',
-                                class => 'inline'
-                                maxlength => 255 ) %]
+                    <div class='field_name service_new'>
+                        [% form.select( name => "extservice_site_$ct", class => "inline", items => service_dropdown ) %]
+                    </div>
+                    <div class="service_value">
+                        [% form.textbox( name => "extservice_val_$ct",
+                                         id => "extservice_val_$ct",
+                                         title => "Username \#$ct",
+                                         size => '20',
+                                         class => 'inline',
+                                         maxlength => 255 ) %]
+                    </div>
                 </div>
                 [% ct = ct + 1 %]
             [% END %]
@@ -345,7 +348,7 @@
     <p>[% dw.ml(".fn.interests$iscomm") %]</p>
     [% form.textarea( name => 'interests',
                         title => dw.ml('.section.interests'),
-                        value => interests,
+                        default => interests,
                         rows => '10', cols => '50', wrap => 'soft' ) %]
 
     [%## CIRCLE %]
