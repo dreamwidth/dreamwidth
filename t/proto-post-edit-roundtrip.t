@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test;
@@ -108,6 +108,57 @@ $gres = do_req_deep(
 
 $it = $gres->{events}[0];
 is( $it->{props}{revnum}, 2, "is 2nd revision now" );
+
+subtest 'markup warnings follow the entry format' => sub {
+    my $example       = '`<color="red">`';
+    my $markdown_post = do_req_deep(
+        'postevent',
+        tz    => 'guess',
+        event => "Example: $example",
+        props => { editor => 'markdown0' },
+    );
+    ok( $markdown_post, 'posted the Markdown entry' ) or return;
+    is( $markdown_post->{message}, undef, 'posting valid Markdown has no warning' );
+
+    my $markdown_itemid = $markdown_post->{itemid};
+    my $entry           = LJ::Entry->new( $u, jitemid => $markdown_itemid );
+    like( $entry->event_html, qr{<code>&lt;color=.*?</code>}, 'renders the example as code' );
+
+    my $edit = do_req_deep(
+        'editevent',
+        itemid => $markdown_itemid,
+        event  => "Edited example: $example",
+    );
+    ok( $edit, 'edited the entry without supplying an editor' ) or return;
+    is( $edit->{message}, undef, 'editing with the stored Markdown format has no warning' );
+
+    $edit = do_req_deep(
+        'editevent',
+        itemid => $markdown_itemid,
+        event  => "HTML example: $example",
+        props  => { editor => 'html_casual1' },
+    );
+    ok( $edit, 'switched the entry to HTML' ) or return;
+    like( $edit->{message}, qr/invalid HTML/, 'invalid HTML still warns after changing editors' );
+
+    $edit = do_req_deep(
+        'editevent',
+        itemid => $markdown_itemid,
+        event  => "Markdown example: $example",
+        props  => { editor => 'markdown0' },
+    );
+    ok( $edit, 'switched the entry back to Markdown' ) or return;
+    is( $edit->{message}, undef, 'editing with the requested Markdown format has no warning' );
+
+    $edit = do_req_deep(
+        'editevent',
+        itemid => $markdown_itemid,
+        event  => "Without an editor: $example",
+        props  => { editor => '' },
+    );
+    ok( $edit, 'cleared the entry editor' ) or return;
+    like( $edit->{message}, qr/invalid HTML/, 'clearing the editor restores HTML warnings' );
+};
 
 #use Data::Dumper;
 #print Dumper($gres);

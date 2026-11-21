@@ -1676,9 +1676,8 @@ sub postevent {
     my $clean_event = $event;
     my $errref;
 
-    # TODO: accept editor prop and thread it through to the cleaner.
-    my $editor = undef;
-    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor } );
+    LJ::CleanHTML::clean_event( \$clean_event,
+        { errref => \$errref, editor => $req->{props}->{editor} } );
     $res->{message} = translate(
         $u, $errref,
         {
@@ -2186,9 +2185,10 @@ sub editevent {
     my $clean_event = $event;
     my $errref;
 
-    # TODO: get editor prop from the new props (or current, if unchanged) and
-    # thread it through to the cleaner.
-    my $editor = undef;
+    my $editor =
+        exists $req->{props}->{editor}
+        ? $req->{props}->{editor}
+        : $curprops{$itemid}->{editor};
     LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor } );
     $add_message->(
         translate(
