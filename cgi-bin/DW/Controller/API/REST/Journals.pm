@@ -88,6 +88,7 @@ sub accesslists_new {
         groupname => $body->{name},
         sortorder => $body->{sortorder}
     );
+    return $self->rest_error( "500", "Couldn't create access filter." ) unless $group;
 
     return $self->rest_ok( { id => $group } );
 }

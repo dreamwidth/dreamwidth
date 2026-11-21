@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 154;
+use Test::More tests => 155;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -59,6 +59,21 @@ my $create_users = sub {
 };
 
 sub new_token { return DW::RenameToken->create_token( ownerid => $_[0]->id ) }
+
+subtest 'relationship cleanup reports only completed categories' => sub {
+    my ( $user, $other ) = $create_users->();
+    ok( $other->add_edge( $user, trust => { nonotify => 1 } ), 'sets incoming trust' );
+    ok( $user->add_edge( $other, watch => { nonotify => 1 } ), 'sets outgoing watch' );
+
+    my $lock = $other->lock_trust_groups;
+    ok( $lock, 'holds the incoming trust owner lock' );
+    is( $user->delete_relationships( del_trusted_by => 1, del_watched => 1 ),
+        'W', 'reports the cleared outgoing watch but not the failed incoming trust' );
+    $lock->release if $lock;
+
+    is( $other->trustmask_from_primary($user), 1, 'the contended incoming trust remains' );
+    is_deeply( [ $user->watched_userids ], [], 'outgoing watch was cleared' );
+};
 
 note("-- personal-to-unregistered, no redirect");
 {
