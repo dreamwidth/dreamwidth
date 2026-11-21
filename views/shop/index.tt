@@ -15,82 +15,73 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <p>[% '.about' | ml %]</p>
 
-<div class='shop-category'>
-    <div class='shop-category-title'>[% '.title.paidacc' | ml %]</div>
-    <div class='shop-category-items'>
-[% IF remote AND remote.is_personal AND NOT remote.is_perm %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/account?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-[% END %]
-[% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/gifts?type=account">[% '.for.circle' | ml %]</a></span>
-        <span class='shop-category-item'><a href="[% site.shoproot %]/account?for=gift">[% '.for.different' | ml %]</a></span>
-[% ELSE %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/account?for=gift">[% '.for.existing' | ml %]</a></span>
-[% END %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/account?for=new">[% '.for.new' | ml %]</a></span>
-        <span class='shop-category-item'><a href="[% site.shoproot %]/randomgift">[% '.for.random' | ml %]</a></span>
+<div class="row">
+    <div class="small-12 medium-6 columns">
+        <div class="panel shop-category-panel">
+            <h2>[% '.title.paidacc' | ml %]</h2>
+            <ul>
+                [% IF remote AND remote.is_personal %]
+                    [% UNLESS remote.is_perm %]
+                        <li><a href="[% site.shoproot | html %]/account?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</li>
+                    [% END %]
+                    <li><a href="[% site.shoproot | html %]/gifts?type=account">[% '.for.circle' | ml %]</a></li>
+                    <li><a href="[% site.shoproot | html %]/account?for=gift">[% '.for.different' | ml %]</a></li>
+                [% ELSE %]
+                    <li><a href="[% site.shoproot | html %]/account?for=gift">[% '.for.existing' | ml %]</a></li>
+                [% END %]
+                <li><a href="[% site.shoproot | html %]/account?for=new">[% '.for.new' | ml %]</a></li>
+                <li><a href="[% site.shoproot | html %]/randomgift">[% '.for.random' | ml %]</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="small-12 medium-6 columns">
+        <div class="panel shop-category-panel">
+            <h2>[% '.title.points' | ml(site=site.nameshort) %]</h2>
+            [% IF NOT shop_config.points %]
+                <p>[% '.points.unavailable' | ml %]</p>
+            [% ELSIF remote AND remote.is_personal %]
+                <ul>
+                    <li><a href="[% site.shoproot | html %]/points?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</li>
+                    <li><a href="[% site.shoproot | html %]/points?for=gift">[% '.for.different' | ml %]</a></li>
+                </ul>
+            [% ELSE %]
+                <p>[% '.points.login' | ml %]</p>
+            [% END %]
+        </div>
     </div>
 </div>
 
-<div class='shop-category'>
-    <div class='shop-category-title'>[% '.title.points' | ml(site=site.nameshort) %]</div>
-    <div class='shop-category-items'>
-[% IF shop_config.points %]
-  [% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/points?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-        <span class='shop-category-item'><a href="[% site.shoproot %]/points?for=gift">[% '.for.different' | ml %]</a></span>
-  [% ELSE %]
-        <span class='shop-category-item'>[% '.points.login' | ml %]</span>
-  [% END %]
-[% ELSE %]
-        <span class='shop-category-item'>[% '.points.unavailable' | ml %]</span>
-[% END %]
+<div class="row">
+    <div class="small-12 medium-6 columns">
+        <div class="panel shop-category-panel">
+            <h2>[% '.title.renames' | ml %]</h2>
+            [% IF NOT shop_config.rename %]
+                <p>[% '.renames.unavailable' | ml %]</p>
+            [% ELSIF remote AND remote.is_personal %]
+                <ul>
+                    <li><a href="[% site.shoproot | html %]/renames?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</li>
+                    <li><a href="[% site.shoproot | html %]/renames?for=gift">[% '.for.different' | ml %]</a></li>
+                </ul>
+            [% ELSE %]
+                <p>[% '.renames.login' | ml %]</p>
+            [% END %]
+        </div>
+    </div>
+    <div class="small-12 medium-6 columns">
+        <div class="panel shop-category-panel">
+            <h2>[% '.title.icons' | ml %]</h2>
+            [% IF shop_config.icons %]
+                <ul>
+                    [% IF remote AND remote.is_personal %]
+                        <li><a href="[% site.shoproot | html %]/icons?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</li>
+                        <li><a href="[% site.shoproot | html %]/icons?for=gift">[% '.for.different' | ml %]</a></li>
+                    [% ELSE %]
+                        <li><a href="[% site.shoproot | html %]/icons?for=gift">[% '.for.existing' | ml %]</a></li>
+                    [% END %]
+                </ul>
+            [% ELSE %]
+                <p>[% '.icons.unavailable' | ml %]</p>
+            [% END %]
+        </div>
     </div>
 </div>
-
-<div class='shop-category'>
-    <div class='shop-category-title'>[% '.title.renames' | ml %]</div>
-    <div class='shop-category-items'>
-[% IF shop_config.rename %]
-  [% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/renames?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-        <span class='shop-category-item'><a href="[% site.shoproot %]/renames?for=gift">[% '.for.different' | ml %]</a></span>
-  [% ELSE %]
-        <span class='shop-category-item'>[% '.renames.login' | ml %]</span>
-  [% END %]
-[% ELSE %]
-        <span class='shop-category-item'>[% '.renames.unavailable' | ml %]</span>
-[% END %]
-    </div>
-</div>
-
-<div class='shop-category'>
-    <div class='shop-category-title'>[% '.title.icons' | ml %]</div>
-    <div class='shop-category-items'>
-[% IF shop_config.icons %]
-  [% IF remote AND remote.is_personal %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/icons?for=self">[% '.for.self' | ml %]</a> ([% remote.ljuser_display %])</span>
-        <span class='shop-category-item'><a href="[% site.shoproot %]/icons?for=gift">[% '.for.different' | ml %]</a></span>
-  [% ELSE %]
-        <span class='shop-category-item'><a href="[% site.shoproot %]/icons?for=gift">[% '.for.existing' | ml %]</a></span>
-  [% END %]
-[% ELSE %]
-        <span class='shop-category-item'>[% '.icons.unavailable' | ml %]</span>
-[% END %]
-    </div>
-</div>
-[%#
-
-Here for future expansion ...
-
-<div class='shop-category'>
-    <div class='shop-category-title'>Virtual Gifts for ...</div>
-    <div class='shop-category-items'>
-        <span class='shop-category-item'><a href="...">yourself</a> (username)</span>
-        <span class='shop-category-item'><a href="...">your circle</a></span>
-        <span class='shop-category-item'><a href="...">a random user</a></span>
-    </div>
-</div>
-
-
-%]
