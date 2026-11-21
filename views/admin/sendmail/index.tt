@@ -18,14 +18,22 @@
     </style>
 [% END %]
 
-<p>[% '.intro' | ml %] [% '.lookup' | ml( url = 'lookup' ) %] [% '.formtemp' | ml %]</p>
+<p>[% '.intro' | ml %] [% '.lookup' | ml( url = 'lookup' ) %]. <a href="/admin/sendmail/forms">Manage form messages</a>.</p>
 
 [%- INCLUDE components/errors.tt errors = errors -%]
 
 <form method="POST">
 
 [%- IF has_menu -%]
-    [% dw.form_auth %]<p>
+    [% dw.form_auth %]
+    [%- IF form_menu %]
+    <p>
+        [% form.select( label = dw.ml( '.select.form.label' ), name = 'form_id', items = form_menu ) %]
+        <button type="submit" name="load_form" value="1" class="secondary button">Load form message</button>
+        <br />Loading replaces the subject and message without sending email.
+    </p>
+    [%- END %]
+    <p>
     [%- form.select( label = dw.ml( ".select.account.label" ),
                      name = "account", id = "account",
                      items = account_menu );

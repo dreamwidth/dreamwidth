@@ -36,9 +36,90 @@ DW::Controller::Admin->register_admin_page(
 DW::Routing->register_string( "/admin/sendmail/index",   \&index_controller );
 DW::Routing->register_string( "/admin/sendmail/lookup",  \&lookup_controller );
 DW::Routing->register_string( "/admin/sendmail/message", \&message_controller );
+DW::Routing->register_string( "/admin/sendmail/forms",   \&form_controller );
 
-# FIXME: add this later
-#DW::Routing->register_string( "/admin/sendmail/forms", \&form_controller );
+sub valid_form_id {
+    my ($id) = @_;
+    return defined $id && $id =~ /\A[1-9][0-9]{0,9}\z/ && $id <= 4294967295;
+}
+
+sub form_list {
+    my ($dbh) = @_;
+    return $dbh->selectall_arrayref(
+        'SELECT formid, name FROM siteadmin_email_forms ORDER BY name, formid',
+        { Slice => {} } );
+}
+
+sub form_controller {
+    my ( $ok, $rv ) = controller( privcheck => \@privs, form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $args   = $r->post_args;
+    my $path   = '/admin/sendmail/forms';
+    my $scope  = "$path.tt";
+    my $id     = ( $r->did_post ? $args : $r->get_args )->{id} // '';
+    my $action = $args->{action} // '';
+    my $errors = DW::FormErrors->new;
+    my $dbh    = LJ::get_db_writer() or return error_ml('error.nodb');
+
+    return error_ml("$scope.error.missing") if length $id && !valid_form_id($id);
+
+    if ( $r->did_post && $action eq 'delete' ) {
+        return error_ml("$scope.error.missing") unless valid_form_id($id);
+        my $deleted = $dbh->do( 'DELETE FROM siteadmin_email_forms WHERE formid = ?', undef, $id );
+        return error_ml('error.nodb') unless defined $deleted;
+        return error_ml("$scope.error.missing") unless $deleted > 0;
+        return $r->redirect($path);
+    }
+
+    my $form;
+    if ( length $id ) {
+        $form = $dbh->selectrow_hashref(
+            'SELECT name, subject, message FROM siteadmin_email_forms WHERE formid = ?',
+            undef, $id );
+        return error_ml('error.nodb') if $dbh->err;
+        return error_ml("$scope.error.missing") unless $form;
+    }
+
+    if ( $r->did_post ) {
+        return error_ml("$scope.error.action") unless $action eq 'save';
+        my $name    = LJ::trim( $args->{name} );
+        my $subject = LJ::trim( $args->{subject} );
+        my $message = LJ::trim( $args->{message} );
+
+        $errors->add( 'name',    '.error.name' ) unless $name && length $name <= 255;
+        $errors->add( 'subject', '.error.subject' )
+            unless $subject && length $subject <= 255 && $subject !~ /[\r\n]/;
+        $errors->add( 'message', '.error.message' ) unless $message;
+
+        unless ( $errors->exist ) {
+            my $saved =
+                $form
+                ? $dbh->do(
+'UPDATE siteadmin_email_forms SET name = ?, subject = ?, message = ? WHERE formid = ?',
+                undef,
+                $name,
+                $subject,
+                $message,
+                $id
+                )
+                : $dbh->do(
+                'INSERT INTO siteadmin_email_forms (name, subject, message) VALUES (?, ?, ?)',
+                undef, $name, $subject, $message );
+            return error_ml('error.nodb') unless defined $saved;
+            return $r->redirect($path);
+        }
+    }
+
+    $rv->{forms} = form_list($dbh);
+    return error_ml('error.nodb') unless $rv->{forms};
+
+    $rv->{form_id}  = $id;
+    $rv->{errors}   = $errors;
+    $rv->{formdata} = $r->did_post ? $args : $form;
+    return DW::Template->render_template( 'admin/sendmail/forms.tt', $rv );
+}
 
 # helper function for lookup and message
 my $enhance_row = sub {
@@ -89,11 +170,28 @@ sub index_controller {
 
     my $r      = DW::Request->get;
     my $errors = DW::FormErrors->new;
+    my $args   = $r->post_args;
+
+    $rv->{formdata} = $args;
 
     # form processing
-    if ( $r->did_post ) {
-        my $args = $r->post_args;
-
+    if ( $r->did_post && $args->{load_form} ) {
+        my $form;
+        if ( valid_form_id( $args->{form_id} ) ) {
+            my $dbh = LJ::get_db_writer() or return error_ml('error.nodb');
+            $form = $dbh->selectrow_hashref(
+                'SELECT subject, message FROM siteadmin_email_forms WHERE formid = ?',
+                undef, $args->{form_id} );
+            return error_ml('error.nodb') if $dbh->err;
+        }
+        if ($form) {
+            $rv->{formdata} = { %{ $args->as_hashref }, %$form };
+        }
+        else {
+            $errors->add( 'form_id', '.error.form' );
+        }
+    }
+    elsif ( $r->did_post ) {
         my $account     = LJ::trim( $args->{account} );
         my $sendto      = LJ::trim( $args->{sendto} );
         my $message     = LJ::trim( $args->{message} );
@@ -241,8 +339,19 @@ sub index_controller {
     $rv->{has_menu}     = ( @account_menu > 2 );
     $rv->{account_menu} = \@account_menu;
 
-    $rv->{errors}   = $errors;
-    $rv->{formdata} = $r->post_args;
+    if ( $rv->{has_menu} ) {
+        my $dbh   = LJ::get_db_writer() or return error_ml('error.nodb');
+        my $forms = form_list($dbh)     or return error_ml('error.nodb');
+        if (@$forms) {
+            $rv->{form_menu} = [
+                '',
+                LJ::Lang::ml( $scope->('.select.account.choose') ),
+                map { ( $_->{formid}, $_->{name} ) } @$forms
+            ];
+        }
+    }
+
+    $rv->{errors} = $errors;
 
     return DW::Template->render_template( 'admin/sendmail/index.tt', $rv );
 }

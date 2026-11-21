@@ -1,6 +1,8 @@
 # these get removed if found by texttool.pl
 #
 
+general /admin/sendmail/index.tt.formtemp
+
 general /allpics.bml.edit
 general /allpics.bml.nopics.text
 general /allpics.bml.nopics.text.other
