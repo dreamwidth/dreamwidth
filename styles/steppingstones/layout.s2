@@ -27,6 +27,32 @@ set color_page_details_text = "#999";
 ## Stylesheet
 ##===============================
 
+function navlinks_linear_channel(int channel) : int
+"Approximate a linear sRGB channel on a scale from 0 to 1000."
+{
+    return ((305 * $channel / 255 + 682) * $channel / 255 + 13) * $channel / 255;
+}
+
+function navlinks_luminance(Color swatch) : int {
+    return (213 * navlinks_linear_channel($swatch.r) + 715 * navlinks_linear_channel($swatch.g)
+        + 72 * navlinks_linear_channel($swatch.b)) / 1000;
+}
+
+function header_navlinks_foreground() : string {
+    var Color background = $*color_header_background;
+    if (isnull $background) { $background = $*color_page_background; }
+    if (isnull $background) { return "inherit"; }
+
+    var int bg = navlinks_luminance($background) + 50;
+    foreach var Color foreground ([$*color_page_title, $*color_page_text]) {
+        if (not isnull $foreground) {
+            var int fg = navlinks_luminance($foreground) + 50;
+            if ($fg * 10 >= $bg * 46 or $bg * 10 >= $fg * 46) { return "$foreground"; }
+        }
+    }
+    return $bg >= 229 ? "#000000" : "#ffffff";
+}
+
 function print_stylesheet() {
 var string medium_media_query = generate_medium_media_query();
 
@@ -579,4 +605,53 @@ table.month th {
     }
 
 """;
+    if ($*module_navlinks_section == "header") {
+        var string foreground = header_navlinks_foreground();
+        """
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    color: $foreground;
+    margin: 0;
+    padding: 0 0 .5em;
+}
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25em 1.1em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header .module-navlinks .module-content li {
+    margin: 0;
+}
+
+#header .module-navlinks a {
+    display: block;
+    padding: .2em 0;
+    color: inherit;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    text-underline-offset: .2em;
+}
+
+#header .module-navlinks a.current {
+    font-weight: bold;
+}
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus-visible {
+    text-decoration: underline;
+}
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+""";
+    }
 }
