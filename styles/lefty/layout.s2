@@ -207,6 +207,7 @@ function print_module_userprofile() {
 
 
 function print_stylesheet () {
+var string small_media_query = generate_small_media_query();
 var string medium_media_query = generate_medium_media_query();
 
 var string entry_header_margin = "";
@@ -1107,5 +1108,57 @@ text-align: center;
 }
 
 $userpic_css
+
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #header h1,
+    #header h2 {
+        padding-inline: 8px;
+    }
+
+    .has-userpic .entry .header,
+    .has-userpic .comment .header {
+        margin-inline: 0;
+    }
+
+    .has-userpic .entry .userpic,
+    .has-userpic .comment .userpic {
+        margin-top: 0;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .entry-title,
+    .comment-title,
+    .entry .metadata,
+    .comment .metadata {
+        overflow-wrap: break-word;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    #content .module,
+    .entry-content,
+    .comment-content,
+    .module-content {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+    }
+}
 """;
 }

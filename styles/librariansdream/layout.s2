@@ -217,6 +217,7 @@ function print_module_userprofile() {
 ##===============================
 
 function print_stylesheet() {
+var string small_media_query = generate_small_media_query();
 var string medium_media_query = generate_medium_media_query();
 
 #to move userpic left or right
@@ -879,5 +880,81 @@ ul.userlite-interaction-links li {
 }
 
 
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #primary > .inner:first-child {
+        padding-inline: .5em;
+    }
+
+    .entry,
+    .comment,
+    .entry-title,
+    .comment-title {
+        margin-left: 0;
+    }
+
+    .entry .header {
+        padding-left: 0;
+    }
+
+    .entry .userpic,
+    .comment .userpic {
+        margin-top: 0;
+    }
+
+    .entry ul.icon-links,
+    .comment .icon-links {
+        position: static;
+        top: auto;
+        left: auto;
+        width: auto;
+        margin: 0;
+        padding: 0 .5em .25em;
+    }
+
+    .entry ul.icon-links li,
+    .comment .icon-links li {
+        display: inline;
+        padding: 0 .25em;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .entry-title,
+    .comment-title,
+    .entry .metadata,
+    .comment .metadata {
+        overflow-wrap: break-word;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    #content .module {
+        margin-inline: 0;
+    }
+
+    #content .module,
+    .entry-content,
+    .comment-content,
+    .module-content {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+    }
+}
 """;
 }
