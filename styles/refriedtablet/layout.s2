@@ -93,8 +93,40 @@ set font_comment_special = "'Nimbus Mono L', 'Courier New', monospace";
 set font_comment_special_size = ".9";
 set font_comment_special_units = "em";
 
+function refriedtablet_linear_srgb(int channel) : int
+"Approximate a linear sRGB channel on a scale of 0 to 1000."
+{
+    var int level = $channel * 1000 / 255;
+    return $level * ($level * (305 * $level / 1000 + 682) / 1000 + 13) / 1000;
+}
+
+function refriedtablet_luminance(Color paint) : int {
+    return (213 * refriedtablet_linear_srgb($paint.r) +
+            715 * refriedtablet_linear_srgb($paint.g) +
+            72 * refriedtablet_linear_srgb($paint.b)) / 1000;
+}
+
+function refriedtablet_header_link_color() : Color {
+    var Color surface = $*color_header_background.as_string == "" ? $*color_page_background : $*color_header_background;
+    if ($surface.as_string == "") { $surface = "#ffffff"; }
+    var int background = refriedtablet_luminance($surface) + 50;
+
+    foreach var Color ink ([$*color_page_title, $*color_page_text]) {
+        if ($ink.as_string != "") {
+            var int foreground = refriedtablet_luminance($ink) + 50;
+            if ($foreground * 10 >= $background * 46 or $background * 10 >= $foreground * 46) {
+                return $ink;
+            }
+        }
+    }
+    var Color fallback = "#ffffff";
+    if ($background >= 229) { $fallback = "#000000"; }
+    return $fallback;
+}
+
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var Color header_link_color = refriedtablet_header_link_color();
 
     var string view_text_font = generate_font_css($*font_view_text, $*font_base, $*font_fallback, $*font_view_text_size, $*font_view_text_units);
     var string entry_title_colors = generate_color_css($*color_entry_title, $*color_entry_title_background, new Color);
@@ -221,6 +253,51 @@ h2#subtitle {
 #header {
     border-bottom: $*color_module_border 2px solid; /* same color as module border */
     border-top: $*color_entry_background 3px solid; /* same color as entry background color */
+}
+
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    margin-bottom: .65em;
+}
+
+#header .module-navlinks .module-content {
+    padding: 0;
+}
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25em .9em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    min-width: 0;
+}
+
+#header .module-navlinks a {
+    display: block;
+    color: $header_link_color;
+    font-weight: bold;
+    line-height: 1.35;
+    padding: .2em 0;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    text-underline-offset: .25em;
+}
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover {
+    text-decoration: underline;
+}
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
 }
  
 h2#pagetitle {
