@@ -144,7 +144,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         </div>
 </div>
 
-[% "<div class='alert-box'>" _ dw.ml('.private.request') _ "</div>" IF private_req %]
+[% "<div class='alert-box secondary'>" _ dw.ml('.private.request') _ "</div>" IF private_req %]
 
 [% FOR r IN replies %]
     [% IF r.orig %]

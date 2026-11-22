@@ -15,6 +15,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- sections.title = ".title" | ml -%]
+[%- sections.head = BLOCK %]
+<style>
+    .alert-box.success[data-community-invite] a { color: inherit; }
+</style>
+[% END -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
 [%- dw.need_res( { group => "foundation" }
@@ -34,7 +39,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- IF messages.size > 0 or roles_changed.size > 0 -%]
   [%- FOREACH msg = messages -%]
-    <div class="alert-box">[% msg.0 | ml( msg.1 ) %]</div>
+    <div class="alert-box success" data-community-invite>[% msg.0 | ml( msg.1 ) %]</div>
   [%- END -%]
   [%- FOREACH role = roles_changed -%]
     <div class="alert-box success">[%-  role.user -%] - 

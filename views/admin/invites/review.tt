@@ -34,7 +34,7 @@
     END -%]
 
 [%- IF getuser && ! u.defined -%]
-<div class="alert-box radius">
+<div class="alert-box alert radius">
   [% '.error.invalid' | ml( name = getuser ) %]
 </div>
 [%- END -%]
