@@ -436,6 +436,7 @@ var bool modules_in_two = (
 
 function print_stylesheet () {
 var string medium_media_query = generate_medium_media_query();
+var string small_media_query = generate_small_media_query();
 
 var string top_module_colors = generate_color_css($*color_module_top_text, new Color, $*color_module_top_border);
 var string top_module_title_colors = generate_color_css($*color_module_top_title, $*color_module_top_title_background, new Color);
@@ -1524,6 +1525,53 @@ table.month td.day-has-entries p:hover { border: 1px solid; }
     border: none;
     padding: 2px;
     }
+
+@media $small_media_query {
+    #canvas { margin: 0 8px; }
+    #content, #secondary-container, #tertiary-container { margin: 0; }
+    #header-canvas { margin: 0 8px; }
+    h2#subtitle { margin-left: 8px; }
+    h2#pagetitle { margin-left: 16px; }
+    #footer .module-wrapper { margin-right: 8px; }
+
+    .entry, .comment { padding: 12px; }
+    .comment-wrapper { min-width: 0; }
+
+    .has-userpic .entry .header,
+    .has-userpic .comment .header {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .entry .header, .comment .header,
+    .entry-title, .comment-title {
+        overflow-wrap: anywhere;
+    }
+
+    .has-userpic .entry .userpic,
+    .has-userpic .comment .userpic { margin-top: 0; }
+
+    .entry-content, .comment-content { clear: both; }
+
+    #content .module {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content, .comment-content, .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+    }
+
+    .comment-content:before { max-width: 100%; }
+
+    .entry-content img, .comment-content img, .module-content img {
+        max-width: 100%;
+        height: auto;
+    }
+}
 
 """;
 }
