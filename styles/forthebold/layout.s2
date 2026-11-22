@@ -63,6 +63,110 @@ set font_module_heading_units = "em";
 ## Stylesheet
 ##===============================
 
+function header_nav_linear_channel(int channel) : int
+"Approximates sRGB linearization in ten-thousandths using evenly spaced samples."
+{
+    var int[] samples = [0, 56, 160, 331, 578, 908, 1329, 1845, 2462, 3185, 4020, 4969, 6038, 7231, 8550, 10000];
+    if ($channel == 255) { return $samples[15]; }
+    var int index = $channel / 17;
+    return $samples[$index] + ($samples[$index + 1] - $samples[$index]) * ($channel % 17) / 17;
+}
+
+function header_nav_luminance(Color color) : int {
+    return (2126 * header_nav_linear_channel($color.r) + 7152 * header_nav_linear_channel($color.g) +
+        722 * header_nav_linear_channel($color.b)) / 10000;
+}
+
+function header_nav_has_contrast(Color foreground, int background) : bool {
+    if (isnull $foreground) { return false; }
+    var int text = header_nav_luminance($foreground) + 500;
+    var int surface = $background + 500;
+    return $text * 10 >= $surface * 46 or $surface * 10 >= $text * 46;
+}
+
+function print_header_navlinks_stylesheet() {
+    var string small_media_query = generate_small_media_query();
+    var Color surface = isnull $*color_header_background ? $*color_page_background : $*color_header_background;
+    var string foreground = "CanvasText";
+    var string backdrop = "Canvas";
+    if (not isnull $surface) {
+        var int luminance = header_nav_luminance($surface);
+        $backdrop = $surface.as_string;
+        if (header_nav_has_contrast($*color_page_title, $luminance)) {
+            $foreground = $*color_page_title.as_string;
+        } elseif (header_nav_has_contrast($*color_page_text, $luminance)) {
+            $foreground = $*color_page_text.as_string;
+        } else {
+            $foreground = $luminance >= 1790 ? "#000" : "#fff";
+        }
+    }
+    var string link_background = "";
+    if ($*image_background_header_url != "" or
+        (isnull $*color_header_background and $*image_background_page_url != "")) {
+        $link_background = "background-color: $backdrop;";
+    }
+
+    """
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    color: $foreground;
+    font-size: inherit;
+    letter-spacing: .04em;
+    padding: 0 0 .65em;
+    }
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .25em .45em;
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks .module-content li {
+    list-style: none;
+    margin: 0;
+    min-width: 0;
+    }
+
+#header .module-navlinks a {
+    display: block;
+    color: inherit;
+    $link_background
+    font-weight: 600;
+    padding: .3em .45em;
+    text-decoration: none;
+    }
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+    }
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+    }
+
+@media $small_media_query {
+    #header .module-navlinks .module-list {
+        column-gap: .25em;
+        }
+
+    #header .module-navlinks a {
+        box-sizing: border-box;
+        font-size: .875em;
+        letter-spacing: .025em;
+        min-height: 1.75rem;
+        padding-inline: .25em;
+        }
+}
+""";
+}
+
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
 
@@ -801,4 +905,5 @@ ul.userlite-interaction-links.icon-links li {
     }
 
 """;
+    if ($*module_navlinks_section == "header") { print_header_navlinks_stylesheet(); }
 }
