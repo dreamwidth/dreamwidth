@@ -30,13 +30,15 @@ sub read_style {
 }
 
 sub stylesheet {
-    my ($layout) = @_;
-    S2::set_domain("test-mobile-$layout");
+    my ( $layout, $property, $value ) = @_;
+    S2::set_domain( 'test-mobile-' . $layout . '-' . ( $property // 'default' ) );
     my $compiler = S2::Compiler->new( {} );
     my @layers   = (
         [ core   => read_style('core2.s2') ],
         [ layout => read_style('core2base/layout.s2') . read_style("$layout/layout.s2") ],
     );
+    push @layers, [ theme => qq{layerinfo "type" = "theme"; set $property = "$value";} ]
+        if defined $property;
     my $id = 0;
     for my $layer (@layers) {
         my ( $type, $source ) = @$layer;
@@ -56,14 +58,18 @@ sub stylesheet {
     my $css = '';
     local $S2::pout   = sub { $css .= join '', @_ };
     local $S2::pout_s = $S2::pout;
-    S2::run_code( S2::make_context( 1 .. $id ), 'print_stylesheet()' );
+    my $ctx = S2::make_context( 1 .. $id );
+    $ctx->[S2::SCRATCH] = {};
+    S2::Builtin::LJ::start_css($ctx);
+    S2::run_code( $ctx, 'print_stylesheet()' );
+    S2::Builtin::LJ::end_css($ctx);
     return $css;
 }
 
 sub mobile_rules {
-    my ($css) = @_;
-    my ($mobile) =
-        $css =~ /\@media only screen and \(max-width: 45em\)\s*\{((?:[^{}]*\{[^{}]*\})*)\s*\}/;
+    my ( $css, $breakpoint ) = @_;
+    my $query = "\@media only screen and (not (min-width: $breakpoint))";
+    my ($mobile) = $css =~ /\Q$query\E\s*\{((?:[^{}]*\{[^{}]*\})*)\s*\}/;
     my %rules;
     while ( ( $mobile // '' ) =~ /\s*([^{}]+?)\s*\{([^{}]+)\}/g ) {
         my ( $selectors, $declarations ) = ( $1, $2 );
@@ -72,11 +78,29 @@ sub mobile_rules {
     return \%rules;
 }
 
+sub check_breakpoint {
+    my ( $css, $breakpoint ) = @_;
+    my $rules = mobile_rules( $css, $breakpoint );
+    ok( exists $rules->{'#canvas'}, "mobile rules apply strictly below $breakpoint" );
+    like(
+        $css,
+        qr/\@media only screen and \(min-width: \Q$breakpoint\E\)/,
+        "medium rules start at $breakpoint"
+    );
+    return $rules;
+}
+
 for my $layout (qw(motion nouveauoleanders)) {
     subtest $layout => sub {
-        my $rules = mobile_rules( stylesheet($layout) );
+        my $breakpoint = $layout eq 'motion' ? '60em' : '45em';
+        my $rules      = check_breakpoint( stylesheet($layout), $breakpoint );
+        check_breakpoint( stylesheet( $layout, 'sidebar_width',           '12em' ),  '36em' );
+        check_breakpoint( stylesheet( $layout, 'medium_breakpoint_width', '600px' ), '600px' );
+
         like( $rules->{'#canvas'} // '', qr/margin:\s*0;/,      'ignores configured page margins' );
         like( $rules->{'#canvas'} // '', qr/padding:\s*0 8px;/, 'uses compact fixed page gutters' );
+        like( $rules->{'.comment-wrapper'} // '',
+            qr/min-width:\s*0;/, 'deeply indented comments can shrink' );
 
         for my $kind (qw(entry comment module)) {
             my $content = $rules->{".$kind-content"} // '';
@@ -96,6 +120,9 @@ for my $layout (qw(motion nouveauoleanders)) {
         }
 
         if ( $layout eq 'motion' ) {
+            my $icon = $rules->{'.icons-container .icon'} // '';
+            like( $icon, qr/min-width:\s*0;/,    'icon cards have no minimum width' );
+            like( $icon, qr/max-width:\s*100%;/, 'icon cards fit the gallery' );
             for my $column (qw(secondary tertiary)) {
                 like( $rules->{"#$column .module"} // '',
                     qr/width:\s*auto;/, "$column modules give up their fixed width" );
@@ -108,8 +135,8 @@ for my $layout (qw(motion nouveauoleanders)) {
                 'main column has no wide side padding'
             );
             for my $side (qw(odd even)) {
-                like( $rules->{".entry-wrapper-$side .header"} // '',
-                    qr/margin-inline:\s*0;/, "$side entry header uses full width" );
+                like( $rules->{".entry-wrapper-$side .contents .entry-poster"} // '',
+                    qr/margin-inline:\s*0;/, "$side entry poster stays within the content box" );
                 like( $rules->{".comment-wrapper-$side .header"} // '',
                     qr/padding-inline:\s*0;/, "$side comment header drops its extra padding" );
                 like( $rules->{".comment-wrapper-$side .contents .userpic"} // '',

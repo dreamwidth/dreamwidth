@@ -265,6 +265,8 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet() {
+    var string small_media_query = generate_small_media_query();
+    $small_media_query = $small_media_query->replace("(max-width:", "(not (min-width:") + ")";
     var string medium_media_query = generate_medium_media_query();
 
     var string entry_header_image = generate_background_css ($*image_entry_header_url, $*image_entry_header_repeat, $*image_entry_header_position, $*color_entry_title_background);
@@ -810,7 +812,7 @@ div.icon-image a {
 ************************************************/
 .page-reply table{ font-size: smaller}
 
-@media only screen and (max-width: 45em) {
+@media $small_media_query {
     #canvas {
         margin: 0;
         padding: 0 8px;
@@ -824,6 +826,15 @@ div.icon-image a {
     #tertiary .module {
         width: auto;
         margin-inline: 0;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .icons-container .icon {
+        min-width: 0;
+        max-width: 100%;
     }
 
     .entry .header,

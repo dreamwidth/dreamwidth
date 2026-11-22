@@ -219,6 +219,8 @@ set text_unwatch_comments = "Untrack";
 ##===============================
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
+    $small_media_query = $small_media_query->replace("(max-width:", "(not (min-width:") + ")";
     var string medium_media_query = generate_medium_media_query();
 
     var string header_background_image = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, "", new Color);
@@ -1033,7 +1035,7 @@ $navlinks_css
 
     $userpic_css
 
-@media only screen and (max-width: 45em) {
+@media $small_media_query {
     #canvas {
         margin: 0;
         padding: 0 8px;
@@ -1043,14 +1045,18 @@ $navlinks_css
         padding: 1em 0;
     }
 
-    .entry-wrapper-odd .header,
-    .entry-wrapper-even .header {
+    .entry-wrapper-odd .contents .entry-poster,
+    .entry-wrapper-even .contents .entry-poster {
         margin-inline: 0;
     }
 
     .entry .header,
     .comment .header {
         overflow-wrap: break-word;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
     }
 
     .comment-wrapper-odd .header,
