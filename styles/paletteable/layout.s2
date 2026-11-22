@@ -444,5 +444,31 @@ $navlinks_css
     text-align: center;
     }
 
+@media only screen and (max-width: 45em) {
+    body {
+        margin-inline: 0;
+    }
+
+    #canvas {
+        margin-inline: 8px;
+    }
+
+    .entry .header, .comment .header {
+        margin-inline: 0;
+        overflow-wrap: break-word;
+    }
+
+    .entry-content, .comment-content {
+        clear: both;
+    }
+
+    .entry-content, .comment-content, .module-content {
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+        overflow-wrap: break-word;
+    }
+}
+
     """;
 }
