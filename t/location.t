@@ -18,9 +18,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::Location;
 
 my $loc;
@@ -49,4 +49,6 @@ like( $@, qr/Lati/ );
 $loc = eval { LJ::Location->new( coords => "-54.2345 -200.1234" ); };
 ok( !$loc );
 like( $@, qr/Longi/ );
+
+ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );
 
