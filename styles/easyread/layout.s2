@@ -844,3 +844,53 @@ $userpic_css
 
 /* End of CSS file */""";
 }
+
+function print_stylesheet () {
+"""
+@media only screen and (max-width: 45em) {
+    #canvas {
+        margin: 0;
+        padding: 0 8px;
+        overflow-wrap: break-word;
+    }
+
+    #primary, #secondary, #tertiary, #footer {
+        width: 100%;
+        box-sizing: border-box;
+        padding-inline: 8px;
+    }
+
+    .has-userpic .entry .header,
+    .has-userpic .comment .header,
+    .has-userpic .entry .poster {
+        margin-inline: 0;
+    }
+
+    .has-userpic .entry .poster {
+        top: auto;
+    }
+
+    .entry .contents,
+    .entry .footer {
+        bottom: auto;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+""";
+}
