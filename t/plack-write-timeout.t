@@ -19,12 +19,9 @@ use strict;
 use warnings;
 use v5.10;
 
+use lib "$ENV{LJHOME}/cgi-bin";
+
 use Test::More tests => 12;
-
-BEGIN {
-    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
-}
-
 use IO::Socket::INET;
 use Socket qw/ SOL_SOCKET SO_SNDTIMEO /;
 
