@@ -986,6 +986,7 @@ propgroup customcss {
 }
 
 function Page::print_default_stylesheet() {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
 
@@ -1147,6 +1148,15 @@ function Page::print_default_stylesheet() {
             width: 24%;
             }
         """; }
+
+    var string mobile_comment_indent = "";
+    if ($*comment_indent_style == "static") {
+        $mobile_comment_indent = """
+    .comment-thread > .dwexpcomment {
+        margin-left: min(calc((var(--comment-depth) - 1) * 10px), 80px) !important;
+    }
+""";
+    }
 
 
 print_custom_control_strip_css();
@@ -2699,6 +2709,57 @@ div.ContextualPopup .Relation div {
 
 $userpic_css
 
+@media $small_media_query {
+    #canvas { margin: 0; }
+    #content { padding: 8px; }
+    #header_titlewrapper, #footer { padding-inline: 8px; }
+    .column-right #content { min-width: 0; }
+
+    .entry .header, .comment .header,
+    .entry .entry-title, .comment .comment-title,
+    .entry .metadata, .entry .tag, .comment .poster {
+        overflow-wrap: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .entry .header > .inner, .comment .header > .inner {
+        display: flow-root;
+    }
+
+    .entry .metatime_wrapper,
+    .comment .header .datetime, .comment .header .comment-posted {
+        display: block;
+        width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        left: auto;
+    }
+
+    .entry .userpic, .comment .userpic {
+        clear: both;
+        margin: .5em;
+    }
+
+    .entry .userpic:empty, .comment .userpic:empty { display: none; }
+
+    .comment-wrapper { min-width: 0; }
+    .comment-depth-10 .dwexpcomment { min-width: 0; float: none; }
+    $mobile_comment_indent
+
+    #content .module { max-width: 100%; box-sizing: border-box; }
+    .one-column #content .module { display: block; width: auto; }
+
+    .entry-content, .comment-content, #canvas .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content img, .comment-content img, .module-content img {
+        max-width: 100%;
+        height: auto;
+    }
+}
 """;
 }
 ##----------------------------------------------------------------------------------------------------------##
