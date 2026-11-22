@@ -125,6 +125,7 @@ function Page::print() {
 }
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
 
     var string primary_colors = generate_color_css( $*color_entry_text, $*color_entry_background, $*color_entry_border );
@@ -513,5 +514,26 @@ $navlinks_css
     color: $*color_entry_text !important; }
 
 $userpic_css
+
+@media $small_media_query {
+    #canvas { margin-inline: 0; }
+    #content { padding-inline: .5em; }
+    #primary { width: auto; margin-inline: 0; }
+    #header #journaltitles-container { margin: .75em .5em 1em; }
+
+    .has-userpic .entry .contents .userpic,
+    .has-userpic .comment .contents .userpic { margin-top: 0; }
+
+    .entry .header,
+    .comment .header { overflow-wrap: break-word; }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+        overflow-x: auto;
+    }
+
+    #content .module-content { overflow-x: auto; }
+}
     """;
 }
