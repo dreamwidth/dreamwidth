@@ -43,7 +43,7 @@ DW.userIsPaid = [% remote.is_paid ? 'true' : 'false' %];
 </div>
 
 <div id='cf-filtopts'>
-    <h4>[% '.foptions' | ml %] "<span id='cf-foname'>selected filter</span>"</h4>
+    <h2>[% '.foptions' | ml %] "<span id='cf-foname'>selected filter</span>"</h2>
 
     <p><label for='cf-public'>Visibility:</label>
     <select id='cf-public'>

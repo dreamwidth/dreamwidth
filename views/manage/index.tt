@@ -38,7 +38,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [% iscomm = u.is_community ? '.comm' : '' %]
 
-<h1>[% '.youraccount.header' _ iscomm | ml %]</h1>
+<h2>[% '.youraccount.header' _ iscomm | ml %]</h2>
 <ul class=accountinfo>
   <li><b>[% '.youraccount.user' | ml %]</b> [% u.ljuser_display %]</li>
   <li><b>[% '.youraccount.name' | ml %]</b> [% u.name_html %]</li>
@@ -274,7 +274,7 @@ INCLUDE linklist header=dw.ml( '.communities.header' )
 
 [%- BLOCK linklist header='' about='' -%]
   [%- IF items.size -%]
-  <h2>[% header %]</h2>
+  <h3>[% header %]</h3>
   <div class="linklist">
     <p style="margin: 0">[% about %]</p>
     <ul>

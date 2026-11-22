@@ -44,5 +44,6 @@
 .cf-tag:hover { background-color: #ccc; }
 
 #cf-filtopts { padding: 5px; }
-#cf-filtopts h4, #cf-filtopts p, #cf-filtopts label { display: inline; margin-right: 1em;}
+#content #cf-filtopts h2 { color: inherit; display: inline; font-weight: bold; margin-right: 1em; }
+#cf-filtopts p, #cf-filtopts label { display: inline; margin-right: 1em;}
 #cf-filtopts input { text-align: right; }
