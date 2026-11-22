@@ -9,8 +9,19 @@
 use strict;
 use Test::More tests => 8;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN {
+    $LJ::_T_CONFIG = 1;
+    require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+}
+use LJ::DB;
+use LJ::Lang;
 use DW::FormErrors;
+use DW::Locker;
+
+sub LJ::is_web_context { return 0; }
+
+my $locker = DW::Locker->new;
+sub LJ::locker { return $locker; }
 
 note("Get all errors");
 {
