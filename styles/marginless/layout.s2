@@ -47,7 +47,10 @@ propgroup colors_child {
 
 
 function print_stylesheet () {
+var string small_media_query = generate_small_media_query();
 var string medium_media_query = generate_medium_media_query();
+var string medium_width_condition = $medium_media_query->replace("only screen and ", "");
+var string mobile_only_media_query = $small_media_query + " and (not $medium_width_condition)";
 
 var string userpic_css = "";
     if ($*userpics_position == "right") {
@@ -528,6 +531,38 @@ $navlinks_css
 #footer {
     text-align: center;
     }
+
+@media $mobile_only_media_query {
+    body { margin: 0; }
+
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #primary > .inner:first-child { padding-inline: 8px; }
+    #content .module { max-width: 100%; }
+
+    .entry .header,
+    .comment .header {
+        margin-inline: 0;
+        overflow-wrap: break-word;
+    }
+
+    .comment-wrapper { min-width: 0; }
+
+    .entry-content,
+    .comment-content { clear: both; }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+    }
+}
 
     """;
 }
