@@ -20,7 +20,7 @@ use warnings;
 
 use Test::More tests => 12;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
 
 #  These tests check for correct handling of xml:base

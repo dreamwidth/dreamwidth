@@ -20,8 +20,7 @@ use warnings;
 
 use Test::More tests => 11;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
 
 my $feed_rss = q {
