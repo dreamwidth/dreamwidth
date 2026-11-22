@@ -47,8 +47,13 @@ sub entry_picker_handler {
         if ( $r->method eq 'GET' ) {
             my $path = length $username ? "/entry/$username/$ditemid/edit" : '/entry/new';
             $r->status(302);
+
+            # old edit links open the native editor in its simple layout
             $r->header_out(
-                Location => LJ::create_url( $path, args => LJ::viewing_style_opts(%$get) ) );
+                Location => LJ::create_url(
+                    $path, args => { %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' }
+                )
+            );
             return $r->OK;
         }
 
@@ -61,8 +66,8 @@ sub entry_picker_handler {
         require DW::Controller::Entry;
         my $link_url =
             length $username
-            ? LJ::create_url("/entry/$username/$ditemid/edit")
-            : LJ::create_url('/entry/new');
+            ? LJ::create_url( "/entry/$username/$ditemid/edit", args => { mode => 'simple' } )
+            : LJ::create_url( '/entry/new',                     args => { mode => 'simple' } );
         return DW::Controller::Entry::legacy_text_recovery( $post, link_url => $link_url );
     }
 

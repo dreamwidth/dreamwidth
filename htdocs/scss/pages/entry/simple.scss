@@ -1,0 +1,247 @@
+/* Simple mode of the entry form. The layout comes from stc/entry.css (the
+ * retired update page, scoped to #updateForm); these rules undo the
+ * Foundation form defaults that the shared entry scripts bring with them,
+ * and point the old field rules at the shared form's field IDs. */
+
+.simple-mode-switch {
+    font-size: 13px;
+    margin: 0 0 .5em;
+}
+
+#updateForm {
+    font-size: 13px;
+    line-height: normal;
+
+    /* Foundation sizes every control to full width and a fixed height. */
+    input[type="text"],
+    input[type="password"],
+    input[type="search"],
+    select,
+    textarea {
+        width: auto;
+        height: auto;
+        margin: 0 2px 0 0;
+        padding: 1px 2px;
+        font-size: 13px;
+        line-height: normal;
+        color: #000;
+        background-color: #fff;
+        border: 1px solid #a9a9a9;
+        border-radius: 0;
+        box-shadow: none;
+        transition: none;
+    }
+
+    /* Foundation strips the native select arrow; the old page used it. */
+    select {
+        -webkit-appearance: menulist !important;
+        -moz-appearance: menulist !important;
+        appearance: auto !important;
+        background-image: none;
+        padding: 1px;
+    }
+
+    fieldset {
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+
+    input[type="checkbox"] {
+        margin: 0 3px 0 0;
+    }
+
+    label {
+        display: inline;
+        color: inherit;
+        cursor: default;
+    }
+
+    input[type="submit"],
+    input[type="button"] {
+        display: inline-block;
+        width: auto;
+        margin: 0 2px;
+        padding: 1px 7px;
+        font-family: inherit;
+        font-size: 13px;
+        line-height: normal;
+        color: #000;
+        background: #efefef;
+        border: 1px solid #767676;
+        border-radius: 2px;
+        box-shadow: none;
+        cursor: pointer;
+        &:hover { background: #e5e5e5; }
+    }
+
+    a { font-size: inherit; }
+
+    /* the retired page's clearfix for floated rows */
+    .pkg::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .displaydate-component {
+        clear: left;
+        margin: 0 0 4px;
+        line-height: 1.8em;
+    }
+
+    #userpic,
+    #userpic a { font-size: 12px; }
+
+    #linebreaks select { float: none; }
+
+    #options a { font-size: 13px; }
+    .tag-browser-button,
+    #options button {
+        margin: 0 0 0 4px;
+        padding: 1px 6px;
+        font-size: 12px;
+        line-height: normal;
+    }
+
+    #submitbar {
+        label { font-size: 13px; }
+        #js-security { float: none; }
+    }
+
+    #currentdate { display: inline; }
+    #modifydate {
+        display: none;
+        clear: left;
+        padding: 4px 0 0 6.5em;
+        line-height: 1.8em;
+        input.text {
+            float: none;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .picker-button { display: inline-block; }
+        .note { font-size: 90%; margin-left: .3em; }
+        label { font-weight: normal; font-size: 90%; }
+    }
+    .picker-button {
+        margin: 0 6px 0 0;
+        padding: 0 4px;
+        font-size: 12px;
+        line-height: 18px;
+        vertical-align: middle;
+        .fi-icon { font-size: 14px; }
+    }
+    .picker-output { position: relative; }
+
+    #userpic {
+        .block-icon { text-align: center; }
+        button {
+            margin: 0;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+        img { max-width: 100px; max-height: 100px; }
+    }
+    .metainfo-value { line-height: 1.5em; }
+    #icon_row {
+        clear: left;
+        line-height: 1.5em;
+        .block-icon-controls { display: inline-block; }
+        select { float: none; }
+    }
+
+    #infobox {
+        font-size: 12px;
+        border-left: 1px solid #000;
+        ul { margin: 0; }
+        li { margin: 0 0 6px; font-size: 12px; }
+    }
+
+    #id-subject-0 {
+        width: 52%;
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+
+    #compose-entry ul li a { font-size: 12px; }
+
+    #htmltools {
+        #linebreaks label { font-weight: normal; font-size: 13px; }
+        #linebreaks img { vertical-align: middle; }
+        ul li a { font-size: 12px; }
+    }
+
+    #entry-body {
+        display: block;
+        width: 100%;
+        height: auto;
+        padding: 2px;
+        border: none;
+        font-size: medium;
+        font-family: monospace;
+    }
+
+    #draftstatus {
+        display: block;
+        min-height: 1em;
+        font-style: italic;
+        font-size: 80%;
+        text-align: right;
+    }
+
+    .taglist-field {
+        display: inline-block;
+        width: 80%;
+        textarea { width: 100%; }
+    }
+    .autocomplete-container {
+        display: block;
+        min-height: 0;
+        padding: 0 2px;
+        font-size: 13px;
+        background: #fff;
+        border: 1px solid #a9a9a9;
+        input.autocomplete-input {
+            height: 18px;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+        .autocomplete-list { margin: 0; }
+    }
+
+    #js-current-mood { width: 30%; }
+    #js-current-mood-other { width: 14%; }
+    #current-location,
+    #current-music { width: 63%; }
+    #age_restriction { width: 48%; }
+    #age_restriction_reason { width: 48%; }
+
+    .option-buttons {
+        clear: both;
+        text-align: center;
+        padding-top: 6px;
+    }
+
+    #js-custom-groups-edit { margin-left: .3em; }
+
+    .community-administration label {
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    /* The shared dialogs keep their native layout. */
+    .reveal-modal {
+        font-size: 14px;
+        label { display: block; font-weight: normal; }
+        input[type="text"],
+        input[type="search"] {
+            display: block;
+            width: 100%;
+            margin-bottom: .5em;
+            padding: .4em;
+        }
+    }
+}

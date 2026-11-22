@@ -699,6 +699,22 @@ entryform.spellcheck.noerrors=No spelling errors found
 
 entryform.spellcheck.unavailable=Spell check is currently unavailable
 
+entryform.simple.advanced=Advanced editor
+
+entryform.simple.editcustom=Edit custom groups
+
+entryform.simple.format=Format:
+
+entryform.simple.html=HTML
+
+entryform.simple.icon=Icon:
+
+entryform.simple.richtext=Rich Text
+
+entryform.simple.switch=Simple editor
+
+entryform.simple.title=Post an Entry
+
 entryform.spellchecked=Spell-checked entry:
 
 entryform.subject=Subject:

@@ -94,9 +94,9 @@ DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, ap
 DW::Routing->register_string( '/entry/new', \&_new_handler_userspace, user => 1 );
 
 # The retired posting page is fully graduated: every GET canonicalizes to the
-# native form, and any POST is necessarily a stale tab submitting the old
-# schema. DW::Routing strips the legacy .bml suffix before lookup, covering
-# both URLs.
+# native form in its simple layout, and any POST is necessarily a stale tab
+# submitting the old schema. DW::Routing strips the legacy .bml suffix before
+# lookup, covering both URLs.
 DW::Routing->register_string(
     '/update',
     sub {
@@ -107,7 +107,8 @@ DW::Routing->register_string(
             my $usejournal = LJ::canonical_username( $get->{usejournal} );
             my $path       = length $usejournal ? "/entry/$usejournal/new" : '/entry/new';
 
-            my %args = %{ LJ::viewing_style_opts(%$get) };
+            # old links to the retired posting page open the simple layout
+            my %args = ( %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' );
             for my $name (qw(subject event share)) {
                 $args{$name} = $get->{$name} if defined $get->{$name} && length $get->{$name};
             }
@@ -390,7 +391,27 @@ sub _render_new_form {
     $vars->{draft_subject_raw} = $draft_subject_raw;
     $vars->{autosave_interval} = $LJ::AUTOSAVE_DRAFT_INTERVAL;
 
-    return DW::Template->render_template( 'entry/form.tt', $vars );
+    return _render_form($vars);
+}
+
+# Simple mode is the same form, laid out like the retired update page.
+sub _simple_mode {
+    return ( DW::Request->get->get_args->{mode} // '' ) eq 'simple' ? 1 : 0;
+}
+
+sub _render_form {
+    my ($vars) = @_;
+
+    return DW::Template->render_template( 'entry/form.tt', $vars ) unless _simple_mode();
+
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
+    $vars->{infobox} =
+        LJ::Hooks::run_hook( 'entryforminfo', $vars->{journalu} ? $vars->{journalu}->user : undef,
+        $vars->{remote} );
+
+    # share the advanced form's strings, which the shared includes resolve relatively
+    return DW::Template->render_template( 'entry/form-simple.tt', $vars,
+        { ml_scope => '/entry/form.tt' } );
 }
 
 # Echo a stale old-editor POST's exact subject/body for manual copying;
@@ -406,7 +427,8 @@ sub legacy_text_recovery {
             subject_text => $post->{subject} // '',
             body_text    => $post->{event}   // '',
             body_missing => !exists $post->{event},
-            link_url => $opts{link_url} || LJ::create_url('/entry/new'),
+            link_url     => $opts{link_url}
+                || LJ::create_url( '/entry/new', args => { mode => 'simple' } ),
         }
     );
 }
@@ -967,7 +989,7 @@ sub _render_edit_form {
     $vars->{js_for_rte} = LJ::rte_js_vars($remote);
     $vars->{sitevalues} = to_json( \@sitevalues );
 
-    return DW::Template->render_template( 'entry/form.tt', $vars );
+    return _render_form($vars);
 }
 
 # returns:
@@ -1183,11 +1205,11 @@ sub _do_post {
         };
 
         # bunch of helpful links
-        my $juser    = $journal->user;
-        my $ditemid  = $res->{itemid} * 256 + $res->{anum};
-        my $itemlink = LJ::Talk::talkargs( $res->{url}, $style_args );
-        my $edititemlink =
-            LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit", $style_args );
+        my $juser        = $journal->user;
+        my $ditemid      = $res->{itemid} * 256 + $res->{anum};
+        my $itemlink     = LJ::Talk::talkargs( $res->{url}, $style_args );
+        my $edititemlink = LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit",
+            $style_args, _simple_mode() ? 'mode=simple' : '' );
 
         my @links = (
             {
@@ -1294,7 +1316,8 @@ sub _do_edit {
     my $comm_modifier = $journal->is_community ? '.comm' : '';
     my $style_args    = LJ::viewing_style_args( %{ DW::Request->get->get_args } );
     my $entry_url     = LJ::Talk::talkargs( $res->{url}, $style_args );
-    my $edit_url = LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit", $style_args );
+    my $edit_url      = LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit",
+        $style_args, _simple_mode() ? 'mode=simple' : '' );
 
     my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
     if ( $remote->can_manage($journal) ) {
