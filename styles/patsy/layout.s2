@@ -139,6 +139,8 @@ function Page::print() {
 
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string small_media_query = generate_small_media_query();
+    $small_media_query = $small_media_query->replace("and (max-width:", "and not (min-width:");
 
     var string entry_header_margin = "";
     var string entry_userpic_margin = "";
@@ -669,6 +671,51 @@ ul.module-list-item li {
 /*------------------------------------- extras  -------------------------------------*/
 
 blockquote { font-style: italic; padding: 40px 20px; margin: 20px; }
+
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #header {
+        padding: 16px 12px;
+        text-align: start;
+    }
+
+    h1#title, h2#subtitle {
+        letter-spacing: .12em;
+        line-height: 1.3;
+    }
+
+    .entry, .comment, .navigation, #footer { padding: 12px; }
+
+    .entry, .comment {
+        line-height: 1.5;
+        text-align: start;
+    }
+
+    .entry .header, .comment .header {
+        margin-inline: 0;
+        overflow-wrap: break-word;
+    }
+
+    .entry-title { letter-spacing: .07em; }
+
+    .comment-wrapper { min-width: 0; }
+
+    .icons-container .icon {
+        float: none;
+        min-width: 0;
+        width: auto;
+    }
+
+    .entry-content, .comment-content, .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
 
 
 
