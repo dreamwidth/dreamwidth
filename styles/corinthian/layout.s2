@@ -48,6 +48,39 @@ set font_module_heading_units = "em";
 ## Stylesheet
 ##===============================
 
+function header_navlinks_luminance(Color color) : int
+"Approximate relative sRGB luminance on a 0–1000 scale."
+{
+    var int[] channels = [$color.r, $color.g, $color.b];
+    var int[] weights = [213, 715, 72];
+    var int luminance = 0;
+    foreach var int index (0 .. 2) {
+        var int channel = $channels[$index];
+        var int linear = ((305 * $channel / 255 + 682) * $channel / 255 + 13) * $channel / 255;
+        $luminance = $luminance + $weights[$index] * $linear;
+    }
+    return $luminance / 1000;
+}
+
+function header_navlinks_color() : string {
+    var Color background = $*color_header_background;
+    if ($background.as_string == "") { $background = $*color_entry_background; }
+    if ($background.as_string == "") { $background = $*color_page_background; }
+    if ($background.as_string == "") { return "CanvasText"; }
+
+    var int backdrop = header_navlinks_luminance($background) + 50;
+    foreach var Color candidate ([$*color_page_title, $*color_page_text]) {
+        if ($candidate.as_string == "") { continue; }
+        var int foreground = header_navlinks_luminance($candidate) + 50;
+        if (10 * ($foreground - 3) >= 45 * ($backdrop + 3) or
+            10 * ($backdrop - 3) >= 45 * ($foreground + 3)) {
+            return $candidate.as_string;
+        }
+    }
+    if ($backdrop <= 229) { return "#fff"; }
+    return "#000";
+}
+
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
 
@@ -856,4 +889,70 @@ line-height: 120%;
 $userpic_css
 
 """;
+
+    if ($*module_navlinks_section == "header") {
+        var string nav_color = header_navlinks_color();
+        """
+#header > .inner > .module-wrapper > .separator {
+    display: none;
+    }
+
+#header .module-section-header > .inner {
+    background: transparent;
+    width: auto;
+    padding: 0;
+    }
+
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    color: $nav_color;
+    margin: 0 0 .75em;
+    padding: 0;
+    font-size: .95em;
+    letter-spacing: .025em;
+    line-height: 1.4;
+    }
+
+#header .module-navlinks .module-content {
+    margin: 0;
+    padding: 0 0 .45em;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    }
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .15em .85em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks .module-list li {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks a {
+    color: inherit;
+    display: block;
+    padding: .2em 0;
+    overflow-wrap: anywhere;
+    text-underline-offset: .2em;
+    }
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover {
+    text-decoration: underline;
+    }
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    }
+""";
+    }
 }
