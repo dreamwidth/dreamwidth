@@ -116,7 +116,7 @@
   [%- END -%]
 
   [%- IF remote_can_grant( pcode, arg ) -%]
-  <h4>[% '.header.grant' | ml( privname = pname ) %]</h4>
+  <h3>[% '.header.grant' | ml( privname = pname ) %]</h3>
 
   <p>
         [% form.textbox( label = dw.ml( '.label.grantuser' ), name = 'grantuser',

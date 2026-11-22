@@ -154,7 +154,7 @@
                             cols = 40, rows = 10 ) %]
 
         [%- ELSIF vg.is_approved; # prompt for suggestions -%]
-          <h4>[% '.label.review.optional' | ml %]</h4>
+          <h3 class="vgift-spaced-heading">[% '.label.review.optional' | ml %]</h3>
           [% form.hidden( name = 'activation', value = inactive ) %]
 
           [% form.select( name = "${vg.id}_featured", id = "${vg.id}_featured",
@@ -203,7 +203,7 @@
 [%- ELSIF mode == 'delete' AND vgift -%]
   [%- IF vgift.can_be_deleted_by( remote ) -%]
 
-<h3>[% '.header.delete' | ml %]</h3>
+<h2>[% '.header.delete' | ml %]</h2>
 [% vgift.display_basic %]
 <form method='post'>
   [% dw.form_auth %]
@@ -258,7 +258,7 @@
 </div>
 
 <div class='columns medium-6' style='text-align: center'>
-  <h4>[% '.header.userqueue' | ml %]</h4>
+  <h2 class="vgift-spaced-heading">[% '.header.userqueue' | ml %]</h2>
 
   [%- vglist = list_created_by( remote );
       IF vglist.size -%]
@@ -282,7 +282,7 @@
   <i>[% '.queue.empty' | ml %]</i>
   [%- END -%]
 
-  <h4>[% '.header.artists' | ml %]</h4>
+  <h2 class="vgift-spaced-heading">[% '.header.artists' | ml %]</h2>
 
   [%- dclist = display_creatorlist( 5 );
       IF dclist -%]
@@ -297,7 +297,7 @@
   [%- END -%]
 
   [%- IF siteadmin -%]
-  <h4>[% '.header.siteadmin' | ml %]</h4>
+  <h2 class="vgift-spaced-heading">[% '.header.siteadmin' | ml %]</h2>
 
   <ul>
     <li>

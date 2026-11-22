@@ -28,7 +28,7 @@
 [% IF success; success; ELSE;
      IF preview_faq %]
 <hr />
-<h1>[% display_faq( preview_faq.question_html ) %]</h1>
+<h2>[% display_faq( preview_faq.question_html ) %]</h2>
 
 <div style='margin-left: 20px;'>
 
@@ -60,7 +60,7 @@
     <br />[% '.txt.sortorder' | ml %]
   </p>
 
-  <h1>[% '.header.question' | ml %]</h1>
+  <h2>[% '.header.question' | ml %]</h2>
   <p>[% '.header.question.desc' | ml %]</p>
 
   <p>
@@ -70,7 +70,7 @@
   </p>
 
   [%- IF show_summary -%]
-  <h1>[% '.header.summary' | ml %]</h1>
+  <h2>[% '.header.summary' | ml %]</h2>
   <p>[% '.header.summary.desc' | ml %]</p>
 
   <p>
@@ -79,7 +79,7 @@
   </p>
   [%- END -%]
 
-  <h1>[% '.header.answer' | ml %]</h1>
+  <h2>[% '.header.answer' | ml %]</h2>
   <p>[% '.header.answer.desc' | ml %]</p>
 
   <p>

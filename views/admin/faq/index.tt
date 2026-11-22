@@ -27,10 +27,10 @@
 [%- END -%]
 
 [%- FOREACH c IN catlist -%]
-<h3><a href='[% dw.create_url( '/admin/faq/readcat', no_blank => 1,
+<h2><a href='[% dw.create_url( '/admin/faq/readcat', no_blank => 1,
                                args => { 'faqcat' => c } ) %]'>
     [% faqcat.$c.faqcatname | html %]</a>
-</h3>
+</h2>
 
   [%- UNLESS faq.defined(c) AND faq.$c.size -%]
 
