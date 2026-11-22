@@ -18,8 +18,9 @@ use warnings;
 use Test::More;
 use HTML::Parser;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::S2;
+use LJ::TextUtil;
 use S2;
 use S2::Compiler;
 
