@@ -3,12 +3,19 @@
 # Licensed under the same terms as Perl itself.
 use strict;
 use warnings;
+
+use lib "$ENV{LJHOME}/extlib/lib/perl5", "$ENV{LJHOME}/cgi-bin";
+
 use Test::More;
 use File::Temp qw/ tempdir /;
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use DW::TaskQueue;
+use Log::Log4perl qw/ :levels /;
+
 use DW::BlobStore::S3;
 use DW::Task::SendEmail;
+use DW::TaskQueue;
+use DW::TaskQueue::LocalDisk;
+
+Log::Log4perl->easy_init($OFF);
 
 {
     local $LJ::TASK_QUEUE_BACKEND;
