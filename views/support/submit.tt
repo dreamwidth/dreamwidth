@@ -33,7 +33,7 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
         </div>
         <div class="medium-5 columns end">
             <div class='panel callout radius'>
-                <h3>[% '.help.header' | ml %]</h3>
+                <h2>[% '.help.header' | ml %]</h2>
                 <p>[% '.help.text2' | ml( aopts = "href='$site.root/support/help'",
                                           sitename = site.name ) %]</p>
             </div>

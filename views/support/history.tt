@@ -16,9 +16,9 @@ the same terms as Perl itself. For a copy of the license, please reference
 [%- sections.title = '.title' | ml -%]
 
 [% IF get_user OR get_userid %]
-    <h3>[% '.viewing' | ml(username = username) %]</h3>
+    <h2>[% '.viewing' | ml(username = username) %]</h2>
 [% ELSIF get_email %]
-    <h3>[% '.viewing' | ml(username = email) %]</h3>
+    <h2>[% '.viewing' | ml(username = email) %]</h2>
 [% END %]
 [% IF noresults %]
     [% '.noresults' | ml %]
@@ -113,7 +113,7 @@ the same terms as Perl itself. For a copy of the license, please reference
 [% ELSE %]
     [% IF get_user %]
         <hr>
-        <h4>[% '.search.otheremails' | ml %]</h4>
+        <h2>[% '.search.otheremails' | ml %]</h2>
     [% END %]
     <form method='get' action='history'>
         <div class='row'>

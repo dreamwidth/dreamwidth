@@ -16,9 +16,11 @@
 [%- sections.title = '.title' | ml -%]
 
 [%- IF state == 'bounced' %]
-<p>[% dw.ml( '.bounced.success', { addresslist => addresslist } ) %]</p>
+[% dw.ml( '.bounced.success', { addresslist => addresslist } )
+     .replace( '<[?]h1\s+(.*?)\s+h1[?]>', '<h2>$1</h2>' )
+     .replace( '<[?]p\s+(.*?)\s+p[?]>', '<p>$1</p>' ) %]
 [%- ELSE %]
-<h1>[% '.logged.title' | ml %]</h1>
+<h2>[% '.logged.title' | ml %]</h2>
 <p>[% '.logged.text' | ml %]</p>
 [%- END %]
 

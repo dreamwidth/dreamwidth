@@ -16,7 +16,7 @@
 [%- sections.title = page_title -%]
 
 [%- IF state == 'touched' %]
-<h1>[% '.touched' | ml %]</h1>
+<h2>[% '.touched' | ml %]</h2>
 <p>
 [%- '.your.request' | ml %]
 [%- dw.ml( is_open ? '.will.stay.open.now' : '.has.been.reopened' ) %]
@@ -43,15 +43,15 @@
 </form>
 
 [%- ELSIF state == 'locked' %]
-<h1>[% '.success' | ml %]</h1>
+<h2>[% '.success' | ml %]</h2>
 <p>[% dw.ml( '.request.has.been.locked', { requestlink => "href='/support/see_request?id=$spid'" } ) %]</p>
 
 [%- ELSIF state == 'unlocked' %]
-<h1>[% '.success' | ml %]</h1>
+<h2>[% '.success' | ml %]</h2>
 <p>[% dw.ml( '.request.has.been.unlocked', { requestlink => "href='/support/see_request?id=$spid'" } ) %]</p>
 
 [%- ELSIF state == 'closed_nav' %]
-<h1>[% '.closed' | ml %]</h1>
+<h2>[% '.closed' | ml %]</h2>
 <ul>
   <li>[% dw.ml( '.go.back.to.request', { 'back.req.url' => "href='see_request?id=$spid'", spid => spid } ) %]</li>
   <li>[% dw.ml( '.go.back.to.open.request', { url => "href='help'" } ) %]</li>
@@ -61,6 +61,6 @@
 </ul>
 
 [%- ELSIF state == 'closed_simple' %]
-<h1>[% '.closed' | ml %]</h1>
+<h2>[% '.closed' | ml %]</h2>
 <p>[% '.request.closed' | ml %]</p>
 [%- END %]
