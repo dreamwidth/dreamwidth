@@ -21,7 +21,7 @@
 
 [%- sections.title='.title' | ml -%]
 
-<h1>[% '.head' | ml %]</h1>
+<h2>[% '.head' | ml %]</h2>
 [%- IF remote -%]
     <p>
     [%- IF nocircle -%]
@@ -49,7 +49,7 @@
 
 [%- IF findsim_count.P -%]
 <div class="accountlist">
-<a name="personal"><h2>[% '.accounts.person' | ml %]</h2></a>
+<h3 id="personal">[% '.accounts.person' | ml %]</h3>
 <table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
@@ -67,7 +67,7 @@
 
 [%- IF findsim_count.C -%]
 <div class="accountlist">
-<a name="community"><h2>[% '.accounts.comm' | ml %]</h2></a>
+<h3 id="community">[% '.accounts.comm' | ml %]</h3>
 <table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
@@ -85,7 +85,7 @@
 
 [%- IF findsim_count.I -%]
 <div class="accountlist">
-<a name="identity"><h2>[% '.accounts.id' | ml %]</h2></a>
+<h3 id="identity">[% '.accounts.id' | ml %]</h3>
 <table cellpadding='3'><thead><tr valign='bottom'>
     <th>#</th>
     <th width='250'>[% 'username' | ml %]</th>
@@ -101,5 +101,5 @@
 </table></div>
 [%- END -%]
 
-<h1>[% '.findsim_do.magic.head' | ml %]</h1>
+<h2>[% '.findsim_do.magic.head' | ml %]</h2>
 <p> [% '.findsim_do.magic.text' | ml %]</p>

@@ -22,7 +22,7 @@
 [%- sections.title='.title' | ml -%]
 
 [%- IF need_post -%]
-    <h1>[% '.add.confirm.head' | ml %]</h1>
+    <h2>[% '.add.confirm.head' | ml %]</h2>
     <p>[% '.add.confirm.text' | ml(interest = need_post.int) %]
     <form method='post' action='interests'><div align='center'>
     [%- dw.form_auth %]
@@ -31,7 +31,7 @@
     <input type='submit' value='[% ".add.btn.text" | ml(interest = need_post.int) %]' />
     </div></form></p>
 [%- ELSE -%]
-    <h1>[% '.add.added.head' | ml %]</h1>
+    <h2>[% '.add.added.head' | ml %]</h2>
     <p>[% '.add.added.text' | ml %]</p>
     <ul>
       <li><a href='[% site.root %]/interests'>
