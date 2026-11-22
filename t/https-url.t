@@ -16,17 +16,19 @@
 use strict;
 use warnings;
 
+use File::Temp ();
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
+use DW::Proxy;
 use LJ::CleanHTML;
 
-# make sure we have a working proxy subroutine for testing
-local $LJ::PROXY_URL = "https://proxy.myhost.net";
-unless ( $LJ::PROXY_SALT_FILE && -e $LJ::PROXY_SALT_FILE ) {
-    no warnings 'redefine';
-    *DW::Proxy::get_url_signature = sub { return 'testfoo' };
-}
+my $salt_file = File::Temp->new;
+print {$salt_file} 'testfoo';
+close $salt_file or die "Cannot write proxy salt: $!";
+local $LJ::DOMAIN          = "example.org";
+local $LJ::PROXY_URL       = "https://proxy.myhost.net";
+local $LJ::PROXY_SALT_FILE = $salt_file->filename;
 
 my @urls = (
 
