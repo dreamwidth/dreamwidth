@@ -562,15 +562,19 @@ table.month td.day-has-entries {
 
 
 #header .module-navlinks .module-list-item:first-child {
-    margin: 5px;
-    padding: 10px;}
+    margin: 0 5px;
+    padding: 0 10px;}
 
 #header .module-list-item a.current {
     background-color: $*color_header_navlinks_current_background;
     padding: 10px;
     color: $*color_navlinks_current;
 }
-#header .module-navlinks a { color: $*color_navlinks_link; }
+#header .module-navlinks a {
+    color: $*color_navlinks_link;
+    display: inline-block;
+    padding: 10px 0;
+    }
 #header .module-navlinks a:visited { color: $*color_navlinks_link_visited; }
 #header .module-navlinks a:hover { color: $*color_navlinks_link_hover; }
 #header .module-navlinks a:active { color: $*color_navlinks_link_active; }
@@ -580,8 +584,8 @@ table.month td.day-has-entries {
     }
 
 #header .module-navlinks li {
-    padding: 2px 8px;
-    display: inline;
+    padding: 0 8px;
+    display: inline-block;
     }
 
 .module-typelist li { padding: 2px 8px; }
@@ -620,7 +624,7 @@ ul.module-list { list-style: none; }
     }
 
 #header .module-navlinks li {
-    display: inline;
+    display: inline-block;
     padding-left: .5em;
     }
 
@@ -630,7 +634,7 @@ ul.module-list { list-style: none; }
     }
 
 #header .module-navlinks .module-content {
-    padding-top: 15px;
+    padding: 5px 2px 0;
     background-color: $*color_header_navlinks_background;
     border-color: $*color_header_navlinks_background $*color_header_navlinks_background $*color_header_navlinks_current_background;
     border-style: solid;

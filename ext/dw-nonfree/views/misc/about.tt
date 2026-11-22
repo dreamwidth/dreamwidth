@@ -27,8 +27,8 @@ We have all the features you've come to love in social networking sites, includi
 Dreamwidth Studios is based upon the <a href="http://www.livejournal.com">LiveJournal</a> codebase offered by LiveJournal, Inc. We've taken the LiveJournal server code and updated, modernized, and streamlined it -- and we make all of our changes available under an Open Source license. 
 </p>
 
-<p> 
-Our development community is already healthy and thriving. We've got room for everyone to contribute, whether you've just learned how to say "hello world" or you've been programming for thirty years. Check out our <a href="https://github.com/dreamwidth/dreamwidth/issues">bug tracker</a> for information on what projects we have open, and our <a href="http://wiki.dreamwidth.net/notes/Category:Development">Development</a> wiki category for useful getting-started notes. 
+<p>
+Our development community is already healthy and thriving. We've got room for everyone to contribute, whether you've just learned how to say "hello world" or you've been programming for thirty years. Check out our <a href="https://github.com/dreamwidth/dreamwidth/issues">bug tracker</a> for information on what projects we have open, and our wiki's <a href="https://github.com/dreamwidth/dreamwidth/wiki/Development">Development Hub</a> for useful getting-started notes.
 </p>
 
 <h1>Open expression:</h1>
@@ -50,7 +50,7 @@ We will remain third-party-advertising-free. We believe it's possible to run a s
 </p>
 
 <p>
-To learn more about our business operations, check out our <a href="http://wiki.dreamwidth.net/notes/Category:Dreamwidth.org">Dreamwidth.org</a> wiki pages.
+To learn more about our business operations, check out our <a href="https://github.com/dreamwidth/dreamwidth/wiki/Dreamwidth.org">Dreamwidth.org</a> wiki pages.
 </p>
 
 
@@ -62,4 +62,4 @@ To learn more about our business operations, check out our <a href="http://wiki.
 
 <h1>Learn More</h1>
 
-<p> For even more information, you can read our <a href="http://wiki.dreamwidth.net/notes/">Dreamwidth wiki</a>. We'd also love to hear from you in our IRC channel: irc.libera.chat (port 6667), channel #dreamwidth. </p>
+<p> For even more information, you can read our <a href="http://github.com/dreamwidth/dreamwidth/wiki">Dreamwidth wiki</a>. We'd also love to hear from you in our IRC channel: irc.libera.chat (port 6667), channel #dreamwidth. </p>

@@ -1081,6 +1081,21 @@ sub load_comments {
     my $thread = $opts->{'thread'} + 0;
     $thread = 0 unless $posts->{$thread} && !$posts->{$thread}->{_hidden};
 
+    if ( $thread && defined $opts->{destination_thread} ) {
+        my $destination = $opts->{destination_thread};
+        $destination = 0 unless $posts->{$destination} && !$posts->{$destination}->{_hidden};
+
+        my $ancestor = $thread;
+        my $depth    = $destination ? 1 : 0;
+        while ( $ancestor > $destination ) {
+            my $parent = $posts->{$ancestor}->{parenttalkid};
+            last if $parent >= $ancestor;
+            $ancestor = $parent;
+            $depth++;
+        }
+        $opts->{out_thread_depth} = $depth if $ancestor == $destination;
+    }
+
     unless ( $thread || $children{$thread} ) {
         $opts->{'out_error'} = "noposts";
         return;
@@ -1433,6 +1448,7 @@ sub talkform {
     # form:        optional full form hashref. Empty if reply page was opened via
     #              direct link instead of partial form submission.
     # do_captcha:  optional toggle for creating a captcha challenge
+    # captcha_journal_setting: server-derived journal policy on a redisplayed challenge
     # errors:      optional arrayref of errors to display, so user can fix
 
    # Refresher course on IDs:
@@ -1552,6 +1568,8 @@ sub talkform {
 
         captcha => $opts->{do_captcha}
         ? {
+            journal_setting => $opts->{do_captcha} eq 'journal_setting'
+                || $opts->{captcha_journal_setting},
             html => DW::Captcha->new->print(
                 page => 'comment',
 
@@ -2996,34 +3014,13 @@ sub require_captcha_test {
     }
 
     ##
-    ## 2. Don't show captcha to the owner of the journal, no more checks
+    ## 2. Owner exemption, then custom journal settings.
     ##
-    if ( !$anon_commenter && $commenter->equals($journal) ) {
-        return '';
-    }
-
-    ##
-    ## 3. Custom (journal) settings
-    ##
-    my $show_captcha_to = $journal->prop('opt_show_captcha_to');
-    if ( !$show_captcha_to || $show_captcha_to eq 'N' ) {
-        ## no one
-    }
-    elsif ( $show_captcha_to eq 'R' ) {
-        ## anonymous
-        if ($anon_commenter) {
-            return 'journal_setting' unless $trusted_anon;
-            $bypassed //= 'journal_setting';
-        }
-    }
-    elsif ( $show_captcha_to eq 'F' ) {
-        ## not friends
-        return 'journal_setting' if !$journal->trusts_or_has_member($commenter);
-    }
-    elsif ( $show_captcha_to eq 'A' ) {
-        ## all
-        return 'journal_setting';
-    }
+    my $journal_policy =
+        journal_captcha_policy( $commenter, $journal, $anon_commenter, $trusted_anon );
+    return ''                if $journal_policy eq 'owner';
+    return 'journal_setting' if $journal_policy eq 'required';
+    $bypassed //= 'journal_setting' if $journal_policy eq 'trusted_anon';
 
     ##
     ## 4. Global (site) settings
@@ -3050,6 +3047,28 @@ sub require_captcha_test {
     DW::Captcha->record_bypass( 'kind:form', 'page:comment', "reason:$bypassed" )
         if $bypassed;
 
+    return '';
+}
+
+# Evaluate only the journal policy. Redisplayed forms can explain an applicable
+# setting without repeating rate checks or recording a second bypass metric.
+# The full gate passes its already-established anonymous/trust context.
+sub journal_captcha_policy {
+    my ( $commenter, $journal, $anon_commenter, $trusted_anon ) = @_;
+    $anon_commenter = !LJ::isu($commenter)
+        || ( $commenter->identity && !$commenter->is_validated )
+        unless defined $anon_commenter;
+    $trusted_anon = $anon_commenter && LJ::Session->trusted_anon_user ? 1 : 0
+        unless defined $trusted_anon;
+
+    return 'owner' if !$anon_commenter && $commenter->equals($journal);
+
+    my $setting = $journal->prop('opt_show_captcha_to') || 'N';
+    if ( $setting eq 'R' && $anon_commenter ) {
+        return $trusted_anon ? 'trusted_anon' : 'required';
+    }
+    return 'required' if $setting eq 'F' && !$journal->trusts_or_has_member($commenter);
+    return 'required' if $setting eq 'A';
     return '';
 }
 

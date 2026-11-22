@@ -955,6 +955,21 @@ sub merge_feed {
     # custom group and colors data
     if (@ids) {
 
+        # users who already watch 'to_user' keep that edge, and the update below
+        # skips them, so carry over any colors they chose for 'from_user' before
+        # its edge is deleted
+        my @default_colors = ( LJ::color_todb('#000000'), LJ::color_todb('#ffffff') );
+        $dbh->do(
+            q{UPDATE wt_edges new_edge
+                  INNER JOIN wt_edges old_edge ON old_edge.from_userid = new_edge.from_userid
+              SET new_edge.fgcolor = old_edge.fgcolor, new_edge.bgcolor = old_edge.bgcolor
+              WHERE new_edge.to_userid = ? AND old_edge.to_userid = ?
+                  AND NOT ( old_edge.fgcolor = ? AND old_edge.bgcolor = ? )},
+            undef, $to_u->id, $from_u->id, @default_colors
+        );
+        return ( 0, "Database Error: " . $dbh->errstr )
+            if $dbh->err;
+
         # update ignore so we don't raise duplicate key errors
         $dbh->do( 'UPDATE IGNORE wt_edges SET to_userid=? WHERE to_userid=?',
             undef, $to_u->id, $from_u->id );

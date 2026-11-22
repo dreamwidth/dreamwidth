@@ -212,11 +212,9 @@ sub new_from_item_hash {
 sub new_from_url {
     my ( $class, $url ) = @_;
 
-    if ( $url =~ m!^(.+)/(\d+)\.html$! ) {
-        my $u = LJ::User->new_from_url($1) or return undef;
-        return LJ::Entry->new( $u, ditemid => $2 );
-    }
-    elsif ( $url =~ m!^(.+)/(\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$! ) {
+    # Match the dated slug form first: journal routing treats any dated path as
+    # a slug, including an all-digit slug that the entry-ID form would also match.
+    if ( $url =~ m!^(.+)/(\d\d\d\d/\d\d/\d\d)/([a-z0-9_-]+)\.html$! ) {
         my $u = LJ::User->new_from_url($1) or return undef;
 
         # This hack validates that the YYYY/MM/DD given to us is correct.
@@ -227,6 +225,10 @@ sub new_from_url {
             return undef unless $dt eq $date;
             return $ljentry;
         }
+    }
+    elsif ( $url =~ m!^(.+)/(\d+)\.html$! ) {
+        my $u = LJ::User->new_from_url($1) or return undef;
+        return LJ::Entry->new( $u, ditemid => $2 );
     }
 
     return undef;

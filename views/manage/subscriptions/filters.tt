@@ -40,7 +40,6 @@ DW.userIsPaid = [% remote.is_paid ? 'true' : 'false' %];
         <input id='cf-rename' type='button' value='Rename' />
         <input id='cf-new' type='button' value='New' />
     </div>
-    <div style='clear: both;'></div>
 </div>
 
 <div id='cf-filtopts'>
@@ -64,71 +63,71 @@ DW.userIsPaid = [% remote.is_paid ? 'true' : 'false' %];
 </div>
 
 <div id='cf-edit'>
-    <div id='cf-members'>
-        <div id='cf-notin'>
-            Not in filter:<br />
-            <select id='cf-notin-list' size='20' multiple></select><br />
-            <div id='cf-add-box'>
-                <input id='cf-add-btn' type='button' value='Add &gt;&gt;' />
-                <select id='cf-showtypes'>
-                    <option value=''>All Types</option>
-                    <option value='C'>Communities</option>
-                    <option value='Y'>Feeds</option>
-                    <option value='P'>People</option>
-                </select>
-            </div>
-        </div>
-
-        <div id='cf-in'>
-            In filter:<br />
-            <select id='cf-in-list' size='20' multiple></select><br />
-            <div id='cf-del-box'>
-                <input id='cf-del-btn' type='button' value='&lt;&lt; Remove' />
-            </div>
-        </div>
-    </div>
-
-    <div id='cf-options'>
-        Options:<br />
-        <div id='cf-opts-box'>
-            <div id='cf-free-warning'>
-                [% '.freewarning' | ml %]
-            </div>
-            [% '.opts.showonly' | ml %]
-            <div id='cf-ac-box'>
-                [% '.opts.rated' | ml %]
-                <select id='cf-adultcontent'>
-                    <option value='any'>anything (show all content)</option>
-                    <option value='nonexplicit'>safe or non-explicit</option>
-                    <option value='sfw'>safe for work only</option>
-                </select>
-            </div>
-            <div id='cf-pt-box'>
-                [% '.opts.poster' | ml %]
-                <select id='cf-postertype'>
-                    <option value='any'>anybody</option>
-                    <option value='moderator'>a moderator or maintainer</option>
-                    <option value='maintainer'>a maintainer</option>
-                </select>
-            </div>
-            <div id='cf-t-box'>
-                [% '.opts.tagged' | ml %]
-                <select id='cf-tagmode'>
-                    <option value='any_of'>any</option>
-                    <option value='all_of'>all</option>
-                    <option value='none_of'>none</option>
-                </select>
-                [% '.opts.ofselected' | ml %]
-                <div id='cf-notagssel'>[% '.opts.notagssel' | ml %]</div>
-                <div id='cf-t-box3'>
+    <div id='cf-edit-layout'>
+        <div id='cf-members'>
+            <div id='cf-notin'>
+                Not in filter:<br />
+                <select id='cf-notin-list' size='20' multiple></select><br />
+                <div id='cf-add-box'>
+                    <input id='cf-add-btn' type='button' value='Add &gt;&gt;' />
+                    <select id='cf-showtypes'>
+                        <option value=''>All Types</option>
+                        <option value='C'>Communities</option>
+                        <option value='Y'>Feeds</option>
+                        <option value='P'>People</option>
+                    </select>
                 </div>
-                [% '.opts.availabletags' | ml %]
-                <div id='cf-notagsavail'>[% '.opts.notagsavail' | ml %]</div>
-                <div id='cf-t-box2'>
+            </div>
+
+            <div id='cf-in'>
+                In filter:<br />
+                <select id='cf-in-list' size='20' multiple></select><br />
+                <div id='cf-del-box'>
+                    <input id='cf-del-btn' type='button' value='&lt;&lt; Remove' />
                 </div>
             </div>
         </div>
-    </div>
 
-    <div style='clear: both;'></div>
+        <div id='cf-options'>
+            Options:<br />
+            <div id='cf-opts-box'>
+                <div id='cf-free-warning'>
+                    [% '.freewarning' | ml %]
+                </div>
+                [% '.opts.showonly' | ml %]
+                <div id='cf-ac-box'>
+                    [% '.opts.rated' | ml %]
+                    <select id='cf-adultcontent'>
+                        <option value='any'>anything (show all content)</option>
+                        <option value='nonexplicit'>safe or non-explicit</option>
+                        <option value='sfw'>safe for work only</option>
+                    </select>
+                </div>
+                <div id='cf-pt-box'>
+                    [% '.opts.poster' | ml %]
+                    <select id='cf-postertype'>
+                        <option value='any'>anybody</option>
+                        <option value='moderator'>a moderator or maintainer</option>
+                        <option value='maintainer'>a maintainer</option>
+                    </select>
+                </div>
+                <div id='cf-t-box'>
+                    [% '.opts.tagged' | ml %]
+                    <select id='cf-tagmode'>
+                        <option value='any_of'>any</option>
+                        <option value='all_of'>all</option>
+                        <option value='none_of'>none</option>
+                    </select>
+                    [% '.opts.ofselected' | ml %]
+                    <div id='cf-notagssel'>[% '.opts.notagssel' | ml %]</div>
+                    <div id='cf-t-box3'>
+                    </div>
+                    [% '.opts.availabletags' | ml %]
+                    <div id='cf-notagsavail'>[% '.opts.notagsavail' | ml %]</div>
+                    <div id='cf-t-box2'>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

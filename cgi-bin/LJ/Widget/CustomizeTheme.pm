@@ -181,12 +181,9 @@ sub js {
         initWidget: function () {
             var self = this;
 
-            // The widget template has one named reset control. It does not
-            // expose the obsolete reset_btn_top/reset_btn_bottom IDs.
-            var reset = document.querySelector('[name="Widget[CustomizeTheme]_reset"]');
-            if (reset) {
-                DOM.addEventListener(reset, "click", function (evt) { self.confirmReset(evt) });
-            }
+            // confirmation when resetting the form
+            DOM.addEventListener($('reset_btn_top'), "click", function (evt) { self.confirmReset(evt) });
+            DOM.addEventListener($('reset_btn_bottom'), "click", function (evt) { self.confirmReset(evt) });
 
             self.form_changed = false;
 

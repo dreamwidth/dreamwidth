@@ -62,6 +62,7 @@ Copyright (c) 2026 by Dreamwidth Studios, LLC.
             [%# A GET to the native editor: a POST to /editjournal with an itemid is
                 treated as a stale old-editor submission. %]
             <form method="get" action="[% entry.edit_url | html %]">
+                [% FOREACH opt IN style_opts.pairs %]<input type="hidden" name="[% opt.key | html %]" value="[% opt.value | html %]">[% END %]
                 <input type="submit" id="itemid-[% entry.ditemid %]" value="[% dw.ml('.edit.this.entry') | html %]">
             </form>
         </td>

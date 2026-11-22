@@ -252,9 +252,9 @@ $maint{'genstats'} = sub {
                     my $sth =
                         $db->prepare( "SELECT u.value, COUNT(*) AS 'count' FROM userproplite2 u "
                             . "LEFT JOIN clustertrack2 c ON u.userid=c.userid "
-                            . "WHERE u.upropid=? AND u.value<>'' AND u.userid=c.userid "
+                            . "WHERE u.upropid=? AND u.value<>'' "
                             . "AND u.userid BETWEEN $low AND $high "
-                            . "AND (c.clusterid IS NULL OR c.clusterid=?)"
+                            . "AND (c.clusterid IS NULL OR c.clusterid=?) "
                             . "GROUP BY 1 ORDER BY 2" );
                     $sth->execute( $upc->{'id'}, $cid );
                     die "clusterid: $cid, " . $db->errstr if $db->err;
@@ -299,12 +299,15 @@ $maint{'genstats'} = sub {
                     $db = $db_getter->();    # revalidate connection
                     my $sth =
                         $db->prepare( "SELECT ua.value, COUNT(*) AS 'count' "
-                            . "FROM userproplite2 ua, userproplite2 ub "
-                            . "WHERE ua.userid=ub.userid AND ua.upropid=? AND "
+                            . "FROM userproplite2 ua "
+                            . "JOIN userproplite2 ub ON ua.userid=ub.userid "
+                            . "LEFT JOIN clustertrack2 c ON ua.userid=c.userid "
+                            . "WHERE ua.upropid=? AND "
                             . "ub.upropid=? and ub.value='US' AND ub.value<>'' "
                             . "AND ua.userid BETWEEN $low AND $high "
+                            . "AND (c.clusterid IS NULL OR c.clusterid=?) "
                             . "GROUP BY 1 ORDER BY 2" );
-                    $sth->execute( $ups->{'id'}, $upc->{'id'} );
+                    $sth->execute( $ups->{'id'}, $upc->{'id'}, $cid );
                     die $db->errstr if $db->err;
 
                     while ( $_ = $sth->fetchrow_hashref ) {

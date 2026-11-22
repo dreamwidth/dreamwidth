@@ -88,10 +88,24 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
     </div>
 
-    <div class="row">
+    [%# Existing entries retain their backdate setting when edited.
+        On new-entry redisplay, the selected journal can differ from the initial request. -%]
+    [%- outoforder_is_community = 0;
+        UNLESS action.edit;
+            outoforder_is_community = journalu.is_community;
+            FOREACH journal IN journallist;
+                IF journal.user == formdata.usejournal;
+                    outoforder_is_community = journal.is_community;
+                END;
+            END;
+        END;
+    -%]
+    <div id="js-entrytime-outoforder-row" class="row[% ' display_none' IF outoforder_is_community %]">
         <div class="columns">
             [%- form.checkbox_nested( label = dw.ml(".label.dateoutoforder2" )
                 name = "entrytime_outoforder"
+                id = "js-entrytime-outoforder"
+                disabled = outoforder_is_community
 
                 value = "1"
             ) -%]

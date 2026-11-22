@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 30;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -104,6 +104,11 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
 "Here's an entry emailed-in with a long subject (>100 characters) which will end up being truncated s",
         "Entry subject truncated"
     );
+    is(
+        $entry->eventtime_mysql,
+        "2007-01-01 12:28:00",
+        "without a timezone set, entry uses the Date header's local time"
+    );
 }
 
 {
@@ -122,6 +127,21 @@ ok( $text =~ qr!http://krow\.livejournal\.com/434338\.html!,
     is( $entry->prop('current_music'), "Jonathan Coulton -- Code Monkey",
         "Entry music is correct" );
     is( $entry->prop('opt_screening'), 'R', 'Entry comment screening is correct' );
+}
+
+{
+    $u->set_prop( timezone => 'America/New_York' );
+    my $email_post = DW::EmailPost->get_handler( get_mime( "timezone", $user_email_info ) );
+    my ( $ok, $msg ) = $email_post->process;
+    ok( $ok, "posted entry with a user timezone set" );
+    my $entry = LJ::Entry->new( $u, jitemid => 4 );
+    is( $entry->subject_raw, "Emailed from a UTC mail client", "got the timezone entry" );
+    is(
+        $entry->eventtime_mysql,
+        "2007-07-01 02:00:00",
+        "entry time is converted from the Date header into the user's timezone"
+    );
+    $u->set_prop( timezone => undef );
 }
 
 sub get_mime {

@@ -365,6 +365,26 @@ dw.need_res( { group => "foundation" },
 </div>
 </div>
 
+<h2>Copy to Clipboard</h2>
+<div class="row">
+  <div class="large-6 columns">
+    [%- form.copy_text( label = "Embed code"
+          id    = "copy-text-example"
+          value = '<img src="https://example.com/image.png" alt="An example image" />'
+          hint  = "The button copies the field's text without surrounding whitespace."
+    ) -%]
+  </div>
+
+  <div class="large-6 columns">
+  [%- WRAPPER code -%]
+  form.copy_text( label = "Embed code"
+    value = embed_code
+  )
+  # adds its own script and stylesheet; for BML pages use LJ::html_copy_text
+  [%- END -%]
+  </div>
+</div>
+
 <h2>Pagination</h2>
 <div class="row">
   <div class="large-6 columns">

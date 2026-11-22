@@ -19,63 +19,24 @@ package DW::Worker::ContentImporter::LiveJournal::Bio;
 use strict;
 use base 'DW::Worker::ContentImporter::LiveJournal';
 
-use Carp qw/ croak confess /;
-use DW::Worker::ContentImporter::Local::Bio;
+use DW::Importer::Transform::LJMarkup qw( remap_user_tags );
 
-sub work {
+sub run {
+    my ( $class, $ctx ) = @_;
+    my $data = $ctx->data;
 
-    # VITALLY IMPORTANT THAT THIS IS CLEARED BETWEEN JOBS
-    %DW::Worker::ContentImporter::LiveJournal::MAPS = ();
-
-    my ( $class, $job ) = @_;
-    my $opts = $job->arg;
-    my $data = $class->import_data( $opts->{userid}, $opts->{import_data_id} );
-
-    return $class->decline($job) unless $class->enabled($data);
-
-    eval { try_work( $class, $job, $opts, $data ); };
-    if ( my $msg = $@ ) {
-        $msg =~ s/\r?\n/ /gs;
-        return $class->temp_fail( $data, 'lj_bio', $job, 'Failure running job: %s', $msg );
+    my $bio = $class->source_for($ctx)->bio;
+    unless ($bio) {
+        ( my $un = $data->{usejournal} || $data->{username} ) =~ s/_/-/g;
+        return $ctx->temp_fail("Unable to load FOAF data for $un.$data->{hostname}.");
     }
-}
 
-sub try_work {
-    my ( $class, $job, $opts, $data ) = @_;
+    $ctx->sink->merge_interests( $bio->{interests} );
 
-    # failure wrappers for convenience
-    my $fail      = sub { return $class->fail( $data, 'lj_bio', $job, @_ ); };
-    my $ok        = sub { return $class->ok( $data, 'lj_bio', $job ); };
-    my $temp_fail = sub { return $class->temp_fail( $data, 'lj_bio', $job, @_ ); };
+    $bio->{bio} = remap_user_tags( $bio->{bio}, $data->{hostname} );
+    $ctx->sink->merge_bio($bio);
 
-    # setup
-    my $u = LJ::load_userid( $data->{userid} )
-        or return $fail->( 'Unable to load target with id %d.', $data->{userid} );
-
-    $0 = sprintf( 'content-importer [bio: %s(%d)]', $u->user, $u->id );
-
-    my $ua = LJ::get_useragent(
-        role     => 'importer',
-        max_size => 524288,       # half meg, this should be plenty
-        timeout  => 20,           # 20 seconds, might need tuning for slow sites
-    ) or return $temp_fail->('Unable to allocate useragent.');
-
-    # FIXME: have to flip this back to using the user_path value instead of hardcoded
-    # livejournal.com ... this should probably be part of the import_data structure?
-    # abstract out sites?
-    my $un = $data->{usejournal} || $data->{username};
-    $un =~ s/_/-/g;    # URLs use hyphens, not underscores
-    my ( $items, $interests, $schools ) =
-        $class->get_foaf_from("http://$un.$data->{hostname}/data/foaf");
-    return $temp_fail->("Unable to load FOAF data for $un.$data->{hostname}.")
-        unless $items;
-
-    DW::Worker::ContentImporter::Local::Bio->merge_interests( $u, $interests );
-
-    $items->{bio} = $class->remap_lj_user( $data, $items->{bio} );
-    DW::Worker::ContentImporter::Local::Bio->merge_bio_items( $u, $items );
-
-    return $ok->();
+    return $ctx->ok;
 }
 
 1;

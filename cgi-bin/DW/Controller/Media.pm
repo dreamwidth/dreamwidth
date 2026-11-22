@@ -77,13 +77,22 @@ sub media_manage_handler {
 
     # load all of a user's media.  this is inefficient and won't be like this forever,
     # but it's simple for now...
-    my @media = DW::Media->get_active_for_user( $u, width => 200, height => 200 );
+    my $order = ( $r->get_args->{order} || '' ) eq 'oldest' ? 'oldest' : 'newest';
+    my @media = DW::Media->get_active_for_user(
+        $u,
+        width        => 200,
+        height       => 200,
+        oldest_first => $order eq 'oldest'
+    );
 
+    $rv->{order}          = $order;
     $rv->{media}          = \@media;
     $rv->{make_embed_url} = \&make_embed_url;
     $rv->{page}           = $r->get_args->{page} || '1';
     $rv->{view_type}      = $r->get_args->{view} || '';
     $rv->{maxpage}        = POSIX::ceil( scalar @media / 20 );
+    $rv->{page}           = 1 unless $rv->{maxpage} && $rv->{page} =~ /\A[1-9][0-9]*\z/;
+    $rv->{page}           = $rv->{maxpage} if $rv->{maxpage} && $rv->{page} > $rv->{maxpage};
     $rv->{valid_sizes}    = [%VALID_SIZES];
     $rv->{convert_time}   = \&LJ::mysql_time;
     $rv->{adminmode}      = $adminmode ? 1 : 0;
@@ -179,7 +188,13 @@ sub media_bulkedit_handler {
         }
     }
 
-    my @media = DW::Media->get_active_for_user( $rv->{remote}, width => 200, height => 200 );
+    my $order = ( $r->get_args->{order} || '' ) eq 'oldest' ? 'oldest' : 'newest';
+    my @media = DW::Media->get_active_for_user(
+        $rv->{remote},
+        width        => 200,
+        height       => 200,
+        oldest_first => $order eq 'oldest'
+    );
 
     my $media_usage = DW::Media->get_usage_for_user( $rv->{u} );
     my $media_quota = DW::Media->get_quota_for_user( $rv->{u} );
@@ -188,10 +203,15 @@ sub media_bulkedit_handler {
     $rv->{quota}      = sprintf( "%0.1f MB", $media_quota / 1024 / 1024 );
     $rv->{percentage} = sprintf( "%0.1f%%",  $media_usage / $media_quota * 100 );
 
+    $rv->{order}   = $order;
     $rv->{ehtml}   = \&LJ::ehtml;
     $rv->{media}   = \@media;
     $rv->{page}    = $r->get_args->{page} || '1';
     $rv->{maxpage} = POSIX::ceil( scalar @media / 20 );
+
+    # A bulk deletion can remove the current page while retaining the sort order.
+    $rv->{page} = 1 unless $rv->{maxpage}          && $rv->{page} =~ /\A[1-9][0-9]*\z/;
+    $rv->{page} = $rv->{maxpage} if $rv->{maxpage} && $rv->{page} > $rv->{maxpage};
     return DW::Template->render_template( 'media/edit.tt', $rv );
 }
 

@@ -27,6 +27,9 @@ use DW::Search;
 
 DW::Routing->register_string( '/search', \&search_handler, app => 1 );
 
+# How many of an entry's tags to show in each search result.
+my $MAX_TAGS = 5;
+
 sub search_handler {
     return error_ml('/search.tt.error.notconfigured')
         unless DW::Search::enabled();
@@ -144,12 +147,18 @@ sub search_handler {
     $rv->{formdata} = $r->post_args;
 
     $rv->{load_uid} = sub { LJ::load_userid( $_[0] ) };
+
+    # Heavily tagged entries make results hard to scroll past, so show only the
+    # first few tags (sorted, as on the entry itself) and count the rest.
     $rv->{tagprint} = sub {
-        join(
-            ', ', map { "<strong>" . $_[0]->{$_} . "</strong>" }
-                keys %{ $_[0] }
-        );
+        my @tags   = sort values %{ $_[0] };
+        my @hidden = @tags > $MAX_TAGS ? splice( @tags, $MAX_TAGS ) : ();
+        my $html   = join( ', ', map { "<strong>" . LJ::ehtml($_) . "</strong>" } @tags );
+        $html .= ' ' . LJ::Lang::ml( '/search.tt.tags.more', { num => scalar @hidden } )
+            if @hidden;
+        return $html;
     };
+
     $rv->{sec_icon} = sub {
         return {
             public  => '',

@@ -1,0 +1,15 @@
+;; -*- coding: utf-8 -*-
+
+.back=Back to import history
+
+.download=Download as plain text
+
+.error.nolog=No such import log for that user.
+
+.intro=Log of [[item]] in import #[[import]] for [[user]].
+
+.meta=Started [[started]], last written [[updated]], [[bytes]] bytes, from [[host]] (process [[pid]]).
+
+.missing=[[count]] [[?count|part|parts]] of this log could not be retrieved, probably because [[?count|it|they]] expired, so what is shown has gaps.
+
+.title=Import Log

@@ -16,6 +16,7 @@
 
 package DW::Template;
 use strict;
+use Scalar::Util qw( blessed );
 use Template;
 use Template::Plugins;
 use Template::Namespace::Constants;
@@ -123,6 +124,8 @@ sub template_string {
     my $scope              = $extra->{ml_scope} || "/$filename";
     $r->note( ml_scope => $scope );
     LJ::Lang::set_request_scope($scope);
+    $opts->{errors}->set_ml_scope($scope)
+        if blessed $opts->{errors} && $opts->{errors}->isa('DW::FormErrors');
 
     my $out;
     my $ok = eval {

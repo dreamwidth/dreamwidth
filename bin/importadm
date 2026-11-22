@@ -23,24 +23,39 @@ use Getopt::Long;
 
 use DW::Logic::Importer;
 use DW::Task::SearchCopier;
-use DW::Worker::ContentImporter::LiveJournal::Comments;
-use DW::Worker::ContentImporter::LiveJournal::Entries;
-use DW::Worker::ContentImporter::LiveJournal::Userpics;
-use DW::Worker::ContentImporter::LiveJournal::Verify;
+use DW::Importer::Job;
+use DW::Importer::LogStore;
+use DW::Importer::Logger;
+use DW::Importer::Registry;
+use DW::Importer::Report;
 
 
-my ( $user, $list, $run, $type, $import_id, $schedule_copy );
+my ( $user, $list, $log_id, $run, $dry_run, $verbose, $type, $import_id, $schedule_copy );
 GetOptions(
     'user=s' => \$user,
     'list' => \$list,
+    'log=i' => \$log_id,
     'run' => \$run,
+    'dry-run' => \$dry_run,
+    'verbose' => \$verbose,
     'type=s' => \$type,
     'import-id=i' => \$import_id,
     'schedule-search-copy' => \$schedule_copy,
 );
 
+# print one stored import log; it needs no user, the log id says whose it is
+if ( defined $log_id ) {
+    my $row = DW::Importer::LogStore->log( $log_id )
+        or croak "No import log $log_id";
+    my ( $text, $missing ) = DW::Importer::LogStore->content( $row );
+    binmode STDOUT, ':raw';    # the log is UTF-8 bytes already
+    print $text;
+    warn "$missing of $row->{chunks} chunks could not be retrieved (expired?)\n" if $missing;
+    exit 0;
+}
+
 my $u = LJ::load_user( $user )
-    or croak "Usage: $0 -u USER [ --list | --run --type lj_entries [--import-id N] | --schedule-search-copy ]";
+    or croak "Usage: $0 ( -u USER [ --list | --run --type lj_entries [--import-id N] | --dry-run [--type lj_entries] [--import-id N] [--verbose] | --schedule-search-copy ] | --log LOGID )";
 my $dbh = LJ::get_db_writer();
 my $dbcm = LJ::get_cluster_master( $u )
     or croak "No DB!";
@@ -56,17 +71,26 @@ if ( $list ) {
         }, undef, $u->id);
     croak $dbh->errstr if $dbh->err;
 
+    # each import's items, then its logs (read them with --log)
+    my $print_logs = sub {
+        foreach my $l ( @{ DW::Importer::LogStore->logs_for( $u->id, $_[0] ) } ) {
+            printf "    log %-8d %-16s %s %8d bytes  %s\n", $l->{logid}, $l->{item},
+                scalar( localtime $l->{started} ), $l->{bytes}, $l->{host} // '';
+        }
+    };
+
     my $last_id;
     foreach my $r ( @$rows ) {
         if ( defined $last_id && $last_id != $r->[5] ) {
+            $print_logs->( $last_id );
             print "\n";
         }
         $last_id = $r->[5];
         printf "%-3d %25s %-16s %-10s %-5s %-5s\n",
             $r->[5], "$r->[8]\@$r->[7]:$r->[9]", $r->[1], $r->[2], ago( $r->[3] ), ago( $r->[4] );
     }
+    $print_logs->( $last_id ) if defined $last_id;
     print "\n";
-    printf "/mnt/import-logs/%d/\n", $u->id;
     exit 0;
 }
 
@@ -78,17 +102,47 @@ if ( $schedule_copy ) {
     exit 0;
 }
 
-if ( $run ) {
-    if ( ! defined $type || $type !~ /^lj_(?:entries|comments|verify|userpics)$/ ) {
-        croak "--type must be one of: lj_entries, lj_comments, lj_verify, lj_userpics";
+# Pretend to run the import and say what it would have done: nothing is written locally, no
+# one is notified and the import's status is untouched. With --type it runs that one item
+# (reading, not writing, what earlier items would have left); without it, the whole chain.
+if ( $dry_run ) {
+    my $tmpdata;
+    if ( defined $import_id ) {
+        $tmpdata = DW::Logic::Importer->get_import_data( $u, $import_id );
+    } else {
+        $tmpdata = DW::Logic::Importer->get_import_data_for_user( $u );
+    }
+    croak "No imports found for user"
+        unless $tmpdata && scalar @$tmpdata == 1;
+
+    my %args = (
+        userid         => $u->id,
+        import_data_id => $tmpdata->[0]->[0],
+        $verbose ? ( logger => DW::Importer::Logger->new( fh => \*STDERR ) ) : (),
+    );
+
+    my $report;
+    if ( defined $type ) {
+        croak "--type must be one of: " . join( ', ', map { $_->{name} } DW::Importer::Registry->items )
+            unless DW::Importer::Registry->item( $type );
+        $report = DW::Importer::Report->new;
+        DW::Importer::Job->dry_run( %args, item => $type, report => $report );
+    } else {
+        $report = DW::Importer::Job->dry_run_chain( %args );
     }
 
-    my $class = "DW::Worker::ContentImporter::LiveJournal::" . {
-        lj_comments => 'Comments',
-        lj_entries  => 'Entries',
-        lj_verify   => 'Verify',
-        lj_userpics => 'Userpics',
-    }->{$type};
+    print $report->as_text;
+    exit 0;
+}
+
+if ( $run ) {
+    my $item = DW::Importer::Registry->item( $type );
+    if ( ! defined $item ) {
+        croak "--type must be one of: " . join( ', ', map { $_->{name} } DW::Importer::Registry->items );
+    }
+
+    my $class = $item->{class};
+    eval "require $class; 1" or die $@;
 
     my $tmpdata;
     if ( defined $import_id ) {
@@ -98,23 +152,12 @@ if ( $run ) {
     }
     croak "No imports found for user"
         unless $tmpdata && scalar @$tmpdata == 1;
-    my $data = {
-        userid         => $u->id,
-        import_data_id => $tmpdata->[0]->[0],
-        hostname       => $tmpdata->[0]->[1],
-        username       => $tmpdata->[0]->[2],
-        usejournal     => $tmpdata->[0]->[3],
-        password_md5   => $tmpdata->[0]->[4],
-        options        => $tmpdata->[0]->[5],
-    };
-
-    my $opts = {
-        userid         => $u->id,
-        import_data_id => $tmpdata->[0]->[0],
-    };
 
     # Attempt to actually run the import now
-    $class->try_work( FakeJob->new, $opts, $data );
+    $class->work( FakeJob->new( arg => {
+        userid         => $u->id,
+        import_data_id => $tmpdata->[0]->[0],
+    } ) );
     exit 0;
 }
 
@@ -140,13 +183,15 @@ sub ago {
 package FakeJob;
 
 sub new {
-    my $class = $_[0];
-    my %self = ( @_ );
+    my ( $class, %self ) = @_;
     return bless \%self, $class;
 }
 
+sub arg { $_[0]->{arg} }
 sub grabbed_until {}
 sub save {}
+sub run_after {}
+sub declined {}
 sub completed {}
 sub failures { 0 }
 sub funcname { $_[0] }

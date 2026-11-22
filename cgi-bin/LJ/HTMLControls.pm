@@ -370,6 +370,59 @@ sub html_text {
 }
 
 # <LJFUNC>
+# name: LJ::html_copy_text
+# class: component
+# des: Creates a read-only text field with a button that copies its value
+#      to the clipboard.
+# info: The value is trimmed of leading and trailing whitespace. The button
+#       stays hidden until js/components/copy-text.js shows it, so pages
+#       without JavaScript get a plain read-only field. That script and its
+#       stylesheet are added to the page automatically.
+# args: opts
+# des-opts: Accepts the same options as [func[LJ::html_text]]. Also:
+#           'id' - id of the text field (one is generated if not given);
+#           'button_text' - label for the copy button.
+# returns: The generated HTML.
+# </LJFUNC>
+my $copy_text_id_counter = 0;
+
+sub html_copy_text {
+    my $opts = { %{ $_[0] || {} } };
+
+    my $id          = $opts->{id} ||= 'copytext-' . ++$copy_text_id_counter;
+    my $button_text = delete $opts->{button_text} // LJ::Lang::ml('copytext.button');
+    $opts->{value}                  = LJ::trim( $opts->{value} ) if defined $opts->{value};
+    $opts->{readonly}               = 'readonly';
+    $opts->{'data-copy-text-field'} = 1;
+
+    LJ::need_res( { group => 'all' },
+        'js/components/copy-text.js', 'stc/css/components/copy-text.css' );
+
+    my $button = html_submit(
+        undef,
+        $button_text,
+        {
+            type                  => 'button',
+            class                 => 'button copy-text-button',
+            hidden                => 'hidden',
+            'aria-controls'       => $id,
+            'data-copy-text'      => 1,
+            'data-copy-status'    => "$id-status",
+            'data-copied-message' => LJ::Lang::ml('copytext.copied'),
+            'data-failed-message' => LJ::Lang::ml('copytext.failed'),
+        }
+    );
+
+    return
+          qq{<div class="copy-text"><div class="copy-text-field">}
+        . html_text($opts)
+        . $button
+        . qq{</div><span class="copy-text-status" id="}
+        . LJ::ehtml("$id-status")
+        . qq{" role="status"></span></div>};
+}
+
+# <LJFUNC>
 # name: LJ::html_textarea
 # class: component
 # des: Creates a text box for multi-line input (the <textarea> tag).

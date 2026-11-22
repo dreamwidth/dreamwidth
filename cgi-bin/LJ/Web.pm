@@ -1386,6 +1386,7 @@ sub control_strip {
         . "</a>";
 
     my %ml = map { $_ => LJ::Lang::ml($_) } qw(
+        web.controlstrip.links.acceptinvite
         web.controlstrip.links.addfeed
         web.controlstrip.links.addtocircle
         web.controlstrip.links.confirm
@@ -1832,6 +1833,15 @@ sub control_strip {
             my $haspostingaccess  = $remote->can_post_to($journal);
             my $isclosedcommunity = $journal->is_closed_membership;
 
+            unless ( $memberof || $isclosedcommunity ) {
+                my $pending = $remote->get_pending_invites || [];
+                if ( grep { $_->[0] == $journal->id } @$pending ) {
+                    $links{join_community} =
+                        "<a href='$LJ::SITEROOT/manage/invites'>"
+                        . $ml{'web.controlstrip.links.acceptinvite'} . "</a>";
+                }
+            }
+
             if ( $remote->can_manage_other($journal) ) {
                 $template_args->{'statustext'} = "$statustext{maintainer}";
                 push( @$actionlinks, $links{post_to_community} )
@@ -1941,7 +1951,9 @@ sub control_strip {
     # search box and ?style=mine/?style=light/?style=original/?style=site options
     # determine whether style is "mine", and define new uri variable to manipulate
     # note: all expressions case-insensitive
-    my $current_style = determine_viewing_style( $r->get_args, $view, $remote );
+    # an empty view is the journal's recent page, which make_journal renders as
+    # "lastn"; without that, viewing_style would treat it as an entry page
+    my $current_style = determine_viewing_style( $r->get_args, $view || 'lastn', $remote );
 
     # a quick little routine to use when cycling through the options
     # to create the style links for the nav bar

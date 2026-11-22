@@ -14,7 +14,6 @@ on:
         - ALL WORKERS (*)
         - birthday-notify
         - change-poster-id
-        - codebuild-notifier
         - content-importer
         - content-importer-lite
         - content-importer-verify
@@ -97,15 +96,6 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-change-poster-id-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (codebuild-notifier) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'codebuild-notifier'
-        id: render-worker-container-codebuild-notifier
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-codebuild-notifier-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -475,14 +465,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-change-poster-id.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-change-poster-id-service"
-
-      - name: (codebuild-notifier) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'codebuild-notifier'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-codebuild-notifier.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-codebuild-notifier-service"
 
       - name: (content-importer) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'content-importer'

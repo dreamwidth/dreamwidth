@@ -93,8 +93,8 @@ SKIP: {
         );
         like(
             join( "\n", $res->headers->header('Set-Cookie') ),
-            qr/\bBMLschemepref=.*expires=/i,
-            'saving the default scheme deletes the preference cookie'
+            qr/\bBMLschemepref=tropo-red\b/,
+            'saving the default scheme sets it explicitly over any anonymous preference'
         );
         is( LJ::load_userid( $u->id, 1 )->prop('schemepref'),
             'tropo-red', 'default scheme persists' );

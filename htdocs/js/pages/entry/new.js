@@ -458,12 +458,21 @@ var postForm = (function($) {
         });
     };
 
-    var initDate = function($form) {
+    var initDate = function($form, opts) {
         function zeropad(num) { return num < 10 ? "0" + num : num }
         function padAll(text, sep) {
             return $.map( text.split(sep), function(value, index) {
                 return zeropad(parseInt(value, 10));
             } ).join(sep);
+        }
+
+        // Keep the personal selection, but exclude it from new community submissions.
+        if ( ! opts.edit ) {
+            $form.on("journalselect", function(e, journal) {
+                var isCommunity = !! journal.iscomm;
+                $("#js-entrytime-outoforder-row").toggleClass("display_none", isCommunity);
+                $("#js-entrytime-outoforder").prop("disabled", isCommunity);
+            });
         }
 
         // Hack: the 3rd-party date/time picker expects a trigger button with no
@@ -626,7 +635,7 @@ var postForm = (function($) {
         initJournal(entryForm);
         initSlug(entryForm, $("#js-entrytime-date"));
         initTags(entryForm);
-        initDate(entryForm);
+        initDate(entryForm, { edit: formData.edit });
         initCrosspost(entryForm);
         initSticky(entryForm);
 

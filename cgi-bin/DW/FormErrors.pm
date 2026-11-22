@@ -172,11 +172,24 @@ sub _absolute_ml_code {
     my ( $self, $error_ml ) = @_;
 
     my $r        = DW::Request->get;
-    my $ml_scope = $r ? $r->note("ml_scope") : "";
+    my $ml_scope = $self->{_ml_scope} // ( $r ? $r->note("ml_scope") : undef ) // "";
     $error_ml = $ml_scope . $error_ml
         if rindex( $error_ml, '.', 0 ) == 0;
 
     return $error_ml;
+}
+
+=head2 C<< $self->set_ml_scope( $scope ) >>
+
+Sets the scope used to resolve relative ml codes, unless one is already set.
+The site scheme renders these errors after the page template's scope has
+been restored, so the page template pins its own scope here.
+
+=cut
+
+sub set_ml_scope {
+    my ( $self, $scope ) = @_;
+    $self->{_ml_scope} //= $scope;
 }
 
 =head2 C<< $self->exist >>

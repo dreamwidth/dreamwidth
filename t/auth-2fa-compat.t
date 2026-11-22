@@ -303,6 +303,41 @@ for my $protected ( 0, 1 ) {
     }
 }
 
+# A logged-in user's password change applies to their own account, whatever
+# username the browser autofilled.
+{
+    local *DW::Template::render_template  = sub { $_[2] };
+    local *DW::Controller::render_success = sub { 'success' };
+    local *LJ::send_mail                  = sub { 1 };
+    local *LJ::create_url                 = sub { '/login' };
+    local *LJ::login_ip_banned            = sub { 0 };
+    local *LJ::handle_bad_login           = sub { 1 };
+    my ( $self, $other ) = ( temp_user(), temp_user() );
+    for ( [ $self, 'Self-pass-42' ], [ $other, 'Other-pass-42' ] ) {
+        $_->[0]->set_password( $_->[1] );
+        $_->[0]->update_self( { status => 'A' } );
+    }
+    local *DW::Controller::Settings::controller = sub {
+        ( 1, { r => $request, remote => $self } );
+    };
+    local $request->{post} = {
+        mode     => 'submit',
+        user     => $other->user,
+        password => 'Other-pass-42',
+        newpass1 => 'Replacement-pass-73',
+        newpass2 => 'Replacement-pass-73'
+    };
+    isnt( DW::Controller::Settings::changepassword_handler(),
+        'success', "Another account's password is checked against the logged-in account" );
+    ok( $other->check_password('Other-pass-42'), 'Other account is unchanged' );
+
+    $request->{post}{password} = 'Self-pass-42';
+    is( DW::Controller::Settings::changepassword_handler(),
+        'success', 'Own password changes despite another username' );
+    ok( $self->check_password('Replacement-pass-73'), 'Logged-in account has the new password' );
+    ok( $other->check_password('Other-pass-42'),      'Other account is still unchanged' );
+}
+
 # A 2FA-enabled WSSE account accepts its API key, but not its password.
 {
     my $created = POSIX::strftime( '%Y-%m-%dT%H:%M:%SZ', gmtime );

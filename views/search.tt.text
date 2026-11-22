@@ -59,4 +59,6 @@
 
 .tags=Tags:
 
+.tags.more=and [[num]] more
+
 .title=Content Search

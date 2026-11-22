@@ -75,22 +75,14 @@
                     ) -%]</li>
                     <li style="margin-top: 0.4em;">&nbsp; to &nbsp;</li>
 
-                    [%~ IF journallist.size > 1 %]
-                        <li>[%- form.select(
-                                name = "usejournal"
-                                id = "js-usejournal"
-                                label = dw.ml( '/entry/form.tt.select.usejournal' )
+                    <li>[%- form.select(
+                            name = "usejournal"
+                            id = "js-usejournal"
+                            label = dw.ml( '/entry/form.tt.select.usejournal' )
 
-                                items = journallist
-                                selected = remote.user
-                            )-%]</li>
-                    [%~ ELSE ~%]
-                        <li>
-                        [% journallist.first.ljuser_display %]
-                        [% form.hidden( name = "usejournal", id = "js-usejournal", value = journallist.first.user,
-                        ) %]
-                        </li>
-                    [%- END -%]
+                            items = journallist
+                            selected = remote.user
+                        )-%]</li>
                 </ul>
                 [% form.submit( name = 'showform', class = 'button secondary', value = dw.ml('widget.quickupdate.moreopts') ) %]
                 </div>

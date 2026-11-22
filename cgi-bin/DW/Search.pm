@@ -363,6 +363,7 @@ sub _enrich_journal {
                 && $entry->visible_to($remote)
                 && $cmt
                 && $cmt->valid
+                && !$cmt->is_deleted
                 && $cmt->visible_to($remote);
 
             $match->{entry} = $cmt->body_text;

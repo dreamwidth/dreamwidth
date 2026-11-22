@@ -27,6 +27,8 @@ captcha.button=Continue
 
 captcha.invalid=Incorrect response in the antispam field. Please try again.
 
+captcha.journal_setting=This journal's settings require you to complete a CAPTCHA before commenting.
+
 captcha.loading=Loading anti-spam test...
 
 captcha.title=Please fill out the CAPTCHA as an anti-spam measure
@@ -82,6 +84,12 @@ contentflag.viewingexplicit.byposter.community=You're about to view content that
 contentflag.viewingexplicit.byjournal.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
+
+copytext.button=Copy
+
+copytext.copied=Copied to clipboard.
+
+copytext.failed=Couldn't copy automatically. The text is selected: press Ctrl+C (or Cmd+C on a Mac) to copy it.
 
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
@@ -262,6 +270,20 @@ edges.watch.error.usernotindividual=Your account must be a personal or identity 
 edges.watch.error.usernotvisible=Your account must be visible.
 
 Email=Email
+
+email.check.bad_domain=The email address domain is invalid.
+
+email.check.bad_form=You did not give a valid email address.  An email address looks like username@some.domain
+
+email.check.bad_spelling=You gave [[email]] as the email address. Are you sure you didn't mean [[domain]]?
+
+email.check.bad_username=You have invalid characters in the email address username.
+
+email.check.confirm=Yes I'm sure this is correct
+
+email.check.empty=The email address cannot be blank.
+
+email.check.web_address=You gave [[email]] as the email address, but it looks more like a web address to me.
 
 email.emailreset.body<<
 The email address for your [[sitename]] account '[[user]]' has
@@ -1561,8 +1583,6 @@ esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
 esn.view_thread=[[openlink]]View the thread[[closelink]] beginning with this comment
 
-esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
-
 esn.your_inbox=Your Inbox
 
 esn.you_can=You can:
@@ -1922,7 +1942,7 @@ interests.enmasse.btn=Show List
 
 interests.enmasse.intro=Modify your interests based on those of:
 
-interests.error.ignored=Sorry, we're unable to help you find users matching the interests you've provided.
+interests.error.ignored=Sorry, we're unable to help you find accounts matching the interests you've provided.
 
 interests.error.longinterest=As [[sitename]] does not support interests longer than [[maxlen]] characters, your search for <b>[[old_int]]</b> was converted into a search for <b>[[new_int]]</b> instead.
 
@@ -1932,13 +1952,13 @@ interests.error.toomany=You can't search for more than [[num]] interests at a ti
 
 interests.findsim_do.account.notallowed=Your account type doesn't let you use this tool.
 
-interests.findsim_do.nomatch=Nobody similar to [[user]].
+interests.findsim_do.nomatch=No accounts have interests similar to those of [[user]].
 
 interests.findsim_do.notdefined=[[user]] has no interests defined.
 
 interests.interested.btn=Find
 
-interests.interested.in=Find people interested in:
+interests.interested.in=Find accounts interested in:
 
 interests.popular.disabled=The popular interests feature is unavailable.
 
@@ -2089,7 +2109,7 @@ menunav.explore.randomcommunity=Random Community
 
 menunav.explore.randomjournal=Random Journal
 
-menunav.explore.sitesearch=Site and Journal Search
+menunav.explore.sitesearch=Entry Search
 
 menunav.organize=Organize
 
@@ -2306,6 +2326,8 @@ post.security.private.p=The entry is only visible to you (private).
 post.security.public=The entry is visible to everyone (public).
 
 profile.service.ao3=Archive of Our Own
+
+profile.service.bsky=Bluesky
 
 profile.service.deviantart=DeviantArt
 
@@ -4509,6 +4531,8 @@ web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
+web.controlstrip.links.acceptinvite=Accept invitation
+
 web.controlstrip.links.addfeed=Subscribe
 
 web.controlstrip.links.addtocircle=Add to Your Circle
@@ -5281,6 +5305,10 @@ widget.s2propgroup.collapse=collapse all
 
 widget.s2propgroup.expand=expand all
 
+widget.s2propgroup.image.help=Use the image's direct URL, such as https://example.com/image.png. Files from your computer and HTML/embed code will not work here.
+
+widget.s2propgroup.image.url=URL
+
 widget.s2propgroup.language.custom=(Custom)
 
 widget.s2propgroup.language.default=(Default)
@@ -5301,13 +5329,15 @@ widget.search.btn.go=Go
 
 widget.search.email=Email
 
+widget.search.entries=Entry Search
+
 widget.search.faq=FAQ
 
 widget.search.interest=Interest
 
 widget.search.region=Region
 
-widget.search.siteuser=Site and Account
+widget.search.siteuser=Site Pages and Accounts
 
 widget.search.title=Search
 

@@ -163,6 +163,7 @@ sub memories_handler {
         foreach ( keys %$kwmap ) {
             $key_id = $_ if $kwmap->{$_} eq $keyword;
         }
+        return 404 unless defined $key_id;
 
         my $memoryhash = LJ::Memories::get_by_keyword( $u, $key_id,
             { security => $securities, filter => $filter } );

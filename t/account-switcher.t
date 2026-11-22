@@ -54,6 +54,12 @@ sub note {
     return $self->{notes}{$key};
 }
 
+sub pnote {
+    my ( $self, $key, $value ) = @_;
+    $self->{pnotes}{$key} = $value if @_ > 2;
+    return $self->{pnotes}{$key};
+}
+
 sub add_cookie {
     my ( $self, %args ) = @_;
     $self->{jar}{ $args{name} } = $args{delete} ? undef : $args{value};
@@ -84,6 +90,9 @@ local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = "abcdefghij12345";
 sub new_request {
     my ($ljsessions) = @_;
     $req = FakeRequest->new;
+
+    # Language lookups treat a set current request as the web context.
+    $DW::Request::cur_req = $req;
     DW::Cache->request->clear_ns('account_switcher');
     $req->{jar}{ljsessions} = $ljsessions if defined $ljsessions;
     return $req;

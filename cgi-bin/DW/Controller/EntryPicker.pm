@@ -47,7 +47,8 @@ sub entry_picker_handler {
         if ( $r->method eq 'GET' ) {
             my $path = length $username ? "/entry/$username/$ditemid/edit" : '/entry/new';
             $r->status(302);
-            $r->header_out( Location => LJ::create_url($path) );
+            $r->header_out(
+                Location => LJ::create_url( $path, args => LJ::viewing_style_opts(%$get) ) );
             return $r->OK;
         }
 
@@ -83,7 +84,10 @@ sub entry_picker_handler {
         return error_ml('/editjournal.tt.error.nocomm') unless $journal && $journal->is_comm;
     }
 
-    my %context;
+    # Viewing style arguments (style=mine etc.) ride along through the
+    # picker so the editor's success links keep them.
+    my $style_opts = LJ::viewing_style_opts(%$get);
+    my %context    = %$style_opts;
     $context{authas}     = $get->{authas} if defined $get->{authas};
     $context{usejournal} = $usejournal    if $usejournal;
     my $self_uri = LJ::create_url( '/editjournal', args => \%context );
@@ -98,7 +102,7 @@ sub entry_picker_handler {
         return $r->OK;
     }
     if ( $r->did_post && $mode eq 'edit' ) {
-        return _select_entries( $rv, $u, $journal, $usejournal, $self_uri, \%context );
+        return _select_entries( $rv, $u, $journal, $usejournal, $self_uri, \%context, $style_opts );
     }
 
     my $entries = _get_entries(
@@ -116,6 +120,7 @@ sub entry_picker_handler {
         {
             %$rv,
             self_uri   => $self_uri,
+            style_opts => $style_opts,
             usejournal => $usejournal,
             entries    => $entries,
             formdata   => {
@@ -132,7 +137,7 @@ sub entry_picker_handler {
 }
 
 sub _select_entries {
-    my ( $rv, $u, $journal, $usejournal, $self_uri, $context ) = @_;
+    my ( $rv, $u, $journal, $usejournal, $self_uri, $context, $style_opts ) = @_;
     my $r    = $rv->{r};
     my $post = $r->post_args;
 
@@ -170,6 +175,7 @@ sub _select_entries {
             {
                 %$rv,
                 self_uri   => $self_uri,
+                style_opts => $style_opts,
                 usejournal => $usejournal,
                 entries    => [],
                 message    => $message,
@@ -191,6 +197,7 @@ sub _select_entries {
         {
             %$rv,
             self_uri   => $self_uri,
+            style_opts => $style_opts,
             usejournal => $usejournal,
             entries    => $entries,
             formdata   => {

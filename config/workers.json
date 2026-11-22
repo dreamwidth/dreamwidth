@@ -28,15 +28,6 @@
       "max_count": 1,
       "target_cpu": 50
     },
-    "codebuild-notifier": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "misc",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
     "content-importer": {
       "cpu": 256,
       "memory": 2048,

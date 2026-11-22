@@ -21,3 +21,11 @@
 .submit.delete=Delete Selected
 
 .usage=You have used [[usage]] ([[percentage]]) of your [[quota]] quota.
+
+.order.label=Upload date:
+
+.order.newest=Newest first
+
+.order.oldest=Oldest first
+
+.order.submit=Sort

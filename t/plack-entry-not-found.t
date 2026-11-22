@@ -1,6 +1,7 @@
 # t/plack-entry-not-found.t
 #
-# Entry URLs must not reveal whether a hidden entry exists.
+# Entry URLs must not reveal whether a hidden entry exists, and thread arguments
+# must reach comment links only as thread ids.
 #
 # Authors:
 #      Mark Smith <mark@dreamwidth.org>
@@ -20,6 +21,7 @@ use HTTP::Request::Common;
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use DW::Request::Standard;
 use LJ::Test qw(temp_user temp_comm with_fake_memcache);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -253,5 +255,22 @@ with_fake_memcache {
         );
     }
 };
+
+# Thread arguments are copied into the comment links on an entry page.
+my $payload = q{"><b>};
+for my $get ( { destination_thread => $payload }, { thread => $shown->dtalkid . $payload } ) {
+    my ($arg) = keys %$get;
+    LJ::start_request();
+    DW::Request->reset;
+    my $r = DW::Request::Standard->new(
+        HTTP::Request->new( GET => 'http://localhost/' . $public->ditemid . '.html' ) );
+    my $ctx = [];
+    local $LJ::S2::CURR_CTX = $ctx;
+    my $page = LJ::S2::EntryPage( $owner, undef,
+        { getargs => $get, ctx => $ctx, r => $r, ljentry => $public } );
+    my @links = map { ( $_->{js_expand_url}, $_->{reply_url} ) } @{ $page->{comments} };
+    ok( scalar @links, "$arg: entry page has comment links" );
+    unlike( join( ' ', @links ), qr/[<>"]/, "$arg: comment links keep only the thread id" );
+}
 
 done_testing();
