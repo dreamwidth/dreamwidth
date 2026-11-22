@@ -118,6 +118,7 @@ sub ReplyPage {
         $comment_values{body}                  = $comment->body_orig;
         $comment_values{subjecticon}           = $comment->prop('subjecticon');
         $comment_values{prop_opt_preformatted} = $comment->prop('opt_preformatted');
+        $comment_values{prop_admin_post}       = $comment->admin_post;
         $comment_values{prop_picture_keyword}  = $comment->userpic_kw;
         $comment_values{prop_editor}           = $comment->prop('editor');
     }
