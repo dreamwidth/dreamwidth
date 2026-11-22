@@ -904,6 +904,8 @@ $userpic_css
     }
 
 #header .module-navlinks {
+    display: block;
+    width: auto;
     background: transparent;
     border: none;
     color: $nav_color;

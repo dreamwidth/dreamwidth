@@ -116,6 +116,10 @@ for my $layout (qw(compartmentalize corinthian)) {
     my $panel   = declarations( $header, $nav );
     is( $panel->{background}, 'transparent', "$layout: header nav has no module background" );
     is( $panel->{border},     'none',        "$layout: header nav has no module border" );
+    if ( $layout eq 'corinthian' ) {
+        is( $panel->{display}, 'block', "$layout: header nav is not an inline sidebar module" );
+        is( $panel->{width},   'auto',  "$layout: header nav is not limited to the sidebar width" );
+    }
     is(
         $panel->{color},
         declarations( $header, '#header' )->{color},
