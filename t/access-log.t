@@ -16,8 +16,7 @@ use warnings;
 
 use Test::More tests => 5;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-
+use lib "$ENV{LJHOME}/cgi-bin";
 use Plack::Middleware::DW::AccessLog;
 
 my $mw = Plack::Middleware::DW::AccessLog->new;
