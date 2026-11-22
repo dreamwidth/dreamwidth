@@ -597,6 +597,7 @@ set module_layout_sections = "none|(none)|one|Main Module Section|two|Secondary 
 
 set grouped_property_override = {
 
+        "module_navlinks_section" => "module_navlinks_section_override",
         "module_time_section" => "module_time_section_override",
         "module_poweredby_section" => "module_poweredby_section_override",
         "module_pagesummary_section" => "module_pagesummary_section_override",
@@ -715,6 +716,9 @@ function Page::print() {
                     $this->print_global_title();
                     $this->print_global_subtitle();
                     $this->print_title();
+                    if ($*module_navlinks_show and $*module_navlinks_section == "header") {
+                        $this->print_module_section("header");
+                    }
 
     """
                 </div><!-- end header>inner -->
@@ -963,16 +967,96 @@ propgroup customcss {
     property use custom_css;
 }
 
+function header_navlinks_linear_channel(int channel) : int {
+    var int squared = $channel * $channel;
+    var int cubed = $squared * $channel / 255;
+    return (125 * $channel + (6822 * $squared + 3053 * $cubed) / 255) / 255;
+}
+
+function header_navlinks_luminance(Color color) : int {
+    var int red = header_navlinks_linear_channel($color->red());
+    var int green = header_navlinks_linear_channel($color->green());
+    var int blue = header_navlinks_linear_channel($color->blue());
+    return (2126 * $red + 7152 * $green + 722 * $blue) / 10000;
+}
+
+function header_navlinks_color() : Color {
+    var Color background = $*color_header_background;
+    if ($background.as_string == "") { $background = $*color_canvas_background; }
+    if ($background.as_string == "") { $background = $*color_page_background; }
+    if ($background.as_string == "") { $background = new Color("#fff"); }
+
+    var int base = header_navlinks_luminance($background) + 500;
+    var Color[] candidates = [$*color_page_title, $*color_page_text];
+    foreach var Color candidate ($candidates) {
+        if ($candidate.as_string != "") {
+            var int text = header_navlinks_luminance($candidate) + 500;
+            if (2 * $text >= 9 * $base or 2 * $base >= 9 * $text) { return $candidate; }
+        }
+    }
+    return $base >= 2290 ? new Color("#000") : new Color("#fff");
+}
+
 function Page::print_default_stylesheet() {
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
 
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    var bool header_navlinks = $*module_navlinks_show and $*module_navlinks_section == "header";
     if ($*image_background_header_height > 0) {
+        var string height_property = $header_navlinks ? "min-height" : "height";
         $header_background = """
             $header_background
-            height: """ + $*image_background_header_height + """px;""";
+            $height_property: """ + $*image_background_header_height + """px;""";
+    }
+
+    var string header_navlinks_css = "";
+    if ($header_navlinks) {
+        var Color nav_color = header_navlinks_color();
+        $header_navlinks_css = """
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    color: $nav_color;
+    margin: 0;
+    padding: .375em 0;
+    border-top: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+}
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .125em .75em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+#header .module-navlinks a {
+    display: block;
+    padding: .25em .125em;
+    color: inherit;
+    text-decoration: none;
+}
+
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus-visible {
+    text-decoration: underline;
+}
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+""";
     }
 
     var string canvas_background = generate_background_css ($*image_background_canvas_url, $*image_background_canvas_repeat, $*image_background_canvas_position, $*color_canvas_background);
@@ -1199,12 +1283,12 @@ blockquote:first-letter{
     font-style:italic;
 }
 
-#header .inner{
+#header > .inner{
     padding:.25em 1.5em;
 }
 
 @media $medium_media_query {
-    #header .inner{
+    #header > .inner{
         box-sizing: border-box;
         width: $*topbar_width_size$*topbar_width_units;
         margin: 0 auto;
@@ -1226,6 +1310,8 @@ h2#pagetitle {
     text-align:right;
     margin-top:-1em;
 }
+
+$header_navlinks_css
 
 /*--------------- links ---------------*/
 
