@@ -229,6 +229,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
 
     var string entry_header_margin = "";
@@ -957,7 +958,7 @@ div.ContextualPopup div.Inner a:visited {
 
 $userpic_css
 
-@media only screen and (max-width: 45em) {
+@media $small_media_query {
     #canvas {
         width: auto;
         margin: 0;
@@ -973,6 +974,10 @@ $userpic_css
     .has-userpic .entry .userpic,
     .has-userpic .comment .userpic {
         margin-top: 0;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
     }
 
     .entry-content,

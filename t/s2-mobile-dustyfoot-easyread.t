@@ -55,8 +55,8 @@ load_style_layer( 1, 'core', read_style('core2.s2') );
 
 my $layer_id = 1;
 for my $layout (qw(dustyfoot easyread)) {
-    load_style_layer( ++$layer_id, 'layout',
-        read_style('core2base/layout.s2') . read_style("$layout/layout.s2") );
+    my $parent = $layout eq 'dustyfoot' ? read_style('core2base/layout.s2') : '';
+    load_style_layer( ++$layer_id, 'layout', $parent . read_style("$layout/layout.s2") );
 
     my $css = '';
     {
@@ -70,34 +70,62 @@ for my $layout (qw(dustyfoot easyread)) {
         S2::Builtin::LJ::end_css($context);
     }
 
-    my ($mobile) = $css =~ /\@media\s+only\s+screen\s+and\s+\(max-width:\s*45em\)\s*\{
-        ([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/x;
-    ok( defined $mobile, "$layout emits rules specifically for narrow screens" );
-    $mobile //= '';
+    my $breakpoint   = $layout eq 'dustyfoot' ? '45em' : '40em';
+    my @small_widths = $css =~ /\@media only screen and \(max-width: ([^)]+)\)/g;
+    ok(
+        @small_widths && !grep( { $_ ne $breakpoint } @small_widths ),
+        "$layout uses only its $breakpoint narrow-screen breakpoint"
+    );
+    like(
+        $css,
+        qr/\@media only screen and \(min-width: \Q$breakpoint\E\)/,
+        "$layout starts medium rules at the same boundary"
+    );
+
+    my @mobile = $css =~ /\@media\s+only\s+screen\s+and\s+\(max-width:\s*\Q$breakpoint\E\)\s*\{
+        ([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/gx;
 
     my %rules;
-    while ( $mobile =~ /([^{}]+)\{([^{}]+)\}/g ) {
-        my ( $selectors, $declarations ) = ( $1, $2 );
-        for my $selector ( split /,/, $selectors ) {
-            $selector =~ s/^\s+|\s+$//g;
-            $rules{$selector} .= $declarations;
+    for my $mobile (@mobile) {
+        while ( $mobile =~ /([^{}]+)\{([^{}]+)\}/g ) {
+            my ( $selectors, $declarations ) = ( $1, $2 );
+            for my $selector ( split /,/, $selectors ) {
+                $selector =~ s/^\s+|\s+$//g;
+                $rules{$selector} .= $declarations;
+            }
         }
     }
 
     like( $rules{'#canvas'} // '', qr/\bmargin:\s*0;/, "$layout removes wide page margins" );
     like( $rules{'#canvas'} // '', qr/\bpadding:\s*0\s+\d+px;/, "$layout uses fixed page gutters" );
     like( $rules{'#canvas'} // '', qr/\boverflow-wrap:\s*break-word;/, "$layout wraps long words" );
+    like( $rules{'.comment-wrapper'} // '',
+        qr/\bmin-width:\s*0;/, "$layout lets threaded comments fit the available width" );
 
     for my $kind (qw(entry comment)) {
         like( $rules{".has-userpic .$kind .header"} // '',
             qr/\bmargin-inline:\s*0;/, "$layout gives the $kind subject the full header width" );
         like( $rules{".$kind-content"} // '',
             qr/\bclear:\s*both;/, "$layout lets wide $kind content start below floated userpics" );
+        if ( $layout eq 'dustyfoot' ) {
+            like( $rules{".has-userpic .$kind .userpic"} // '',
+                qr/\bmargin-top:\s*0;/, "$layout keeps the $kind userpic below the header" );
+        }
         unlike(
             $rules{".$kind .contents"} // '',
             qr/\boverflow(?:-x)?:\s*(?:auto|hidden|scroll|clip)\b/,
             "$layout does not scroll the $kind userpic with the text"
         );
+    }
+
+    if ( $layout eq 'easyread' ) {
+        my $poster = $rules{'.has-userpic .entry .poster'} // '';
+        like( $poster, qr/\bmargin-inline:\s*0;/, "$layout resets the poster's horizontal offset" );
+        like( $poster, qr/\btop:\s*auto;/,        "$layout resets the poster's vertical offset" );
+        for my $section (qw(contents footer)) {
+            like( $rules{".entry .$section"} // '',
+                qr/\bbottom:\s*auto;/, "$layout resets the entry $section offset" );
+        }
     }
 
     for my $selector ( '.entry-content', '.comment-content', '.module-content' ) {
