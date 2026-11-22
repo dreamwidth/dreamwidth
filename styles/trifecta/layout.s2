@@ -434,6 +434,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+var string small_media_query = generate_small_media_query();
 var string medium_media_query = generate_medium_media_query();
 var string large_media_query = generate_large_media_query();
 
@@ -1364,6 +1365,67 @@ table.month td {
 #content > .inner:first-child #footer .module a:visited { $footer_link_visited_colors }
 #content > .inner:first-child #footer .module a:hover { $footer_link_hover_colors }
 #content > .inner:first-child #footer .module a:active { $footer_link_active_colors }
+
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #header-content {
+        border-right: 0;
+    }
+
+    .entry .header,
+    .entry-poster,
+    .entry-content,
+    .entry .metadata,
+    .entry .footer,
+    .comment .header,
+    .full .comment .poster,
+    .poster-ip,
+    .comment-content,
+    .comment .footer,
+    .comment-pages.toppages {
+        margin-inline: 0;
+    }
+
+    .entry .header,
+    .entry .entry-title,
+    .comment .header,
+    .comment .comment-title {
+        overflow-wrap: anywhere;
+    }
+
+    .entry .userpic,
+    .comment .userpic {
+        float: none;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    #canvas .module {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content img,
+    .comment-content img,
+    .module-content img {
+        max-width: 100%;
+        height: auto;
+    }
+}
 
 """;
 }
