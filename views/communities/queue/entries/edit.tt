@@ -47,7 +47,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="subject">
             [%- entry.security_html -%]
             [%- entry.age_restriction_html -%]
-            <h3 class="entry-title"><a href="#">[%- entry.subject -%]</a></h3>
+            <h2 class="entry-title"><a href="#">[%- entry.subject -%]</a></h2>
             [%- IF entry.age_restriction_reason -%]
                 <div class="age-restriction-reason">[%- ".label.age_restriction" | ml( reason = entry.age_restriction_reason ) | html -%]</div>
             [%- END -%]

@@ -48,6 +48,6 @@
 </form>
 
 [% ELSE %]
-<h3>[% ".invalidemailpage.title" | ml %]</h3>
+<h2>[% ".invalidemailpage.title" | ml %]</h2>
 <p>[% dw.ml(".invalidemailpage.body", { emailaddress => u.email_raw, siteroot => site.root }) %]</p>
 [% END %]

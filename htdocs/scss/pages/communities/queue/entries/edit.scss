@@ -1,5 +1,13 @@
 @import "foundation/base";
 
+.moderated-entry .entry-title {
+    font-size: 1.5em;
+    font-style: italic;
+    font-weight: bold;
+    margin: 0;
+    display: inline-block;
+}
+
 .approve-or-reject {
     margin-top: $base-line-height * 3em;
 

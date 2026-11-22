@@ -46,7 +46,7 @@ the same terms as Perl itself. For a copy of the license, please reference
 [% END %]
 ] [% '.comments' | ml %]</div></div><div class='clear-floats'></div>
 
-<h1> [% '.latest.posted' | ml %]</h1><p>
+<h2> [% '.latest.posted' | ml %]</h2><p>
 [% IF comments %]
     [% '.last.num.posted.by' | ml( num = count, user = u.ljuser_display ) %]<p>
     <table style='text-align: left'>

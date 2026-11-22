@@ -20,7 +20,7 @@
     <a href='[% "$site.root/$searchurl" %]'>&lt;&lt; [% '.new_search' | ml %]</a>
 </div>
 
-<h1>[% '.search_results' | ml %]</h1>
+<h2>[% '.search_results' | ml %]</h2>
 
 <div id="FilterSearch">[% '.new_search_show' | ml %]&nbsp;
 [%- search_ml.all   = '.new_all_search' | ml;
