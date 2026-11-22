@@ -88,6 +88,33 @@ set font_navlinks = "Georgia";
 ##===============================
 
 
+# Approximate linear sRGB on a 0–10000 scale using integer arithmetic.
+function header_nav_luminance(Color color) : int {
+    var int[] weights = [2126, 7152, 722];
+    var int index = 0;
+    var int sum = 0;
+    foreach var int channel ([$color.r, $color.g, $color.b]) {
+        var int linear = $channel * ($channel * (3053 * $channel / 255 + 6822) / 255 + 125) / 255;
+        $sum = $sum + $weights[$index] * $linear;
+        $index++;
+    }
+    return $sum / 10000;
+}
+
+function header_nav_color(Color background) : Color {
+    if (isnull $background) { $background = new Color("#fff"); }
+    var int surface = header_nav_luminance($background) + 500;
+
+    foreach var Color candidate ([$*color_page_title, $*color_page_text]) {
+        if (not isnull $candidate) {
+            var int ink = header_nav_luminance($candidate) + 500;
+            # Leave a little headroom above 4.5:1 for the integer approximation.
+            if ($ink * 10 >= $surface * 46 or $surface * 10 >= $ink * 46) { return $candidate; }
+        }
+    }
+    return $surface >= 2291 ? new Color("#000") : new Color("#fff");
+}
+
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
 
@@ -426,4 +453,71 @@ div.icons-container div.icon:nth-of-type(2n) {
 
 
  """;
+
+    if ($*module_navlinks_section == "header") {
+        var Color background = isnull $*color_header_background ? $*color_page_background : $*color_header_background;
+        var string link_background = "";
+        if (isnull $*color_header_background and $*image_background_page_url != "") {
+            # A page texture under a transparent header has no single contrast color.
+            if (isnull $background) { $background = $*color_navlinks_link_background; }
+            if (isnull $background) { $background = new Color("#fff"); }
+            $link_background = "background-color: $background; border-radius: .25em;";
+        }
+        var Color foreground = header_nav_color($background);
+        """
+#header .module-navlinks {
+    display: block;
+    width: auto;
+    background: transparent;
+    border: none;
+    margin: 0;
+    padding: 0 0 .5em;
+    color: $foreground;
+    text-align: start;
+}
+
+#header .module-navlinks ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .15em .5em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid currentColor;
+    border-bottom-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+#header .module-navlinks a {
+    display: block;
+    padding: .4em .35em;
+    background: transparent;
+    $link_background
+    border: none;
+    color: inherit;
+    font-size: 1em;
+    font-style: normal;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    text-transform: none;
+    text-underline-offset: .2em;
+}
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus-visible {
+    text-decoration: underline;
+}
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+}
+        """;
+    }
 }

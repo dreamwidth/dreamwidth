@@ -29,6 +29,35 @@ set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 ## Stylesheet
 ##===============================
 
+# Approximate linear sRGB on a 0–10000 scale using integer arithmetic.
+function header_nav_luminance(Color color) : int {
+    var int[] weights = [2126, 7152, 722];
+    var int index = 0;
+    var int sum = 0;
+    foreach var int channel ([$color.r, $color.g, $color.b]) {
+        var int linear = $channel * ($channel * (3053 * $channel / 255 + 6822) / 255 + 125) / 255;
+        $sum = $sum + $weights[$index] * $linear;
+        $index++;
+    }
+    return $sum / 10000;
+}
+
+function header_nav_color() : Color {
+    var Color background = isnull $*color_header_background ? $*color_page_background : $*color_header_background;
+    if (isnull $background) { $background = $*color_page_border; }
+    if (isnull $background) { $background = new Color("#fff"); }
+    var int surface = header_nav_luminance($background) + 500;
+
+    foreach var Color candidate ([$*color_page_title, $*color_page_text]) {
+        if (not isnull $candidate) {
+            var int ink = header_nav_luminance($candidate) + 500;
+            # Leave a little headroom above 4.5:1 for the integer approximation.
+            if ($ink * 10 >= $surface * 46 or $surface * 10 >= $ink * 46) { return $candidate; }
+        }
+    }
+    return $surface >= 2291 ? new Color("#000") : new Color("#fff");
+}
+
 function print_stylesheet() {
     var string medium_media_query = generate_medium_media_query();
 
@@ -442,5 +471,67 @@ text-align: center; }
 $userpic_css
     """;
 
+    if ($*module_navlinks_section == "header") {
+        var Color foreground = header_nav_color();
+        """
+#header { padding-right: 0; }
 
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    margin: 0;
+    padding: 0 0 .5em;
+    color: $foreground;
+}
+
+#header .module-navlinks ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .15em .5em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid currentColor;
+    border-bottom-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    min-width: 0;
+}
+
+#header .module-navlinks a {
+    display: block;
+    padding: .4em .35em;
+    color: inherit;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    text-underline-offset: .2em;
+}
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus-visible {
+    text-decoration: underline;
+}
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+}
+        """;
+
+        # Reserve the right-hand artwork area without fixing the header height.
+        if ($*image_background_header_url != "" and $*image_background_header_height > 0) {
+            var int image_height = $*image_background_header_height;
+            """
+#header {
+    height: auto;
+    min-height: min(${image_height}px, 15vw);
+    padding-right: min(387px, 28vw);
+    background-size: auto min(${image_height}px, 15vw);
+}
+            """;
+        }
+    }
 }
