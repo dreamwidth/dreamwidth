@@ -284,6 +284,47 @@ function tabula_rasa_header_nav_color() : string
     return $backdrop <= 229 ? "#fff" : "#000";
 }
 
+function print_tabularasa_header_navlinks_css() {
+    if ($*module_navlinks_section != "header") { return; }
+
+    var string nav_color = tabula_rasa_header_nav_color();
+    """
+#header .module-navlinks {
+    background: transparent;
+    border: 0;
+    margin: 0;
+    color: $nav_color;
+}
+
+#header .module.module-navlinks { padding: 0; }
+
+#header .module-navlinks ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2em 1em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+#header .module-navlinks a {
+    display: inline-block;
+    padding-block: .25em;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: .15em;
+}
+
+#header .module-navlinks a:is(:hover, :focus-visible) { text-decoration-thickness: .13em; }
+#header .module-navlinks .current { font-weight: bold; }
+""";
+}
+
 function Page::print_default_stylesheet() {
     var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
@@ -344,50 +385,15 @@ function Page::print_default_stylesheet() {
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 
-    var string module_link_scope = ".module";
+    #for showing the navigation in the header
     var string navlinks_css = "";
-    if ($*module_navlinks_section == "header") {
-        $module_link_scope = ".module:not(:where(#header .module-navlinks))";
-        var string nav_color = tabula_rasa_header_nav_color();
-        $navlinks_css = """
-:where(#header) .module-navlinks {
-    background: transparent;
-    border: 0;
-    margin: 0;
-    color: $nav_color;
-}
+    if ( $*module_navlinks_section == "header" ) { $navlinks_css = """
+        .module-navlinks li {
+        display: inline-block; }
 
-:where(#header) .module.module-navlinks { padding: 0; }
-:where(#header) .module-navlinks .module-header { display: none; }
-
-:where(#header) .module-navlinks ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .2em 1em;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-:where(#header) .module-navlinks li {
-    margin: 0;
-    overflow-wrap: anywhere;
-}
-
-:where(#header) .module-navlinks a {
-    display: inline-block;
-    padding-block: .25em;
-    color: inherit;
-    text-decoration: underline;
-    text-underline-offset: .15em;
-}
-
-:where(#header) .module-navlinks a:is(:hover, :focus-visible) { text-decoration-thickness: .13em; }
-:where(#header) .module-navlinks .current { font-weight: bold; }
-""";
-    } else {
-        $navlinks_css = "#header .module-wrapper {display: none;}";
-    }
+        .module-navlinks .module-header { display: none; }
+        """; }
+    else { $navlinks_css = "#header .module-wrapper {display: none;}"; }
 
      var string userpic_css = "";
          if ($*userpics_position == "right") {
@@ -854,10 +860,10 @@ table.month td p {
     $module_colors
 }
 
-$module_link_scope a { $module_link_colors }
-$module_link_scope a:visited { $module_link_visited_colors }
-$module_link_scope a:hover { $module_link_hover_colors }
-$module_link_scope a:active { $module_link_active_colors }
+.module a { $module_link_colors }
+.module a:visited { $module_link_visited_colors }
+.module a:hover { $module_link_hover_colors }
+.module a:active { $module_link_active_colors }
 
 .module h2 {
     $module_title_colors

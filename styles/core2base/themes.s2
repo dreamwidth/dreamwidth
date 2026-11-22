@@ -52,6 +52,7 @@ function Page::print_theme_stylesheet () {
     """
     .entry .inner, .module { padding: .5em; }
     """;
+    print_tabularasa_header_navlinks_css();
 }
 
 
@@ -97,6 +98,7 @@ function Page::print_theme_stylesheet () {
     """
     .entry .inner, .module { padding: .5em; }
     """;
+    print_tabularasa_header_navlinks_css();
 }
 
 
@@ -135,6 +137,7 @@ function Page::print_theme_stylesheet () {
     """
     .entry .inner, .module { padding: .5em; }
     """;
+    print_tabularasa_header_navlinks_css();
 }
 
 
@@ -170,6 +173,10 @@ set color_module_background = "#ffefbd";
 set color_module_text="#000";
 set color_module_title = "#ef8229";
 
+function Page::print_theme_stylesheet () {
+    print_tabularasa_header_navlinks_css();
+}
+
 
 #NEWLAYER: core2base/shanice
 layerinfo type = "theme";
@@ -192,6 +199,10 @@ set color_page_text = "#ab3e5b";
 set color_page_title = "#fff";
 set color_header_background = "#ab3e5b";
 set color_footer_background = "#fff";
+
+function Page::print_theme_stylesheet () {
+    print_tabularasa_header_navlinks_css();
+}
 
 
 #NEWLAYER: core2base/tabac
@@ -221,6 +232,10 @@ set color_header_background = "#4a0812";
 set color_module_background = "#4a0812";
 set color_module_border = "#4A0812";
 
+function Page::print_theme_stylesheet () {
+    print_tabularasa_header_navlinks_css();
+}
+
 
 #NEWLAYER: core2base/testing
 layerinfo type = "theme";
@@ -228,3 +243,7 @@ layerinfo name = "Plain";
 layerinfo redist_uniq = "core2base/testing";
 
 ## Plain Tabula Rasa, with only the most basic CSS applied
+
+function Page::print_theme_stylesheet () {
+    print_tabularasa_header_navlinks_css();
+}
