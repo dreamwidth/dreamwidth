@@ -810,5 +810,45 @@ div.icon-image a {
 ************************************************/
 .page-reply table{ font-size: smaller}
 
+@media only screen and (max-width: 45em) {
+    #canvas {
+        margin: 0;
+        padding: 0 8px;
+    }
+
+    #primary > .inner:first-child {
+        padding-inline: 0;
+    }
+
+    #secondary .module,
+    #tertiary .module {
+        width: auto;
+        margin-inline: 0;
+    }
+
+    .entry .header,
+    .comment .header {
+        overflow-wrap: break-word;
+    }
+
+    .entry .entry-title,
+    .comment .comment-title {
+        line-height: 1.3;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
     """;
 }

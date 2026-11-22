@@ -1033,5 +1033,68 @@ $navlinks_css
 
     $userpic_css
 
+@media only screen and (max-width: 45em) {
+    #canvas {
+        margin: 0;
+        padding: 0 8px;
+    }
+
+    #primary > .inner:first-child {
+        padding: 1em 0;
+    }
+
+    .entry-wrapper-odd .header,
+    .entry-wrapper-even .header {
+        margin-inline: 0;
+    }
+
+    .entry .header,
+    .comment .header {
+        overflow-wrap: break-word;
+    }
+
+    .comment-wrapper-odd .header,
+    .comment-wrapper-even .header,
+    .comment-wrapper-odd.full .datetime,
+    .comment-wrapper-even.full .datetime {
+        padding-inline: 0;
+    }
+
+    .comment-wrapper-odd .contents .userpic,
+    .comment-wrapper-even .contents .userpic {
+        margin-top: 0;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content blockquote,
+    .comment-content blockquote {
+        margin-inline: 0;
+        padding-inline: 1em;
+    }
+
+    .entry-content ul,
+    .entry-content ol,
+    .comment-content ul,
+    .comment-content ol {
+        padding-inline-start: 1em;
+    }
+
+    .entry-content li {
+        margin-left: 0;
+    }
+}
+
     """;
 }
