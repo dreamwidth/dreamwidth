@@ -362,6 +362,10 @@ function Page::print_default_stylesheet()
         var Color nav_color = header_navlinks_color();
         $header_colors = generate_color_css(new Color, $*color_header_background, new Color);
         $header_navlinks_css = """
+    #canvas #header {
+        height: auto;
+    }
+
     #header .header-banner {
         display: flow-root;
         $header_background

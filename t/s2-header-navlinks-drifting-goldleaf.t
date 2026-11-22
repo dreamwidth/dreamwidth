@@ -51,6 +51,7 @@ sub render_css {
     local $S2::pout_s = $S2::pout;
     S2::run_code( $ctx, 'Page::print_default_stylesheet()', { _type => 'Page' } );
     S2::run_code( $ctx, 'print_stylesheet()' );
+    S2::run_code( $ctx, 'Page::print_theme_stylesheet()', { _type => 'Page' } );
     return $css;
 }
 
@@ -70,8 +71,9 @@ sub luminance {
     return 0.2126 * $red + 0.7152 * $green + 0.0722 * $blue;
 }
 
-my $nav = '#header .module-navlinks';
-my $hex = qr/\#[0-9a-fA-F]{6}\b|\#[0-9a-fA-F]{3}\b/;
+my $nav    = '#header .module-navlinks';
+my $header = '#canvas #header';
+my $hex    = qr/\#[0-9a-fA-F]{6}\b|\#[0-9a-fA-F]{3}\b/;
 
 for my $layout (qw(drifting goldleaf)) {
     S2::set_domain("test-header-navlinks-$layout");
@@ -101,7 +103,16 @@ for my $layout (qw(drifting goldleaf)) {
         is_deeply( $sections->{header}[$order],
             ['navlinks'], "$layout/$name: navigation can be assigned to the header" );
 
-        my $css  = render_css($ctx);
+        my $css = render_css($ctx);
+        if ( $layout eq 'drifting' && $name eq 'Soft Blues' ) {
+            like( declarations( $css, "#header,\n    .header-right" ),
+                qr/height:\s*5\.813em;/, 'Soft Blues renders its theme-specific header height' );
+            like( declarations( $css, $header ),
+                qr/height:\s*auto;/, 'Soft Blues: the header can grow to contain navigation' );
+            my $theme_sidebar = S2::make_context( 1, 2, @$layers, 4 );
+            is( declarations( render_css($theme_sidebar), $header ),
+                '', 'Soft Blues: sidebar mode keeps the theme-specific header height' );
+        }
         my $box  = declarations( $css, $nav );
         my $list = declarations( $css, "$nav .module-list" );
         my $link = declarations( $css, "$nav a" );
@@ -128,6 +139,14 @@ for my $layout (qw(drifting goldleaf)) {
     my $sidebar = S2::make_context( 1, 2, 4 );
     S2::run_code( $sidebar, 'prop_init()' );
     S2::run_code( $sidebar, 'modules_init()' );
+    if ( $layout eq 'goldleaf' ) {
+        my $overrides = S2::get_property_value( $sidebar, 'grouped_property_override' );
+        is(
+            $overrides->{module_navlinks_section},
+            'module_navlinks_section_override',
+            'Gold Leaf: the group override can change navigation placement'
+        );
+    }
     my $sections = S2::get_property_value( $sidebar, 'module_sections' );
     my $order    = S2::get_property_value( $sidebar, 'module_navlinks_order' );
     is_deeply( $sections->{one}[$order], ['navlinks'], "$layout: sidebar keeps its navigation" );
