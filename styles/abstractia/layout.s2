@@ -539,11 +539,69 @@ function EntryPage::print_comment (Comment c) {
     $c->print_wrapper_end();
 }
 
+function abstractia_page_background_css() : string {
+    var string background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    if ($*image_background_page_repeat != "no-repeat") {
+        return $background;
+    }
+
+    var int[]{} image_sizes = {
+        "abstractia/abyss-page.jpg" => [1800, 1100],
+        "abstractia/aulait-page.jpg" => [1800, 1100],
+        "abstractia/aurora.jpg" => [1915, 1110],
+        "abstractia/blackberry.jpg" => [1800, 1100],
+        "abstractia/bubblegum-page.jpg" => [1800, 1100],
+        "abstractia/bubbles.jpg" => [1800, 1100],
+        "abstractia/burgundy.jpg" => [1800, 1100],
+        "abstractia/burnished-page.jpg" => [1800, 1100],
+        "abstractia/cocoa.jpg" => [1800, 1100],
+        "abstractia/darkcarnival-page.jpg" => [1800, 1100],
+        "abstractia/deepforest.jpg" => [1800, 1100],
+        "abstractia/dusk.jpg" => [1800, 1100],
+        "abstractia/electricmayhem.jpg" => [1915, 1110],
+        "abstractia/electricmayhemii.jpg" => [1915, 1110],
+        "abstractia/emerald.jpg" => [1800, 1100],
+        "abstractia/eternalsunshine.jpg" => [1800, 1100],
+        "abstractia/evergreen.jpg" => [1800, 1100],
+        "abstractia/fabulosity.jpg" => [1800, 1100],
+        "abstractia/loveless.jpg" => [1780, 1300],
+        "abstractia/lucky-page.jpg" => [1800, 1100],
+        "abstractia/makewaves-page.jpg" => [1800, 1100],
+        "abstractia/midnight-page.jpg" => [1800, 1100],
+        "abstractia/moss.jpg" => [1800, 1100],
+        "abstractia/nightfall.jpg" => [1800, 1100],
+        "abstractia/obsession.jpg" => [1800, 1100],
+        "abstractia/oceanfloor-page.jpg" => [1800, 1100],
+        "abstractia/oceanic.jpg" => [1800, 1100],
+        "abstractia/oceanicii.jpg" => [1800, 1100],
+        "abstractia/persephone.jpg" => [1800, 1100],
+        "abstractia/pulse-page.jpg" => [1800, 1100],
+        "abstractia/radioactive-page.jpg" => [1800, 1100],
+        "abstractia/seaglass.jpg" => [1800, 1464],
+        "abstractia/sky-page.jpg" => [1800, 1100],
+        "abstractia/smoke-page.jpg" => [1800, 1100],
+        "abstractia/sylph.jpg" => [1915, 1110],
+        "abstractia/toxic-page.jpg" => [1800, 1100],
+        "abstractia/tropicalsunset-page.jpg" => [1800, 1100],
+        "abstractia/twinkle-page.jpg" => [1800, 1100],
+        "abstractia/valentine-page.jpg" => [1800, 1100],
+        "abstractia/violetnight.jpg" => [1800, 1100],
+        "abstractia/vision.jpg" => [1800, 1100]
+    };
+    var int[] image_size = $image_sizes{$*image_background_page_url};
+    var int image_width = $image_size[0];
+    if ($image_width > 0) {
+        var int image_height = $image_size[1];
+        $background = $background + "\n    background-size: max(100%, ${image_width}px, calc(100vh * $image_width / $image_height)) auto;";
+    }
+    return $background;
+}
+
 function Page::print_default_stylesheet() {
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
 
-    var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
+    var string page_background = abstractia_page_background_css();
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
         $header_background = """
