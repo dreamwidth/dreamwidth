@@ -83,3 +83,13 @@ test("raw chunks come back exactly as they were, including embed-like text", () 
         assert.ok(out.includes(chunk), "kept: " + chunk + " in " + out);
     });
 });
+
+test("server-converted source for an unclosed iframe keeps its text through the editor", () => {
+    // Fixture: LJ::CleanHTML::casual_to_explicit("before\nx <iframe src=\"http://e.com/\">after\nthe iframe")
+    // omits the opener the cleaner discards and writes the recovered text as
+    // ordinary text, so nothing in it can hide the rest of the entry.
+    const fixture = "before<br />x after<br />the iframe";
+    const out = roundTrip(fixture);
+    assert.match(out, /after<br>the iframe/);
+    assert.doesNotMatch(out, /iframe>/);
+});

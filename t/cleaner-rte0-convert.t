@@ -102,10 +102,19 @@ qq{<a href="http://example.com/">link text<div>block $at_a\nmore http://example.
         'a script duplicating body text',
         "<script>same\nwords</script>same\nwords http://example.com/"
     ],
+    [
+        'an unclosed iframe',
+        qq{before\n<iframe src="http://example.com/">after\nthe iframe http://example.com/ $at_a}
+    ],
+    [ 'an unclosed object', "before\n<object>after\nthe object $at_a\n<b>bold</b>" ],
+    [
+        'a closed iframe',
+        qq{before\n<iframe src="http://example.com/">inside\n</iframe>after\nit $at_a}
+    ],
     [ 'repeated text in and out of a pre', "<pre>x\ny</pre>x\ny <pre>x\ny</pre>x\ny" ],
 );
 
-plan tests => scalar @bodies;
+plan tests => scalar(@bodies) + 1;
 
 # The one allowed difference: the old path wrote an auto-linked URL's "&" into
 # the href as-is, while cleaning explicit markup writes it as "&amp;". Both mean
@@ -126,6 +135,11 @@ foreach my $case (@bodies) {
     my $after    = $explicit;
     LJ::CleanHTML::clean_event( \$after, { editor => 'rte1' } );
 
+    unlike(
+        $explicit,
+        qr/<iframe[^>]*>(?!.*<\/iframe>)/si,
+        "$name: no unclosed iframe left in the converted source"
+    ) if $name =~ /unclosed iframe/;
     is( same_href($after), same_href($before), "$name: renders the same once converted" )
         or diag("explicit source: $explicit");
 }

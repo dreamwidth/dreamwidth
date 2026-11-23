@@ -203,13 +203,10 @@ sub clean {
         $addbreaks = 0;
     }
 
-    # Create the HTML parser we'll use to navigate the text from here on out:
-    # (When asked to report text tokens, use one that numbers the tokens it hands
-    # out, so a report can say exactly which token it is about.)
-    my $p =
-        $opts->{text_hook}
-        ? LJ::CleanHTML::NumberedTokens->new($data)
-        : HTML::TokeParser->new($data);
+    # Create the HTML parser we'll use to navigate the text from here on out.
+    # It numbers the tokens it hands out (1, 2, 3 ... in source order), so we can
+    # say exactly which token a report or a lookup is about.
+    my $p = LJ::CleanHTML::NumberedTokens->new($data);
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -283,17 +280,52 @@ sub clean {
 
     # The opening tag of an element whose contents we're discarding has just
     # been read. Skip to its matching close tag (counting nested ones of the same
-    # kind, so an inner </iframe> doesn't end the outer one). If there is no
-    # close tag, the element was never really closed: put everything back and
-    # drop only the opening tag, so the text after it still renders -- as text,
-    # through the normal path, never as live markup. Returns true if the whole
-    # element was skipped.
+    # kind, so an inner </iframe> doesn't end the outer one). If it has no close
+    # tag, the element was never really closed: drop only the opening tag, so the
+    # text after it still renders -- as text, through the normal path, never as
+    # live markup. Returns true if the whole element was skipped.
+    #
+    # Which openers are unmatched is worked out once, for the whole text, by
+    # pairing openers with closers per tag using a stack (linear). Looking ahead
+    # for a close tag from every opener instead is quadratic when there are many
+    # unmatched ones, and this runs on every entry and comment.
+    my %unmatched;
+    my $find_unmatched = sub {
+        my %eaten = map { $_ => 1 } grep { $action{$_} eq 'eat' } keys %action;
+        $eaten{iframe} = 1;
+
+        my ( %open, $n );
+        my $scan = LJ::CleanHTML::NumberedTokens->new($data);
+        while ( my $t = $scan->get_token ) {
+            $n++;
+            my ( $ttype, $ttag, $tattr ) = @$t;
+            next unless $ttype eq 'S' || $ttype eq 'E';
+            $ttag = lc $ttag;
+            next unless $eaten{$ttag};
+            if ( $ttype eq 'S' ) {
+                push @{ $open{$ttag} }, $n unless ref $tattr eq 'HASH' && $tattr->{'/'};
+            }
+            else {
+                pop @{ $open{$ttag} } if $open{$ttag} && @{ $open{$ttag} };
+            }
+        }
+        foreach my $left ( values %open ) { $unmatched{$_} = 1 foreach @$left }
+        return 1;
+    };
+    my $unmatched_known = 0;
+
     my $eat_block = sub {
         my ($tag) = @_;
-        my @seen;
+        my $opener = $p->{dw_token_number};
+
+        $unmatched_known ||= $find_unmatched->();
+        if ( $unmatched{$opener} ) {
+            $opts->{dropped_hook}->($opener) if $opts->{dropped_hook};
+            return 0;
+        }
+
         my $depth = 1;
         while ( my $next = $p->get_token ) {
-            push @seen, $next;
             my ( $ntype, $ntag, $nattr ) = @$next;
             next unless $ntype eq 'S' || $ntype eq 'E';
             next unless lc $ntag eq $tag;
@@ -304,7 +336,6 @@ sub clean {
                 return 1;
             }
         }
-        $p->unget_token(@seen);
         return 0;
     };
 
@@ -1745,6 +1776,7 @@ sub clean_event {
             errref                  => $opts->{errref},
             verbose_err             => $opts->{verbose_err},
             text_hook               => $opts->{text_hook},
+            dropped_hook            => $opts->{dropped_hook},
         }
     );
 }
@@ -2072,13 +2104,14 @@ sub casual_to_explicit {
     # clean() starts by doing this, so tokenize the same thing it does
     $text = LJ::strip_request_auth($text);
 
-    my @seen;
+    my ( @seen, %dropped );
     my $copy = $text;
     clean_event(
         \$copy,
         {
-            editor    => ( $format || 'rte0' ),
-            text_hook => sub { push @seen, [@_] }
+            editor       => ( $format || 'rte0' ),
+            text_hook    => sub { push @seen, [@_] },
+            dropped_hook => sub { $dropped{ $_[0] } = 1 },
         }
     );
 
@@ -2105,7 +2138,10 @@ sub casual_to_explicit {
                 : $token->[1];
         }
         elsif ( $type eq 'S' ) {
-            $out .= $token->[4];
+
+            # An opener the cleaner threw away (an iframe that never closes) is
+            # left out, so the text it would have swallowed is plain text.
+            $out .= $token->[4] unless $dropped{$n};
         }
         elsif ( $type eq 'E' ) {
             $out .= $token->[2];
