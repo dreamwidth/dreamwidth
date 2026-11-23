@@ -20,6 +20,7 @@ use HTTP::Request::Common;
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Session;
 use LJ::Test qw(temp_user temp_comm);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -111,5 +112,65 @@ my $get_text = \&LJ::Lang::get_text;
     };
 
 }
+
+$comm->update_self( { caps => 2 } );
+my $session = LJ::Session->create($admin) or die 'create administrator session';
+my $cookie =
+      'ljmastersession='
+    . $session->master_cookie_string
+    . '; ljloggedin='
+    . $session->loggedin_cookie_string;
+test_psgi $app, sub {
+    my $cb = shift;
+    my ( $admin_name, $community_name ) = ( $admin->user, $comm->user );
+
+    for my $route (qw(layers styles)) {
+        subtest "account switcher on the $route error page" => sub {
+            my $res = $cb->( GET "$base/$route?authas=$community_name", Cookie => $cookie );
+            is( $res->code, 200, 'error page renders' );
+
+            my ($switcher) = grep { /<select\b[^>]*\bname="authas"/ }
+                $res->content =~ m{(<form\b[^>]*>.*?</form>)}sig;
+            ok( defined $switcher, 'the account select is inside a form' );
+            like(
+                $switcher // '',
+                qr{<form\b[^>]*\bmethod=(['"])get\1}i,
+                'switching accounts uses GET'
+            );
+            unlike( $switcher // '',
+                qr{<form\b[^>]*\baction\s*=}i,
+                'the form submits to the current document without an explicit destination' );
+            like(
+                $switcher // '',
+                qr{<label\b[^>]*\bfor=(['"])authas\1[^>]*>\s*\S.*?</label>}is,
+                'the account switcher has a programmatic label'
+            );
+            like( $switcher // '', qr{<select\b[^>]*\bid="authas"},
+                'the label targets the select' );
+            like(
+                $switcher // '',
+                qr{<input\b[^>]*\btype=(['"])submit\1},
+                'the form can be submitted'
+            );
+            unlike( $res->content, qr{\bname="action:create"},
+                'the restricted community has no create control' );
+            like(
+                $switcher // '',
+                qr{<option value="\Q$admin_name\E"},
+                'the administrator can switch back to their personal account'
+            );
+            like(
+                $switcher // '',
+                qr{<option value="\Q$community_name\E" selected=},
+                'the current community is selected'
+            );
+
+            my $personal_res = $cb->( GET "$base/$route?authas=$admin_name", Cookie => $cookie );
+            is( $personal_res->code, 200, 'switching back renders the personal tool' );
+            like( $personal_res->content, qr{\bname="action:create"},
+                'the personal tool offers creation after switching' );
+        };
+    }
+};
 
 done_testing;
