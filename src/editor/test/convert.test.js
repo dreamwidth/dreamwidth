@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { roundTrip } from "./helpers.js";
-import { rawBlockFromText, flattenNewlines } from "../src/serialize.js";
+import { rawBlockFromText, flattenNewlines, closeEmbeds } from "../src/serialize.js";
 
 const casual = { links: true, mentions: true, sites: ["livejournal.com"] };
 
@@ -62,4 +62,17 @@ test("pasted poll and embed code is recognized as a block", () => {
     assert.ok(rawBlockFromText('<embed src="http://example.com/v.swf">'));
     assert.equal(rawBlockFromText("just <poll> talk"), null);
     assert.equal(rawBlockFromText("<poll>never closed"), null);
+});
+
+test("a bare <embed> is stored with a closing tag the server's parser can see", () => {
+    assert.equal(rawBlockFromText('<embed src="http://example.com/v.swf">'), '<embed src="http://example.com/v.swf"></embed>');
+    const out = roundTrip('<p>a</p><embed src="http://example.com/v.swf"><p>b</p>');
+    assert.match(out, /<embed src="http:\/\/example\.com\/v\.swf"><\/embed>/);
+    assert.match(out, /<p>b<\/p>/);
+});
+
+test("closeEmbeds leaves closed and self-closed embeds alone", () => {
+    assert.equal(closeEmbeds('<embed src="x"></embed>'), '<embed src="x"></embed>');
+    assert.equal(closeEmbeds('<embed src="x" />'), '<embed src="x" />');
+    assert.equal(closeEmbeds('<object><embed src="x"></object>'), '<object><embed src="x"></embed></object>');
 });

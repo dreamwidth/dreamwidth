@@ -50,11 +50,13 @@ makes the old text meaningless).
 `mount(..., { fromFormat })` and `unmount(..., { toFormat })` make the
 conversions between rich text and the plain formats explicit:
 
-- Casual HTML (and the retired `rte0`, which the cleaner treats as casual HTML)
-  becomes explicit markup on the way in: newlines become `<br>`, bare URLs
+- Casual HTML becomes explicit markup on the way in: newlines become `<br>`, bare URLs
   become links, and `@name` mentions become user tags, matching what the server
   would have rendered. Markdown gets the line breaks and mentions; its other
   syntax can't be converted client-side (the page asks first).
+- The retired `rte0` format (which the cleaner treats as casual HTML) never
+  reaches the editor unconverted: the server rewrites it with
+  `LJ::CleanHTML::casual_to_explicit`, which shares the cleaner's own text rules.
 - Leaving for casual HTML strips the cosmetic newlines the serializer adds, so
   the server's auto-line-breaking doesn't double them. Raw HTML and Markdown
   read the explicit HTML as it is.

@@ -229,9 +229,29 @@ function classifyBlock(el) {
     return blocks ? "container" : "textblock";
 }
 
-function toPlaceholder(el, placeholderTag) {
+// Is this element one of the marks the schema models directly (and so ranks
+// ahead of or behind the generic marks)?
+function isModeledMark(el) {
+    if (el.localName == "a") return el.hasAttribute("href");
+    return MODELED_MARK_TAGS.has(el.localName) && el.attributes.length == 0;
+}
+
+function hasModeledAncestor(el) {
+    for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+        if (isModeledMark(node)) return true;
+        if (!INLINE_PARENTS.has(node.localName)) return false;
+    }
+    return false;
+}
+
+function hasModeledDescendant(el) {
+    return Array.from(el.querySelectorAll("*")).some(isModeledMark);
+}
+
+function toPlaceholder(el, placeholderTag, inner) {
     const placeholder = document.createElement(placeholderTag);
     placeholder.setAttribute("data-dw-tag", el.localName);
+    if (inner) placeholder.setAttribute("data-dw-inner", "1");
     const extra = allAttrs(el);
     if (Object.keys(extra).length) placeholder.setAttribute("data-dw-x", JSON.stringify(extra));
     while (el.firstChild) placeholder.appendChild(el.firstChild);
@@ -296,7 +316,13 @@ function visit(el) {
     // on, so they're kept verbatim.
     if (GENERIC_INLINE_TAGS.indexOf(tag) >= 0) {
         if (isEmpty(el) || hasBlockDescendant(el)) return replaceRaw(el);
-        toPlaceholder(el, "dw-inline");
+
+        // Marks are an unordered set ranked by type, so a generic element
+        // keeps its place only if it sat wholly outside or wholly inside the
+        // modeled marks. Wedged between two, it's kept as an opaque fragment.
+        const inside = hasModeledAncestor(el);
+        if (inside && hasModeledDescendant(el)) return replaceRaw(el);
+        toPlaceholder(el, "dw-inline", inside);
         return;
     }
 
@@ -444,11 +470,22 @@ function unwrapTightListItems(root) {
     });
 }
 
+// <embed> is a void element, written bare (<embed src=...>) by browsers and
+// most people. Give it an explicit </embed> in stored markup: the server's
+// embed parser reads a bare one as unclosed.
+export function closeEmbeds(html) {
+    return html.replace(/<embed\b[^>]*>/gi, (tag, offset) => {
+        if (/\/>$/.test(tag)) return tag;
+        if (/^\s*<\/embed\s*>/i.test(html.slice(offset + tag.length))) return tag;
+        return tag + "</embed>";
+    });
+}
+
 function buildSerializer(schema, rawChunks) {
     const nodes = DOMSerializer.nodesFromSchema(schema);
     const placeholder = (html) => {
         const el = document.createElement("dw-raw-placeholder");
-        el.setAttribute("data-key", String(rawChunks.push(html) - 1));
+        el.setAttribute("data-key", String(rawChunks.push(closeEmbeds(html)) - 1));
         return el;
     };
     nodes.html_block = (node) => placeholder(node.textContent);
@@ -543,7 +580,8 @@ export function rawBlockFromText(text) {
     const m = /^<(poll|lj-poll|site-embed|lj-embed|iframe|object|embed)\b/i.exec(trimmed);
     if (!m) return null;
     // <embed> has no closing tag.
-    if (m[1].toLowerCase() == "embed") return /^<embed\b[^<]*>$/i.test(trimmed) ? trimmed : null;
+    if (m[1].toLowerCase() == "embed")
+        return /^<embed\b[^<]*>$/i.test(trimmed) ? closeEmbeds(trimmed) : null;
     const closer = new RegExp("</" + m[1] + "\\s*>$|/>$", "i");
     return closer.test(trimmed) ? trimmed : null;
 }

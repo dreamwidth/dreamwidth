@@ -12555,10 +12555,19 @@ var DWEditor = (() => {
   var BLOCK_SET = new Set(GENERIC_BLOCK_TAGS);
   var INLINE_SET = new Set(GENERIC_INLINE_TAGS);
   var EVENT_ATTR = /^on/i;
+  var UNSAFE_VALUE = /(?:jscript|livescript|javascript|vbscript|^about|data):/i;
+  function safeForView(value) {
+    return !UNSAFE_VALUE.test(String(value).replace(/[\s\x0b\x00]+/g, ""));
+  }
+  function viewAttr(attrs, name, value) {
+    if (render.raw || safeForView(value))
+      attrs[name] = value;
+    return attrs;
+  }
   function withExtra(attrs, extra) {
     if (extra) {
       Object.keys(extra).forEach((name) => {
-        if (!render.raw && EVENT_ATTR.test(name))
+        if (!render.raw && (EVENT_ATTR.test(name) || !safeForView(extra[name])))
           return;
         if (!(name in attrs))
           attrs[name] = extra[name];
@@ -12768,7 +12777,7 @@ var DWEditor = (() => {
         }
       ],
       toDOM(node) {
-        const attrs = { src: node.attrs.src };
+        const attrs = viewAttr({}, "src", node.attrs.src);
         if (node.attrs.alt)
           attrs.alt = node.attrs.alt;
         if (node.attrs.title)
@@ -12836,11 +12845,20 @@ var DWEditor = (() => {
   };
   var marks = {
     // <span>, <font>, <small>, <a name>, or a modeled tag that carried
-    // attributes (<b class="x">). Listed first so it wraps the other marks.
+    // attributes (<b class="x">). Listed first so it wraps the other marks, which
+    // is the right nesting for an element that sat outside them. One that sat
+    // inside a modeled mark (<strong><span style=...>) is an html_mark_inner,
+    // listed last, so the stored nesting comes back the same -- otherwise a
+    // normal-weight span inside <strong> would come out wrapping it, and bold.
     html_mark: {
       attrs: { tag: { default: "span" }, extra: { default: null } },
       excludes: "",
-      parseDOM: [{ tag: "dw-inline", getAttrs: genericAttrs(INLINE_SET, "span") }],
+      parseDOM: [
+        {
+          tag: "dw-inline:not([data-dw-inner])",
+          getAttrs: genericAttrs(INLINE_SET, "span")
+        }
+      ],
       toDOM(mark) {
         return [genericTag(mark, INLINE_SET, "span"), withExtra({}, mark.attrs.extra), 0];
       }
@@ -12861,7 +12879,7 @@ var DWEditor = (() => {
         }
       ],
       toDOM(mark) {
-        const attrs = { href: mark.attrs.href };
+        const attrs = viewAttr({}, "href", mark.attrs.href);
         if (mark.attrs.title)
           attrs.title = mark.attrs.title;
         return ["a", withExtra(attrs, mark.attrs.extra), 0];
@@ -12921,6 +12939,17 @@ var DWEditor = (() => {
       parseDOM: [{ tag: "sup" }],
       toDOM() {
         return ["sup", 0];
+      }
+    },
+    // See html_mark: the same thing, but nested inside the modeled marks.
+    html_mark_inner: {
+      attrs: { tag: { default: "span" }, extra: { default: null } },
+      excludes: "",
+      parseDOM: [
+        { tag: "dw-inline[data-dw-inner]", getAttrs: genericAttrs(INLINE_SET, "span") }
+      ],
+      toDOM(mark) {
+        return [genericTag(mark, INLINE_SET, "span"), withExtra({}, mark.attrs.extra), 0];
       }
     }
   };
@@ -13089,9 +13118,28 @@ var DWEditor = (() => {
       return "raw";
     return blocks ? "container" : "textblock";
   }
-  function toPlaceholder(el, placeholderTag) {
+  function isModeledMark(el) {
+    if (el.localName == "a")
+      return el.hasAttribute("href");
+    return MODELED_MARK_TAGS.has(el.localName) && el.attributes.length == 0;
+  }
+  function hasModeledAncestor(el) {
+    for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+      if (isModeledMark(node))
+        return true;
+      if (!INLINE_PARENTS.has(node.localName))
+        return false;
+    }
+    return false;
+  }
+  function hasModeledDescendant(el) {
+    return Array.from(el.querySelectorAll("*")).some(isModeledMark);
+  }
+  function toPlaceholder(el, placeholderTag, inner) {
     const placeholder = document.createElement(placeholderTag);
     placeholder.setAttribute("data-dw-tag", el.localName);
+    if (inner)
+      placeholder.setAttribute("data-dw-inner", "1");
     const extra = allAttrs(el);
     if (Object.keys(extra).length)
       placeholder.setAttribute("data-dw-x", JSON.stringify(extra));
@@ -13153,7 +13201,10 @@ var DWEditor = (() => {
     if (GENERIC_INLINE_TAGS.indexOf(tag) >= 0) {
       if (isEmpty(el) || hasBlockDescendant(el))
         return replaceRaw(el);
-      toPlaceholder(el, "dw-inline");
+      const inside = hasModeledAncestor(el);
+      if (inside && hasModeledDescendant(el))
+        return replaceRaw(el);
+      toPlaceholder(el, "dw-inline", inside);
       return;
     }
     if (GENERIC_BLOCK.has(tag)) {
@@ -13285,11 +13336,20 @@ var DWEditor = (() => {
       li.removeChild(first);
     });
   }
+  function closeEmbeds(html) {
+    return html.replace(/<embed\b[^>]*>/gi, (tag, offset) => {
+      if (/\/>$/.test(tag))
+        return tag;
+      if (/^\s*<\/embed\s*>/i.test(html.slice(offset + tag.length)))
+        return tag;
+      return tag + "</embed>";
+    });
+  }
   function buildSerializer(schema2, rawChunks) {
     const nodes2 = DOMSerializer.nodesFromSchema(schema2);
     const placeholder = (html) => {
       const el = document.createElement("dw-raw-placeholder");
-      el.setAttribute("data-key", String(rawChunks.push(html) - 1));
+      el.setAttribute("data-key", String(rawChunks.push(closeEmbeds(html)) - 1));
       return el;
     };
     nodes2.html_block = (node) => placeholder(node.textContent);
@@ -13338,7 +13398,7 @@ var DWEditor = (() => {
     if (!m)
       return null;
     if (m[1].toLowerCase() == "embed")
-      return /^<embed\b[^<]*>$/i.test(trimmed) ? trimmed : null;
+      return /^<embed\b[^<]*>$/i.test(trimmed) ? closeEmbeds(trimmed) : null;
     const closer = new RegExp("</" + m[1] + "\\s*>$|/>$", "i");
     return closer.test(trimmed) ? trimmed : null;
   }
@@ -13507,15 +13567,15 @@ var DWEditor = (() => {
     constructor(node, icons) {
       this.dom = document.createElement("span");
       this.dom.className = "dw-editor-user" + (node.attrs.site ? " dw-editor-user-external" : "");
-      const icon = pickIcon(icons, node.attrs);
-      if (icon) {
+      const icon2 = pickIcon(icons, node.attrs);
+      if (icon2) {
         const img = document.createElement("img");
         img.className = "dw-editor-user-icon";
-        img.src = icon.url;
-        if (icon.width)
-          img.width = icon.width;
-        if (icon.height)
-          img.height = icon.height;
+        img.src = icon2.url;
+        if (icon2.width)
+          img.width = icon2.width;
+        if (icon2.height)
+          img.height = icon2.height;
         img.alt = "";
         this.dom.appendChild(img);
       }
@@ -14762,6 +14822,18 @@ var DWEditor = (() => {
   }
 
   // src/menu.js
+  function icon(paths) {
+    return '<svg class="dw-editor-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + paths + "</svg>";
+  }
+  var ICONS = {
+    link: icon('<path d="M6.5 9.5l3-3"/><path d="M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1"/><path d="M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1"/>'),
+    image: icon('<rect x="1.8" y="3" width="12.4" height="10" rx="1.2"/><circle cx="5.4" cy="6.4" r="1.1"/><path d="M2.5 12l3.6-3.4 2.6 2.4 2-1.8 3.3 2.8"/>'),
+    embed: icon('<rect x="1.8" y="3" width="12.4" height="10" rx="1.2"/><path d="M6.6 5.8v4.4l3.6-2.2z" fill="currentColor"/>'),
+    quote: icon('<path d="M3 11V8.2C3 6.2 4 5 5.8 4.6M8.6 11V8.2c0-2 1-3.2 2.8-3.6"/><path d="M3 11h2.6V8.2H3zM8.6 11h2.6V8.2H8.6z" fill="currentColor"/>'),
+    cut: icon('<circle cx="4.4" cy="11.6" r="1.8"/><circle cx="11.6" cy="11.6" r="1.8"/><path d="M5.6 10.2L12 2.5M10.4 10.2L4 2.5"/>'),
+    outdent: icon('<path d="M2.5 3h11M7 6.5h6.5M7 9.5h6.5M2.5 13h11"/><path d="M5 5.8L2.4 8 5 10.2z" fill="currentColor"/>'),
+    poll: icon('<path d="M2.5 13.5h11"/><rect x="3" y="7" width="2.2" height="6"/><rect x="6.9" y="3" width="2.2" height="10"/><rect x="10.8" y="9" width="2.2" height="4"/>')
+  };
   function markActive(state, type) {
     const { from: from2, $from, to, empty: empty2 } = state.selection;
     if (empty2)
@@ -14964,14 +15036,14 @@ var DWEditor = (() => {
     addButton(group, {
       name: "link",
       title: strings.link,
-      html: "&#128279;",
+      html: ICONS.link,
       command: editLink,
       active: (state) => markActive(state, schema2.marks.link)
     });
     addButton(group, {
       name: "image",
       title: strings.image,
-      html: "&#128247;",
+      html: ICONS.image,
       command: makeInsertImage(schema2, strings, options.onImage)
     });
     addButton(group, {
@@ -14984,14 +15056,14 @@ var DWEditor = (() => {
       addButton(group, {
         name: "embed",
         title: strings.embed,
-        html: "&#9654;",
+        html: ICONS.embed,
         command: makeInsertEmbed(strings)
       });
     if (options.pollUrl)
       addButton(group, {
         name: "poll",
         title: strings.poll,
-        html: "&#128202;",
+        html: ICONS.poll,
         command: makeInsertPoll(options.pollUrl)
       });
     group = addGroup();
@@ -15010,13 +15082,13 @@ var DWEditor = (() => {
     addButton(group, {
       name: "blockquote",
       title: strings.blockquote,
-      html: "&#10078;",
+      html: ICONS.quote,
       command: wrapIn(schema2.nodes.blockquote)
     });
     addButton(group, {
       name: "cut",
       title: strings.cut,
-      html: "&#9986;",
+      html: ICONS.cut,
       command: makeInsertCut(schema2)
     });
     addButton(group, {
@@ -15028,7 +15100,7 @@ var DWEditor = (() => {
     addButton(group, {
       name: "lift",
       title: strings.outdent,
-      html: "&#8612;",
+      html: ICONS.outdent,
       command: lift2
     });
     return {
@@ -15111,9 +15183,9 @@ var DWEditor = (() => {
     embedCode: "Paste the embed code"
   };
   var instances = {};
-  var CASUAL_FORMATS = { html_casual1: 1, html_casual0: 1, rte0: 1 };
-  var MENTION_FORMATS = { html_casual1: 1, markdown0: 1, rte0: 1 };
-  var NEWLINE_FORMATS = { html_casual1: 1, html_casual0: 1, rte0: 1, markdown0: 1 };
+  var CASUAL_FORMATS = { html_casual1: 1, html_casual0: 1 };
+  var MENTION_FORMATS = { html_casual1: 1, markdown0: 1 };
+  var NEWLINE_FORMATS = { html_casual1: 1, html_casual0: 1, markdown0: 1 };
   function casualOptions(fromFormat, sites) {
     if (!NEWLINE_FORMATS[fromFormat])
       return null;
@@ -15244,7 +15316,7 @@ var DWEditor = (() => {
     if (!instance)
       return;
     opts = opts || {};
-    const flatten = !!(CASUAL_FORMATS[opts.toFormat] && opts.toFormat != "rte0");
+    const flatten = !!CASUAL_FORMATS[opts.toFormat];
     instance.sync(flatten, { flatten });
     if (instance.textarea.form) {
       instance.textarea.form.removeEventListener("submit", instance.onSubmit, true);

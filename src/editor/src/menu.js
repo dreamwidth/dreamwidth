@@ -7,6 +7,29 @@ import { undo, redo } from "prosemirror-history";
 import { linkDialog, imageDialog, userDialog, embedDialog } from "./dialogs.js";
 import { insertRawBlock } from "./paste.js";
 
+// Icons for the buttons that have no dependable text glyph. They're inline
+// SVG, so they don't rely on any font having an emoji or symbol (the emoji
+// versions rendered as empty boxes where the font lacked them).
+function icon(paths) {
+    return (
+        '<svg class="dw-editor-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" ' +
+        'focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+        'stroke-linecap="round" stroke-linejoin="round">' +
+        paths +
+        "</svg>"
+    );
+}
+
+const ICONS = {
+    link: icon('<path d="M6.5 9.5l3-3"/><path d="M7 4.5l1-1a2.5 2.5 0 013.5 3.5l-1 1"/><path d="M9 11.5l-1 1A2.5 2.5 0 014.5 9l1-1"/>'),
+    image: icon('<rect x="1.8" y="3" width="12.4" height="10" rx="1.2"/><circle cx="5.4" cy="6.4" r="1.1"/><path d="M2.5 12l3.6-3.4 2.6 2.4 2-1.8 3.3 2.8"/>'),
+    embed: icon('<rect x="1.8" y="3" width="12.4" height="10" rx="1.2"/><path d="M6.6 5.8v4.4l3.6-2.2z" fill="currentColor"/>'),
+    quote: icon('<path d="M3 11V8.2C3 6.2 4 5 5.8 4.6M8.6 11V8.2c0-2 1-3.2 2.8-3.6"/><path d="M3 11h2.6V8.2H3zM8.6 11h2.6V8.2H8.6z" fill="currentColor"/>'),
+    cut: icon('<circle cx="4.4" cy="11.6" r="1.8"/><circle cx="11.6" cy="11.6" r="1.8"/><path d="M5.6 10.2L12 2.5M10.4 10.2L4 2.5"/>'),
+    outdent: icon('<path d="M2.5 3h11M7 6.5h6.5M7 9.5h6.5M2.5 13h11"/><path d="M5 5.8L2.4 8 5 10.2z" fill="currentColor"/>'),
+    poll: icon('<path d="M2.5 13.5h11"/><rect x="3" y="7" width="2.2" height="6"/><rect x="6.9" y="3" width="2.2" height="10"/><rect x="10.8" y="9" width="2.2" height="4"/>'),
+};
+
 function markActive(state, type) {
     const { from, $from, to, empty } = state.selection;
     if (empty) return !!type.isInSet(state.storedMarks || $from.marks());
@@ -226,14 +249,14 @@ export function buildToolbar(schema, strings, pageOptions) {
     addButton(group, {
         name: "link",
         title: strings.link,
-        html: "&#128279;",
+        html: ICONS.link,
         command: editLink,
         active: (state) => markActive(state, schema.marks.link),
     });
     addButton(group, {
         name: "image",
         title: strings.image,
-        html: "&#128247;",
+        html: ICONS.image,
         command: makeInsertImage(schema, strings, options.onImage),
     });
     addButton(group, {
@@ -247,14 +270,14 @@ export function buildToolbar(schema, strings, pageOptions) {
         addButton(group, {
             name: "embed",
             title: strings.embed,
-            html: "&#9654;",
+            html: ICONS.embed,
             command: makeInsertEmbed(strings),
         });
     if (options.pollUrl)
         addButton(group, {
             name: "poll",
             title: strings.poll,
-            html: "&#128202;",
+            html: ICONS.poll,
             command: makeInsertPoll(options.pollUrl),
         });
 
@@ -275,13 +298,13 @@ export function buildToolbar(schema, strings, pageOptions) {
     addButton(group, {
         name: "blockquote",
         title: strings.blockquote,
-        html: "&#10078;",
+        html: ICONS.quote,
         command: wrapIn(schema.nodes.blockquote),
     });
     addButton(group, {
         name: "cut",
         title: strings.cut,
-        html: "&#9986;",
+        html: ICONS.cut,
         command: makeInsertCut(schema),
     });
     addButton(group, {
@@ -293,7 +316,7 @@ export function buildToolbar(schema, strings, pageOptions) {
     addButton(group, {
         name: "lift",
         title: strings.outdent,
-        html: "&#8612;",
+        html: ICONS.outdent,
         command: lift,
     });
 

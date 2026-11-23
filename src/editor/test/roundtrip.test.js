@@ -9,6 +9,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { DOMSerializer } from "prosemirror-model";
 import { schema, importHTML, exportHTML, roundTrip, normalized } from "./helpers.js";
 
 function assertSurvives(html, message) {
@@ -128,4 +129,46 @@ test("the live view omits event handlers but keeps style and class", () => {
     assert.equal(dom[1].style, "color: red;");
     // ...while export includes it.
     assert.match(exportHTML(schema, doc), /onclick="x\(\)"/);
+});
+
+test("a styled span inside <strong> stays inside it", () => {
+    assertSurvives('<p><strong>bold <span style="font-weight: normal;">plain</span> bold</strong></p>');
+    assertSurvives('<p><em><font color="red">x</font></em></p>');
+    assertSurvives('<p><a href="http://example.com/"><span class="c">linked</span></a></p>');
+});
+
+test("a styled span around <strong> stays outside it", () => {
+    assertSurvives('<p><span style="font-weight: normal;"><strong>bold</strong></span></p>');
+});
+
+test("an element wedged between modeled marks is kept as it was", () => {
+    assertSurvives('<p><strong><span class="w"><em>both</em></span></strong></p>');
+});
+
+test("an imported javascript: link or src is not put on the live editor DOM", () => {
+    const doc = importHTML(
+        schema,
+        '<p><a href="java\nscript:alert(1)" target="_blank">x</a> <img src="javascript:alert(2)" alt="i"></p>'
+    );
+
+    // What the live view builds from the document:
+    const live = document.createElement("div");
+    live.appendChild(
+        DOMSerializer.fromSchema(schema).serializeFragment(doc.content, { document })
+    );
+    assert.doesNotMatch(live.innerHTML, /javascript/i);
+    assert.match(live.innerHTML, /target="_blank"/);
+
+    // ...while what's stored keeps the poster's markup exactly.
+    assert.match(exportHTML(schema, doc), /href="java\nscript:alert\(1\)"/);
+    assert.match(exportHTML(schema, doc), /src="javascript:alert\(2\)"/);
+});
+
+test("ordinary and relative URLs are still shown in the live editor", () => {
+    const doc = importHTML(schema, '<p><a href="/local">a</a> <a href="mailto:a@b.c">m</a> <img src="http://example.com/i.png"></p>');
+    const live = document.createElement("div");
+    live.appendChild(DOMSerializer.fromSchema(schema).serializeFragment(doc.content, { document }));
+    assert.match(live.innerHTML, /href="\/local"/);
+    assert.match(live.innerHTML, /href="mailto:a@b\.c"/);
+    assert.match(live.innerHTML, /src="http:\/\/example\.com\/i\.png"/);
 });

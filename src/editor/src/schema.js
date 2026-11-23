@@ -93,11 +93,28 @@ const INLINE_SET = new Set(GENERIC_INLINE_TAGS);
 
 const EVENT_ATTR = /^on/i;
 
+// The server's cleaner drops any attribute whose value (ignoring whitespace)
+// contains one of these schemes (LJ::CleanHTML::clean). The live editor view
+// never goes through the cleaner, so it applies the same rule before putting
+// an imported attribute on a real element -- an old entry's href="javascript:..."
+// must not become a live link in the editor. The stored markup is untouched.
+const UNSAFE_VALUE = /(?:jscript|livescript|javascript|vbscript|^about|data):/i;
+
+export function safeForView(value) {
+    return !UNSAFE_VALUE.test(String(value).replace(/[\s\x0b\x00]+/g, ""));
+}
+
+// Set an attribute for the live view only if it's safe; for export, always.
+function viewAttr(attrs, name, value) {
+    if (render.raw || safeForView(value)) attrs[name] = value;
+    return attrs;
+}
+
 // Add a node's preserved attributes to a toDOM attribute object.
 function withExtra(attrs, extra) {
     if (extra) {
         Object.keys(extra).forEach((name) => {
-            if (!render.raw && EVENT_ATTR.test(name)) return;
+            if (!render.raw && (EVENT_ATTR.test(name) || !safeForView(extra[name]))) return;
             if (!(name in attrs)) attrs[name] = extra[name];
         });
     }
@@ -326,7 +343,7 @@ const nodes = {
             },
         ],
         toDOM(node) {
-            const attrs = { src: node.attrs.src };
+            const attrs = viewAttr({}, "src", node.attrs.src);
             if (node.attrs.alt) attrs.alt = node.attrs.alt;
             if (node.attrs.title) attrs.title = node.attrs.title;
             if (node.attrs.width) attrs.width = node.attrs.width;
@@ -395,11 +412,20 @@ const nodes = {
 
 const marks = {
     // <span>, <font>, <small>, <a name>, or a modeled tag that carried
-    // attributes (<b class="x">). Listed first so it wraps the other marks.
+    // attributes (<b class="x">). Listed first so it wraps the other marks, which
+    // is the right nesting for an element that sat outside them. One that sat
+    // inside a modeled mark (<strong><span style=...>) is an html_mark_inner,
+    // listed last, so the stored nesting comes back the same -- otherwise a
+    // normal-weight span inside <strong> would come out wrapping it, and bold.
     html_mark: {
         attrs: { tag: { default: "span" }, extra: { default: null } },
         excludes: "",
-        parseDOM: [{ tag: "dw-inline", getAttrs: genericAttrs(INLINE_SET, "span") }],
+        parseDOM: [
+            {
+                tag: "dw-inline:not([data-dw-inner])",
+                getAttrs: genericAttrs(INLINE_SET, "span"),
+            },
+        ],
         toDOM(mark) {
             return [genericTag(mark, INLINE_SET, "span"), withExtra({}, mark.attrs.extra), 0];
         },
@@ -421,7 +447,7 @@ const marks = {
             },
         ],
         toDOM(mark) {
-            const attrs = { href: mark.attrs.href };
+            const attrs = viewAttr({}, "href", mark.attrs.href);
             if (mark.attrs.title) attrs.title = mark.attrs.title;
             return ["a", withExtra(attrs, mark.attrs.extra), 0];
         },
@@ -487,6 +513,18 @@ const marks = {
         parseDOM: [{ tag: "sup" }],
         toDOM() {
             return ["sup", 0];
+        },
+    },
+
+    // See html_mark: the same thing, but nested inside the modeled marks.
+    html_mark_inner: {
+        attrs: { tag: { default: "span" }, extra: { default: null } },
+        excludes: "",
+        parseDOM: [
+            { tag: "dw-inline[data-dw-inner]", getAttrs: genericAttrs(INLINE_SET, "span") },
+        ],
+        toDOM(mark) {
+            return [genericTag(mark, INLINE_SET, "span"), withExtra({}, mark.attrs.extra), 0];
         },
     },
 };
