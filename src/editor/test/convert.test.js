@@ -93,3 +93,12 @@ test("server-converted source for an unclosed iframe keeps its text through the 
     assert.match(out, /after<br>the iframe/);
     assert.doesNotMatch(out, /iframe>/);
 });
+
+test("server-converted source for an unclosed script/style keeps its text through the editor", () => {
+    // Fixture: LJ::CleanHTML::casual_to_explicit("before\n<script>tail\ntext") and the
+    // same for <style>: the opener that was never closed is left out, so no
+    // </script> can be added around the text when the editor saves it.
+    const out = roundTrip("before<br />tail<br />text");
+    assert.match(out, /tail<br>text/);
+    assert.doesNotMatch(out, /script|style/);
+});

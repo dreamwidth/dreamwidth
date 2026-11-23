@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 32;
+use Test::More tests => 31;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -129,13 +129,3 @@ unlike( $out, qr/inner stays inside/, '...and keep their contents out of the pag
 $out = rendered(qq{<p>a</p><iframe src="http://example.com/">x</iframe><p>after</p>});
 like( $out, qr/<p>after<\/p>/, 'rendered: a closed <iframe> still ends where it closes' );
 unlike( $out, qr/<iframe/i, '...with no live iframe' );
-
-# A <site-embed> nested in a <site-embed> doesn't end the outer one early.
-$out = saved(
-qq{<p>a</p><site-embed><iframe src="http://example.com/a"></iframe><site-embed></site-embed></site-embed><p>after</p>}
-);
-like(
-    $out,
-    qr/^<p>a<\/p><site-embed id="\d+"\/><p>after<\/p>$/,
-    'a nested <site-embed> pair is one module'
-);

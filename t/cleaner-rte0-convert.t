@@ -111,10 +111,13 @@ qq{<a href="http://example.com/">link text<div>block $at_a\nmore http://example.
         'a closed iframe',
         qq{before\n<iframe src="http://example.com/">inside\n</iframe>after\nit $at_a}
     ],
+    [ 'an unclosed script',                "before\n<script>tail\ntext $at_a" ],
+    [ 'an unclosed style',                 "before\n<style>tail\ntext http://example.com/" ],
+    [ 'a closed script',                   "before\n<script>x\ny</script>after\ntext" ],
     [ 'repeated text in and out of a pre', "<pre>x\ny</pre>x\ny <pre>x\ny</pre>x\ny" ],
 );
 
-plan tests => scalar(@bodies) + 1;
+plan tests => scalar(@bodies) + 3;
 
 # The one allowed difference: the old path wrote an auto-linked URL's "&" into
 # the href as-is, while cleaning explicit markup writes it as "&amp;". Both mean
@@ -140,6 +143,9 @@ foreach my $case (@bodies) {
         qr/<iframe[^>]*>(?!.*<\/iframe>)/si,
         "$name: no unclosed iframe left in the converted source"
     ) if $name =~ /unclosed iframe/;
+    unlike( $explicit, qr/<(?:script|style)/i,
+        "$name: the unclosed opener is left out of the converted source" )
+        if $name =~ /^an unclosed (?:script|style)$/;
     is( same_href($after), same_href($before), "$name: renders the same once converted" )
         or diag("explicit source: $explicit");
 }
