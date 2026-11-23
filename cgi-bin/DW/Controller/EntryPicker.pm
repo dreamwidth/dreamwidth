@@ -18,6 +18,7 @@ use strict;
 use warnings;
 
 use DW::Controller;
+use DW::Controller::Entry;
 use DW::Request;
 use DW::Routing;
 use DW::Template;
@@ -48,10 +49,9 @@ sub entry_picker_handler {
             my $path = length $username ? "/entry/$username/$ditemid/edit" : '/entry/new';
             $r->status(302);
 
-            # old edit links open the native editor in its simple layout
             $r->header_out(
                 Location => LJ::create_url(
-                    $path, args => { %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' }
+                    $path, args => DW::Controller::Entry::legacy_link_args($get)
                 )
             );
             return $r->OK;
@@ -63,13 +63,12 @@ sub entry_picker_handler {
         # form named by the same validated itemid/username the GET redirect
         # above uses -- no entry lookup, no authorization check, no
         # decoding: the native edit route enforces auth itself when clicked.
-        require DW::Controller::Entry;
         my $link_url =
             length $username
             ? "/entry/$username/$ditemid/edit"
             : '/entry/new';
-        $link_url = LJ::create_url( $link_url,
-            args => { %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' } );
+        $link_url =
+            LJ::create_url( $link_url, args => DW::Controller::Entry::legacy_link_args($get) );
         return DW::Controller::Entry::legacy_text_recovery( $post, link_url => $link_url );
     }
 
@@ -99,6 +98,9 @@ sub entry_picker_handler {
     $context{usejournal} = $usejournal    if $usejournal;
     my $self_uri = LJ::create_url( '/editjournal', args => \%context );
 
+    # the Edit buttons open the editor in the user's layout
+    my $edit_args = DW::Controller::Entry::legacy_link_args($get);
+
     my $mode = $get->{mode} || $post->{mode} || 'init';
     if ( !$r->did_post && $mode eq 'edit' ) {
 
@@ -109,7 +111,7 @@ sub entry_picker_handler {
         return $r->OK;
     }
     if ( $r->did_post && $mode eq 'edit' ) {
-        return _select_entries( $rv, $u, $journal, $usejournal, $self_uri, \%context, $style_opts );
+        return _select_entries( $rv, $u, $journal, $usejournal, $self_uri, \%context, $edit_args );
     }
 
     my $entries = _get_entries(
@@ -127,7 +129,7 @@ sub entry_picker_handler {
         {
             %$rv,
             self_uri   => $self_uri,
-            style_opts => $style_opts,
+            edit_args  => $edit_args,
             usejournal => $usejournal,
             entries    => $entries,
             formdata   => {
@@ -144,7 +146,7 @@ sub entry_picker_handler {
 }
 
 sub _select_entries {
-    my ( $rv, $u, $journal, $usejournal, $self_uri, $context, $style_opts ) = @_;
+    my ( $rv, $u, $journal, $usejournal, $self_uri, $context, $edit_args ) = @_;
     my $r    = $rv->{r};
     my $post = $r->post_args;
 
@@ -182,7 +184,7 @@ sub _select_entries {
             {
                 %$rv,
                 self_uri   => $self_uri,
-                style_opts => $style_opts,
+                edit_args  => $edit_args,
                 usejournal => $usejournal,
                 entries    => [],
                 message    => $message,
@@ -204,7 +206,7 @@ sub _select_entries {
         {
             %$rv,
             self_uri   => $self_uri,
-            style_opts => $style_opts,
+            edit_args  => $edit_args,
             usejournal => $usejournal,
             entries    => $entries,
             formdata   => {

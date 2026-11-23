@@ -25,6 +25,7 @@ use DW::Controller;
 use DW::Auth::Login;
 use DW::Auth::TOTP;
 use DW::Routing;
+use DW::RPC;
 use DW::Template;
 use DW::FormErrors;
 use DW::Formats;
@@ -82,6 +83,12 @@ DW::Routing->register_string(
 DW::Routing->register_string( '/entry/options',      \&options_handler,     app => 1 );
 DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
 DW::Routing->register_string(
+    '/__rpc_entryformlayout', \&layout_rpc_handler,
+    app     => 1,
+    methods => { POST => 1 },
+    format  => 'json'
+);
+DW::Routing->register_string(
     '/__rpc_entryformcollapse', \&collapse_rpc_handler,
     app     => 1,
     methods => { GET => 1 },
@@ -107,8 +114,7 @@ DW::Routing->register_string(
             my $usejournal = LJ::canonical_username( $get->{usejournal} );
             my $path       = length $usejournal ? "/entry/$usejournal/new" : '/entry/new';
 
-            # old links to the retired posting page open the simple layout
-            my %args = ( %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' );
+            my %args = %{ legacy_link_args($get) };
             for my $name (qw(subject event share)) {
                 $args{$name} = $get->{$name} if defined $get->{$name} && length $get->{$name};
             }
@@ -394,6 +400,17 @@ sub _render_new_form {
     return _render_form($vars);
 }
 
+# Query args for links that stand in for the retired posting and editing
+# pages: the viewing style, plus the simple layout unless the remote user
+# prefers the advanced one.
+sub legacy_link_args {
+    my ($get) = @_;
+
+    my $remote = LJ::get_remote();
+    my $simple = !$remote || $remote->entryform_layout eq 'simple';
+    return { %{ LJ::viewing_style_opts(%$get) }, ( $simple ? ( mode => 'simple' ) : () ) };
+}
+
 # Simple mode is the same form, laid out like the retired update page.
 sub _simple_mode {
     return ( DW::Request->get->get_args->{mode} // '' ) eq 'simple' ? 1 : 0;
@@ -428,11 +445,7 @@ sub legacy_text_recovery {
             body_text    => $post->{event}   // '',
             body_missing => !exists $post->{event},
             link_url => $opts{link_url} || LJ::create_url(
-                '/entry/new',
-                args => {
-                    %{ LJ::viewing_style_opts( %{ DW::Request->get->get_args } ) },
-                    mode => 'simple'
-                }
+                '/entry/new', args => legacy_link_args( DW::Request->get->get_args )
             ),
         }
     );
@@ -1865,6 +1878,23 @@ sub collapse_rpc_handler {
         # just view
         return $show->();
     }
+}
+
+=head2 C<< DW::Controller::Entry::layout_rpc_handler( ) >>
+
+Save the entry form layout chosen with the layout switch link
+
+=cut
+
+sub layout_rpc_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r      = DW::Request->get;
+    my $layout = $r->post_args->{layout} // '';
+    return DW::RPC->err('Invalid layout.') unless $layout =~ /^(?:simple|advanced)$/;
+
+    return DW::RPC->out( layout => $rv->{remote}->entryform_layout($layout) );
 }
 
 sub _load_visible_panels {

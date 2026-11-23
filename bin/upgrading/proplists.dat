@@ -350,6 +350,14 @@ userproplist.entryform_panels:
   multihomed: 0
   prettyname: Entry form panel configuration
 
+userproplist.entryform_layout:
+  cldversion: 4
+  datatype: char
+  des: Entry form layout that old posting and editing links open: "simple" or "advanced"
+  indexed: 0
+  multihomed: 0
+  prettyname: Entry form layout
+
 userproplist.esn_has_managed:
   cldversion: 4
   datatype: bool

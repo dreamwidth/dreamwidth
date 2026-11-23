@@ -134,6 +134,50 @@ test_psgi $app, sub {
         );
     };
 
+    subtest 'the layout switch is remembered for old links' => sub {
+        my $res  = $request->( GET '/entry/new?mode=simple' );
+        my $form = simple_form( $res->content, 'http://localhost/entry/new?mode=simple' );
+        ok( $form, 'the simple form renders' ) or return;
+        my $auth = $form->value('lj_form_auth');
+
+        $request->( POST '/__rpc_entryformlayout', [ layout => 'advanced' ] );
+        is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
+            'simple', 'a switch without the form token is ignored' );
+
+        $request->( POST '/__rpc_entryformlayout',
+            [ layout => 'advanced', lj_form_auth => $auth ] );
+        is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
+            'advanced', 'switching to the advanced layout is stored' );
+
+        my $location = URI->new( $request->( GET '/update.bml?style=mine' )->header('Location') );
+        is( $location->path, '/entry/new', 'an old posting link still opens the native form' );
+        is_deeply(
+            { $location->query_form },
+            { style => 'mine' },
+            'in the advanced layout, keeping the viewing style'
+        );
+
+        if ($entry) {
+            $location = URI->new(
+                $request->( GET '/editjournal.bml?itemid=' . $entry->ditemid )->header('Location')
+            );
+            is( { $location->query_form }->{mode},
+                undef, 'an old edit link opens the advanced layout' );
+
+            $res = $request->( GET '/editjournal' );
+            my ($button) = grep { ( $_->action // '' ) =~ m{/entry/[^/]+/\d+/edit$} }
+                HTML::Form->parse( $res->content, 'http://localhost/editjournal' );
+            ok( $button, 'the entry picker lists the entry' );
+            is( $button && $button->find_input('mode'),
+                undef, 'and its Edit button opens the advanced layout' );
+        }
+
+        $request->( POST '/__rpc_entryformlayout', [ layout => 'simple', lj_form_auth => $auth ] );
+        $location = URI->new( $request->( GET '/update' )->header('Location') );
+        is( { $location->query_form }->{mode},
+            'simple', 'switching back to the simple layout restores it' );
+    };
+
     subtest 'an old edit link opens simple mode, which saves and deletes the entry' => sub {
         plan skip_all => 'no entry to edit' unless $entry;
 

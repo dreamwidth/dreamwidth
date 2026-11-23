@@ -464,6 +464,21 @@ sub entryform_width {
     }
 }
 
+# The entry form layout that old posting and editing links open: "simple" (the
+# default, laid out like the retired update page) or "advanced". Pass a value
+# to store it.
+sub entryform_layout {
+    my ( $u, $layout ) = @_;
+
+    my $current = ( $u->raw_prop('entryform_layout') // '' ) eq 'advanced' ? 'advanced' : 'simple';
+    if ( defined $layout && $layout =~ /^(?:simple|advanced)$/ && $layout ne $current ) {
+        $u->set_prop( entryform_layout => $layout );
+        return $layout;
+    }
+
+    return $current;
+}
+
 # don't call this directly, only use the wrapper functions below.
 sub _editor_props {
     my ( $u, $propname, $new_editor ) = @_;
