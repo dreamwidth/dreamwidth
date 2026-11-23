@@ -1890,11 +1890,10 @@ sub layout_rpc_handler {
     my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
 
-    my $r      = DW::Request->get;
-    my $layout = $r->post_args->{layout} // '';
-    return DW::RPC->err('Invalid layout.') unless $layout =~ /^(?:simple|advanced)$/;
+    my $layout = $rv->{remote}->entryform_layout( DW::Request->get->post_args->{layout} // '' );
+    return DW::RPC->err('Layout not saved.') unless $layout;
 
-    return DW::RPC->out( layout => $rv->{remote}->entryform_layout($layout) );
+    return DW::RPC->out( layout => $layout );
 }
 
 sub _load_visible_panels {

@@ -466,17 +466,20 @@ sub entryform_width {
 
 # The entry form layout that old posting and editing links open: "simple" (the
 # default, laid out like the retired update page) or "advanced". Pass a value
-# to store it.
+# to store it; that returns the stored value, or undef if it was not stored.
+# An explicit "simple" is stored too, so it survives the updatepage beta
+# migration.
 sub entryform_layout {
     my ( $u, $layout ) = @_;
 
-    my $current = ( $u->raw_prop('entryform_layout') // '' ) eq 'advanced' ? 'advanced' : 'simple';
-    if ( defined $layout && $layout =~ /^(?:simple|advanced)$/ && $layout ne $current ) {
-        $u->set_prop( entryform_layout => $layout );
-        return $layout;
+    my $stored = $u->raw_prop('entryform_layout') // '';
+    if ( defined $layout ) {
+        return undef unless $layout =~ /\A(?:simple|advanced)\z/;
+        return $layout if $layout eq $stored;
+        return $u->set_prop( entryform_layout => $layout ) ? $layout : undef;
     }
 
-    return $current;
+    return $stored eq 'advanced' ? 'advanced' : 'simple';
 }
 
 # don't call this directly, only use the wrapper functions below.

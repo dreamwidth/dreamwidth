@@ -149,6 +149,11 @@ test_psgi $app, sub {
         is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
             'advanced', 'switching to the advanced layout is stored' );
 
+        $request->( POST '/__rpc_entryformlayout',
+            [ layout => "simple\n", lj_form_auth => $auth ] );
+        is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
+            'advanced', 'an invalid layout is not stored' );
+
         my $location = URI->new( $request->( GET '/update.bml?style=mine' )->header('Location') );
         is( $location->path, '/entry/new', 'an old posting link still opens the native form' );
         is_deeply(

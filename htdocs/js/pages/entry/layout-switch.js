@@ -22,13 +22,22 @@
         };
 
         // Remember the chosen layout for links from the retired pages. A beacon
-        // is still delivered after the page has navigated away.
-        var saveLayout = function (layout) {
+        // is still delivered after the page has navigated away; if the browser
+        // won't queue one, save first and then follow the link.
+        var saveLayout = function (e, link) {
+            var layout = $(link).data("layout");
             var auth = form.elements.lj_form_auth;
-            if (!layout || !auth || !navigator.sendBeacon) return;
+            if (!layout || !auth) return;
+
             // URL-encoded: the server does not parse multipart RPC posts
             var data = new URLSearchParams({ layout: layout, lj_form_auth: auth.value });
-            navigator.sendBeacon(Site.siteroot + "/__rpc_entryformlayout", data);
+            var url = Site.siteroot + "/__rpc_entryformlayout";
+            if (navigator.sendBeacon && navigator.sendBeacon(url, data)) return;
+
+            e.preventDefault();
+            $.post(url, data.toString()).always(function () {
+                window.location.href = link.href;
+            });
         };
 
         $links.on("click", function (e) {
@@ -36,7 +45,7 @@
                 e.preventDefault();
                 return;
             }
-            saveLayout($(this).data("layout"));
+            saveLayout(e, this);
         });
     });
 }(jQuery));

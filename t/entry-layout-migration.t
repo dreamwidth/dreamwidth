@@ -33,7 +33,12 @@ $users{beta}->set_prop( betafeatures_list => 'updatepage' );
 $users{both}->set_prop( betafeatures_list => 'nos2foundation, updatepage' );
 $users{other}->set_prop( betafeatures_list => 'nos2foundation,updatepagex' );
 $users{chose}->set_prop( betafeatures_list => 'updatepage' );
-$users{chose}->set_prop( entryform_layout  => 'simple' );
+
+# choosing simple while unset (the default) must still be stored
+is( $users{chose}->entryform_layout('simple'), 'simple', 'an explicit simple choice is stored' );
+
+# only touch this test's accounts, not other beta users in the database
+my @only = map { '--userid=' . $_->id } values %users;
 
 # the script runs in its own process, so drop this one's cached users
 sub layouts {
@@ -44,14 +49,14 @@ sub layouts {
     };
 }
 
-like( `$^X $script --dry-run`, qr/would be set to/, 'a dry run reports what it would do' );
+like( `$^X $script --dry-run @only`, qr/would be set to/, 'a dry run reports what it would do' );
 is_deeply(
     layouts(),
     { beta => '', both => '', other => '', chose => 'simple', none => '' },
     'and changes nothing'
 );
 
-is( system( $^X, $script ), 0, 'the migration runs' );
+is( system( $^X, $script, @only ), 0, 'the migration runs' );
 is_deeply(
     layouts(),
     { beta => 'advanced', both => 'advanced', other => '', chose => 'simple', none => '' },
