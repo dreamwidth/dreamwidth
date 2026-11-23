@@ -1,5 +1,6 @@
 // Switching an entry between plain formats and the rich editor must neither
 // lose line breaks nor change what the server will render.
+// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 
 import test from "node:test";
 import assert from "node:assert/strict";

@@ -1,5 +1,6 @@
 // Test setup: the editor's import/export code runs against the DOM, so give it
 // a jsdom one.
+// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 
 import { JSDOM } from "jsdom";
 

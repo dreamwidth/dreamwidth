@@ -5,6 +5,7 @@
 // (Style attributes below are written the way jsdom serializes them -- with a
 // space and trailing semicolon -- because it reformats them when set from
 // script. Real browsers keep the text as written.)
+// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 
 import test from "node:test";
 import assert from "node:assert/strict";

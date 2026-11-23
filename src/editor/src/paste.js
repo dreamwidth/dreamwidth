@@ -2,6 +2,7 @@
 // creation page, or an embed's code is plain text that looks like HTML; pasted
 // as text it would become escaped, literal characters. Recognize it and drop it
 // in as an HTML block instead, which is how polls and embeds are carried.
+// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 
 import { Plugin } from "prosemirror-state";
 import { rawBlockFromText } from "./serialize.js";
