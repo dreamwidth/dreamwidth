@@ -24,6 +24,7 @@ use LJ::Utils;
 use LJ::Protocol;
 use DW::CleanEmail;
 use LJ::Comment;
+use LJ::Entry;
 
 =head1 NAME
 
@@ -116,7 +117,21 @@ sub _process {
 
     # post!
     my $post_error;
-    LJ::Protocol::do_request( "addcomment", $req, \$post_error, { noauth => 1, nocheckcap => 1 } );
+    my $flags = { noauth => 1, nocheckcap => 1 };
+    LJ::Protocol::do_request( "addcomment", $req, \$post_error, $flags );
+
+    my $captcha_reason = $flags->{captcha_reason} // '';
+    if ( $captcha_reason eq 'journal_setting' || $captcha_reason eq 'maxcomments' ) {
+        my $parent = LJ::Comment->new( $self->{ju}, dtalkid => $self->{parent} );
+        my $url =
+              $parent && $parent->valid
+            ? $parent->reply_url
+            : LJ::Entry->new( $self->{ju}, ditemid => $self->{ditemid} )->url;
+        return $self->send_error( "A CAPTCHA is required to comment on this entry. "
+                . "To reply, open this link in your browser and complete the CAPTCHA:\n\n"
+                . $url );
+    }
+
     return $self->send_error( LJ::Protocol::error_message($post_error) ) if $post_error;
 
     return ( 1, "Comment success" );
