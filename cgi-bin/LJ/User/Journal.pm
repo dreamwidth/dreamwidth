@@ -479,7 +479,12 @@ sub entryform_layout {
         return $u->set_prop( entryform_layout => $layout ) ? $layout : undef;
     }
 
-    return $stored eq 'advanced' ? 'advanced' : 'simple';
+    return $stored if $stored =~ /\A(?:simple|advanced)\z/;
+
+    # People who opted into the native editor through the updatepage beta get
+    # its advanced layout until bin/upgrading/migrate-updatepage-beta.pl
+    # stores that for them.
+    return $u->is_in_beta('updatepage') ? 'advanced' : 'simple';
 }
 
 # don't call this directly, only use the wrapper functions below.

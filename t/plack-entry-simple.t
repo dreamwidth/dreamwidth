@@ -26,6 +26,7 @@ use URI;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
+use LJ::BetaFeatures;
 use LJ::Entry;
 use LJ::Session;
 use LJ::Test qw(temp_user);
@@ -181,6 +182,31 @@ test_psgi $app, sub {
         $location = URI->new( $request->( GET '/update' )->header('Location') );
         is( { $location->query_form }->{mode},
             'simple', 'switching back to the simple layout restores it' );
+    };
+
+    subtest 'updatepage beta users get the advanced layout before migration' => sub {
+        my $tester = temp_user();
+        $tester->update_self( { status => 'A' } );
+        my $tester_session = LJ::Session->create( $tester, nolog => 1 );
+        my $tester_cookie =
+              'ljmastersession='
+            . $tester_session->master_cookie_string
+            . '; ljloggedin='
+            . $tester_session->loggedin_cookie_string;
+        my $old_link = sub {
+            my $req = GET '/update';
+            $req->header( Cookie => $tester_cookie );
+            return { URI->new( $send->($req)->header('Location') )->query_form }->{mode};
+        };
+
+        local $LJ::BETA_FEATURES{updatepage} = { start_time => 0, end_time => 'Inf' };
+        is( $old_link->(), 'simple', 'without the beta, an old link opens the simple layout' );
+
+        LJ::BetaFeatures->add_to_beta( $tester => 'updatepage' );
+        is( $old_link->(), undef, 'in the beta, it opens the advanced layout' );
+
+        ok( $tester->entryform_layout('simple'), 'the beta user switches to simple' );
+        is( $old_link->(), 'simple', 'and that choice wins over the beta' );
     };
 
     subtest 'an old edit link opens simple mode, which saves and deletes the entry' => sub {
