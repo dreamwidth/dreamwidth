@@ -122,7 +122,13 @@ sub select_items {
     my $current   = validate( $opts{current} );
     my $preferred = validate( $opts{preferred} );
 
-    unless ($comment) {
+    if ($comment) {
+
+        # Comments have no rich text editor. A form submitted before that was
+        # the case (or any rich format) is still accepted, but not offered back.
+        $current = '' if $current eq 'rte1' || is_retired($current);
+    }
+    else {
         $current   = edit_format($current);
         $preferred = edit_format($preferred);
     }

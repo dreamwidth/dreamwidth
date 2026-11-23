@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 28;
+use Test::More tests => 33;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::Formats;
@@ -119,5 +119,19 @@ foreach my $pref (qw( rte0 rte1 )) {
 }
 
 ok( !DW::Formats::is_active( 'rte1', comment => 1 ), "rte1 is not an active comment format." );
+
+foreach my $current (qw( rte0 rte1 )) {
+    $select =
+        DW::Formats::select_items( comment => 1, current => $current, preferred => 'markdown0' );
+    is( $select->{selected}, 'markdown0',
+        "A comment redisplayed with format $current uses the preference instead." );
+    ok(
+        !( grep { $_ eq $current } @{ $values->($select) } ),
+        "...and $current is not added to the comment menu."
+    );
+}
+
+$select = DW::Formats::select_items( comment => 1, current => 'html_casual0' );
+is( $select->{selected}, 'html_casual0', "An obsolete casual comment format is still kept." );
 
 ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );
