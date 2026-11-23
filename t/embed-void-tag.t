@@ -17,10 +17,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 32;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
+use LJ::CleanHTML;
 use LJ::EmbedModule;
 use LJ::Test qw( temp_user );
 
@@ -96,3 +97,45 @@ like( $out, qr/^<p>a<\/p>.*tail/s, 'an unclosed <iframe> keeps its text' );
 $out = saved(qq{<p>a</p><site-embed>never closed});
 like( $out, qr/^<p>a<\/p>.*never closed/s, 'an unclosed <site-embed> keeps its text' );
 unlike( $out, qr/<site-embed id=/, '...without inventing a module' );
+
+# What a reader sees. Storing is only half of it: the text after an element that
+# never closed has to survive being rendered too, and no live embed markup may
+# come out of that path (only clean_embed's allowlist makes those).
+sub rendered {
+    my ($post) = @_;
+    $post = saved($post);
+    LJ::CleanHTML::clean_event( \$post );
+    return $post;
+}
+
+$out = rendered(qq{<p>before</p><iframe src="http://example.com/">after the iframe <b>bold</b>});
+like( $out, qr/<p>before<\/p>/,   'rendered: text before an unclosed <iframe> shows' );
+like( $out, qr/after the iframe/, '...and so does the text after it' );
+unlike( $out, qr/<iframe/i, '...with no live iframe' );
+
+$out =
+    rendered(qq{<p>before</p><object><param name="movie" value="x">after the object <b>bold</b>});
+like( $out, qr/after the object <b>bold<\/b>/, 'rendered: text after an unclosed <object> shows' );
+unlike( $out, qr/<object|<param/i, '...with no live object' );
+
+$out = rendered(qq{<p>before</p><title>never closed</title2>the rest of the entry});
+like( $out, qr/the rest of the entry/, 'rendered: text after an unclosed <title> shows' );
+
+# Closed ones still swallow their own contents, nesting included.
+$out = rendered(qq{<p>a</p><object><object></object>inner stays inside</object><p>after</p>});
+like( $out, qr/<p>after<\/p>/, 'rendered: nested closed objects end at the outer close' );
+unlike( $out, qr/inner stays inside/, '...and keep their contents out of the page' );
+
+$out = rendered(qq{<p>a</p><iframe src="http://example.com/">x</iframe><p>after</p>});
+like( $out, qr/<p>after<\/p>/, 'rendered: a closed <iframe> still ends where it closes' );
+unlike( $out, qr/<iframe/i, '...with no live iframe' );
+
+# A <site-embed> nested in a <site-embed> doesn't end the outer one early.
+$out = saved(
+qq{<p>a</p><site-embed><iframe src="http://example.com/a"></iframe><site-embed></site-embed></site-embed><p>after</p>}
+);
+like(
+    $out,
+    qr/^<p>a<\/p><site-embed id="\d+"\/><p>after<\/p>$/,
+    'a nested <site-embed> pair is one module'
+);

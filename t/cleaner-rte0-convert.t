@@ -91,6 +91,18 @@ qq{<a href="http://example.com/">link text<div>block $at_a\nmore http://example.
     ],
     [ 'an unclosed textarea',  "<textarea>a\nb $at_a" ],
     [ 'a code span left open', "<code>one\n$at_a\ntwo" ],
+
+    # Text the cleaner skips, with the same words as text it shows: each token
+    # has to get its own context.
+    [
+        'an ignored title duplicating body text',
+        "<title>same\nwords $at_a</title>same\nwords $at_a"
+    ],
+    [
+        'a script duplicating body text',
+        "<script>same\nwords</script>same\nwords http://example.com/"
+    ],
+    [ 'repeated text in and out of a pre', "<pre>x\ny</pre>x\ny <pre>x\ny</pre>x\ny" ],
 );
 
 plan tests => scalar @bodies;

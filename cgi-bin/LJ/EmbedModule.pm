@@ -193,11 +193,12 @@ sub parse_module_embed {
 
     # ok, we can safely parse post text
     # machine state
-    my $state       = REGULAR;
-    my $p           = HTML::TokeParser->new($postref);
-    my $newtxt      = '';
-    my %embed_attrs = ();                                # ($eid, $ewidth, $eheight);
-    my $embed       = '';
+    my $state          = REGULAR;
+    my $p              = HTML::TokeParser->new($postref);
+    my $newtxt         = '';
+    my %embed_attrs    = ();                                # ($eid, $ewidth, $eheight);
+    my $embed          = '';
+    my $explicit_depth = 0;                                 # <lj-embed>s nested inside the open one
     my $explicit_open   = '';    # the <site-embed ...> that opened an EXPLICIT block
     my @stack           = ();
     my $next_preview_id = 1;
@@ -313,12 +314,21 @@ sub parse_module_embed {
         }
         elsif ( $state == EXPLICIT ) {
 
-            if ( ( $tag eq 'lj-embed' || $tag eq 'site-embed' ) && $type eq 'E' ) {
+            if (   ( $tag eq 'lj-embed' || $tag eq 'site-embed' )
+                && $type eq 'E'
+                && !$explicit_depth )
+            {
 
                 # </lj-embed> - that's the end of explicit embed block, switch to REGULAR
                 $newstate = REGULAR;
             }
             else {
+                # a nested <lj-embed> needs its own close
+                if ( $tag eq 'lj-embed' || $tag eq 'site-embed' ) {
+                    if ( $type eq 'E' ) { $explicit_depth-- }
+                    elsif ( $type eq 'S' && !$attr->{'/'} ) { $explicit_depth++ }
+                }
+
                 # continue appending contents to embed buffer
                 $embed .= $reconstructed;
             }

@@ -204,7 +204,12 @@ sub clean {
     }
 
     # Create the HTML parser we'll use to navigate the text from here on out:
-    my $p = HTML::TokeParser->new($data);
+    # (When asked to report text tokens, use one that numbers the tokens it hands
+    # out, so a report can say exactly which token it is about.)
+    my $p =
+        $opts->{text_hook}
+        ? LJ::CleanHTML::NumberedTokens->new($data)
+        : HTML::TokeParser->new($data);
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -274,6 +279,33 @@ sub clean {
         input  => 1,
         select => 1,
         option => 1,
+    };
+
+    # The opening tag of an element whose contents we're discarding has just
+    # been read. Skip to its matching close tag (counting nested ones of the same
+    # kind, so an inner </iframe> doesn't end the outer one). If there is no
+    # close tag, the element was never really closed: put everything back and
+    # drop only the opening tag, so the text after it still renders -- as text,
+    # through the normal path, never as live markup. Returns true if the whole
+    # element was skipped.
+    my $eat_block = sub {
+        my ($tag) = @_;
+        my @seen;
+        my $depth = 1;
+        while ( my $next = $p->get_token ) {
+            push @seen, $next;
+            my ( $ntype, $ntag, $nattr ) = @$next;
+            next unless $ntype eq 'S' || $ntype eq 'E';
+            next unless lc $ntag eq $tag;
+            if ( $ntype eq 'S' ) {
+                $depth++ unless ref $nattr eq 'HASH' && $nattr->{'/'};
+            }
+            elsif ( !--$depth ) {
+                return 1;
+            }
+        }
+        $p->unget_token(@seen);
+        return 0;
     };
 
     my $start_capture = sub {
@@ -484,8 +516,7 @@ TOKEN:
             $tag =~ s!/.+$!!;
 
             if ( defined $action{$tag} and $action{$tag} eq "eat" ) {
-                $p->unget_token($token);
-                $p->get_tag("/$tag");
+                $eat_block->($tag);
                 next;
             }
 
@@ -505,7 +536,7 @@ TOKEN:
                         if ( !$attr->{'/'} ) {
                             ## if not autoclosed tag (<iframe />),
                             ## then skip everything till the closing tag
-                            $p->get_tag("/iframe");
+                            $eat_block->("iframe");
                         }
                         next TOKEN;
                     }
@@ -1236,18 +1267,21 @@ TOKEN:
         }
         elsif ( $type eq "T" ) {
             if (@eatuntil) {
-                $opts->{text_hook}->( $token->[1], { raw => 1 } ) if $opts->{text_hook};
+                $opts->{text_hook}->( $token->[1], { raw => 1 }, $p->{dw_token_number} )
+                    if $opts->{text_hook};
                 push @capture, $token if $capturing_during_eat;
                 next TOKEN;
             }
 
             if ($eatall) {
-                $opts->{text_hook}->( $token->[1], { raw => 1 } ) if $opts->{text_hook};
+                $opts->{text_hook}->( $token->[1], { raw => 1 }, $p->{dw_token_number} )
+                    if $opts->{text_hook};
                 next TOKEN;
             }
 
             if ($eating_ljuser_span) {
-                $opts->{text_hook}->( $token->[1], { raw => 1 } ) if $opts->{text_hook};
+                $opts->{text_hook}->( $token->[1], { raw => 1 }, $p->{dw_token_number} )
+                    if $opts->{text_hook};
                 $ljuser_text_node = $token->[1];
                 next TOKEN;
             }
@@ -1281,7 +1315,8 @@ TOKEN:
             };
 
             # casual_to_explicit watches the cleaner's own view of each text token
-            $opts->{text_hook}->( $token->[1], $text_ctx ) if $opts->{text_hook};
+            $opts->{text_hook}->( $token->[1], $text_ctx, $p->{dw_token_number} )
+                if $opts->{text_hook};
 
             $token->[1] = format_text_token( $token->[1], $text_ctx );
 
@@ -2047,21 +2082,22 @@ sub casual_to_explicit {
         }
     );
 
+    # What the cleaner reported, by token number.
+    my %context = map { $_->[2] => $_->[1] } @seen;
+
     my $p   = HTML::TokeParser->new( \$text );
     my $out = '';
-    my $i   = 0;
+    my $n   = 0;
 
     while ( my $token = $p->get_token ) {
         my $type = $token->[0];
+        $n++;
 
         if ( $type eq 'T' ) {
 
             # Tokens the cleaner consumed some other way (get_text and friends)
-            # never reached the hook; they don't match and stay as written.
-            my $ctx;
-            if ( $i < @seen && $seen[$i]->[0] eq $token->[1] ) {
-                $ctx = $seen[ $i++ ]->[1];
-            }
+            # never reached the hook; they stay as written.
+            my $ctx = $context{$n};
 
             $out .=
                 $ctx && !$ctx->{raw}
@@ -2198,5 +2234,26 @@ sub legacy_markdown {
     my ($ref) = @_;
     return $$ref =~ s/^\s*!markdown\s*\r?\n//is;
 }
+
+# An HTML::TokeParser that numbers the tokens it returns (1, 2, 3 ... in source
+# order, however they were read: get_token, or get_text/get_tag reading ahead and
+# handing one back), for casual_to_explicit.
+package LJ::CleanHTML::NumberedTokens;
+use parent -norequire, 'HTML::TokeParser';
+
+sub get_token {
+    my $self  = shift;
+    my $token = $self->SUPER::get_token(@_);
+    $self->{dw_token_number} = ++$self->{dw_tokens_read} if $token;
+    return $token;
+}
+
+sub unget_token {
+    my $self = shift;
+    $self->{dw_tokens_read} -= scalar @_;
+    return $self->SUPER::unget_token(@_);
+}
+
+package LJ::CleanHTML;
 
 1;
