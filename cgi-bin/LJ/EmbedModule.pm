@@ -201,14 +201,34 @@ sub parse_module_embed {
     my @stack           = ();
     my $next_preview_id = 1;
 
+    # <embed> is a void element: a bare <embed ...> with no </embed> anywhere
+    # after it is complete on its own. (Waiting for a close that never comes
+    # would swallow the rest of the entry.) When a </embed> does follow, it's
+    # the older container form, <embed>contents</embed>. $embed_closers counts
+    # the </embed> tags still to come; $after_void_embed notes that a bare
+    # <embed> was just converted, so a stray </embed> right after is dropped.
+    my $embed_closers    = () = $$postref =~ m{</embed\s*>}gi;
+    my $after_void_embed = 0;
+
     while ( my $token = $p->get_token ) {
         my ( $type, $tag, $attr ) = @$token;
         $tag = lc $tag;
         my $newstate      = undef;
         my $reconstructed = $class->reconstruct($token);
 
+        my $swallow_end = $after_void_embed && $type eq 'E' && $tag eq 'embed';
+        $after_void_embed = 0;
+        $embed_closers-- if $type eq 'E' && $tag eq 'embed';
+
         if ( $state == REGULAR ) {
-            if ( ( $tag eq 'lj-embed' || $tag eq 'site-embed' ) && $type eq 'S' && !$attr->{'/'} ) {
+            if ($swallow_end) {
+
+                # the </embed> after a bare <embed ...> we already converted
+            }
+            elsif (( $tag eq 'lj-embed' || $tag eq 'site-embed' )
+                && $type eq 'S'
+                && !$attr->{'/'} )
+            {
 
                 # <lj-embed ...>, not self-closed
                 # switch to EXPLICIT state
@@ -225,8 +245,13 @@ sub parse_module_embed {
             elsif ( $embeddable_tags{$tag} && $type eq 'S' ) {
 
                 # <object> or <embed> or <iframe>
-                # switch to IMPLICIT state unless it is a self-closed tag
-                unless ( $attr->{'/'} ) {
+                # switch to IMPLICIT state unless it is a self-closed tag, or an
+                # <embed> with no closing tag left to wait for
+                if ( $attr->{'/'} || ( $tag eq 'embed' && $embed_closers < 1 ) ) {
+                    $newstate         = REGULAR;
+                    $after_void_embed = 1 if $tag eq 'embed';
+                }
+                else {
                     $newstate = IMPLICIT;
 
                     # tag balance

@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 191;
+use Test::More tests => 196;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -416,15 +416,16 @@ qr{foo <div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedco
                 qq{<object>blah</object>}
             ],
 
-            # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
+            # <embed> is a void tag: with no </embed> after it, it's complete on
+            # its own, and the text that follows is kept.
             [
                 "embed tag left open; no site-embed",
                 qq{foo <embed>blah bzzt},
 
-                qq{foo },
-                qq{foo },
-                qq{foo },
-                $invalid_embed
+                qq{foo <site-embed id="1"/>blah bzzt},
+                qq{foo <site-embed id="1"><embed></site-embed>blah bzzt},
+                qr{foo ${iframe}blah bzzt},
+                qq{<embed>}
             ],
 
             [
