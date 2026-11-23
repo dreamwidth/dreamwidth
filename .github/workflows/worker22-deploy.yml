@@ -14,7 +14,6 @@ on:
         - ALL WORKERS (*)
         - birthday-notify
         - change-poster-id
-        - codebuild-notifier
         - content-importer
         - content-importer-lite
         - content-importer-verify
@@ -52,8 +51,8 @@ on:
         - ses-email-events
         - ses-incoming-email
         - shop-creditcard-charge
-        - spellcheck-gm
         - support-notify
+        - web-autoscaler
       tag:
         type: string
         description: SHA256 to deploy (include "sha256:" prefix)
@@ -97,15 +96,6 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-change-poster-id-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
-      - name: (codebuild-notifier) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'codebuild-notifier'
-        id: render-worker-container-codebuild-notifier
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-codebuild-notifier-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -442,21 +432,21 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
-      - name: (spellcheck-gm) Render Amazon ECS task definition
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
-        id: render-worker-container-spellcheck-gm
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ".github/workflows/tasks/worker-spellcheck-gm-service.json"
-          container-name: ${{ env.CONTAINER_NAME }}
-          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
-
       - name: (support-notify) Render Amazon ECS task definition
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'
         id: render-worker-container-support-notify
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ".github/workflows/tasks/worker-support-notify-service.json"
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
+
+      - name: (web-autoscaler) Render Amazon ECS task definition
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'web-autoscaler'
+        id: render-worker-container-web-autoscaler
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ".github/workflows/tasks/worker-web-autoscaler-service.json"
           container-name: ${{ env.CONTAINER_NAME }}
           image: "${{ env.IMAGE_BASE }}@${{ github.event.inputs.tag }}"
 
@@ -475,14 +465,6 @@ jobs:
           task-definition: ${{ steps.render-worker-container-change-poster-id.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-change-poster-id-service"
-
-      - name: (codebuild-notifier) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'codebuild-notifier'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-codebuild-notifier.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-codebuild-notifier-service"
 
       - name: (content-importer) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'content-importer'
@@ -780,14 +762,6 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-shop-creditcard-charge-service"
 
-      - name: (spellcheck-gm) Deploy to Amazon ECS service
-        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'spellcheck-gm'
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-worker-container-spellcheck-gm.outputs.task-definition }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: "worker-spellcheck-gm-service"
-
       - name: (support-notify) Deploy to Amazon ECS service
         if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'support-notify'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -795,6 +769,14 @@ jobs:
           task-definition: ${{ steps.render-worker-container-support-notify.outputs.task-definition }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: "worker-support-notify-service"
+
+      - name: (web-autoscaler) Deploy to Amazon ECS service
+        if: github.event.inputs.service == 'ALL WORKERS (*)' || github.event.inputs.service == 'web-autoscaler'
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-worker-container-web-autoscaler.outputs.task-definition }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: "worker-web-autoscaler-service"
 
       - name: Notify Discord
         uses: sarisia/actions-status-discord@v1

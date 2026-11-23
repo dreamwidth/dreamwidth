@@ -17,8 +17,10 @@ package DW::Template::Plugin::SiteScheme;
 use base 'Template::Plugin';
 use strict;
 
+use DW::AccountSwitcher;
 use DW::Auth::Challenge;
 use DW::Logic::MenuNav;
+use DW::Search;
 
 =head1 NAME
 
@@ -81,6 +83,10 @@ sub search_render {
     return LJ::Widget::Search->render;
 }
 
+sub content_search_enabled {
+    return DW::Search::enabled();
+}
+
 sub challenge_generate {
     my $self = shift;
     return DW::Auth::Challenge->generate(@_);
@@ -88,6 +94,16 @@ sub challenge_generate {
 
 sub show_invite_link {
     return $LJ::USE_ACCT_CODES ? 1 : 0;
+}
+
+# The other accounts signed in to this browser (for the account switcher), as a
+# list of records: { u => LJ::User, user, userid, valid, display }.
+sub switch_accounts {
+    return [
+        map {
+            { %$_, display => $_->{u}->ljuser_display }
+        } DW::AccountSwitcher->accounts
+    ];
 }
 
 =head1 AUTHOR

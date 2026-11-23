@@ -420,6 +420,30 @@ sub textbox {
     return $ret;
 }
 
+=head2 [% form.copy_text( label="A Label", id="elementid", value="text to copy", ... ) %]
+
+Return a read-only textbox with a matching label, if provided, and a button that
+copies the textbox's value to the clipboard. See LJ::html_copy_text.
+
+=cut
+
+sub copy_text {
+    my ( $self, $args ) = @_;
+
+    $args->{class} ||= "text";
+    $args->{id}    ||= $self->generate_id($args);
+
+    my $hint = $self->_process_hint($args);
+
+    my $ret = "";
+    $ret .= $self->_process_value_and_label($args);
+    $ret .= LJ::html_copy_text($args);
+
+    $ret .= $hint;
+
+    return $ret;
+}
+
 =head2 [% form.password( label="A Label", id="elementid", name="elementname",... ) %]
 
 Return a password field with a matching label, if provided. Values are never prepopulated

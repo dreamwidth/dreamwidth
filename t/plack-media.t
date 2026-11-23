@@ -52,14 +52,16 @@ die "app.psgi did not return a code reference" unless $app && ref $app eq 'CODE'
 
 # ---- Userpic tests ----
 
-# Test 1: Userpic with If-Modified-Since returns 304
+# Test 1: A conditional request for an absent userpic returns 404, not 304 --
+# the image is gone, so it has changed and a 304 would wrongly tell the client
+# its cached copy is still valid.
 test_psgi $app, sub {
     my $cb  = shift;
     my $req = GET "/userpic/12345/1";
     $req->header( 'If-Modified-Since' => 'Thu, 01 Jan 2026 00:00:00 GMT' );
     my $res = $cb->($req);
 
-    is( $res->code, 304, "userpic returns 304 for If-Modified-Since" );
+    is( $res->code, 404, "userpic returns 404 (not 304) for If-Modified-Since on an absent pic" );
 };
 
 # Test 2: Userpic with invalid picid/userid returns 404 (no such user)

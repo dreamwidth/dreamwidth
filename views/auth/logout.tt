@@ -17,7 +17,13 @@
 [%- sections.title = "Log Out" -%]
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 
-[% IF success == 'one' %]
+[% IF success == 'switched' %]
+
+    <p>
+    You have been logged out, and are now signed in as [% switched_to %].
+    </p>
+
+[% ELSIF success == 'one' %]
 
     <p>
     You have successfully logged out of [% site.nameshort %] in this browser.
@@ -29,7 +35,28 @@
     You have successfully logged out of [% site.nameshort %] in every browser.
     </p>
 
+[% ELSIF success == 'accounts' %]
+
+    <p>
+    You have logged out of every account in this browser. They will still be listed
+    in the account switcher the next time you log in, so you can sign back in to them
+    from there.
+    </p>
+
+[% ELSIF success == 'accounts_forgotten' %]
+
+    <p>
+    You have logged out of every account in this browser, and they have been removed
+    from its account switcher.
+    </p>
+
 [% ELSE %]
+
+    [% IF failed %]
+    <div class="alert-box alert radius">
+    Something went wrong and you have not been logged out. Please try again.
+    </div>
+    [% END %]
 
     <p>
     If you would like to log out of [% site.nameshort %], you can choose to either log out
@@ -43,5 +70,20 @@
         or
         [% form.submit( name = "logout_all", value = "Log Out Everywhere" ) %]
     </form>
+
+    [% IF other_accounts.size %]
+    <p>
+    You are also signed in to other accounts in this browser. Logging out above switches
+    you to one of them. To log out of all of them at once:
+    </p>
+
+    <form method='post'>
+        [% dw.form_auth %]
+        [% form.checkbox( name = "forget", id = "forget", value = 1,
+            label = "Also remove them from the account switcher (recommended on a shared computer)" ) %]
+        <br />
+        [% form.submit( name = "logout_accounts", value = "Log Out of All Accounts" ) %]
+    </form>
+    [% END %]
 
 [% END %]

@@ -12,12 +12,9 @@ libgd-graph-perl
 libgd-text-perl
 libpng-dev
 perlmagick
-libapache2-mod-perl2
-libapache2-request-perl
 libdbd-sqlite3-perl
 libdatetime-perl
 libio-aio-perl
 libssl-dev
-apache2
 default-jre
 mysql-client

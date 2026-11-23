@@ -22,6 +22,8 @@ use Carp qw/ croak /;
 use Storable qw/ nfreeze thaw /;
 use base 'LJ::Event';
 
+use DW::Importer::Registry;
+
 sub new {
     my ( $class, $u, $type, $optref ) = @_;
 
@@ -31,24 +33,10 @@ sub new {
     croak 'second argument not a hashref'
         unless $optref && ref $optref eq 'HASH';
 
-    # isn't this sort of thing what LJ::Typemap is for?
-    my $typeid = {
-
-        # things that we import from livejournal based sites
-        lj_entries      => 0,
-        lj_tags         => 1,
-        lj_bio          => 2,
-        lj_comments     => 3,
-        lj_friends      => 4,
-        lj_friendgroups => 5,
-        lj_userpics     => 6,
-        lj_verify       => 7,
-
-        # other import types ...
-    }->{$type};
-
-    defined $typeid
+    # the typeid is what we store in the notification; it comes from the registry
+    my $item = DW::Importer::Registry->item($type)
         or croak 'Invalid importer item type [' . $type . ']';
+    my $typeid = $item->{typeid};
 
     # now store this item
     my $sid = LJ::alloc_user_counter( $u, 'Z' );
@@ -85,17 +73,8 @@ sub as_html {
         if $status eq 'status';
 
     # FIXME: strip these strings into status strings
-    my $item_has = {
-        0 => 'entries have',
-        1 => 'tags have',
-        2 => 'bio has',
-        3 => 'comments have',
-        4 => 'friends have',
-        5 => 'friend groups have',
-        6 => 'usericons have',
-        7 => 'import has',
-    }->{ $self->arg1 }
-        || 'ERROR, INVALID TYPE';
+    my $item     = DW::Importer::Registry->item_for_typeid( $self->arg1 );
+    my $item_has = ( $item && $item->{event_noun} ) || 'ERROR, INVALID TYPE';
 
     # now success message
     my $succeeded = {
@@ -119,7 +98,8 @@ sub content {
         return LJ::html_newlines( $opts->{text} )
             if $opts->{text};
 
-        if ( $self->arg1 == 0 ) {
+        my $item = DW::Importer::Registry->item_for_typeid( $self->arg1 );
+        if ( $item && $item->{reports_posts} ) {
             my $msg = qq(Original post: <a href="$opts->{remote_url}">$opts->{remote_url}</a>\n);
             $msg .=
                 qq(Local post: <a href="$opts->{post_res}->{url}">$opts->{post_res}->{url}</a>\n)

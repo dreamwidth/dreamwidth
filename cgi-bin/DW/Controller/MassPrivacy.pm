@@ -107,15 +107,15 @@ sub editprivacy_handler {
 
     # map security form values to 0) DB value 1) From string 2) To string
     my %security = (
-        'public'  => [ 'public',  BML::ml('label.security.public2') ],
-        'friends' => [ 'usemask', BML::ml('label.security.accesslist') ],
-        'private' => [ 'private', BML::ml('label.security.private2') ]
+        'public'  => [ 'public',  LJ::Lang::ml('label.security.public2') ],
+        'friends' => [ 'usemask', LJ::Lang::ml('label.security.accesslist') ],
+        'private' => [ 'private', LJ::Lang::ml('label.security.private2') ]
     );
 
     my @security = (
-        'public',  BML::ml('label.security.public2'),
-        'friends', BML::ml('label.security.accesslist'),
-        'private', BML::ml('label.security.private2')
+        'public',  LJ::Lang::ml('label.security.public2'),
+        'friends', LJ::Lang::ml('label.security.accesslist'),
+        'private', LJ::Lang::ml('label.security.private2')
     );
 
     # Initial view of page

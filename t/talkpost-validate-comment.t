@@ -60,9 +60,7 @@ my $comment;
 # relationship. And prepare_and_validate_comment asks about basically every
 # possible relationship. So SCORCH THE EARTH.
 my $reset = sub {
-    foreach ( keys %LJ::REQ_CACHE_REL ) {
-        delete $LJ::REQ_CACHE_REL{$_};
-    }
+    DW::Cache->request->clear_ns('rel');
     $comment      = undef;
     @errors       = ();
     $need_captcha = 0;

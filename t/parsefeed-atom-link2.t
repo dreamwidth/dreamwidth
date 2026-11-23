@@ -20,7 +20,7 @@ use warnings;
 
 use Test::More tests => 8;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
 
 #  These tests are of the correct identification of an "alternate" link.

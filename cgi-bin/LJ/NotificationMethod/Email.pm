@@ -22,6 +22,7 @@ use Carp qw/ croak /;
 
 use DW::Stats;
 use LJ::Web;
+use LJ::Lang;
 
 use base 'LJ::NotificationMethod';
 
@@ -43,7 +44,7 @@ sub new {
     return bless $self, $class;
 }
 
-sub title { BML::ml('notification_method.email.title') }
+sub title { LJ::Lang::ml('notification_method.email.title') }
 
 sub new_from_subscription {
     my $class = shift;
@@ -125,6 +126,14 @@ sub notify {
 
         if ($LJ::_T_EMAIL_NOTIFICATION) {
             $LJ::_T_EMAIL_NOTIFICATION->( $u, $plain_body );
+        }
+        elsif ( !length( $u->email_raw // '' ) ) {
+            $log->warn(
+                sprintf(
+                    'Skipping email notification for userid=%d evt_class=%s: no email address',
+                    $u->id, $ev->class
+                )
+            );
         }
         elsif ( $u->{opt_htmlemail} eq 'N' ) {
             LJ::send_mail(

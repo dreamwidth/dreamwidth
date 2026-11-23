@@ -10,6 +10,7 @@ on:
       - ext/dw-nonfree/bin/**
       - cgi-bin/**
       - ext/dw-nonfree/cgi-bin/**
+      - etc/docker/worker22/**
   workflow_dispatch:
 
 env:

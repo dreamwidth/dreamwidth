@@ -1,0 +1,99 @@
+name: Post commits to changelog
+
+# Posts each commit landing on the default branch to the changelog community
+# (changelog.dreamwidth.org) via Dreamwidth's post-by-email gateway.
+#
+# This replaces GitHub's built-in "Email" push-notification service, which had
+# no branch filter and so posted commits from every branch (including PR
+# branches) to the changelog. By triggering only on pushes to main, branch
+# commits no longer reach the community.
+#
+# Mail is sent through Amazon SES using the same AWS credentials the deploy
+# workflows use. Two pieces of setup are required (see SETUP NOTES below).
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  post:
+    if: github.repository == 'dreamwidth/dreamwidth'
+
+    runs-on: ubuntu-latest
+
+    env:
+      # The post-by-email destination. SENSITIVE: it embeds the account PIN,
+      # so it lives in a repo secret, never in this file.
+      POST_EMAIL: ${{ secrets.CHANGELOG_POST_EMAIL }}
+      # From address for the entries. Must be (a) verified in SES and (b) on
+      # the changelog posting account's allowed-senders list. Not sensitive.
+      FROM_EMAIL: changelog@dreamwidth.org
+      AWS_REGION: us-east-1
+      COMMITS: ${{ toJSON(github.event.commits) }}
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Email each commit to the changelog community
+        run: |
+          set -euo pipefail
+
+          # Normalize a missing/null payload to an empty array.
+          COMMITS=$(jq -c '. // []' <<<"$COMMITS")
+          count=$(jq 'length' <<<"$COMMITS")
+          echo "Posting $count commit(s) to the changelog."
+
+          jq -c '.[]' <<<"$COMMITS" | while read -r commit; do
+            sha=$(jq -r '.id' <<<"$commit")
+            short=${sha:0:8}
+
+            # SES send-email payload. jq builds it so subject/body are escaped
+            # correctly regardless of the commit message contents. The body is
+            # Markdown, which is the email gateway's default editor, so the
+            # commit link renders as a real link in the entry.
+            payload=$(jq -n \
+              --arg from "$FROM_EMAIL" \
+              --arg to "$POST_EMAIL" \
+              --arg short "$short" \
+              --argjson commit "$commit" \
+              '
+              ($commit.message | split("\n")[0]) as $subject |
+              {
+                Source: $from,
+                Destination: { ToAddresses: [ $to ] },
+                Message: {
+                  Subject: { Charset: "UTF-8", Data: $subject },
+                  Body: { Text: { Charset: "UTF-8", Data: (
+                    $commit.message + "\n\n"
+                    + "Commit: [" + $short + "](" + $commit.url + ")\n"
+                    + "Author: " + $commit.author.name + "\n"
+                  ) } }
+                }
+              }')
+
+            echo "  -> $short"
+            aws ses send-email --cli-input-json "$payload" >/dev/null
+          done
+
+# ---------------------------------------------------------------------------
+# SETUP NOTES (one-time, in the GitHub repo + AWS, not in this file):
+#
+# 1. Add the repo secret CHANGELOG_POST_EMAIL with the post-by-email address
+#    (the github.changelog+<pin>@post.dreamwidth.org value from the old GitHub
+#    Email notification). It is sensitive because of the PIN.
+#
+# 2. On the changelog posting account ("github"), add FROM_EMAIL above to its
+#    allowed-senders list (Account Settings -> Mobile Post), and keep the same
+#    PIN that CHANGELOG_POST_EMAIL encodes. Verify FROM_EMAIL in Amazon SES.
+#
+# 3. Ensure the IAM principal behind AWS_ACCESS_KEY_ID can call ses:SendEmail.
+#
+# 4. Turn OFF the old GitHub "Email" notification service (repo Settings ->
+#    Webhooks/Notifications) so commits aren't posted twice.
+# ---------------------------------------------------------------------------

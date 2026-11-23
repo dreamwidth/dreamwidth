@@ -124,6 +124,7 @@ sub _log {
 sub _request_tags {
     my ( $self, $env, $status ) = @_;
     return [
+        'tier:' .      ( $LJ::WEB_TIER                // 'default' ),
         'auth:' .      ( $env->{'dw.stats.auth'}      // 'anon' ),
         'ratelimit:' . ( $env->{'dw.stats.ratelimit'} // 'skipped' ),
         'status:' . $status,

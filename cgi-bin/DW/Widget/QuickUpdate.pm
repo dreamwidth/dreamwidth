@@ -39,10 +39,7 @@ sub render_body {
         }
     } $remote->posting_access_list;
 
-    my $journal_minsec = $remote && $remote->prop('newpost_minsecurity');
-
-#FIXME: this is because the setting can be the old 'friends' level from LJ. If we ever fix that, this can be removed.
-    $journal_minsec = 'access' if $journal_minsec && $journal_minsec eq 'friends';
+    my $journal_minsec = minsec_for_user($remote);
 
     push @journallist,
         {
@@ -81,11 +78,15 @@ sub render_body {
 }
 
 sub minsec_for_user {
-    my $user = LJ::load_user(shift);
-    if ( !$user ) {
-        return undef;
-    }
-    return $user->prop('newpost_minsecurity');
+    my $user = shift;
+    return undef unless $user;
+
+    my $minsec = $user->prop('newpost_minsecurity');
+
+#FIXME: this is because the setting can be the old 'friends' level from LJ. If we ever fix that, this can be removed.
+    $minsec = 'access' if $minsec && $minsec eq 'friends';
+
+    return $minsec;
 }
 
 1;

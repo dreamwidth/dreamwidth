@@ -222,7 +222,7 @@ sub get_picture {
 sub set_picture {
     my ( $self, $moodid, $pic, $err, $dbh ) = @_;
     my $errsub = sub { $$err = $_[0] if ref $err; return undef };
-    return $errsub->( LJ::Lang::ml("/manage/moodthemes.bml.error.cantupdatetheme") )
+    return $errsub->( LJ::Lang::ml("/manage/moodthemes.tt.error.cantupdatetheme") )
         unless $self->id
         and $moodid
         and ref $pic
@@ -231,13 +231,13 @@ sub set_picture {
     my ( $picurl, $w, $h ) = @{$pic}{qw/ picurl width height /};
     return $errsub->(
         LJ::Lang::ml(
-            "/manage/moodthemes.bml.error.notanumber",
+            "/manage/moodthemes.tt.error.notanumber",
             { moodname => $self->mood_name($moodid) }
         )
         )
         if ( $w and $w !~ /^\d+$/ )
         or ( $h and $h !~ /^\d+$/ );
-    return $errsub->( LJ::Lang::ml("/manage/moodthemes.bml.error.picurltoolong") )
+    return $errsub->( LJ::Lang::ml("/manage/moodthemes.tt.error.picurltoolong") )
         if $picurl and length $picurl > 200;
 
     $dbh ||= LJ::get_db_writer()
@@ -498,9 +498,9 @@ sub create_moodtheme {
     my ( $u, $name, $desc, $err ) = @_;
     my $errsub = sub { $$err = $_[0] if ref $err; return undef };
 
-    return $errsub->( LJ::Lang::ml("/manage/moodthemes.bml.error.cantcreatethemes") )
+    return $errsub->( LJ::Lang::ml("/manage/moodthemes.tt.error.cantcreatethemes") )
         unless $u->can_create_moodthemes;
-    return $errsub->( LJ::Lang::ml("/manage/moodthemes.bml.error.nonamegiven") )
+    return $errsub->( LJ::Lang::ml("/manage/moodthemes.tt.error.nonamegiven") )
         unless $name;
     $desc ||= '';
 

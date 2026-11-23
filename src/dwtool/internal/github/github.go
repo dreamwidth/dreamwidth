@@ -36,9 +36,9 @@ type ghRunView struct {
 }
 
 // FetchImages lists recent GHCR package versions for the given image base.
-// imageBase is like "ghcr.io/dreamwidth/web" — we extract "web" as the package name.
+// imageBase is like "ghcr.io/dreamwidth/web22" — we extract "web22" as the package name.
 func FetchImages(repo, imageBase string, limit int) ([]model.Image, error) {
-	// Extract package name from imageBase (e.g. "ghcr.io/dreamwidth/web" -> "web")
+	// Extract package name from imageBase (e.g. "ghcr.io/dreamwidth/web22" -> "web22")
 	parts := strings.Split(imageBase, "/")
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("invalid image base: %s", imageBase)

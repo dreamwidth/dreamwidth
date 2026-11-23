@@ -1,5 +1,5 @@
 paths:
-  "/users/{username}/icons/{picid}":
+  /users/{username}/icons/{picid}:
     parameters:
       - name: username
         in: path
@@ -32,6 +32,7 @@ paths:
                   - username
                   - url
                   - keywords
+                  - default
                 properties:
                   comment:
                     type: string
@@ -46,12 +47,14 @@ paths:
                     type: array
                     items:
                       type: string
+                  default:
+                    type: boolean
+                    description: Whether this is the default icon of the journal it belongs to.
         "400":
           description: Bad or missing request parameters.
           content:
             application/json:
-              schema:
-                &a1
+              schema: &a1
                 type: object
                 properties:
                   error:
@@ -60,6 +63,17 @@ paths:
                     example: "Bad format for username. Errors: String is too long: 77/25."
                   success:
                     type: number
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema: *a1
         "404":
           description: No such username or icon.
           schema: *a1
+        "500":
+          description: Server error, please try again later. If it persists, open a
+            support ticket.
+          content:
+            application/json:
+              schema: *a1

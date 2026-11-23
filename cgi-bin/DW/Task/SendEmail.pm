@@ -33,6 +33,17 @@ my $smtp;
 my $last_email    = 0;
 my $email_counter = 0;
 
+sub validate_config {
+    my ( $class, %config ) = @_;
+    croak 'SMTP_SERVER requires hostname.' unless $config{hostname};
+    croak 'SMTP_SERVER port must be between 1 and 65535.'
+        if defined $config{port}
+        && ( $config{port} !~ /^\d+$/ || $config{port} < 1 || $config{port} > 65535 );
+    croak 'SMTP_SERVER username and password must both be provided or both omitted.'
+        if !!$config{username} != !!$config{password};
+    return 1;
+}
+
 sub work {
     my ( $self, $handle ) = @_;
 
@@ -62,6 +73,9 @@ sub work {
                 "SMTP server not configured. Please set up %SMTP_SERVER in your config.");
         }
 
+        eval { __PACKAGE__->validate_config(%LJ::SMTP_SERVER) };
+        return $failed->( "Invalid SMTP configuration: %s", $@ ) if $@;
+
         $smtp = Net::SMTP->new(
             Host    => $LJ::SMTP_SERVER{hostname},
             Port    => $LJ::SMTP_SERVER{port} || 587,
@@ -72,7 +86,8 @@ sub work {
 
         # Start TLS unless disabled.
         unless ( $LJ::SMTP_SERVER{plaintext} ) {
-            $smtp->starttls();
+            return $failed->("SMTP STARTTLS failed; refusing to send credentials or mail.")
+                unless $smtp->starttls();
         }
 
         # Only try auth if we have username/pw configured for mail server
@@ -104,22 +119,35 @@ sub work {
         }
     }
 
+    unless ( ref $rcpts eq 'ARRAY' && @$rcpts ) {
+        $log->warn(
+            sprintf(
+'Dropping email task with no recipients (rcpts_type=%s has_env_from=%d has_data=%d)',
+                defined $rcpts ? ( ref($rcpts) || 'scalar' ) : 'undef',
+                defined $env_from && length $env_from ? 1 : 0,
+                defined $body     && length $body     ? 1 : 0,
+            )
+        );
+        DW::Stats::increment( 'dw.email.sent', 1, [ 'status:empty', 'via:smtp' ] );
+        Log::Log4perl::MDC->remove;
+        return DW::Task::COMPLETED;
+    }
+
     # Drop any recipient domains that we don't support/aren't allowed, and don't allow
     # duplicate emails within 24 hours
     my %recipients;
     foreach my $rcpt (@$rcpts) {
-        my ($domain) = ($1)
-            if $rcpt =~ /@(.+?)$/;
+        my ($domain) = ( defined $rcpt && $rcpt =~ /@(.+?)$/ ) ? ($1) : ();
         unless ($domain) {
-            $log->error( 'Invalid email address: ', $rcpt );
+            $log->error( 'Invalid email address: ', defined $rcpt ? $rcpt : '(undef)' );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:invalid', 'via:smtp' ] );
-            continue;
+            next;
         }
 
         if ( exists $LJ::DISALLOW_EMAIL_DOMAIN{$domain} ) {
             $log->info( 'Disallowing email to: ', $rcpt );
             DW::Stats::increment( 'dw.email.sent', 1, [ 'status:disallowed', 'via:smtp' ] );
-            continue;
+            next;
         }
 
         # Stupid hack to prevent spamming people, check memcache to see if we've sent this
@@ -227,7 +255,7 @@ sub work {
     $log->debug('Email sent successfully.');
     DW::Stats::increment( 'dw.email.sent', 1, [ 'status:completed', 'via:smtp' ] );
 
-    # Now perform memcache duplicant recording
+    # Now perform memcache duplicate recording
     foreach my $key ( values %recipients ) {
         LJ::MemCache::set( $key, 1, 86400 );
     }

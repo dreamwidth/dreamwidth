@@ -113,11 +113,11 @@ sub comments_handler {
     my $journal = $rv->{journal};
     my $comment = LJ::Comment->new( $journal, dtalkid => $dtalkid );
 
+    my $entry = $comment && $comment->entry;
     return error_ml("$ml_scope.error.invalidcomment")
-        unless $comment && $comment->visible_to($remote);
-    return error_ml("$ml_scope.error.nocomment") if $comment->is_deleted;
-
-    my $entry = $comment->entry;
+        unless $entry
+        && $entry->visible_to($remote)
+        && $entry->visible_comment( $dtalkid, $remote );
     $ditemid = undef unless $ditemid =~ /^\d+$/;
     $ditemid ||= $entry->ditemid;
 
@@ -185,8 +185,8 @@ sub entry_handler {
     my $journal = $rv->{journal};
     my $entry   = LJ::Entry->new( $journal, ditemid => $ditemid );
 
-    return error_ml("$ml_scope.error.invalidentry") unless $entry && $entry->valid;
-    return error_ml("$ml_scope.error.hiddenentry")  unless $entry->visible_to($remote);
+    return error_ml("$ml_scope.error.invalidentry")
+        unless $entry && $entry->correct_anum && $entry->visible_to($remote);
 
     # build the list of notification classes to display on this page
     my $build = sub {

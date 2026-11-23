@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 15;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -201,4 +201,68 @@ note("check select where the value is overriden (have something selected)");
         ]
     );
 
+}
+
+# every start tag in the order it appears, ignoring nesting
+sub start_tags {
+    my ($in) = @_;
+    my @tags;
+    my $parser = HTML::Parser->new(
+        api_version => 3,
+        start_h     => [ sub { push @tags, { tag => $_[0], attr => $_[1] } }, "tagname, attr" ],
+    );
+    $parser->parse($in);
+    $parser->eof;
+    return @tags;
+}
+
+note("copy_text: read-only field, with a button wired to that field");
+{
+    my $value = qq{<img src="x.png" alt="it's & more" />};
+    my @tags  = start_tags(
+        $form->copy_text( { label => "Embed code", id => "embed", value => "  $value\n" } ) );
+
+    my ($label)  = grep { $_->{tag} eq "label" } @tags;
+    my ($field)  = grep { $_->{tag} eq "input" && $_->{attr}->{type} eq "text" } @tags;
+    my ($button) = grep { $_->{tag} eq "input" && $_->{attr}->{type} eq "button" } @tags;
+    my ($status) = grep { ( $_->{attr}->{role} // "" ) eq "status" } @tags;
+
+    is( $label->{attr}->{for}, "embed", "label is paired with the field" );
+    is( $field->{attr}->{value},
+        $value, "value survives escaping intact, without surrounding whitespace" );
+    ok( exists $field->{attr}->{readonly}, "field is read-only" );
+    is( $button->{attr}->{"aria-controls"}, "embed", "button copies its own field" );
+    is(
+        $button->{attr}->{"data-copy-status"},
+        $status->{attr}->{id},
+        "button reports to its own status region"
+    );
+}
+
+note("copy_text: two fields with generated ids each get their own button");
+{
+    my $html = $form->copy_text( { name => "first", value => "one" } )
+        . $form->copy_text( { name => "second", value => "two" } );
+    my @tags = start_tags($html);
+
+    my %value_of = map { $_->{attr}->{id} => $_->{attr}->{value} }
+        grep { $_->{tag} eq "input" && $_->{attr}->{type} eq "text" } @tags;
+    my @targets = map { $_->{attr}->{"aria-controls"} }
+        grep { $_->{tag} eq "input" && $_->{attr}->{type} eq "button" } @tags;
+
+    is( scalar keys %value_of, 2, "fields have distinct ids" );
+    is_deeply(
+        [ map { $value_of{$_} } @targets ],
+        [ "one", "two" ],
+        "each button targets the field before it"
+    );
+}
+
+note("LJ::html_copy_text works without the template plugin");
+{
+    my @tags = start_tags( LJ::html_copy_text( { value => "plain" } ) );
+    my ($field)  = grep { $_->{tag} eq "input" && $_->{attr}->{type} eq "text" } @tags;
+    my ($button) = grep { $_->{tag} eq "input" && $_->{attr}->{type} eq "button" } @tags;
+    ok( $field->{attr}->{id} && $button->{attr}->{"aria-controls"} eq $field->{attr}->{id},
+        "generated id links the button to the field" );
 }

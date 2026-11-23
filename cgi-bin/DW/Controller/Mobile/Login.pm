@@ -29,6 +29,8 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 
 DW::Routing->register_string( "/mobile/login", \&login_handler, app => 1 );
 
@@ -65,6 +67,21 @@ sub login_handler {
                 $errors->add( 'password', '.login.badpass' );
             }
             else {
+                if ( DW::Auth::TOTP->is_enabled($u) ) {
+                    unless ( DW::Auth::Login->allowed($u) ) {
+                        $errors->add_string( 'user',
+                            'This account cannot sign in in its current state.' );
+                        $rv->{errors} = $errors;
+                        return DW::Template->render_template( 'mobile/login.tt', $rv,
+                            { no_sitescheme => 1 } );
+                    }
+                    return DW::Auth::Login->start_challenge(
+                        $u,
+                        password => $post->{password},
+                        exptype  => 'long',
+                        returnto => '/mobile/'
+                    );
+                }
                 $u->make_login_session('long');
                 return $r->redirect( "$LJ::SITEROOT/mobile/?t=" . time() );
             }

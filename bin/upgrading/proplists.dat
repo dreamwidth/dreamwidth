@@ -38,14 +38,6 @@ userproplist.bonus_icons:
   multihomed: 0
   prettyname: How many bonus icon slots the user has purchased
 
-userproplist.captcha:
-  cldversion: 4
-  datatype: char
-  des: CAPTCHA type to show in the user's journal
-  indexed: 0
-  multihomed: 0
-  prettyname: CAPTCHA type
-
 userproplist.cc_msg:
   cldversion: 4
   datatype: bool
@@ -510,14 +502,6 @@ userproplist.iconbrowser_smallicons:
   multihomed: 0
   prettyname: Icon browser small icons
 
-userproplist.icq:
-  cldversion: 0
-  datatype: char
-  des: ICQ Number
-  indexed: 1
-  multihomed: 1
-  prettyname: ICQ (legacy value)
-
 userproplist.import_job:
   cldversion: 4
   datatype: char
@@ -633,7 +617,7 @@ userproplist.livejournal:
 userproplist.latest_optout:
   cldversion: 4
   datatype: bool
-  des: Opt out of latest.bml, latest-rss.bml, and latest-img.bml if on.
+  des: Opt out of the latest-updates listing and its feeds if on.
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
@@ -1233,10 +1217,10 @@ userproplist.s2_style:
 userproplist.schemepref:
   cldversion: 4
   datatype: char
-  des: BML scheme name
+  des: Site scheme name
   indexed: 0
   multihomed: 0
-  prettyname: BML Scheme Preference
+  prettyname: Site Scheme Preference
 
 userproplist.scheme_manually_set:
   cldversion: 4

@@ -18,6 +18,7 @@ package LJ::S2;
 use strict;
 use DW;
 use DW::Request;
+use DW::Cache;
 use lib DW->home . "/src/s2";
 use S2;
 use S2::Color;
@@ -80,14 +81,13 @@ sub make_journal {
         return;
     }
 
-    # see also Apache/LiveJournal.pm
-    my $lang = $LJ::DEFAULT_LANG;
-
-    # note that's it's very important to pass LJ::Lang::get_text here explicitly
-    # rather than relying on BML::set_language's fallback mechanism, which won't
-    # work in this context since BML::cur_req won't be loaded if no BML requests
-    # have been served from this Apache process yet
-    BML::set_language( $lang, \&LJ::Lang::get_text );
+    # S2 labels use LJ::Lang::ml directly.  Set the default language and an
+    # explicit getter on the native request context; it merges this with any
+    # caller-established translation scope.
+    LJ::Lang::set_request_context(
+        lang   => $LJ::DEFAULT_LANG,
+        getter => \&LJ::Lang::get_text,
+    );
 
     # let layouts disable EntryPage / ReplyPage, using the siteviews version
     # instead.  We may also have explicitly asked to use siteviews by the caller
@@ -115,7 +115,7 @@ sub make_journal {
     }
 
     if ( $styleid && $styleid eq "siteviews" ) {
-        $apache_r->notes->{'no_control_strip'} = 1;
+        $apache_r->note( 'no_control_strip', 1 );
 
         ${ $opts->{'handle_with_siteviews_ref'} } = 1;
         $opts->{siteviews_extra_content} ||= {};
@@ -247,6 +247,16 @@ sub make_journal {
     return $ret;
 }
 
+# Journal rendering uses request-local notes when it has a modern request.  A
+# missing request or journal note deliberately retains the historical no-journal fallback.
+sub _request_journal {
+    my $r = DW::Request->get;
+    return unless $r && $r->can('note');
+    my $journalid = $r->note('journalid');
+    return unless defined $journalid;
+    return LJ::load_userid($journalid);
+}
+
 sub s2_run {
     my ( $apache_r, $ctx, $opts, $entry, $page ) = @_;
     $opts ||= {};
@@ -261,15 +271,9 @@ sub s2_run {
         # expand lj-embed tags
         if ( $text =~ /lj\-embed/i ) {
 
-            # find out what journal we're looking at
-            my $apache_r = eval { BML::get_request() };
-            if ( $apache_r && $apache_r->notes->{journalid} ) {
-                my $journal = LJ::load_userid( $apache_r->notes->{journalid} );
-
-                # expand tags
-                LJ::EmbedModule->expand_entry( $journal, \$text )
-                    if $journal;
-            }
+            # Expand only when the current native request identifies a journal.
+            my $journal = _request_journal();
+            LJ::EmbedModule->expand_entry( $journal, \$text ) if $journal;
         }
 
         $$LJ::S2::ret_ref .= $text;
@@ -1222,13 +1226,13 @@ sub get_style_layers {
     return undef unless $styleid;
 
     # check memcache unless $force
-    my $stylay = $force ? undef : $LJ::S2::REQ_CACHE_STYLE_ID{$styleid};
+    my $stylay = $force ? undef : DW::Cache->request->get( 's2_style_id', $styleid );
     return $stylay if $stylay;
 
     my $memkey = [ $styleid, "s2sl:$styleid" ];
     $stylay = LJ::MemCache::get($memkey) unless $force;
     if ($stylay) {
-        $LJ::S2::REQ_CACHE_STYLE_ID{$styleid} = $stylay;
+        DW::Cache->request->set( 's2_style_id', $styleid, $stylay );
         return $stylay;
     }
 
@@ -1263,7 +1267,7 @@ sub get_style_layers {
 
     # set in memcache
     LJ::MemCache::set( $memkey, \%stylay );
-    $LJ::S2::REQ_CACHE_STYLE_ID{$styleid} = \%stylay;
+    DW::Cache->request->set( 's2_style_id', $styleid, \%stylay );
     return \%stylay;
 }
 
@@ -1293,14 +1297,14 @@ sub load_layer {
     my $db  = ref $_[0] ? shift : LJ::S2::get_s2_reader();
     my $lid = shift;
 
-    my $layerid = $LJ::S2::REQ_CACHE_LAYER_ID{$lid};
+    my $layerid = DW::Cache->request->get( 's2_layer_id', $lid );
     return $layerid if $layerid;
 
     my $ret = $db->selectrow_hashref(
         "SELECT s2lid, b2lid, userid, type " . "FROM s2layers WHERE s2lid=?",
         undef, $lid );
     die $db->errstr if $db->err;
-    $LJ::S2::REQ_CACHE_LAYER_ID{$lid} = $ret;
+    DW::Cache->request->set( 's2_layer_id', $lid, $ret );
 
     return $ret;
 }
@@ -1564,7 +1568,7 @@ sub load_layer_info {
     # check request cache
     my %layers_from_cache = ();
     foreach my $lid (@$listref) {
-        my $layerinfo = $LJ::S2::REQ_CACHE_LAYER_INFO{$lid};
+        my $layerinfo = DW::Cache->request->get( 's2_layer_info', $lid );
         if ( keys %$layerinfo ) {
             $layers_from_cache{$lid} = 1;
             foreach my $k ( keys %$layerinfo ) {
@@ -1585,7 +1589,9 @@ sub load_layer_info {
     $sth->execute;
 
     while ( my ( $id, $k, $v ) = $sth->fetchrow_array ) {
-        $LJ::S2::REQ_CACHE_LAYER_INFO{$id}->{$k} = $v;
+        my $info = DW::Cache->request->get( 's2_layer_info', $id )
+            || DW::Cache->request->set( 's2_layer_info', $id, {} );
+        $info->{$k} = $v;
         $outhash->{$id}->{$k} = $v;
     }
 
@@ -1962,8 +1968,26 @@ sub Tag {
     return $t;
 }
 
+# The viewer's tag-count relationship to $u is identical for every tag, so
+# callers rendering a whole list compute it once and pass it into TagDetail
+# rather than paying a per-tag trustmask lookup (see #3646).
+sub tag_viewer_context {
+    my ($u) = @_;
+    my $remote = LJ::get_remote();
+
+    my %ctx = ( remote => $remote );
+    if ( defined $remote && $remote->can_manage($u) ) {    # own journal
+        $ctx{can_manage} = 1;
+    }
+    elsif ( defined $remote ) {                            # logged in, not own journal
+        $ctx{trusted} = $u->trusts_or_has_member($remote);
+        $ctx{grpmask} = $u->trustmask($remote);
+    }
+    return \%ctx;
+}
+
 sub TagDetail {
-    my ( $u, $kwid, $tag ) = @_;
+    my ( $u, $kwid, $tag, $viewer ) = @_;
     return undef unless $u && $kwid && ref $tag eq 'HASH';
 
     my $t = {
@@ -1980,10 +2004,12 @@ sub TagDetail {
     # be visible to >1 of them. Instead of working it out accurately
     # every time, we give an approximation that will either be accurate
     # or an underestimate.
-    my $count  = 0;
-    my $remote = LJ::get_remote();
+    my $count = 0;
 
-    if ( defined $remote && $remote->can_manage($u) ) {    #own journal
+    # list callers pass this in; a lone tag computes it here.
+    $viewer ||= tag_viewer_context($u);
+
+    if ( $viewer->{can_manage} ) {    # own journal
         $count = $tag->{uses};
         my $groupcount = $tag->{uses};
         foreach (qw(public private protected)) {
@@ -1993,9 +2019,9 @@ sub TagDetail {
         $t->{security_counts}->{group} = $groupcount;
 
     }
-    elsif ( defined $remote ) {                            #logged in, not own journal
-        my $trusted = $u->trusts_or_has_member($remote);
-        my $grpmask = $u->trustmask($remote);
+    elsif ( $viewer->{remote} ) {     # logged in, not own journal
+        my $trusted = $viewer->{trusted};
+        my $grpmask = $viewer->{grpmask};
 
         $count = $tag->{security}->{public};
         $t->{security_counts}->{public} = $tag->{security}->{public};
@@ -2142,8 +2168,6 @@ sub Entry {
     my %current = LJ::currents( $p, $m_arg, { s2imgref => \$img_arg } );
     $e->{metadata}->{ lc $_ } = $current{$_} foreach keys %current;
     $e->{mood_icon} = Image(@$img_arg) if defined $img_arg;
-
-    my $apache_r = BML::get_request();
 
     # custom friend groups
     my $group_names = $arg->{group_names};
@@ -2438,10 +2462,6 @@ sub Page {
               '<meta http-equiv="Content-Type" content="text/html; charset='
             . $opts->{'saycharset'}
             . "\" />\n";
-    }
-
-    if ( LJ::Hooks::are_hooks('s2_head_content_extra') ) {
-        $p->{head_content} .= LJ::Hooks::run_hook( 's2_head_content_extra', $remote, $opts->{r} );
     }
 
     my %meta_opts =
@@ -3036,7 +3056,6 @@ sub viewer_can_manage_tags {
 }
 
 sub viewer_sees_control_strip {
-    my $apache_r = BML::get_request();
     return LJ::Hooks::run_hook('show_control_strip');
 }
 
@@ -3092,16 +3111,14 @@ sub _get_Entry_ebox_args    { 0 }
 sub Entry__viewer_sees_ebox { 0 }
 
 sub control_strip_logged_out_userpic_css {
-    my $apache_r = BML::get_request();
-    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
+    my $u = LJ::S2::_request_journal();
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_userpic', $u );
 }
 
 sub control_strip_logged_out_full_userpic_css {
-    my $apache_r = BML::get_request();
-    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
+    my $u = LJ::S2::_request_journal();
     return '' unless $u;
 
     return LJ::Hooks::run_hook( 'control_strip_loggedout_userpic', $u );
@@ -3119,8 +3136,7 @@ sub journal_current_datetime {
 
     my $ret = { '_type' => 'DateTime' };
 
-    my $apache_r = BML::get_request();
-    my $u        = LJ::load_userid( $apache_r->notes->{journalid} );
+    my $u = LJ::S2::_request_journal();
     return $ret unless $u;
 
     # turn the timezone offset number into a four character string (plus '-' if negative)
@@ -3878,6 +3894,11 @@ sub Comment__expand_link {
 
     my $onclick = "";
 
+    # JS string literals inside a double-quoted attribute: escape for JS, then HTML.
+    my $js_url    = LJ::ehtml( LJ::ejs( $this->{js_expand_url} ) );
+    my $js_talkid = LJ::ehtml( LJ::ejs( $this->{talkid} ) );
+    my $href      = LJ::ehtml( $this->{expand_url} );
+
     # if we're in top-only mode, then we display the expand link as
     # the unhide ('show x comments') message
 
@@ -3887,14 +3908,12 @@ sub Comment__expand_link {
         $text = LJ::ehtml( get_plural_phrase( $ctx, $comment_count, "text_comment_unhide" ) );
         my $remote = LJ::get_remote();
 
-        $onclick =
-" onClick=\"Expander.make(this,'$this->{js_expand_url}','$this->{talkid}', true); return false;\"";
+        $onclick = " onClick=\"Expander.make(this,'$js_url','$js_talkid', true); return false;\"";
     }
     else {
-        $onclick =
-" onClick=\"Expander.make(this,'$this->{js_expand_url}','$this->{talkid}'); return false;\"";
+        $onclick = " onClick=\"Expander.make(this,'$js_url','$js_talkid'); return false;\"";
     }
-    return "<a href='$this->{expand_url}'$title$class$onclick>$text</a>";
+    return "<a href='$href'$title$class$onclick>$text</a>";
 }
 
 sub Comment__print_expand_link {
@@ -4305,7 +4324,7 @@ sub _Entry__get_link {
             || $remote->user eq $poster
             || $remote->can_manage($journalu) );
         return LJ::S2::Link(
-            "$LJ::SITEROOT/editjournal?journal=$journal&amp;itemid=$this->{'itemid'}",
+            "$LJ::SITEROOT/entry/$journal/$this->{'itemid'}/edit",
             $ctx->[S2::PROPS]->{"text_edit_entry"},
             LJ::S2::Image_std('editentry')
         );
@@ -4610,13 +4629,16 @@ sub Page__visible_tag_list {
         my $tags = LJ::Tags::get_usertags( $u, { remote => $remote } );
         return [] unless $tags;
 
+        # compute the viewer relationship once for the whole list
+        my $viewer = LJ::S2::tag_viewer_context($u);
+
         foreach my $kwid ( keys %{$tags} ) {
 
             # only show tags for display
             next unless $tags->{$kwid}->{display};
 
             # create tag object
-            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid} );
+            push @taglist, LJ::S2::TagDetail( $u, $kwid => $tags->{$kwid}, $viewer );
         }
     }
 

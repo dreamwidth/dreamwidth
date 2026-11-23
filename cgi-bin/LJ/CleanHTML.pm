@@ -1636,6 +1636,7 @@ my @comment_all = qw(
     area map form textarea
     img br hr p col
     summary details
+    ruby rt rp
 );
 
 my $event_eat    = $subject_eat;

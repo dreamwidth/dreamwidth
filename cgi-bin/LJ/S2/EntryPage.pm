@@ -60,24 +60,34 @@ sub EntryPage {
     my $permalink = $entry->url;
     my $style_arg = LJ::viewing_style_args(%$get);
 
-    $p->{'viewing_thread'} = $get->{thread} ? 1 : 0;
-    $p->{_viewing_thread_id} = $get->{thread} ? $get->{thread} + 0 : 0;
+    # an id with the wrong anum is treated like a missing one
+    my $thread = $get->{thread} && $get->{thread} =~ /^\d+$/ ? $get->{thread} + 0 : 0;
+    $thread = 0 if $thread % 256 != $entry->anum;
+
+    $p->{'viewing_thread'}   = $thread ? 1 : 0;
+    $p->{_viewing_thread_id} = $thread;
 
     my $link_thread_arg = '';    # Thread to return to after reply/edit
 
-    if ( defined $get->{destination_thread} ) {
+    # Used in comment links; anything but a dtalkid is treated as 0.
+    my $destination_thread =
+        defined $get->{destination_thread}
+        ? ( $get->{destination_thread} =~ /^(\d+)$/ ? $1 + 0 : 0 )
+        : undef;
+
+    if ( defined $destination_thread ) {
 
         # destination_thread is only set by the JS thread expander. If present,
         # our links must match the context of the page we're being loaded into.
         # (0 means that's a top-level page, so link_thread_arg should be blank.)
-        if ( $get->{destination_thread} ) {
-            $link_thread_arg = "thread=$get->{destination_thread}";
+        if ($destination_thread) {
+            $link_thread_arg = "thread=$destination_thread";
         }
     }
-    elsif ( $get->{thread} ) {
+    elsif ( $p->{_viewing_thread_id} ) {
 
         # Only use the page's real thread view if we're not being thread-expanded.
-        $link_thread_arg = "thread=$get->{thread}";
+        $link_thread_arg = "thread=$p->{_viewing_thread_id}";
     }
 
     if ( $u->should_block_robots || $entry->should_block_robots ) {
@@ -168,6 +178,8 @@ sub EntryPage {
     my $top_only_mode = ( $view_arg =~ /\btop-only\b/ );
     my $view_num      = ( $view_arg =~ /(\d+)/ ) ? $1 : undef;
 
+    $view_num = undef if defined $view_num && $view_num % 256 != $entry->anum;
+
     my $expand_all = ( $u->thread_expand_all($remote) && $get->{'expand_all'} );
 
     my %userpic;
@@ -175,7 +187,7 @@ sub EntryPage {
     my $copts = {
         'flat'       => $flat_mode,
         'top-only'   => $top_only_mode,
-        'thread'     => $get->{thread} ? ( $get->{thread} >> 8 ) : 0,
+        'thread'     => $thread >> 8,
         'page'       => $get->{'page'},
         'view'       => $view_num,
         'userpicref' => \%userpic,
@@ -187,6 +199,10 @@ sub EntryPage {
         'expand_all' => $expand_all,
         'filter'     => $get->{comments},
     };
+    if ( defined $destination_thread ) {
+        $copts->{destination_thread} =
+            $destination_thread % 256 == $entry->anum ? $destination_thread >> 8 : 0;
+    }
 
     my $userlite_journal = UserLite($u);
 
@@ -423,10 +439,7 @@ sub EntryPage {
             push @$link_keyseq, "watching_parent" if LJ::is_enabled('esn');
             unshift @$link_keyseq, "edit_comment" if LJ::is_enabled('edit_comments');
 
-            my $destination_thread =
-                defined $get->{destination_thread}
-                ? $get->{destination_thread}
-                : $p->{_viewing_thread_id};
+            my $expand_destination = $destination_thread // $p->{_viewing_thread_id};
 
 # always populate expand url; let get_link sort out whether this link should be printed or not
 # the value of expand_url is not directly exposed via s2. It is used by the get_link backend function
@@ -434,7 +447,7 @@ sub EntryPage {
                 . LJ::Talk::comment_anchor($dtalkid);
             $s2com->{js_expand_url} =
                 LJ::Talk::talkargs( $permalink, "thread=$dtalkid",
-                "destination_thread=$destination_thread", $style_arg )
+                "destination_thread=$expand_destination", $style_arg )
                 . LJ::Talk::comment_anchor($dtalkid);
             $s2com->{thread_url} = $s2com->{expand_url} if @{ $com->{children} };
 
@@ -456,7 +469,9 @@ sub EntryPage {
         }
     };
     $p->{'comments'} = [];
-    $convert_comments->( $convert_comments, $p->{'comments'}, \@comments, 1 );
+    $convert_comments->(
+        $convert_comments, $p->{'comments'}, \@comments, $copts->{out_thread_depth} // 1
+    );
 
     # prepare the javascript data structure to put in the top of the page
     # if the remote user is a manager of the comments
@@ -490,8 +505,7 @@ sub EntryPage {
 
         $recurse->( $recurse, $p->{'comments'} );
 
-        my $js =
-            "<script>\n// don't crawl this.  read http://www.livejournal.com/developer/exporting\n";
+        my $js = "<script>\n// don't crawl this.\n";
         $js .= "var LJ_cmtinfo = " . to_json($cmtinfo) . "\n";
         $js .= '</script>';
         $p->{'LJ_cmtinfo'} = $js if $opts->{'need_cmtinfo'};
@@ -565,6 +579,17 @@ sub EntryPage {
     return $p;
 }
 
+# Answers the request with the page for a missing or hidden entry or comment;
+# must match DW::Controller::Journal->entry_not_found.
+sub EntryPage_not_found {
+    my ( $u, $opts ) = @_;
+
+    $opts->{internal_redir} = "/protected";
+    $opts->{r}->note( journalid => $u->userid );
+    $opts->{r}->note( returnto  => LJ::create_url( undef, keep_args => 1 ) );
+    return;
+}
+
 sub EntryPage_entry {
     my ( $u, $remote, $opts ) = @_;
     my $entry = $opts->{ljentry};    # only defined in named-URI case.  otherwise undef.
@@ -573,16 +598,10 @@ sub EntryPage_entry {
     my $uri         = $apache_r->uri;
     my $ditemid_uri = ( $uri =~ /^\/(\d+)\.html$/ ) ? 1 : 0;
 
-    unless ( $entry || $ditemid_uri ) {
-        $opts->{'handler_return'} = 404;
-        return;
-    }
+    return EntryPage_not_found( $u, $opts ) unless $entry || $ditemid_uri;
 
     $entry ||= LJ::Entry->new( $u, ditemid => $1 );
-    if ( $ditemid_uri && !$entry->correct_anum ) {
-        $opts->{'handler_return'} = 404;
-        return;
-    }
+    return EntryPage_not_found( $u, $opts ) unless $entry->correct_anum;
 
     my $ditemid = $entry->ditemid;
     my $itemid  = $entry->jitemid;
@@ -615,29 +634,7 @@ sub EntryPage_entry {
             return;
         }
 
-        # this checks to see why the logged-in user is not allowed to see
-        # the given content.
-        if ( defined $remote ) {
-            my $journal = $entry->journal;
-
-            if (   $journal->is_community
-                && !$journal->is_closed_membership
-                && $remote
-                && $entry->security ne "private" )
-            {
-                $apache_r->notes->{error_key}   = ".comm.open";
-                $apache_r->notes->{journalname} = $journal->username;
-            }
-            elsif ( $journal->is_community && $journal->is_closed_membership ) {
-                $apache_r->notes->{error_key}   = ".comm.closed";
-                $apache_r->notes->{journalname} = $journal->username;
-            }
-        }
-
-        $opts->{internal_redir} = "/protected";
-        $apache_r->notes->{journalid} = $entry->journalid;
-        $apache_r->notes->{returnto} = LJ::create_url( undef, keep_args => 1 );
-        return;
+        return EntryPage_not_found( $u, $opts );
     }
 
     my $style_args = LJ::viewing_style_args(%$get);

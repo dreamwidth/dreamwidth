@@ -6,16 +6,20 @@
     title => dw.ml('widget.search.title'),
     size  => 20) 
 %]
-[% form.select( 
-    name => 'type', 
-    selected => 'int', 
-    class => 'select',
-    items => [
+[% search_types = [
         'int',          dw.ml('widget.search.interest'),
         'region',       dw.ml('widget.search.region'),
         'nav_and_user', dw.ml('widget.search.siteuser'),
         'faq',          dw.ml('widget.search.faq'),
         'email',        dw.ml('widget.search.email'),
-    ] ) %]
+    ];
+    IF content_search_enabled;
+        CALL search_types.push('content', dw.ml('widget.search.entries'));
+    END;
+    form.select(
+    name => 'type', 
+    selected => 'int', 
+    class => 'select',
+    items => search_types ) %]
 [% form.submit( value = dw.ml('widget.search.btn.go') )%]
 </form>

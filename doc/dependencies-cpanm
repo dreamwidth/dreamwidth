@@ -4,7 +4,6 @@ Authen::Passphrase::Clear
 Business::CreditCard
 CGI
 Cache::Memcached
-Captcha::reCAPTCHA@0.99
 Class::Autouse
 Class::Data::Inheritable
 Class::Trigger
@@ -13,6 +12,7 @@ Convert::Base32
 CryptX@0.080
 Danga::Socket
 Data::ObjectDriver
+Devel::Size
 Digest::HMAC_SHA1
 Digest::SHA1
 File::Type
@@ -21,6 +21,7 @@ GTop?
 Gearman::Client
 GnuPG::Interface
 Hash::MultiValue@0.16
+HTML::Form
 IO::WrapTie
 Image::ExifTool
 Image::Size

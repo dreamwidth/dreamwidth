@@ -13,6 +13,7 @@
 
 package LJ::Event::CommunityInvite;
 use strict;
+use LJ::Lang;
 use LJ::Entry;
 use Carp qw(croak);
 use base 'LJ::Event';
@@ -154,7 +155,7 @@ sub as_string {
 
 sub subscription_as_html {
     my ( $class, $subscr ) = @_;
-    return BML::ml('event.comm_invite');    # "I receive an invitation to join a community";
+    return LJ::Lang::ml('event.comm_invite');    # "I receive an invitation to join a community";
 }
 
 sub available_for_user {

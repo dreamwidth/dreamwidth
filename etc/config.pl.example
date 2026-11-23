@@ -563,6 +563,13 @@
         'unauthenticated_requests' => {},
         'anonymous_requests'       => {},
 
+        # XML-RPC/flat protocol: per-IP limit checked before a request is
+        # authenticated (default 300/60s), and per-IP limit on getchallenge
+        # (default 100/60s). Authenticated protocol calls then count against the
+        # user's authenticated_requests limit; failed ones against anonymous_requests.
+        'protocol_requests'   => {},
+        'protocol_challenges' => {},
+
         # API rate limits
         'tags_get'           => {},
         'tags_post'          => {},

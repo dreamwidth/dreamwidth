@@ -15,8 +15,13 @@ package LJ::Message;
 use strict;
 use Carp qw/ croak /;
 use LJ::Typemap;
+use DW::Cache;
 
 my %singletons = ();    # journalid-msgid
+
+# file-scoped lexical, so it self-registers: cleared between requests/jobs, and
+# its byte size is measured for memory metrics
+DW::Cache->request->register_var( 'message_singletons', \%singletons );
 
 sub new {
     my ( $class, $opts ) = @_;
@@ -378,7 +383,8 @@ sub can_send {
 
     # Can only send to other individual users
     unless ( $ru->is_person || $ru->is_identity ) {
-        push @$errors, BML::ml( 'error.message.individual', { 'ljuser' => $ru->ljuser_display } );
+        push @$errors,
+            LJ::Lang::ml( 'error.message.individual', { 'ljuser' => $ru->ljuser_display } );
         return 0;
     }
 
@@ -386,14 +392,15 @@ sub can_send {
     if ( $ru->is_deleted || $ru->is_expunged ) {
         push @$errors,
             $ru->is_deleted
-            ? BML::ml( 'error.message.deleted',  { 'ljuser' => $ru->ljuser_display } )
-            : BML::ml( 'error.message.expunged', { 'ljuser' => $ru->ljuser_display } );
+            ? LJ::Lang::ml( 'error.message.deleted',  { 'ljuser' => $ru->ljuser_display } )
+            : LJ::Lang::ml( 'error.message.expunged', { 'ljuser' => $ru->ljuser_display } );
         return 0;
     }
 
     # Will target user accept messages from sender
     unless ( $ru->can_receive_message($ou) ) {
-        push @$errors, BML::ml( 'error.message.canreceive', { 'ljuser' => $ru->ljuser_display } );
+        push @$errors,
+            LJ::Lang::ml( 'error.message.canreceive', { 'ljuser' => $ru->ljuser_display } );
         return 0;
     }
 

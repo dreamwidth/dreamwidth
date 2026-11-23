@@ -48,10 +48,6 @@ t/bin/initialize-db
 mkdir -p $LJHOME/build
 ln -snf /opt/dreamwidth-static $LJHOME/build/static
 
-# Set up apache config
-rm -rf /etc/apache2
-ln -ns $LJHOME/.devcontainer/config/etc/apache2 /etc/apache2 || true
-
 # Install Go if not already present (baked into image on next rebuild)
 if ! command -v go &>/dev/null; then
     curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -

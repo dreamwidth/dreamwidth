@@ -23,23 +23,71 @@ $maint{'clean_caches'} = sub {
 
     my $verbose = $LJ::LJMAINT_VERBOSE;
 
+    # Batch size and inter-batch sleep for all bounded DELETE loops below.
+    # Keeping each statement small prevents long lock-hold times on the master.
+    my $BATCH_SIZE  = 1000;
+    my $BATCH_SLEEP = 1;      # seconds to yield between batches
+
     print "-I- Cleaning authactions.\n";
-    $dbh->do("DELETE FROM authactions WHERE datecreate < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    my $count = 0;
+    while (
+        my $deleted = $dbh->do(
+"DELETE FROM authactions WHERE datecreate < DATE_SUB(NOW(), INTERVAL 30 DAY) LIMIT $BATCH_SIZE"
+        )
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning faquses.\n";
-    $dbh->do("DELETE FROM faquses WHERE dateview < DATE_SUB(NOW(), INTERVAL 7 DAY)");
+    $count = 0;
+    while (
+        my $deleted = $dbh->do(
+            "DELETE FROM faquses WHERE dateview < DATE_SUB(NOW(), INTERVAL 7 DAY) LIMIT $BATCH_SIZE"
+        )
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning duplock.\n";
-    $dbh->do("DELETE FROM duplock WHERE instime < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+    $count = 0;
+    while (
+        my $deleted = $dbh->do(
+            "DELETE FROM duplock WHERE instime < DATE_SUB(NOW(), INTERVAL 1 HOUR) LIMIT $BATCH_SIZE"
+        )
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning underage uniqs.\n";
     $dbh->do("DELETE FROM underage WHERE timeof < (UNIX_TIMESTAMP() - 86400*90) LIMIT 2000");
 
     print "-I- Cleaning blobcache.\n";
-    $dbh->do("DELETE FROM blobcache WHERE dateupdate < NOW() - INTERVAL 30 DAY");
+    $count = 0;
+    while (
+        my $deleted = $dbh->do(
+            "DELETE FROM blobcache WHERE dateupdate < NOW() - INTERVAL 30 DAY LIMIT $BATCH_SIZE")
+        )
+    {
+        $count += $deleted;
+        last if $deleted < $BATCH_SIZE;
+        sleep $BATCH_SLEEP;
+    }
+    print "    deleted $count\n";
 
     print "-I- Cleaning old anonymous comment IP logs.\n";
-    my $count;
+    $count = 0;
     foreach my $c (@LJ::CLUSTERS) {
         my $dbcm = LJ::get_cluster_master($c);
         next unless $dbcm;
@@ -51,7 +99,7 @@ $maint{'clean_caches'} = sub {
     print "    deleted $count\n";
 
     print "-I- Cleaning old random users.\n";
-    my $count;
+    $count = 0;
     foreach my $c (@LJ::CLUSTERS) {
         my $dbcm = LJ::get_cluster_master($c);
         next unless $dbcm;

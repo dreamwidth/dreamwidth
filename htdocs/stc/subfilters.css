@@ -6,25 +6,36 @@
     clear: both;
 }
 
+/* Flex layouts wrap as the text grows, so large fonts stack the controls
+   instead of overflowing fixed percentage columns. Elements that the script
+   shows and hides are flex items, never the flex containers themselves. */
+#cf-select { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 1em; }
+#cf-select select, #cf-filtopts select, #cf-edit select { max-width: 100%; }
+
 #cf-edit { display: none; }
-#cf-save { float: left; width: 50%; text-align: center; vertical-align: center; }
-#cf-hourglass { display: none; }
-#cf-make-new { float: right; width: 30%; text-align: right; }
+#cf-save { flex: 1 1 auto; text-align: center; }
+/* The autosave countdown is hidden with visibility, not display, so its space
+   is always reserved and showing it never re-wraps the header row. */
+#cf-hourglass { visibility: hidden; }
+#cf-make-new { flex: 0 1 auto; margin-left: auto; text-align: right; }
 #cf-rename { display: none; }
-#cf-select-filter { float: left; width: 20%; }
+#cf-select-filter { flex: 0 1 auto; max-width: 100%; }
 #cf-delete { margin-right: 10px; display: none; text-decoration: underline; }
-#cf-unsaved { color: red; font-weight: bold; font-size: larger; display: none; }
-#cf-notin { width: 18%; float: left; padding: 5px; }
-#cf-in { width: 18%; float: left; padding: 5px; }
-#cf-options { width: 60%; float: right; padding: 5px; }
+#cf-unsaved { color: red; font-weight: bold; font-size: larger; visibility: hidden; }
+#cf-edit-layout, #cf-members { display: flex; flex-wrap: wrap; align-items: flex-start; }
+/* The member lists never grow, so their width does not change when the script
+   shows or hides #cf-options beside them. */
+#cf-members { flex: 0 1 30em; min-width: 0; }
+#cf-notin, #cf-in { flex: 1 1 11em; min-width: 0; padding: 5px; }
+#cf-options { flex: 3 1 28em; min-width: 0; padding: 5px; }
 #cf-in-list { width: 100%; }
 #cf-notin-list { width: 100%; }
-#cf-add-box { float: left; }
-#cf-del-box { float: right; }
+#cf-add-box, #cf-del-box { display: flex; flex-wrap: wrap; gap: 5px; }
+#cf-del-box { justify-content: flex-end; }
 #cf-t-box, #cf-ac-box, #cf-pt-box { padding: 5px; }
 #cf-t-box2, #cf-t-box3 { padding: 10px; display: none; }
 #cf-filtopts, #cf-options { display: none; }
-#cf-opts-box { border: solid 1px #bbb; width: 98%; padding: 5px; }
+#cf-opts-box { border: solid 1px #bbb; padding: 5px; }
 #cf-notagsavail, #cf-notagssel { display: none; font-style: italic; padding: 10px; }
 #cf-free-warning { display: none; margin: 10px; font-weight: bold; }
 
@@ -33,5 +44,6 @@
 .cf-tag:hover { background-color: #ccc; }
 
 #cf-filtopts { padding: 5px; }
-#cf-filtopts h4, #cf-filtopts p, #cf-filtopts label { display: inline; margin-right: 1em;}
+#content #cf-filtopts h2 { color: inherit; display: inline; font-weight: bold; margin-right: 1em; }
+#cf-filtopts p, #cf-filtopts label { display: inline; margin-right: 1em;}
 #cf-filtopts input { text-align: right; }

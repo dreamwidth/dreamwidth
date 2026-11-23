@@ -250,7 +250,7 @@ def generate_task_definition(name, worker):
             }
         ],
         "family": f"worker-{name}",
-        "taskRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskRole",
+        "taskRoleArn": f"arn:aws:iam::{account_id}:role/{worker.get('task_role', 'dreamwidth-ecsTaskRole')}",
         "executionRoleArn": f"arn:aws:iam::{account_id}:role/dreamwidth-ecsTaskExecutionRole",
         "networkMode": "awsvpc",
         "volumes": volumes,

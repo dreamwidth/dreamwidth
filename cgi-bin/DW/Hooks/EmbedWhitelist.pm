@@ -58,7 +58,6 @@ my %host_path_match = (
 
     "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
     "player.bilibili.com"         => [ qr!^/player.html$!,    1 ],
-    "blip.tv"                     => [ qr!^/play/!,           1 ],
     "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
     "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
 
@@ -106,12 +105,12 @@ my %host_path_match = (
     "lichess.org"             => [ qr!/study/embed/!,     1 ],
     "www.loc.gov"             => [ qr!/item/[a-z0-9]+/$!, 1 ],
 
-    "makertube.net"    => [ qr!^/videos/embed/[0-9a-fA-F\-]{36}!, 1 ],
-    "mega.nz"          => [ qr!^/embed/!,                         1 ],
-    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,                1 ],
-    "mixstep.co"       => [ qr!^/embed/!,                         1 ],
-    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!,       1 ],
-    "my.mail.ru"       => [ qr!^/video/embed/\d+!,                1 ],
+    "makertube.net"    => [ qr!^/videos/embed/[0-9a-fA-F]+!, 1 ],
+    "mega.nz"          => [ qr!^/embed/!,                    1 ],
+    "www.mixcloud.com" => [ qr!^/widget/iframe/$!,           1 ],
+    "mixstep.co"       => [ qr!^/embed/!,                    1 ],
+    "www.msnbc.com"    => [ qr!^/msnbc/embedded-video/\w+!,  1 ],
+    "my.mail.ru"       => [ qr!^/video/embed/\d+!,           1 ],
 
     "nekocap.com"      => [ qr!^/view/[a-zA-Z0-9]+$!,                 1 ],
     "ext.nicovideo.jp" => [ qr!^/thumb/!,                             0 ],
@@ -136,6 +135,7 @@ my %host_path_match = (
     ,    # best guess; language parameter before /player may vary
     "scratch.mit.edu"    => [ qr!^/projects/embed/!,           1 ],
     "www.scribd.com"     => [ qr!^/embeds/!,                   1 ],
+    "sendvid.com"        => [ qr!^/embed/!,                    1 ],
     "www.slideshare.net" => [ qr!^/slideshow/embed_code/!,     1 ],
     "api.smugmug.com"    => [ qr!^/services/embed/\w+$!,       1 ],
     "w.soundcloud.com"   => [ qr!^/player/!,                   1 ],
@@ -146,7 +146,6 @@ my %host_path_match = (
 
     "embed.ted.com" => [ qr!^/talks/!, 1 ],
 
-    "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
     "vine.co"          => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
 

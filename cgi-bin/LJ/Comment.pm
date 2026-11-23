@@ -20,6 +20,7 @@ package LJ::Comment;
 
 use strict;
 use Carp qw/ croak /;
+use DW::Cache;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -78,6 +79,18 @@ sub reset_singletons {
     %unloaded_text_singletons = ();
     %unloaded_prop_singletons = ();
 }
+
+# file-scoped lexicals, so they self-register: cleared between requests/jobs,
+# with the main registry's byte size measured for memory metrics
+DW::Cache->request->register_var( 'comment_singletons', \%singletons );
+DW::Cache->request->register_reset(
+    'comment_unloaded_singletons',
+    sub {
+        %unloaded_singletons      = ();
+        %unloaded_text_singletons = ();
+        %unloaded_prop_singletons = ();
+    }
+);
 
 # <LJFUNC>
 # name: LJ::Comment::new
@@ -1271,8 +1284,6 @@ my @_ml_strings_en = (
     'esn.edit_comment',         # '[[openlink]]Edit the comment[[closelink]]',
     'esn.delete_comment',       # '[[openlink]]Delete the comment[[closelink]]',
     'esn.view_comments',        # '[[openlink]]View all comments[[closelink]] to this entry',
-    'esn.view_threadroot'
-    ,    # '[[openlink]]Go to the top of the thread[[closelink]] this comment is part of',
     'esn.view_thread',    # '[[openlink]]View the thread[[closelink]] beginning with this comment',
 
     'esn.if_suport_form', # 'If your mail client supports it, you can also reply here:',
@@ -1727,8 +1738,7 @@ sub _format_mail_both {
             'esn.edit_comment'     => [ $self->user_can_edit($targetu) ? 3 : 0, $self->edit_url ],
             'esn.delete_comment' => [ $self->user_can_delete($targetu) ? 4 : 0, $self->delete_url ],
             'esn.view_comments'  => [ 5, $commentsurl ],
-            'esn.view_threadroot' => [ $self->parenttalkid != 0 ? 6 : 0, $self->threadroot_url ],
-            'esn.view_thread'     => [ 7, $self->thread_url ],
+            'esn.view_thread'    => [ 7, $self->thread_url ],
         }
     );
 
@@ -1864,10 +1874,13 @@ sub set_poster_ip {
 
     return "" unless LJ::is_web_context();
 
+    my $r = DW::Request->get;
+    return "" unless $r;
+
     my $current_ip = $self->poster_ip;
 
-    my $new_ip    = BML::get_remote_ip();
-    my $forwarded = BML::get_client_header('X-Forwarded-For');
+    my $new_ip    = $r->get_remote_ip;
+    my $forwarded = $r->header_in('X-Forwarded-For');
     $new_ip = "$forwarded, via $new_ip" if $forwarded && $forwarded ne $new_ip;
 
     if ( !$current_ip || $new_ip eq $current_ip ) {

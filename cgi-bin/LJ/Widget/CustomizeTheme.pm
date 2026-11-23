@@ -181,7 +181,7 @@ sub js {
         initWidget: function () {
             var self = this;
 
-            // confirmation when reseting the form
+            // confirmation when resetting the form
             DOM.addEventListener($('reset_btn_top'), "click", function (evt) { self.confirmReset(evt) });
             DOM.addEventListener($('reset_btn_bottom'), "click", function (evt) { self.confirmReset(evt) });
 
@@ -222,9 +222,13 @@ sub js {
                 confirmed = confirm("Save your changes?");
             }
 
-            if (confirmed) {
-                $('customize-form').submit();
+            if (!confirmed) {
+                Event.stop(evt);
+                return false;
             }
+
+            Event.stop(evt);
+            $('customize-form').submit();
         },
         form_change: function () {
             if (this.form_changed == true) { return; }

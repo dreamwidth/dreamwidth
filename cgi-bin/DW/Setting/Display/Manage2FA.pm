@@ -27,7 +27,7 @@ use DW::Auth::TOTP;
 sub should_render {
     my ( $class, $u ) = @_;
 
-    return $u && $u->is_personal && $u->is_in_beta('manage2fa') ? 1 : 0;
+    return $u && $u->is_personal ? 1 : 0;
 }
 
 sub actionlink {

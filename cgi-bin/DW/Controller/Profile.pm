@@ -139,12 +139,29 @@ sub profile_handler {
 
     $vars->{load_userids} = sub { LJ::load_userids( @{ $_[0] } ) };
 
+    # The viewer's circle as membership hashes, so format_userlink can highlight
+    # shared relationships with an O(1) check per listed user (see #3648). Each
+    # accessor is a single bulk load; only built when highlighting someone
+    # else's profile, since format_userlink skips the check otherwise.
+    if ( $remote && !$remote->equals($u) ) {
+        $vars->{remote_watches}   = { map { $_ => 1 } $remote->watched_userids };
+        $vars->{remote_trusts}    = { map { $_ => 1 } $remote->trusted_userids };
+        $vars->{remote_member_of} = { map { $_ => 1 } $remote->member_of_userids };
+
+        # trusts() reports self as trusted; mirror that for the viewer's own entry.
+        $vars->{remote_trusts}{ $remote->id } = 1;
+    }
+
+    # Sort by display_name via a Schwartzian transform so each name is computed
+    # once. $list holds user objects, or userids to key into $us when given.
     $vars->{sort_by_username} = sub {
         my ( $list, $us ) = @_;
-        my $sort = sub { $a->display_name cmp $b->display_name };
-        $sort = sub { $us->{$a}->display_name cmp $us->{$b}->display_name }
-            if $us;
-        return [ sort $sort @$list ];
+        my $name = $us ? sub { $us->{ $_[0] }->display_name } : sub { $_[0]->display_name };
+        return [
+            map  { $_->[1] }
+            sort { $a->[0] cmp $b->[0] }
+            map  { [ $name->($_), $_ ] } @$list
+        ];
     };
 
     $vars->{createdate} = LJ::mysql_time( $u->timecreate );

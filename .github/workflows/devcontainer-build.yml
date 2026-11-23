@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - ".devcontainer/**"
+      - "etc/build-tools/**"
       - "doc/dependencies-system"
       - "doc/dependencies-cpanm"
 

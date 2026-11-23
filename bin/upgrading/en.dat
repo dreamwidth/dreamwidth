@@ -27,6 +27,8 @@ captcha.button=Continue
 
 captcha.invalid=Incorrect response in the antispam field. Please try again.
 
+captcha.journal_setting=This journal's settings require you to complete a CAPTCHA before commenting.
+
 captcha.loading=Loading anti-spam test...
 
 captcha.title=Please fill out the CAPTCHA as an anti-spam measure
@@ -44,6 +46,8 @@ cleanhtml.suspend_msg=This is a suspended entry.
 collapsible.collapsed=Expand
 
 collapsible.expanded=Collapse
+
+comment.rpc.notloggedin=You must be logged in to post a comment.
 
 comment.rpc.posted=Your comment has been posted.
 
@@ -80,6 +84,12 @@ contentflag.viewingexplicit.byposter.community=You're about to view content that
 contentflag.viewingexplicit.byjournal.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
+
+copytext.button=Copy
+
+copytext.copied=Copied to clipboard.
+
+copytext.failed=Couldn't copy automatically. The text is selected: press Ctrl+C (or Cmd+C on a Mac) to copy it.
 
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
@@ -260,6 +270,20 @@ edges.watch.error.usernotindividual=Your account must be a personal or identity 
 edges.watch.error.usernotvisible=Your account must be visible.
 
 Email=Email
+
+email.check.bad_domain=The email address domain is invalid.
+
+email.check.bad_form=You did not give a valid email address.  An email address looks like username@some.domain
+
+email.check.bad_spelling=You gave [[email]] as the email address. Are you sure you didn't mean [[domain]]?
+
+email.check.bad_username=You have invalid characters in the email address username.
+
+email.check.confirm=Yes I'm sure this is correct
+
+email.check.empty=The email address cannot be blank.
+
+email.check.web_address=You gave [[email]] as the email address, but it looks more like a web address to me.
 
 email.emailreset.body<<
 The email address for your [[sitename]] account '[[user]]' has
@@ -672,6 +696,26 @@ entryform.security2=Show this entry to:
 entryform.spellcheck=Spell check
 
 entryform.spellcheck.noerrors=No spelling errors found
+
+entryform.spellcheck.unavailable=Spell check is currently unavailable
+
+entryform.simple.advanced=Advanced editor
+
+entryform.simple.editcustom=Edit custom groups
+
+entryform.simple.format=Format:
+
+entryform.simple.html=HTML
+
+entryform.simple.icon=Icon:
+
+entryform.simple.richtext=Rich Text
+
+entryform.simple.switch=Simple editor
+
+entryform.simple.switch.confirm=Switching editors reloads this page and loses changes you haven't posted. Switch anyway?
+
+entryform.simple.title=Post an Entry
 
 entryform.spellchecked=Spell-checked entry:
 
@@ -1557,8 +1601,6 @@ esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
 esn.view_thread=[[openlink]]View the thread[[closelink]] beginning with this comment
 
-esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
-
 esn.your_inbox=Your Inbox
 
 esn.you_can=You can:
@@ -1918,7 +1960,7 @@ interests.enmasse.btn=Show List
 
 interests.enmasse.intro=Modify your interests based on those of:
 
-interests.error.ignored=Sorry, we're unable to help you find users matching the interests you've provided.
+interests.error.ignored=Sorry, we're unable to help you find accounts matching the interests you've provided.
 
 interests.error.longinterest=As [[sitename]] does not support interests longer than [[maxlen]] characters, your search for <b>[[old_int]]</b> was converted into a search for <b>[[new_int]]</b> instead.
 
@@ -1928,13 +1970,13 @@ interests.error.toomany=You can't search for more than [[num]] interests at a ti
 
 interests.findsim_do.account.notallowed=Your account type doesn't let you use this tool.
 
-interests.findsim_do.nomatch=Nobody similar to [[user]].
+interests.findsim_do.nomatch=No accounts have interests similar to those of [[user]].
 
 interests.findsim_do.notdefined=[[user]] has no interests defined.
 
 interests.interested.btn=Find
 
-interests.interested.in=Find people interested in:
+interests.interested.in=Find accounts interested in:
 
 interests.popular.disabled=The popular interests feature is unavailable.
 
@@ -2085,7 +2127,7 @@ menunav.explore.randomcommunity=Random Community
 
 menunav.explore.randomjournal=Random Journal
 
-menunav.explore.sitesearch=Site and Journal Search
+menunav.explore.sitesearch=Entry Search
 
 menunav.organize=Organize
 
@@ -2096,6 +2138,8 @@ menunav.organize.beta=Test Beta Features
 menunav.organize.customizejournalstyle=Customize Journal Style
 
 menunav.organize.importcontent=Import Content
+
+menunav.organize.manageaccounts=Account Switcher
 
 menunav.organize.managecommunities=Manage Communities
 
@@ -2172,6 +2216,8 @@ poll.dberror=Database error: [[errmsg]]
 poll.dberror.items=Database error inserting items: [[errmsg]]
 
 poll.dberror.questions=Database error inserting questions: [[errmsg]]
+
+poll.error.accttype=Your account type doesn't allow you to create polls.
 
 poll.error.badmaxlength=Maxlength attribute on lj-pq text tags must be an integer from 1-255.
 
@@ -2299,6 +2345,8 @@ post.security.public=The entry is visible to everyone (public).
 
 profile.service.ao3=Archive of Our Own
 
+profile.service.bsky=Bluesky
+
 profile.service.deviantart=DeviantArt
 
 profile.service.diigo=Diigo
@@ -2312,8 +2360,6 @@ profile.service.ffnet=FanFiction.net
 profile.service.github=GitHub
 
 profile.service.hangouts=Google Chat
-
-profile.service.icq=ICQ
 
 profile.service.insanejournal=InsaneJournal
 
@@ -2378,8 +2424,6 @@ redirect.defaultbody=No parameters given.
 redirect.defaulttitle=Error
 
 redirect.error.nocomment=No such comment exists.
-
-redirect.error.noentry=No such entry exists.
 
 redirect.error.noentry.next2=There is no entry following this one. Go back to [[journal]].
 
@@ -2524,18 +2568,6 @@ setting.bio.note=_none
 setting.bio.question=Bio:
 
 setting.birthday.question=What's your birthday?
-
-setting.birthdaydisplay.error.invalid=Invalid option
-
-setting.birthdaydisplay.question=Birthday display options:
-
-setting.captcha.label=Anti-Spam Type
-
-setting.captcha.option=Commenters will see
-
-setting.captcha.option.select.image=graphical/image anti-spam tests
-
-setting.captcha.option.select.text=text-based anti-spam tests
 
 setting.commentcaptcha.label=Anti-Spam
 
@@ -2889,12 +2921,6 @@ setting.entryeditor.option.richtext=Rich Text
 setting.excludeownstats.label=Journal Statistics
 
 setting.excludeownstats.option=Do not include me in my own statistics
-
-setting.gender.error.invalid=Invalid option
-
-setting.gender.error.wrongtype=Only personal or identity journals can have a gender.
-
-setting.gender.question=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
 setting.globalsearch.label=Site-Wide Search Inclusion
 
@@ -3258,7 +3284,7 @@ settings.error.year.notenoughdigits=Invalid birthday year. Enter a 4-digit year.
 
 settings.error.year.outofrange=Invalid birthday year.
 
-settings.findbyemail.error.invalid=Invalid Option
+settings.findbyemail.error.invalid=Invalid option for find by email
 
 settings.findbyemail.helper=This setting will allow you to have your email address searchable without having to display it anywhere on [[sitename]]. You can also choose whether or not you want your [[siteabbrev]] identity to be shared in the search results.
 
@@ -4445,6 +4471,8 @@ userpic.inactive=Inactive
 
 userpic.link=userpic
 
+userpic.suspended=Suspended
+
 userpic.text=[[user]], this is what you currently look like to your friends: [[empty]]<br />Boooring. Be classy and upload a [[link]].
 
 vgift.display.cost.free=Free
@@ -4520,6 +4548,8 @@ web.controlstrip.btn.login=Log in
 web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
+
+web.controlstrip.links.acceptinvite=Accept invitation
 
 web.controlstrip.links.addfeed=Subscribe
 
@@ -4680,6 +4710,12 @@ web.controlstrip.status.yourjournal=You're viewing your journal
 web.controlstrip.status.yournetworkpage=You're viewing your Network Page.
 
 web.controlstrip.status.yourreadingpage=You're viewing your Reading Page.
+
+web.controlstrip.switch.go=Switch
+
+web.controlstrip.switch.label=Switch account
+
+web.controlstrip.switch.signedout=Signed out — log in
 
 web.controlstrip.userpic.alt=Icon
 
@@ -5287,6 +5323,10 @@ widget.s2propgroup.collapse=collapse all
 
 widget.s2propgroup.expand=expand all
 
+widget.s2propgroup.image.help=Use the image's direct URL, such as https://example.com/image.png. Files from your computer and HTML/embed code will not work here.
+
+widget.s2propgroup.image.url=URL
+
 widget.s2propgroup.language.custom=(Custom)
 
 widget.s2propgroup.language.default=(Default)
@@ -5307,13 +5347,15 @@ widget.search.btn.go=Go
 
 widget.search.email=Email
 
+widget.search.entries=Entry Search
+
 widget.search.faq=FAQ
 
 widget.search.interest=Interest
 
 widget.search.region=Region
 
-widget.search.siteuser=Site and Account
+widget.search.siteuser=Site Pages and Accounts
 
 widget.search.title=Search
 

@@ -1,0 +1,10 @@
+Return-Path: <${FROM_EMAIL}>
+To: LJ LJ <${TEMPUSER}+${EMAILPIN}@${POSTDOMAIN}>
+Mime-Version: 1.0
+Message-Id: <emailpost-timezone-test@example.com>
+Content-Transfer-Encoding: 7bit
+From: ${FROM_EMAIL}
+Date: Sun, 1 Jul 2007 06:00:00 +0000
+Subject: Emailed from a UTC mail client
+
+This entry should be dated in the poster's own timezone.

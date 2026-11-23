@@ -59,6 +59,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ] ~%]
     <option value="[% option.0 %]">[% "widget.search." _ option.1 | ml %]</option>
 [%- END -%]
+[% IF dw_scheme.content_search_enabled %]
+    <option value="content">[% 'widget.search.entries' | ml %]</option>
+[% END %]
 </select>
     <input type="submit" class="secondary button" value="[% 'widget.search.btn.go' | ml %]" />
 </form>

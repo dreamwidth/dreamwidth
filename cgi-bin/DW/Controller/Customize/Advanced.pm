@@ -167,7 +167,8 @@ sub layerbrowse_handler {
 "<span style=\"border: 1px solid #000000; padding-left: 2em; background-color: $ecolor\">&nbsp;</span> <tt>$ecolor</tt>";
             }
             elsif ( defined $v->{'_type'} ) {
-                $v = BML::ml( '.propformat.object', { 'type' => LJ::ehtml( $v->{'_type'} ) } );
+                $v = LJ::Lang::ml( '/customize/advanced/layerbrowse.tt.propformat.object',
+                    { 'type' => LJ::ehtml( $v->{'_type'} ) } );
             }
             else {
                 if ( scalar(%$v) ) {
@@ -978,6 +979,7 @@ s/^Compile error: line (\d+), column (\d+)/Compile error: <a href="javascript:mo
     $vars->{build}  = "Loaded layer $id.";
     $vars->{title}  = $title;
     $vars->{s2code} = $s2code;
+    $vars->{authas} = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
     return DW::Template->render_template( 'customize/advanced/layeredit.tt',
         $vars, { no_sitescheme => 1 } );

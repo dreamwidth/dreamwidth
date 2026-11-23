@@ -79,7 +79,7 @@ sub get_menu_navigation {
                     display => $loggedout,
                 },
                 {
-                    url     => "$LJ::SITEROOT/update",
+                    url     => "$LJ::SITEROOT/entry/new",
                     text    => "menunav.create.updatejournal",
                     display => $loggedin_hasjournal,
                 },
@@ -117,6 +117,11 @@ sub get_menu_navigation {
                 {
                     url     => "$LJ::SITEROOT/manage/settings/",
                     text    => "menunav.organize.acctsettings",
+                    display => $loggedin,
+                },
+                {
+                    url     => "$LJ::SITEROOT/manage/accounts",
+                    text    => "menunav.organize.manageaccounts",
                     display => $loggedin,
                 },
                 {

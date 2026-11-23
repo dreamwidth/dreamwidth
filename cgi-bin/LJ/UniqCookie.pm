@@ -17,6 +17,8 @@ package LJ::UniqCookie;
 use strict;
 use Carp qw(croak);
 use LJ::Utils;
+use DW::Cache;
+use DW::Request;
 
 my %req_cache_uid2uniqs = ();    # uid  => [ uniq1, uniq2, ... ]
 my %req_cache_uniq2uids = ();    # uniq => [  uid1,  uid2, ... ]
@@ -30,6 +32,10 @@ sub clear_request_cache {
     %req_cache_uid2uniqs = ();
     %req_cache_uniq2uids = ();
 }
+
+# These are file-scoped lexicals, so DW::Cache can't reach them by
+# symbol; self-register the reset here so clear() covers them like everything else.
+DW::Cache->request->register_reset( 'uniqcookie', sub { LJ::UniqCookie->clear_request_cache } );
 
 sub set_request_cache_by_user {
     my $class = shift;
@@ -384,7 +390,7 @@ sub generate_uniq_ident {
 }
 
 ###############################################################################
-# These methods require web context, they deal with BML::get_request() and cookies
+# These methods require web context, they deal with the active request and cookies
 #
 
 sub ensure_cookie_value {
@@ -432,7 +438,14 @@ sub ensure_cookie_value {
 
     if ( $setting_new && !$hook_saved_mapping && !$class->is_disabled ) {
         my $remote = LJ::get_remote();
-        $class->save_mapping( $uniq => $remote ) if $remote;
+        if ($remote) {
+            $class->save_mapping( $uniq => $remote );
+
+            # the trust cookie is signed over the uniq ident, so a fresh
+            # ident invalidates it; re-sign while we still have a session
+            my $sess = $remote->session;
+            $sess->update_trust_cookie if $sess;
+        }
     }
 
     # set uniq cookies for all cookie_domains
@@ -454,8 +467,9 @@ sub sysban_should_block {
     my $class = shift;
     return 0 unless LJ::is_web_context();
 
-    my $apache_r = BML::get_request();
-    my $uri      = $apache_r->uri;
+    my $r = DW::Request->get;
+    return 0 unless $r;
+    my $uri = $r->uri;
     return 0 if $LJ::BLOCKED_BOT_URI && index( $uri, $LJ::BLOCKED_BOT_URI ) == 0;
 
     # if cookie exists, check for sysban
@@ -491,7 +505,7 @@ sub parts_from_value {
 sub set_current_uniq {
     my ( $class, $uniq ) = @_;
 
-    $LJ::REQ_CACHE{current_uniq} = $uniq;
+    DW::Cache->request->set( 'uniqcookie', 'current_uniq', $uniq );
 
     return unless LJ::is_web_context();
 
@@ -508,21 +522,18 @@ sub current_uniq {
         return $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ;
     }
 
-    # should be in $LJ::REQ_CACHE, so return from
-    # there if it is
-    my $val = $LJ::REQ_CACHE{current_uniq};
+    # should be in the request cache, so return from there if it is
+    my $val = DW::Cache->request->get( 'uniqcookie', 'current_uniq' );
     return $val if $val;
 
-    # otherwise, legacy place is in $r->notes
+    # otherwise, a uniq set earlier in this request
     return unless LJ::is_web_context();
 
-    my $apache_r = BML::get_request();
+    my $r = DW::Request->get;
+    return unless $r;
 
-    # see if a uniq is set for this request
-    # -- this accounts for cases when the cookie was initially
-    #    set in this request, so it wasn't received in an
-    #    incoming headerno cookie was sent in
-    return $apache_r->notes->{uniq};
+    # See if a uniq was set in this request before any cookie could arrive.
+    return $r->note('uniq');
 }
 
 1;

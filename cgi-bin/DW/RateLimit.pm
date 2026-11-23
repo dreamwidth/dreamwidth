@@ -21,6 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Request;
 use LJ::MemCache;
 use LJ::User;
 use Net::Subnet;
@@ -211,6 +212,89 @@ sub get {
         per_interval_secs => $parsed->{per_interval_secs},
         mode              => $opts{mode},
     );
+}
+
+# The site-wide per-request limits: logged-in users are limited per user,
+# everyone else per IP.
+sub request_limit {
+    my ( $class, $authenticated ) = @_;
+    return $authenticated
+        ? $class->get( "authenticated_requests", rate => "100/60s" )
+        : $class->get( "anonymous_requests",     rate => "30/60s" );
+}
+
+# Body of the 429 response for a request over its limit.
+sub blocked_body {
+    my ( $class, $retry_after ) = @_;
+    my $body =
+          "<h1>429 Too Many Requests</h1>"
+        . "<p>You have made too many requests. Please try again later.</p>";
+    $body .= "<p>Please wait $retry_after seconds before trying again.</p>"
+        if $retry_after;
+    return $body;
+}
+
+# Protocol requests (XML-RPC and flat) carry their credentials in the request
+# body, so the middleware can't tell who is calling. It defers them to the
+# protocol, which charges each one exactly once, as soon as it knows: to the
+# user's bucket once authentication succeeds, to the per-IP challenge bucket for
+# getchallenge, and to the anonymous per-IP bucket otherwise. Anything the
+# protocol doesn't charge is charged as anonymous when the request finishes.
+
+# Called by the middleware: start deferring this request. Returns the state.
+sub defer_protocol_request {
+    my ( $class, $ip ) = @_;
+    my $state = { ip => $ip, charged => 0, retry_after => 0 };
+    my $r     = DW::Request->get;
+    $r->pnote( ratelimit_protocol => $state ) if $r;
+    return $state;
+}
+
+# Charge the current request if it was deferred and hasn't been charged yet.
+# Pass user => $u once authenticated, or challenge => 1 for getchallenge;
+# otherwise it is charged as anonymous. Returns the Retry-After seconds if the
+# request is over its limit, or 0.
+sub charge_protocol_request {
+    my ( $class, %opts ) = @_;
+    my $state = $opts{state};
+    unless ($state) {
+        my $r = DW::Request->get or return 0;
+        $state = $r->pnote('ratelimit_protocol') or return 0;
+    }
+    return $state->{retry_after} if $state->{charged};
+    $state->{charged} = 1;
+
+    my $u = $opts{user};
+    my $limit =
+          $opts{challenge}
+        ? $class->get( "protocol_challenges", rate => "100/60s" )
+        : $class->request_limit( $u ? 1 : 0 );
+    return 0 unless $limit;
+
+    my $result = $limit->check(
+        userid => $u ? $u->userid : undef,
+        ip     => $u ? undef      : $state->{ip}
+    );
+    $state->{retry_after} = $result->{exceeded} ? $result->{time_remaining} || 1 : 0;
+    return $state->{retry_after};
+}
+
+# Retry-After seconds if the current deferred request was charged over its
+# limit, else 0. The protocol endpoints use this to answer with a 429.
+sub protocol_retry_after {
+    my ($class) = @_;
+    my $r = DW::Request->get or return 0;
+    my $state = $r->pnote('ratelimit_protocol') or return 0;
+    return $state->{retry_after};
+}
+
+# Replace the response on $r with a 429.
+sub print_blocked {
+    my ( $class, $r, $retry_after ) = @_;
+    $r->status(429);
+    $r->header_out( 'Retry-After' => $retry_after );
+    $r->content_type('text/html');
+    $r->print( $class->blocked_body($retry_after) );
 }
 
 # Memoized default matcher: RFC1918 + loopback. Link-local (169.254/16) is

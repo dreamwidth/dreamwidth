@@ -1,0 +1,48 @@
+[%#
+
+Login second-factor challenge
+
+Authors:
+    Mark Smith <mark@dreamwidth.org>
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+[% sections.title = dw.ml('.title') %]
+
+<div class="row">
+  <div class="columns medium-6">
+    <p>[% dw.ml(verified ? '.instructions.verified' : '.instructions', { user => user }) %]</p>
+
+    <form action="[% site.root %]/login/2fa" method="post">
+      [%- dw.form_auth() -%]
+
+      [% UNLESS verified %]
+      [%- form.textbox(
+          label => dw.ml('.code.label'),
+          name  => "code",
+          id    => "mfa_code",
+          size  => 20,
+          maxlength => 20,
+          autocomplete => "one-time-code",
+          autofocus => "autofocus",
+          'aria-required' => "true"
+      ) -%]
+
+      <p class="hint">[% dw.ml('.code.hint') %]</p>
+      [% END %]
+
+      [%- form.submit(
+          value => dw.ml(verified ? '.btn.complete' : '.btn.verify'),
+          class => "button"
+      ) -%]
+    </form>
+
+    <p><a href="[% restart_url | html %]">[% dw.ml('.link.back') %]</a></p>
+  </div>
+</div>

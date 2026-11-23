@@ -19,10 +19,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-
+use lib "$ENV{LJHOME}/cgi-bin";
+use LJ::Global::Constants;
 use LJ::Tags;
 
 my $validated;
@@ -62,3 +62,5 @@ is_deeply(
     [ "x" x ( LJ::CMAX_KEYWORD - 1 ) ],
     "truncated right at a trailing space; didn't save the trailing space"
 );
+
+ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );

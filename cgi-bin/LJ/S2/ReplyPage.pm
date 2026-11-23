@@ -95,6 +95,8 @@ sub ReplyPage {
             $opts->{'redir'} = "$LJ::SITEROOT/?returnto=$redir&errmsg=notloggedin";
             return;
         }
+        return LJ::S2::EntryPage_not_found( $u, $opts )
+            unless $entry->visible_comment( $editid, $remote );
         unless ( $comment->remote_can_edit( \$errref ) ) {
             if ($errref) {
                 $opts->{status} = "403 Forbidden";
@@ -116,19 +118,14 @@ sub ReplyPage {
         $comment_values{body}                  = $comment->body_orig;
         $comment_values{subjecticon}           = $comment->prop('subjecticon');
         $comment_values{prop_opt_preformatted} = $comment->prop('opt_preformatted');
+        $comment_values{prop_admin_post}       = $comment->admin_post;
         $comment_values{prop_picture_keyword}  = $comment->userpic_kw;
         $comment_values{prop_editor}           = $comment->prop('editor');
     }
 
     if ($replytoid) {
         my $re_talkid = int( $replytoid >> 8 );
-        my $re_anum   = $replytoid % 256;
-        unless ( $re_anum == $entry->anum ) {
-            $opts->{'handler_return'} = 404;
-            return;
-        }
-
-        my $dtalkid = $re_talkid * 256 + $entry->anum;
+        my $dtalkid   = $re_talkid * 256 + $entry->anum;
 
         # FIXME: Why are we loading the comment manually when we do LJ::Comment->new below
         # and could do everything through there.
@@ -143,17 +140,9 @@ sub ReplyPage {
             last if $parpost;
         }
         my $parentcomment = LJ::Comment->new( $u, jtalkid => $re_talkid );
-        unless ( $parpost and $parpost->{'state'} ne 'D' ) {
+        return LJ::S2::EntryPage_not_found( $u, $opts )
+            unless $parpost && $entry->visible_comment( $replytoid, $remote );
 
-            # FIXME: This is a hack. See below...
-
-            $opts->{status} = "404 Not Found";
-            return "<p>This comment has been deleted; you cannot reply to it.</p>";
-        }
-        if ( $parpost->{state} eq 'S' && !$parentcomment->visible_to($remote) ) {
-            $opts->{'handler_return'} = 403;
-            return;
-        }
         if ( $parpost->{'state'} eq 'F' ) {
 
             # frozen comment, no replies allowed
@@ -189,8 +178,6 @@ sub ReplyPage {
 
         my $pu = $parentcomment->poster;
         if ($pu) {
-            return $opts->{handler_return} = 403
-                if $pu->is_suspended;    # do not show comments by suspended users
             $s2poster = UserLite($pu);
 
             my ( $pic, $pickw ) = $parentcomment->userpic;
@@ -294,19 +281,23 @@ sub ReplyForm__print {
     $post_vars = $form->{_values}
         unless keys %$post_vars;    # _values only gets populated when editing comment. -NF
 
+    my $do_captcha =
+        LJ::Talk::Post::require_captcha_test( $remote, $u, $post_vars->{body}, $form->{'_entry'} );
+    my $captcha_journal_setting = $do_captcha
+        && LJ::Talk::Post::journal_captcha_policy( $remote, $u ) eq 'required';
+
     $S2::pout->(
         LJ::Talk::talkform(
             {
-                'journalu'   => $u,
-                'parpost'    => $parpost,
-                'replyto'    => $parent,
-                'ditemid'    => $form->{'_ditemid'},
-                'styleopts'  => $form->{_styleopts},
-                'thread'     => $form->{_thread},
-                'form'       => $post_vars,
-                'do_captcha' => LJ::Talk::Post::require_captcha_test(
-                    $remote, $u, $post_vars->{body}, $form->{'_entry'}
-                )
+                'journalu'                => $u,
+                'parpost'                 => $parpost,
+                'replyto'                 => $parent,
+                'ditemid'                 => $form->{'_ditemid'},
+                'styleopts'               => $form->{_styleopts},
+                'thread'                  => $form->{_thread},
+                'form'                    => $post_vars,
+                'do_captcha'              => $do_captcha,
+                'captcha_journal_setting' => $captcha_journal_setting,
             }
         )
     );

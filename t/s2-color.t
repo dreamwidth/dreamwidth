@@ -15,9 +15,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
+use LJ::S2;
 
 # As all of these are builtins, fake context.
 my $ctx = [];
@@ -91,6 +92,8 @@ subtest "lightness setter" => sub {
 };
 
 # FIXME: test clone, lighter, darker, inverse, average, blend
+
+ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );
 
 sub make_color {
     return S2::Builtin::LJ::Color__Color(@_);

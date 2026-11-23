@@ -19,6 +19,7 @@ use Carp;
 use Digest::SHA1;
 use Text::Fuzzy;
 use LJ::Subscription;
+use DW::Cache;
 
 ########################################################################
 ###  16. Email-Related Functions
@@ -400,19 +401,13 @@ sub max_subscriptions {
 }
 
 # return the URL to the send message page
-# respects $remote's beta inbox selection
 sub message_url {
     my $u = shift;
     croak "invalid user object passed" unless LJ::isu($u);
 
     return undef unless LJ::is_enabled('user_messaging');
 
-    my $remote = LJ::get_remote();
-    my $path =
-        ( $remote && LJ::BetaFeatures->user_in_beta( $remote => "inbox" ) )
-        ? "inbox/new/compose"
-        : "inbox/compose";
-    return "$LJ::SITEROOT/$path?user=" . $u->user;
+    return "$LJ::SITEROOT/inbox/compose?user=" . $u->user;
 }
 
 sub new_message_count {
@@ -892,7 +887,7 @@ sub check_email {
 
     # Empty email addresses are not good.
     unless ($email) {
-        return $reject->( "empty", "The email address cannot be blank." );
+        return $reject->( "empty", LJ::Lang::ml("email.check.empty") );
     }
 
     # Check that the address is of the form username@some.domain.
@@ -902,23 +897,18 @@ sub check_email {
         $domain   = $2;
     }
     else {
-        return $reject->(
-            "bad_form",
-"You did not give a valid email address.  An email address looks like username\@some.domain"
-        );
+        return $reject->( "bad_form", LJ::Lang::ml("email.check.bad_form") );
     }
 
     # Check the username for invalid characters.
     unless ( $username =~ /^[^\s\",;\(\)\[\]\{\}\<\>]+$/ ) {
-        return $reject->(
-            "bad_username", "You have invalid characters in the email address username."
-        );
+        return $reject->( "bad_username", LJ::Lang::ml("email.check.bad_username") );
     }
 
     # Check the domain name.
     my $valid_tlds = LJ::load_valid_tlds();
     unless ( $domain =~ /^[\w-]+(?:\.[\w-]+)*\.(\w+)$/ && $valid_tlds->{$1} ) {
-        return $reject->( "bad_domain", "The email address domain is invalid." );
+        return $reject->( "bad_domain", LJ::Lang::ml("email.check.bad_domain") );
     }
 
     # Catch misspellings of gmail.com, yahoo.com, hotmail.com, outlook.com,
@@ -941,20 +931,23 @@ sub check_email {
               "<input type=\"checkbox\" name=\"force_spelling\" id=\"force_spelling\" "
             . ( $force_spelling ? "checked=\"checked\" " : "" )
             . "/>&nbsp;"
-            . "<label for=\"force_spelling\">Yes I'm sure this is correct</label>";
+            . "<label for=\"force_spelling\">"
+            . LJ::Lang::ml("email.check.confirm")
+            . "</label>";
     }
     if ( $bad_spelling && !$force_spelling ) {
         return $reject->(
             "bad_spelling",
-"You gave $email as the email address. Are you sure you didn't mean $common_domains[$nearest]?"
+            LJ::Lang::ml(
+                "email.check.bad_spelling", { email => $email, domain => $common_domains[$nearest] }
+            )
         );
     }
 
     # Catch web addresses (two or more w's followed by a dot)
     if ( $username =~ /^www*\./ ) {
         return $reject->(
-            "web_address",
-            "You gave $email as the email address, but it looks more like a web address to me."
+            "web_address", LJ::Lang::ml( "email.check.web_address", { email => $email } )
         );
     }
 }
@@ -968,7 +961,7 @@ sub set_email {
     # update caches
     LJ::memcache_kill( $userid, "userid" );
     LJ::MemCache::delete( [ $userid, "email:$userid" ] );
-    my $cache = $LJ::REQ_CACHE_USER_ID{$userid} or return;
+    my $cache = DW::Cache->request->get( 'user_id', $userid ) or return;
     $cache->{'_email'} = $email;
 }
 

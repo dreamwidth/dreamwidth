@@ -64,7 +64,6 @@ sub profile_handler {
         }->{ $u->opt_showcontact };
 
     my $errors = DW::FormErrors->new;
-    my @errors;
 
     return DW::Template->render_template( 'error.tt', { message => $LJ::MSG_READONLY_USER } )
         if $u->is_readonly;
@@ -245,15 +244,15 @@ sub profile_handler {
             $errors->add( 'day', "$scope.error.day.outofrange" );
         }
 
-        if (   @errors == 0
+        if (  !$errors->exist
             && $POST->{'day'}
             && $POST->{'day'} > LJ::days_in_month( $POST->{'month'}, $POST->{'year'} ) )
         {
             $errors->add( 'day', "$scope.error.day.notinmonth" );
         }
 
-        if ( $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
-            && !$POST->{'LJ__Setting__FindByEmail_opt_findbyemail'} =~ /^[HNY]$/ )
+        if (   $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'}
+            && $POST->{'LJ__Setting__FindByEmail_opt_findbyemail'} !~ /^[HNY]$/ )
         {
             $errors->add( undef, "$scope.error.findbyemail" );
         }
@@ -263,12 +262,30 @@ sub profile_handler {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
-        # FIXME: validation AND POSTING are handled by widgets' handle_post() methods
-        # (introduce validate_post() ?)
+        # Field validation is done; bail before any saving if it failed. The
+        # Location widget below both validates AND persists immediately, so
+        # running it after a validation error would partially save.
+        if ( $errors->exist ) {
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
+
+        # FIXME: validation AND POSTING are handled by widgets' handle_post()
+        # methods (introduce validate_post()?). The Location widget's own errors
+        # accumulate in the widget error list rather than being returned, so
+        # capture them and surface them through $errors.
+        my $widget_errors = LJ::Widget->errors;
+        @$widget_errors = ();
         my $save_search_index = $POST->{'opt_showlocation'} =~ /^[YR]$/;
         LJ::Widget->handle_post( $POST, 'Location' => { save_search_index => $save_search_index } );
-
-        return LJ::error_list(@errors) if @errors;
+        if (@$widget_errors) {
+            foreach my $e (@$widget_errors) {
+                my $eo = LJ::errobj($e);
+                $errors->add_string( '', $eo ? $eo->as_string : "$e" );
+            }
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
 
         ### no errors
 
@@ -313,12 +330,12 @@ sub profile_handler {
 
         my $save_rv = LJ::Setting->save_all( $u, $POST, \@settings );
         if ( LJ::Setting->save_had_errors($save_rv) ) {
-            my @save_errors;
-            for ( keys %$save_rv ) {
-                my $e = $save_rv->{$_}->{save_errors};
-                push @save_errors, $e->{ ( keys %$e )[0] };
+            for my $setting ( keys %$save_rv ) {
+                my $e = $save_rv->{$setting}->{save_errors} or next;
+                $errors->add_string( $_, $e->{$_} ) foreach keys %$e;
             }
-            return LJ::error_list(@save_errors);
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
         }
 
         $u->update_self( \%update );
@@ -473,6 +490,14 @@ sub profile_handler {
                 . LJ::Lang::ml("$scope.success.editicons")
                 . "</a></li></ul>";
         }
+
+        # interest validation (above) can add errors after the main save; if so,
+        # re-render with them instead of reporting success
+        if ( $errors->exist ) {
+            $vars->{errors} = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
+        }
+
         return $r->msg_redirect( $success_msg, $r->SUCCESS, $profile_url );
     }
 

@@ -18,9 +18,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;    # 5 + total # of keys in sampletrans.dat
+use Test::More tests => 10;    # 6 + total # of keys in sampletrans.dat
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use LJ::LangDatFile;
 
 my $trans = LJ::LangDatFile->new("$ENV{LJHOME}/t/data/sampletrans.dat");
@@ -57,3 +57,5 @@ $trans->save;
 # read the file back in, make sure state is the same
 my $trans2 = LJ::LangDatFile->new("$ENV{LJHOME}/t/data/sampletrans.dat");
 is_deeply( $trans2->{values}, $trans->{values}, 'State preserved between file saving' );
+
+ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );

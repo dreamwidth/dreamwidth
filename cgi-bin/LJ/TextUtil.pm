@@ -20,6 +20,17 @@ use HTML::Entities;
 use Carp qw(cluck);
 use Encode;
 
+# no_utf8_flag previously used pack('C*',unpack('C*', $_[0]))
+# but that stopped working in Perl 5.10.
+sub no_utf8_flag {
+
+    # tell Perl to ignore the SvUTF8 flag in this scope.
+    use bytes;
+
+    # make a copy of the input string that doesn't have the flag at all.
+    return substr( $_[0], 0 );
+}
+
 # <LJFUNC>
 # name: LJ::trim
 # class: text
@@ -214,7 +225,7 @@ sub ehtml {
     $a =~ s/>/&gt;/g;
     return $a;
 }
-*eall = \&ehtml;    # old BML syntax required eall to also escape BML.  not anymore.
+*eall = \&ehtml;
 
 # <LJFUNC>
 # name: LJ::dhtml
@@ -628,6 +639,11 @@ sub text_uncompress {
     return $ref ? undef : $$tref;
 }
 
+# HTML elements that never have content or an end tag
+my %html_void_tags = map { $_ => 1 } qw(
+    area base basefont br col embed frame hr img input isindex keygen link meta param source track wbr
+);
+
 # function to trim a string containing HTML.  this will auto-close any
 # html tags that were still open when the string was truncated
 sub html_trim {
@@ -652,8 +668,10 @@ TOKEN:
             # start tag
             $out .= "<$tag";
 
-            # assume tags are properly self-closed
-            $selfclose = 1 if lc $tag eq 'input' || lc $tag eq 'br' || lc $tag eq 'img';
+            # void elements never get an end tag, with or without a trailing slash.
+            # tracking one as open would make every later end tag look mismatched,
+            # so the enclosing elements would never be closed where they should be
+            $selfclose = 1 if $html_void_tags{ lc $tag };
 
             # preserve order of attributes. the original order is
             # in element 4 of $token

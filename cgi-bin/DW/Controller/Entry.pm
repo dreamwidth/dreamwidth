@@ -22,27 +22,23 @@ use Storable;
 use LJ::Global::Constants;
 
 use DW::Controller;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 use DW::Formats;
+use DW::Entry;
 
-use Hash::MultiValue;
 use HTTP::Status qw( :constants );
 use LJ::JSON;
+use LJ::SpellCheck;
+use LJ::Talk;
 
 use DW::External::Account;
+use DW::External::Page;
 use DW::External::Site;
 use DW::External::User;
-
-my %form_to_props = (
-
-    # currents / metadata
-    current_mood       => "current_moodid",
-    current_mood_other => "current_mood",
-    current_music      => "current_music",
-    current_location   => "current_location",
-);
 
 my @modules = qw(
     tags displaydate slug
@@ -118,6 +114,13 @@ DW::Routing->register_string(
 
 DW::Routing->register_string( '/__rpc_draft', \&draft_rpc_handler, app => 1, format => 'json' );
 
+# Old-editor tabs left open across the cutover still autosave here.
+DW::Routing->register_string(
+    '/tools/endpoints/draft', \&draft_rpc_handler,
+    app    => 1,
+    format => 'json'
+);
+
 DW::Routing->register_string( '/entry/options',      \&options_handler,     app => 1 );
 DW::Routing->register_string( '/__rpc_entryoptions', \&options_rpc_handler, app => 1 );
 DW::Routing->register_string(
@@ -131,6 +134,43 @@ DW::Routing->register_string(
 DW::Routing->register_regex( '^/entry/(?:(.+)/)?(\d+)/edit$', \&edit_handler, app => 1 );
 
 DW::Routing->register_string( '/entry/new', \&_new_handler_userspace, user => 1 );
+
+# The retired posting page is fully graduated: every GET canonicalizes to the
+# native form in its simple layout, and any POST is necessarily a stale tab
+# submitting the old schema. DW::Routing strips the legacy .bml suffix before
+# lookup, covering both URLs.
+DW::Routing->register_string(
+    '/update',
+    sub {
+        my $r   = DW::Request->get;
+        my $get = $r->get_args;
+
+        if ( $r->method eq 'GET' ) {
+            my $usejournal = LJ::canonical_username( $get->{usejournal} );
+            my $path       = length $usejournal ? "/entry/$usejournal/new" : '/entry/new';
+
+            # old links to the retired posting page open the simple layout
+            my %args = ( %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' );
+            for my $name (qw(subject event share)) {
+                $args{$name} = $get->{$name} if defined $get->{$name} && length $get->{$name};
+            }
+            $args{tags} = $get->{prop_taglist}
+                if defined $get->{prop_taglist} && length $get->{prop_taglist};
+
+            $r->status(302);
+            $r->header_out( Location => LJ::create_url( $path, args => \%args ) );
+            return $r->OK;
+        }
+
+        # A POST here is old-schema content from a stale tab: it must never be
+        # saved and never be silently discarded. Show the submitted subject
+        # and body back for manual copying; this applies uniformly regardless
+        # of which old submit button (post, preview, spellcheck, a transform)
+        # was clicked, and regardless of login state.
+        return legacy_text_recovery( $r->post_args );
+    },
+    app => 1,
+);
 
 # redirect to app-space
 sub _user_to_app_role {
@@ -200,7 +240,16 @@ sub new_handler {
     }
 
     my $get = $r->get_args;
-    $usejournal ||= $get->{usejournal};
+
+    # A spellcheck transform must use the posted journal selection, just as a
+    # real save would, rather than falling back to the route or prior GET. An
+    # empty submitted value deliberately selects the owner journal.
+    my $spellcheck_has_posted_usejournal =
+        $post && $post->{"action:spellcheck"} && exists $post->{usejournal};
+    if ($spellcheck_has_posted_usejournal) {
+        $usejournal = $post->{usejournal};
+    }
+    $usejournal ||= $get->{usejournal} unless $spellcheck_has_posted_usejournal;
     my $vars = _init(
         {
             usejournal => $usejournal,
@@ -215,80 +264,101 @@ sub new_handler {
     );
 
     # now look for errors that we still want to recover from
-    $errors->add( undef, ".error.invalidusejournal" )
+    $errors->add( undef, "/entry/form.tt.error.invalidusejournal" )
         if defined $usejournal && !$vars->{usejournal};
 
+    my $spellcheck_requested;
     if ( $r->did_post ) {
-        my $mode_preview = $post->{"action:preview"} ? 1 : 0;
-
-        $errors->add( undef, 'bml.badinput.body1' )
-            unless LJ::text_in($post);
-
+        $spellcheck_requested = $post->{"action:spellcheck"} ? 1 : 0;
+        my $mode_preview  = $post->{"action:preview"} ? 1 : 0;
         my $okay_formauth = !$remote || LJ::check_form_auth( $post->{lj_form_auth} );
 
-        $errors->add( undef, "error.invalidform" )
-            unless $okay_formauth;
-
-        if ($mode_preview) {
-
-            # do nothing
+        # Spellcheck is a form transform: validate its existing CSRF token, then
+        # return the submitted form before body validation, auth, or persistence.
+        if ($spellcheck_requested) {
+            $errors->add( undef, "error.invalidform" ) unless $okay_formauth;
+            $spellcheck_requested = 0 unless $okay_formauth;
         }
-        elsif ( $okay_formauth && $post->{showform} )
-        {    # some other form posted content to us, which the user will want to edit further
+        else {
+            $errors->add( undef, 'bml.badinput.body1' )
+                unless LJ::text_in($post);
 
-        }
-        elsif ($okay_formauth) {
-            my $flags = {};
+            $errors->add( undef, "error.invalidform" )
+                unless $okay_formauth;
 
-            my %auth = _auth( $flags, $post, $remote );
+            if ($mode_preview) {
 
-            my $uj = $auth{journal};
-            $errors->add_string( undef, $LJ::MSG_READONLY_USER )
-                if $uj && $uj->readonly;
+                # do nothing
+            }
+            elsif ( $okay_formauth && $post->{showform} )
+            {    # some other form posted content to us, which the user will want to edit further
 
-            # do a login action to check if we can authenticate as unverified_username
-            # and to display any important messages connected to your account
-            {
-                # build a clientversion string
-                my $clientversion = "Web/3.0.0";
+            }
+            elsif ($okay_formauth) {
+                my $flags = {};
 
-                # build a request object
-                my %login_req = (
-                    ver           => $LJ::PROTOCOL_VER,
-                    clientversion => $clientversion,
-                    username      => $auth{unverified_username},
-                );
+                my %auth = _auth( $flags, $post, $remote );
 
-                my $err;
-                my $login_res = LJ::Protocol::do_request( "login", \%login_req, \$err, $flags );
-
-                unless ($login_res) {
-                    $errors->add( undef, ".error.login",
-                        { error => LJ::Protocol::error_message($err) } );
+                if ( $auth{requires_2fa} ) {
+                    $errors->add_string( undef, DW::Auth::Login->required_message );
                 }
 
-                # e.g. not validated
-                $warnings->add_string( undef,
-                    LJ::auto_linkify( LJ::ehtml( $login_res->{message} ) ) )
-                    if $login_res->{message};
-            }
+                my $uj = $auth{journal};
+                $errors->add_string( undef, $LJ::MSG_READONLY_USER )
+                    if $uj && $uj->readonly;
 
-            my $form_req = {};
-            _form_to_backend( $form_req, $post, errors => $errors );
+                # do a login action to check if we can authenticate as unverified_username
+                # and to display any important messages connected to your account
+                unless ( $auth{requires_2fa} ) {
 
-            # check for spam domains
-            LJ::Hooks::run_hooks( 'spam_check', $auth{poster}, $form_req, 'entry' );
+                    # build a clientversion string
+                    my $clientversion = "Web/3.0.0";
 
-            # if we didn't have any errors with decoding the form, proceed to post
-            unless ( $errors->exist ) {
-                my %post_res = _do_post( $form_req, $flags, \%auth, warnings => $warnings );
-                return $post_res{render} if $post_res{status} eq "ok";
+                    # build a request object
+                    my %login_req = (
+                        ver           => $LJ::PROTOCOL_VER,
+                        clientversion => $clientversion,
+                        username      => $auth{unverified_username},
+                    );
 
-                # oops errors when posting: show error, fall through to show form
-                $errors->add_string( undef, $post_res{errors} ) if $post_res{errors};
+                    my $err;
+                    my $login_res = LJ::Protocol::do_request( "login", \%login_req, \$err, $flags );
+
+                    unless ($login_res) {
+                        $errors->add( undef, ".error.login",
+                            { error => LJ::Protocol::error_message($err) } );
+                    }
+
+                    # e.g. not validated
+                    $warnings->add_string( undef,
+                        LJ::auto_linkify( LJ::ehtml( $login_res->{message} ) ) )
+                        if $login_res->{message};
+                }
+
+                my $form_req = {};
+                DW::Entry::_form_to_backend( 0, $form_req, $post, errors => $errors );
+
+                # check for spam domains
+                LJ::Hooks::run_hooks( 'spam_check', $auth{poster}, $form_req, 'entry' );
+
+                # if we didn't have any errors with decoding the form, proceed to post
+                unless ( $errors->exist ) {
+                    my %post_res = _do_post( $form_req, $flags, \%auth, warnings => $warnings );
+                    return $post_res{render} if $post_res{status} eq "ok";
+
+                    # oops errors when posting: show error, fall through to show form
+                    $errors->add_string( undef, $post_res{errors} ) if $post_res{errors};
+                }
             }
         }
     }
+
+    return _render_new_form( $vars, $post, $get, $remote, $errors, $warnings,
+        $spellcheck_requested );
+}
+
+sub _render_new_form {
+    my ( $vars, $post, $get, $remote, $errors, $warnings, $spellcheck_requested ) = @_;
 
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
     $vars->{errors}   = $errors;
@@ -306,6 +376,14 @@ sub new_handler {
     );
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
+    $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $vars->{journalu} );
+    if ($spellcheck_requested) {
+        $vars->{spellcheck} =
+            $vars->{spellcheck_enabled}
+            ? _spellcheck_result($post)
+            : _spellcheck_unavailable();
+    }
+
     # Set up info for the icon select/preview/browse components
     $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
     $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
@@ -314,7 +392,7 @@ sub new_handler {
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
 
-    $vars->{js_for_rte} = LJ::rte_js_vars();
+    $vars->{js_for_rte} = LJ::rte_js_vars($remote);
     $vars->{sitevalues} = to_json( \@sitevalues );
     $vars->{rte_icons}  = $rte_user_icons;
 
@@ -356,7 +434,78 @@ sub new_handler {
     $vars->{draft_subject_raw} = $draft_subject_raw;
     $vars->{autosave_interval} = $LJ::AUTOSAVE_DRAFT_INTERVAL;
 
-    return DW::Template->render_template( 'entry/form.tt', $vars );
+    return _render_form($vars);
+}
+
+# Simple mode is the same form, laid out like the retired update page.
+sub _simple_mode {
+    return ( DW::Request->get->get_args->{mode} // '' ) eq 'simple' ? 1 : 0;
+}
+
+sub _render_form {
+    my ($vars) = @_;
+
+    return DW::Template->render_template( 'entry/form.tt', $vars ) unless _simple_mode();
+
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
+    $vars->{infobox} =
+        LJ::Hooks::run_hook( 'entryforminfo', $vars->{journalu} ? $vars->{journalu}->user : undef,
+        $vars->{remote} );
+
+    # share the advanced form's strings, which the shared includes resolve relatively
+    return DW::Template->render_template( 'entry/form-simple.tt', $vars,
+        { ml_scope => '/entry/form.tt' } );
+}
+
+# Echo a stale old-editor POST's exact subject/body for manual copying;
+# reads no other field, loads no entry, saves nothing.
+sub legacy_text_recovery {
+    my ( $post, %opts ) = @_;
+
+    DW::Request->get->header_out( 'Cache-Control' => 'no-store' );
+
+    return DW::Template->render_template(
+        'entry/recover.tt',
+        {
+            subject_text => $post->{subject} // '',
+            body_text    => $post->{event}   // '',
+            body_missing => !exists $post->{event},
+            link_url => $opts{link_url} || LJ::create_url(
+                '/entry/new',
+                args => {
+                    %{ LJ::viewing_style_opts( %{ DW::Request->get->get_args } ) },
+                    mode => 'simple'
+                }
+            ),
+        }
+    );
+}
+
+# Spellcheck is intentionally a non-persisting form transform. Its HTML is
+# generated by the configured checker; user-submitted text is escaped before it
+# crosses that trusted-result boundary.
+sub _spellcheck_result {
+    my ($post) = @_;
+
+    my $event   = LJ::ehtml( $post->{event} // '' );
+    my $checker = LJ::SpellCheck->new( { spellcommand => $LJ::SPELLER } );
+    my $html    = $checker->check_html( \$event );
+
+    return {
+        did  => 1,
+        html => length $html ? $html : LJ::Lang::ml('entryform.spellcheck.noerrors'),
+    };
+}
+
+sub _spellcheck_unavailable {
+    return { did => 1, html => LJ::Lang::ml('entryform.spellcheck.unavailable') };
+}
+
+sub _spellcheck_enabled {
+    my ( $remote, $journal ) = @_;
+    return 0 unless $LJ::SPELLER && LJ::isu($remote) && LJ::isu($journal);
+    return 0 if $remote->readonly || $journal->readonly;
+    return $remote->can_post_to($journal) ? 1 : 0;
 }
 
 # Initializes entry form values.
@@ -415,7 +564,6 @@ sub _init {
         @journallist = ( $u, $u->posting_access_list )
             unless $usejournal;
 
-        # crosspost
         my @accounts = DW::External::Account->get_external_accounts($u);
         if ( scalar @accounts ) {
             foreach my $acct (@accounts) {
@@ -519,7 +667,10 @@ sub _init {
     #             my $date_diff = ($opts->{'mode'} eq "edit") ? 1 : 0;
 
     $vars = {
-        remote => $u,
+        remote        => $u,
+        image_alt_faq => LJ::Hooks::run_hook( 'faqlink', 'alttext',
+            LJ::Lang::ml('/entry/form.tt.insertimage.alt.faqlink') )
+            || LJ::Lang::ml('/entry/form.tt.insertimage.alt.faqlink'),
 
         moodtheme => \%moodtheme,
         moods     => \@moodlist,
@@ -549,10 +700,8 @@ sub _init {
 
         limits => {
             subject_length => LJ::CMAX_SUBJECT,
+            current_length => LJ::std_max_length,
         },
-
-        # TODO: Remove this when beta is over
-        betacommunity => LJ::load_user("dw_beta"),
     };
 
     return $vars;
@@ -566,6 +715,46 @@ Handles generating the form for, and handling the actual edit of an entry
 
 sub edit_handler {
     return _edit(@_);
+}
+
+# Render the property-only community maintainer surface. Callers may provide
+# the canonical native action explicitly; the direct edit route retains its
+# existing current-URL default.
+sub _render_maintainer_form {
+    my ( $entry, $journal, $remote, %opts ) = @_;
+
+    my $eventtime;
+    if ( my ( $y, $mon, $d, $h, $min ) =
+        $entry->eventtime_mysql =~ /^(\d+)-(\d+)-(\d+) (\d+):(\d+)/ )
+    {
+        $eventtime =
+            LJ::Lang::month_long_ml($mon) . ' ' . ( $d + 0 ) . ', ' . ( $y + 0 ) . ", $h:$min";
+    }
+
+    # the legacy editor stylesheet lays out the read-only entry context
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
+
+    return DW::Template->render_template(
+        'entry/maintainer.tt',
+        {
+            entry     => $entry,
+            journal   => $journal,
+            eventtime => $eventtime,
+            infobox   => LJ::Hooks::run_hook( 'entryforminfo', $journal->user, $remote ),
+            adult_content_enabled => LJ::is_enabled('adult_content'),
+            remote                => $remote,
+            action                => $opts{action} // LJ::create_url( undef, keep_args => 1 ),
+            props                 => {
+                adult_content_maintainer_reason => $entry->prop('adult_content_maintainer_reason')
+                    || '',
+                adult_content_maintainer  => $entry->prop('adult_content_maintainer')  || '',
+                opt_nocomments_maintainer => $entry->prop('opt_nocomments_maintainer') || 0,
+                adult_content             => $entry->prop('adult_content')             || '',
+                opt_nocomments            => $entry->prop('opt_nocomments')            || 0,
+            },
+        },
+        { ml_scope => '/entry/maintainer.tt' }
+    );
 }
 
 sub _edit {
@@ -584,6 +773,92 @@ sub _edit {
     my $errors   = DW::FormErrors->new;
     my $warnings = DW::FormErrors->new;
     my $post;
+    my $spellcheck_requested;
+
+    my $maintainer_post = $r->did_post ? $r->post_args : undef;
+    if ( $maintainer_post && $maintainer_post->{'action:savemaintainer'} ) {
+        my $entry  = LJ::Entry->new( $journal, ditemid => $ditemid );
+        my $anum   = $ditemid % 256;
+        my $itemid = $ditemid >> 8;
+        return error_ml('/entry/form.tt.error.nofind')
+            unless $entry->editable_by($remote)
+            && $anum == $entry->anum
+            && $itemid == $entry->jitemid
+            && !$entry->poster->equals($remote)
+            && $journal->is_comm
+            && $remote->can_manage($journal)
+            && !$journal->readonly;
+        return error_ml('error.invalidform')
+            unless LJ::check_form_auth( $maintainer_post->{lj_form_auth} );
+        LJ::set_logprop(
+            $journal, $itemid,
+            {
+                adult_content_maintainer_reason =>
+                    $maintainer_post->{prop_adult_content_maintainer_reason},
+                adult_content_maintainer  => $maintainer_post->{prop_adult_content_maintainer},
+                opt_nocomments_maintainer => $maintainer_post->{prop_opt_nocomments_maintainer}
+                ? 1
+                : 0,
+            }
+        );
+        $r->status(302);
+        $r->header_out( Location => LJ::create_url( undef, keep_args => 1 ) );
+        return $r->OK;
+    }
+
+    # The ordinary edit form also submits action:delete for a poster deleting
+    # their own entry; only treat this as the manager-moderation action when
+    # the poster differs from the actor, so an owner's delete still falls
+    # through to the generic edit/delete handling below unaffected.
+    if ( $maintainer_post
+        && ( $maintainer_post->{'action:delete'} || $maintainer_post->{'action:deletespam'} ) )
+    {
+        my $entry  = LJ::Entry->new( $journal, ditemid => $ditemid );
+        my $anum   = $ditemid % 256;
+        my $itemid = $ditemid >> 8;
+        if (   $entry->editable_by($remote)
+            && $anum == $entry->anum
+            && $itemid == $entry->jitemid
+            && !$entry->poster->equals($remote) )
+        {
+            my $deletespam = $maintainer_post->{'action:deletespam'} ? 1 : 0;
+            return error_ml('/entry/form.tt.error.nofind')
+                unless $journal->is_comm && $remote->can_manage($journal) && !$journal->readonly;
+
+            # Retained editjournal's disabled_spamdelete additionally requires
+            # a clear spamreport sysban; ordinary delete does not.
+            return error_ml('error.invalidform')
+                if $deletespam && LJ::sysban_check( 'spamreport', $journal->user );
+            return error_ml('error.invalidform')
+                unless LJ::check_form_auth( $maintainer_post->{lj_form_auth} );
+
+            LJ::mark_entry_as_spam( $journal, $itemid ) if $deletespam;
+
+            $journal->log_event(
+                'delete_entry',
+                {
+                    remote       => $remote,
+                    actiontarget => $ditemid,
+                    method       => 'web',
+                }
+            );
+
+            my %edit_res = _do_edit(
+                $ditemid,
+                {
+                    event     => '',
+                    security  => $entry->security,
+                    allowmask => $entry->allowmask,
+                },
+                { poster => $remote, journal => $journal },
+                warnings => $warnings,
+            );
+            return $edit_res{render} if $edit_res{status} eq "ok";
+            return DW::Template->render_template( 'error.tt', { message => $edit_res{errors} } )
+                if $edit_res{errors};
+            return error_ml('error.invalidform');
+        }
+    }
 
     if ( $r->did_post ) {
         $post = $r->post_args;
@@ -595,59 +870,65 @@ sub _edit {
 
         my $mode_preview = $post->{"action:preview"} ? 1 : 0;
         my $mode_delete  = $post->{"action:delete"}  ? 1 : 0;
-
-        $errors->add( undef, 'bml.badinput.body1' )
-            unless LJ::text_in($post);
+        $spellcheck_requested = $post->{"action:spellcheck"} ? 1 : 0;
 
         my $okay_formauth = LJ::check_form_auth( $post->{lj_form_auth} );
-        $errors->add( undef, "error.invalidform" )
-            unless $okay_formauth;
-
-        if ($mode_preview) {
-
-            # do nothing
+        if ($spellcheck_requested) {
+            $errors->add( undef, "error.invalidform" ) unless $okay_formauth;
+            $spellcheck_requested = 0 unless $okay_formauth;
         }
-        elsif ($okay_formauth) {
-            $errors->add_string( undef, $LJ::MSG_READONLY_USER )
-                if $journal && $journal->readonly;
+        else {
+            $errors->add( undef, 'bml.badinput.body1' )
+                unless LJ::text_in($post);
+            $errors->add( undef, "error.invalidform" )
+                unless $okay_formauth;
 
-            my $form_req = {};
-            _form_to_backend(
-                $form_req, $post,
-                allow_empty => $mode_delete,
-                errors      => $errors
-            );
+            if ($mode_preview) {
 
-            # check for spam domains
-            LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
+                # do nothing
+            }
+            elsif ($okay_formauth) {
+                $errors->add_string( undef, $LJ::MSG_READONLY_USER )
+                    if $journal && $journal->readonly;
 
-            # if we didn't have any errors with decoding the form, proceed to post
-            unless ( $errors->exist ) {
-
-                if ($mode_delete) {
-                    $form_req->{event} = "";
-
-                    # now log the event created above
-                    $journal->log_event(
-                        'delete_entry',
-                        {
-                            remote       => $remote,
-                            actiontarget => $ditemid,
-                            method       => 'web',
-                        }
-                    );
-
-                }
-
-                my %edit_res = _do_edit(
-                    $ditemid, $form_req,
-                    { poster => $remote, journal => $journal },
-                    warnings => $warnings,
+                my $form_req = {};
+                DW::Entry::_form_to_backend(
+                    0, $form_req, $post,
+                    allow_empty => $mode_delete,
+                    errors      => $errors
                 );
-                return $edit_res{render} if $edit_res{status} eq "ok";
 
-                # oops errors when posting: show error, fall through to show form
-                $errors->add_string( undef, $edit_res{errors} ) if $edit_res{errors};
+                # check for spam domains
+                LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
+
+                # if we didn't have any errors with decoding the form, proceed to post
+                unless ( $errors->exist ) {
+
+                    if ($mode_delete) {
+                        $form_req->{event} = "";
+
+                        # now log the event created above
+                        $journal->log_event(
+                            'delete_entry',
+                            {
+                                remote       => $remote,
+                                actiontarget => $ditemid,
+                                method       => 'web',
+                            }
+                        );
+
+                    }
+
+                    my %edit_res = _do_edit(
+                        $ditemid, $form_req,
+                        { poster => $remote, journal => $journal },
+                        warnings => $warnings,
+                    );
+                    return $edit_res{render} if $edit_res{status} eq "ok";
+
+                    # oops errors when posting: show error, fall through to show form
+                    $errors->add_string( undef, $edit_res{errors} ) if $edit_res{errors};
+                }
             }
         }
     }
@@ -668,10 +949,14 @@ sub _edit {
         && $anum == $entry_obj->anum
         && $itemid == $entry_obj->jitemid;
 
-    # so at this point, we know that we are authorized to edit this entry
-    # but we need to handle things differently if we're an admin
-    # FIXME: handle communities
-    return error_ml('IS AN ADMIN') unless $entry_obj->poster->equals($remote);
+    # A community maintainer may manage another poster's entry, but never edit
+    # its subject or body.  Keep that property-only surface separate from the
+    # ordinary editor below.
+    unless ( $entry_obj->poster->equals($remote) ) {
+        return error_ml('/entry/form.tt.error.nofind')
+            unless $journal->is_comm && $remote->can_manage($journal) && !$journal->readonly;
+        return _render_maintainer_form( $entry_obj, $journal, $remote );
+    }
 
     my %crosspost;
     if ( !$r->did_post && ( my $xpost = $entry_obj->prop("xpostdetail") ) ) {
@@ -694,16 +979,25 @@ sub _edit {
         @_
     );
 
+    return _render_edit_form( $r, $vars, $errors, $warnings, $post, $entry_obj, $remote, $journal,
+        $spellcheck_requested );
+}
+
+sub _render_edit_form {
+    my ( $r, $vars, $errors, $warnings, $post, $entry_obj, $remote, $journal,
+        $spellcheck_requested, %opts )
+        = @_;
+
     # now look for errors that we still want to recover from
     my $get = $r->get_args;
-    $errors->add( undef, ".error.invalidusejournal" )
+    $errors->add( undef, "/entry/form.tt.error.invalidusejournal" )
         if defined $get->{usejournal} && !$vars->{usejournal};
 
 # this is an error in the user-submitted data, so regenerate the form with the error message and previous values
     $vars->{errors}   = $errors;
     $vars->{warnings} = $warnings;
 
-    $vars->{formdata} = $post || _backend_to_form($entry_obj);
+    $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
@@ -716,6 +1010,14 @@ sub _edit {
     # so we'll update it in place with what DW::Formats thinks we should use.
     $vars->{formdata}->{editor} = $vars->{editors}->{selected};
 
+    $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $journal );
+    if ($spellcheck_requested) {
+        $vars->{spellcheck} =
+            $vars->{spellcheck_enabled}
+            ? _spellcheck_result($post)
+            : _spellcheck_unavailable();
+    }
+
     # Set up info for the icon select/preview/browse components
     $vars->{current_icon_kw} = $vars->{formdata}->{prop_picture_keyword};
     $vars->{current_icon}    = LJ::Userpic->new_from_keyword( $remote, $vars->{current_icon_kw} );
@@ -726,16 +1028,17 @@ sub _edit {
     # this can't be edited after posting
     delete $editable{journal};
 
-    $vars->{action} = {
+    $vars->{action} = $opts{action}
+        || {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
-    };
+        };
 
-    $vars->{js_for_rte} = LJ::rte_js_vars();
+    $vars->{js_for_rte} = LJ::rte_js_vars($remote);
     $vars->{sitevalues} = to_json( \@sitevalues );
     $vars->{rte_icons}  = $rte_user_icons;
 
-    return DW::Template->render_template( 'entry/form.tt', $vars );
+    return _render_form($vars);
 }
 
 # returns:
@@ -774,6 +1077,10 @@ sub _auth {
         # verify entered password, if it is present
         my $ok = LJ::auth_okay( $u, $auth{password} );
 
+        if ( $ok && DW::Auth::TOTP->is_enabled($u) ) {
+            $ret{requires_2fa} = 1;
+            $ok = 0;
+        }
         if ($ok) {
             $flags->{noauth} = 1;
             $flags->{u}      = $u;
@@ -794,263 +1101,6 @@ sub _auth {
     return %ret;
 }
 
-# decodes the posted form into a hash suitable for use with the protocol
-# $post is expected to be an instance of Hash::MultiValue
-sub _form_to_backend {
-    my ( $req, $post, %opts ) = @_;
-
-    my $errors = $opts{errors};
-
-    # handle event subject and body
-    $req->{subject} = $post->{subject};
-    $req->{event}   = $post->{event} || "";
-
-    $errors->add( undef, ".error.noentry" )
-        if $errors && $req->{event} eq "" && !$opts{allow_empty};
-
-    # warn the user of any bad markup errors
-    my $clean_event = $post->{event};
-    my $errref;
-
-    my $editor = undef;
-    my $verbose_err;
-
-    LJ::CleanHTML::clean_event( \$clean_event,
-        { errref => \$errref, editor => $editor, verbose_err => \$verbose_err } );
-
-    if ( $errors && $verbose_err ) {
-        if ( ref($verbose_err) eq 'HASH' ) {
-            $errors->add( undef, $verbose_err->{error}, $verbose_err->{opts} );
-        }
-        else {
-            $errors->add( undef, $verbose_err );
-        }
-    }
-
-    # initialize props hash
-    $req->{props} ||= {};
-    my $props = $req->{props};
-
-    while ( my ( $formname, $propname ) = each %form_to_props ) {
-        $props->{$propname} = $post->{$formname} // '';
-    }
-    $props->{taglist}         = $post->{taglist} if defined $post->{taglist};
-    $props->{picture_keyword} = $post->{prop_picture_keyword}
-        if defined $post->{prop_picture_keyword};
-    $props->{opt_backdated} = $post->{entrytime_outoforder} ? 1 : 0;
-
-    # This form always uses the editor prop instead of opt_preformatted.
-    $props->{opt_preformatted} = 0;
-    $props->{editor}           = DW::Formats::validate( $post->{editor} );
-
-    # old implementation of comments
-    # FIXME: remove this before taking the page out of beta
-    $props->{opt_screening} = $post->{opt_screening};
-    $props->{opt_nocomments} =
-        $post->{comment_settings} && $post->{comment_settings} eq "nocomments" ? 1 : 0;
-    $props->{opt_noemail} =
-        $post->{comment_settings} && $post->{comment_settings} eq "noemail" ? 1 : 0;
-
-    # see if an "other" mood they typed in has an equivalent moodid
-    if ( $props->{current_mood} ) {
-        if ( my $moodid = DW::Mood->mood_id( $props->{current_mood} ) ) {
-            $props->{current_moodid} = $moodid;
-            $props->{current_mood}   = '';
-        }
-    }
-
-    # nuke taglists that are just blank
-    $props->{taglist} = "" unless $props->{taglist} && $props->{taglist} =~ /\S/;
-
-    if ( LJ::is_enabled('adult_content') ) {
-        my $restriction_key = $post->{age_restriction} || '';
-        $props->{adult_content} = {
-            ''           => '',
-            'none'       => 'none',
-            'discretion' => 'concepts',
-            'restricted' => 'explicit',
-        }->{$restriction_key}
-            || "";
-
-        $props->{adult_content_reason} = $post->{age_restriction_reason} || "";
-    }
-
-    # Set entry slug if it's been specified
-    $req->{slug} = LJ::canonicalize_slug( $post->{entry_slug} // '' );
-
-    # Check if this is a community.
-    $props->{admin_post} = $post->{flags_adminpost} || 0;
-
-    # entry security
-    my $sec   = "public";
-    my $amask = 0;
-    {
-        my $security = $post->{security} || "";
-        if ( $security eq "private" ) {
-            $sec = "private";
-        }
-        elsif ( $security eq "access" ) {
-            $sec   = "usemask";
-            $amask = 1;
-        }
-        elsif ( $security eq "custom" ) {
-            $sec = "usemask";
-            foreach my $bit ( $post->get_all("custom_bit") ) {
-                $amask |= ( 1 << $bit );
-            }
-        }
-    }
-    $req->{security}  = $sec;
-    $req->{allowmask} = $amask;
-
-    # date/time
-    my ( $year, $month, $day ) = split( /\D/, $post->{entrytime_date} || "" );
-    my ( $hour, $min ) = split( /\D/, $post->{entrytime_time} || "" );
-
-# if we trust_datetime, it's because we either are in a mode where we've saved the datetime before (e.g., edit)
-# or we have run the JS that syncs the datetime with the user's current time
-# we also have to trust the datetime when the user has JS disabled, because otherwise we won't have any fallback value
-    if ( $post->{trust_datetime} || $post->{nojs} ) {
-        delete $req->{tz};
-        $req->{year} = $year;
-        $req->{mon}  = $month;
-        $req->{day}  = $day;
-        $req->{hour} = $hour;
-        $req->{min}  = $min;
-    }
-
-    $req->{update_displaydate} = $post->{update_displaydate};
-
-    # crosspost
-    $req->{crosspost_entry} = $post->{crosspost_entry} ? 1 : 0;
-    if ( $req->{crosspost_entry} ) {
-        foreach my $acctid ( $post->get_all("crosspost") ) {
-            $req->{crosspost}->{$acctid} = {
-                id       => $acctid,
-                password => $post->{"crosspost_password_$acctid"},
-                chal     => $post->{"crosspost_chal_$acctid"},
-                resp     => $post->{"crosspost_resp_$acctid"},
-            };
-        }
-    }
-
-    $req->{sticky_entry}  = $post->{sticky_entry};
-    $req->{sticky_select} = $post->{sticky_select};
-
-    return 1;
-}
-
-# given an LJ::Entry object, returns a hashref populated with data suitable for use in generating the form
-sub _backend_to_form {
-    my ($entry) = @_;
-
-    #             my $entry = {
-    #                 'usejournal' => $usejournal,
-    #                 'auth' => $auth,
-    #                 'richtext' => LJ::is_enabled('richtext'),
-    #                 'suspended' => $suspend_msg,
-    #             };
-
-    # direct translation of prop values to the form
-
-    my $event = $entry->event_raw;
-
-    # Look up formatting for newer entries...
-    my $editor = $entry->prop('editor');
-
-    # ...or, figure out formatting when editing old entries.
-    # TODO: This duplicates some logic from LJ::CleanHTML for guessing an editor
-    # value for old posts. Would be nice to centralize it in the Entry class,
-    # except that if we're detecting old-style !markdown, we DO want to also
-    # mutate the body text, which makes it hairy.
-    unless ($editor) {
-        if ( LJ::CleanHTML::legacy_markdown( \$event ) ) {    # mutates $event
-            $editor = 'markdown0';
-        }
-        elsif ( $entry->prop('used_rte') ) {
-            $editor = 'rte0';
-        }
-        elsif ( $entry->prop('opt_preformatted') ) {
-            $editor = 'html_raw0';
-        }
-        elsif ( $entry->prop('import_source') ) {
-            $editor = 'html_casual0';
-        }
-        elsif ( $entry->logtime_mysql lt '2019-05' ) {
-            $editor = 'html_casual0';
-        }
-        else {
-            $editor = 'html_casual1';    # For accurate state when editing posts.
-        }
-    }
-
-    my %formprops = map { $_ => $entry->prop( $form_to_props{$_} ) } keys %form_to_props;
-
-    # some properties aren't in the hash above, so go through them manually
-    my %otherprops = (
-        taglist => join( ', ', $entry->tags ),
-
-        entrytime_outoforder => $entry->prop("opt_backdated"),
-
-        age_restriction => {
-            ''         => '',
-            'none'     => 'none',
-            'concepts' => 'discretion',
-            'explicit' => 'restricted',
-        }->{ $entry->prop("adult_content") || '' },
-        age_restriction_reason => $entry->prop("adult_content_reason"),
-
-        entry_slug => $entry->slug,
-
-        flags_adminpost => $entry->prop("admin_post"),
-
-        # At this point we know enough to get the full list of editors (and
-        # selection state) for the dropdown, but because of how the template
-        # variables are laid out, we shouldn't really do that from here. (This
-        # function's whole return value becomes 'formdata' in the template
-        # vars.) So we'll pass this along, and the caller (currently just _edit)
-        # will use it to get the list for the dropdown.
-        editor => DW::Formats::validate($editor),
-
-        # FIXME: remove before taking the page out of beta
-        opt_screening      => $entry->prop("opt_screening"),
-          comment_settings => $entry->prop("opt_nocomments") ? "nocomments"
-        : $entry->prop("opt_noemail") ? "noemail"
-        :                               undef,
-    );
-
-    my $security = $entry->security || "";
-    my @custom_groups;
-    if ( $security eq "usemask" ) {
-        my $amask = $entry->allowmask;
-
-        if ( $amask == 1 ) {
-            $security = "access";
-        }
-        else {
-            $security      = "custom";
-            @custom_groups = grep { $amask & ( 1 << $_ ) } 1 .. 60;
-        }
-    }
-
-    # allow editing of embedded content
-    my $ju = $entry->journal;
-    LJ::EmbedModule->parse_module_embed( $ju, \$event, edit => 1 );
-
-    return {
-        subject => $entry->subject_raw,
-        event   => $event,
-
-        prop_picture_keyword => $entry->userpic_kw,
-        security             => $security,
-        custom_bit           => \@custom_groups,
-        is_sticky            => $entry->journal->sticky_entries_lookup->{ $entry->ditemid },
-
-        %formprops,
-        %otherprops,
-    };
-}
-
 sub _queue_crosspost {
     my ( $form_req, %opts ) = @_;
 
@@ -1061,7 +1111,7 @@ sub _queue_crosspost {
     my $ditemid = delete $opts{ditemid};
 
     my @crossposts;
-    if ( $u->equals($ju) && $form_req->{crosspost_entry} ) {
+    if ( $u && $ju && $u->equals($ju) && $form_req->{crosspost_entry} ) {
         my $user_crosspost = $form_req->{crosspost};
         my ( $xpost_successes, $xpost_errors ) = LJ::Protocol::schedule_xposts(
             $u, $ditemid, $deleted,
@@ -1113,25 +1163,6 @@ sub _queue_crosspost {
     return @crossposts;
 }
 
-sub _save_new_entry {
-    my ( $form_req, $flags, $auth ) = @_;
-
-    my $req = {
-        ver        => $LJ::PROTOCOL_VER,
-        username   => $auth->{poster} ? $auth->{poster}->user : undef,
-        usejournal => $auth->{journal} ? $auth->{journal}->user : undef,
-        tz         => 'guess',
-        xpost => '0',    # don't crosspost by default; we handle this ourselves later
-        %$form_req
-    };
-
-    my $err = 0;
-    my $res = LJ::Protocol::do_request( "postevent", $req, \$err, $flags );
-
-    return { errors => LJ::Protocol::error_message($err) } unless $res;
-    return $res;
-}
-
 # helper sub for printing success messages when posting or editing
 sub _get_extradata {
     my ( $form_req, $journal ) = @_;
@@ -1181,13 +1212,11 @@ sub _get_extradata {
 sub _do_post {
     my ( $form_req, $flags, $auth, %opts ) = @_;
 
-    my $res = _save_new_entry( $form_req, $flags, $auth );
+    my $res = DW::Entry::_save_new_entry( $form_req, $flags, $auth );
     return %$res if $res->{errors};
 
     # post succeeded, time to do some housecleaning
     _persist_props( $auth->{poster}, $form_req, 0 );
-
-    # Clear out a draft
     if ( $auth->{poster} ) {
         $auth->{poster}->set_prop( 'entry_draft',      '' );
         $auth->{poster}->set_prop( 'draft_properties', '' );
@@ -1213,21 +1242,23 @@ sub _do_post {
         $warnings->add_string( undef, LJ::auto_linkify( LJ::ehtml( $res->{message} ) ) )
             if $res->{message};
 
-        my $u       = $auth->{poster};
-        my $journal = $auth->{journal};
+        my $u          = $auth->{poster};
+        my $journal    = $auth->{journal};
+        my $style_args = LJ::viewing_style_args( %{ DW::Request->get->get_args } );
 
         # we updated successfully! Now tell the user
         my $poststatus = {
             status    => 'posted',
             ml_string => $journal->is_community ? ".new.community" : ".new.journal",
-            url       => $journal->journal_base . "/",
+            url       => LJ::Talk::talkargs( $journal->journal_base . "/", $style_args ),
         };
 
         # bunch of helpful links
         my $juser        = $journal->user;
         my $ditemid      = $res->{itemid} * 256 + $res->{anum};
-        my $itemlink     = $res->{url};
-        my $edititemlink = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+        my $itemlink     = LJ::Talk::talkargs( $res->{url}, $style_args );
+        my $edititemlink = LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit",
+            $style_args, _simple_mode() ? 'mode=simple' : '' );
 
         my @links = (
             {
@@ -1246,7 +1277,9 @@ sub _do_post {
 
         push @links,
             {
-            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            url => LJ::Talk::talkargs(
+                $journal->journal_base . "?poster=" . $auth->{poster}->user, $style_args
+            ),
             ml_string => ".links.myentries"
             }
             if $journal->is_community;
@@ -1301,37 +1334,10 @@ sub _do_post {
     return ( status => "ok", render => $render_ret );
 }
 
-sub _save_editted_entry {
-    my ( $ditemid, $form_req, $auth ) = @_;
-
-    my $req = {
-        ver        => $LJ::PROTOCOL_VER,
-        username   => $auth->{poster} ? $auth->{poster}->user : undef,
-        usejournal => $auth->{journal} ? $auth->{journal}->user : undef,
-        xpost  => '0',             # don't crosspost by default; we handle this ourselves later
-        itemid => $ditemid >> 8,
-        %$form_req
-    };
-
-    my $err = 0;
-    my $res = LJ::Protocol::do_request(
-        "editevent",
-        $req,
-        \$err,
-        {
-            noauth => 1,
-            u      => $auth->{poster},
-        }
-    );
-
-    return { errors => LJ::Protocol::error_message($err) } unless $res;
-    return $res;
-}
-
 sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
-    my $res = _save_editted_entry( $ditemid, $form_req, $auth );
+    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
     return %$res if $res->{errors};
 
     my $remote  = $auth->{poster};
@@ -1357,8 +1363,10 @@ sub _do_edit {
     # bunch of helpful links:
     my $juser         = $journal->user;
     my $comm_modifier = $journal->is_community ? '.comm' : '';
-    my $entry_url     = $res->{url};
-    my $edit_url      = "$LJ::SITEROOT/entry/$juser/$ditemid/edit";
+    my $style_args    = LJ::viewing_style_args( %{ DW::Request->get->get_args } );
+    my $entry_url     = LJ::Talk::talkargs( $res->{url}, $style_args );
+    my $edit_url      = LJ::Talk::talkargs( "$LJ::SITEROOT/entry/$juser/$ditemid/edit",
+        $style_args, _simple_mode() ? 'mode=simple' : '' );
 
     my $is_sticky_entry = $journal->sticky_entries_lookup->{$ditemid};
     if ( $remote->can_manage($journal) ) {
@@ -1380,7 +1388,9 @@ sub _do_edit {
 
         push @links,
             {
-            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            url => LJ::Talk::talkargs(
+                $journal->journal_base . "?poster=" . $auth->{poster}->user, $style_args
+            ),
             ml_string => ".links.myentries"
             }
             if $journal->is_community;
@@ -1417,7 +1427,9 @@ sub _do_edit {
 
         push @links,
             {
-            url       => $journal->journal_base . "?poster=" . $auth->{poster}->user,
+            url => LJ::Talk::talkargs(
+                $journal->journal_base . "?poster=" . $auth->{poster}->user, $style_args
+            ),
             ml_string => ".links.myentries"
             }
             if $journal->is_community;
@@ -1452,7 +1464,7 @@ sub _do_edit {
     my $poststatus = {
         status    => $deleted ? 'deleted' : 'edited',
         ml_string => $poststatus_ml,
-        url       => $journal->journal_base . "/",
+        url       => LJ::Talk::talkargs( $journal->journal_base . "/", $style_args ),
     };
 
     $render_ret = DW::Template->render_template(
@@ -1547,7 +1559,15 @@ sub preview_handler {
     my ( $ditemid, $anum, $itemid );
 
     my $form_req = {};
-    _form_to_backend( $form_req, $post );
+    DW::Entry::_form_to_backend( 0, $form_req, $post );
+
+    return _render_preview( $r, $u, $up, $form_req );
+}
+
+sub _render_preview {
+    my ( $r, $u, $up, $form_req ) = @_;
+    my $styleid;
+    my $siteskinned = 1;
 
     # check for spam domains
     LJ::Hooks::run_hooks( 'spam_check', $up, $form_req, 'entry' );
@@ -1574,7 +1594,7 @@ sub preview_handler {
             return $can_create_poll
                 ? $poll->preview
                 : qq{<div class="highlight-box">}
-                . LJ::Lang::ml('/poll/create.bml.error.accttype2')
+                . LJ::Lang::ml('poll.error.accttype')
                 . qq{</div>};
         };
 
@@ -1611,21 +1631,12 @@ sub preview_handler {
         $r->note( "_journal"  => $u->{user} );
         $r->note( "journalid" => $u->{userid} );
 
-        # load necessary props
-        $u->preload_props(qw( s2_style journaltitle journalsubtitle ));
+        $u->preload_props(qw( stylesys s2_style journaltitle journalsubtitle ));
 
-        # determine style system to preview with
         $ctx = LJ::S2::s2_context( $u->{s2_style} );
         my $view_entry_disabled = !LJ::S2::use_journalstyle_entry_page( $u, $ctx );
-
-        if ($view_entry_disabled) {
-
-            # force site-skinned
-            ( $siteskinned, $styleid ) = ( 1, 0 );
-        }
-        else {
-            ( $siteskinned, $styleid ) = ( 0, $u->{s2_style} );
-        }
+        ( $siteskinned, $styleid ) =
+            $view_entry_disabled ? ( 1, 0 ) : ( 0, $u->{s2_style} );
     }
     else {
         ( $siteskinned, $styleid ) = ( 1, 0 );
@@ -1790,6 +1801,8 @@ sub preview_handler {
 
         # Include required CSS and really fundamental JS like Site object (most
         # other JS gets loaded at end of page by s2_run)
+        # Preview bypasses LJ::S2::make_journal, which normally requests the canary CSS.
+        LJ::need_res("stc/canary.css");
         $p->{head_content} .= LJ::res_includes_head();
 
         # Don't show the navigation strip or invisible content
@@ -1818,6 +1831,7 @@ sub preview_handler {
         $r->print($ret);
         return $r->OK;
     }
+
 }
 
 =head2 C<< DW::Controller::Entry::options_handler( ) >>

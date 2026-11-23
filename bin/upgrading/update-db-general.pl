@@ -883,6 +883,7 @@ register_tabledrop("userblobcache");
 register_tabledrop("commenturls");
 register_tabledrop("captchas");
 register_tabledrop("captcha_session");
+register_tabledrop("captcha_cache");
 register_tabledrop("qotd");
 register_tabledrop("zip");
 register_tabledrop("openid_external");
@@ -2217,6 +2218,36 @@ CREATE TABLE password2 (
 )
 EOC
 
+register_tablecreate( "mfa_sessions", <<'EOC');
+CREATE TABLE mfa_sessions (
+    userid INT UNSIGNED NOT NULL,
+    sessid INT UNSIGNED NOT NULL,
+    factor CHAR(64) NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    PRIMARY KEY (userid, sessid),
+    INDEX (expires)
+)
+EOC
+
+register_tablecreate( "login_challenges", <<'EOC');
+CREATE TABLE login_challenges (
+    token CHAR(64) NOT NULL PRIMARY KEY,
+    userid INT UNSIGNED NOT NULL,
+    payload TEXT NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    attempts INT UNSIGNED NOT NULL DEFAULT 0,
+    INDEX (expires),
+    INDEX (userid)
+)
+EOC
+
+register_tablecreate( "totp_used", <<'EOC');
+CREATE TABLE totp_used (
+    userid INT UNSIGNED NOT NULL PRIMARY KEY,
+    time_step BIGINT UNSIGNED NOT NULL
+)
+EOC
+
 register_tablecreate( "totp_recovery_codes", <<'EOC');
 CREATE TABLE totp_recovery_codes (
     userid      INT UNSIGNED NOT NULL,
@@ -3000,18 +3031,6 @@ CREATE TABLE dbnotes (
 )
 EOC
 
-register_tablecreate( "captcha_cache", <<'EOC');
-CREATE TABLE captcha_cache (
-    `captcha_id` INT UNSIGNED NOT NULL auto_increment,
-    `question`   VARCHAR(255) NOT NULL,
-    `answer`     VARCHAR(255) NOT NULL,
-    `issuetime`  INT UNSIGNED NOT NULL DEFAULT 0,
-
-    PRIMARY KEY (`captcha_id`),
-    INDEX(`issuetime`)
-)
-EOC
-
 register_tablecreate( "logslugs", <<'EOC');
 CREATE TABLE `logslugs` (
   `journalid` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3081,6 +3100,24 @@ CREATE TABLE user_profile_accts (
 
     PRIMARY KEY (userid, account_id),
     INDEX (value)
+)
+EOC
+
+register_tablecreate( "import_logs", <<'EOC');
+CREATE TABLE import_logs (
+    logid INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    userid INT UNSIGNED NOT NULL,
+    import_data_id INT UNSIGNED NOT NULL,
+    item VARCHAR(255) NOT NULL,
+    started INT UNSIGNED NOT NULL,
+    updated INT UNSIGNED NOT NULL,
+    chunks INT UNSIGNED NOT NULL DEFAULT 0,
+    bytes INT UNSIGNED NOT NULL DEFAULT 0,
+    host VARCHAR(255),
+    pid INT UNSIGNED,
+
+    PRIMARY KEY (logid),
+    INDEX (userid, import_data_id)
 )
 EOC
 

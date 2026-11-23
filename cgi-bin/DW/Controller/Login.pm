@@ -23,8 +23,18 @@ use DW::Routing;
 use DW::Template;
 use DW::Controller;
 use DW::FormErrors;
+use DW::AccountSwitcher;
+use DW::Auth::Login;
+use DW::Auth::TOTP;
 
-DW::Routing->register_string( '/login', \&login_handler, app => 1 );
+# no_cache: the login form embeds a form_auth (CSRF) token that, for logged-out
+# users, is bound to their per-browser ljuniq cookie. If a shared proxy caches
+# this page, everyone is served one user's token and their login POST fails with
+# "Invalid form submission". (The pre-TT login.bml set nocache=>1 for the same
+# reason; /register and /openid carry no_cache => 1 likewise.)
+DW::Routing->register_string( '/login', \&login_handler, app => 1, no_cache => 1 );
+
+DW::Routing->register_string( '/login/2fa', \&login_2fa_handler, app => 1, no_cache => 1 );
 
 sub login_handler {
     my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
@@ -35,13 +45,35 @@ sub login_handler {
     my $post   = $r->post_args;
     my $remote = $rv->{remote};
 
-    # Set ML scope early so LJ::Lang::ml calls with relative codes (e.g.,
-    # '.error.notuser') resolve correctly before render_template runs.
+    # Set the page scope for request helpers before rendering.
     $r->note( ml_scope => '/login.tt' );
+
+    # The page to send the user back to after a successful login. Prefer the
+    # POSTed value (form resubmission) over the GET value so a failed login
+    # attempt keeps the destination. Strip CR/LF up front so the value can't be
+    # used for header injection when it later builds a Location header on
+    # redirect.
+    my $returnto = $post->{returnto} // $get->{returnto};
+    $returnto =~ tr/\r\n//d if defined $returnto;
+
+    # "add another account" intent: a login submitted while already logged in
+    # should add a session rather than change the current one's options.
+    my $adding = ( $post->{switch} || $get->{switch} ) ? 1 : 0;
 
     my $vars = {
         continue_to => $get->{continue_to},
-        return_to   => $get->{return_to}
+
+        # forwarded into the login form (components/login.tt) as a hidden field
+        # so that, after a successful login, we send the user back to the page
+        # they were trying to reach when they got bounced here by needlogin().
+        returnto => $returnto,
+
+        # render the login form (not the change-options form) even when logged
+        # in, so the user can sign in to an additional account.
+        add_account => $adding,
+
+        # canonicalized so a reflected ?user= can't inject markup into the form
+        prefill_user => LJ::canonical_username( $get->{user} // '' ),
     };
 
     my @errors = ();
@@ -49,7 +81,7 @@ sub login_handler {
     my $cursess    = $remote ? $remote->session : undef;
     my $old_remote = $remote;
 
-    return error_ml("/login.tt.dbreadonly") if $remote && $remote->readonly;
+    return error_ml("/login.tt.login.dbreadonly") if $remote && $remote->readonly;
 
     my $set_cache = sub {
 
@@ -80,7 +112,8 @@ sub login_handler {
             $post->{bindip} = 'yes'   if index( $1, "<" ) >= 0;
         }
 
-        my $user         = LJ::canonical_username( $post->{'user'} );
+        my $user_input   = $post->{user} // '';
+        my $user         = LJ::canonical_username($user_input);
         my $password     = $post->{'password'};
         my $form_auth_ok = LJ::check_form_auth( $post->{lj_form_auth} );
 
@@ -93,8 +126,9 @@ sub login_handler {
             $do_login = 1;
         }
 
-        # if they're already logged in, change opts
-        if ( $do_login && $remote ) {
+        # if they're already logged in, change opts -- unless they're adding
+        # another account, in which case treat it as a fresh login
+        if ( $do_login && $remote && !$adding ) {
             $do_login  = 0;
             $do_change = 1;
         }
@@ -132,17 +166,26 @@ sub login_handler {
         }
 
         if ($do_login) {
-            my $u = LJ::load_user($user);
+            my $is_email = index( $user_input, '@' ) >= 0;
+            my $u        = $is_email ? undef : LJ::load_user($user);
 
-            if ( !$u ) {
+            if ($is_email) {
+                push @errors,
+                    [
+                    email_as_username => LJ::Lang::ml(
+                        '/login.tt.error.email', { aopts => "href='$LJ::SITEROOT/lostinfo'" }
+                    )
+                    ];
+            }
+            elsif ( !$u ) {
                 my $euser = LJ::eurl($user);
                 push @errors,
                     [
                     unknown_user => LJ::Lang::ml(
-                        '.error.notuser', { 'aopts' => "href='$LJ::SITEROOT/create?user=$euser'" }
+                        '/login.tt.error.notuser',
+                        { 'aopts' => "href='$LJ::SITEROOT/create?user=$euser'" }
                     )
-                    ]
-                    unless $u;
+                    ];
             }
             else {
                 push @errors, [ purged_user => LJ::Lang::ml('error.purged.text') ]
@@ -156,7 +199,7 @@ sub login_handler {
             if ( $u && $u->is_readonly ) {
                 DW::Stats::increment( 'dw.action.session.login_failed',
                     1, ['reason:database_readonly'] );
-                return error_ml("/login.tt.dbreadonly");
+                return error_ml("/login.tt.login.dbreadonly");
             }
 
             my ( $banned, $ok );
@@ -166,7 +209,7 @@ sub login_handler {
 
             if ($banned) {
                 DW::Stats::increment( 'dw.action.session.login_failed', 1, ['reason:banned_ip'] );
-                return error_ml('login.tt.tempfailban');
+                return error_ml('/login.tt.login.tempfailban');
             }
 
             if ( $u && !$ok ) {
@@ -197,7 +240,28 @@ sub login_handler {
                     : "short";
                 my $bindip = ( ( $post->{'bindip'} // '' ) eq "yes" ) ? $r->get_remote_ip : "";
 
-                $u->make_login_session( $exptype, $bindip );
+                if ( DW::Auth::TOTP->is_enabled($u) ) {
+                    my $destination = $returnto;
+                    $destination ||= $r->header_in('Referer')
+                        if ( $post->{ret} // $get->{ret} // '' ) eq '1';
+                    return DW::Auth::Login->start_challenge(
+                        $u,
+                        password => $post->{password},
+                        exptype  => $exptype,
+                        bindip   => $bindip,
+                        adding   => $adding,
+                        returnto => DW::Auth::Login->return_url($destination)
+                    );
+                }
+
+                # when adding a second account, keep the current one signed in
+                # and demote it into the switcher's stored list
+                if ( $adding && $old_remote && !$old_remote->equals($u) ) {
+                    DW::AccountSwitcher->add_account( $u, $exptype, $bindip );
+                }
+                else {
+                    $u->make_login_session( $exptype, $bindip );
+                }
                 LJ::Hooks::run_hook( 'user_login', $u );
                 $cursess = $u->session;
 
@@ -219,11 +283,11 @@ sub login_handler {
 # In both cases, we need to validate the URL before we redirect to it, to prevent XSS and similar attacks
 
                 my $redirect_url;
-                if ( $post->{returnto} ) {
+                if ($returnto) {
 
                     # this passes in the URI of the page to redirect to on success, eg:
                     # /manage/profile/index?authas=test or whatever
-                    $redirect_url = $post->{returnto};
+                    $redirect_url = $returnto;
                     if ( $redirect_url =~ /^\// ) {
                         $redirect_url = $LJ::SITEROOT . $redirect_url;
                     }
@@ -250,5 +314,56 @@ sub login_handler {
     $vars->{errors}  = \@errors;
     $vars->{remote}  = $remote;
     return DW::Template->render_template( 'login.tt', $vars );
+}
+
+sub login_2fa_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1, anonymous => 1 );
+    return $rv unless $ok;
+    my $r           = $rv->{r};
+    my $token       = $r->cookie('ljmfapending');
+    my $restart_url = DW::Auth::Login->restart_url( $r->cookie('ljmfarestart') );
+    my ( $u, $opts ) = DW::Auth::Login->pending( $token, 1 );
+    unless ($u) {
+        $r->delete_cookie( name => 'ljmfapending', path => '/login' );
+        return $r->redirect($restart_url);
+    }
+    my $errors = DW::FormErrors->new;
+    $r->note( ml_scope => '/login/2fa.tt' );
+    if ( $r->did_post ) {
+        my ( $verified, $completion ) =
+            $opts->{verified}
+            ? ( $u, $opts )
+            : DW::Auth::Login->verify( $token, $r->post_args->{code} );
+        if ($verified) {
+            $opts = $completion;
+            if ( DW::Auth::Login->complete( $verified, %$completion ) ) {
+                DW::Stats::increment(
+                    'dw.action.session.login_ok',
+                    1,
+                    [
+                        'bindip:' . ( $completion->{bindip} ? 'yes' : 'no' ),
+                        'exptype:' . $completion->{exptype}
+                    ]
+                );
+                $r->delete_cookie( name => 'ljmfapending', path => '/login' );
+                $r->delete_cookie( name => 'ljmfarestart', path => '/login' );
+                my $url = $completion->{returnto};
+                $url = DW::Auth::Login->return_url($url) || "$LJ::SITEROOT/";
+                return $r->redirect($url);
+            }
+        }
+        else {
+            $errors->add( 'code', '.error.badcredentials' );
+        }
+    }
+    return DW::Template->render_template(
+        'login/2fa.tt',
+        {
+            errors      => $errors,
+            user        => $u->display_name,
+            restart_url => $restart_url,
+            verified    => $opts->{verified}
+        }
+    );
 }
 1;

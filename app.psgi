@@ -23,7 +23,6 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use Plack::Builder;
 
-use DW::BML;
 use DW::Controller::Journal;
 use DW::Request::Plack;
 use DW::Routing;
@@ -42,15 +41,63 @@ BEGIN {
     srand( LJ::urandom_int() );
 }
 
+# Track the worker PID we last seeded the RNG for. With --preload-app the
+# srand() in the BEGIN block above runs once in the master, so every forked
+# worker would otherwise inherit an identical random sequence. Reseed once per
+# worker on its first request. (DW's security-sensitive randomness uses
+# /dev/urandom, not rand(); this just keeps rand() well-distributed.)
+my $srand_pid = 0;
+
 my $app = sub {
     my $env = $_[0];
-    my $r   = DW::Request->get;
 
-    # Main request dispatch; this will determine what kind of request we're getting
-    # and then pass it to the appropriate handler. In the future, this should just
-    # be a call to DW::Routing and let it sort it out with all the controllers and
-    # such, but until then, we're having to dispatch between various generations
-    # of systems ourselves.
+    if ( $srand_pid != $$ ) {
+        srand( LJ::urandom_int() );
+        $srand_pid = $$;
+    }
+
+    my $r = DW::Request->get;
+
+    # Run the actual dispatch. A finalized Plack response (arrayref) is returned
+    # directly; anything else means the status/body now live on $r.
+    my $response = eval { _handle_request( $r, $env ) };
+    if ( my $err = $@ ) {
+
+        # In dev, re-throw so the StackTrace middleware can render the trace in
+        # the browser. In production, turn it into a 500 and fall through to the
+        # error-document handling below — this mirrors mod_perl translating a
+        # died handler into a 500 and Apache then serving ErrorDocument 500.
+        die $err if $LJ::IS_DEV_SERVER;
+
+        warn "Unhandled request exception: $err";
+        $r->status(500);
+        $response = undef;
+    }
+
+    # A finalized response already carries its own body/headers (e.g. redirects).
+    return $response if ref $response;
+
+    # If we settled on an error status but no handler produced a body, render
+    # the matching error document so the client gets a real page instead of an
+    # empty response (which browsers replace with their own generic error page).
+    # Mirrors the ErrorDocument directives Apache::LiveJournal sets up.
+    _render_error_document($r) if $r->status >= 400 && !$r->response_bytes_written;
+
+    return $r->res;
+};
+
+# Main request dispatch; this will determine what kind of request we're getting
+# and then pass it to the appropriate handler. In the future, this should just
+# be a call to DW::Routing and let it sort it out with all the controllers and
+# such, but until then, we're having to dispatch between various generations
+# of systems ourselves.
+#
+# Returns a finalized Plack response (arrayref) for responses that carry their
+# own headers/body (redirects, etc.); otherwise returns undef after setting the
+# status (and possibly body) on $r, leaving finalization to the caller.
+sub _handle_request {
+    my ( $r, $env ) = @_;
+
     # If this is the embed module domain, force routing to embedcontent handler
     # regardless of the requested path (matches Apache::LiveJournal::trans behavior)
     my $host = $r->host;
@@ -58,14 +105,6 @@ my $app = sub {
         ( $LJ::EMBED_MODULE_DOMAIN && $host =~ /$LJ::EMBED_MODULE_DOMAIN$/ )
         ? '/journal/embedcontent'
         : $r->path;
-    # Handle legacy RPC URIs (/__rpc_delcomment, /__rpc_talkscreen) that
-    # Apache routes via LJ::URI->handle() to BML files
-    if ( my ($rpc) = $uri =~ m!^.*/__rpc_(\w+)$! ) {
-        if ( my $bml_file = $LJ::AJAX_URI_MAP{$rpc} ) {
-            DW::BML->render( "$LJ::HTDOCS/$bml_file", $uri );
-            return $r->res;
-        }
-    }
 
     my $ret = DW::Routing->call(
         uri      => $uri,
@@ -76,7 +115,7 @@ my $app = sub {
     # a controller redirect, return it directly — it already has cookies/headers set.
     return $ret if ref $ret;
 
-    # If routing returned OK (0), default status to 200; otherwise try journals, then BML
+    # If routing returned OK (0), default status to 200; otherwise try journal routing
     if ( defined $ret && $ret == 0 ) {
         $r->status(200) unless $r->status;
     }
@@ -114,22 +153,65 @@ my $app = sub {
             $r->status($ret);
         }
         else {
-            # Routing didn't handle it — try BML file resolution as fallback
-            my ( $redirect_url, $bml_uri, $bml_file ) = DW::BML->resolve_path($uri);
-            if ($redirect_url) {
-                return $r->redirect($redirect_url);
-            }
-            elsif ($bml_file) {
-                DW::BML->render( $bml_file, $bml_uri );
-            }
-            else {
-                $r->status(404) unless $r->status;
-            }
+            # Routing didn't handle it, and no journal user is in scope.
+            $r->status(404) unless $r->status;
         }
     }
 
-    return $r->res;
-};
+    return;
+}
+
+# Render the error document configured for the current (error) status into the
+# response, preserving that status. Mirrors the ErrorDocument directives that
+# Apache::LiveJournal sets up (see modperl_subs.pl): only 404 and 500 have
+# custom documents; any other status keeps its empty body, exactly as Apache
+# would (it defines no ErrorDocument for them).
+sub _render_error_document {
+    my $r = $_[0];
+
+    my $status = $r->status;
+
+    eval {
+        if ( $status == 404 ) {
+
+            # Apache renders /internal/local/404 (site-specific, with quips)
+            # and falls back to the stock /internal/404 page.
+            my $ret = DW::Routing->call( uri => "/internal/local/404" );
+            $ret //= DW::Routing->call( uri => "/internal/404" );
+        }
+        elsif ( $status == 500 ) {
+
+            # Apache serves the static htdocs/500-error.html (a site-local copy
+            # overrides the base one). It's padded so browsers don't swap in
+            # their own "friendly" error page.
+            my $file = LJ::resolve_file('htdocs/500-error.html');
+            my $body;
+            if ( $file && open my $fh, '<', $file ) {
+                local $/;
+                $body = <$fh>;
+                close $fh;
+            }
+            else {
+
+                # Never leave a blank 500 (the very symptom this code avoids).
+                # Log the resolution failure and fall back to a small inline page.
+                warn "Could not serve htdocs/500-error.html"
+                    . ( defined $file ? " ($file): $!" : " (not found)" );
+                $body =
+                      "<h1>Oops!</h1>\n<p>If you've gotten this error, it means "
+                    . "that something is currently (and, with luck, temporarily) "
+                    . "broken. Please wait five minutes and try again.</p>\n";
+            }
+            $r->content_type('text/html; charset=utf-8');
+            $r->print($body);
+        }
+        1;
+    } or warn "Failed to render error document for status $status: $@";
+
+    # The error templates return OK on success without touching the status, but
+    # restore it explicitly so a rendered document can never downgrade the code.
+    $r->status($status);
+}
 
 # Apply the middleware. Ordering is important!
 builder {
@@ -175,6 +257,12 @@ builder {
     enable 'DW::AccessLog',
         ( $ENV{DW_ACCESS_LOG} ? ( log_file => $ENV{DW_ACCESS_LOG} ) : () );
 
+    # Strip the response body from HEAD requests while leaving headers intact.
+    # Apache does this automatically; under Plack we must opt in or handlers
+    # (including the error documents below) would send a body on HEAD. Enabled
+    # outside ContentLength so Content-Length still reflects the GET body.
+    enable 'Head';
+
     # Set Content-Length on responses so Starman doesn't fall back to chunked
     # transfer encoding when the app doesn't set it itself
     enable 'ContentLength';
@@ -188,6 +276,28 @@ builder {
     for my $dir ( LJ::get_all_directories('htdocs') ) {
         enable 'Static',
             path         => qr{^/(img|stc|js)/},
+            root         => $dir,
+            pass_through => 1;
+    }
+
+    # A fixed set of individual root-level files (plus the FCK rich-text-editor
+    # assets under rte/), served from any htdocs overlay. Deliberately a list
+    # rather than every plain file under htdocs, which would expose files such
+    # as htdocs/inc/account-codes and raw .scss sources. Path-only matching (not
+    # Host-based), so this also covers /favicon.ico on journal subdomains.
+    #
+    # /robots.txt is the one exception: on a journal host (dw.journal_user set
+    # by SubdomainFunction, which runs before this) it must fall through to
+    # DW::Controller::Journal's own per-journal robots_txt mode (opt_blockrobots,
+    # the robots_txt_extra hook) instead of the site's static file.
+    for my $dir ( LJ::get_all_directories('htdocs') ) {
+        enable 'Static',
+            path => sub {
+                my ( $path, $env ) = @_;
+                return 0 if $path eq '/robots.txt' && $env->{'dw.journal_user'};
+                return $path =~
+                    m{^/(?:500-error\.html|apple-touch-icon\.png|favicon\.ico|protocol\.dat|robots\.txt|rte/.+)$};
+            },
             root         => $dir,
             pass_through => 1;
     }

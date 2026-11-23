@@ -51,12 +51,6 @@
     @MEMCACHE_SERVERS = ('127.0.0.1:11211');
     #$MEMCACHE_COMPRESS_THRESHOLD = 1_000; # bytes
 
-    # setup recaptcha
-    %RECAPTCHA = (
-            public_key  => $DW::PRIVATE::RECAPTCHA{public_key},
-            private_key => $DW::PRIVATE::RECAPTCHA{private_key},
-        );
-
     # PayPal configuration.  If you want to use PayPal, uncomment this
     # section and make sure to fill in the fields at the bottom of config-private.pl.
     #%PAYPAL_CONFIG = (
@@ -94,11 +88,6 @@
     # Configuration for suggestions community & adminbot
     $SUGGESTIONS_COMM = "dw_suggestions";
     $SUGGESTIONS_USER = "suggestions_bot";
-
-    # 404 page
-    # Uncomment if you don't want the (dw-free) default, 404-error.bml
-    # (Note: you need to provide your own 404-error-local.bml)
-    $PAGE_404 = "404-error-local.bml";
 
     # additional domain from which to serve the iframes for embedded content
     # for security reasons, we strongly recommend that this not be on your $DOMAIN

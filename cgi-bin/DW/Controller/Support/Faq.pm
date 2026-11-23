@@ -24,6 +24,7 @@ use warnings;
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
+use LJ::Lang;
 
 DW::Routing->register_string( '/support/faq',       \&faq_handler,       app => 1 );
 DW::Routing->register_string( '/support/faqpop',    \&faqpop_handler,    app => 1 );
@@ -192,7 +193,9 @@ sub faqbrowse_handler {
 
     # get language settings
     my $curlang = $GET->{'lang'} || LJ::Lang::get_effective_lang();
-    my $deflang = BML::get_language_default();
+
+    # $LJ::DEFAULT_LANG is the application default language for a native request.
+    my $deflang = $LJ::DEFAULT_LANG;
     my $altlang = $curlang ne $deflang;
     my $mll     = LJ::Lang::get_lang($curlang);
     my $mld     = LJ::Lang::get_dom("faq");
@@ -265,8 +268,6 @@ sub faqbrowse_handler {
             $dbh->do( "REPLACE INTO faquses (faqid, userid, dateview) " . "VALUES (?, ?, NOW())",
                 undef, $faqid, $remote->{'userid'} );
         }
-
-        BML::note_mod_time( $f->unixmodtime );
 
         my $summary = $f->summary_raw;
         my $answer  = $f->answer_raw;
@@ -383,7 +384,7 @@ sub faqsearch_handler {
         next unless $l;
 
         my $item         = "langname.$code";
-        my $namethislang = BML::ml($item);
+        my $namethislang = LJ::Lang::ml($item);
         my $namenative   = LJ::Lang::get_text( $l->{'lncode'}, $item );
 
         push @langs, $code;
@@ -393,7 +394,7 @@ sub faqsearch_handler {
         push @langs, $s;
     }
 
-    my $curr = BML::get_language();
+    my $curr = LJ::Lang::get_effective_lang();
     my $sel  = $GET->{'lang'} || $curr;
     my $q    = $GET->{'q'};
 

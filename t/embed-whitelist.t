@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 120;
+use Test::More tests => 128;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -93,7 +93,6 @@ note("misc");
     test_good_url(
 "https://player.bilibili.com/player.html?aid=593134119&bvid=BV1Dq4y1y7Zj&cid=483765371&page=1"
     );
-    test_good_url("http://blip.tv/play/x11Xx11Xx.html");
     test_good_url(
         "https://percolate.blogtalkradio.com/offsiteplayer?hostId=123456&episodeId=12345678");
     test_good_url("https://app.box.com/embed/s/eqbvgyrj6uqftb6k8vz2wcdzu4wx7yy4");
@@ -188,6 +187,7 @@ note("misc");
 
     # M
     test_good_url("https://makertube.net/videos/embed/52a10666-3a18-4e73-93da-e8d3c12c305a");
+    test_good_url("https://makertube.net/videos/embed/2kbqSTKP7tBYZLQPqEr5nU");
     test_good_url("https://mega.nz/embed/yr5VEDDZ#6vvZAnbmADkNc6KX5fKUB9GXYYrYGOhkgsx-xw9_SMw");
     test_good_url(
 "https://www.mixcloud.com/widget/iframe/?feed=https%3A%2F%2Fwww.mixcloud.com%2Fvladmradio%2F25-podcast-from-august-24-2016%2F&hide_cover=1&light=1"
@@ -241,6 +241,8 @@ note("misc");
     test_good_url("//scratch.mit.edu/projects/embed/144290094/?autostart=false");
     test_good_url(
         "http://www.scribd.com/embeds/123123/content?start_page=1&view_mode=list&access_key=");
+    test_good_url("https://sendvid.com/embed/gctqv3f8");
+    test_bad_url( "https://sendvid.com/gctqv3f8", "sendvid watch page, not embed" );
     test_good_url("http://www.slideshare.net/slideshow/embed_code/12312312");
     test_good_url(
 "https://api.smugmug.com/services/embed/10385063342_c6j9ncH?width=360&height=640&albumId=250921912&albumKey=BqhhKn"
@@ -271,7 +273,6 @@ note("misc");
     test_good_url("https://player.twitch.tv/?autoplay=false&video=v582773417");
 
     # V
-    test_good_url("https://vid.me/e/v63?stats=1&amp;tools=1");
     test_good_url("https://vk.com/video_ext.php?oid=-49280571&id=165718332&hash=5eb26e7a4cd9982d");
 
     test_good_url("http://player.vimeo.com/video/123123123?title=0&byline=0&portrait=0");
@@ -302,4 +303,20 @@ note("misc");
     # Z
     test_good_url("//www.zippcast.com/videoview.php?vplay=6c91dae3fc1bc909db0&auto=no");
 
+}
+
+note("retired providers");
+{
+    foreach my $scheme ( 'http:', 'https:', '' ) {
+        test_bad_url( "$scheme//blip.tv/play/x11Xx11Xx.html", "blip.tv is no longer supported" );
+        test_bad_url( "$scheme//vid.me/e/v63?stats=1&amp;tools=1",
+            "vid.me is no longer supported" );
+    }
+
+    subtest "supported domain list excludes retired providers", sub {
+        my $domains = LJ::Hooks::run_hook('list_iframe_embed_domains');
+        ok( !grep( { $_ eq 'blip.tv' } @$domains ),          "blip.tv is not advertised" );
+        ok( !grep( { $_ eq 'vid.me' } @$domains ),           "vid.me is not advertised" );
+        ok( grep(  { $_ eq 'player.vimeo.com' } @$domains ), "supported provider is still listed" );
+    };
 }

@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use v5.10;
 
-use Test::More tests => 25;
+use Test::More tests => 26;
 
 BEGIN {
     require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
@@ -284,6 +284,45 @@ subtest 'content returns raw request body' => sub {
     # empty body on GET
     my $r2 = make_request();
     is( $r2->content, '', 'content returns empty string for bodyless GET' );
+};
+
+###########################################################################
+# 8b. read — chunked body reads for streaming parsers.
+#     The large icon-upload path (DW::Controller::EditIcons) drives the
+#     request body through $r->read($buf, $count, $offset), appending each
+#     chunk at the current length of $buf.  Plack used to lack this method
+#     entirely, so that path silently produced "No data from client".
+###########################################################################
+
+subtest 'read returns body in chunks and appends at offset' => sub {
+    plan tests => 6;
+
+    my $body = 'abcdefghij';    # 10 bytes
+    my $r    = make_request(
+        'REQUEST_METHOD' => 'POST',
+        'CONTENT_TYPE'   => 'application/octet-stream',
+        _body            => $body,
+    );
+
+    # Read the whole body the way parse_multipart_interactive does: in fixed
+    # windows, passing the current buffer length as the offset so each chunk
+    # is appended rather than overwriting what came before.
+    my $window = '';
+    my $got    = $r->read( $window, 4, length($window) );
+    is( $got,    4,      'first read returns 4 bytes' );
+    is( $window, 'abcd', 'first chunk copied into buffer' );
+
+    $got = $r->read( $window, 4, length($window) );
+    is( $window, 'abcdefgh', 'second chunk appended at offset' );
+
+    # Ask for more than remains: only the tail comes back.
+    $got = $r->read( $window, 4, length($window) );
+    is( $got,    2,            'short final read returns remaining byte count' );
+    is( $window, 'abcdefghij', 'buffer holds the full body' );
+
+    # At EOF, read returns 0 (the loop-termination signal the parser relies on).
+    $got = $r->read( $window, 4, length($window) );
+    is( $got, 0, 'read returns 0 at EOF' );
 };
 
 ###########################################################################

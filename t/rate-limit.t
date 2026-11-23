@@ -14,13 +14,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 111;
+use Test::More tests => 116;
 use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use LJ::Test;
+use DW::API::RateLimit;
 use DW::RateLimit;
+use DW::Request;
+use DW::Request::Plack;
 use Time::HiRes qw(time);
 
 # Test basic rate limit creation
@@ -343,4 +346,31 @@ LJ::Test::with_fake_memcache {
         $build_mw->()->call( \%env );
         is( $env{'dw.stats.auth'}, 'user', 'authenticated request tagged user' );
     }
+};
+
+# API wrapper against a native Plack request.
+LJ::Test::with_fake_memcache {
+    open my $input, '<', \'';
+    my $r = DW::Request->get(
+        plack_env => {
+            REQUEST_METHOD    => 'GET',
+            PATH_INFO         => '/api/v1/test',
+            REMOTE_ADDR       => '203.0.113.20',
+            'psgi.url_scheme' => 'http',
+            'psgi.input'      => $input,
+        }
+    );
+
+    my $calls   = 0;
+    my $wrapped = DW::API::RateLimit->wrap(
+        sub { $calls++; return 'ok' },
+        name => 'test_wrap',
+        rate => '1/60s'
+    );
+
+    is( $wrapped->( undef, {} ), 'ok',  'API wrapper runs code under the limit' );
+    is( $wrapped->( undef, {} ), undef, 'API wrapper blocks over the limit' );
+    is( $calls,     1,   'wrapped code ran once' );
+    is( $r->status, 429, 'blocked API request returns 429' );
+    ok( $r->header_out('Retry-After') > 0, 'blocked API request sets Retry-After' );
 };

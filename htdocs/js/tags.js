@@ -118,9 +118,9 @@ function reset_field(field, resettext)
     if (resettext && field.value.indexOf(resettext) != -1) field.value = '';
 }
 
-// update tag properties - display with 
-// security counts.  right now, we have a 
-// JS array with everything in tags.bml.
+// update tag properties - display with
+// security counts.  right now, we have a
+// JS array with everything the manage-tags page renders.
 // eventually, this needs to be some xml-rpc goodness,
 // with JS caching on the results of rpc calls.
 function show_props(div, id)
@@ -165,7 +165,7 @@ function show_props(div, id)
     return;
 }
 
-// for edittags.bml
+// for /edittags
 function edit_tagselect(list)
 {
     if (! list) return;

@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/etc/build-tools"
+    schedule:
+      interval: "monthly"
+    groups:
+      build-tools:
+        patterns:
+          - "sass"
+          - "esbuild"

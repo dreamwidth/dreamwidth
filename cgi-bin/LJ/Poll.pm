@@ -17,6 +17,7 @@ use Carp qw (croak);
 use LJ::Entry;
 use LJ::Poll::Question;
 use LJ::Event::PollVote;
+use DW::Cache;
 
 ##
 ## Memcache routines
@@ -546,7 +547,7 @@ sub _load {
         unless $self->pollid;
 
     # Requests context
-    if ( my $obj = $LJ::REQ_CACHE_POLL{ $self->id } ) {
+    if ( my $obj = DW::Cache->request->get( 'poll', $self->id ) ) {
         %{$self} = %{$obj};    # change object in memory
         return $self;
     }
@@ -584,7 +585,7 @@ sub _load {
 
     # store constructed object in caches
     $self->_store_to_memcache;
-    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
+    DW::Cache->request->set( 'poll', $self->id, $self );
 
     return $self;
 }
@@ -619,7 +620,7 @@ sub close_poll {
 
     # poll status has changed
     $self->_remove_from_memcache;
-    delete $LJ::REQ_CACHE_POLL{ $self->id };
+    DW::Cache->request->remove( 'poll', $self->id );
 
     $self->{status} = 'X';
 }
@@ -667,7 +668,7 @@ sub open_poll {
 
     # poll status has changed
     $self->_remove_from_memcache;
-    delete $LJ::REQ_CACHE_POLL{ $self->id };
+    DW::Cache->request->remove( 'poll', $self->id );
 
     $self->{status} = '';
 }
@@ -936,7 +937,7 @@ sub render {
     }
 
     # Users cannot vote unless they are logged in
-    return "<?needlogin?>"
+    return LJ::error_noremote()
         if $mode eq 'enter' && !$remote;
 
     my $do_form = $mode eq 'enter' && $can_vote;
@@ -1005,7 +1006,7 @@ sub render {
             . LJ::Lang::ml('poll.seeresults') . "</a> ]  ";
         $ret .= "&nbsp&nbsp;[ <a href='$LJ::SITEROOT/poll/?id=$pollid&amp;mode=clear'
             class='LJ_PollClearLink' id='LJ_PollClearLink_${pollid}' lj_pollid='$pollid'>  "
-            . BML::ml('poll.clear') . "</a> ]</div>";
+            . LJ::Lang::ml('poll.clear') . "</a> ]</div>";
     }
     elsif ( $mode eq 'results' ) {
 
@@ -1116,7 +1117,7 @@ sub render {
             if ( $q->type eq "text" && $preval{$qid} ) {
                 LJ::Poll->clean_poll( \$preval{$qid} );
                 $results_table .=
-                    "<br />" . BML::ml( 'poll.useranswer', { "answer" => $preval{$qid} } );
+                    "<br />" . LJ::Lang::ml( 'poll.useranswer', { "answer" => $preval{$qid} } );
             }
             elsif ( $q->type ne "text" ) {
                 ### but, if this is a non-text item, and we're showing results, need to load the answers:
@@ -1433,7 +1434,7 @@ sub questions {
 
     # store poll data with loaded questions
     $self->_store_to_memcache;
-    $LJ::REQ_CACHE_POLL{ $self->id } = $self;
+    DW::Cache->request->set( 'poll', $self->id, $self );
 
     return @qs;
 }
@@ -1661,7 +1662,7 @@ sub process_submission {
 
     # if vote results are not cached, there is no need to modify cache
     #$poll->_remove_from_memcache;
-    #delete $LJ::REQ_CACHE_POLL{ $poll->id };
+    #DW::Cache->request->remove( 'poll', $poll->id );
 
     # don't notify if they blank-polled
     LJ::Event::PollVote->new( $poll->poster, $remote, $poll )->fire

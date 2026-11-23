@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+/* Compact layout for the /manage/accounts switcher table: tight rows, and the
+   Switch/Remove actions sitting horizontally next to each other. */
+.account-switcher-manage {
+    max-width: 34em;
+    border-collapse: collapse;
+
+    td {
+        vertical-align: middle;
+        padding: .25em .75em .25em 0;
+    }
+
+    .status {
+        font-size: .9em;
+        opacity: .8;
+    }
+
+    .actions {
+        white-space: nowrap;
+        text-align: right;
+    }
+
+    /* Keep the switch button and remove link on the same row. */
+    .inline-form {
+        display: inline-block;
+        margin: 0;
+    }
+
+    .actions .button,
+    .actions .inline-form .button {
+        margin: 0 0 0 .4em;
+    }
+
+    .remove-account {
+        margin-left: .75em;
+        font-size: .8rem;
+        text-decoration: underline;
+    }
+}

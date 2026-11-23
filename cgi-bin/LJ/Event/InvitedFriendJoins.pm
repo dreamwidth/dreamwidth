@@ -13,6 +13,7 @@
 
 package LJ::Event::InvitedFriendJoins;
 use strict;
+use LJ::Lang;
 use Carp qw(croak);
 use base 'LJ::Event';
 
@@ -133,7 +134,7 @@ sub friend {
 
 sub subscription_as_html {
     my ( $class, $subscr ) = @_;
-    return BML::ml('event.invited_friend_joins');    # "Someone I invited creates a new journal";
+    return LJ::Lang::ml('event.invited_friend_joins');  # "Someone I invited creates a new journal";
 }
 
 sub content {

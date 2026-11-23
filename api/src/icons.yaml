@@ -29,3 +29,7 @@ paths:
                 $ref: components/error.yaml
         400:
           $ref: components/errors/400.yaml
+        401:
+          $ref: components/errors/401.yaml
+        500:
+          $ref: components/errors/500.yaml

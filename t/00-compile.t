@@ -32,21 +32,6 @@ my %SKIP = (
     'Data/ObjectDriver/Driver/DBD/SQLite.pm' => 'Bareword "DBI::SQL_BLOB"',
     'Data/ObjectDriver/Driver/DBD/Oracle.pm' => 'no Oracle',
 
-    'LJ/Global/BMLInit.pm'     => 'BML::register_isocode called from non-conffile context',
-    'cgi-bin/lj-bml-blocks.pl' => 'BML::register_block called from non-lookfile context',
-
-    'cgi-bin/modperl.pl'      => 'Special file',
-    'cgi-bin/modperl_subs.pl' => 'Special file',
-
-    # Apache2::Const imports fail when another module loads it first with a
-    # different constant group — the second use is a no-op, leaving constants
-    # uncompiled. Only affects shared-process test loading, not production.
-    'Apache/BML.pm'                => 'Apache2::Const load-order conflict',
-    'Apache/LiveJournal.pm'        => 'Apache2::Const load-order conflict',
-    'Apache/LiveJournal/PalImg.pm' => 'Apache2::Const load-order conflict',
-    'DW/Request/Apache2.pm'        => 'Apache2::Const load-order conflict',
-    'LJ/URI.pm'                    => 'Apache2::Const load-order conflict',
-
     'bin/ljumover.pl' => 'Requires configs to be loaded, easier to skip',
 );
 

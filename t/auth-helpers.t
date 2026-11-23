@@ -17,11 +17,18 @@ use warnings;
 
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN {
+    $LJ::_T_CONFIG = 1;
+    require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+}
+use LJ::Config;
+use Log::Log4perl qw(:easy);
+use DW::Auth::Helpers;
 
 plan tests => 4;
 
-use DW::Auth::Helpers;
+LJ::Config->load;
+Log::Log4perl->easy_init($OFF);
 
 # Check pepper keys
 ok( DW::Auth::Helpers->_get_pepper_key eq 'A' x 32, 'Pepper key is right.' );

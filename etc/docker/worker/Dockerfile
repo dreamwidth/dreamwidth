@@ -38,6 +38,6 @@ ADD scripts/ /opt/
 # last minute configuration.
 RUN bash /opt/setup.sh
 
-# Kick off the startup script, which does some healthcheck and then starts
-# Apache if things look good.
+# Kick off the startup script, which runs a healthcheck and then runs the
+# worker command if things look good.
 CMD bash /opt/startup-prod.sh

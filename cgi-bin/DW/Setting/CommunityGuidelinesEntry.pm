@@ -42,7 +42,7 @@ sub option {
             : $e ? $e->url
             : '',
             size        => 50,
-            maxlength   => 100,
+            maxlength   => 2048,
             placeholder => _example_url(),
         }
     );

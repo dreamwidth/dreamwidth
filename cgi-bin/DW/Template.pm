@@ -16,6 +16,7 @@
 
 package DW::Template;
 use strict;
+use Scalar::Util qw( blessed );
 use Template;
 use Template::Plugins;
 use Template::Namespace::Constants;
@@ -114,16 +115,28 @@ sub template_string {
     $opts->{sections} = $extra;
     $opts->{sections}->{errors} = $opts->{errors};
 
-    # now we have to save the scope and update it for this rendering
-    my $oldscope = $r->note('ml_scope');
-    $r->note( ml_scope => ( $extra->{ml_scope} || "/$filename" ) );
+    # Keep the request note and native language context in lockstep while a
+    # template is active. A template can nest another template_string call
+    # (e.g. dw.scoped_include) before resuming, so save/restore around it.
+    my $oldscope           = $r->note('ml_scope');
+    my $language_context   = LJ::Lang::request_context();
+    my $old_language_scope = $language_context ? $language_context->{scope} : undef;
+    my $scope              = $extra->{ml_scope} || "/$filename";
+    $r->note( ml_scope => $scope );
+    LJ::Lang::set_request_scope($scope);
 
     my $out;
-    $view_engine->process( $filename, $opts, \$out )
-        or die $view_engine->error->as_string;
+    my $ok = eval {
+        $view_engine->process( $filename, $opts, \$out )
+            or die $view_engine->error->as_string;
+        1;
+    };
+    my $err = $@;
 
-    # now revert the scope if we had one
-    $r->note( ml_scope => $oldscope ) if $oldscope;
+    # Restore even an undef scope and do it before rethrowing template errors.
+    $r->note( ml_scope => $oldscope );
+    LJ::Lang::set_request_scope($old_language_scope);
+    die $err unless $ok;
 
     return $out;
 }
@@ -198,6 +211,14 @@ sub render_cached_template {
     return $class->render_string( $out, $extra );
 }
 
+# The site scheme shows a page's form errors after the page's ml scope is
+# restored, so resolve their relative keys against the page that renders them.
+sub _pin_error_scope {
+    my ( $filename, $opts, $extra ) = @_;
+    $opts->{errors}->set_ml_scope( ( $extra && $extra->{ml_scope} ) || "/$filename" )
+        if blessed $opts->{errors} && $opts->{errors}->isa('DW::FormErrors');
+}
+
 =head2 C<< $class->render_template( $filename, $opts, $extra ) >>
 
 Render a template inside the sitescheme or alone.
@@ -218,6 +239,8 @@ sub render_template {
     my ( $class, $filename, $opts, $extra ) = @_;
 
     $extra ||= {};
+    _pin_error_scope( $filename, $opts, $extra );
+
     my $out = $class->template_string( $filename, $opts, $extra );
 
     return $class->render_string( $out, $extra );
@@ -226,11 +249,9 @@ sub render_template {
 =head2 C<< $class->render_template_misc( $filename, $opts, $extra ) >>
 
 Render a template inside the sitescheme or alone.
-This can also be safely called ( with some work on the other side )
-from a BML context and still spit the content where required.
-( Note, the "alone" bit will be ignored from BML contexts )
 
-Can safely directly return this from either trans/Controller, internal journal page generation or (most) BML contexts.
+Can safely directly return this from either trans/Controller or internal
+journal page generation.
 
 $extra can contain:
 
@@ -238,21 +259,13 @@ $extra can contain:
 
 =item B< no_sitescheme > == render alone
 
-=over
-
-This will be ignored for 'bml' scopes.
-
-=back
-
 =item B< title / windowtitle / head / bodyopts / ... > == text to get thrown in the section if inside sitescheme
 
-=item B< scope > = Scope, accepts nothing, 'bml', or 'journal'
+=item B< scope > = Scope, accepts nothing or 'journal'
 
 =item B< scope_data > = Depends on B< scope >
 
 =over
-
-=item B< bml > Hashref of scalar-refs of where to throw the sections
 
 =item B< journal > $opts hashref passed into LJ::make_journal and beyond.
 
@@ -262,28 +275,15 @@ This will be ignored for 'bml' scopes.
 
 =cut
 
-# FIXME(dre): Remove this method when BML is completely dead
-#   and refactor the journal scope bits up into render_template or render_string.
 sub render_template_misc {
     my ( $class, $filename, $opts, $extra ) = @_;
 
     $extra ||= {};
+    _pin_error_scope( $filename, $opts, $extra );
     my $out = $class->template_string( $filename, $opts, $extra );
 
-    my $scope = $extra->{scope} // '';
-
-    if ( $scope eq 'bml' ) {
-        my $r   = DW::Request->get;
-        my $bml = $extra->{scope_data};
-
-        for my $item (qw(title windowtitle head bodyopts)) {
-            ${ $bml->{$item} } = $extra->{$item} || "";
-        }
-        return $out;
-    }
-
     my $rv = $class->render_string( $out, $extra );
-    if ( $scope eq 'journal' ) {
+    if ( ( $extra->{scope} // '' ) eq 'journal' ) {
         $extra->{scope_data}->{handler_return} = $rv;
         return;
     }

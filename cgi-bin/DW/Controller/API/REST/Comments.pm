@@ -44,4 +44,25 @@ sub get_screening {
     return $self->rest_ok($settings);
 }
 
+################################################
+# /comments/settings
+#
+# Get a list of possible comment settings.
+################################################
+# Define route and associated params
+my $settings =
+    DW::Controller::API::REST->path( 'comments/settings.yaml', 1, { 'get' => \&get_settings } );
+
+sub get_settings {
+    my $self = $_[0];
+
+    my $settings = {
+        ""           => "Journal default comment settings",
+        "nocomments" => "Comments disabled.",
+        "noemail"    => "Don't notify by email for comments."
+    };
+
+    return $self->rest_ok($settings);
+}
+
 1;

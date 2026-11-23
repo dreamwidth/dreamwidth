@@ -56,6 +56,7 @@ my $log = sub {
 
 # setup alert routine, this sends a mail to some configurable alert address
 my $alert = sub {
+    return undef unless defined $LJ::PAYPAL_CONFIG{email} && length $LJ::PAYPAL_CONFIG{email};
     LJ::send_mail(
         {
             to      => $LJ::PAYPAL_CONFIG{email},
@@ -180,9 +181,11 @@ sub expire_user {
         # send an email to every maintainer
         my $maintus = LJ::load_userids( $u->maintainer_userids );
         foreach my $maintu ( values %$maintus ) {
+            my $email = $maintu->email_raw;
+            next unless defined $email && length $email;
             LJ::send_mail(
                 {
-                    to       => $maintu->email_raw,
+                    to       => $email,
                     fromname => $LJ::SITENAME,
                     from     => $LJ::ACCOUNTS_EMAIL,
                     subject  => LJ::Lang::ml(
@@ -203,9 +206,10 @@ sub expire_user {
         }
     }
     elsif ( $u->is_visible ) {
+        my $email = $u->email_raw;
         LJ::send_mail(
             {
-                to       => $u->email_raw,
+                to       => $email,
                 fromname => $LJ::SITENAME,
                 from     => $LJ::ACCOUNTS_EMAIL,
                 subject =>
@@ -219,7 +223,7 @@ sub expire_user {
                     }
                 ),
             }
-        );
+        ) if defined $email && length $email;
     }
 
     # this is pretty easy, we just tell DW::Pay to do it
@@ -259,9 +263,11 @@ sub warn_user {
         # send an email to every maintainer
         my $maintus = LJ::load_userids( $u->maintainer_userids );
         foreach my $maintu ( values %$maintus ) {
+            my $email = $maintu->email_raw;
+            next unless defined $email && length $email;
             LJ::send_mail(
                 {
-                    to       => $maintu->email_raw,
+                    to       => $email,
                     fromname => $LJ::SITENAME,
                     from     => $LJ::ACCOUNTS_EMAIL,
                     subject  => LJ::Lang::ml(
@@ -282,9 +288,10 @@ sub warn_user {
         }
     }
     else {
+        my $email = $u->email_raw;
         LJ::send_mail(
             {
-                to       => $u->email_raw,
+                to       => $email,
                 fromname => $LJ::SITENAME,
                 from     => $LJ::ACCOUNTS_EMAIL,
                 subject  => LJ::Lang::ml(
@@ -300,7 +307,7 @@ sub warn_user {
                     }
                 ),
             }
-        );
+        ) if defined $email && length $email;
     }
 
     # now update the db

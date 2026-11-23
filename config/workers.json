@@ -9,6 +9,16 @@
       "max_count": 1,
       "target_cpu": 50
     },
+    "web-autoscaler": {
+      "cpu": 256,
+      "memory": 512,
+      "category": "misc",
+      "spot": false,
+      "min_count": 1,
+      "max_count": 1,
+      "target_cpu": 50,
+      "task_role": "dreamwidth-ecs-autoscaler-taskRole"
+    },
     "change-poster-id": {
       "cpu": 256,
       "memory": 512,
@@ -18,17 +28,7 @@
       "max_count": 1,
       "target_cpu": 50
     },
-    "codebuild-notifier": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "misc",
-      "spot": true,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
     "content-importer": {
-      "egress_nat": true,
       "cpu": 256,
       "memory": 2048,
       "category": "importer",
@@ -38,7 +38,6 @@
       "target_cpu": 25
     },
     "content-importer-lite": {
-      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "importer",
@@ -48,7 +47,6 @@
       "target_cpu": 50
     },
     "content-importer-verify": {
-      "egress_nat": true,
       "cpu": 256,
       "memory": 512,
       "category": "importer",
@@ -388,15 +386,6 @@
       "memory": 512,
       "category": "misc",
       "spot": false,
-      "min_count": 1,
-      "max_count": 1,
-      "target_cpu": 50
-    },
-    "spellcheck-gm": {
-      "cpu": 256,
-      "memory": 512,
-      "category": "misc",
-      "spot": true,
       "min_count": 1,
       "max_count": 1,
       "target_cpu": 50

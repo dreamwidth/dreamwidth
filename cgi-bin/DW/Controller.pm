@@ -41,7 +41,7 @@ sub needlogin {
     }
     $uri = LJ::eurl($uri);
 
-    $r->header_out( Location => "$LJ::SITEROOT/?returnto=$uri" );
+    $r->header_out( Location => "$LJ::SITEROOT/login?returnto=$uri" );
     return $r->REDIRECT;
 }
 
@@ -171,9 +171,10 @@ sub controller {
 
         my $authas_args = $args{authas} == 1 ? {} : $args{authas};
 
-        # older pages
-        $vars->{authas_html} =
-            LJ::make_authas_select( $vars->{remote}, { authas => $vars->{u}->user } );
+        # older pages -- honor the same list-scoping options (e.g. type) as the
+        # Foundation variant so the inline switcher matches it.
+        $vars->{authas_html} = LJ::make_authas_select( $vars->{remote},
+            { authas => $vars->{u}->user, %{ $authas_args || {} } } );
 
         # foundation pages
         $vars->{authas_form} =

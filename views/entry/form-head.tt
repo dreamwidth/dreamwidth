@@ -1,0 +1,170 @@
+[%# views/entry/form-head.tt
+
+Resources and page-head data shared by the advanced and simple entry forms.
+
+Authors:
+    Afuna <coder.dw@afunamatata.com>
+
+Copyright (c) 2011-2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+-%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- dw.need_res( "stc/display_none.css" ) -%]
+
+[%- dw.need_res( { group => "foundation" },
+
+    ## tags (autocomplete)
+    "js/vendor/jquery.vertigro.js"
+    "js/jquery/jquery.ui.menu.js"
+    "js/jquery/jquery.ui.autocomplete.js"
+    "js/components/jquery.autocompletewithunknown.js"
+    "stc/jquery/jquery.ui.menu.css"
+    "stc/jquery/jquery.ui.autocomplete.css"
+    "stc/css/components/autocompletewithunknown.css"
+
+    ## collapsing
+    "js/components/jquery.collapse.js"
+    "stc/css/components/collapse.css"
+
+    ## date
+    "js/vendor/pickadate.js/picker.js"
+    "js/vendor/pickadate.js/picker.date.js"
+    "js/vendor/pickadate.js/picker.time.js"
+    "js/vendor/pickadate.js/legacy.js"
+    "stc/css/components/pickadate/datetime.css"
+
+    # page-specific
+    "js/pages/entry/new.js"
+    "js/pages/entry/image-insert.js"
+
+    # rich text editor (rte1)
+    "js/vendor/dw-editor.js"
+    "js/pages/entry/editor.js"
+    "stc/css/components/dw-editor.css"
+
+    # code required for old RTE
+    "js/6alib/httpreq.js"
+    "js/6alib/core.js"
+    "js/6alib/dom.js"
+    "js/livejournal.js"
+    "js/6alib/ippu.js"
+    "js/lj_ippu.js"
+    "js/poll.js"
+    "stc/fck/fckeditor.js"
+    "js/pages/entry/rte.js"
+
+    # old drafts functionality
+    "js/pages/entry/drafts.js"
+
+    # switching between the advanced and simple layouts
+    "js/pages/entry/layout-switch.js"
+
+) -%]
+
+[% sections.head = BLOCK %]
+[%- chalresp_js -%]
+
+<script type="text/javascript">
+var postFormInitData = new Object();
+postFormInitData.edit = [% action.edit ? "true" : "false" %];
+
+postFormInitData.moodpics = {
+    [%- FOREACH mood = moodtheme.pics.pairs %]
+        [% mood.key | js %] : [ [% mood.value.name | js %], [% mood.value.pic | js %], [% mood.value.width | js %], [% mood.value.height | js %] ]
+        [%- UNLESS loop.last %],[% END -%]
+    [% END %]
+};
+
+postFormInitData.panels = {
+    "show" : {
+        [%- FOREACH panel = panels.show.pairs -%]
+            [%- panel.key | js -%] : [%- panel.value ? "true" : "false" -%]
+            [%- UNLESS loop.last %],[% END -%]
+        [%- END -%]
+    }
+};
+
+postFormInitData.security = {
+    [%- FOREACH level = security_options.pairs %]
+        [%- level.key | js %] : { 'value': [%~ level.value.value | js ~%]
+            , 'label':  [%~ level.value.label | ml | js ~%]
+            , 'format': [%~ level.value.format | ml | js ~%]
+
+            [%- IF level.value.image -%]
+            , 'image': { 'src': [%~ level.value.image.src | js ~%]
+                , 'width':  [%~ level.value.image.width | js ~%]
+                , 'height': [%~ level.value.image.height | js ~%]
+            }
+            [%- END -%]
+        }
+        [%- UNLESS loop.last %],[% END -%]
+    [% END %]
+};
+
+postFormInitData.minAnimation = [% min_animation ? "true" : "false" %];
+
+postFormInitData.strings = {
+  "delete_confirm" : [%- "entryform.delete.confirm" | ml | js -%],
+  "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
+};
+
+postFormInitData.dwEditor = {
+  "circleUrl": "/__rpc_general?mode=list_circle",
+  "icons": [% rte_icons %],
+  "strings": {
+    "toolbarLabel":     [%- ".rte.toolbar" | ml | js -%],
+    "undo":             [%- ".rte.undo" | ml | js -%],
+    "redo":             [%- ".rte.redo" | ml | js -%],
+    "blockLabel":       [%- ".rte.block" | ml | js -%],
+    "blockParagraph":   [%- ".rte.block.paragraph" | ml | js -%],
+    "blockHeading":     [%- ".rte.block.heading" | ml | js -%],
+    "blockCode":        [%- ".rte.block.code" | ml | js -%],
+    "blockHtml":        [%- ".rte.block.html" | ml | js -%],
+    "bold":             [%- ".rte.bold" | ml | js -%],
+    "italic":           [%- ".rte.italic" | ml | js -%],
+    "underline":        [%- ".rte.underline" | ml | js -%],
+    "strike":           [%- ".rte.strike" | ml | js -%],
+    "codeMark":         [%- ".rte.code" | ml | js -%],
+    "link":             [%- ".rte.link" | ml | js -%],
+    "image":            [%- ".rte.image" | ml | js -%],
+    "user":             [%- ".rte.user" | ml | js -%],
+    "bulletList":       [%- ".rte.list.bullet" | ml | js -%],
+    "orderedList":      [%- ".rte.list.ordered" | ml | js -%],
+    "blockquote":       [%- ".rte.blockquote" | ml | js -%],
+    "cut":              [%- ".rte.cut" | ml | js -%],
+    "hr":               [%- ".rte.hr" | ml | js -%],
+    "outdent":          [%- ".rte.outdent" | ml | js -%],
+    "cutEdit":          [%- ".rte.cut.edit" | ml | js -%],
+    "cutCaption":       [%- ".rte.cut.caption" | ml | js -%],
+    "cutDefault":       [%- ".rte.cut.default" | ml | js -%],
+    "htmlBlockLabel":   [%- ".rte.htmlblock" | ml | js -%],
+    "cancel":           [%- ".rte.cancel" | ml | js -%],
+    "ok":               [%- ".rte.ok" | ml | js -%],
+    "linkTitle":        [%- ".rte.link.title" | ml | js -%],
+    "linkUrl":          [%- ".rte.link.url" | ml | js -%],
+    "imageTitle":       [%- ".rte.image.title" | ml | js -%],
+    "imageUrl":         [%- ".rte.image.url" | ml | js -%],
+    "imageAlt":         [%- ".rte.image.alt" | ml | js -%],
+    "userTitle":        [%- ".rte.user.title" | ml | js -%],
+    "userName":         [%- ".rte.user.name" | ml | js -%],
+    "userSite":         [%- ".rte.user.site" | ml | js -%],
+    "userSiteHint":     [%- ".rte.user.site.hint" | ml | js -%],
+    "mentionLiteral":   [%- ".rte.mention.literal" | ml | js -%],
+    "mentionCommunity": [%- ".rte.mention.community" | ml | js -%]
+  }
+};
+
+[%- IF remote && remote.can_use_userpic_select -%]
+    postFormInitData.iconBrowser = {
+        "keywordorder": [%- icon_browser.keywordorder ? "true" : "false" -%],
+        "metatext": [%- icon_browser.metatext ? "true" : "false" -%],
+        "smallicons": [%- icon_browser.smallicons ? "true": "false" -%]
+    };
+[%- END -%]
+
+</script>
+[% END  # sections.head %]

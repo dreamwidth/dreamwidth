@@ -18,10 +18,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
+
+my $url = 'https://example.com/';
 
 my $testfeed = sub {
     my $link_content = shift;
@@ -31,8 +33,8 @@ my $testfeed = sub {
   <id>testing:atom:feed</id>
   <title>test atom feed</title>
   <author><name>testing</name></author>
-  <link rel="alternate" type="text/html" href="$LJ::SITEROOT" />
-  <link rel="self" type="text/xml" href="$LJ::SITEROOT" />
+  <link rel="alternate" type="text/html" href="$url" />
+  <link rel="self" type="text/xml" href="$url" />
   <updated>2007-01-08T23:40:33Z</updated>
   <entry>
     <id>testing:atom:feed:entry</id>
@@ -49,11 +51,13 @@ my $testfeed = sub {
     return $item->{'link'};
 };
 
-is( $testfeed->("<link rel=\"alternate\" type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
-    $LJ::SITEROOT, "rel=alternate is fine" );
+is( $testfeed->("<link rel=\"alternate\" type=\"text/html\" href=\"$url\" />"),
+    $url, "rel=alternate is fine" );
 
-is( $testfeed->("<link type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
-    $LJ::SITEROOT, "no explicit rel attribute is also fine" );
+is( $testfeed->("<link type=\"text/html\" href=\"$url\" />"),
+    $url, "no explicit rel attribute is also fine" );
 
-ok( !$testfeed->("<link rel=\"bananas\" type=\"text/html\" href=\"$LJ::SITEROOT\" />"),
+ok( !$testfeed->("<link rel=\"bananas\" type=\"text/html\" href=\"$url\" />"),
     "rel that isn't 'alternate' not okay" );
+
+ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );

@@ -17,6 +17,7 @@
 
 package LJ::Event::JournalNewEntry;
 use strict;
+use LJ::Lang;
 use Scalar::Util qw(blessed);
 use LJ::Entry;
 use Carp qw(croak);
@@ -473,7 +474,7 @@ sub subscription_as_html {
     }
 
     if ($arg1) {
-        return BML::ml(
+        return LJ::Lang::ml(
             'event.journal_new_entry.tag.' . ( $journal->is_comm ? 'community' : 'user' ),
             {
                 user => $journal->ljuser_display,
@@ -488,7 +489,7 @@ sub subscription_as_html {
     if ($arg2) {
         my $postu = LJ::load_userid($arg2);
         if ($postu) {
-            return BML::ml(
+            return LJ::Lang::ml(
                 'event.journal_new_entry.poster',
                 {
                     user   => $journal->ljuser_display,
@@ -498,9 +499,9 @@ sub subscription_as_html {
         }
     }
 
-    return BML::ml('event.journal_new_entry.friendlist') unless $journal;
+    return LJ::Lang::ml('event.journal_new_entry.friendlist') unless $journal;
 
-    return BML::ml(
+    return LJ::Lang::ml(
         'event.journal_new_entry.' . ( $journal->is_comm ? 'community' : 'user' ),
         {
             user => $journal->ljuser_display,

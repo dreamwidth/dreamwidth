@@ -1,11 +1,8 @@
 jQuery(function($) {
 
-var dependencies = {
-    "lj_entries_remap_icon" : [ "lj_entries" ],
-    "lj_comments"           : [ "lj_entries" ],
-    "lj_entries"            : [ "lj_tags", "lj_friendgroups" ],
-    "lj_friends"            : [ "lj_friendgroups" ]
-};
+// which items get selected along with which, as sent by the server (the same rules it applies
+// when the form is submitted)
+var dependencies = $(".importer[data-dependencies]").data("dependencies") || {};
 
 var reverseDependencies = {};
 $.each(dependencies, function(origElement, deps) {

@@ -145,6 +145,7 @@ propgroup modules {
     property use module_credit_group;
     property use module_search_group;
     property use module_cuttagcontrols_group;
+    property use module_subscriptionfilters_group;
 
     property string module_navlinks_section_override {
         values = "none|(none)|one|Header|two|Main Module Section|three|Footer";
@@ -170,6 +171,7 @@ set module_poweredby_section = "two";
 set module_poweredby_order = 20;
 set module_search_section = "two";
 set module_cuttagcontrols_section = "two";
+set module_subscriptionfilters_section = "two";
 
 propgroup text {
 
@@ -186,6 +188,7 @@ propgroup text {
     property use text_module_credit;
     property use text_module_search;
     property use text_module_cuttagcontrols;
+    property use text_module_subscriptionfilters;
 
     property use text_view_recent;
     property use text_view_friends;

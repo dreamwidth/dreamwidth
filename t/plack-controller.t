@@ -39,6 +39,11 @@ test_psgi $app, sub {
 
     is( $res->code, 200, "GET /login returns 200" );
     like( $res->content, qr/<form/i, "Response contains a login form" );
+
+    # /login must be marked no-cache: the form embeds a uniq-bound form_auth
+    # token, so a shared cache serving one user's page to another would break
+    # login with "Invalid form submission".
+    like( $res->header('Cache-Control'), qr/no-cache/, "GET /login is marked no-cache" );
 };
 
 done_testing;

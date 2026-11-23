@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 20;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -68,6 +68,45 @@ note("test entry from ditemid (invalid jitemid, invalid anum)");
     my $entry_from_ditemid = LJ::Entry->new( $u, ditemid => ( $jitemid + 1 ) );
     ok( !$entry_from_ditemid->valid,        "valid entry" );
     ok( !$entry_from_ditemid->correct_anum, "incorrect anum" );
+}
+
+note("correct_anum ignores a ditemid lazily filled by ditemid()");
+{
+    # A permalink emitted elsewhere (e.g. the active-entries module) calls ditemid()
+    # on the shared singleton, which must not make correct_anum read _untrusted_anum.
+    LJ::Entry->reset_singletons;
+    my $entry_from_jitemid = LJ::Entry->new( $u, jitemid => $jitemid );
+    $entry_from_jitemid->ditemid;
+    ok( $entry_from_jitemid->correct_anum, "correct anum after ditemid() fills {ditemid}" );
+}
+
+note("dated URLs resolve by slug even when the slug is all digits");
+{
+    LJ::Entry->reset_singletons;
+    my $decoy     = $u->t_post_fake_entry( body => 'numeric slug decoy' );
+    my $colliding = $u->t_post_fake_entry( body => 'numeric slug collision' );
+    my $absent    = $u->t_post_fake_entry( body => 'numeric slug absent ID' );
+    isnt( $decoy->jitemid,     $colliding->jitemid, 'decoy and colliding entries differ' );
+    isnt( $decoy->jitemid,     $absent->jitemid,    'decoy and absent-ID entries differ' );
+    isnt( $colliding->jitemid, $absent->jitemid,    'numeric slug entries differ' );
+    my $absent_id = ( $absent->jitemid + 1000 ) << 8;
+    $colliding->slug( $decoy->ditemid );
+    $absent->slug($absent_id);
+    ok( LJ::Entry->new( $u, ditemid => $decoy->ditemid )->valid, 'colliding ID names an entry' );
+    ok( !LJ::Entry->new( $u, ditemid => $absent_id )->valid, 'absent ID names no entry' );
+
+    my $from_url = LJ::Entry->new_from_url( $colliding->url );
+    is( $from_url && $from_url->ditemid, $colliding->ditemid, "slug matching another entry ID" );
+
+    $from_url = LJ::Entry->new_from_url( $absent->url );
+    is( $from_url && $from_url->ditemid, $absent->ditemid, "slug matching no entry ID" );
+
+    my $wrong_date = $colliding->url;
+    $wrong_date =~ s!/\d{4}/\d\d/\d\d/!/1900/01/01/!;
+    ok( !LJ::Entry->new_from_url($wrong_date), "wrong date does not fall back to the entry ID" );
+
+    $from_url = LJ::Entry->new_from_url( $u->journal_base . '/' . $decoy->ditemid . '.html' );
+    is( $from_url && $from_url->ditemid, $decoy->ditemid, "entry ID URL keeps its meaning" );
 }
 
 1;

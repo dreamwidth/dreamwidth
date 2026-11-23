@@ -25,8 +25,10 @@ COPY doc/dependencies-system /tmp/dependencies-system
 RUN apt-get install -y $(cat /tmp/dependencies-system | grep -v '^#' | grep -v '^$' | tr '\n' ' ') && \
     rm /tmp/dependencies-system
 
-# Install dependencies for local development full-stack
-RUN apt-get install -y mysql-server mysql-client memcached htop
+# Install dependencies for local development full-stack. Term::ReadKey is only
+# needed by src/jbackup, which t/auth-client-compat.t runs; it isn't a site
+# dependency, so it lives here rather than in doc/dependencies-*.
+RUN apt-get install -y mysql-server mysql-client memcached htop libterm-readkey-perl
 
 # Install Manticore Search (opt-in — not auto-started by start.sh).
 # Developers working on search uncomment @LJ::MANTICORE in config-local.pl
@@ -41,10 +43,15 @@ RUN curl -fsSL https://repo.manticoresearch.com/manticore-repo.noarch.deb \
     apt-get install -y manticore && \
     rm /tmp/manticore-repo.deb
 
-# Install Node.js 20 LTS (for sass and esbuild)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g sass esbuild
+# Install Node.js 24 LTS (runtime for sass and esbuild)
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
+    apt-get install -y nodejs
+
+# Install pinned CSS/JS build tools (sass, esbuild). Versions live in
+# etc/build-tools; Dependabot proposes upgrades (see .github/dependabot.yml).
+COPY etc/build-tools /opt/dw-build-tools
+RUN npm ci --prefix /opt/dw-build-tools
+ENV PATH="/opt/dw-build-tools/node_modules/.bin:${PATH}"
 
 # Install Go (for building devtool and other Go utilities)
 RUN curl -fsSL https://go.dev/dl/go1.22.2.linux-amd64.tar.gz | tar -C /usr/local -xzf -

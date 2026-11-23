@@ -300,16 +300,6 @@ sub can_view_mailqueue {
     return $_[0]->get_cap('viewmailqueue') ? 1 : 0;
 }
 
-sub captcha_type {
-    my $u = $_[0];
-
-    if ( defined $_[1] ) {
-        $u->set_prop( captcha => $_[1] );
-    }
-
-    return $_[1] || $u->prop('captcha') || $LJ::DEFAULT_CAPTCHA_TYPE;
-}
-
 sub cc_msg {
     my ( $u, $value ) = @_;
     if ( defined $value && $value =~ /[01]/ ) {
@@ -974,8 +964,23 @@ sub posting_guidelines_entry {
             return 1;
         }
         my $ditemid;
-        if ( $args =~ m!/(\d+)\.html! ) {
-            $ditemid = $1;
+
+        # Journal routing reads a dated path as a slug even when the slug is all
+        # digits, so check it before the entry-ID patterns, which would otherwise
+        # take /YYYY/MM/DD/12345.html as entry 12345.
+        if ( $args =~ m!/\d{4}/\d\d/\d\d/[a-z0-9_-]+\.html(?:[?#]|$)! ) {
+            ( my $url = $args ) =~ s/[?#].*\z//s;
+            my $entry = LJ::Entry->new_from_url($url);
+            return 0 unless $entry && $entry->valid && $entry->journalid == $u->id;
+            $ditemid = $entry->ditemid;
+        }
+        elsif ( $args =~ m!^([^?#]*)/(\d+)\.html! ) {
+
+            # As with slugs above, a URL naming another journal is rejected,
+            # rather than read as this community's entry with that ID.
+            my $owner = LJ::User->new_from_url($1);
+            return 0 if $owner && $owner->id != $u->id;
+            $ditemid = $2;
         }
         elsif ( $args =~ m!^(\d+)$! ) {
             $ditemid = $1;

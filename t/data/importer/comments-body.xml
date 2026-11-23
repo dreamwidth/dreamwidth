@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<livejournal>
+<comments>
+<comment id="1" jitemid="1" parentid="0"><body>Top level</body><subject>one</subject><date>2009-03-07T01:00:00Z</date><property name="picture_keyword">smile</property></comment>
+<comment id="2" jitemid="1" parentid="1"><body>Screened reply</body><subject>two</subject><date>2009-03-07T02:00:00Z</date></comment>
+<comment id="3" jitemid="1" parentid="1"><body>Deleted reply</body><subject>three</subject><date>2009-03-07T03:00:00Z</date></comment>
+<comment id="4" jitemid="1" parentid="2"><body>A reply to the screened one</body><subject>four</subject><date>2009-03-07T04:00:00Z</date></comment>
+<comment id="5" jitemid="2" parentid="0"><body>Anonymous, with &lt;lj user="friend"&gt;</body><subject>five</subject><date>2009-03-07T05:00:00Z</date></comment>
+<comment id="6" jitemid="1" parentid="99"><body>Replies to nothing we have</body><subject>six</subject><date>2009-03-07T06:00:00Z</date></comment>
+<comment id="7" jitemid="77" parentid="0"><body>On an entry that is not imported</body><subject>seven</subject><date>2009-03-07T07:00:00Z</date></comment>
+<comment id="8" jitemid="6" parentid="0"><body>On the crossposted entry</body><subject>eight</subject><date>2009-03-07T08:00:00Z</date></comment>
+</comments>
+</livejournal>

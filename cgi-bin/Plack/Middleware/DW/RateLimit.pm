@@ -25,6 +25,10 @@ use parent qw/ Plack::Middleware /;
 
 use DW::RateLimit;
 
+# Paths routed to the XML-RPC and flat protocol handlers (any extension
+# routes there too).
+my $PROTOCOL_PATH = qr!^/interface/(?:xmlrpc|flat)(?:\.[a-z]+)?$!;
+
 sub call {
     my ( $self, $env ) = @_;
 
@@ -42,14 +46,16 @@ sub call {
         return $self->app->($env);
     }
 
+    # Protocol clients authenticate in the request body, so without a session
+    # cookie they look anonymous here. Defer them to the protocol, which charges
+    # them per user once authenticated (see DW::RateLimit). A coarser per-IP
+    # limit still applies up front, bounding the work an unauthenticated caller
+    # can cause before the protocol charges it.
+    return $self->_call_protocol( $env, $ip )
+        if !$remote && ( $env->{PATH_INFO} // '' ) =~ $PROTOCOL_PATH;
+
     # Get the appropriate rate limit based on whether user is logged in
-    my $limit;
-    if ($remote) {
-        $limit = DW::RateLimit->get( "authenticated_requests", rate => "100/60s" );
-    }
-    else {
-        $limit = DW::RateLimit->get( "anonymous_requests", rate => "30/60s" );
-    }
+    my $limit = DW::RateLimit->request_limit( $remote ? 1 : 0 );
 
     # Check if rate limit is exceeded
     if ($limit) {
@@ -60,26 +66,46 @@ sub call {
 
         $env->{'dw.stats.ratelimit'} = $result->{exceeded} ? 'blocked' : 'allowed';
 
-        if ( $result->{exceeded} ) {
-            my $retry_after = $result->{time_remaining};
-            my $body =
-                  "<h1>429 Too Many Requests</h1>"
-                . "<p>You have made too many requests. Please try again later.</p>";
-            $body .= "<p>Please wait $retry_after seconds before trying again.</p>"
-                if $retry_after;
-
-            return [
-                429,
-                [
-                    'Content-Type' => 'text/html',
-                    'Retry-After'  => $retry_after,
-                ],
-                [$body]
-            ];
-        }
+        return _blocked( $result->{time_remaining} ) if $result->{exceeded};
     }
 
     return $self->app->($env);
+}
+
+sub _call_protocol {
+    my ( $self, $env, $ip ) = @_;
+
+    my $limit = DW::RateLimit->get( "protocol_requests", rate => "300/60s" );
+    if ($limit) {
+        my $result = $limit->check( ip => $ip );
+        if ( $result->{exceeded} ) {
+            $env->{'dw.stats.ratelimit'} = 'blocked';
+            return _blocked( $result->{time_remaining} );
+        }
+    }
+
+    my $state = DW::RateLimit->defer_protocol_request($ip);
+    my $res   = $self->app->($env);
+
+    # A request that failed before authenticating (or never reached the
+    # protocol) is charged as anonymous now. It has already run, but it did
+    # little work, and the caller still sees the 429.
+    my $retry_after = DW::RateLimit->charge_protocol_request( state => $state );
+
+    $env->{'dw.stats.ratelimit'} = $retry_after ? 'blocked' : 'allowed';
+    return $retry_after ? _blocked($retry_after) : $res;
+}
+
+sub _blocked {
+    my ($retry_after) = @_;
+    return [
+        429,
+        [
+            'Content-Type' => 'text/html',
+            'Retry-After'  => $retry_after,
+        ],
+        [ DW::RateLimit->blocked_body($retry_after) ]
+    ];
 }
 
 1;

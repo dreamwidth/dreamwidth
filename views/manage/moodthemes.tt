@@ -1,0 +1,177 @@
+[%# manage/moodthemes.tt
+  #
+  # Manage custom mood themes: create a theme, pick one as the journal
+  # default, delete one, or edit the image URL and size of every mood in a
+  # theme. The editor's previews and inherit toggles are driven by
+  # js/moodtheme-editor.js.
+  #
+  # Authors:
+  #     Mark Smith <mark@dreamwidth.org>
+  #
+  # Copyright (c) 2026 by Dreamwidth Studios, LLC.
+  #
+  # This program is free software; you may redistribute it and/or modify it under
+  # the same terms as Perl itself.  For a copy of the license, please reference
+  # 'perldoc perlartistic' or 'perldoc perlgpl'.
+  #
+%]
+[%- sections.title = '.title' | ml -%]
+[%- CALL dw.active_resource_group( "foundation" ) -%]
+
+[%- IF mode == 'edit' -%]
+
+[% dw.need_res( { group => "foundation" }, 'js/moodtheme-editor.js' ) %]
+
+[%# recursive: one <ul> level of the mood tree %]
+[%- BLOCK mood_list %]
+<ul class='mood-list'>
+  [%- FOREACH mood IN moods %]
+  <li>
+    <strong>[% mood.name %]</strong>
+    [% IF mood.has_pic %]<img id="[% mood.id %]img" src="[% mood.pic | html %]" width="[% mood.w %]" height="[% mood.h %]" alt="" />[% END %]
+    [% IF mood.parent %]
+    <div class='row collapse'>
+      <div class='columns small-12'>
+        [% form.checkbox( name => "${mood.id}inherit", id => "${mood.id}inherit",
+                          selected => mood.inherited,
+                          label => dw.ml( '.mood.label.inherit', { mood => mood.parent_name } ),
+                          onclick => "enable(${mood.id}, ${mood.parent})" ) %]
+      </div>
+    </div>
+    [% END %]
+    <div class='row collapse'>
+      <div class='columns small-3 medium-1'><label class='inline' for='[% mood.id %]'>[% '.mood.label.url' | ml %]</label></div>
+      <div class='columns small-9 medium-7 end'>
+        [% form.textbox( name => mood.id, id => mood.id, value => mood.pic,
+                         size => 75, onchange => "update_children(${mood.id})" ) %]
+      </div>
+    </div>
+    <div class='row collapse'>
+      <div class='columns small-3 medium-1'><label class='inline' for='[% mood.id %]w'>[% '.mood.label.width' | ml %]</label></div>
+      <div class='columns small-2 medium-1'>[% form.textbox( name => "${mood.id}w", id => "${mood.id}w", value => mood.w, size => 4 ) %]</div>
+      <div class='columns small-3 medium-1'><label class='inline' for='[% mood.id %]h'>[% '.mood.label.height' | ml %]</label></div>
+      <div class='columns small-2 medium-1 end'>[% form.textbox( name => "${mood.id}h", id => "${mood.id}h", value => mood.h, size => 4 ) %]</div>
+    </div>
+    [% form.hidden( name => "${mood.id}parent", id => "${mood.id}parent", value => mood.parent ) %]
+    [% form.hidden( name => "${mood.id}oldinh", id => "${mood.id}oldinh", value => mood.inherited ) %]
+    [% INCLUDE mood_list moods = mood.children IF mood.children.size %]
+  </li>
+  [%- END %]
+</ul>
+[%- END %]
+
+<h2>[% dw.ml( '.editingtheme.header', { name => theme_name_html } ) %]</h2>
+
+<form action='[% self_uri %]' method='post' id='editform' name='editform'>
+[% dw.form_auth %]
+[% form.hidden( name => 'themeid', value => themeid ) %]
+<div class='row collapse'>
+  <div class='columns small-4 medium-2'><label class='inline' for='name'>[% '.editingtheme.label.name' | ml %]</label></div>
+  <div class='columns small-8 medium-6 end'>[% form.textbox( name => 'name', id => 'name', value => theme_name, size => 50, maxlength => 255 ) %]</div>
+</div>
+
+[% INCLUDE mood_list moods = mood_tree %]
+
+[% form.submit( name => 'save', value => dw.ml( '.btn.savechanges' ), class => 'button' ) %]
+</form>
+
+<p><a href='[% self_uri %]'>&laquo; [% '.back2' | ml %]</a></p>
+
+[%- ELSIF mode == 'saved' -%]
+
+<p>
+[%- FOREACH line IN results %]
+[% line %]<br />
+[%- END %]
+</p>
+
+[% IF warnings.size %]
+<p>[% '.partiallysaved' | ml %]</p>
+<p>
+  [%- FOREACH line IN warnings %]
+[% line %]<br />
+  [%- END %]
+</p>
+[% ELSE %]
+<p>[% '.saved' | ml %]</p>
+[% END %]
+
+<p><a href='[% self_uri %]'>&laquo; [% '.back2' | ml %]</a></p>
+
+[%- ELSE -%]
+
+[%# user switcher (own journal or a community you maintain) %]
+[%- authas_form -%]
+
+[% IF !can_create %]
+
+  [% IF upsell_html %]
+[% upsell_html %]
+  [% ELSE %]
+<p>[% '.error.cantcreatethemes' | ml %]</p>
+  [% END %]
+
+[% ELSE %]
+
+<h2>[% '.createtheme.header' | ml %]</h2>
+
+<form action='[% self_uri %]' method='post'>
+[% dw.form_auth %]
+[% form.hidden( name => 'isnew', value => 1 ) %]
+<div class='row collapse'>
+  <div class='columns small-4 medium-2'><label class='inline' for='name'>[% '.createtheme.label.name' | ml %]</label></div>
+  <div class='columns small-5 medium-4'>[% form.textbox( name => 'name', id => 'name', size => 30, maxlength => 50 ) %]</div>
+  <div class='columns small-3 medium-2 end'>[% form.submit( name => 'create', value => dw.ml( '.btn.create' ), class => 'button' ) %]</div>
+</div>
+</form>
+
+<h2>[% '.yourthemes.header' | ml %]</h2>
+
+  [% IF themes.size %]
+<form action='[% self_uri %]' method='post'>
+[% dw.form_auth %]
+[% form.hidden( name => 'edit', value => 1 ) %]
+[% form.hidden( name => 'themeids', value => themeids ) %]
+<table summary=''>
+<thead><tr>
+  <th></th>
+  <th>[% '.yourthemes.example.happy' | ml %]</th>
+  <th>[% '.yourthemes.example.sad' | ml %]</th>
+  <th>[% '.yourthemes.example.angry' | ml %]</th>
+  <th></th>
+</tr></thead>
+    [%- FOREACH theme IN themes %]
+<tr>
+  <td>
+      [%- IF theme.current %]<strong><a href='[% site.root %]/moodlist?moodtheme=[% theme.id %]&amp;ownerid=[% u.userid %]'>[% theme.name | html %]</a></strong>
+      [%- ELSE %]<a href='[% site.root %]/moodlist?moodtheme=[% theme.id %]&amp;ownerid=[% u.userid %]'>[% theme.name | html %]</a>
+      [%- END %]
+  </td>
+      [%- FOREACH pic IN theme.pics %]
+  <td>
+        [%- IF pic %]<img src="[% pic.pic | html %]" width='[% pic.w %]' height='[% pic.h %]' alt="" />
+        [%- ELSE %]<i>[% '.yourthemes.example.none' | ml %]</i>
+        [%- END %]
+  </td>
+      [%- END %]
+  <td>
+    [% form.submit( name => "edit:${theme.id}", value => dw.ml( '.btn.edit' ), class => 'small secondary button' ) %]
+    [% form.submit( name => "use:${theme.id}", value => dw.ml( '.btn.use' ), class => 'small button', disabled => theme.current ) %]
+    [% form.submit( name => "delete:${theme.id}", value => dw.ml( '.btn.delete' ), class => 'small alert button',
+                    onclick => "return confirm('${delete_confirm}');" ) %]
+  </td>
+</tr>
+    [%- END %]
+</table>
+</form>
+  [% ELSE %]
+<p>[% '.yourthemes.nothemes' | ml %]</p>
+  [% END %]
+
+[% END %]
+
+[% UNLESS upsell_html %]
+<p>[% '.usepublictheme2' | ml( aopts => "href='" _ site.root _ "/customize/options?group=display'" ) %]</p>
+[% END %]
+
+[%- END -%]

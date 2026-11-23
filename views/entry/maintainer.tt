@@ -1,0 +1,71 @@
+[%# Community maintainer entry-management surface. It reproduces the legacy
+    entry-editor layout, but the subject, body and editor chrome are inert
+    (disabled or non-functional) so a maintainer can only change the override
+    props or delete the entry, never edit the subject or body. The disabled
+    subject/body controls carry the raw text and are not submitted, so
+    moderating spam does not load the entry's images or embeds. %]
+[%- sections.title = '/entry/form.tt.title.edit' | ml -%]
+[%- delete_confirm = "entryform.delete.confirm" | ml | js -%]
+[%- deletespam_confirm = "entryform.deletespam.confirm" | ml | js -%]
+<table summary=''><tr><td>
+<div style='width: 100%; float: left;'>
+<form method='post' action='[% action | html %]' id='updateForm' name='updateForm' class='entry-maintainer-form'>[% dw.form_auth() %]
+<div id='entry-form-wrapper'>
+
+<div id='userpic'><p id='userpic_preview' class='userpic_preview_border'><a href='[% site.root %]/manage/icons'>[% 'entryform.userpic.upload' | ml %]</a></p></div>
+
+<div id='metainfo'>
+    <p class='pkg'><label class='left'>[% '.poster' | ml %]</label>
+        <span id='poster' class='float-left'>[% entry.poster.ljuser_display %] [% '.incommunity' | ml %] [% journal.ljuser_display %]</span></p>
+    <p class='pkg'><label class='left'>[% 'entryform.date' | ml %]</label>
+        <span id='currentdate' class='float-left' style='display: inline;'>[% eventtime | html %]</span></p>
+</div><!-- end #metainfo -->
+
+<div id='infobox'>[% infobox %]</div><!-- end #infobox -->
+
+<div id='compose-entry' class='pkg'>
+    <label class='left' for='subject'>[% 'entryform.subject' | ml %]</label>
+    <input type='text' class='text' id='subject' size='43' maxlength='100' disabled='disabled' value='[% entry.subject_raw | html %]' />
+</div><!-- end #entry -->
+
+[%# The read-only body keeps the bordered box, but without the editor's
+    toolbar above it that box needs its own top edge. %]
+<div id='draft-container' class='pkg' style='border-top: 1px solid #ccc;'>
+    <textarea id='draft' rows='20' cols='50' wrap='soft' disabled='disabled'>[% entry.event_raw | html %]</textarea>
+</div><!-- end #draft-container -->
+
+<div id='options'>
+    <p class='pkg'><em>[% 'entryform.maintainer' | ml %]</em></p>
+    [% IF adult_content_enabled %]
+    <p class='pkg'>
+        <label for='prop_adult_content_maintainer' class='left options'>[% 'entryform.adultcontent.maintainer' | ml %]</label>
+        <select name='prop_adult_content_maintainer' id='prop_adult_content_maintainer' class='select'>
+            <option value=''>[% dw.ml('entryform.adultcontent.poster', setting=dw.ml('entryform.adultcontent.' _ (props.adult_content || 'default'))) %]</option>
+            <option value="none"[% ' selected' IF props.adult_content_maintainer == 'none' %]>[% 'entryform.adultcontent.none' | ml %]</option>
+            <option value="concepts"[% ' selected' IF props.adult_content_maintainer == 'concepts' %]>[% 'entryform.adultcontent.concepts' | ml %]</option>
+            <option value="explicit"[% ' selected' IF props.adult_content_maintainer == 'explicit' %]>[% 'entryform.adultcontent.explicit' | ml %]</option>
+        </select>
+    </p>
+    <p class='pkg'>
+        <label for='prop_adult_content_maintainer_reason' class='left options'>[% 'entryform.adultcontentreason.maintainer' | ml %]</label>
+        <input type='text' class='text' name='prop_adult_content_maintainer_reason' id='prop_adult_content_maintainer_reason' size='35' maxlength='255' value='[% props.adult_content_maintainer_reason | html %]' />
+    </p>
+    [% END %]
+    [% UNLESS props.opt_nocomments %]
+    <p class='pkg'>
+        <label for='prop_opt_nocomments_maintainer' class='left options'>[% 'entryform.comment.disable' | ml %]</label>
+        [% form.checkbox(name='prop_opt_nocomments_maintainer', id='prop_opt_nocomments_maintainer', class='check', value='1', selected=props.opt_nocomments_maintainer) %]
+    </p>
+    [% END %]
+</div><!-- end #options -->
+
+<div id='submitbar' class='pkg'>
+    [% form.submit(name='action:savemaintainer', value=dw.ml('entryform.save.maintainer')) %]&nbsp;
+    [% form.submit(name='action:delete', id='js-manager-delete-button', value=dw.ml('entryform.delete'), onclick="return confirm(" _ delete_confirm _ ")") %]&nbsp;
+    [% form.submit(name='action:deletespam', id='js-manager-deletespam-button', value=dw.ml('entryform.deletespam'), onclick="return confirm(" _ deletespam_confirm _ ")") %]
+</div><!-- end #submitbar -->
+
+</div><!-- end #entry-form-wrapper -->
+</form>
+</div>
+</td></tr></table>

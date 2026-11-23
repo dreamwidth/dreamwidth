@@ -605,15 +605,12 @@ OBJ.extend( DOM, {
     /* this and the following classname functions honor w3c case-sensitive classnames */
 
     getClassNames: function( e ) {
-        if( !e || !e.className )
-            return [];
-        return e.className.split( /\s+/g );
+        var className = e && e.getAttribute && e.getAttribute( "class" );
+        return className ? className.split( /\s+/g ) : [];
     },
 
 
     hasClassName: function( e, className ) {
-        if( !e || !e.className )
-            return false;
         var cs = DOM.getClassNames( e );
         for( var i = 0; i < cs.length; i++ ) {
             if( cs[ i ] == className )
@@ -624,7 +621,7 @@ OBJ.extend( DOM, {
 
 
     addClassName: function( e, className ) {
-        if( !e || !className )
+        if( !e || !e.setAttribute || !className )
             return false;
         var cs = DOM.getClassNames( e );
         for( var i = 0; i < cs.length; i++ ) {
@@ -632,18 +629,16 @@ OBJ.extend( DOM, {
                 return true;
         }
         cs.push( className );
-        e.className = cs.join( " " );
+        e.setAttribute( "class", cs.join( " " ) );
         return false;
     },
 
 
     removeClassName: function( e, className ) {
         var r = false;
-        if( !e || !e.className || !className )
+        if( !e || !e.setAttribute || !className )
             return r;
-        var cs = (e.className && e.className.length)
-            ? e.className.split( /\s+/g )
-            : [];
+        var cs = DOM.getClassNames( e );
         var ncs = [];
         for( var i = 0; i < cs.length; i++ ) {
             if( cs[ i ] == className ) {
@@ -653,7 +648,7 @@ OBJ.extend( DOM, {
             ncs.push( cs[ i ] );
         }
         if( r )
-            e.className = ncs.join( " " );
+            e.setAttribute( "class", ncs.join( " " ) );
         return r;
     },
     
