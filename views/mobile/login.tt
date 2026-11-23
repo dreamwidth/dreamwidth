@@ -20,6 +20,7 @@ form { margin-left: 2em; }
 .error { color: #c00; }
 </style>
 <title>[% '.page.title' | ml %]</title>
+[%# The standalone mobile page bypasses the site scheme's resource includes. %]
 <link rel="stylesheet" href="[% site.statroot | html %]/css/components/password-visibility.css" />
 <script defer src="[% site.jsroot | html %]/components/password-visibility.js"></script>
 </head>

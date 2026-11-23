@@ -38,7 +38,31 @@ sub tags {
 
 test_psgi $app, sub {
     my $client = shift;
-    for my $case ( [ '/login', 'password' ], [ '/changepassword', qw(password newpass1 newpass2) ] )
+    subtest 'standalone header login modal' => sub {
+        my $response = $client->( GET 'http://localhost/site/opensource' );
+        is( $response->code, 200, 'page loads' );
+        my $html      = $response->content;
+        my ($head)    = $html =~ m{<head\b[^>]*>(.*?)</head>}is;
+        my @passwords = grep { ( $_->{type} // '' ) eq 'password' } tags( $html, 'input' );
+        is_deeply( [ map { $_->{id} } @passwords ],
+            ['nav_login_password'], 'the header modal supplies the only password field' );
+        ok(
+            scalar grep( { ( $_->{href} // '' ) =~ m{css/components/password-visibility\.css\b} }
+                tags( $head // '', 'link' ) ),
+            'password visibility stylesheet is included in the head'
+        );
+        ok(
+            scalar grep( { ( $_->{src} // '' ) =~ m{components/password-visibility\.js\b} }
+                tags( $html, 'script' ) ),
+            'password visibility script is included in the page'
+        );
+    };
+
+    for my $case (
+        [ '/login',          'password' ],
+        [ '/changepassword', qw(password newpass1 newpass2) ],
+        [ '/mobile/login',   'password' ]
+        )
     {
         my ( $path, @names ) = @$case;
         subtest $path => sub {
@@ -76,6 +100,19 @@ test_psgi $app, sub {
                     tags( $html, 'link' ) ),
                 'password visibility stylesheet is included'
             );
+
+            if ( $path eq '/login' ) {
+                my @checkboxes = grep     { ( $_->{name} // '' ) eq 'remember_me' } @inputs;
+                my @ids        = sort map { $_->{id} // '' } @checkboxes;
+                is_deeply(
+                    \@ids,
+                    [qw(login_remember_me nav_login_remember_me)],
+                    'the page and header remember-me checkboxes have distinct IDs'
+                );
+                my @labels = sort grep { /\A(?:nav_)?login_remember_me\z/ }
+                    map { $_->{for} // '' } tags( $html, 'label' );
+                is_deeply( \@labels, \@ids, 'each remember-me checkbox has its own label' );
+            }
         };
     }
 };
