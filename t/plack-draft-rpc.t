@@ -64,7 +64,7 @@ test_psgi $app, sub {
         LJ::start_request();
     };
 
-    $save->( saveSubject => 'New subject', saveEditor => 'rte1' );
+    $save->( draftv => 2, saveSubject => 'New subject', saveEditor => 'rte1' );
     is( stored_editor(), 'rte0', 'saving fields without a body leaves the body\'s format alone' );
 
     $save->(
@@ -75,8 +75,15 @@ test_psgi $app, sub {
     is( stored_editor(), 'rte1', 'saving a body with its format stores the new format' );
     is( LJ::load_user( $u->user )->draft_text, 'converted draft text', '...and the body' );
 
-    $save->( saveSubject => 'Later subject', saveEditor => 'markdown0' );
+    $save->( draftv => 2, saveSubject => 'Later subject', saveEditor => 'markdown0' );
     is( stored_editor(), 'rte1', 'a later fields-only save still leaves it alone' );
+
+    # A page opened before that change sends the format on its own, and the body
+    # in a separate request; it gets the behavior it was written for.
+    $save->( saveSubject => 'Legacy subject', saveEditor => 'markdown0' );
+    is( stored_editor(), 'markdown0', 'an older page\'s fields-only save still sets the format' );
+    $save->( saveDraft => 'legacy body' );
+    is( stored_editor(), 'markdown0', '...and its body-only save leaves it' );
 
     # Casual HTML -> explicit HTML is done by the server, with the cleaner's rules.
     my $convert = sub {
@@ -103,6 +110,19 @@ test_psgi $app, sub {
     unlike( $convert->( 1, text => "a\nb", from => 'html_raw0' )->{text} // '',
         qr/./, 'only casual formats are converted' );
     ok( $convert->( 1, text => "a\nb", from => 'html_raw0' )->{alert}, '...others are refused' );
+    my $res = sub {
+        my ( $login, @form ) = @_;
+        my $req = POST '/__rpc_entry_convert', [@form];
+        $req->header( Cookie => $cookie ) if $login;
+        return $send->($req);
+    };
+    is( $res->( 1, text => 'x' x ( LJ::CMAX_EVENT + 1 ), from => 'html_casual1' )->code,
+        413, 'text longer than an entry can be is refused' );
+    my $big = $res->( 1, text => 'x' x ( 3 * LJ::BMAX_EVENT + 2000 ), from => 'html_casual1' );
+    is( $big->code, 413, 'a request body larger than any entry could produce is refused' );
+    unlike( $big->content, qr/"text"/, '...without converting any of it' );
+    is( $res->( 1, text => 'x' x LJ::CMAX_EVENT, from => 'html_casual1' )->code,
+        200, 'text at the entry limit is accepted' );
     ok( !defined $convert->( 0, text => "a\nb", from => 'html_casual1' )->{text},
         'a visitor who is not logged in gets nothing' );
 };

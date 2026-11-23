@@ -87,6 +87,9 @@ LJDraft.handleChange = function (evt) {
 // whole set whenever it gets any of them, so they are always sent together.
 LJDraft.propertyPayload = function () {
     let props = {
+        // Tells the server this page sends the format with its body; older
+        // pages sent them separately (see draft_rpc_handler).
+        draftv: 2,
         saveEditor: $("#editor").val(),
         saveSubject: $("#id-subject-0").val(),
         saveTaglist: $("#js-taglist").val(),

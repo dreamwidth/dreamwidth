@@ -2036,20 +2036,31 @@ sub convert_rpc_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
-    my $r    = DW::Request->get;
+    my $r = DW::Request->get;
+
+    my $reject = sub {
+        my ( $status, $msg ) = @_;
+        $r->status($status);
+        $r->print( to_json( { alert => $msg } ) );
+        return $r->OK;
+    };
+
+    # Refuse an oversized request before reading (and decoding) any of it. An
+    # entry can't be longer than LJ::BMAX_EVENT bytes, and form-encoding at worst
+    # triples that, so nothing legitimate is bigger than this.
+    my $max_body = 3 * LJ::BMAX_EVENT + 1024;
+    return $reject->( 413, 'Text too long.' )
+        if ( $r->header_in('Content-Length') // 0 ) > $max_body;
+
     my $POST = $r->post_args;
     my $from = $POST->{from} // '';
     my $text = $POST->{text} // '';
 
-    unless ( $rv->{remote} && $from =~ /^(?:html_casual0|html_casual1|rte0)$/ ) {
-        $r->print( to_json( { alert => 'Unsupported conversion.' } ) );
-        return $r->OK;
-    }
+    return $reject->( 400, 'Unsupported conversion.' )
+        unless $rv->{remote} && $from =~ /^(?:html_casual0|html_casual1|rte0)$/;
 
-    if ( length $text > 2_000_000 ) {
-        $r->print( to_json( { alert => 'Text too long.' } ) );
-        return $r->OK;
-    }
+    # ...and the decoded text is held to the entry's own limit.
+    return $reject->( 413, 'Text too long.' ) if length $text > LJ::CMAX_EVENT;
 
     $r->print( to_json( { text => LJ::CleanHTML::casual_to_explicit( $text, $from ) } ) );
     return $r->OK;
@@ -2136,10 +2147,12 @@ sub draft_rpc_handler {
             }
         }
 
-        # The editor names the format the stored draft body is written in, so it
-        # only changes when a body is saved in the same request. A save of other
-        # fields alone leaves it as it was.
-        unless ( defined $POST->{saveDraft} ) {
+        # The editor names the format the stored draft body is written in. The
+        # current form (draftv=2) always sends it together with the body it
+        # belongs to, so a request without a body must not change it. Pages
+        # opened before that change send the format and the body in separate
+        # requests; they get the old behavior, where it is simply applied.
+        if ( ( $POST->{draftv} // 0 ) >= 2 && !defined $POST->{saveDraft} ) {
             my $stored = $u->prop('draft_properties');
             my $old    = $stored ? eval { Storable::thaw($stored) } : undef;
             if ( ref $old eq 'HASH' && defined $old->{editor} ) {
