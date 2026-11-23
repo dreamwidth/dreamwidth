@@ -111,6 +111,29 @@ test_psgi $app, sub {
             qr/\bmode=simple\b/, 'the success page edits the entry in simple mode too' );
     };
 
+    subtest 'a rejected simple-mode post stays in simple mode with its text' => sub {
+        my $before = latest_entry($owner);
+        my $res    = $request->( GET '/entry/new?mode=simple' );
+        my $form   = simple_form( $res->content, 'http://localhost/entry/new?mode=simple' );
+        ok( $form, 'the simple form renders' ) or return;
+
+        $form->value( subject        => 'Rejected subject' );
+        $form->value( event          => 'Rejected body' );
+        $form->value( trust_datetime => 1 );
+        $form->value( entrytime_date => '2026-13-45' );
+        $res = $request->( $form->click('action:post') );
+
+        my $again = simple_form( $res->content, 'http://localhost/entry/new?mode=simple' );
+        ok( $again, 'the response is the simple form again' ) or return;
+        is( $again->value('subject'), 'Rejected subject', 'with the submitted subject' );
+        is( $again->value('event'),   'Rejected body',    'and the submitted body' );
+        is(
+            latest_entry($owner) && latest_entry($owner)->jitemid,
+            $before && $before->jitemid,
+            'and no entry was created'
+        );
+    };
+
     subtest 'an old edit link opens simple mode, which saves and deletes the entry' => sub {
         plan skip_all => 'no entry to edit' unless $entry;
 
@@ -124,6 +147,9 @@ test_psgi $app, sub {
         );
         is( { $location->query_form }->{mode}, 'simple', 'in its simple layout' );
 
+        # The simple layout has no slug field; saving must not clear it.
+        $entry->slug('simple-slug');
+
         $res = $request->( GET $location->path_query );
         my $form = simple_form( $res->content, "http://localhost" . $location->path_query );
         ok( $form, 'the simple edit form renders' ) or return;
@@ -135,6 +161,7 @@ test_psgi $app, sub {
         my $edited = latest_entry($owner);
         is( $edited->subject_raw, 'Simple subject, edited', 'the edited subject is stored' );
         is( $edited->event_raw,   'Simple mode body',       'the body is unchanged' );
+        is( $edited->slug,        'simple-slug',            'the custom URL is kept' );
 
         $res  = $request->( GET $location->path_query );
         $form = simple_form( $res->content, "http://localhost" . $location->path_query );

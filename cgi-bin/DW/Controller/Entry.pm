@@ -427,8 +427,13 @@ sub legacy_text_recovery {
             subject_text => $post->{subject} // '',
             body_text    => $post->{event}   // '',
             body_missing => !exists $post->{event},
-            link_url     => $opts{link_url}
-                || LJ::create_url( '/entry/new', args => { mode => 'simple' } ),
+            link_url => $opts{link_url} || LJ::create_url(
+                '/entry/new',
+                args => {
+                    %{ LJ::viewing_style_opts( %{ DW::Request->get->get_args } ) },
+                    mode => 'simple'
+                }
+            ),
         }
     );
 }

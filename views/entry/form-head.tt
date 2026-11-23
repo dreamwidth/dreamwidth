@@ -55,6 +55,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
     # old drafts functionality
     "js/pages/entry/drafts.js"
 
+    # switching between the advanced and simple layouts
+    "js/pages/entry/layout-switch.js"
+
 ) -%]
 
 [% sections.head = BLOCK %]

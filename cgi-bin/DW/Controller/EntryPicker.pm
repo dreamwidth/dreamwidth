@@ -66,8 +66,10 @@ sub entry_picker_handler {
         require DW::Controller::Entry;
         my $link_url =
             length $username
-            ? LJ::create_url( "/entry/$username/$ditemid/edit", args => { mode => 'simple' } )
-            : LJ::create_url( '/entry/new',                     args => { mode => 'simple' } );
+            ? "/entry/$username/$ditemid/edit"
+            : '/entry/new';
+        $link_url = LJ::create_url( $link_url,
+            args => { %{ LJ::viewing_style_opts(%$get) }, mode => 'simple' } );
         return DW::Controller::Entry::legacy_text_recovery( $post, link_url => $link_url );
     }
 

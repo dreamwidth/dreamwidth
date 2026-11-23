@@ -713,6 +713,8 @@ entryform.simple.richtext=Rich Text
 
 entryform.simple.switch=Simple editor
 
+entryform.simple.switch.confirm=Switching editors reloads this page and loses changes you haven't posted. Switch anyway?
+
 entryform.simple.title=Post an Entry
 
 entryform.spellchecked=Spell-checked entry:

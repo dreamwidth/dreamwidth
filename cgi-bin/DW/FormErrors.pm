@@ -181,15 +181,15 @@ sub _absolute_ml_code {
 
 =head2 C<< $self->set_ml_scope( $scope ) >>
 
-Sets the scope used to resolve relative ml codes, unless one is already set.
-The site scheme renders these errors after the page template's scope has
-been restored, so the page template pins its own scope here.
+Sets the scope used to resolve relative ml codes. The site scheme renders
+these errors after the page template's scope has been restored, so the page
+render pins its own scope here.
 
 =cut
 
 sub set_ml_scope {
     my ( $self, $scope ) = @_;
-    $self->{_ml_scope} //= $scope;
+    $self->{_ml_scope} = $scope;
 }
 
 =head2 C<< $self->exist >>

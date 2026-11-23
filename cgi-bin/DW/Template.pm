@@ -124,8 +124,6 @@ sub template_string {
     my $scope              = $extra->{ml_scope} || "/$filename";
     $r->note( ml_scope => $scope );
     LJ::Lang::set_request_scope($scope);
-    $opts->{errors}->set_ml_scope($scope)
-        if blessed $opts->{errors} && $opts->{errors}->isa('DW::FormErrors');
 
     my $out;
     my $ok = eval {
@@ -213,6 +211,14 @@ sub render_cached_template {
     return $class->render_string( $out, $extra );
 }
 
+# The site scheme shows a page's form errors after the page's ml scope is
+# restored, so resolve their relative keys against the page that renders them.
+sub _pin_error_scope {
+    my ( $filename, $opts, $extra ) = @_;
+    $opts->{errors}->set_ml_scope( ( $extra && $extra->{ml_scope} ) || "/$filename" )
+        if blessed $opts->{errors} && $opts->{errors}->isa('DW::FormErrors');
+}
+
 =head2 C<< $class->render_template( $filename, $opts, $extra ) >>
 
 Render a template inside the sitescheme or alone.
@@ -233,6 +239,8 @@ sub render_template {
     my ( $class, $filename, $opts, $extra ) = @_;
 
     $extra ||= {};
+    _pin_error_scope( $filename, $opts, $extra );
+
     my $out = $class->template_string( $filename, $opts, $extra );
 
     return $class->render_string( $out, $extra );
@@ -271,6 +279,7 @@ sub render_template_misc {
     my ( $class, $filename, $opts, $extra ) = @_;
 
     $extra ||= {};
+    _pin_error_scope( $filename, $opts, $extra );
     my $out = $class->template_string( $filename, $opts, $extra );
 
     my $rv = $class->render_string( $out, $extra );
