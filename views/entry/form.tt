@@ -57,7 +57,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                     <span class="fi-icon fi-photo" aria-hidden="true"></span> [% dw.ml('.image.open') %]
                 </a>
 
-                <a class="simple-mode-switch js-layout-switch" data-confirm="[% 'entryform.simple.switch.confirm' | ml | html %]" href="[% dw.create_url( undef, keep_args => 1, args => { mode => 'simple' } ) | html %]">[% 'entryform.simple.switch' | ml %]</a>
+                <a class="simple-mode-switch js-layout-switch"[% IF remote %] data-layout="simple"[% END %] data-confirm="[% 'entryform.simple.switch.confirm' | ml | html %]" href="[% dw.create_url( undef, keep_args => 1, args => { mode => 'simple' } ) | html %]">[% 'entryform.simple.switch' | ml %]</a>
 
                 <span id="js-entry-settings">
                 [%- INCLUDE "components/icon-link-decorative.tt"
