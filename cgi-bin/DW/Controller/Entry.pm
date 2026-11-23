@@ -107,6 +107,12 @@ DW::Routing->register_string(
 );
 
 DW::Routing->register_string( '/__rpc_draft', \&draft_rpc_handler, app => 1, format => 'json' );
+DW::Routing->register_string(
+    '/__rpc_entry_convert', \&convert_rpc_handler,
+    app     => 1,
+    format  => 'json',
+    methods => { POST => 1 }
+);
 
 # Old-editor tabs left open across the cutover still autosave here.
 DW::Routing->register_string(
@@ -2022,6 +2028,33 @@ sub _options {
     return $vars;
 }
 
+# Turn casual-HTML text into the explicit HTML the rich editor needs, using the
+# cleaner's own rules (LJ::CleanHTML::casual_to_explicit) so the editor has no
+# conversion logic of its own to get wrong. It changes nothing: text in, text
+# out, for a logged-in user.
+sub convert_rpc_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r    = DW::Request->get;
+    my $POST = $r->post_args;
+    my $from = $POST->{from} // '';
+    my $text = $POST->{text} // '';
+
+    unless ( $rv->{remote} && $from =~ /^(?:html_casual0|html_casual1|rte0)$/ ) {
+        $r->print( to_json( { alert => 'Unsupported conversion.' } ) );
+        return $r->OK;
+    }
+
+    if ( length $text > 2_000_000 ) {
+        $r->print( to_json( { alert => 'Text too long.' } ) );
+        return $r->OK;
+    }
+
+    $r->print( to_json( { text => LJ::CleanHTML::casual_to_explicit( $text, $from ) } ) );
+    return $r->OK;
+}
+
 sub draft_rpc_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
@@ -2100,6 +2133,20 @@ sub draft_rpc_handler {
                 || ( $properties{$key} =~ /^undefined$/ ) )
             {
                 delete $properties{$key};
+            }
+        }
+
+        # The editor names the format the stored draft body is written in, so it
+        # only changes when a body is saved in the same request. A save of other
+        # fields alone leaves it as it was.
+        unless ( defined $POST->{saveDraft} ) {
+            my $stored = $u->prop('draft_properties');
+            my $old    = $stored ? eval { Storable::thaw($stored) } : undef;
+            if ( ref $old eq 'HASH' && defined $old->{editor} ) {
+                $properties{editor} = $old->{editor};
+            }
+            else {
+                delete $properties{editor};
             }
         }
 

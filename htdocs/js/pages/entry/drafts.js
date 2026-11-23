@@ -137,6 +137,7 @@ LJDraft.saveBody = function () {
 };
 
 function initDraft(askToRestore) {
+    let persistConverted = false;
     if (askToRestore && restoredDraft) {
         if (confirm(confirmMsg)) {
           // If the user wants to restore the draft, we place the
@@ -150,6 +151,7 @@ function initDraft(askToRestore) {
               if (restoredRte0) {
                   $("#js-rte0-warning").removeClass('display_none');
                   $("#js-rte0-converted").val(1);
+                  persistConverted = true;
               }
               $("#editor").val(restoredEditor);
           }
@@ -200,6 +202,11 @@ function initDraft(askToRestore) {
    }
 
     bindDraftHandlersAfterInitialization();
+
+    // The stored draft is still the old editor's text under the old format.
+    // Store the converted text and its new format together, right away, so no
+    // later save can pair one with the other.
+    if (persistConverted) LJDraft.saveBody();
 }
 
 function bindDraftHandlersAfterInitialization() {

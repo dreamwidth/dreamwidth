@@ -44,9 +44,50 @@
             mount(lastFormat);
         }
 
+        // Casual HTML's line breaks, auto-links and @mentions are worked out by
+        // the server's cleaner, so the server does the conversion (one
+        // implementation, the cleaner's own rules). The rest of the change
+        // handling waits for it: otherwise autosave would store the unconverted
+        // text as rich text.
+        var CASUAL_SOURCE = { html_casual1: 1, html_casual0: 1 };
+
+        function convertThenMount(from) {
+            var textarea = document.getElementById(BODY_ID);
+            select.disabled = true;
+            textarea.readOnly = true;
+
+            function done() {
+                select.disabled = false;
+                textarea.readOnly = false;
+                var again = new Event('change', { bubbles: true });
+                again.dwConverted = true;
+                select.dispatchEvent(again);
+            }
+
+            fetch('/__rpc_entry_convert', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ text: textarea.value, from: from })
+            }).then(function (res) {
+                return res.ok ? res.json() : {};
+            }).then(function (data) {
+                if (typeof data.text == 'string') {
+                    textarea.value = data.text;
+                    mount('rte1');
+                } else {
+                    mount(from);   // the editor's own, simpler conversion
+                }
+            }).catch(function () {
+                mount(from);
+            }).then(done);
+        }
+
         // Capture phase, so this runs before the other change handlers on the
         // select and can veto the change.
         select.addEventListener('change', function (event) {
+            if (event.dwConverted) return;   // our own re-dispatch, see above
+
             var format = select.value;
             var prev = lastFormat;
             if (format == prev) return;
@@ -61,7 +102,10 @@
 
             lastFormat = format;
 
-            if (format == 'rte1' && !DWEditor.isActive(BODY_ID)) {
+            if (format == 'rte1' && CASUAL_SOURCE[prev] && !DWEditor.isActive(BODY_ID)) {
+                event.stopImmediatePropagation();
+                convertThenMount(prev);
+            } else if (format == 'rte1' && !DWEditor.isActive(BODY_ID)) {
                 mount(prev);
             } else if (format != 'rte1' && DWEditor.isActive(BODY_ID)) {
                 DWEditor.unmount(BODY_ID, { toFormat: format });
