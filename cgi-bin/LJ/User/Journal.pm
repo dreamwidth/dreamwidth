@@ -480,12 +480,26 @@ sub _editor_props {
         return $DW::Formats::default_format;
     }
 
-    if (  !DW::Formats::is_active($editor_default)
-        && DW::Formats::is_active( DW::Formats::upgrade($editor_default) ) )
+    my $comment = $propname eq 'comment_editor' ? 1 : 0;
+
+    if (  !DW::Formats::is_active( $editor_default, comment => $comment )
+        && DW::Formats::is_active( DW::Formats::upgrade($editor_default), comment => $comment ) )
     {
         # Silently upgrade to new version.
         $editor_default = DW::Formats::upgrade($editor_default);
         $u->set_prop( $propname => $editor_default );
+    }
+
+    # Preferences for a retired or unavailable format are interpreted, not
+    # rewritten: the stored value stays as it is. An entry preference for rte0
+    # means the rich text editor; comments have no rich text editor at all, so
+    # a rich preference there means the default format.
+    if ($comment) {
+        return $DW::Formats::default_format
+            unless DW::Formats::is_active( $editor_default, comment => 1 );
+    }
+    else {
+        $editor_default = DW::Formats::edit_format($editor_default);
     }
 
     return $editor_default;

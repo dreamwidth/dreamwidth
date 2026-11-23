@@ -510,7 +510,7 @@ sub talkpost_do_handler {
     # Figure out whether we should offer to update their default formatting.
     my $editor_new;
     if (   $real_remote
-        && DW::Formats::is_active( $comment->{editor} )
+        && DW::Formats::is_active( $comment->{editor}, comment => 1 )
         && $comment->{editor} ne $real_remote->comment_editor )
     {
         $editor_new = $comment->{editor};

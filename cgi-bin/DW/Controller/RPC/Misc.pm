@@ -288,14 +288,28 @@ sub general_handler {
     elsif ( $mode eq 'list_circle' ) {
         return DW::RPC->alert('Must be logged in.') unless $remote;
 
-        my %ids = map { $_ => 1 }
-            ( $remote->watched_userids, $remote->trusted_userids, $remote->member_of_userids );
-        my $uobjs = LJ::load_userids( keys %ids );
+        # Bounded: a circle can hold thousands of accounts, and this is loaded in
+        # full the first time someone types "@". Take people and communities
+        # first (trusted, then member-of, then watched) so that if the cap
+        # bites it's feeds and long-tail subscriptions that get left out.
+        my $max = 1000;
+        my ( %seen, @ids );
+        foreach my $id ( $remote->trusted_userids, $remote->member_of_userids,
+            $remote->watched_userids )
+        {
+            next if $seen{$id}++;
+            push @ids, $id;
+            last if @ids >= $max;
+        }
+        my $uobjs = LJ::load_userids(@ids);
 
         my @circle;
         foreach my $userid ( sort { $a <=> $b } keys %$uobjs ) {
             my $cu = $uobjs->{$userid};
             next unless $cu && $cu->is_visible;
+
+            # Feeds are watched, not mentioned.
+            next if $cu->is_syndicated;
             push @circle,
                 {
                 username    => $cu->user,
@@ -366,7 +380,7 @@ sub addcomment_handler {
     # figure out if they posted with a non-default editor
     my $editor      = DW::Formats::validate( $post->{prop_editor} );
     my %format_opts = ();
-    if ( DW::Formats::is_active($editor) && $editor ne $remote->comment_editor ) {
+    if ( DW::Formats::is_active( $editor, comment => 1 ) && $editor ne $remote->comment_editor ) {
         %format_opts = (
             extra => DW::Template->template_string(
                 'default_editor_form.tt',

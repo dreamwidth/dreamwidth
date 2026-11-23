@@ -1,5 +1,7 @@
 ;; -*- coding: utf-8 -*-
 
+.error.badformat=That formatting type isn't available for [[type]], so it can't be the default.
+
 .error.nopost=This page doesn't do anything on its own; you're only supposed to land here after submitting a form.
 
 .error.nouser=Can only set default editor for logged-in users.

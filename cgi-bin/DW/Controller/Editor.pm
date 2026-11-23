@@ -44,9 +44,14 @@ sub default_editor_helper {
 
     if ( $type eq 'comment' ) {
         $userprop = 'comment_editor';
+
+        # Comments have no rich text editor, so don't store a preference for one.
+        return $err->('badformat')
+            unless DW::Formats::is_active( $new_editor, comment => 1 );
     }
     elsif ( $type eq 'entry' ) {
         $userprop = 'entry_editor2';
+        return $err->('badformat') unless DW::Formats::is_active($new_editor);
     }
     else {
         return $err->('unknowntype');
