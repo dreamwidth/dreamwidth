@@ -24,6 +24,7 @@
         DWEditor.mount(BODY_ID, {
             circleUrl: conf.circleUrl,
             strings: conf.strings,
+            icons: conf.icons,
             onInput: window.LJDraft ? LJDraft.handleInput : null,
             materializeLinebreaks: !!LINEBREAK_FORMATS[prevFormat]
         });

@@ -23,6 +23,7 @@ import { mentionsPlugin } from "./mentions.js";
 import { buildInputRules } from "./inputrules.js";
 import { buildKeymap } from "./keymap.js";
 import { buildToolbar } from "./menu.js";
+import { trailingNode, appendTrailingParagraph } from "./trailingnode.js";
 
 const SYNC_DELAY = 400; // ms of typing quiet before syncing to the textarea
 
@@ -102,12 +103,17 @@ export function mount(id, opts) {
         plugins: [
             // Mentions first: its handleKeyDown must see Enter/Tab/arrows
             // before the keymaps do.
-            mentionsPlugin({ circleUrl: opts.circleUrl, strings: strings }),
+            mentionsPlugin({
+                circleUrl: opts.circleUrl,
+                strings: strings,
+                sites: opts.icons && opts.icons.sites ? Object.keys(opts.icons.sites) : [],
+            }),
             buildInputRules(schema),
             ...buildKeymap(schema, toolbar.commands),
             history(),
             dropCursor(),
             gapCursor(),
+            trailingNode(),
         ],
     });
 
@@ -128,7 +134,7 @@ export function mount(id, opts) {
 
     instance.view = new EditorView(wrapper, {
         state: state,
-        nodeViews: buildNodeViews(strings),
+        nodeViews: buildNodeViews({ strings: strings, icons: opts.icons }),
         dispatchTransaction(tr) {
             const view = instance.view;
             view.updateState(view.state.apply(tr));
@@ -144,6 +150,15 @@ export function mount(id, opts) {
         },
     });
     toolbar.update(instance.view);
+
+    // If the imported entry already ends in a cut (or other non-paragraph
+    // block), seed the trailing paragraph now -- the plugin above only runs on
+    // edits, so without this you'd be unable to click below it.
+    const seed = appendTrailingParagraph(instance.view.state);
+    if (seed) {
+        seed.setMeta("addToHistory", false);
+        instance.view.dispatch(seed);
+    }
 
     // Make sure the textarea is current before any submit (including the
     // preview button, which posts the same form).

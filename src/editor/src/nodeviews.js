@@ -67,14 +67,38 @@ export class CutView {
     }
 }
 
-// <user name=...>: an inline chip showing the username.
+// Pick the head icon for a user chip: the external site's badge if the link
+// points off-site, otherwise the local person/community/feed identity icon.
+function pickIcon(icons, attrs) {
+    if (!icons) return null;
+    if (attrs.site)
+        return (icons.sites && icons.sites[attrs.site.toLowerCase()]) || icons.fallback || null;
+    return (icons.local && (icons.local[attrs.ctype] || icons.local.P)) || null;
+}
+
+// <user name=...>: an inline chip showing the head icon plus the username,
+// mirroring how the rendered userhead looks.
 export class UserView {
-    constructor(node) {
+    constructor(node, icons) {
         this.dom = document.createElement("span");
         this.dom.className =
             "dw-editor-user" + (node.attrs.site ? " dw-editor-user-external" : "");
-        this.dom.textContent =
-            node.attrs.name + (node.attrs.site ? "@" + node.attrs.site : "");
+
+        const icon = pickIcon(icons, node.attrs);
+        if (icon) {
+            const img = document.createElement("img");
+            img.className = "dw-editor-user-icon";
+            img.src = icon.url;
+            if (icon.width) img.width = icon.width;
+            if (icon.height) img.height = icon.height;
+            img.alt = "";
+            this.dom.appendChild(img);
+        }
+
+        const label = document.createElement("span");
+        label.textContent = node.attrs.name;
+        this.dom.appendChild(label);
+
         this.dom.title = node.attrs.site
             ? node.attrs.name + " @ " + node.attrs.site
             : node.attrs.name;
@@ -108,10 +132,12 @@ export class HtmlBlockView {
     }
 }
 
-export function buildNodeViews(strings) {
+export function buildNodeViews(options) {
+    const strings = options.strings;
+    const icons = options.icons;
     return {
         cut: (node, view, getPos) => new CutView(node, view, getPos, strings),
-        user: (node) => new UserView(node),
+        user: (node) => new UserView(node, icons),
         html_block: (node, view, getPos) => new HtmlBlockView(node, view, getPos, strings),
     };
 }

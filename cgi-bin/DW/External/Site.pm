@@ -242,6 +242,11 @@ sub get_deadsites {
 # returns a list of all supported sites for linking
 sub get_sites { return @all_sites_without_alias; }
 
+# returns every domain/alias we recognize (e.g. both "x.com" and "twitter"),
+# each of which get_site() will resolve. Used to drive the rich text editor's
+# @user.site autocomplete so it accepts exactly what the markdown parser does.
+sub get_domains { return keys %domaintosite; }
+
 # returns a list of all supported sites for crossposting
 sub get_xpost_sites {
     my %protocols = DW::External::XPostProtocol->get_all_protocols;

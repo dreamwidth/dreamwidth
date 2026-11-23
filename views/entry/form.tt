@@ -119,6 +119,7 @@ postFormInitData.strings = {
 
 postFormInitData.dwEditor = {
   "circleUrl": "/__rpc_general?mode=list_circle",
+  "icons": [% rte_icons %],
   "strings": {
     "toolbarLabel":     [%- ".rte.toolbar" | ml | js -%],
     "undo":             [%- ".rte.undo" | ml | js -%],

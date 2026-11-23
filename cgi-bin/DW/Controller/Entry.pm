@@ -33,6 +33,7 @@ use LJ::JSON;
 
 use DW::External::Account;
 use DW::External::Site;
+use DW::External::User;
 
 my %form_to_props = (
 
@@ -54,6 +55,47 @@ my @sitevalues;
 foreach my $site ( sort { $a->{sitename} cmp $b->{sitename} } @sites ) {
     push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
 }
+
+# Head icons for the rich text editor's user chips: the local person /
+# community / feed / openid identity icons for on-site links, plus each
+# external site's badge image keyed by domain. badge_image is pure (no
+# network), so this is cheap to build once at load time.
+my $rte_user_icons = do {
+    my %local = map {
+        $_->[0] => {
+            url    => "$LJ::IMGPREFIX/silk/identity/$_->[1]",
+            width  => 16,
+            height => 16,
+        }
+    } (
+        [ P => "user.png" ],
+        [ C => "community.png" ],
+        [ Y => "feed.png" ],
+        [ I => "openid.png" ]
+    );
+
+    # Key by every recognized domain *and* alias (twitter, x, fb, ...) so the
+    # editor's @user.site autocomplete accepts exactly what markdown does, and
+    # each alias shows its canonical site's head icon. Probing the badge needs a
+    # user object, which atproto sites refuse for a dummy handle; fall back to
+    # the generic icon there so the domain is still offered for autocomplete.
+    my %site_icons;
+    foreach my $domain ( DW::External::Site->get_domains ) {
+        my $icon;
+        if ( my $eu = DW::External::User->new( user => "example", site => $domain ) ) {
+            if ( my $badge = eval { $eu->site->badge_image($eu) } ) {
+                $icon = {
+                    url    => LJ::CleanHTML::https_url( $badge->{url} ),
+                    width  => $badge->{width},
+                    height => $badge->{height},
+                };
+            }
+        }
+        $site_icons{ lc $domain } = $icon || $local{I};
+    }
+
+    to_json( { local => \%local, sites => \%site_icons, fallback => $local{I} } );
+};
 
 =head1 NAME
 
@@ -274,6 +316,7 @@ sub new_handler {
 
     $vars->{js_for_rte} = LJ::rte_js_vars();
     $vars->{sitevalues} = to_json( \@sitevalues );
+    $vars->{rte_icons}  = $rte_user_icons;
 
     # Set up vars for drafts
 
@@ -690,6 +733,7 @@ sub _edit {
 
     $vars->{js_for_rte} = LJ::rte_js_vars();
     $vars->{sitevalues} = to_json( \@sitevalues );
+    $vars->{rte_icons}  = $rte_user_icons;
 
     return DW::Template->render_template( 'entry/form.tt', $vars );
 }

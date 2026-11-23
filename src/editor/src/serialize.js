@@ -69,6 +69,18 @@ export function importHTML(schema, html) {
     return PMDOMParser.fromSchema(schema).parse(tpl.content);
 }
 
+// Unwrap a list item's lone, attribute-less <p> so it renders tight. Only the
+// single-child case is touched, so multi-paragraph items aren't merged.
+function unwrapTightListItems(root) {
+    root.querySelectorAll("li").forEach((li) => {
+        const only = li.children.length == 1 ? li.firstElementChild : null;
+        if (only && only.tagName == "P" && only.attributes.length == 0) {
+            while (only.firstChild) li.insertBefore(only.firstChild, only);
+            li.removeChild(only);
+        }
+    });
+}
+
 function buildSerializer(schema, rawChunks) {
     const nodes = DOMSerializer.nodesFromSchema(schema);
     nodes.html_block = (node) => {
@@ -80,11 +92,23 @@ function buildSerializer(schema, rawChunks) {
 }
 
 export function exportHTML(schema, doc) {
+    // Collect the top-level blocks, dropping a trailing empty paragraph: the
+    // editor keeps one after block containers (cuts, lists, ...) so you can
+    // always type past them, but it's an editing affordance, not content.
+    const children = [];
+    doc.content.forEach((child) => children.push(child));
+    while (
+        children.length > 1 &&
+        children[children.length - 1].type.name == "paragraph" &&
+        children[children.length - 1].content.size == 0
+    )
+        children.pop();
+
     // An empty document is a single empty paragraph; submit it as nothing.
     if (
-        doc.childCount == 1 &&
-        doc.firstChild.type.name == "paragraph" &&
-        doc.firstChild.content.size == 0
+        children.length == 1 &&
+        children[0].type.name == "paragraph" &&
+        children[0].content.size == 0
     )
         return "";
 
@@ -95,9 +119,16 @@ export function exportHTML(schema, doc) {
     // the entry is later opened in raw HTML mode. rte1 never adds automatic
     // linebreaks, so the whitespace is cosmetic.
     const parts = [];
-    doc.content.forEach((child) => {
+    children.forEach((child) => {
         const div = document.createElement("div");
         div.appendChild(serializer.serializeNode(child, { document }));
+
+        // List items serialize as <li><p>text</p></li>, but a block <p> inside
+        // an <li> makes the browser drop the marker onto its own line with the
+        // text below it. For the common single-paragraph item, unwrap the <p>
+        // so it renders "tight" (<li>text</li>) -- matching what the editor
+        // shows. Multi-block items keep their <p>s (they're genuinely loose).
+        unwrapTightListItems(div);
 
         // Swap raw-HTML placeholders for markers that survive innerHTML
         // escaping, then substitute the literal chunks back in.

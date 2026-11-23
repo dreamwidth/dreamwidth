@@ -16,7 +16,11 @@ function userAttrs(dom) {
     const name =
         dom.getAttribute("name") || dom.getAttribute("user") || dom.getAttribute("comm");
     if (!name) return false;
-    return { name: name, site: dom.getAttribute("site") || "" };
+    // A name supplied via comm= marks a community; otherwise assume a person.
+    // ctype is display-only (it picks the chip's head icon) and is never
+    // serialized back out -- the server figures out the real type.
+    const ctype = dom.getAttribute("comm") ? "C" : "P";
+    return { name: name, site: dom.getAttribute("site") || "", ctype: ctype };
 }
 
 const nodes = {
@@ -100,7 +104,7 @@ const nodes = {
         group: "inline",
         atom: true,
         draggable: true,
-        attrs: { name: {}, site: { default: "" } },
+        attrs: { name: {}, site: { default: "" }, ctype: { default: "P" } },
         parseDOM: [
             { tag: "dw-user", getAttrs: userAttrs },
             { tag: "user", getAttrs: userAttrs },

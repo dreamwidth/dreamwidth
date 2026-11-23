@@ -138,6 +138,7 @@ img.ProseMirror-separator {
 .dw-editor-button {
     min-width: 28px;
     height: 28px;
+    margin: 0; // override Foundation's form-control bottom margin
     padding: 0 5px;
     border: 1px solid transparent;
     border-radius: 3px;
@@ -165,6 +166,8 @@ img.ProseMirror-separator {
 
 .dw-editor-blockselect {
     height: 28px;
+    margin: 0; // override new.css's `select { margin: 0 0 1rem }`, which
+    // otherwise makes the toolbar's flex row tall and leaves a gap under the icons
     font-size: 13px;
 }
 
@@ -217,6 +220,12 @@ img.ProseMirror-separator {
     color: #246;
     font-weight: bold;
     white-space: nowrap;
+}
+
+.dw-editor-user-icon {
+    vertical-align: text-bottom;
+    margin-right: 2px;
+    border: 0;
 }
 
 .dw-editor-user-external {

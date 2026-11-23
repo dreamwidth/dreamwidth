@@ -12501,7 +12501,8 @@ var DWEditor = (() => {
     const name = dom.getAttribute("name") || dom.getAttribute("user") || dom.getAttribute("comm");
     if (!name)
       return false;
-    return { name, site: dom.getAttribute("site") || "" };
+    const ctype = dom.getAttribute("comm") ? "C" : "P";
+    return { name, site: dom.getAttribute("site") || "", ctype };
   }
   var nodes = {
     doc: { content: "block+" },
@@ -12577,7 +12578,7 @@ var DWEditor = (() => {
       group: "inline",
       atom: true,
       draggable: true,
-      attrs: { name: {}, site: { default: "" } },
+      attrs: { name: {}, site: { default: "" }, ctype: { default: "P" } },
       parseDOM: [
         { tag: "dw-user", getAttrs: userAttrs },
         { tag: "user", getAttrs: userAttrs }
@@ -12805,6 +12806,16 @@ var DWEditor = (() => {
     captureUnsupportedBlocks(tpl.content);
     return DOMParser.fromSchema(schema2).parse(tpl.content);
   }
+  function unwrapTightListItems(root) {
+    root.querySelectorAll("li").forEach((li) => {
+      const only = li.children.length == 1 ? li.firstElementChild : null;
+      if (only && only.tagName == "P" && only.attributes.length == 0) {
+        while (only.firstChild)
+          li.insertBefore(only.firstChild, only);
+        li.removeChild(only);
+      }
+    });
+  }
   function buildSerializer(schema2, rawChunks) {
     const nodes2 = DOMSerializer.nodesFromSchema(schema2);
     nodes2.html_block = (node) => {
@@ -12815,14 +12826,19 @@ var DWEditor = (() => {
     return new DOMSerializer(nodes2, DOMSerializer.marksFromSchema(schema2));
   }
   function exportHTML(schema2, doc3) {
-    if (doc3.childCount == 1 && doc3.firstChild.type.name == "paragraph" && doc3.firstChild.content.size == 0)
+    const children = [];
+    doc3.content.forEach((child) => children.push(child));
+    while (children.length > 1 && children[children.length - 1].type.name == "paragraph" && children[children.length - 1].content.size == 0)
+      children.pop();
+    if (children.length == 1 && children[0].type.name == "paragraph" && children[0].content.size == 0)
       return "";
     const rawChunks = [];
     const serializer = buildSerializer(schema2, rawChunks);
     const parts = [];
-    doc3.content.forEach((child) => {
+    children.forEach((child) => {
       const div = document.createElement("div");
       div.appendChild(serializer.serializeNode(child, { document }));
+      unwrapTightListItems(div);
       div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
         ph.replaceWith(
           document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
@@ -12978,11 +12994,32 @@ var DWEditor = (() => {
       return !this.contentDOM.contains(mutation.target);
     }
   };
+  function pickIcon(icons, attrs) {
+    if (!icons)
+      return null;
+    if (attrs.site)
+      return icons.sites && icons.sites[attrs.site.toLowerCase()] || icons.fallback || null;
+    return icons.local && (icons.local[attrs.ctype] || icons.local.P) || null;
+  }
   var UserView = class {
-    constructor(node) {
+    constructor(node, icons) {
       this.dom = document.createElement("span");
       this.dom.className = "dw-editor-user" + (node.attrs.site ? " dw-editor-user-external" : "");
-      this.dom.textContent = node.attrs.name + (node.attrs.site ? "@" + node.attrs.site : "");
+      const icon = pickIcon(icons, node.attrs);
+      if (icon) {
+        const img = document.createElement("img");
+        img.className = "dw-editor-user-icon";
+        img.src = icon.url;
+        if (icon.width)
+          img.width = icon.width;
+        if (icon.height)
+          img.height = icon.height;
+        img.alt = "";
+        this.dom.appendChild(img);
+      }
+      const label = document.createElement("span");
+      label.textContent = node.attrs.name;
+      this.dom.appendChild(label);
       this.dom.title = node.attrs.site ? node.attrs.name + " @ " + node.attrs.site : node.attrs.name;
     }
   };
@@ -13006,10 +13043,12 @@ var DWEditor = (() => {
       return !this.contentDOM.contains(mutation.target);
     }
   };
-  function buildNodeViews2(strings) {
+  function buildNodeViews2(options) {
+    const strings = options.strings;
+    const icons = options.icons;
     return {
       cut: (node, view, getPos) => new CutView(node, view, getPos, strings),
-      user: (node) => new UserView(node),
+      user: (node) => new UserView(node, icons),
       html_block: (node, view, getPos) => new HtmlBlockView(node, view, getPos, strings)
     };
   }
@@ -13042,14 +13081,25 @@ var DWEditor = (() => {
       "\0",
       "\0"
     );
-    const match = /(?:^|[\s(])@([\w.-]{0,30})$/.exec(textBefore);
+    const match = /(?:^|[\s(])@([\w-][\w.-]{0,39})$/.exec(textBefore);
     if (!match)
       return null;
     const from2 = $cursor.pos - match[1].length - 1;
     return { from: from2, to: $cursor.pos, query: match[1] };
   }
-  function suggestionsFor(query) {
-    const q = query.toLowerCase();
+  function canonicalLocal(name) {
+    return name.toLowerCase().replace(/-/g, "_");
+  }
+  function suggestionsFor(query, sites) {
+    const ext = /^([\w-]+)\.([\w.-]*)$/.exec(query);
+    if (ext && sites && sites.length) {
+      const uname = ext[1];
+      const prefix = ext[2].toLowerCase();
+      const matched = sites.filter((d) => d.indexOf(prefix) == 0).sort().slice(0, MAX_ITEMS);
+      if (matched.length)
+        return matched.map((d) => ({ username: uname, site: d, external: true }));
+    }
+    const q = canonicalLocal(query);
     let items = [];
     if (circle && q.length) {
       const starts = [], contains = [];
@@ -13062,8 +13112,8 @@ var DWEditor = (() => {
       });
       items = starts.concat(contains).slice(0, MAX_ITEMS);
     }
-    if (query.length && !items.some((u) => u.username.toLowerCase() == q))
-      items.push({ username: query, literal: true });
+    if (/^[a-z0-9_]+$/.test(q) && !items.some((u) => u.username.toLowerCase() == q))
+      items.push({ username: q, literal: true });
     return items;
   }
   var MentionDropdown = class {
@@ -13103,7 +13153,7 @@ var DWEditor = (() => {
       }
       const prevQuery = this.match && this.match.query;
       this.match = match;
-      this.items = suggestionsFor(match.query);
+      this.items = suggestionsFor(match.query, this.options.sites);
       if (match.query != prevQuery)
         this.index = 0;
       if (this.index >= this.items.length)
@@ -13127,7 +13177,9 @@ var DWEditor = (() => {
         row.appendChild(name);
         const note = document.createElement("span");
         note.className = "dw-editor-mention-note";
-        if (item.literal)
+        if (item.external)
+          note.textContent = item.site;
+        else if (item.literal)
           note.textContent = this.options.strings.mentionLiteral;
         else if (item.journaltype == "C")
           note.textContent = this.options.strings.mentionCommunity;
@@ -13156,7 +13208,9 @@ var DWEditor = (() => {
       if (!item || !match)
         return;
       const view = this.view;
-      const userNode = view.state.schema.nodes.user.create({ name: item.username });
+      const userNode = view.state.schema.nodes.user.create(
+        item.external ? { name: item.username, site: item.site } : { name: item.username, ctype: item.journaltype || "P" }
+      );
       view.dispatch(
         view.state.tr.replaceWith(match.from, match.to, [
           userNode,
@@ -14390,6 +14444,28 @@ var DWEditor = (() => {
     };
   }
 
+  // src/trailingnode.js
+  function appendTrailingParagraph(state) {
+    const last = state.doc.lastChild;
+    if (last && last.type.name == "paragraph")
+      return null;
+    const para = state.schema.nodes.paragraph.create();
+    return state.tr.insert(state.doc.content.size, para);
+  }
+  function trailingNode() {
+    return new Plugin({
+      key: new PluginKey("trailingNode"),
+      appendTransaction(transactions, oldState, newState) {
+        if (!transactions.some((tr2) => tr2.docChanged))
+          return null;
+        const tr = appendTrailingParagraph(newState);
+        if (tr)
+          tr.setMeta("addToHistory", false);
+        return tr;
+      }
+    });
+  }
+
   // src/index.js
   var SYNC_DELAY = 400;
   var DEFAULT_STRINGS = {
@@ -14459,12 +14535,17 @@ var DWEditor = (() => {
       plugins: [
         // Mentions first: its handleKeyDown must see Enter/Tab/arrows
         // before the keymaps do.
-        mentionsPlugin({ circleUrl: opts.circleUrl, strings }),
+        mentionsPlugin({
+          circleUrl: opts.circleUrl,
+          strings,
+          sites: opts.icons && opts.icons.sites ? Object.keys(opts.icons.sites) : []
+        }),
         buildInputRules(schema),
         ...buildKeymap(schema, toolbar.commands),
         history(),
         dropCursor(),
-        gapCursor()
+        gapCursor(),
+        trailingNode()
       ]
     });
     let syncTimer = null;
@@ -14483,7 +14564,7 @@ var DWEditor = (() => {
     };
     instance.view = new EditorView(wrapper, {
       state,
-      nodeViews: buildNodeViews2(strings),
+      nodeViews: buildNodeViews2({ strings, icons: opts.icons }),
       dispatchTransaction(tr) {
         const view = instance.view;
         view.updateState(view.state.apply(tr));
@@ -14501,6 +14582,11 @@ var DWEditor = (() => {
       }
     });
     toolbar.update(instance.view);
+    const seed = appendTrailingParagraph(instance.view.state);
+    if (seed) {
+      seed.setMeta("addToHistory", false);
+      instance.view.dispatch(seed);
+    }
     if (textarea.form)
       textarea.form.addEventListener("submit", instance.onSubmit);
     instances[id] = instance;

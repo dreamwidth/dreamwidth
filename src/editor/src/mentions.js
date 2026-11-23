@@ -5,9 +5,14 @@
 // still be mentioned: the typed name itself is always offered as the last
 // suggestion, and bad names simply render as "[Bad username]" on display.
 //
+// Typing "@user.site" (e.g. @jack.x.com) offers external-site links instead,
+// matching Dreamwidth's @user.site markdown syntax; the part after the first
+// dot is prefix-matched against the known external sites.
+//
 // Choosing a suggestion inserts a `user` node (serialized as
-// <user name="...">). Plain @text left in the entry stays literal text:
-// the rte1 format does not do server-side @mention conversion.
+// <user name="..."> or <user name="..." site="...">). Plain @text left in the
+// entry stays literal text: the rte1 format does not do server-side @mention
+// conversion, which is exactly why the editor resolves mentions itself.
 
 import { Plugin, PluginKey } from "prosemirror-state";
 
@@ -44,15 +49,42 @@ function getMatch(state) {
         "\0",
         "\0"
     );
-    const match = /(?:^|[\s(])@([\w.-]{0,30})$/.exec(textBefore);
+    // A mention starts with a valid username character (the markdown parser's
+    // username class is [\w-]); dots only appear as the @user.site separator.
+    const match = /(?:^|[\s(])@([\w-][\w.-]{0,39})$/.exec(textBefore);
     if (!match) return null;
 
     const from = $cursor.pos - match[1].length - 1;
     return { from: from, to: $cursor.pos, query: match[1] };
 }
 
-function suggestionsFor(query) {
-    const q = query.toLowerCase();
+// Local DW usernames fold to [a-z0-9_], with "-" treated as "_"
+// (LJ::canonical_username). So @foo-bar and @Foo_Bar both mean foo_bar.
+function canonicalLocal(name) {
+    return name.toLowerCase().replace(/-/g, "_");
+}
+
+function suggestionsFor(query, sites) {
+    // External form "user.sitedomain", mirroring Dreamwidth's @user.site
+    // markdown syntax. The part after the first dot is matched as a prefix of a
+    // known site domain (aliases included), so "@jack.x" offers jack@x.com and
+    // "@jack." lists sites. When this matches, external suggestions are all we
+    // offer. External usernames are kept verbatim (sites canonicalize their own).
+    const ext = /^([\w-]+)\.([\w.-]*)$/.exec(query);
+    if (ext && sites && sites.length) {
+        const uname = ext[1];
+        const prefix = ext[2].toLowerCase();
+        const matched = sites
+            .filter((d) => d.indexOf(prefix) == 0)
+            .sort()
+            .slice(0, MAX_ITEMS);
+        if (matched.length)
+            return matched.map((d) => ({ username: uname, site: d, external: true }));
+    }
+
+    // Local: compare against the circle using the canonical form, so "@foo-bar"
+    // finds "foo_bar".
+    const q = canonicalLocal(query);
     let items = [];
     if (circle && q.length) {
         const starts = [],
@@ -64,10 +96,10 @@ function suggestionsFor(query) {
         });
         items = starts.concat(contains).slice(0, MAX_ITEMS);
     }
-    // Always offer the literal typed name, so out-of-circle users can be
-    // mentioned without any lookup.
-    if (query.length && !items.some((u) => u.username.toLowerCase() == q))
-        items.push({ username: query, literal: true });
+    // Offer the typed name itself (canonicalized) so out-of-circle users can be
+    // mentioned without a lookup -- but only when it's a valid local username.
+    if (/^[a-z0-9_]+$/.test(q) && !items.some((u) => u.username.toLowerCase() == q))
+        items.push({ username: q, literal: true });
     return items;
 }
 
@@ -113,7 +145,7 @@ class MentionDropdown {
 
         const prevQuery = this.match && this.match.query;
         this.match = match;
-        this.items = suggestionsFor(match.query);
+        this.items = suggestionsFor(match.query, this.options.sites);
         if (match.query != prevQuery) this.index = 0;
         if (this.index >= this.items.length) this.index = 0;
 
@@ -140,7 +172,8 @@ class MentionDropdown {
 
             const note = document.createElement("span");
             note.className = "dw-editor-mention-note";
-            if (item.literal) note.textContent = this.options.strings.mentionLiteral;
+            if (item.external) note.textContent = item.site;
+            else if (item.literal) note.textContent = this.options.strings.mentionLiteral;
             else if (item.journaltype == "C") note.textContent = this.options.strings.mentionCommunity;
             if (note.textContent) row.appendChild(note);
 
@@ -171,7 +204,11 @@ class MentionDropdown {
         if (!item || !match) return;
 
         const view = this.view;
-        const userNode = view.state.schema.nodes.user.create({ name: item.username });
+        const userNode = view.state.schema.nodes.user.create(
+            item.external
+                ? { name: item.username, site: item.site }
+                : { name: item.username, ctype: item.journaltype || "P" }
+        );
         view.dispatch(
             view.state.tr.replaceWith(match.from, match.to, [
                 userNode,
