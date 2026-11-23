@@ -20,7 +20,7 @@ use warnings;
 
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::ParseFeed;
 
 plan tests => 16;
@@ -30,20 +30,21 @@ plan tests => 16;
 
 my $testfeed = sub {
     my $entrybody = shift;
+    my $site_root = 'https://example.org';
 
     my $contents = qq{
         <feed xmlns="http://www.w3.org/2005/Atom">
           <id>testing:atom:feed</id>
           <title>test atom feed</title>
           <author><name>testing</name></author>
-          <link rel="alternate" type="text/html" href="$LJ::SITEROOT" />
-          <link rel="self" type="text/xml" href="$LJ::SITEROOT" />
+          <link rel="alternate" type="text/html" href="$site_root" />
+          <link rel="self" type="text/xml" href="$site_root" />
           <updated>2007-01-08T23:40:33Z</updated>
           <entry>
             <id>testing:atom:feed:entry</id>
             <updated>2006-09-14T07:39:07Z</updated>
             $entrybody
-            <link rel=\"alternate\" type=\"text/html\" href=\"$LJ::SITEROOT\" />
+            <link rel=\"alternate\" type=\"text/html\" href=\"$site_root\" />
           </entry>
         </feed>
     };
