@@ -1319,6 +1319,10 @@ sub populate_system_props {
     $ctx->[S2::PROPS]->{'IMGDIR'}         = $LJ::IMGPREFIX;
     $ctx->[S2::PROPS]->{'STYLES_IMGDIR'}  = $LJ::IMGPREFIX . "/styles";
     $ctx->[S2::PROPS]->{'STATDIR'}        = $LJ::STATPREFIX;
+    $ctx->[S2::PROPS]->{'SITELOGO'} =
+        length( $LJ::SITE_LOGO_IMAGE // '' ) ? "$LJ::IMGPREFIX/$LJ::SITE_LOGO_IMAGE" : '';
+    $ctx->[S2::PROPS]->{'SITELOGOICON'} =
+        length( $LJ::SITE_LOGO_ICON_IMAGE // '' ) ? "$LJ::IMGPREFIX/$LJ::SITE_LOGO_ICON_IMAGE" : '';
 }
 
 # renamed some props from core1 => core2. Make sure that S2 still handles these variables correctly when working with a core1 layer

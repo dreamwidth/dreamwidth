@@ -1212,6 +1212,16 @@ property builtin string SITEROOT {
     doc_flags = "[sys]";
     des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"https://www.dreamwidth.com\".";
 }
+property builtin string SITELOGO {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The URL of the current site's full logo, or an empty string if no logo is configured.";
+}
+property builtin string SITELOGOICON {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The URL of the current site's logo icon, or an empty string if no icon is configured.";
+}
 property builtin string PALIMGROOT {
     noui = 1;
     doc_flags = "[sys]";
