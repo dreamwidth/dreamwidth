@@ -6,7 +6,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.js --bundle --format=iife --global-name=DWEditor --target=es2018 --outfile=../../htdocs/js/vendor/dw-editor.js"
+    "build": "esbuild src/index.js --bundle --format=iife --global-name=DWEditor --target=es2018 --outfile=../../htdocs/js/vendor/dw-editor.js",
+    "test": "node --test test/"
   },
   "dependencies": {
     "prosemirror-commands": "^1.5.2",
@@ -22,6 +23,7 @@
     "prosemirror-view": "^1.33.1"
   },
   "devDependencies": {
-    "esbuild": "^0.20.0"
+    "esbuild": "^0.20.0",
+    "jsdom": "^24.1.3"
   }
 }

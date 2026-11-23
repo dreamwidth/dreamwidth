@@ -16,8 +16,9 @@ function buildDialog(title, fields, strings) {
     fields.forEach((field) => {
         const label = document.createElement("label");
         label.textContent = field.label;
-        const input = document.createElement("input");
-        input.type = "text";
+        const input = document.createElement(field.multiline ? "textarea" : "input");
+        if (field.multiline) input.rows = 5;
+        else input.type = "text";
         input.name = field.name;
         input.value = field.value || "";
         if (field.placeholder) input.placeholder = field.placeholder;
@@ -100,4 +101,13 @@ export function textDialog(title, strings, value) {
     return buildDialog(title, [{ name: "text", label: title, value: value }], strings).then(
         (values) => (values ? values.text : null)
     );
+}
+
+// Media embed code (an <iframe>, <object>, ...). Resolves to the pasted code.
+export function embedDialog(strings) {
+    return buildDialog(
+        strings.embedTitle,
+        [{ name: "code", label: strings.embedCode, required: true, multiline: true }],
+        strings
+    ).then((values) => values && values.code);
 }

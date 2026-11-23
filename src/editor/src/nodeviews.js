@@ -132,6 +132,30 @@ export class HtmlBlockView {
     }
 }
 
+// html_inline: an empty inline element kept verbatim (<a name="top"></a>),
+// shown as a chip with its opening tag.
+export class HtmlInlineView {
+    constructor(node) {
+        this.dom = document.createElement("span");
+        this.dom.className = "dw-editor-html-inline";
+        this.dom.contentEditable = "false";
+        this.render(node);
+    }
+
+    render(node) {
+        const html = node.attrs.html;
+        const open = /^<[^>]*>/.exec(html);
+        this.dom.textContent = open ? open[0] : html.slice(0, 40);
+        this.dom.title = html;
+    }
+
+    update(node) {
+        if (node.type.name != "html_inline") return false;
+        this.render(node);
+        return true;
+    }
+}
+
 export function buildNodeViews(options) {
     const strings = options.strings;
     const icons = options.icons;
@@ -139,5 +163,6 @@ export function buildNodeViews(options) {
         cut: (node, view, getPos) => new CutView(node, view, getPos, strings),
         user: (node) => new UserView(node, icons),
         html_block: (node, view, getPos) => new HtmlBlockView(node, view, getPos, strings),
+        html_inline: (node) => new HtmlInlineView(node),
     };
 }

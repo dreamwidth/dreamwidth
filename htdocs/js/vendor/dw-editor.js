@@ -20,8 +20,13 @@ var DWEditor = (() => {
   // src/index.js
   var src_exports = {};
   __export(src_exports, {
+    flush: () => flush,
+    focus: () => focus,
     getHTML: () => getHTML,
+    insertHTMLBlock: () => insertHTMLBlock,
+    insertImage: () => insertImage,
     isActive: () => isActive,
+    isDirty: () => isDirty,
     mount: () => mount,
     unmount: () => unmount
   });
@@ -12497,6 +12502,85 @@ var DWEditor = (() => {
   }
 
   // src/schema.js
+  var render = { raw: false };
+  var GENERIC_BLOCK_TAGS = [
+    "div",
+    "center",
+    "section",
+    "article",
+    "aside",
+    "header",
+    "footer",
+    "nav",
+    "main",
+    "figure",
+    "figcaption",
+    "address"
+  ];
+  var GENERIC_INLINE_TAGS = [
+    "span",
+    "font",
+    "small",
+    "big",
+    "tt",
+    "kbd",
+    "samp",
+    "cite",
+    "abbr",
+    "acronym",
+    "q",
+    "mark",
+    "ins",
+    "del",
+    "dfn",
+    "var",
+    "bdo",
+    "bdi",
+    "time",
+    "data",
+    "nobr",
+    // Unlinked anchors (<a name>) and styled variants of the modeled marks.
+    "a",
+    "em",
+    "i",
+    "strong",
+    "b",
+    "u",
+    "s",
+    "strike",
+    "code",
+    "sub",
+    "sup"
+  ];
+  var BLOCK_SET = new Set(GENERIC_BLOCK_TAGS);
+  var INLINE_SET = new Set(GENERIC_INLINE_TAGS);
+  var EVENT_ATTR = /^on/i;
+  function withExtra(attrs, extra) {
+    if (extra) {
+      Object.keys(extra).forEach((name) => {
+        if (!render.raw && EVENT_ATTR.test(name))
+          return;
+        if (!(name in attrs))
+          attrs[name] = extra[name];
+      });
+    }
+    return attrs;
+  }
+  function readExtra(dom) {
+    const raw = dom.getAttribute("data-dw-x");
+    if (!raw)
+      return null;
+    try {
+      const extra = JSON.parse(raw);
+      return extra && typeof extra == "object" && Object.keys(extra).length ? extra : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function extraOf(dom) {
+    return { extra: readExtra(dom) };
+  }
+  var EXTRA = { extra: { default: null } };
   function userAttrs(dom) {
     const name = dom.getAttribute("name") || dom.getAttribute("user") || dom.getAttribute("comm");
     if (!name)
@@ -12504,54 +12588,67 @@ var DWEditor = (() => {
     const ctype = dom.getAttribute("comm") ? "C" : "P";
     return { name, site: dom.getAttribute("site") || "", ctype };
   }
+  function genericAttrs(allowed, fallback) {
+    return (dom) => {
+      const tag = dom.getAttribute("data-dw-tag");
+      return { tag: allowed.has(tag) ? tag : fallback, extra: readExtra(dom) };
+    };
+  }
+  function genericTag(node, allowed, fallback) {
+    return allowed.has(node.attrs.tag) ? node.attrs.tag : fallback;
+  }
   var nodes = {
     doc: { content: "block+" },
     paragraph: {
+      attrs: EXTRA,
       content: "inline*",
       group: "block",
-      parseDOM: [{ tag: "p" }],
-      toDOM() {
-        return ["p", 0];
+      parseDOM: [{ tag: "p", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["p", withExtra({}, node.attrs.extra), 0];
       }
     },
     blockquote: {
+      attrs: EXTRA,
       content: "block+",
       group: "block",
       defining: true,
-      parseDOM: [{ tag: "blockquote" }],
-      toDOM() {
-        return ["blockquote", 0];
+      parseDOM: [{ tag: "blockquote", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["blockquote", withExtra({}, node.attrs.extra), 0];
       }
     },
     horizontal_rule: {
+      attrs: EXTRA,
       group: "block",
-      parseDOM: [{ tag: "hr" }],
-      toDOM() {
-        return ["hr"];
+      parseDOM: [{ tag: "hr", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["hr", withExtra({}, node.attrs.extra)];
       }
     },
     heading: {
-      attrs: { level: { default: 2 } },
+      attrs: { level: { default: 2 }, extra: { default: null } },
       content: "inline*",
       group: "block",
       defining: true,
       parseDOM: [1, 2, 3, 4, 5, 6].map((level) => ({
         tag: "h" + level,
-        attrs: { level }
+        getAttrs: (dom) => ({ level, extra: readExtra(dom) })
       })),
       toDOM(node) {
-        return ["h" + node.attrs.level, 0];
+        return ["h" + node.attrs.level, withExtra({}, node.attrs.extra), 0];
       }
     },
     code_block: {
+      attrs: EXTRA,
       content: "text*",
       marks: "",
       group: "block",
       code: true,
       defining: true,
-      parseDOM: [{ tag: "pre", preserveWhitespace: "full" }],
-      toDOM() {
-        return ["pre", ["code", 0]];
+      parseDOM: [{ tag: "pre", preserveWhitespace: "full", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["pre", withExtra({}, node.attrs.extra), ["code", 0]];
       }
     },
     // Dreamwidth cut tag. Rendered in-editor by CutView (nodeviews.js).
@@ -12605,6 +12702,44 @@ var DWEditor = (() => {
         return ["dw-html-block", 0];
       }
     },
+    // <div>, <center>, ... whose content is inline (text, <br>, <span>, ...).
+    html_textblock: {
+      attrs: { tag: { default: "div" }, extra: { default: null } },
+      content: "inline*",
+      group: "block",
+      parseDOM: [
+        { tag: "dw-textblock", getAttrs: genericAttrs(BLOCK_SET, "div") }
+      ],
+      toDOM(node) {
+        return [genericTag(node, BLOCK_SET, "div"), withExtra({}, node.attrs.extra), 0];
+      }
+    },
+    // <div>, <center>, ... whose content is other blocks.
+    html_container: {
+      attrs: { tag: { default: "div" }, extra: { default: null } },
+      content: "block+",
+      group: "block",
+      defining: true,
+      parseDOM: [{ tag: "dw-block", getAttrs: genericAttrs(BLOCK_SET, "div") }],
+      toDOM(node) {
+        return [genericTag(node, BLOCK_SET, "div"), withExtra({}, node.attrs.extra), 0];
+      }
+    },
+    // An empty inline element kept verbatim, e.g. <a name="top"></a>. Shown as
+    // a small chip (nodeviews.js); exported through the raw-chunk placeholder.
+    html_inline: {
+      inline: true,
+      group: "inline",
+      atom: true,
+      draggable: true,
+      attrs: { html: { default: "" } },
+      parseDOM: [
+        { tag: "dw-raw-inline", getAttrs: (dom) => ({ html: dom.getAttribute("data-html") || "" }) }
+      ],
+      toDOM(node) {
+        return ["dw-raw-inline", { "data-html": node.attrs.html }];
+      }
+    },
     image: {
       inline: true,
       group: "inline",
@@ -12614,7 +12749,8 @@ var DWEditor = (() => {
         alt: { default: "" },
         title: { default: "" },
         width: { default: null },
-        height: { default: null }
+        height: { default: null },
+        extra: { default: null }
       },
       parseDOM: [
         {
@@ -12625,7 +12761,8 @@ var DWEditor = (() => {
               alt: dom.getAttribute("alt") || "",
               title: dom.getAttribute("title") || "",
               width: dom.getAttribute("width"),
-              height: dom.getAttribute("height")
+              height: dom.getAttribute("height"),
+              extra: readExtra(dom)
             };
           }
         }
@@ -12640,61 +12777,86 @@ var DWEditor = (() => {
           attrs.width = node.attrs.width;
         if (node.attrs.height)
           attrs.height = node.attrs.height;
-        return ["img", attrs];
+        return ["img", withExtra(attrs, node.attrs.extra)];
       }
     },
     hard_break: {
+      attrs: EXTRA,
       inline: true,
       group: "inline",
       selectable: false,
-      parseDOM: [{ tag: "br" }],
-      toDOM() {
-        return ["br"];
+      parseDOM: [{ tag: "br", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["br", withExtra({}, node.attrs.extra)];
       }
     },
     ordered_list: {
       content: "list_item+",
       group: "block",
-      attrs: { start: { default: 1 } },
+      attrs: { start: { default: 1 }, extra: { default: null } },
       parseDOM: [
         {
           tag: "ol",
           getAttrs(dom) {
-            return { start: dom.hasAttribute("start") ? +dom.getAttribute("start") : 1 };
+            return {
+              start: dom.hasAttribute("start") ? +dom.getAttribute("start") : 1,
+              extra: readExtra(dom)
+            };
           }
         }
       ],
       toDOM(node) {
-        return node.attrs.start == 1 ? ["ol", 0] : ["ol", { start: node.attrs.start }, 0];
+        const attrs = withExtra({}, node.attrs.extra);
+        if (node.attrs.start != 1)
+          attrs.start = node.attrs.start;
+        return ["ol", attrs, 0];
       }
     },
     bullet_list: {
+      attrs: EXTRA,
       content: "list_item+",
       group: "block",
-      parseDOM: [{ tag: "ul" }],
-      toDOM() {
-        return ["ul", 0];
+      parseDOM: [{ tag: "ul", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["ul", withExtra({}, node.attrs.extra), 0];
       }
     },
+    // An item may start with something other than a paragraph (a nested list,
+    // an HTML block), so don't insist on one.
     list_item: {
-      content: "paragraph block*",
+      attrs: EXTRA,
+      content: "block+",
       defining: true,
-      parseDOM: [{ tag: "li" }],
-      toDOM() {
-        return ["li", 0];
+      parseDOM: [{ tag: "li", getAttrs: extraOf }],
+      toDOM(node) {
+        return ["li", withExtra({}, node.attrs.extra), 0];
       }
     },
     text: { group: "inline" }
   };
   var marks = {
+    // <span>, <font>, <small>, <a name>, or a modeled tag that carried
+    // attributes (<b class="x">). Listed first so it wraps the other marks.
+    html_mark: {
+      attrs: { tag: { default: "span" }, extra: { default: null } },
+      excludes: "",
+      parseDOM: [{ tag: "dw-inline", getAttrs: genericAttrs(INLINE_SET, "span") }],
+      toDOM(mark) {
+        return [genericTag(mark, INLINE_SET, "span"), withExtra({}, mark.attrs.extra), 0];
+      }
+    },
     link: {
-      attrs: { href: {}, title: { default: null } },
+      attrs: { href: {}, title: { default: null }, extra: { default: null } },
       inclusive: false,
       parseDOM: [
         {
           tag: "a[href]",
           getAttrs(dom) {
-            return { href: dom.getAttribute("href"), title: dom.getAttribute("title") };
+            return {
+              href: dom.getAttribute("href"),
+              title: dom.getAttribute("title"),
+              extra: readExtra(dom)
+            };
           }
         }
       ],
@@ -12702,7 +12864,7 @@ var DWEditor = (() => {
         const attrs = { href: mark.attrs.href };
         if (mark.attrs.title)
           attrs.title = mark.attrs.title;
-        return ["a", attrs, 0];
+        return ["a", withExtra(attrs, mark.attrs.extra), 0];
       }
     },
     em: {
@@ -12765,13 +12927,15 @@ var DWEditor = (() => {
   var schema = new Schema({ nodes, marks });
 
   // src/serialize.js
-  var CAPTURE_SELECTOR = [
+  var RAW_BLOCK_TAGS = /* @__PURE__ */ new Set([
     "table",
     "form",
     "iframe",
     "object",
     "embed",
     "style",
+    "script",
+    "noscript",
     "textarea",
     "select",
     "input",
@@ -12779,76 +12943,404 @@ var DWEditor = (() => {
     "details",
     "audio",
     "video",
+    "canvas",
+    "svg",
+    "math",
+    "map",
+    "dl",
+    "fieldset",
+    "marquee",
     "poll",
     "lj-poll",
     "site-embed",
     "lj-embed",
     "lj-raw",
     "raw-code"
-  ].join(", ");
-  function captureUnsupportedBlocks(root) {
-    const found2 = root.querySelectorAll(CAPTURE_SELECTOR);
-    for (let i = 0; i < found2.length; i++) {
-      const el = found2[i];
-      if (!root.contains(el))
-        continue;
-      const block = document.createElement("dw-html-block");
-      block.textContent = el.outerHTML;
-      el.replaceWith(block);
-    }
-  }
+  ]);
+  var KNOWN_BLOCK_TAGS = /* @__PURE__ */ new Set([
+    "p",
+    "blockquote",
+    "hr",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "pre",
+    "ol",
+    "ul",
+    "li",
+    "cut",
+    "lj-cut"
+  ]);
+  var GENERIC_BLOCK = new Set(GENERIC_BLOCK_TAGS);
+  var MODELED_MARK_TAGS = /* @__PURE__ */ new Set([
+    "em",
+    "i",
+    "strong",
+    "b",
+    "u",
+    "s",
+    "strike",
+    "code",
+    "sub",
+    "sup"
+  ]);
+  var BLOCKISH = /* @__PURE__ */ new Set([...KNOWN_BLOCK_TAGS, ...GENERIC_BLOCK_TAGS, ...RAW_BLOCK_TAGS]);
+  var BLOCKISH_SELECTOR = Array.from(BLOCKISH).join(",");
+  var INLINE_PARENTS = /* @__PURE__ */ new Set([
+    ...GENERIC_INLINE_TAGS,
+    "p",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "li",
+    "a",
+    "dw-textblock",
+    "dw-inline",
+    "dw-user"
+  ]);
+  var ATTR_NAME = /^[a-zA-Z_:][-a-zA-Z0-9_:.]*$/;
   function balanceUserTags(html) {
-    return html.replace(/<\/(?:lj|user)>/gi, "").replace(/<(?:user|lj)(?=[\s/>])([^>]*?)\/?>/gi, "<dw-user$1></dw-user>");
+    return html.replace(/<\/(?:lj|user)>/gi, "").replace(
+      /<(user|lj)(?=[\s/>])([^>]*?)\/?>/gi,
+      (m, tag, attrs) => '<dw-user data-dw-tag="' + tag.toLowerCase() + '"' + attrs + "></dw-user>"
+    );
   }
-  function importHTML(schema2, html) {
+  function restoreUserTags(html) {
+    return html.replace(
+      /<dw-user data-dw-tag="(user|lj)"([^>]*)><\/dw-user>/g,
+      (m, tag, attrs) => "<" + tag + attrs + ">"
+    );
+  }
+  function rawBlock(html) {
+    const block = document.createElement("dw-html-block");
+    block.textContent = html;
+    return block;
+  }
+  function rawInline(html) {
+    const span = document.createElement("dw-raw-inline");
+    span.setAttribute("data-html", html);
+    return span;
+  }
+  function isBlockish(node) {
+    if (node.nodeType != 1)
+      return false;
+    const tag = node.localName;
+    if (BLOCKISH.has(tag))
+      return true;
+    return tag.indexOf("dw-") == 0 && tag != "dw-user" && tag != "dw-inline" && tag != "dw-raw-inline";
+  }
+  function validAttrs(el) {
+    for (let i = 0; i < el.attributes.length; i++)
+      if (!ATTR_NAME.test(el.attributes[i].name))
+        return false;
+    return true;
+  }
+  function allAttrs(el) {
+    const extra = {};
+    for (let i = 0; i < el.attributes.length; i++)
+      extra[el.attributes[i].name] = el.attributes[i].value;
+    return extra;
+  }
+  function stashAttrs(el, modeled) {
+    const extra = {};
+    Array.from(el.attributes).forEach((attr) => {
+      if (modeled.indexOf(attr.name) >= 0)
+        return;
+      extra[attr.name] = attr.value;
+      el.removeAttribute(attr.name);
+    });
+    if (Object.keys(extra).length)
+      el.setAttribute("data-dw-x", JSON.stringify(extra));
+  }
+  function isEmpty(el) {
+    return !el.querySelector("*") && el.textContent == "";
+  }
+  function hasBlockDescendant(el) {
+    return !!el.querySelector(BLOCKISH_SELECTOR);
+  }
+  function isSimplePre(el) {
+    return Array.from(el.childNodes).every((child) => {
+      if (child.nodeType == 3)
+        return true;
+      return child.nodeType == 1 && child.localName == "code" && child.attributes.length == 0 && Array.from(child.childNodes).every((c) => c.nodeType == 3);
+    });
+  }
+  function classifyBlock(el) {
+    let blocks = 0;
+    let inlines = 0;
+    Array.from(el.childNodes).forEach((child) => {
+      if (child.nodeType == 3) {
+        if (child.nodeValue.trim() != "")
+          inlines++;
+      } else if (child.nodeType == 1) {
+        if (isBlockish(child))
+          blocks++;
+        else
+          inlines++;
+      }
+    });
+    if (blocks && inlines)
+      return "raw";
+    return blocks ? "container" : "textblock";
+  }
+  function toPlaceholder(el, placeholderTag) {
+    const placeholder = document.createElement(placeholderTag);
+    placeholder.setAttribute("data-dw-tag", el.localName);
+    const extra = allAttrs(el);
+    if (Object.keys(extra).length)
+      placeholder.setAttribute("data-dw-x", JSON.stringify(extra));
+    while (el.firstChild)
+      placeholder.appendChild(el.firstChild);
+    el.replaceWith(placeholder);
+    walk(placeholder);
+  }
+  function replaceRaw(el, forceBlock) {
+    const html = restoreUserTags(el.outerHTML);
+    const parent = el.parentNode;
+    const inline = !forceBlock && parent && parent.localName && INLINE_PARENTS.has(parent.localName);
+    el.replaceWith(inline ? rawInline(html) : rawBlock(html));
+  }
+  function visit(el) {
+    const tag = el.localName;
+    if (tag == "dw-user")
+      return;
+    if (tag.indexOf("dw-") == 0)
+      return replaceRaw(el);
+    if (RAW_BLOCK_TAGS.has(tag))
+      return replaceRaw(el, true);
+    if (!validAttrs(el))
+      return replaceRaw(el);
+    if (tag == "cut" || tag == "lj-cut" || tag == "div" && el.classList.contains("ljcut")) {
+      walk(el);
+      return;
+    }
+    if (KNOWN_BLOCK_TAGS.has(tag)) {
+      if (tag == "pre" && !isSimplePre(el))
+        return replaceRaw(el, true);
+      stashAttrs(el, tag == "ol" ? ["start"] : []);
+      walk(el);
+      return;
+    }
+    if (tag == "br") {
+      stashAttrs(el, []);
+      return;
+    }
+    if (tag == "img") {
+      if (!el.hasAttribute("src"))
+        return replaceRaw(el);
+      stashAttrs(el, ["src", "alt", "title", "width", "height"]);
+      return;
+    }
+    if (tag == "a" && el.hasAttribute("href")) {
+      if (hasBlockDescendant(el))
+        return replaceRaw(el);
+      stashAttrs(el, ["href", "title"]);
+      walk(el);
+      return;
+    }
+    if (MODELED_MARK_TAGS.has(tag) && el.attributes.length == 0) {
+      if (hasBlockDescendant(el))
+        return replaceRaw(el);
+      walk(el);
+      return;
+    }
+    if (GENERIC_INLINE_TAGS.indexOf(tag) >= 0) {
+      if (isEmpty(el) || hasBlockDescendant(el))
+        return replaceRaw(el);
+      toPlaceholder(el, "dw-inline");
+      return;
+    }
+    if (GENERIC_BLOCK.has(tag)) {
+      const kind = classifyBlock(el);
+      if (kind == "raw")
+        return replaceRaw(el, true);
+      toPlaceholder(el, kind == "container" ? "dw-block" : "dw-textblock");
+      return;
+    }
+    replaceRaw(el);
+  }
+  function walk(parent) {
+    Array.from(parent.childNodes).forEach((child) => {
+      if (child.nodeType == 1)
+        visit(child);
+    });
+  }
+  var URL_RE = /(https?:\/\/[^\s'"<>]+[a-zA-Z0-9_/&=-])/g;
+  var MENTION_RE = /(^|[^\w/])@([\w-]+)(?:\.([\w.-]*[\w-]))?(?=$|\W)/gm;
+  function userPlaceholder(name, site) {
+    const el = document.createElement("dw-user");
+    el.setAttribute("name", name);
+    if (site)
+      el.setAttribute("site", site);
+    return el;
+  }
+  function mentionsIn(text, sites, out) {
+    let last = 0;
+    let m;
+    MENTION_RE.lastIndex = 0;
+    while (m = MENTION_RE.exec(text)) {
+      const site = m[3] ? m[3].toLowerCase() : "";
+      if (site && !(sites && sites.indexOf(site) >= 0))
+        continue;
+      const start = m.index + m[1].length;
+      if (start > last)
+        out.push(document.createTextNode(text.slice(last, start)));
+      out.push(userPlaceholder(m[2], site));
+      last = m.index + m[0].length;
+    }
+    if (last < text.length)
+      out.push(document.createTextNode(text.slice(last)));
+  }
+  function casualPieces(text, opts, inLink, inCode) {
+    const pieces = [];
+    if (opts.links && !inLink) {
+      let last = 0;
+      let m;
+      URL_RE.lastIndex = 0;
+      while (m = URL_RE.exec(text)) {
+        if (m.index > last)
+          pieces.push({ text: text.slice(last, m.index) });
+        pieces.push({ url: m[1] });
+        last = m.index + m[1].length;
+      }
+      if (last < text.length)
+        pieces.push({ text: text.slice(last) });
+    } else {
+      pieces.push({ text });
+    }
+    const out = [];
+    pieces.forEach((piece) => {
+      if (piece.url) {
+        const a = document.createElement("a");
+        a.setAttribute("href", piece.url);
+        a.textContent = piece.url;
+        out.push(a);
+      } else if (opts.mentions && !inLink && !inCode) {
+        mentionsIn(piece.text, opts.sites, out);
+      } else {
+        out.push(document.createTextNode(piece.text));
+      }
+    });
+    return out;
+  }
+  function casualText(textNode, opts, inLink, inCode) {
+    const text = textNode.nodeValue;
+    if (!/\n/.test(text) && !(opts.links && text.indexOf("http") >= 0) && text.indexOf("@") < 0)
+      return;
+    if (text.trim() == "") {
+      const prev = textNode.previousSibling;
+      const next = textNode.nextSibling;
+      if (!prev || !next || isBlockish(prev) || isBlockish(next))
+        return;
+    }
+    const frag = document.createDocumentFragment();
+    text.split(/\r?\n/).forEach((line, i) => {
+      if (i > 0)
+        frag.appendChild(document.createElement("br"));
+      if (line)
+        casualPieces(line, opts, inLink, inCode).forEach((node) => frag.appendChild(node));
+    });
+    textNode.replaceWith(frag);
+  }
+  function casualWalk(parent, opts, inLink, inCode) {
+    Array.from(parent.childNodes).forEach((child) => {
+      if (child.nodeType == 3) {
+        casualText(child, opts, inLink, inCode);
+      } else if (child.nodeType == 1) {
+        const tag = child.localName;
+        if (tag == "pre" || tag == "dw-html-block" || tag == "dw-raw-inline")
+          return;
+        casualWalk(child, opts, inLink || tag == "a", inCode || tag == "code");
+      }
+    });
+  }
+  function importHTML(schema2, html, opts) {
+    opts = opts || {};
+    let source = String(html == null ? "" : html);
+    if (opts.casual)
+      source = source.replace(/\s+$/, "");
     const tpl = document.createElement("template");
-    tpl.innerHTML = balanceUserTags(String(html == null ? "" : html));
-    captureUnsupportedBlocks(tpl.content);
+    tpl.innerHTML = balanceUserTags(source);
+    walk(tpl.content);
+    if (opts.casual)
+      casualWalk(tpl.content, opts.casual, false, false);
     return DOMParser.fromSchema(schema2).parse(tpl.content);
   }
   function unwrapTightListItems(root) {
     root.querySelectorAll("li").forEach((li) => {
-      const only = li.children.length == 1 ? li.firstElementChild : null;
-      if (only && only.tagName == "P" && only.attributes.length == 0) {
-        while (only.firstChild)
-          li.insertBefore(only.firstChild, only);
-        li.removeChild(only);
-      }
+      const first = li.firstElementChild;
+      if (!first || first.tagName != "P" || first.attributes.length)
+        return;
+      const rest = Array.from(li.children).slice(1);
+      if (!rest.every((el) => el.tagName == "UL" || el.tagName == "OL"))
+        return;
+      while (first.firstChild)
+        li.insertBefore(first.firstChild, first);
+      li.removeChild(first);
     });
   }
   function buildSerializer(schema2, rawChunks) {
     const nodes2 = DOMSerializer.nodesFromSchema(schema2);
-    nodes2.html_block = (node) => {
+    const placeholder = (html) => {
       const el = document.createElement("dw-raw-placeholder");
-      el.setAttribute("data-key", String(rawChunks.push(node.textContent) - 1));
+      el.setAttribute("data-key", String(rawChunks.push(html) - 1));
       return el;
     };
+    nodes2.html_block = (node) => placeholder(node.textContent);
+    nodes2.html_inline = (node) => placeholder(node.attrs.html);
     return new DOMSerializer(nodes2, DOMSerializer.marksFromSchema(schema2));
   }
-  function exportHTML(schema2, doc3) {
+  function flattenNewlines(html) {
+    return html.split(/(<(pre|textarea|script|style)\b[\s\S]*?<\/\2\s*>)/i).map((part, i) => i % 3 == 0 ? part.replace(/\s*\r?\n\s*/g, " ") : i % 3 == 1 ? part : "").join("");
+  }
+  function exportHTML(schema2, doc3, opts) {
+    opts = opts || {};
     const children = [];
     doc3.content.forEach((child) => children.push(child));
-    while (children.length > 1 && children[children.length - 1].type.name == "paragraph" && children[children.length - 1].content.size == 0)
+    while (children.length > 1 && children[children.length - 1].type.name == "paragraph" && !children[children.length - 1].attrs.extra && children[children.length - 1].content.size == 0)
       children.pop();
-    if (children.length == 1 && children[0].type.name == "paragraph" && children[0].content.size == 0)
+    if (children.length == 1 && children[0].type.name == "paragraph" && !children[0].attrs.extra && children[0].content.size == 0)
       return "";
     const rawChunks = [];
     const serializer = buildSerializer(schema2, rawChunks);
     const parts = [];
-    children.forEach((child) => {
-      const div = document.createElement("div");
-      div.appendChild(serializer.serializeNode(child, { document }));
-      unwrapTightListItems(div);
-      div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
-        ph.replaceWith(
-          document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
+    const wasRaw = render.raw;
+    render.raw = true;
+    try {
+      children.forEach((child) => {
+        const div = document.createElement("div");
+        div.appendChild(serializer.serializeNode(child, { document }));
+        unwrapTightListItems(div);
+        div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
+          ph.replaceWith(
+            document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
+          );
+        });
+        parts.push(
+          div.innerHTML.replace(/<\/user>/g, "").replace(/\u0001DWRAW(\d+)\u0001/g, (m, key2) => rawChunks[+key2])
         );
       });
-      parts.push(
-        div.innerHTML.replace(/\u0001DWRAW(\d+)\u0001/g, (m, key2) => rawChunks[+key2])
-      );
-    });
-    return parts.join("\n\n").replace(/<\/user>/g, "");
+    } finally {
+      render.raw = wasRaw;
+    }
+    const html = parts.join(opts.flatten ? "" : "\n\n");
+    return opts.flatten ? flattenNewlines(html) : html;
+  }
+  function rawBlockFromText(text) {
+    const trimmed = String(text || "").trim();
+    const m = /^<(poll|lj-poll|site-embed|lj-embed|iframe|object|embed)\b/i.exec(trimmed);
+    if (!m)
+      return null;
+    if (m[1].toLowerCase() == "embed")
+      return /^<embed\b[^<]*>$/i.test(trimmed) ? trimmed : null;
+    const closer = new RegExp("</" + m[1] + "\\s*>$|/>$", "i");
+    return closer.test(trimmed) ? trimmed : null;
   }
 
   // src/dialogs.js
@@ -12864,8 +13356,11 @@ var DWEditor = (() => {
     fields.forEach((field) => {
       const label = document.createElement("label");
       label.textContent = field.label;
-      const input = document.createElement("input");
-      input.type = "text";
+      const input = document.createElement(field.multiline ? "textarea" : "input");
+      if (field.multiline)
+        input.rows = 5;
+      else
+        input.type = "text";
       input.name = field.name;
       input.value = field.value || "";
       if (field.placeholder)
@@ -12941,6 +13436,13 @@ var DWEditor = (() => {
     return buildDialog(title, [{ name: "text", label: title, value }], strings).then(
       (values) => values ? values.text : null
     );
+  }
+  function embedDialog(strings) {
+    return buildDialog(
+      strings.embedTitle,
+      [{ name: "code", label: strings.embedCode, required: true, multiline: true }],
+      strings
+    ).then((values) => values && values.code);
   }
 
   // src/nodeviews.js
@@ -13043,13 +13545,34 @@ var DWEditor = (() => {
       return !this.contentDOM.contains(mutation.target);
     }
   };
+  var HtmlInlineView = class {
+    constructor(node) {
+      this.dom = document.createElement("span");
+      this.dom.className = "dw-editor-html-inline";
+      this.dom.contentEditable = "false";
+      this.render(node);
+    }
+    render(node) {
+      const html = node.attrs.html;
+      const open = /^<[^>]*>/.exec(html);
+      this.dom.textContent = open ? open[0] : html.slice(0, 40);
+      this.dom.title = html;
+    }
+    update(node) {
+      if (node.type.name != "html_inline")
+        return false;
+      this.render(node);
+      return true;
+    }
+  };
   function buildNodeViews2(options) {
     const strings = options.strings;
     const icons = options.icons;
     return {
       cut: (node, view, getPos) => new CutView(node, view, getPos, strings),
       user: (node) => new UserView(node, icons),
-      html_block: (node, view, getPos) => new HtmlBlockView(node, view, getPos, strings)
+      html_block: (node, view, getPos) => new HtmlBlockView(node, view, getPos, strings),
+      html_inline: (node) => new HtmlInlineView(node)
     };
   }
 
@@ -14201,6 +14724,43 @@ var DWEditor = (() => {
     return [keymap(keys2), keymap(baseKeymap)];
   }
 
+  // src/paste.js
+  function insertRawBlock(view, html) {
+    const state = view.state;
+    const type = state.schema.nodes.html_block;
+    const node = type.create(null, html ? state.schema.text(html) : null);
+    const $from = state.selection.$from;
+    let tr = state.tr;
+    if ($from.depth == 0) {
+      tr = tr.insert($from.pos, node);
+    } else {
+      const block = $from.node(1);
+      if (block.type.name == "paragraph" && block.content.size == 0)
+        tr = tr.replaceWith($from.before(1), $from.after(1), node);
+      else
+        tr = tr.insert($from.after(1), node);
+    }
+    view.dispatch(tr.scrollIntoView());
+    view.focus();
+  }
+  function pastePlugin() {
+    return new Plugin({
+      props: {
+        handlePaste(view, event) {
+          if (!event.clipboardData)
+            return false;
+          if (view.state.selection.$from.parent.type.spec.code)
+            return false;
+          const raw = rawBlockFromText(event.clipboardData.getData("text/plain"));
+          if (!raw)
+            return false;
+          insertRawBlock(view, raw);
+          return true;
+        }
+      }
+    });
+  }
+
   // src/menu.js
   function markActive(state, type) {
     const { from: from2, $from, to, empty: empty2 } = state.selection;
@@ -14233,10 +14793,14 @@ var DWEditor = (() => {
       return true;
     };
   }
-  function makeInsertImage(schema2, strings) {
+  function makeInsertImage(schema2, strings, onImage) {
     return function(state, dispatch, view) {
       if (!dispatch)
         return true;
+      if (onImage) {
+        onImage();
+        return true;
+      }
       imageDialog(strings).then((values) => {
         if (!values || !values.src)
           return;
@@ -14261,6 +14825,24 @@ var DWEditor = (() => {
         view.dispatch(view.state.tr.replaceSelectionWith(node, false));
         view.focus();
       });
+      return true;
+    };
+  }
+  function makeInsertEmbed(strings) {
+    return function(state, dispatch, view) {
+      if (!dispatch)
+        return true;
+      embedDialog(strings).then((code) => {
+        if (code)
+          insertRawBlock(view, code);
+      });
+      return true;
+    };
+  }
+  function makeInsertPoll(pollUrl) {
+    return function(state, dispatch) {
+      if (dispatch)
+        window.open(pollUrl, "_blank");
       return true;
     };
   }
@@ -14289,7 +14871,8 @@ var DWEditor = (() => {
       { value: "html_block", label: strings.blockHtml, type: schema2.nodes.html_block }
     ];
   }
-  function buildToolbar(schema2, strings) {
+  function buildToolbar(schema2, strings, pageOptions) {
+    const options = pageOptions || {};
     const editLink = makeEditLink(schema2, strings);
     const dom = document.createElement("div");
     dom.className = "dw-editor-toolbar";
@@ -14329,11 +14912,11 @@ var DWEditor = (() => {
     addButton(group, { name: "undo", title: strings.undo, html: "&#8617;", command: undo });
     addButton(group, { name: "redo", title: strings.redo, html: "&#8618;", command: redo });
     group = addGroup();
-    const options = blockOptions(schema2, strings);
+    const blockChoices = blockOptions(schema2, strings);
     const select = document.createElement("select");
     select.className = "dw-editor-blockselect";
     select.setAttribute("aria-label", strings.blockLabel);
-    options.forEach((opt) => {
+    blockChoices.forEach((opt) => {
       const el = document.createElement("option");
       el.value = opt.value;
       el.textContent = opt.label;
@@ -14342,7 +14925,7 @@ var DWEditor = (() => {
     select.addEventListener("change", () => {
       if (!currentView)
         return;
-      const opt = options.find((o) => o.value == select.value);
+      const opt = blockChoices.find((o) => o.value == select.value);
       if (opt) {
         setBlockType2(opt.type, opt.attrs)(currentView.state, currentView.dispatch);
         currentView.focus();
@@ -14389,7 +14972,7 @@ var DWEditor = (() => {
       name: "image",
       title: strings.image,
       html: "&#128247;",
-      command: makeInsertImage(schema2, strings)
+      command: makeInsertImage(schema2, strings, options.onImage)
     });
     addButton(group, {
       name: "user",
@@ -14397,6 +14980,20 @@ var DWEditor = (() => {
       html: "@",
       command: makeInsertUser(schema2, strings)
     });
+    if (options.canEmbed)
+      addButton(group, {
+        name: "embed",
+        title: strings.embed,
+        html: "&#9654;",
+        command: makeInsertEmbed(strings)
+      });
+    if (options.pollUrl)
+      addButton(group, {
+        name: "poll",
+        title: strings.poll,
+        html: "&#128202;",
+        command: makeInsertPoll(options.pollUrl)
+      });
     group = addGroup();
     addButton(group, {
       name: "bullet-list",
@@ -14507,11 +15104,34 @@ var DWEditor = (() => {
     userSite: "Site",
     userSiteHint: "leave blank for this site",
     mentionLiteral: "use as typed",
-    mentionCommunity: "community"
+    mentionCommunity: "community",
+    poll: "Create a poll",
+    embed: "Embed media",
+    embedTitle: "Embed media",
+    embedCode: "Paste the embed code"
   };
   var instances = {};
-  function materializeLinebreaks(html) {
-    return html.replace(/\r?\n/g, "<br />");
+  var CASUAL_FORMATS = { html_casual1: 1, html_casual0: 1, rte0: 1 };
+  var MENTION_FORMATS = { html_casual1: 1, markdown0: 1, rte0: 1 };
+  var NEWLINE_FORMATS = { html_casual1: 1, html_casual0: 1, rte0: 1, markdown0: 1 };
+  function casualOptions(fromFormat, sites) {
+    if (!NEWLINE_FORMATS[fromFormat])
+      return null;
+    return {
+      links: !!CASUAL_FORMATS[fromFormat],
+      mentions: !!MENTION_FORMATS[fromFormat],
+      sites
+    };
+  }
+  function insertInline(view, node) {
+    const { $from } = view.state.selection;
+    if ($from.parent.type.spec.code) {
+      const para = view.state.schema.nodes.paragraph.create(null, node);
+      view.dispatch(view.state.tr.insert($from.after(), para).scrollIntoView());
+    } else {
+      view.dispatch(view.state.tr.replaceSelectionWith(node, false).scrollIntoView());
+    }
+    view.focus();
   }
   function mount(id, opts) {
     if (instances[id])
@@ -14521,31 +15141,35 @@ var DWEditor = (() => {
     if (!textarea)
       return null;
     const strings = Object.assign({}, DEFAULT_STRINGS, opts.strings || {});
-    let html = textarea.value;
-    if (opts.materializeLinebreaks)
-      html = materializeLinebreaks(html);
-    const toolbar = buildToolbar(schema, strings);
+    const sites = opts.icons && opts.icons.sites ? Object.keys(opts.icons.sites) : [];
+    const casual = casualOptions(opts.fromFormat, sites);
+    const toolbar = buildToolbar(schema, strings, {
+      onImage: opts.onImage,
+      pollUrl: opts.pollUrl,
+      canEmbed: !!opts.canEmbed
+    });
     const wrapper = document.createElement("div");
     wrapper.className = "dw-editor";
     wrapper.appendChild(toolbar.dom);
     textarea.parentNode.insertBefore(wrapper, textarea);
     textarea.style.display = "none";
     const state = EditorState.create({
-      doc: importHTML(schema, html),
+      doc: importHTML(schema, textarea.value, { casual }),
       plugins: [
         // Mentions first: its handleKeyDown must see Enter/Tab/arrows
         // before the keymaps do.
         mentionsPlugin({
           circleUrl: opts.circleUrl,
           strings,
-          sites: opts.icons && opts.icons.sites ? Object.keys(opts.icons.sites) : []
+          sites
         }),
         buildInputRules(schema),
         ...buildKeymap(schema, toolbar.commands),
         history(),
         dropCursor(),
         gapCursor(),
-        trailingNode()
+        trailingNode(),
+        pastePlugin()
       ]
     });
     let syncTimer = null;
@@ -14553,12 +15177,23 @@ var DWEditor = (() => {
       view: null,
       textarea,
       wrapper,
-      sync() {
+      fromFormat: opts.fromFormat || "",
+      // edited: the poster changed the document. stale: the textarea
+      // doesn't reflect the document (we converted it, or they edited).
+      edited: false,
+      stale: !!casual,
+      // Write the document into the textarea. Skipped while the textarea
+      // already says the same thing, so an entry opened and saved without
+      // edits is stored byte-for-byte as it was.
+      sync(force, exportOpts) {
         if (syncTimer) {
           clearTimeout(syncTimer);
           syncTimer = null;
         }
-        textarea.value = exportHTML(schema, instance.view.state.doc);
+        if (!instance.stale && !force)
+          return;
+        textarea.value = exportHTML(schema, instance.view.state.doc, exportOpts);
+        instance.stale = false;
       },
       onSubmit: () => instance.sync()
     };
@@ -14569,15 +15204,14 @@ var DWEditor = (() => {
         const view = instance.view;
         view.updateState(view.state.apply(tr));
         toolbar.update(view);
-        if (tr.docChanged) {
+        if (tr.docChanged && !tr.getMeta("dwSeed")) {
+          instance.edited = true;
+          instance.stale = true;
           if (syncTimer)
             clearTimeout(syncTimer);
-          syncTimer = setTimeout(() => {
-            syncTimer = null;
-            textarea.value = exportHTML(schema, view.state.doc);
-            if (opts.onInput)
-              opts.onInput();
-          }, SYNC_DELAY);
+          syncTimer = setTimeout(() => instance.sync(), SYNC_DELAY);
+          if (opts.onInput)
+            opts.onInput();
         }
       }
     });
@@ -14585,20 +15219,40 @@ var DWEditor = (() => {
     const seed = appendTrailingParagraph(instance.view.state);
     if (seed) {
       seed.setMeta("addToHistory", false);
+      seed.setMeta("dwSeed", true);
       instance.view.dispatch(seed);
     }
-    if (textarea.form)
-      textarea.form.addEventListener("submit", instance.onSubmit);
+    const form = textarea.form;
+    if (form) {
+      form.addEventListener("submit", instance.onSubmit, true);
+      if (typeof form.submit == "function") {
+        const nativeSubmit = form.submit;
+        form.submit = function() {
+          instance.sync();
+          return nativeSubmit.apply(form, arguments);
+        };
+        instance.restoreSubmit = () => {
+          delete form.submit;
+        };
+      }
+    }
     instances[id] = instance;
     return instance;
   }
-  function unmount(id) {
+  function unmount(id, opts) {
     const instance = instances[id];
     if (!instance)
       return;
-    instance.sync();
-    if (instance.textarea.form)
-      instance.textarea.form.removeEventListener("submit", instance.onSubmit);
+    opts = opts || {};
+    const toFormat = opts.toFormat || "";
+    instance.sync(!!toFormat && toFormat != instance.fromFormat, {
+      flatten: !!(CASUAL_FORMATS[toFormat] && toFormat != "rte0")
+    });
+    if (instance.textarea.form) {
+      instance.textarea.form.removeEventListener("submit", instance.onSubmit, true);
+      if (instance.restoreSubmit)
+        instance.restoreSubmit();
+    }
     instance.view.destroy();
     instance.wrapper.remove();
     instance.textarea.style.display = "";
@@ -14606,6 +15260,37 @@ var DWEditor = (() => {
   }
   function isActive(id) {
     return !!instances[id];
+  }
+  function flush(id) {
+    const instance = instances[id];
+    if (instance)
+      instance.sync();
+  }
+  function isDirty(id) {
+    const instance = instances[id];
+    return !!instance && instance.edited;
+  }
+  function insertImage(id, values) {
+    const instance = instances[id];
+    if (!instance || !values || !values.src)
+      return false;
+    insertInline(
+      instance.view,
+      schema.nodes.image.create({ src: values.src, alt: values.alt || "" })
+    );
+    return true;
+  }
+  function insertHTMLBlock(id, html) {
+    const instance = instances[id];
+    if (!instance)
+      return false;
+    insertRawBlock(instance.view, html || "");
+    return true;
+  }
+  function focus(id) {
+    const instance = instances[id];
+    if (instance)
+      instance.view.focus();
   }
   function getHTML(id) {
     const instance = instances[id];

@@ -1,5 +1,5 @@
 /* Styles for the rich text editor (DWEditor / ProseMirror).
- * Used on the beta entry form when the "Rich Text" format is selected. */
+ * Used on the entry forms when the "Rich Text" format is selected. */
 
 /* === ProseMirror base styles (from prosemirror-view/style/prosemirror.css) === */
 
@@ -99,6 +99,10 @@ img.ProseMirror-separator {
     min-height: 250px;
     padding: 0.5em 0.75em;
     outline: none;
+
+    // Markup carried through from an existing entry keeps its own style
+    // attributes; keep position:fixed/absolute ones from escaping the editor.
+    contain: paint;
 }
 
 .dw-editor .ProseMirror p {
@@ -256,6 +260,20 @@ img.ProseMirror-separator {
     font-family: monospace;
     font-size: 0.9em;
     white-space: pre-wrap;
+}
+
+/* An empty inline element kept verbatim, e.g. <a name="top"></a> */
+
+.dw-editor-html-inline {
+    display: inline-block;
+    padding: 0 4px;
+    border: 1px dashed #b96;
+    border-radius: 3px;
+    background: #fdf8f2;
+    color: #963;
+    font-family: monospace;
+    font-size: 0.8em;
+    vertical-align: baseline;
 }
 
 /* === Mention dropdown === */

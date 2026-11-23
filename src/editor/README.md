@@ -1,7 +1,7 @@
 # dw-editor
 
 The Dreamwidth rich text editor: a small, dependency-light WYSIWYG editor for
-the beta entry form, built directly on [ProseMirror](https://prosemirror.net/)
+the entry form, built directly on [ProseMirror](https://prosemirror.net/)
 (no framework, no wrapper library).
 
 It edits a document that serializes to plain HTML plus Dreamwidth's special
@@ -26,7 +26,8 @@ editor's output is untrusted input like any other.
 
 The page-side glue that swaps the editor in and out based on the format
 `<select>` lives in `htdocs/js/pages/entry/editor.js`; the editor styles live
-in `htdocs/stc/css/components/dw-editor.css`.
+in `htdocs/scss/components/dw-editor.scss` (compiled to
+`htdocs/stc/css/components/dw-editor.css` by `bin/build-static.sh`).
 
 ## Building
 

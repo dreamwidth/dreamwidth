@@ -4,7 +4,8 @@
 import { toggleMark, setBlockType, wrapIn, lift } from "prosemirror-commands";
 import { wrapInList } from "prosemirror-schema-list";
 import { undo, redo } from "prosemirror-history";
-import { linkDialog, imageDialog, userDialog } from "./dialogs.js";
+import { linkDialog, imageDialog, userDialog, embedDialog } from "./dialogs.js";
+import { insertRawBlock } from "./paste.js";
 
 function markActive(state, type) {
     const { from, $from, to, empty } = state.selection;
@@ -37,9 +38,15 @@ function makeEditLink(schema, strings) {
     };
 }
 
-function makeInsertImage(schema, strings) {
+// The page may supply its own image dialog (the entry form's upload-capable
+// modal); otherwise fall back to a bare URL prompt.
+function makeInsertImage(schema, strings, onImage) {
     return function (state, dispatch, view) {
         if (!dispatch) return true;
+        if (onImage) {
+            onImage();
+            return true;
+        }
         imageDialog(strings).then((values) => {
             if (!values || !values.src) return;
             const node = schema.nodes.image.create({ src: values.src, alt: values.alt });
@@ -62,6 +69,27 @@ function makeInsertUser(schema, strings) {
             view.dispatch(view.state.tr.replaceSelectionWith(node, false));
             view.focus();
         });
+        return true;
+    };
+}
+
+// Embedded media (a video player's <iframe>, ...) is kept as an HTML block; the
+// server turns it into a proper embed when the entry is posted.
+function makeInsertEmbed(strings) {
+    return function (state, dispatch, view) {
+        if (!dispatch) return true;
+        embedDialog(strings).then((code) => {
+            if (code) insertRawBlock(view, code);
+        });
+        return true;
+    };
+}
+
+// Polls are made on their own page (which also checks the poster's
+// permissions); the code it gives back is pasted in and becomes a block.
+function makeInsertPoll(pollUrl) {
+    return function (state, dispatch) {
+        if (dispatch) window.open(pollUrl, "_blank");
         return true;
     };
 }
@@ -96,7 +124,8 @@ function blockOptions(schema, strings) {
     ];
 }
 
-export function buildToolbar(schema, strings) {
+export function buildToolbar(schema, strings, pageOptions) {
+    const options = pageOptions || {};
     const editLink = makeEditLink(schema, strings);
 
     const dom = document.createElement("div");
@@ -144,11 +173,11 @@ export function buildToolbar(schema, strings) {
 
     // Block type
     group = addGroup();
-    const options = blockOptions(schema, strings);
+    const blockChoices = blockOptions(schema, strings);
     const select = document.createElement("select");
     select.className = "dw-editor-blockselect";
     select.setAttribute("aria-label", strings.blockLabel);
-    options.forEach((opt) => {
+    blockChoices.forEach((opt) => {
         const el = document.createElement("option");
         el.value = opt.value;
         el.textContent = opt.label;
@@ -156,7 +185,7 @@ export function buildToolbar(schema, strings) {
     });
     select.addEventListener("change", () => {
         if (!currentView) return;
-        const opt = options.find((o) => o.value == select.value);
+        const opt = blockChoices.find((o) => o.value == select.value);
         if (opt) {
             setBlockType(opt.type, opt.attrs)(currentView.state, currentView.dispatch);
             currentView.focus();
@@ -205,7 +234,7 @@ export function buildToolbar(schema, strings) {
         name: "image",
         title: strings.image,
         html: "&#128247;",
-        command: makeInsertImage(schema, strings),
+        command: makeInsertImage(schema, strings, options.onImage),
     });
     addButton(group, {
         name: "user",
@@ -213,6 +242,21 @@ export function buildToolbar(schema, strings) {
         html: "@",
         command: makeInsertUser(schema, strings),
     });
+
+    if (options.canEmbed)
+        addButton(group, {
+            name: "embed",
+            title: strings.embed,
+            html: "&#9654;",
+            command: makeInsertEmbed(strings),
+        });
+    if (options.pollUrl)
+        addButton(group, {
+            name: "poll",
+            title: strings.poll,
+            html: "&#128202;",
+            command: makeInsertPoll(options.pollUrl),
+        });
 
     // Blocks: lists, quote, cut, hr, outdent
     group = addGroup();
