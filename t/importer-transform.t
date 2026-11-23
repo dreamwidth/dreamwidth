@@ -19,7 +19,7 @@ use warnings;
 
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use DW::Importer::Transform::LJMarkup qw( remap_user_tags entry_text comment_text );
 use DW::Importer::Transform::Security qw( map_security );
 
