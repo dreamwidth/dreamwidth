@@ -43,6 +43,13 @@ use DW::Template;
 
     package Local::CaptchaRequest;
     sub did_post { return 0; }
+    sub get_args { return {}; }
+
+    sub pnote {
+        my ( $self, $key, $value ) = @_;
+        $self->{pnotes}{$key} = $value if @_ > 2;
+        return $self->{pnotes}{$key};
+    }
 
     sub note {
         my ( $self, $key, $value ) = @_;
@@ -139,9 +146,10 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
 };
 
 subtest 'shared form fragment explains only visible journal challenges' => sub {
-    my $request = bless { ml_lang => 'debug' }, 'Local::CaptchaRequest';
+    my $request = bless {}, 'Local::CaptchaRequest';
     no warnings qw(redefine once);
-    local *DW::Request::get = sub { return $request; };
+    local *DW::Request::get     = sub { return $request; };
+    local $DW::Request::cur_req = $request;
     for my $html ( '', '<div id="local-captcha">Challenge</div>' ) {
         for my $policy ( 0, 1 ) {
             my $rendered = DW::Template->template_string( 'journal/captcha.tt',
@@ -152,7 +160,7 @@ subtest 'shared form fragment explains only visible journal challenges' => sub {
             if ( length($html) && $policy ) {
                 like(
                     $rendered,
-                    qr/<p class="captcha-journal-setting">captcha\.journal_setting<\/p>/,
+                    qr/<p class="captcha-journal-setting">[^<]+<\/p>/,
                     'renders localized journal explanation beside challenge'
                 );
             }

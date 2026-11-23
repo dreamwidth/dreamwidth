@@ -13,6 +13,7 @@
 
 package LJ::PageStats;
 use strict;
+
 use DW::SiteScheme;
 
 my $all_modules;
@@ -138,13 +139,6 @@ sub get_user {
     return LJ::get_remote();
 }
 
-# return Apache request
-sub get_request {
-    my ($self) = @_;
-
-    return BML::get_request();
-}
-
 sub get_root {
     my ($self) = @_;
 
@@ -165,16 +159,6 @@ sub get_conf {
     my ($self) = @_;
 
     return $self->{conf};
-}
-
-sub filename {
-    my ($self) = @_;
-    my $r = $self->get_request;
-
-    my $filename = $r->filename;
-    $filename =~ s!$LJ::HOME/(?:ssldocs|htdocs)!!;
-
-    return $filename;
 }
 
 sub journaltype {

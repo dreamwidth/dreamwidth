@@ -37,7 +37,7 @@
 <dl>
 <dt><a href="/create/"><font size="+1"><tt><b>Create A Journal</b></tt></font></a>
 <dd>Come and create your very own [% site.nameshort %]!
-<dt><a href="/update"><font size="+1"><tt><b>Update Journal</b></tt></font></a>
+<dt><a href="/entry/new"><font size="+1"><tt><b>Update Journal</b></tt></font></a>
 <dd>Update your [% site.nameshort %] from the web.
 </dl>
 </td>

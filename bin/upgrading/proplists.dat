@@ -617,7 +617,7 @@ userproplist.livejournal:
 userproplist.latest_optout:
   cldversion: 4
   datatype: bool
-  des: Opt out of latest.bml, latest-rss.bml, and latest-img.bml if on.
+  des: Opt out of the latest-updates listing and its feeds if on.
   indexed: 0
   multihomed: 0
   prettyname: Latest Updates Opt Out
@@ -1217,10 +1217,10 @@ userproplist.s2_style:
 userproplist.schemepref:
   cldversion: 4
   datatype: char
-  des: BML scheme name
+  des: Site scheme name
   indexed: 0
   multihomed: 0
-  prettyname: BML Scheme Preference
+  prettyname: Site Scheme Preference
 
 userproplist.scheme_manually_set:
   cldversion: 4

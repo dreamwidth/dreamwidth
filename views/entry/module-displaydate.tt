@@ -24,6 +24,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     <div class="row collapse">
         <div class="columns small-5">
         [%- form.textbox(
+            label = dw.ml('.label.date')
+            labelclass = 'hidden'
             name = "entrytime_date"
             id = "js-entrytime-date"
 
@@ -48,6 +50,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
         <div class="columns small-3">
         [%- form.textbox(
+            label = dw.ml('.label.time')
+            labelclass = 'hidden'
             name = "entrytime_time"
             id = "js-entrytime-time"
 

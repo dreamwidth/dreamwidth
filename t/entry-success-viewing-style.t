@@ -40,8 +40,8 @@ $_->update_self( { status => 'A' } ) for $poster, $community;
 $poster->join_community( $community, 1, 1 );
 
 # Authentication is supplied at the controller boundary. Persistence and URL
-# construction are real; only final template rendering is captured. Routed auth,
-# legacy BML forms and rendered HTML require separate integration coverage.
+# construction are real; only final template rendering is captured. Routed auth
+# and rendered HTML require separate integration coverage.
 {
     no warnings 'redefine';
     local *DW::Template::render_template = sub {
@@ -57,9 +57,9 @@ $poster->join_community( $community, 1, 1 );
         [ 'original style', { style => 'original' }, { style => 'original' } ],
         [ 'light style',    { style => 'light' },    { style => 'light' } ],
         [
-            'light format and BML fallback',
+            'light format; the retired BML fallback is dropped',
             { format => 'light', fallback => 'bml' },
-            { format => 'light', fallback => 'bml' }
+            { format => 'light' }
         ],
         [
             'combined style parameters',

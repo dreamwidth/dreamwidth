@@ -83,7 +83,7 @@ pkill starman; bash .devcontainer/start.sh
   theming compiler.
 - Requests flow through `cgi-bin/Plack/Middleware/DW/`, `DW::Routing`,
   `DW::Controller::*`, and `DW::Template`. Template Toolkit views live in
-  `views/`; legacy BML pages live in `htdocs/`. See `doc/PLACK.md`.
+  `views/`; static files live in `htdocs/`. See `doc/PLACK.md`.
 - Template Toolkit does not escape output for you. Every `[% value %]` that can
   hold user data needs `| html`, `| url`, or `| js` as appropriate.
 - In devcontainers, `LJ::Global::Defaults` intentionally sets `$LJ::DOMAIN`,
@@ -125,8 +125,8 @@ wording or presentation, don't add it.
 New user-facing text may be hard-coded English or a translation string; both are
 accepted. When you use translation strings:
 
-- Site-wide strings live in `bin/upgrading/en.dat`; strings for a template or
-  BML page live in the `.tt.text` or `.bml.text` file next to it.
+- Site-wide strings live in `bin/upgrading/en.dat`; strings for a template
+  live in the `.tt.text` file next to it.
 - When your change leaves a string unused, delete it and add its key to
   `bin/upgrading/deadphrases.dat` (`general <key>`, or `general /path/page.tt.<key>`
   for a page string), so deployments remove it too.

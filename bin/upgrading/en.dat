@@ -697,6 +697,26 @@ entryform.spellcheck=Spell check
 
 entryform.spellcheck.noerrors=No spelling errors found
 
+entryform.spellcheck.unavailable=Spell check is currently unavailable
+
+entryform.simple.advanced=Advanced editor
+
+entryform.simple.editcustom=Edit custom groups
+
+entryform.simple.format=Format:
+
+entryform.simple.html=HTML
+
+entryform.simple.icon=Icon:
+
+entryform.simple.richtext=Rich Text
+
+entryform.simple.switch=Simple editor
+
+entryform.simple.switch.confirm=Switching editors reloads this page and loses changes you haven't posted. Switch anyway?
+
+entryform.simple.title=Post an Entry
+
 entryform.spellchecked=Spell-checked entry:
 
 entryform.subject=Subject:
@@ -2197,6 +2217,8 @@ poll.dberror.items=Database error inserting items: [[errmsg]]
 
 poll.dberror.questions=Database error inserting questions: [[errmsg]]
 
+poll.error.accttype=Your account type doesn't allow you to create polls.
+
 poll.error.badmaxlength=Maxlength attribute on lj-pq text tags must be an integer from 1-255.
 
 poll.error.badsize2=Size attribute on poll-question (or lj-pq) text tags must be an integer from 1-100.
@@ -2546,10 +2568,6 @@ setting.bio.note=_none
 setting.bio.question=Bio:
 
 setting.birthday.question=What's your birthday?
-
-setting.birthdaydisplay.error.invalid=Invalid option
-
-setting.birthdaydisplay.question=Birthday display options:
 
 setting.commentcaptcha.label=Anti-Spam
 
@@ -2903,12 +2921,6 @@ setting.entryeditor.option.richtext=Rich Text
 setting.excludeownstats.label=Journal Statistics
 
 setting.excludeownstats.option=Do not include me in my own statistics
-
-setting.gender.error.invalid=Invalid option
-
-setting.gender.error.wrongtype=Only personal or identity journals can have a gender.
-
-setting.gender.question=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
 setting.globalsearch.label=Site-Wide Search Inclusion
 

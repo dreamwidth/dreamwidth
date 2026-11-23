@@ -24,26 +24,15 @@ use DW::Request::Standard;
 use DW::Template;
 use HTTP::Request;
 use LJ::Community;
+use LJ::Lang;
 use LJ::Session;
 use LJ::Test qw( temp_user temp_comm );
 use LJ::Web;
 use LJ::Widget::Search;
 
-# The Plack test runtime does not load the Apache-only BML handler. Supply
-# deterministic language keys without importing that legacy server dependency.
-{
-
-    package ControlStripTestLanguage;
-    sub TIEHASH { bless {}, $_[0] }
-    sub FETCH { $_[1] }
-}
-local %BML::ML;
-tie %BML::ML, 'ControlStripTestLanguage';
-
 # Keep unrelated presentation out of the test. Invitation and relationship
 # lookups use real temporary users and database rows.
 no warnings 'redefine';
-local *BML::ml                       = sub { $_[0] };
 local *DW::AccountSwitcher::accounts = sub { return () };
 local *LJ::Widget::Search::render    = sub { return '' };
 local *DW::Template::template_string = sub {
@@ -88,8 +77,10 @@ sub strip_actions {
 
 my $accept     = qr{<a href='\Q$LJ::SITEROOT\E/manage/invites'>[^<]+</a>};
 my $circle_url = "$LJ::SITEROOT/circle/$comm->{user}/edit";
-my $join       = qr{<a href='\Q$circle_url\E'>web\.controlstrip\.links\.joincomm</a>};
-my $leave      = qr{<a href='\Q$circle_url\E'>web\.controlstrip\.links\.leavecomm</a>};
+my $join_text  = LJ::Lang::ml('web.controlstrip.links.joincomm');
+my $leave_text = LJ::Lang::ml('web.controlstrip.links.leavecomm');
+my $join       = qr{<a href='\Q$circle_url\E'>\Q$join_text\E</a>};
+my $leave      = qr{<a href='\Q$circle_url\E'>\Q$leave_text\E</a>};
 
 like( strip_actions( $viewer, $comm ), $join, 'uninvited visitor can request membership' );
 ok( $viewer->send_comm_invite( $othercomm, $admin, ['member'] ), 'invite to another community' );
@@ -145,11 +136,8 @@ like( $actions, $leave, 'member who does not watch can leave' );
 unlike( $actions, $accept, 'additional privileges do not replace member actions' );
 
 $actions = strip_actions( $admin, $comm );
-like(
-    $actions,
-    qr/web\.controlstrip\.links\.managecomminvites/,
-    'maintainer actions are preserved'
-);
+my $manage_invites = LJ::Lang::ml('web.controlstrip.links.managecomminvites');
+like( $actions, qr/\Q$manage_invites\E/, 'maintainer actions are preserved' );
 unlike( $actions, $accept, 'maintainer is not asked to accept an invitation' );
 
 $actions = strip_actions( undef, $comm );

@@ -19,7 +19,7 @@
 </tr>
 </table>
 
-<table border='0' cellspacing='5' cellpadding='0'>
+<table border='0' cellspacing='5' cellpadding='0' class='linkslist-table'>
     <thead>
     <tr>
         <th>[% dw.ml('widget.linkslist.table.order') %]</th>

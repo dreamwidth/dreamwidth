@@ -18,8 +18,6 @@
     </noscript>
 [% END %]
 
-<div class="alert-box secondary">[% ".beta.on" | ml( aopts = "href='$site.root/betafeatures'", user = dw_beta.ljuser_display ) %]</div>
-
 [% BLOCK actions %]
 <div class="header searchhighlight" id="action_row">
     <div class="checkbox">[% form.checkbox(name = 'check_all', class = 'check_all', value = 'check_all', autocomplete = 'off') %]</div>
@@ -43,7 +41,7 @@
 
     <div id="inbox_messages">
 
-    <form action="[% site.root %]/inbox/new" method="POST">
+    <form action="[% site.root %]/inbox" method="POST">
         [% dw.form_auth() %]
         [% form.hidden(name = 'view', value = view) IF view %]
         [% form.hidden(name = 'page', value = page) IF page%]
