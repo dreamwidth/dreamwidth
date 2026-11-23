@@ -26,6 +26,7 @@ use URI;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
+use LJ::BetaFeatures;
 use LJ::Entry;
 use LJ::Session;
 use LJ::Test qw(temp_user);
@@ -132,6 +133,89 @@ test_psgi $app, sub {
             $before && $before->jitemid,
             'and no entry was created'
         );
+    };
+
+    subtest 'the layout switch is remembered for old links' => sub {
+        my $res  = $request->( GET '/entry/new?mode=simple' );
+        my $form = simple_form( $res->content, 'http://localhost/entry/new?mode=simple' );
+        ok( $form, 'the simple form renders' ) or return;
+        my $auth = $form->value('lj_form_auth');
+
+        $request->( POST '/__rpc_entryformlayout', [ layout => 'advanced' ] );
+        is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
+            'simple', 'a switch without the form token is ignored' );
+
+        $request->( POST '/__rpc_entryformlayout',
+            [ layout => 'advanced', lj_form_auth => $auth ] );
+        is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
+            'advanced', 'switching to the advanced layout is stored' );
+
+        $request->( POST '/__rpc_entryformlayout',
+            [ layout => "simple\n", lj_form_auth => $auth ] );
+        is( LJ::load_userid( $owner->id, 1 )->entryform_layout,
+            'advanced', 'an invalid layout is not stored' );
+
+        my $location = URI->new( $request->( GET '/update.bml?style=mine' )->header('Location') );
+        is( $location->path, '/entry/new', 'an old posting link still opens the native form' );
+        is_deeply(
+            { $location->query_form },
+            { style => 'mine' },
+            'in the advanced layout, keeping the viewing style'
+        );
+
+        if ($entry) {
+            $location = URI->new(
+                $request->( GET '/editjournal.bml?itemid=' . $entry->ditemid )->header('Location')
+            );
+            is( { $location->query_form }->{mode},
+                undef, 'an old edit link opens the advanced layout' );
+
+            $res = $request->( GET '/editjournal' );
+            my ($button) = grep { ( $_->action // '' ) =~ m{/entry/[^/]+/\d+/edit$} }
+                HTML::Form->parse( $res->content, 'http://localhost/editjournal' );
+            ok( $button, 'the entry picker lists the entry' );
+            is( $button && $button->find_input('mode'),
+                undef, 'and its Edit button opens the advanced layout' );
+        }
+
+        $request->( POST '/__rpc_entryformlayout', [ layout => 'simple', lj_form_auth => $auth ] );
+        $location = URI->new( $request->( GET '/update' )->header('Location') );
+        is( { $location->query_form }->{mode},
+            'simple', 'switching back to the simple layout restores it' );
+    };
+
+    subtest 'updatepage beta users get the advanced layout before migration' => sub {
+        my $tester = temp_user();
+        $tester->update_self( { status => 'A' } );
+        my $tester_session = LJ::Session->create( $tester, nolog => 1 );
+        my $tester_cookie =
+              'ljmastersession='
+            . $tester_session->master_cookie_string
+            . '; ljloggedin='
+            . $tester_session->loggedin_cookie_string;
+        my $old_link = sub {
+            my $req = GET '/update';
+            $req->header( Cookie => $tester_cookie );
+            return { URI->new( $send->($req)->header('Location') )->query_form }->{mode};
+        };
+
+        local $LJ::BETA_FEATURES{updatepage} = { start_time => 0, end_time => 'Inf' };
+        is( $old_link->(), 'simple', 'without the beta, an old link opens the simple layout' );
+
+        LJ::BetaFeatures->add_to_beta( $tester => 'updatepage' );
+        is( $old_link->(), undef, 'in the beta, it opens the advanced layout' );
+
+        # following an old link must not rewrite the beta list, even once a
+        # beta has expired
+        {
+            local $LJ::BETA_FEATURES{updatepage}{end_time} = 0;
+            is( $old_link->(), undef, 'an expired beta still opens the advanced layout' );
+        }
+        is( LJ::load_userid( $tester->id, 1 )->prop('betafeatures_list'),
+            'updatepage', 'and leaves the beta list alone' );
+
+        ok( $tester->entryform_layout('simple'), 'the beta user switches to simple' );
+        is( $old_link->(), 'simple', 'and that choice wins over the beta' );
     };
 
     subtest 'an old edit link opens simple mode, which saves and deletes the entry' => sub {
