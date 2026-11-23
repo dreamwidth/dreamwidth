@@ -205,6 +205,15 @@ test_psgi $app, sub {
         LJ::BetaFeatures->add_to_beta( $tester => 'updatepage' );
         is( $old_link->(), undef, 'in the beta, it opens the advanced layout' );
 
+        # following an old link must not rewrite the beta list, even once a
+        # beta has expired
+        {
+            local $LJ::BETA_FEATURES{updatepage}{end_time} = 0;
+            is( $old_link->(), undef, 'an expired beta still opens the advanced layout' );
+        }
+        is( LJ::load_userid( $tester->id, 1 )->prop('betafeatures_list'),
+            'updatepage', 'and leaves the beta list alone' );
+
         ok( $tester->entryform_layout('simple'), 'the beta user switches to simple' );
         is( $old_link->(), 'simple', 'and that choice wins over the beta' );
     };

@@ -34,6 +34,13 @@
             var url = Site.siteroot + "/__rpc_entryformlayout";
             if (navigator.sendBeacon && navigator.sendBeacon(url, data)) return;
 
+            // a modified click opens a new tab and leaves this page, so the
+            // post finishes on its own
+            if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) {
+                $.post(url, data.toString());
+                return;
+            }
+
             e.preventDefault();
             $.post(url, data.toString()).always(function () {
                 window.location.href = link.href;

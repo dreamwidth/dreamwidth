@@ -483,8 +483,10 @@ sub entryform_layout {
 
     # People who opted into the native editor through the updatepage beta get
     # its advanced layout until bin/upgrading/migrate-updatepage-beta.pl
-    # stores that for them.
-    return $u->is_in_beta('updatepage') ? 'advanced' : 'simple';
+    # stores that for them. Read their beta list directly: is_in_beta rewrites
+    # the list when any beta has expired, and this runs on every old link.
+    my @betas = split /\s*,\s*/, $u->raw_prop('betafeatures_list') // '';
+    return ( grep { $_ eq 'updatepage' } @betas ) ? 'advanced' : 'simple';
 }
 
 # don't call this directly, only use the wrapper functions below.
