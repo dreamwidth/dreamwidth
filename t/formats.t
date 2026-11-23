@@ -17,9 +17,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::Formats;
 
 note("Format ID validation/canonicalization tests");
@@ -90,3 +90,5 @@ is(
     1 + scalar @DW::Formats::active_formats,
     "w/ obsolete current format, that obsolete format is added to the list."
 );
+
+ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );

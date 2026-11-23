@@ -20,6 +20,17 @@ use HTML::Entities;
 use Carp qw(cluck);
 use Encode;
 
+# no_utf8_flag previously used pack('C*',unpack('C*', $_[0]))
+# but that stopped working in Perl 5.10.
+sub no_utf8_flag {
+
+    # tell Perl to ignore the SvUTF8 flag in this scope.
+    use bytes;
+
+    # make a copy of the input string that doesn't have the flag at all.
+    return substr( $_[0], 0 );
+}
+
 # <LJFUNC>
 # name: LJ::trim
 # class: text
