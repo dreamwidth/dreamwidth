@@ -177,7 +177,7 @@ jQuery(function($) {
                                     }
 
                                     // for the 0 -> 1 case, when the link starts out hidden
-                                    $readLink.parent().show();
+                                    $readLink.parent().show().next(".entry-readlink-empty").hide();
 
                                     $readLink.ajaxtip(); // init
                                     if (data.extra) {

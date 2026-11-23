@@ -1339,6 +1339,30 @@ function Page::lay_print_comment_details(CommentInfo c) : void {
     print $c->lay_get_details(0, true);
 }
 
+function lay_comment_count_text(int count) : string {
+    var bool plural = lang_map_plural($count) != 0;
+    var string link = lay_string_placeholders($plural ? $*text_some_comments_link : $*text_a_comment_link, [string($count)]);
+    return lay_string_placeholders($plural ? $*text_some_comments : $*text_a_comment, [$link]);
+}
+
+function CommentInfo::lay_print_quickreply_read_link() : void {
+    if ($.count > 0 or $.show_readlink_hidden) {
+        var string hidden = $.count == 0 ? " style='display:none'" : "";
+        var string text = $.count > 0 ? lay_comment_count_text($.count) : "";
+        var string sing = ehtml(striphtml(lay_comment_count_text(1)));
+        var string dual = ehtml(striphtml(lay_comment_count_text(2)));
+        var string plur = ehtml(striphtml(lay_comment_count_text(3)));
+        var string url = ehtml($.read_url);
+        """<span class="entry-readlink"$hidden><a href="$url" data-sing="$sing" data-dual="$dual" data-plur="$plur">$text</a></span>""";
+    }
+    if ($.count == 0) {
+        """<span class="entry-readlink-empty">$*text_no_comments</span>""";
+    }
+    if (not $.enabled) {
+        print " " + $*text_comments_disabled;
+    }
+}
+
 # Prints a link to an entry's ReplyPage.
 #
 function Page::lay_print_entry_reply_link(CommentInfo c) : void {
@@ -1453,15 +1477,16 @@ function Page::lay_print_entry_left(Entry e) : void {
 }
 
 function Page::lay_print_entry_footer(Entry e) {
+    var string target = $e.dom_id + "-reply";
     """
-    <div class="links">
+    <div class="links" data-quickreply-target="$target">
     """;
-    $this->lay_print_comment_details( $e.comments );
-    $this->lay_print_entry_reply_link( $e, $e.dom_id + "-reply" );
+    $e.comments->lay_print_quickreply_read_link();
+    $this->lay_print_entry_reply_link( $e, $target );
     """
     </div>
     """;
-    $e->print_reply_container({ "target" => $e.dom_id + "-reply", "class" => "quickreply" });
+    $e->print_reply_container({ "target" => $target, "class" => "quickreply" });
 }
 
 
