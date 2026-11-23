@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 21;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -59,3 +59,40 @@ like(
     qr/<p>a<\/p><site-embed id="\d+"\/><p>b<\/p>/,
     'an <embed> inside <object> stays one module'
 );
+
+# A later </embed> belongs to a later embed, not to the bare one before it.
+$out = saved(qq{<embed $src><p>middle</p><embed $src>legacy</embed><p>end</p>});
+like( $out, qr/<p>middle<\/p>/,
+    'text between a bare <embed> and a later <embed>...</embed> is kept' );
+like( $out, qr/<p>end<\/p>/, '...and so is the text after the later one' );
+my @both = $out =~ /<site-embed id="(\d+)"/g;
+is( scalar @both, 2, '...and both embeds become modules' );
+
+# A </embed> in a comment closes nothing.
+$out = saved(qq{<embed $src><p>kept</p><!-- </embed> --><p>also kept</p>});
+like(
+    $out,
+    qr/<p>kept<\/p>.*<p>also kept<\/p>/s,
+    'a </embed> inside a comment does not make a bare <embed> a container'
+);
+
+# A bare <embed> inside an <object> doesn't unbalance it.
+$out = saved(qq{<p>a</p><object width="1"><embed $src></object><p>b</p>});
+like(
+    $out,
+    qr/<p>a<\/p><site-embed id="\d+"\/><p>b<\/p>/,
+    'a bare <embed> inside <object> leaves the object balanced'
+);
+
+# The older <embed>contents</embed> container form still works.
+$out = saved(qq{foo <embed>bar</embed> baz});
+like( $out, qr/^foo <site-embed id="\d+"\/> baz$/, '<embed>contents</embed> is still one module' );
+
+# Anything left open hands its text back instead of dropping it.
+$out = saved(qq{<p>a</p><object>never closed <b>text</b>});
+like( $out, qr/^<p>a<\/p>.*never closed <b>text<\/b>/s, 'an unclosed <object> keeps its text' );
+$out = saved(qq{<p>a</p><iframe src="http://example.com/">tail});
+like( $out, qr/^<p>a<\/p>.*tail/s, 'an unclosed <iframe> keeps its text' );
+$out = saved(qq{<p>a</p><site-embed>never closed});
+like( $out, qr/^<p>a<\/p>.*never closed/s, 'an unclosed <site-embed> keeps its text' );
+unlike( $out, qr/<site-embed id=/, '...without inventing a module' );

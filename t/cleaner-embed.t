@@ -395,14 +395,15 @@ qr{foo <div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedco
                 qq{<iframe src="http://www.youtube.com/embed/ABC123abc_-"></iframe>},
             ],
 
-            # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
+            # An embed that never closes can't be told apart from the text after
+            # it. The buffered markup is handed back as written, not dropped.
             [
                 "object tag left open; no site-embed",
                 qq{foo <object>blah bzzt},
 
-                qq{foo },
-                qq{foo },
-                qq{foo },
+                qq{foo <object>blah bzzt},
+                qq{foo <object>blah bzzt},
+                qq{foo blah bzzt},
                 $invalid_embed
             ],
 
@@ -449,13 +450,14 @@ qr{foo <div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedco
                 $invalid_embed
             ],
 
-            # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
+            # An embed that never closes can't be told apart from the text after
+            # it. The buffered markup is handed back as written, not dropped.
             [
                 "iframe tag left open in site-embed (untrusted)",
                 qq{foo <site-embed><iframe></site-embed> baz},
 
-                qq{foo },
-                qq{foo },
+                qq{foo <site-embed><iframe></site-embed> baz},
+                qq{foo <site-embed><iframe></site-embed> baz},
                 qr{foo },
                 $invalid_embed
             ],
@@ -471,25 +473,27 @@ qr{foo <div class="lj_embedcontent-wrapper" style="[^"]+"><div class="lj_embedco
                 $invalid_embed
             ],
 
-            # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
+            # An embed that never closes can't be told apart from the text after
+            # it. The buffered markup is handed back as written, not dropped.
             [
                 "iframe tag left open in site-embed (trusted)",
 qq{foo <site-embed><iframe src="http://www.youtube.com/embed/ABC123abc_-"></site-embed> baz},
 
-                qq{foo },
-                qq{foo },
+qq{foo <site-embed><iframe src="http://www.youtube.com/embed/ABC123abc_-"></site-embed> baz},
+qq{foo <site-embed><iframe src="http://www.youtube.com/embed/ABC123abc_-"></site-embed> baz},
                 qr{foo },
                 $invalid_embed
             ],
 
-            # TODO: DANGER: EATS EVERYTHING PAST THE OPEN TAG
+            # An embed that never closes can't be told apart from the text after
+            # it. The buffered markup is handed back as written, not dropped.
             [
                 "site-embed tag left open",
                 qq{foo <site-embed>EMBED yo},
 
-                qq{foo },
-                qq{foo },
-                qq{foo },
+                qq{foo <site-embed>EMBED yo},
+                qq{foo <site-embed>EMBED yo},
+                qq{foo <lj-embed>EMBED yo},
                 $invalid_embed
             ],
 
