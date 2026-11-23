@@ -15,7 +15,7 @@ use strict;
 use warnings;
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use DW::FeedCanonicalizer;
 
 # FIXME: We should probably test things LOTS BETTER
