@@ -13132,10 +13132,18 @@ var DWEditor = (() => {
     }
     return false;
   }
+  function canonicalAttrs(attrs) {
+    return JSON.stringify(Object.keys(attrs).sort().map((name) => [name, attrs[name]]));
+  }
   function nestsInEqual(el, inner) {
-    const x = JSON.stringify(allAttrs(el));
+    const x = canonicalAttrs(allAttrs(el));
     for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
-      if (node.localName == "dw-inline" && node.getAttribute("data-dw-tag") == el.localName && (node.getAttribute("data-dw-x") || "{}") == x && node.hasAttribute("data-dw-inner") == inner)
+      let theirs = {};
+      try {
+        theirs = JSON.parse(node.getAttribute("data-dw-x") || "{}");
+      } catch (e) {
+      }
+      if (node.localName == "dw-inline" && node.getAttribute("data-dw-tag") == el.localName && canonicalAttrs(theirs) == x && node.hasAttribute("data-dw-inner") == inner)
         return true;
     }
     return false;
@@ -13346,64 +13354,11 @@ var DWEditor = (() => {
       li.removeChild(first);
     });
   }
-  function tagEnd(html, start) {
-    let quote = "";
-    for (let i = start + 1; i < html.length; i++) {
-      const ch = html[i];
-      if (quote) {
-        if (ch == quote)
-          quote = "";
-      } else if (ch == '"' || ch == "'") {
-        quote = ch;
-      } else if (ch == ">") {
-        return i;
-      }
-    }
-    return -1;
-  }
-  function closeEmbeds(html) {
-    let out = "";
-    let i = 0;
-    while (i < html.length) {
-      const lt = html.indexOf("<", i);
-      if (lt < 0)
-        break;
-      out += html.slice(i, lt);
-      if (html.startsWith("<!--", lt)) {
-        const end = html.indexOf("-->", lt + 4);
-        const stop = end < 0 ? html.length : end + 3;
-        out += html.slice(lt, stop);
-        i = stop;
-        continue;
-      }
-      const gt = tagEnd(html, lt);
-      const name = /^<([a-zA-Z][^\s/>]*)/.exec(html.slice(lt, lt + 40));
-      if (gt < 0 || !name) {
-        out += "<";
-        i = lt + 1;
-        continue;
-      }
-      const tag = html.slice(lt, gt + 1);
-      const tagName = name[1].toLowerCase();
-      out += tag;
-      i = gt + 1;
-      if (/^(script|style|textarea|title)$/.test(tagName) && !/\/>$/.test(tag)) {
-        const close2 = new RegExp("</" + tagName + "\\s*>", "i").exec(html.slice(i));
-        const stop = close2 ? i + close2.index + close2[0].length : html.length;
-        out += html.slice(i, stop);
-        i = stop;
-      } else if (tagName == "embed" && !/\/>$/.test(tag)) {
-        if (!/^\s*<\/embed\s*>/i.test(html.slice(i)))
-          out += "</embed>";
-      }
-    }
-    return out + html.slice(i);
-  }
   function buildSerializer(schema2, rawChunks) {
     const nodes2 = DOMSerializer.nodesFromSchema(schema2);
     const placeholder = (html) => {
       const el = document.createElement("dw-raw-placeholder");
-      el.setAttribute("data-key", String(rawChunks.push(closeEmbeds(html)) - 1));
+      el.setAttribute("data-key", String(rawChunks.push(html) - 1));
       return el;
     };
     nodes2.html_block = (node) => placeholder(node.textContent);
@@ -13452,7 +13407,7 @@ var DWEditor = (() => {
     if (!m)
       return null;
     if (m[1].toLowerCase() == "embed")
-      return /^<embed\b[^<]*>$/i.test(trimmed) ? closeEmbeds(trimmed) : null;
+      return /^<embed\b[^<]*>$/i.test(trimmed) ? trimmed : null;
     const closer = new RegExp("</" + m[1] + "\\s*>$|/>$", "i");
     return closer.test(trimmed) ? trimmed : null;
   }

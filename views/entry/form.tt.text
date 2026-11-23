@@ -71,6 +71,8 @@
 
 .rte.cut.edit=Edit
 
+.rte.convert.failed=Your text could not be converted to rich text just now, so it has been left as it was. Please try again.
+
 .rte.embed=Embed media
 
 .rte.embed.code=Add media from other websites by copying and pasting their embed code here.

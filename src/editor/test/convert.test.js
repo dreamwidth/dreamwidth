@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { roundTrip } from "./helpers.js";
-import { rawBlockFromText, flattenNewlines, closeEmbeds } from "../src/serialize.js";
+import { rawBlockFromText, flattenNewlines } from "../src/serialize.js";
 
 const casual = { links: true, mentions: true, sites: ["livejournal.com"] };
 
@@ -64,37 +64,22 @@ test("pasted poll and embed code is recognized as a block", () => {
     assert.equal(rawBlockFromText("<poll>never closed"), null);
 });
 
-test("a bare <embed> is stored with a closing tag the server's parser can see", () => {
-    assert.equal(rawBlockFromText('<embed src="http://example.com/v.swf">'), '<embed src="http://example.com/v.swf"></embed>');
-    const out = roundTrip('<p>a</p><embed src="http://example.com/v.swf"><p>b</p>');
-    assert.match(out, /<embed src="http:\/\/example\.com\/v\.swf"><\/embed>/);
-    assert.match(out, /<p>b<\/p>/);
+test("a bare <embed> is accepted as pasted block markup, unchanged", () => {
+    assert.equal(rawBlockFromText('<embed src="http://example.com/v.swf">'), '<embed src="http://example.com/v.swf">');
 });
 
-test("closeEmbeds leaves closed and self-closed embeds alone", () => {
-    assert.equal(closeEmbeds('<embed src="x"></embed>'), '<embed src="x"></embed>');
-    assert.equal(closeEmbeds('<embed src="x" />'), '<embed src="x" />');
-    assert.equal(closeEmbeds('<object><embed src="x"></object>'), '<object><embed src="x"></embed></object>');
-});
-
-test("closeEmbeds only touches real <embed> tags", () => {
-    // A quoted ">" doesn't end the tag early, and nothing else is rewritten.
-    assert.equal(
-        closeEmbeds('<embed title="a > b" src="x">'),
-        '<embed title="a > b" src="x"></embed>'
-    );
-    assert.equal(
-        closeEmbeds('<p title="<embed src=x>">text</p>'),
-        '<p title="<embed src=x>">text</p>'
-    );
-
-    // Literal text and code that merely mention an embed tag.
-    assert.equal(closeEmbeds("<script>var s = '<embed src=x>';</script>"), "<script>var s = '<embed src=x>';</script>");
-    assert.equal(closeEmbeds("<!-- <embed src=x> -->"), "<!-- <embed src=x> -->");
-    assert.equal(closeEmbeds("<pre>a &lt;embed&gt;</pre>"), "<pre>a &lt;embed&gt;</pre>");
-    assert.equal(closeEmbeds("1 < 2 <embed src=x> 3"), "1 < 2 <embed src=x></embed> 3");
-
-    // A raw chunk with a quoted > survives a full round trip too.
-    const out = roundTrip('<p>a</p><embed title="a > b" src="x"><p>b</p>');
-    assert.match(out, /<embed title="a &gt; b" src="x"><\/embed>|<embed title="a > b" src="x"><\/embed>/);
+test("raw chunks come back exactly as they were, including embed-like text", () => {
+    // The server accepts a bare <embed>, so nothing is rewritten on export;
+    // text that merely mentions one inside a raw-text element stays literal.
+    const chunks = [
+        '<embed src="http://example.com/v.swf">',
+        '<xmp>example <embed> tag</xmp>',
+        '<iframe src="http://example.com/">fallback <embed> text</iframe>',
+        '<script>var s = "<embed src=x>";</script>',
+        '<embed title="a > b" src="x">',
+    ];
+    chunks.forEach((chunk) => {
+        const out = roundTrip("<p>a</p>" + chunk + "<p>b</p>");
+        assert.ok(out.includes(chunk), "kept: " + chunk + " in " + out);
+    });
 });

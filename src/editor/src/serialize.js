@@ -249,13 +249,25 @@ function hasModeledAncestor(el) {
 // <span style="font-size: 2em"> one inside the other) would be merged into it
 // and lose its own effect. Report whether an ancestor placeholder is equal to
 // the one this element would become.
+// Attribute order doesn't matter (class then style is the same mark as style
+// then class), so compare as sorted lists.
+function canonicalAttrs(attrs) {
+    return JSON.stringify(Object.keys(attrs).sort().map((name) => [name, attrs[name]]));
+}
+
 function nestsInEqual(el, inner) {
-    const x = JSON.stringify(allAttrs(el));
+    const x = canonicalAttrs(allAttrs(el));
     for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+        let theirs = {};
+        try {
+            theirs = JSON.parse(node.getAttribute("data-dw-x") || "{}");
+        } catch (e) {
+            // treat as no attributes
+        }
         if (
             node.localName == "dw-inline" &&
             node.getAttribute("data-dw-tag") == el.localName &&
-            (node.getAttribute("data-dw-x") || "{}") == x &&
+            canonicalAttrs(theirs) == x &&
             node.hasAttribute("data-dw-inner") == inner
         )
             return true;
@@ -490,76 +502,11 @@ function unwrapTightListItems(root) {
     });
 }
 
-// End of the tag starting at html[start] ("<"): the index of its ">", skipping
-// quoted attribute values (title="a > b"), or -1 if it never ends.
-function tagEnd(html, start) {
-    let quote = "";
-    for (let i = start + 1; i < html.length; i++) {
-        const ch = html[i];
-        if (quote) {
-            if (ch == quote) quote = "";
-        } else if (ch == '"' || ch == "'") {
-            quote = ch;
-        } else if (ch == ">") {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// <embed> is a void element, written bare (<embed src=...>) by browsers and
-// most people. Give it an explicit </embed> in stored markup: the server's
-// embed parser reads a bare one as unclosed. This reads the markup as tags, not
-// text: attribute values, comments, and the contents of <script>, <style> and
-// the like are copied untouched, so only a real <embed> tag is ever changed.
-export function closeEmbeds(html) {
-    let out = "";
-    let i = 0;
-    while (i < html.length) {
-        const lt = html.indexOf("<", i);
-        if (lt < 0) break;
-        out += html.slice(i, lt);
-
-        if (html.startsWith("<!--", lt)) {
-            const end = html.indexOf("-->", lt + 4);
-            const stop = end < 0 ? html.length : end + 3;
-            out += html.slice(lt, stop);
-            i = stop;
-            continue;
-        }
-
-        const gt = tagEnd(html, lt);
-        const name = /^<([a-zA-Z][^\s/>]*)/.exec(html.slice(lt, lt + 40));
-        if (gt < 0 || !name) {
-            // not a tag: stray "<"
-            out += "<";
-            i = lt + 1;
-            continue;
-        }
-
-        const tag = html.slice(lt, gt + 1);
-        const tagName = name[1].toLowerCase();
-        out += tag;
-        i = gt + 1;
-
-        if (/^(script|style|textarea|title)$/.test(tagName) && !/\/>$/.test(tag)) {
-            // raw text elements: copy through the matching close tag
-            const close = new RegExp("</" + tagName + "\\s*>", "i").exec(html.slice(i));
-            const stop = close ? i + close.index + close[0].length : html.length;
-            out += html.slice(i, stop);
-            i = stop;
-        } else if (tagName == "embed" && !/\/>$/.test(tag)) {
-            if (!/^\s*<\/embed\s*>/i.test(html.slice(i))) out += "</embed>";
-        }
-    }
-    return out + html.slice(i);
-}
-
 function buildSerializer(schema, rawChunks) {
     const nodes = DOMSerializer.nodesFromSchema(schema);
     const placeholder = (html) => {
         const el = document.createElement("dw-raw-placeholder");
-        el.setAttribute("data-key", String(rawChunks.push(closeEmbeds(html)) - 1));
+        el.setAttribute("data-key", String(rawChunks.push(html) - 1));
         return el;
     };
     nodes.html_block = (node) => placeholder(node.textContent);
@@ -654,8 +601,7 @@ export function rawBlockFromText(text) {
     const m = /^<(poll|lj-poll|site-embed|lj-embed|iframe|object|embed)\b/i.exec(trimmed);
     if (!m) return null;
     // <embed> has no closing tag.
-    if (m[1].toLowerCase() == "embed")
-        return /^<embed\b[^<]*>$/i.test(trimmed) ? closeEmbeds(trimmed) : null;
+    if (m[1].toLowerCase() == "embed") return /^<embed\b[^<]*>$/i.test(trimmed) ? trimmed : null;
     const closer = new RegExp("</" + m[1] + "\\s*>$|/>$", "i");
     return closer.test(trimmed) ? trimmed : null;
 }

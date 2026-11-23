@@ -153,7 +153,8 @@ postFormInitData.dwEditor = {
     "embed":            [%- ".rte.embed" | ml | js -%],
     "embedTitle":       [%- ".rte.embed.title" | ml | js -%],
     "embedCode":        [%- ".rte.embed.code" | ml | js -%],
-    "markdownConfirm":  [%- ".rte.markdown.confirm" | ml | js -%]
+    "markdownConfirm":  [%- ".rte.markdown.confirm" | ml | js -%],
+    "convertFailed":    [%- ".rte.convert.failed" | ml | js -%]
   }
 };
 

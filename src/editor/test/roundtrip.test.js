@@ -182,3 +182,8 @@ test("nested identical generic elements are not merged into one", () => {
     const out = roundTrip('<p><span class="x">a <span class="y">b</span></span></p>');
     assert.equal(normalized(out), normalized('<p><span class="x">a <span class="y">b</span></span></p>'));
 });
+
+test("nested equal generic elements are detected whatever the attribute order", () => {
+    // Same two attributes, written in a different order: still equal marks.
+    assertSurvives('<p><span class="x" style="color: red;">a <span style="color: red;" class="x">b</span></span></p>');
+});
