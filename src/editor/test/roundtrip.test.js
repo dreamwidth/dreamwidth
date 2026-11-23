@@ -172,3 +172,13 @@ test("ordinary and relative URLs are still shown in the live editor", () => {
     assert.match(live.innerHTML, /href="mailto:a@b\.c"/);
     assert.match(live.innerHTML, /src="http:\/\/example\.com\/i\.png"/);
 });
+
+test("nested identical generic elements are not merged into one", () => {
+    // Two 2em spans, one inside the other, are 4em; merged they'd be 2em.
+    assertSurvives('<p><strong><span style="font-size: 2em;">a <span style="font-size: 2em;">b</span></span></strong></p>');
+    assertSurvives('<p><span class="x">a <span class="x">b</span></span></p>');
+
+    // Different attributes aren't equal, so they stay editable.
+    const out = roundTrip('<p><span class="x">a <span class="y">b</span></span></p>');
+    assert.equal(normalized(out), normalized('<p><span class="x">a <span class="y">b</span></span></p>'));
+});

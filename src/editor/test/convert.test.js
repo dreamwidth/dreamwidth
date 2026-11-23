@@ -76,3 +76,25 @@ test("closeEmbeds leaves closed and self-closed embeds alone", () => {
     assert.equal(closeEmbeds('<embed src="x" />'), '<embed src="x" />');
     assert.equal(closeEmbeds('<object><embed src="x"></object>'), '<object><embed src="x"></embed></object>');
 });
+
+test("closeEmbeds only touches real <embed> tags", () => {
+    // A quoted ">" doesn't end the tag early, and nothing else is rewritten.
+    assert.equal(
+        closeEmbeds('<embed title="a > b" src="x">'),
+        '<embed title="a > b" src="x"></embed>'
+    );
+    assert.equal(
+        closeEmbeds('<p title="<embed src=x>">text</p>'),
+        '<p title="<embed src=x>">text</p>'
+    );
+
+    // Literal text and code that merely mention an embed tag.
+    assert.equal(closeEmbeds("<script>var s = '<embed src=x>';</script>"), "<script>var s = '<embed src=x>';</script>");
+    assert.equal(closeEmbeds("<!-- <embed src=x> -->"), "<!-- <embed src=x> -->");
+    assert.equal(closeEmbeds("<pre>a &lt;embed&gt;</pre>"), "<pre>a &lt;embed&gt;</pre>");
+    assert.equal(closeEmbeds("1 < 2 <embed src=x> 3"), "1 < 2 <embed src=x></embed> 3");
+
+    // A raw chunk with a quoted > survives a full round trip too.
+    const out = roundTrip('<p>a</p><embed title="a > b" src="x"><p>b</p>');
+    assert.match(out, /<embed title="a &gt; b" src="x"><\/embed>|<embed title="a > b" src="x"><\/embed>/);
+});

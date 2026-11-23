@@ -13132,6 +13132,14 @@ var DWEditor = (() => {
     }
     return false;
   }
+  function nestsInEqual(el, inner) {
+    const x = JSON.stringify(allAttrs(el));
+    for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+      if (node.localName == "dw-inline" && node.getAttribute("data-dw-tag") == el.localName && (node.getAttribute("data-dw-x") || "{}") == x && node.hasAttribute("data-dw-inner") == inner)
+        return true;
+    }
+    return false;
+  }
   function hasModeledDescendant(el) {
     return Array.from(el.querySelectorAll("*")).some(isModeledMark);
   }
@@ -13203,6 +13211,8 @@ var DWEditor = (() => {
         return replaceRaw(el);
       const inside = hasModeledAncestor(el);
       if (inside && hasModeledDescendant(el))
+        return replaceRaw(el);
+      if (nestsInEqual(el, inside))
         return replaceRaw(el);
       toPlaceholder(el, "dw-inline", inside);
       return;
@@ -13336,14 +13346,58 @@ var DWEditor = (() => {
       li.removeChild(first);
     });
   }
+  function tagEnd(html, start) {
+    let quote = "";
+    for (let i = start + 1; i < html.length; i++) {
+      const ch = html[i];
+      if (quote) {
+        if (ch == quote)
+          quote = "";
+      } else if (ch == '"' || ch == "'") {
+        quote = ch;
+      } else if (ch == ">") {
+        return i;
+      }
+    }
+    return -1;
+  }
   function closeEmbeds(html) {
-    return html.replace(/<embed\b[^>]*>/gi, (tag, offset) => {
-      if (/\/>$/.test(tag))
-        return tag;
-      if (/^\s*<\/embed\s*>/i.test(html.slice(offset + tag.length)))
-        return tag;
-      return tag + "</embed>";
-    });
+    let out = "";
+    let i = 0;
+    while (i < html.length) {
+      const lt = html.indexOf("<", i);
+      if (lt < 0)
+        break;
+      out += html.slice(i, lt);
+      if (html.startsWith("<!--", lt)) {
+        const end = html.indexOf("-->", lt + 4);
+        const stop = end < 0 ? html.length : end + 3;
+        out += html.slice(lt, stop);
+        i = stop;
+        continue;
+      }
+      const gt = tagEnd(html, lt);
+      const name = /^<([a-zA-Z][^\s/>]*)/.exec(html.slice(lt, lt + 40));
+      if (gt < 0 || !name) {
+        out += "<";
+        i = lt + 1;
+        continue;
+      }
+      const tag = html.slice(lt, gt + 1);
+      const tagName = name[1].toLowerCase();
+      out += tag;
+      i = gt + 1;
+      if (/^(script|style|textarea|title)$/.test(tagName) && !/\/>$/.test(tag)) {
+        const close2 = new RegExp("</" + tagName + "\\s*>", "i").exec(html.slice(i));
+        const stop = close2 ? i + close2.index + close2[0].length : html.length;
+        out += html.slice(i, stop);
+        i = stop;
+      } else if (tagName == "embed" && !/\/>$/.test(tag)) {
+        if (!/^\s*<\/embed\s*>/i.test(html.slice(i)))
+          out += "</embed>";
+      }
+    }
+    return out + html.slice(i);
   }
   function buildSerializer(schema2, rawChunks) {
     const nodes2 = DOMSerializer.nodesFromSchema(schema2);

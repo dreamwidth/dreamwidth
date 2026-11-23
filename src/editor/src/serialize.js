@@ -244,6 +244,25 @@ function hasModeledAncestor(el) {
     return false;
 }
 
+// ProseMirror keeps one of any two equal marks, so a generic element nested
+// inside an identical one (the same tag and attributes, e.g. two
+// <span style="font-size: 2em"> one inside the other) would be merged into it
+// and lose its own effect. Report whether an ancestor placeholder is equal to
+// the one this element would become.
+function nestsInEqual(el, inner) {
+    const x = JSON.stringify(allAttrs(el));
+    for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+        if (
+            node.localName == "dw-inline" &&
+            node.getAttribute("data-dw-tag") == el.localName &&
+            (node.getAttribute("data-dw-x") || "{}") == x &&
+            node.hasAttribute("data-dw-inner") == inner
+        )
+            return true;
+    }
+    return false;
+}
+
 function hasModeledDescendant(el) {
     return Array.from(el.querySelectorAll("*")).some(isModeledMark);
 }
@@ -322,6 +341,7 @@ function visit(el) {
         // modeled marks. Wedged between two, it's kept as an opaque fragment.
         const inside = hasModeledAncestor(el);
         if (inside && hasModeledDescendant(el)) return replaceRaw(el);
+        if (nestsInEqual(el, inside)) return replaceRaw(el);
         toPlaceholder(el, "dw-inline", inside);
         return;
     }
@@ -470,15 +490,69 @@ function unwrapTightListItems(root) {
     });
 }
 
+// End of the tag starting at html[start] ("<"): the index of its ">", skipping
+// quoted attribute values (title="a > b"), or -1 if it never ends.
+function tagEnd(html, start) {
+    let quote = "";
+    for (let i = start + 1; i < html.length; i++) {
+        const ch = html[i];
+        if (quote) {
+            if (ch == quote) quote = "";
+        } else if (ch == '"' || ch == "'") {
+            quote = ch;
+        } else if (ch == ">") {
+            return i;
+        }
+    }
+    return -1;
+}
+
 // <embed> is a void element, written bare (<embed src=...>) by browsers and
 // most people. Give it an explicit </embed> in stored markup: the server's
-// embed parser reads a bare one as unclosed.
+// embed parser reads a bare one as unclosed. This reads the markup as tags, not
+// text: attribute values, comments, and the contents of <script>, <style> and
+// the like are copied untouched, so only a real <embed> tag is ever changed.
 export function closeEmbeds(html) {
-    return html.replace(/<embed\b[^>]*>/gi, (tag, offset) => {
-        if (/\/>$/.test(tag)) return tag;
-        if (/^\s*<\/embed\s*>/i.test(html.slice(offset + tag.length))) return tag;
-        return tag + "</embed>";
-    });
+    let out = "";
+    let i = 0;
+    while (i < html.length) {
+        const lt = html.indexOf("<", i);
+        if (lt < 0) break;
+        out += html.slice(i, lt);
+
+        if (html.startsWith("<!--", lt)) {
+            const end = html.indexOf("-->", lt + 4);
+            const stop = end < 0 ? html.length : end + 3;
+            out += html.slice(lt, stop);
+            i = stop;
+            continue;
+        }
+
+        const gt = tagEnd(html, lt);
+        const name = /^<([a-zA-Z][^\s/>]*)/.exec(html.slice(lt, lt + 40));
+        if (gt < 0 || !name) {
+            // not a tag: stray "<"
+            out += "<";
+            i = lt + 1;
+            continue;
+        }
+
+        const tag = html.slice(lt, gt + 1);
+        const tagName = name[1].toLowerCase();
+        out += tag;
+        i = gt + 1;
+
+        if (/^(script|style|textarea|title)$/.test(tagName) && !/\/>$/.test(tag)) {
+            // raw text elements: copy through the matching close tag
+            const close = new RegExp("</" + tagName + "\\s*>", "i").exec(html.slice(i));
+            const stop = close ? i + close.index + close[0].length : html.length;
+            out += html.slice(i, stop);
+            i = stop;
+        } else if (tagName == "embed" && !/\/>$/.test(tag)) {
+            if (!/^\s*<\/embed\s*>/i.test(html.slice(i))) out += "</embed>";
+        }
+    }
+    return out + html.slice(i);
 }
 
 function buildSerializer(schema, rawChunks) {
