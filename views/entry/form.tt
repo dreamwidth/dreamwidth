@@ -95,6 +95,10 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div></div>
 
         <div class="row"><div class="columns">
+            [%- PROCESS "entry/form-rte0-warning.tt" -%]
+        </div></div>
+
+        <div class="row"><div class="columns">
             <div class='markup-container'>
                 [%- form.select(
                   label = 'Formatting type'

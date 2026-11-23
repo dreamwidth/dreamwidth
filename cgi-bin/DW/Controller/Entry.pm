@@ -46,12 +46,6 @@ my @modules = qw(
     icons crosspost sticky
 );
 
-my @sites = DW::External::Site->get_sites;
-my @sitevalues;
-foreach my $site ( sort { $a->{sitename} cmp $b->{sitename} } @sites ) {
-    push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
-}
-
 # Head icons for the rich text editor's user chips: the local person /
 # community / feed / openid identity icons for on-site links, plus each
 # external site's badge image keyed by domain. badge_image is pure (no
@@ -370,11 +364,7 @@ sub _render_new_form {
     # Had to wait for formdata before figuring out the editors list -- if we
     # have a WIP form submission with errors, we want to reuse what the user
     # already chose.
-    $vars->{editors} = DW::Formats::select_items(
-        current   => $vars->{formdata}->{editor},
-        preferred => $remote ? $remote->prop('entry_editor2') : '',
-    );
-    $vars->{formdata}->{editor} = $vars->{editors}->{selected};
+    _set_editors( $vars, $remote ? $remote->prop('entry_editor2') : '' );
 
     $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $vars->{journalu} );
     if ($spellcheck_requested) {
@@ -391,10 +381,6 @@ sub _render_new_form {
     $vars->{editable} = { map { $_ => 1 } @modules };
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
-
-    $vars->{js_for_rte} = LJ::rte_js_vars($remote);
-    $vars->{sitevalues} = to_json( \@sitevalues );
-    $vars->{rte_icons}  = $rte_user_icons;
 
     # Set up vars for drafts
 
@@ -442,8 +428,37 @@ sub _simple_mode {
     return ( DW::Request->get->get_args->{mode} // '' ) eq 'simple' ? 1 : 0;
 }
 
+# Work out the format menu and which format is selected. An entry stored in the
+# retired rte0 format opens in the rich text editor instead (rte1); it's flagged
+# so the form can warn that the conversion needs checking before it's saved.
+# The stored entry itself is untouched until the poster saves.
+sub _set_editors {
+    my ( $vars, $preferred ) = @_;
+
+    my $formdata = $vars->{formdata};
+
+    # rte0_source: the text is still the retired editor's markup, which the
+    # rich editor must convert on load. rte0_converted also stays set when the
+    # form comes back after an error, by which point the text is already rte1.
+    $vars->{rte0_source}    = DW::Formats::is_retired( $formdata->{editor} )      ? 1 : 0;
+    $vars->{rte0_converted} = $vars->{rte0_source} || $formdata->{rte0_converted} ? 1 : 0;
+
+    $vars->{editors} = DW::Formats::select_items(
+        current   => $formdata->{editor},
+        preferred => $preferred,
+    );
+
+    # The template helper uses "formdata" to set the default values for fields,
+    # so we'll update it in place with what DW::Formats thinks we should use.
+    $formdata->{editor} = $vars->{editors}->{selected};
+}
+
 sub _render_form {
     my ($vars) = @_;
+
+    # for the rich text editor's toolbar
+    $vars->{rte_icons} = $rte_user_icons;
+    $vars->{can_embed} = LJ::is_enabled('embed_module') ? 1 : 0;
 
     return DW::Template->render_template( 'entry/form.tt', $vars ) unless _simple_mode();
 
@@ -1001,14 +1016,7 @@ sub _render_edit_form {
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
-    $vars->{editors} = DW::Formats::select_items(
-        current   => $vars->{formdata}->{editor},
-        preferred => $remote->prop('entry_editor2'),
-    );
-
-    # The template helper uses "formdata" to set the default values for fields,
-    # so we'll update it in place with what DW::Formats thinks we should use.
-    $vars->{formdata}->{editor} = $vars->{editors}->{selected};
+    _set_editors( $vars, $remote->prop('entry_editor2') );
 
     $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $journal );
     if ($spellcheck_requested) {
@@ -1033,10 +1041,6 @@ sub _render_edit_form {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
         };
-
-    $vars->{js_for_rte} = LJ::rte_js_vars($remote);
-    $vars->{sitevalues} = to_json( \@sitevalues );
-    $vars->{rte_icons}  = $rte_user_icons;
 
     return _render_form($vars);
 }
@@ -1604,7 +1608,8 @@ sub _render_preview {
     # expand existing polls (for editing, or when transferring polls to another entry)
     LJ::Poll->expand_entry( \$event );
 
-    # parse out embed tags from the RTE
+    # convert <div class="ljembed"> from the retired editor (a restored old
+    # draft, or markup pasted in) into proper embed tags
     $event = LJ::EmbedModule->transform_rte_post($event);
 
     # do first expand_embedded pass with the preview flag to extract

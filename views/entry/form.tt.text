@@ -71,6 +71,12 @@
 
 .rte.cut.edit=Edit
 
+.rte.embed=Embed media
+
+.rte.embed.code=Add media from other websites by copying and pasting their embed code here.
+
+.rte.embed.title=Embed media
+
 .rte.hr=Horizontal line
 
 .rte.htmlblock=HTML (kept as-is)
@@ -95,6 +101,8 @@
 
 .rte.list.ordered=Numbered list
 
+.rte.markdown.confirm=Markdown can't be converted to rich text. Your text will be kept exactly as typed, with any Markdown symbols showing as plain characters. Switch anyway?
+
 .rte.mention.community=community
 
 .rte.mention.literal=use as typed
@@ -102,6 +110,8 @@
 .rte.ok=OK
 
 .rte.outdent=Unindent
+
+.rte.poll=Create a poll (opens a new window; paste the poll code it gives you into the entry)
 
 .rte.redo=Redo
 
@@ -122,6 +132,8 @@
 .rte.user.site.hint=leave blank for this site
 
 .rte.user.title=Link a user or community
+
+.rte0.warning=THIS ENTRY WAS CONVERTED FROM THE OLD RICH TEXT EDITOR. MAKE SURE IT LOOKS RIGHT BEFORE YOU SAVE.
 
 .select.security=Security:
 

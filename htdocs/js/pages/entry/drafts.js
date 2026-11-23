@@ -94,15 +94,6 @@ LJDraft.saveBody = function () {
 
     if (window.DWEditor && DWEditor.isActive('entry-body')) { // New rich text editor (rte1)
         curBody = DWEditor.getHTML('entry-body');
-    } else if ($("#entry-body").css('display') == 'none') { // Need to check this to deal with hitting the back button
-        // Since they may start using the RTE in the middle of writing their
-        // entry, we should just get the editor each time.
-        if (! FCKeditorAPI) return;
-        var oEditor = FCKeditorAPI.GetInstance('entry-body');
-        if (oEditor.GetXHTML) {
-            curBody = oEditor.GetXHTML(true);
-            curBody = curBody.replace(/\n/g, '');
-        }
     } else {
         curBody = $("#entry-body").val();
     }
@@ -125,6 +116,14 @@ function initDraft(askToRestore) {
           // A legacy saved-properties hash can lack editor. Preserve the
           // form's preferred current mode instead of clearing its selection.
           if (restoredEditor) {
+              // A draft saved in the retired rich text editor (rte0) opens in
+              // the current one, with a warning that the conversion needs
+              // checking. Its text is still rte0 source; editor.js converts it.
+              if (restoredEditor === 'rte0') {
+                  restoredEditor = 'rte1';
+                  $("#js-rte0-warning").attr('data-source', '1').removeClass('display_none');
+                  $("#js-rte0-converted").val(1);
+              }
               $("#editor").val(restoredEditor);
           }
           $("#draftstatus").text(restoredMsg);
@@ -192,10 +191,5 @@ LJDraft.savedMsg = savedMsg;
 
 if (should_init != null) {
     initDraft(should_init);
-
-    // Hook into the RTE iframe once it's loaded, if we have draft support.
-    function FCKeditor_OnComplete( editor ){ 
-        editor.EditorDocument.addEventListener('input', LJDraft.handleInput);
-    };
 }
 

@@ -17,7 +17,7 @@
 #
 
 PREFIX=${LJHOME}/htdocs
-DIRSLIST="inc preview rte temp"
+DIRSLIST="inc preview temp"
 
 for d in $DIRSLIST; do
     p=$PREFIX/$d

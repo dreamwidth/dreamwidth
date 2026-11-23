@@ -45,7 +45,7 @@ find(
             return unless $path =~ /\.(pl|pm)$/;
 
             # skip stuff we're less concerned about or don't control
-            return if $path =~ m:\b(doc|etc|fck|miscperl|src|s2|extlib)/:;
+            return if $path =~ m:\b(doc|etc|miscperl|src|s2|extlib)/:;
             return if $path =~ m/config-test\.pl$/;
             return if $path =~ m/config-test-private\.pl$/;
 

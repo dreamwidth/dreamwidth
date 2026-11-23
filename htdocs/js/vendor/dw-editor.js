@@ -15244,10 +15244,8 @@ var DWEditor = (() => {
     if (!instance)
       return;
     opts = opts || {};
-    const toFormat = opts.toFormat || "";
-    instance.sync(!!toFormat && toFormat != instance.fromFormat, {
-      flatten: !!(CASUAL_FORMATS[toFormat] && toFormat != "rte0")
-    });
+    const flatten = !!(CASUAL_FORMATS[opts.toFormat] && opts.toFormat != "rte0");
+    instance.sync(flatten, { flatten });
     if (instance.textarea.form) {
       instance.textarea.form.removeEventListener("submit", instance.onSubmit, true);
       if (instance.restoreSubmit)

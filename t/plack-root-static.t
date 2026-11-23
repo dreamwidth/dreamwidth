@@ -33,7 +33,7 @@ test_psgi $app, sub {
     my $cb = shift;
 
     subtest 'allow-listed root-level files are served' => sub {
-        for my $path ( '/robots.txt', '/favicon.ico', '/rte/blank.html' ) {
+        for my $path ( '/robots.txt', '/favicon.ico' ) {
             is( $cb->( GET $path )->code, 200, "$path is 200" );
         }
         like( $cb->( GET '/500-error.html' )->content,
@@ -44,6 +44,7 @@ test_psgi $app, sub {
         for my $path (
             '/inc/account-codes',  '/doc/.placeholder',
             '/preview/index.html', '/scss/foundation/normalize.scss',
+            '/rte/blank.html',
             )
         {
             is( $cb->( GET $path )->code, 404, "$path is 404" );

@@ -152,6 +152,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </ul>
 </div><!-- end #compose-entry -->
 
+[%- PROCESS "entry/form-rte0-warning.tt" -%]
+
 [%- IF spellcheck.did -%]
 <div id='spellcheck-results'><strong>[% 'entryform.spellchecked' | ml %]</strong><br />[% spellcheck.html %]</div>
 [%- END -%]
@@ -165,7 +167,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <select name='editor' id='editor' class='draft-autosave'>
         [%- FOREACH item IN editors.items -%]
             <option value='[% item.value | html %]'[% ' selected="selected"' IF item.value == editors.selected %]
-                [%- ' hidden="hidden"' IF item.value == 'rte0' %]>[% item.text | html %]</option>
+                [%- ' hidden="hidden"' IF item.value == 'rte1' %]>[% item.text | html %]</option>
         [%- END -%]
         </select>
         <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-

@@ -41,24 +41,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
     "js/pages/entry/new.js"
     "js/pages/entry/image-insert.js"
 
-    # rich text editor (rte1)
+    # rich text editor (rte1). drafts.js is listed before editor.js so a
+    # restored draft has set the format select and textarea before the editor
+    # mounts over them; layout-switch.js reads the editor's dirty state.
     "js/vendor/dw-editor.js"
-    "js/pages/entry/editor.js"
     "stc/css/components/dw-editor.css"
-
-    # code required for old RTE
-    "js/6alib/httpreq.js"
-    "js/6alib/core.js"
-    "js/6alib/dom.js"
-    "js/livejournal.js"
-    "js/6alib/ippu.js"
-    "js/lj_ippu.js"
-    "js/poll.js"
-    "stc/fck/fckeditor.js"
-    "js/pages/entry/rte.js"
 
     # old drafts functionality
     "js/pages/entry/drafts.js"
+    "js/pages/entry/editor.js"
 
     # switching between the advanced and simple layouts
     "js/pages/entry/layout-switch.js"
@@ -112,9 +103,12 @@ postFormInitData.strings = {
   "delete_xposts_confirm": [%- "entryform.delete.xposts.confirm" | ml | js  -%]
 };
 
+[%- poll_url = ( remote.can_create_polls OR journalu.can_create_polls ) ? site.root _ "/poll/create" : "" -%]
 postFormInitData.dwEditor = {
   "circleUrl": "/__rpc_general?mode=list_circle",
   "icons": [% rte_icons %],
+  "pollUrl": [% poll_url | js %],
+  "canEmbed": [% can_embed ? "true" : "false" %],
   "strings": {
     "toolbarLabel":     [%- ".rte.toolbar" | ml | js -%],
     "undo":             [%- ".rte.undo" | ml | js -%],
@@ -154,7 +148,12 @@ postFormInitData.dwEditor = {
     "userSite":         [%- ".rte.user.site" | ml | js -%],
     "userSiteHint":     [%- ".rte.user.site.hint" | ml | js -%],
     "mentionLiteral":   [%- ".rte.mention.literal" | ml | js -%],
-    "mentionCommunity": [%- ".rte.mention.community" | ml | js -%]
+    "mentionCommunity": [%- ".rte.mention.community" | ml | js -%],
+    "poll":             [%- ".rte.poll" | ml | js -%],
+    "embed":            [%- ".rte.embed" | ml | js -%],
+    "embedTitle":       [%- ".rte.embed.title" | ml | js -%],
+    "embedCode":        [%- ".rte.embed.code" | ml | js -%],
+    "markdownConfirm":  [%- ".rte.markdown.confirm" | ml | js -%]
   }
 };
 

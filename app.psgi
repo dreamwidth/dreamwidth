@@ -280,8 +280,8 @@ builder {
             pass_through => 1;
     }
 
-    # A fixed set of individual root-level files (plus the FCK rich-text-editor
-    # assets under rte/), served from any htdocs overlay. Deliberately a list
+    # A fixed set of individual root-level files, served from any htdocs
+    # overlay. Deliberately a list
     # rather than every plain file under htdocs, which would expose files such
     # as htdocs/inc/account-codes and raw .scss sources. Path-only matching (not
     # Host-based), so this also covers /favicon.ico on journal subdomains.
@@ -296,7 +296,7 @@ builder {
                 my ( $path, $env ) = @_;
                 return 0 if $path eq '/robots.txt' && $env->{'dw.journal_user'};
                 return $path =~
-                    m{^/(?:500-error\.html|apple-touch-icon\.png|favicon\.ico|protocol\.dat|robots\.txt|rte/.+)$};
+                    m{^/(?:500-error\.html|apple-touch-icon\.png|favicon\.ico|protocol\.dat|robots\.txt)$};
             },
             root         => $dir,
             pass_through => 1;

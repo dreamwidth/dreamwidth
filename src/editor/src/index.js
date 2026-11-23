@@ -240,18 +240,17 @@ export function mount(id, opts) {
     return instance;
 }
 
-// opts.toFormat: the format the entry is switching to. Leaving for a casual
-// format needs newline-free output (see exportHTML); leaving for a different
-// format than we were loaded from always rewrites the textarea.
+// opts.toFormat: the format the entry is switching to. Leaving for casual HTML
+// needs newline-free output (see exportHTML), which unedited source may not
+// have, so that always rewrites the textarea. Any other destination reads the
+// same explicit HTML, so unedited text is left exactly as it was.
 export function unmount(id, opts) {
     const instance = instances[id];
     if (!instance) return;
 
     opts = opts || {};
-    const toFormat = opts.toFormat || "";
-    instance.sync(!!toFormat && toFormat != instance.fromFormat, {
-        flatten: !!(CASUAL_FORMATS[toFormat] && toFormat != "rte0"),
-    });
+    const flatten = !!(CASUAL_FORMATS[opts.toFormat] && opts.toFormat != "rte0");
+    instance.sync(flatten, { flatten: flatten });
     if (instance.textarea.form) {
         instance.textarea.form.removeEventListener("submit", instance.onSubmit, true);
         if (instance.restoreSubmit) instance.restoreSubmit();
