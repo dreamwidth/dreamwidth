@@ -123,6 +123,14 @@ test_psgi $app, sub {
     unlike( $big->content, qr/"text"/, '...without converting any of it' );
     is( $res->( 1, text => 'x' x LJ::CMAX_EVENT, from => 'html_casual1' )->code,
         200, 'text at the entry limit is accepted' );
+
+    # Three-byte characters: 110,000 of them are 330,000 bytes but well within the
+    # character limit, and 150,001 of them are over the byte limit.
+    my $euro = "\xe2\x82\xac";
+    is( $res->( 1, text => $euro x 110_000, from => 'html_casual1' )->code,
+        200, 'multibyte text within both entry limits is accepted' );
+    is( $res->( 1, text => $euro x 150_001, from => 'html_casual1' )->code,
+        413, 'multibyte text over the byte limit is refused' );
     ok( !defined $convert->( 0, text => "a\nb", from => 'html_casual1' )->{text},
         'a visitor who is not logged in gets nothing' );
 };

@@ -2059,8 +2059,11 @@ sub convert_rpc_handler {
     return $reject->( 400, 'Unsupported conversion.' )
         unless $rv->{remote} && $from =~ /^(?:html_casual0|html_casual1|rte0)$/;
 
-    # ...and the decoded text is held to the entry's own limit.
-    return $reject->( 413, 'Text too long.' ) if length $text > LJ::CMAX_EVENT;
+    # ...and the decoded text is held to the entry's own limits, in bytes and in
+    # characters, the way the entry protocol counts them.
+    my ( $bytes, $chars ) = LJ::text_length($text);
+    return $reject->( 413, 'Text too long.' )
+        if $bytes > LJ::BMAX_EVENT || $chars > LJ::CMAX_EVENT;
 
     $r->print( to_json( { text => LJ::CleanHTML::casual_to_explicit( $text, $from ) } ) );
     return $r->OK;
