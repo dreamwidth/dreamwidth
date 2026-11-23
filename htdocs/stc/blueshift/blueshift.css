@@ -225,6 +225,13 @@ footer {
     margin-bottom: 1em;
 }
 
+.alert-box.success.crosspost-requested {
+    background-color: #E6ECF9;
+    border: 1px solid #3960A0;
+    list-style: none;
+    padding: 0.75em;
+}
+
 /* TALKPAGE.CSS AND HARDCODE OVERRIDES*/
 .cmtbar-odd {
     border-bottom: none !important;
