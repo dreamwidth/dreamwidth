@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More tests => 40;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -45,8 +45,8 @@ like( $out, qr/<p>after<\/p>/, 'a closed <embed></embed> keeps the text after it
 unlike( $out, qr/<\/embed>/i, '...and leaves no stray closing tag' );
 
 $out = saved(qq{<p>before</p><embed $src /><p>after</p>});
-like( $out, qr/<site-embed id="\d+"/, 'a self-closed <embed /> becomes an embed module' );
-like( $out, qr/<p>after<\/p>/,        '...and keeps the text after it' );
+unlike( $out, qr/<site-embed/, 'a self-closed <embed /> alone is not made a module (as before)' );
+like( $out, qr/<p>before<\/p><p>after<\/p>/, '...and the text around it is kept' );
 
 $out = saved(qq{one <embed $src> two <embed $src> three});
 my @modules = $out =~ /<site-embed id="(\d+)"/g;
@@ -129,3 +129,63 @@ unlike( $out, qr/inner stays inside/, '...and keep their contents out of the pag
 $out = rendered(qq{<p>a</p><iframe src="http://example.com/">x</iframe><p>after</p>});
 like( $out, qr/<p>after<\/p>/, 'rendered: a closed <iframe> still ends where it closes' );
 unlike( $out, qr/<iframe/i, '...with no live iframe' );
+
+# Input main handled with a closing tag must give exactly what main did: the entry
+# text, the saved module's contents, and the preview text. (Expected values captured
+# from main, 3ed7cbfae.) A closed <embed>...</embed> may hold anything; a
+# self-closed <object/>, <iframe/> or <embed/> just joins the buffer for whatever
+# block follows, and is dropped if none does.
+my @as_main = (
+    [
+'<p>a</p><embed src="https://example.invalid/a.swf"><noembed>Flash required</noembed></embed>after',
+        '<p>a</p><site-embed id="1"/>after',
+        '<embed src="https://example.invalid/a.swf"><noembed>Flash required</noembed></embed>',
+        '<p>a</p><site-embed id="1"/>after'
+    ],
+    [
+        '<embed src="https://example.invalid/a.swf"><!-- c --></embed>after',
+        '<site-embed id="1"/>after',
+        '<embed src="https://example.invalid/a.swf"></embed>',
+        '<site-embed id="1"/>after'
+    ],
+    [
+        '<embed src="https://example.invalid/a.swf"><param name="a" value="b"></embed>after',
+        '<site-embed id="1"/>after',
+        '<embed src="https://example.invalid/a.swf"><param name="a" value="b"></embed>',
+        '<site-embed id="1"/>after'
+    ],
+    [
+        'a<iframe src="https://example.invalid/x" />b<object>c</object>d',
+        'ab<object>c</object>d', '[Invalid lj-embed id 1]',
+        'ab<object>c</object>d'
+    ],
+    [
+        '<object>c</object>x<iframe src="https://example.invalid/x" />y',
+        '<site-embed id="1"/>xy',
+        '<object>c</object>', '<site-embed id="1"/>xy'
+    ],
+    [
+        '<site-embed id="5"></site-embed><iframe src="https://example.invalid/x" />x', 'x',
+        '[Invalid lj-embed id 1]',                                                     'x'
+    ],
+    [ 'a<object/>b', 'a<object/>b', '[Invalid lj-embed id 1]', 'a<object/>b' ],
+    [ 'a<embed src="https://example.invalid/x"/>b', 'ab', '[Invalid lj-embed id 1]', 'ab' ],
+    [
+'a<iframe src="https://example.invalid/x" />b<iframe src="https://example.invalid/y">z</iframe>c',
+        'ab<iframe src="https://example.invalid/y">z</iframe>c',
+        '[Invalid lj-embed id 1]',
+        'ab<iframe src="https://example.invalid/y">z</iframe>c'
+    ],
+);
+
+foreach my $case (@as_main) {
+    my ( $in, $text, $module, $preview ) = @$case;
+    my $mu = temp_user();
+    my $t  = $in;
+    LJ::EmbedModule->parse_module_embed( $mu, \$t );
+    my $got_module =
+        LJ::EmbedModule->module_content( journalid => $mu->userid, moduleid => 1 )->{content};
+    my $p = $in;
+    LJ::EmbedModule->parse_module_embed( $mu, \$p, preview => 1 );
+    is_deeply( [ $t, $got_module // '', $p ], [ $text, $module, $preview ], "as before: $in" );
+}

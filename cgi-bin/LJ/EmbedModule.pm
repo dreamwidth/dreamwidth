@@ -209,18 +209,26 @@ sub parse_module_embed {
 
     # <embed> is a void element: a bare <embed ...> is complete on its own, and
     # waiting for a close that never comes would swallow the rest of the entry.
-    # The older container form, <embed>contents</embed>, is recognized from the
-    # tokens themselves: only text between the two tags. Anything else after
-    # the <embed> means it was never going to be closed.
-    my $embed_is_container = sub {
-        my ($i) = @_;
-        for my $j ( $i + 1 .. $#tokens ) {
-            my $next = $tokens[$j];
-            next if $next->[0] eq 'T';
-            return $next->[0] eq 'E' && lc $next->[1] eq 'embed' ? 1 : 0;
+    # The older container form is <embed>contents</embed>, where the contents
+    # may be anything (<noembed>, <param>, comments, other embeds...). So an
+    # <embed> is a container iff some </embed> closes it, with <embed> start and
+    # end tags paired like brackets and everything else skipped over. One pass
+    # pairs them, so it stays linear.
+    my @embed_closed_next;    # [$i]: is the <embed> at token $i closed by an </embed>?
+    {
+        my @open;
+        for my $j ( 0 .. $#tokens ) {
+            my ( $jtype, $jtag, $jattr ) = @{ $tokens[$j] };
+            next unless ( $jtype eq 'S' || $jtype eq 'E' ) && lc $jtag eq 'embed';
+            if ( $jtype eq 'S' ) {
+                push @open, $j unless $jattr->{'/'};
+            }
+            elsif (@open) {
+                $embed_closed_next[ pop @open ] = 1;
+            }
         }
-        return 0;
-    };
+    }
+    my $embed_is_container = sub { $embed_closed_next[ $_[0] ] };
 
     # Save the buffered embed as a module and stand a <site-embed> tag in its place.
     my $flush = sub {
@@ -266,11 +274,18 @@ sub parse_module_embed {
             }
             elsif ( $embeddable_tags{$tag} && $type eq 'S' ) {
 
-                # <object> or <embed> or <iframe>
-                # switch to IMPLICIT state unless it is complete on its own: a
-                # self-closed tag, or an <embed> that isn't followed by its close
+               # <object> or <embed> or <iframe>
+               # append the tag contents to new embed buffer, so we can convert in to lj-embed later
                 $embed .= $reconstructed;
-                if ( $attr->{'/'} || ( $tag eq 'embed' && !$embed_is_container->($i) ) ) {
+
+                if ( $attr->{'/'} ) {
+
+                    # self-closed: stays in the buffer for whatever block comes
+                    # next, and stay in REGULAR (as it always has)
+                }
+                elsif ( $tag eq 'embed' && !$embed_is_container->($i) ) {
+
+                    # a bare <embed> with no </embed> to wait for is complete
                     $flush->();
                 }
                 else {
@@ -340,8 +355,12 @@ sub parse_module_embed {
     # An embed that never closed can't be told apart from the text that follows
     # it, so don't pretend to: hand the buffered markup back as written, for the
     # cleaner to deal with, rather than dropping it (and everything after it).
-    $newtxt .= $explicit_open if $state == EXPLICIT;
-    $newtxt .= $embed         if $embed ne '';
+    # (Buffered self-closed tags that no block ever collected are dropped, as
+    # they always were.)
+    if ( $state != REGULAR ) {
+        $newtxt .= $explicit_open if $state == EXPLICIT;
+        $newtxt .= $embed         if $embed ne '';
+    }
 
     # update passed text
     $$postref = $newtxt;
