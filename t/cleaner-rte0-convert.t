@@ -67,6 +67,30 @@ qq{<table>\n<tr>\n<td>cell one\nhttp://example.com/x</td>\n<td>cell $at_a</td>\n
         qq{<blockquote class="twitter-tweet">$at_a says\n</blockquote>\n$at_b}
     ],
     [ 'raw code', "<raw-code>$at_a\nline</raw-code>\n$at_b" ],
+
+    # Where the cleaner's idea of what is open differs from a plain reading of
+    # the tags: it closes things implicitly, or never closes them.
+    [ 'code closed by an outer end tag', "<div><code>inside</div> outside $at_a\nnext" ],
+    [
+        'a self-closed anchor',
+        qq{<a href="http://example.com/" /> text http://example.com/x $at_a\nnext}
+    ],
+    [ 'an unclosed pre', "<pre>a\nb http://example.com/ $at_a\n" ],
+    [
+        'an anchor closed by a block',
+qq{<a href="http://example.com/">link text<div>block $at_a\nmore http://example.com/y</div></a> after}
+    ],
+    [ 'mis-nested tags', "<b><i>x</b></i> $at_a\nline" ],
+    [
+        'nested tables',
+"<table><tr><td><table><tr><td>a\nb</td></tr></table>c\nd http://example.com/</td></tr></table>\ne"
+    ],
+    [
+        'an unclosed table cell',
+        "<table><tr><td>a\nb http://example.com/\n<tr><td>c</table>\nafter\n$at_a"
+    ],
+    [ 'an unclosed textarea',  "<textarea>a\nb $at_a" ],
+    [ 'a code span left open', "<code>one\n$at_a\ntwo" ],
 );
 
 plan tests => scalar @bodies;

@@ -1236,15 +1236,18 @@ TOKEN:
         }
         elsif ( $type eq "T" ) {
             if (@eatuntil) {
+                $opts->{text_hook}->( $token->[1], { raw => 1 } ) if $opts->{text_hook};
                 push @capture, $token if $capturing_during_eat;
                 next TOKEN;
             }
 
             if ($eatall) {
+                $opts->{text_hook}->( $token->[1], { raw => 1 } ) if $opts->{text_hook};
                 next TOKEN;
             }
 
             if ($eating_ljuser_span) {
+                $opts->{text_hook}->( $token->[1], { raw => 1 } ) if $opts->{text_hook};
                 $ljuser_text_node = $token->[1];
                 next TOKEN;
             }
@@ -1269,16 +1272,18 @@ TOKEN:
                 && !$opencount{'textarea'}
                 && !$opencount{'lj-raw'};
 
-            $token->[1] = format_text_token(
-                $token->[1],
-                {
-                    auto_format      => $auto_format,
-                    auto_links       => $auto_links,
-                    in_link          => $opencount{'a'},
-                    convert_mentions => $convert_mentions,
-                    usertag_opts     => $usertag_opts,
-                }
-            );
+            my $text_ctx = {
+                auto_format      => $auto_format,
+                auto_links       => $auto_links,
+                in_link          => $opencount{'a'},
+                convert_mentions => $convert_mentions,
+                usertag_opts     => {%$usertag_opts},
+            };
+
+            # casual_to_explicit watches the cleaner's own view of each text token
+            $opts->{text_hook}->( $token->[1], $text_ctx ) if $opts->{text_hook};
+
+            $token->[1] = format_text_token( $token->[1], $text_ctx );
 
             $newdata .= $token->[1];
         }
@@ -1704,6 +1709,7 @@ sub clean_event {
             ditemid                 => $opts->{ditemid},
             errref                  => $opts->{errref},
             verbose_err             => $opts->{verbose_err},
+            text_hook               => $opts->{text_hook},
         }
     );
 }
@@ -2003,84 +2009,70 @@ sub format_text_token {
     return $text;
 }
 
-# Tags whose contents the cleaner doesn't format as text (it eats them, or
-# leaves them to other code): casual_to_explicit leaves their text untouched.
-my %explicit_raw_tags = map { $_ => 1 } qw(
-    lj-embed site-embed object embed iframe script style noscript
-);
-
 # <LJFUNC>
 # name: LJ::CleanHTML::casual_to_explicit
 # class: text
 # des: Rewrite casual HTML (and the retired rte0 format, which the cleaner
 #      treats as casual HTML) as explicit HTML that renders identically when
 #      cleaned as raw HTML (or rte1): the line breaks, auto-links and @mentions
-#      the cleaner would have added become real markup. Uses the same text
-#      rules as clean() (see format_text_token).
-# args: text
+#      the cleaner would have added become real markup.
+# info: Rather than track open tags a second time, this runs the real cleaner
+#      over a copy of the text with a text_hook that reports, for each text
+#      token, the context the cleaner itself was in (inside a table, a link,
+#      code, an eaten embed, ...). The same text is then tokenized again and each
+#      text token is formatted with format_text_token, exactly as clean() does,
+#      using the recorded context; everything else is kept as written. Text the
+#      cleaner never reached (after it gave up on malformed input) is kept as
+#      written too.
+# args: text, format
 # des-text: The source text.
+# des-format: The format it is written in: rte0 (the default), html_casual1 or
+#             html_casual0 (which differ in whether @mentions are converted).
 # returns: The explicit source text.
 # </LJFUNC>
 sub casual_to_explicit {
-    my ($text) = @_;
+    my ( $text, $format ) = @_;
     return $text unless defined $text && length $text;
 
-    my $p = HTML::TokeParser->new( \$text );
-    my %open;
-    my $out                     = '';
-    my $disable_user_conversion = 0;
-    my $usertag_opts            = { no_link => 0 };
+    # clean() starts by doing this, so tokenize the same thing it does
+    $text = LJ::strip_request_auth($text);
+
+    my @seen;
+    my $copy = $text;
+    clean_event(
+        \$copy,
+        {
+            editor    => ( $format || 'rte0' ),
+            text_hook => sub { push @seen, [@_] }
+        }
+    );
+
+    my $p   = HTML::TokeParser->new( \$text );
+    my $out = '';
+    my $i   = 0;
 
     while ( my $token = $p->get_token ) {
         my $type = $token->[0];
 
-        if ( $type eq 'S' ) {
-            my $tag = lc $token->[1];
-            $tag = 'lj-raw' if $tag eq 'raw-code';
-            $open{$tag}++ unless $token->[2]->{'/'} || $tag =~ $slashclose_tags;
-            $disable_user_conversion = 1
-                if $tag eq 'blockquote'
-                && defined $token->[2]->{class}
-                && $token->[2]->{class} eq 'twitter-tweet';
+        if ( $type eq 'T' ) {
+
+            # Tokens the cleaner consumed some other way (get_text and friends)
+            # never reached the hook; they don't match and stay as written.
+            my $ctx;
+            if ( $i < @seen && $seen[$i]->[0] eq $token->[1] ) {
+                $ctx = $seen[ $i++ ]->[1];
+            }
+
+            $out .=
+                $ctx && !$ctx->{raw}
+                ? format_text_token( $token->[1], { %$ctx, as_tags => 1 } )
+                : $token->[1];
+        }
+        elsif ( $type eq 'S' ) {
             $out .= $token->[4];
         }
         elsif ( $type eq 'E' ) {
-            my $tag = lc $token->[1];
-            $tag = 'lj-raw' if $tag eq 'raw-code';
-            $open{$tag}-- if $open{$tag};
-            $disable_user_conversion = 0 if $tag eq 'blockquote';
             $out .= $token->[2];
-        }
-        elsif ( $type eq 'T' ) {
-            if ( grep { $open{$_} } keys %explicit_raw_tags ) {
-                $out .= $token->[1];
-                next;
-            }
-
-            $usertag_opts->{no_link} = $open{a} ? 1 : 0;
-            my $auto_format =
-                   ( ( $open{table} || 0 ) <= ( ( $open{td} || 0 ) + ( $open{th} || 0 ) ) )
-                && !$open{pre}
-                && !$open{textarea}
-                && !$open{'lj-raw'};
-            my $convert_mentions =
-                   !$disable_user_conversion
-                && !$open{code}
-                && !$open{pre}
-                && !$open{textarea}
-                && !$open{'lj-raw'};
-
-            $out .= format_text_token(
-                $token->[1],
-                {
-                    auto_format      => $auto_format,
-                    auto_links       => 1,
-                    in_link          => $open{a},
-                    convert_mentions => $convert_mentions,
-                    usertag_opts     => $usertag_opts,
-                    as_tags          => 1,
-                }
-            );
         }
         else {
             # comments, declarations, processing instructions: as written

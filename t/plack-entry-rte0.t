@@ -134,6 +134,24 @@ test_psgi $app, sub {
         rendered( $old_body,         'rte0' ),
         'and the saved entry reads the same as before, saved without JavaScript'
     );
+
+    # A form left open in an old tab posts its rte0 source as rte0. That is kept
+    # exactly as sent and stored as rte0, which renders as it always has; it
+    # converts the next time the entry is opened for editing.
+    my $stale_entry = $owner->t_post_fake_entry( subject => 'Stale tab', body => 'placeholder' );
+    my $stale_path  = $path->($stale_entry);
+    my $stale_body  = "stale line one\nstale line two http://example.com/";
+    my $form2       = edit_form( $request->( GET $stale_path )->content );
+    $form2->action( 'http://localhost' . $stale_path );
+    $form2->value( event => $stale_body );
+    my $post = $form2->click('action:post');
+    ( my $content = $post->content ) =~ s/\beditor=\w+/editor=rte0/;
+    $post->content($content);
+    $post->header( 'Content-Length' => length $content );
+    $request->($post);
+    my $stale_saved = fresh_entry( $owner, $stale_entry->ditemid );
+    is( $stale_saved->prop('editor'), 'rte0',      'a stale rte0 POST is stored as rte0' );
+    is( $stale_saved->event_raw,      $stale_body, '...with its body exactly as sent' );
 };
 
 done_testing();
