@@ -20,12 +20,10 @@ use HTTP::Request;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use DW::BML;
 use DW::Request::Standard;
 use DW::Template;
+use LJ::Lang;
 use LJ::UniqCookie;
-
-BML::set_language( $LJ::DEFAULT_LANG, \&LJ::Lang::get_text );
 
 sub check_headings {
     my ( $template, $scenario, $vars, $expected, $body_marker ) = @_;
@@ -33,6 +31,7 @@ sub check_headings {
     subtest "$template: $scenario" => sub {
         DW::Request->reset;
         DW::Request::Standard->new( HTTP::Request->new( GET => 'http://www.example.com/' ) );
+        LJ::Lang::set_request_context( lang => 'en', getter => \&LJ::Lang::get_text );
         LJ::UniqCookie->set_current_uniq('headingtest1234');
         local %LJ::REQ_GLOBAL;
         local $LJ::ACTIVE_RES_GROUP;
