@@ -15,6 +15,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         // These JS variables contain the contents of the various draft fields.
         var restoredDraft       = [% draft | js %];
         var restoredEditor      = [% draft_properties.editor | js %];
+        var restoredRte0        = [% draft_rte0_converted ? 'true' : 'false' %];
         var restoredSubject     = [% draft_properties.subject | js %];
         var restoredUserpic     = [% draft_properties.userpic | js %];
         var restoredTaglist     = [% draft_properties.taglist | js %];

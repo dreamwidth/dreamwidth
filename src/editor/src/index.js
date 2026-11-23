@@ -83,13 +83,13 @@ const instances = {};
 
 // Formats whose source the server auto-formats. Casual HTML turns newlines
 // into <br /> and links bare URLs, and it and Markdown turn @name into a user
-// tag; the retired rte0 format has no cleaner of its own and is cleaned as
-// casual HTML. rte1 does none of that, so converting one of these to rich text
-// has to do it up front (see serialize.js), and converting back has to leave
-// no source newlines for the server to turn into extra line breaks.
-const CASUAL_FORMATS = { html_casual1: 1, html_casual0: 1, rte0: 1 };
-const MENTION_FORMATS = { html_casual1: 1, markdown0: 1, rte0: 1 };
-const NEWLINE_FORMATS = { html_casual1: 1, html_casual0: 1, rte0: 1, markdown0: 1 };
+// tag. rte1 does none of that, so converting one of these to rich text has to
+// do it up front (see serialize.js), and converting back has to leave no source
+// newlines for the server to turn into extra line breaks. (The retired rte0
+// format is converted by the server before the editor ever sees it.)
+const CASUAL_FORMATS = { html_casual1: 1, html_casual0: 1 };
+const MENTION_FORMATS = { html_casual1: 1, markdown0: 1 };
+const NEWLINE_FORMATS = { html_casual1: 1, html_casual0: 1, markdown0: 1 };
 
 function casualOptions(fromFormat, sites) {
     if (!NEWLINE_FORMATS[fromFormat]) return null;
@@ -249,7 +249,7 @@ export function unmount(id, opts) {
     if (!instance) return;
 
     opts = opts || {};
-    const flatten = !!(CASUAL_FORMATS[opts.toFormat] && opts.toFormat != "rte0");
+    const flatten = !!CASUAL_FORMATS[opts.toFormat];
     instance.sync(flatten, { flatten: flatten });
     if (instance.textarea.form) {
         instance.textarea.form.removeEventListener("submit", instance.onSubmit, true);

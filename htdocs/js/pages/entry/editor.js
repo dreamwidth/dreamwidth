@@ -19,12 +19,6 @@
         var select = document.getElementById('editor');
         if (!select || !window.DWEditor) return;
 
-        // An entry or draft written in the retired editor (rte0) is loaded as
-        // rte1; its text is still rte0 source until the editor has converted
-        // it. The page marks that with data-source on the warning.
-        var warning = document.getElementById('js-rte0-warning');
-        var pendingSource = warning && warning.getAttribute('data-source') == '1' ? 'rte0' : '';
-
         // Read the format here, not at script load: a restored draft may
         // have changed the selection without firing a change event.
         var lastFormat = select.value;
@@ -42,13 +36,12 @@
                 onImage: window.DWImageInsert ? DWImageInsert.open : null,
 
                 // Every edit, so autosave's own debouncing sees continuous typing.
-                onInput: window.LJDraft ? LJDraft.handleInput : null
+                onInput: window.LJDraft ? LJDraft.richInput : null
             });
         }
 
         if (lastFormat == 'rte1') {
-            mount(pendingSource || lastFormat);
-            pendingSource = '';
+            mount(lastFormat);
         }
 
         // Capture phase, so this runs before the other change handlers on the
@@ -69,11 +62,9 @@
             lastFormat = format;
 
             if (format == 'rte1' && !DWEditor.isActive(BODY_ID)) {
-                mount(pendingSource || prev);
-                pendingSource = '';
+                mount(prev);
             } else if (format != 'rte1' && DWEditor.isActive(BODY_ID)) {
                 DWEditor.unmount(BODY_ID, { toFormat: format });
-                pendingSource = '';
             }
         }, true);
     });

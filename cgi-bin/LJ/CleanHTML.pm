@@ -1235,9 +1235,6 @@ TOKEN:
             $newdata .= $token->[1];
         }
         elsif ( $type eq "T" ) {
-            my %url      = ();
-            my $urlcount = 0;
-
             if (@eatuntil) {
                 push @capture, $token if $capturing_during_eat;
                 next TOKEN;
@@ -1262,56 +1259,26 @@ TOKEN:
                 && !$opencount{'textarea'}
                 && !$opencount{'lj-raw'};
 
-            # Stash any URLs that should be auto-linked, and insert temporary
-            # placeholders that can survive the next few escaping steps. We'll
-            # restore the URLs later as links.
-            if ( $auto_format && $auto_links && !$opencount{'a'} ) {
-                my $match = sub {
-                    my $str = shift;
-                    if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
-                        $url{ ++$urlcount } = $1;
-                        return "&url$urlcount;$1&urlend;$2";
-                    }
-                    else {
-                        $url{ ++$urlcount } = $str;
-                        return "&url$urlcount;$str&urlend;";
-                    }
-                };
-                $token->[1] =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge;
-            }
+            # Don't mangle code spans, code blocks, things that act like code
+            # blocks, or things we KNOW have foreign @mentions in em.
+            my $convert_mentions =
+                   $at_mentions
+                && !$disable_user_conversion
+                && !$opencount{'code'}
+                && !$opencount{'pre'}
+                && !$opencount{'textarea'}
+                && !$opencount{'lj-raw'};
 
-            # escape tags in text tokens.  shouldn't belong here!
-            # especially because the parser returns things it's
-            # confused about (broken, ill-formed HTML) as text.
-            $token->[1] =~ s/</&lt;/g;
-            $token->[1] =~ s/>/&gt;/g;
-
-            # auto-format some stuff!
-            if ($auto_format) {
-
-                # Add linebreaks
-                $token->[1] =~ s/\r?\n/<br \/>/g;
-                if ( !$opencount{'a'} ) {
-
-                    # Restore any auto-linked URLs as real HTML links
-                    $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
-                }
-            }
-
-            # convert user mentions, if we're in an appropriate context
-            if ($at_mentions) {
-
-                # Don't mangle code spans, code blocks, things that act like
-                # code blocks, or things we KNOW have foreign @mentions in em.
-                if (   !$disable_user_conversion
-                    && !$opencount{'code'}
-                    && !$opencount{'pre'}
-                    && !$opencount{'textarea'}
-                    && !$opencount{'lj-raw'} )
+            $token->[1] = format_text_token(
+                $token->[1],
                 {
-                    convert_user_mentions( \$token->[1], $usertag_opts );
+                    auto_format      => $auto_format,
+                    auto_links       => $auto_links,
+                    in_link          => $opencount{'a'},
+                    convert_mentions => $convert_mentions,
+                    usertag_opts     => $usertag_opts,
                 }
-            }
+            );
 
             $newdata .= $token->[1];
         }
@@ -1976,8 +1943,167 @@ sub formatting_args {
     return %$args;
 }
 
+# Format one text token the way the cleaner does. Shared by clean() and
+# casual_to_explicit() so the rules live in one place.
+# Args: the token's text, and a hashref of:
+# - auto_format: add linebreaks and auto-link URLs (we're in html-with-auto-
+#   linebreaks and not in a context that needs to stay raw)
+# - auto_links: allow auto-linking (when auto_format is on)
+# - in_link: we're inside an <a>, so no auto-links
+# - convert_mentions: convert @mentions to users
+# - usertag_opts: passed through to the user conversion
+# - as_tags: write mentions as <user> source tags rather than rendered HTML
+# Returns the formatted text.
+sub format_text_token {
+    my ( $text, $ctx ) = @_;
+
+    my %url      = ();
+    my $urlcount = 0;
+
+    # Stash any URLs that should be auto-linked, and insert temporary
+    # placeholders that can survive the next few escaping steps. We'll
+    # restore the URLs later as links.
+    if ( $ctx->{auto_format} && $ctx->{auto_links} && !$ctx->{in_link} ) {
+        my $match = sub {
+            my $str = shift;
+            if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
+                $url{ ++$urlcount } = $1;
+                return "&url$urlcount;$1&urlend;$2";
+            }
+            else {
+                $url{ ++$urlcount } = $str;
+                return "&url$urlcount;$str&urlend;";
+            }
+        };
+        $text =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge;
+    }
+
+    # escape tags in text tokens.  shouldn't belong here!
+    # especially because the parser returns things it's
+    # confused about (broken, ill-formed HTML) as text.
+    $text =~ s/</&lt;/g;
+    $text =~ s/>/&gt;/g;
+
+    # auto-format some stuff!
+    if ( $ctx->{auto_format} ) {
+
+        # Add linebreaks
+        $text =~ s/\r?\n/<br \/>/g;
+        if ( !$ctx->{in_link} ) {
+
+            # Restore any auto-linked URLs as real HTML links
+            $text =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
+        }
+    }
+
+    # convert user mentions, if we're in an appropriate context
+    convert_user_mentions( \$text, { %{ $ctx->{usertag_opts} || {} }, as_tags => $ctx->{as_tags} } )
+        if $ctx->{convert_mentions};
+
+    return $text;
+}
+
+# Tags whose contents the cleaner doesn't format as text (it eats them, or
+# leaves them to other code): casual_to_explicit leaves their text untouched.
+my %explicit_raw_tags = map { $_ => 1 } qw(
+    lj-embed site-embed object embed iframe script style noscript
+);
+
+# <LJFUNC>
+# name: LJ::CleanHTML::casual_to_explicit
+# class: text
+# des: Rewrite casual HTML (and the retired rte0 format, which the cleaner
+#      treats as casual HTML) as explicit HTML that renders identically when
+#      cleaned as raw HTML (or rte1): the line breaks, auto-links and @mentions
+#      the cleaner would have added become real markup. Uses the same text
+#      rules as clean() (see format_text_token).
+# args: text
+# des-text: The source text.
+# returns: The explicit source text.
+# </LJFUNC>
+sub casual_to_explicit {
+    my ($text) = @_;
+    return $text unless defined $text && length $text;
+
+    my $p = HTML::TokeParser->new( \$text );
+    my %open;
+    my $out                     = '';
+    my $disable_user_conversion = 0;
+    my $usertag_opts            = { no_link => 0 };
+
+    while ( my $token = $p->get_token ) {
+        my $type = $token->[0];
+
+        if ( $type eq 'S' ) {
+            my $tag = lc $token->[1];
+            $tag = 'lj-raw' if $tag eq 'raw-code';
+            $open{$tag}++ unless $token->[2]->{'/'} || $tag =~ $slashclose_tags;
+            $disable_user_conversion = 1
+                if $tag eq 'blockquote'
+                && defined $token->[2]->{class}
+                && $token->[2]->{class} eq 'twitter-tweet';
+            $out .= $token->[4];
+        }
+        elsif ( $type eq 'E' ) {
+            my $tag = lc $token->[1];
+            $tag = 'lj-raw' if $tag eq 'raw-code';
+            $open{$tag}-- if $open{$tag};
+            $disable_user_conversion = 0 if $tag eq 'blockquote';
+            $out .= $token->[2];
+        }
+        elsif ( $type eq 'T' ) {
+            if ( grep { $open{$_} } keys %explicit_raw_tags ) {
+                $out .= $token->[1];
+                next;
+            }
+
+            $usertag_opts->{no_link} = $open{a} ? 1 : 0;
+            my $auto_format =
+                   ( ( $open{table} || 0 ) <= ( ( $open{td} || 0 ) + ( $open{th} || 0 ) ) )
+                && !$open{pre}
+                && !$open{textarea}
+                && !$open{'lj-raw'};
+            my $convert_mentions =
+                   !$disable_user_conversion
+                && !$open{code}
+                && !$open{pre}
+                && !$open{textarea}
+                && !$open{'lj-raw'};
+
+            $out .= format_text_token(
+                $token->[1],
+                {
+                    auto_format      => $auto_format,
+                    auto_links       => 1,
+                    in_link          => $open{a},
+                    convert_mentions => $convert_mentions,
+                    usertag_opts     => $usertag_opts,
+                    as_tags          => 1,
+                }
+            );
+        }
+        else {
+            # comments, declarations, processing instructions: as written
+            $out .= $type eq 'PI' ? $token->[2] : $token->[1];
+        }
+    }
+
+    return $out;
+}
+
 sub convert_user_mentions {
     my ( $ref, $opts ) = @_;
+
+    # With as_tags, write <user> source tags instead of rendering them: the
+    # cleaner turns those into exactly the same output (see user_link_html).
+    my $link = $opts->{as_tags}
+        ? sub {
+        my ( $user, $site ) = @_;
+        my $tag = qq{<user name="$user"};
+        $tag .= qq{ site="$site"} if length $site && $site ne $LJ::DOMAIN;
+        return "$tag>";
+        }
+        : sub { return user_link_html( $_[0], $_[1], $opts ) };
 
     my $usertag = sub {
         my ( $orig, $user, $site ) = ( $_[0], $_[1], $_[2] || $LJ::DOMAIN );
@@ -1987,10 +2113,10 @@ sub convert_user_mentions {
         my ( $atuser, $atsitename ) = split /\.([^.]+)$/, ( $orig =~ tr/@//dr );
         if ($atsitename) {
             my $atsite = DW::External::Site->get_site( site => $atsitename );
-            return user_link_html( $atuser, $atsitename, $opts )
+            return $link->( $atuser, $atsitename )
                 if $atsite && $atsite->servicetype eq "atproto";
         }
-        return user_link_html( $user, $site, $opts );
+        return $link->( $user, $site );
     };
 
     # First pass is just to look for an edge case where an unescaped

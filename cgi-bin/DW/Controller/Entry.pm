@@ -414,6 +414,16 @@ sub _render_new_form {
         }
     }
 
+    # A draft saved in the retired rte0 format is restored as rte1: converted
+    # here, like an entry, and flagged so the page can show the warning.
+    $vars->{draft_rte0_converted} = 0;
+    if ( defined $draft_properties{editor} && DW::Formats::is_retired( $draft_properties{editor} ) )
+    {
+        $draft                        = LJ::CleanHTML::casual_to_explicit($draft);
+        $draft_properties{editor}     = DW::Formats::edit_format( $draft_properties{editor} );
+        $vars->{draft_rte0_converted} = 1;
+    }
+
     $vars->{init_draft}        = $initDraft;
     $vars->{draft}             = $draft;
     $vars->{draft_properties}  = \%draft_properties;
@@ -429,19 +439,22 @@ sub _simple_mode {
 }
 
 # Work out the format menu and which format is selected. An entry stored in the
-# retired rte0 format opens in the rich text editor instead (rte1); it's flagged
-# so the form can warn that the conversion needs checking before it's saved.
-# The stored entry itself is untouched until the poster saves.
+# retired rte0 format opens in the rich text editor instead (rte1). The text is
+# converted to explicit HTML here, with the cleaner's own rules (see
+# LJ::CleanHTML::casual_to_explicit), so what the editor loads (or a browser
+# without JavaScript submits) reads the same as the stored entry did. It's
+# flagged so the form can warn that the conversion needs checking. The stored
+# entry itself is untouched until the poster saves.
 sub _set_editors {
     my ( $vars, $preferred ) = @_;
 
     my $formdata = $vars->{formdata};
 
-    # rte0_source: the text is still the retired editor's markup, which the
-    # rich editor must convert on load. rte0_converted also stays set when the
-    # form comes back after an error, by which point the text is already rte1.
-    $vars->{rte0_source}    = DW::Formats::is_retired( $formdata->{editor} )      ? 1 : 0;
-    $vars->{rte0_converted} = $vars->{rte0_source} || $formdata->{rte0_converted} ? 1 : 0;
+    # rte0_converted stays set when the form comes back after an error, by
+    # which point the text is already explicit rte1 source.
+    my $retired = DW::Formats::is_retired( $formdata->{editor} ) ? 1 : 0;
+    $vars->{rte0_converted} = $retired || $formdata->{rte0_converted} ? 1 : 0;
+    $formdata->{event}      = LJ::CleanHTML::casual_to_explicit( $formdata->{event} ) if $retired;
 
     $vars->{editors} = DW::Formats::select_items(
         current   => $formdata->{editor},
