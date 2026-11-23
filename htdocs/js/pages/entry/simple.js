@@ -29,13 +29,17 @@
             $("#htmltools").toggle(!rich);
             if (!rich) lastPlain = $editor.val();
         };
+        // A tab click while a conversion is running abandons it, whichever tab.
+        var cancelConversion = function () { if (window.DWConvert) DWConvert.cancel(); };
         $("#jrich a").on("click", function (e) {
             e.preventDefault();
+            cancelConversion();
             if ($editor.val() === "rte1") return;
             setEditor("rte1");
         });
         $("#jplain a").on("click", function (e) {
             e.preventDefault();
+            cancelConversion();
             if ($editor.val() !== "rte1") return;
             setEditor(lastPlain);
         });

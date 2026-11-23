@@ -18,6 +18,8 @@
         // Open from JS so the first call also initialises Foundation's reveal
         // handlers; start each visit with empty fields.
         var openModal = function () {
+            // The body is being converted; it can't take an image right now.
+            if (window.DWConvert && DWConvert.busy()) return;
             url.value = "";
             alt.value = "";
             $modal.foundation("reveal", "open");
@@ -34,6 +36,7 @@
         $modal.find("[data-image-insert-confirm]").on("click", function () {
             var src = url.value;
             if (!src) { url.focus(); return; }
+            if (window.DWConvert && DWConvert.busy()) { close(); return; }
             if (rich()) {
                 DWEditor.insertImage("entry-body", { src: src, alt: alt.value });
                 close();

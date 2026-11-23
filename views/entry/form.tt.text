@@ -73,6 +73,8 @@
 
 .rte.convert.failed=Your text could not be converted to rich text just now, so it has been left as it was. Please try again.
 
+.rte.converting=Converting your text to rich text...
+
 .rte.embed=Embed media
 
 .rte.embed.code=Add media from other websites by copying and pasting their embed code here.

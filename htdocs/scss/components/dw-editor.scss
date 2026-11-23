@@ -366,3 +366,30 @@ img.ProseMirror-separator {
     gap: 0.5em;
     margin-top: 1em;
 }
+
+/* Over the body while casual HTML is being converted to rich text: nothing can
+ * be typed or inserted until it finishes or is cancelled. */
+
+.dw-editor-busy-host {
+    position: relative;
+}
+
+.dw-editor-busy {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75em;
+    background: rgba(255, 255, 255, 0.85);
+    font-weight: bold;
+
+    .button {
+        margin: 0;
+    }
+}

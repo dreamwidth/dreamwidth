@@ -46,38 +46,87 @@
 
         // Casual HTML's line breaks, auto-links and @mentions are worked out by
         // the server's cleaner, so the server does the conversion (one
-        // implementation, the cleaner's own rules). While it runs, the page keeps
-        // the OLD format selected and the OLD text in the box: they are what a
-        // submit or an autosave sees, and they are still a matching pair. Only
-        // when the converted text arrives do the text and the new format switch
-        // together, and only then does the rest of the change handling (autosave,
-        // the simple layout's tabs) hear about it. Any other format change in
-        // the meantime, or a failure, abandons the pending conversion.
+        // implementation, the cleaner's own rules). While it runs the body area is
+        // in a plain "busy" state: a "Converting..." layer covers it, so nothing
+        // can write to the body (typing, the Insert Image dialog), and the old
+        // format stays selected with the old text in the box -- a matching pair,
+        // which is all a submit or autosave can see. Picking another format or tab,
+        // or pressing Cancel, abandons the conversion and leaves things exactly as
+        // they were. Only when the converted text arrives do the text and the new
+        // format switch together, and only then is the change announced (autosave,
+        // the simple layout's tabs).
         var CASUAL_SOURCE = { html_casual1: 1, html_casual0: 1 };
-        var conversion = 0;   // number of the conversion allowed to finish
+        var CONVERT_TIMEOUT = 10000;
+        var pending = null;   // { cancel: function } while a conversion is running
+
+        // Other scripts ask before they write to the body (image-insert.js) and
+        // cancel on a tab click (simple.js).
+        window.DWConvert = {
+            busy: function () { return !!pending; },
+            cancel: function () { if (pending) pending.cancel(); }
+        };
 
         function convertThenMount(from) {
             var textarea = document.getElementById(BODY_ID);
-            var mine = ++conversion;
-            textarea.readOnly = true;   // keep the text still while it's converted
+            var sent = textarea.value;
+            var controller = new AbortController();
+            var finished = false;
 
-            function finish() {
-                if (mine == conversion) textarea.readOnly = false;
+            // The busy layer.
+            var host = textarea.parentNode;
+            var layer = document.createElement('div');
+            layer.className = 'dw-editor-busy';
+            layer.setAttribute('role', 'status');
+            var label = document.createElement('span');
+            label.textContent = strings.converting;
+            var cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.className = 'button secondary';
+            cancel.textContent = strings.cancel;
+            layer.appendChild(label);
+            layer.appendChild(cancel);
+            host.classList.add('dw-editor-busy-host');
+            host.appendChild(layer);
+            textarea.readOnly = true;
+
+            function end() {
+                if (finished) return false;
+                finished = true;
+                clearTimeout(timer);
+                layer.remove();
+                host.classList.remove('dw-editor-busy-host');
+                textarea.readOnly = false;
+                pending = null;
+                return true;
             }
+
+            function fail() {
+                if (end()) window.alert(strings.convertFailed);   // the old format stays
+            }
+
+            var timer = setTimeout(function () { controller.abort(); }, CONVERT_TIMEOUT);
+            pending = {
+                cancel: function () {
+                    controller.abort();
+                    end();
+                }
+            };
+            cancel.addEventListener('click', pending.cancel);
 
             fetch('/__rpc_entry_convert', {
                 method: 'POST',
                 credentials: 'same-origin',
+                signal: controller.signal,
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ text: textarea.value, from: from })
+                body: new URLSearchParams({ text: sent, from: from })
             }).then(function (res) {
                 return res.ok ? res.json() : {};
             }).then(function (data) {
-                if (mine != conversion) return;   // superseded: ignore
-                if (typeof data.text != 'string') throw new Error('no text');
+                if (finished) return;   // cancelled or already failed
+                if (typeof data.text != 'string' || textarea.value != sent) throw new Error('stale');
 
+                end();
                 textarea.value = data.text;
-                textarea.readOnly = false;
                 select.value = 'rte1';
                 lastFormat = 'rte1';
                 mount('rte1');
@@ -86,9 +135,7 @@
                 again.dwConverted = true;
                 select.dispatchEvent(again);
             }).catch(function () {
-                if (mine != conversion) return;
-                finish();
-                window.alert(strings.convertFailed);   // the old format stays selected
+                fail();
             });
         }
 
@@ -101,10 +148,7 @@
             var prev = lastFormat;
 
             // Whatever was being converted is no longer what was asked for.
-            if (format != prev || conversion) {
-                conversion++;
-                document.getElementById(BODY_ID).readOnly = false;
-            }
+            if (pending) pending.cancel();
             if (format == prev) return;
 
             if (format == 'rte1' && prev == 'markdown0' && !window.confirm(strings.markdownConfirm)) {
