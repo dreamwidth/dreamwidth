@@ -14367,6 +14367,19 @@ var DWEditor = (() => {
     "background-color": "background",
     "font-size": "fontSize"
   };
+  function textStyleFromCSS(text) {
+    const decls = parseStyle(text);
+    if (!decls || !decls.length)
+      return null;
+    const attrs = { color: null, background: null, fontSize: null };
+    for (const [prop, value] of decls) {
+      const name = TEXT_STYLE_PROPS[prop];
+      if (!name || attrs[name] != null || /!\s*important/i.test(value))
+        return null;
+      attrs[name] = value;
+    }
+    return attrs;
+  }
   var SIZE_KEYWORDS = [
     "xx-small",
     "x-small",
@@ -14480,6 +14493,38 @@ var DWEditor = (() => {
   function extraOf(dom) {
     return { extra: readExtra(dom) };
   }
+  var PASTED_TABLE_ATTRS = [
+    "border",
+    "cellpadding",
+    "cellspacing",
+    "width",
+    "height",
+    "style",
+    "bgcolor",
+    "align",
+    "valign"
+  ];
+  var PASTED_BLOCK_STYLES = ["text-align", "margin-left"];
+  function tableExtra(dom) {
+    const stashed = readExtra(dom);
+    if (stashed)
+      return stashed;
+    const extra = {};
+    PASTED_TABLE_ATTRS.forEach((name) => {
+      if (dom.hasAttribute(name))
+        extra[name] = dom.getAttribute(name);
+    });
+    return Object.keys(extra).length ? extra : null;
+  }
+  function blockExtra(dom) {
+    const stashed = readExtra(dom);
+    if (stashed)
+      return stashed;
+    const decls = (parseStyle(dom.getAttribute("style")) || []).filter(
+      ([prop]) => PASTED_BLOCK_STYLES.indexOf(prop) >= 0
+    );
+    return decls.length ? { style: formatStyle(decls) } : null;
+  }
   var EXTRA = { extra: { default: null } };
   function userAttrs(dom) {
     const name = dom.getAttribute("name") || dom.getAttribute("user") || dom.getAttribute("comm");
@@ -14503,7 +14548,7 @@ var DWEditor = (() => {
       attrs: EXTRA,
       content: "inline*",
       group: "block",
-      parseDOM: [{ tag: "p", getAttrs: extraOf }],
+      parseDOM: [{ tag: "p", getAttrs: (dom) => ({ extra: blockExtra(dom) }) }],
       toDOM(node) {
         return ["p", withExtra({}, node.attrs.extra), 0];
       }
@@ -14533,7 +14578,7 @@ var DWEditor = (() => {
       defining: true,
       parseDOM: [1, 2, 3, 4, 5, 6].map((level) => ({
         tag: "h" + level,
-        getAttrs: (dom) => ({ level, extra: readExtra(dom) })
+        getAttrs: (dom) => ({ level, extra: blockExtra(dom) })
       })),
       toDOM(node) {
         return ["h" + node.attrs.level, withExtra({}, node.attrs.extra), 0];
@@ -14740,7 +14785,7 @@ var DWEditor = (() => {
     cellAttributes: {
       extra: {
         default: null,
-        getFromDOM: readExtra,
+        getFromDOM: tableExtra,
         setDOMAttr: (value, attrs) => withExtra(attrs, value)
       },
       loose: {
@@ -14754,23 +14799,14 @@ var DWEditor = (() => {
     }
   });
   tables.table.attrs = EXTRA;
-  tables.table.parseDOM = [{ tag: "table", getAttrs: extraOf }];
+  tables.table.parseDOM = [{ tag: "table", getAttrs: (dom) => ({ extra: tableExtra(dom) }) }];
   tables.table.toDOM = (node) => ["table", withExtra({}, node.attrs.extra), ["tbody", 0]];
   tables.table_row.attrs = EXTRA;
-  tables.table_row.parseDOM = [{ tag: "tr", getAttrs: extraOf }];
+  tables.table_row.parseDOM = [{ tag: "tr", getAttrs: (dom) => ({ extra: tableExtra(dom) }) }];
   tables.table_row.toDOM = (node) => ["tr", withExtra({}, node.attrs.extra), 0];
   Object.assign(nodes, tables);
-  function textStyleAttrs(dom) {
-    const decls = parseStyle(dom.getAttribute("data-style"));
-    if (!decls)
-      return false;
-    const attrs = { color: null, background: null, fontSize: null };
-    for (const [prop, value] of decls) {
-      if (!TEXT_STYLE_PROPS[prop])
-        return false;
-      attrs[TEXT_STYLE_PROPS[prop]] = value;
-    }
-    return attrs;
+  function textStyleAttrs(attr) {
+    return (dom) => textStyleFromCSS(dom.getAttribute(attr)) || false;
   }
   function textStyleCSS(attrs) {
     const decls = [];
@@ -14831,7 +14867,10 @@ var DWEditor = (() => {
         background: { default: null },
         fontSize: { default: null }
       },
-      parseDOM: [{ tag: "dw-style", getAttrs: textStyleAttrs }],
+      parseDOM: [
+        { tag: "dw-style", getAttrs: textStyleAttrs("data-style") },
+        { tag: "span[style]", getAttrs: textStyleAttrs("style") }
+      ],
       toDOM(mark) {
         const attrs = {};
         const css = textStyleCSS(mark.attrs);
@@ -15134,8 +15173,7 @@ var DWEditor = (() => {
   function isTextStyleSpan(el) {
     if (el.localName != "span" || el.attributes.length != 1 || !el.hasAttribute("style"))
       return false;
-    const decls = parseStyle(el.getAttribute("style"));
-    if (!decls || !decls.length || !decls.every(([prop]) => TEXT_STYLE_PROPS[prop]))
+    if (!textStyleFromCSS(el.getAttribute("style")))
       return false;
     if (el.querySelector("a[href]"))
       return false;
@@ -15165,8 +15203,13 @@ var DWEditor = (() => {
     const value = cell.getAttribute(name).trim();
     return SPAN_VALUE.test(value) ? +value : 0;
   }
+  function keepsWhitespace(table) {
+    return [table, ...table.querySelectorAll("[style]")].some(
+      (el) => /white-space/i.test(el.getAttribute("style") || "")
+    );
+  }
   function tableRows(table) {
-    if (!validAttrs(table) || !onlyChildren(table, ["tbody"]))
+    if (!validAttrs(table) || !onlyChildren(table, ["tbody"]) || keepsWhitespace(table))
       return null;
     const bodies = Array.from(table.children);
     if (bodies.length != 1 || bodies[0].attributes.length)
@@ -16880,13 +16923,17 @@ var DWEditor = (() => {
   var INDENT_STEP = 40;
   function styledBlocks(state) {
     const found2 = [];
-    const { from: from2, to } = state.selection;
-    state.doc.nodesBetween(from2, to, (node, pos) => {
-      if (TEXT_BLOCKS.indexOf(node.type.name) >= 0) {
-        found2.push({ node, pos });
+    const seen = /* @__PURE__ */ new Set();
+    state.selection.ranges.forEach((range) => {
+      state.doc.nodesBetween(range.$from.pos, range.$to.pos, (node, pos) => {
+        if (TEXT_BLOCKS.indexOf(node.type.name) < 0)
+          return true;
+        if (!seen.has(pos)) {
+          seen.add(pos);
+          found2.push({ node, pos });
+        }
         return false;
-      }
-      return true;
+      });
     });
     return found2;
   }
@@ -16896,7 +16943,7 @@ var DWEditor = (() => {
     let changed = false;
     blocks.forEach(({ node, pos }) => {
       const current = getStyleProp(styleOfExtra(node.attrs.extra), prop);
-      const value = update(current, node);
+      const value = update(current, node, pos);
       if (value === void 0)
         return;
       const extra = extraWithStyle(node.attrs.extra, prop, value, alsoRemove);
@@ -16911,13 +16958,29 @@ var DWEditor = (() => {
       dispatch(tr.scrollIntoView());
     return true;
   }
+  function ownAlignment(node) {
+    const extra = node.attrs.extra;
+    let value = getStyleProp(styleOfExtra(extra), "text-align");
+    if (!value && extra && extra.align && node.type.name != "table")
+      value = extra.align;
+    if (!value && node.attrs.tag == "center")
+      value = "center";
+    return value ? String(value).toLowerCase() : null;
+  }
+  function inheritedAlignment(doc3, pos) {
+    const $pos = doc3.resolve(pos);
+    for (let d = $pos.depth; d > 0; d--) {
+      const value = ownAlignment($pos.node(d));
+      if (value)
+        return value;
+    }
+    return "left";
+  }
   function blockAlignment(state) {
-    const parent = state.selection.$from.parent;
-    if (TEXT_BLOCKS.indexOf(parent.type.name) < 0)
+    const { $from } = state.selection;
+    if (TEXT_BLOCKS.indexOf($from.parent.type.name) < 0)
       return null;
-    const extra = parent.attrs.extra;
-    const value = getStyleProp(styleOfExtra(extra), "text-align") || extra && extra.align;
-    return value ? String(value).toLowerCase() : "left";
+    return ownAlignment($from.parent) || inheritedAlignment(state.doc, $from.before());
   }
   function setAlignment(value) {
     return (state, dispatch) => {
@@ -16925,9 +16988,13 @@ var DWEditor = (() => {
         return false;
       if (!dispatch)
         return true;
-      updateBlockStyle(state, dispatch, "text-align", () => value == "left" ? null : value, [
-        "align"
-      ]);
+      updateBlockStyle(
+        state,
+        dispatch,
+        "text-align",
+        (current, node, pos) => value != "left" || inheritedAlignment(state.doc, pos) != "left" ? value : null,
+        ["align"]
+      );
       return true;
     };
   }
@@ -16939,9 +17006,13 @@ var DWEditor = (() => {
   }
   function inList(state, schema2) {
     const { $from } = state.selection;
-    for (let d = $from.depth; d > 0; d--)
-      if ($from.node(d).type == schema2.nodes.list_item)
+    for (let d = $from.depth; d > 0; d--) {
+      const type = $from.node(d).type;
+      if (type == schema2.nodes.list_item)
         return true;
+      if (type.spec.tableRole == "cell" || type.spec.tableRole == "header_cell")
+        return false;
+    }
     return false;
   }
   function indent(schema2) {
@@ -16966,7 +17037,13 @@ var DWEditor = (() => {
           return void 0;
         return px - INDENT_STEP > 0 ? px - INDENT_STEP + "px" : null;
       });
-      return unindented || lift2(state, dispatch);
+      if (unindented)
+        return true;
+      const { $from, $to } = state.selection;
+      const range = $from.blockRange($to);
+      if (range && range.parent.type == schema2.nodes.cut)
+        return false;
+      return lift2(state, dispatch);
     };
   }
   var NO_STYLE = { color: null, background: null, fontSize: null };
@@ -16982,6 +17059,37 @@ var DWEditor = (() => {
   }
   function setTextStyle(schema2, name, value) {
     return setTextStyles(schema2, { [name]: value });
+  }
+  var OLD_MARKUP = {
+    color: { prop: "color", fontAttr: "color" },
+    background: { prop: "background-color", fontAttr: null },
+    fontSize: { prop: "font-size", fontAttr: "size" }
+  };
+  function clearOldMarkup(tr, schema2, node, start, end, changes) {
+    node.marks.forEach((mark) => {
+      if (mark.type != schema2.marks.html_mark && mark.type != schema2.marks.html_mark_inner)
+        return;
+      let extra = mark.attrs.extra;
+      Object.keys(changes).forEach((name) => {
+        const old = OLD_MARKUP[name];
+        if (!old || extra === void 0)
+          return;
+        extra = extraWithStyle(
+          extra,
+          old.prop,
+          null,
+          mark.attrs.tag == "font" && old.fontAttr ? [old.fontAttr] : []
+        );
+      });
+      if (extra === void 0)
+        return;
+      if (JSON.stringify(extra) == JSON.stringify(mark.attrs.extra))
+        return;
+      tr.removeMark(start, end, mark);
+      const tag = mark.attrs.tag;
+      if (extra || tag != "span" && tag != "font")
+        tr.addMark(start, end, mark.type.create({ tag, extra }));
+    });
   }
   function setTextStyles(schema2, changes) {
     const type = schema2.marks.text_style;
@@ -17012,6 +17120,7 @@ var DWEditor = (() => {
             const end = Math.min(pos + node.nodeSize, to);
             const current = type.isInSet(node.marks);
             const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
+            clearOldMarkup(tr, schema2, node, start, end, changes);
             if (hasStyle(attrs))
               tr.addMark(start, end, type.create(attrs));
             else
@@ -17028,7 +17137,7 @@ var DWEditor = (() => {
   function insertTable(schema2, rows, cols) {
     return (state, dispatch) => {
       const { $from } = state.selection;
-      if ($from.parent.type.spec.code)
+      if (state.selection instanceof CellSelection || $from.parent.type.spec.code)
         return false;
       if (!dispatch)
         return true;
@@ -17060,6 +17169,15 @@ var DWEditor = (() => {
   }
 
   // src/keymap.js
+  function tabCommand(schema2, direction, listCommand) {
+    return (state, dispatch) => {
+      if (inList(state, schema2))
+        return listCommand(state, dispatch);
+      if (isInTable(state))
+        return goToNextCell(direction)(state, dispatch);
+      return false;
+    };
+  }
   function buildKeymap(schema2, commands) {
     const keys2 = {
       "Mod-z": undo,
@@ -17074,9 +17192,11 @@ var DWEditor = (() => {
       Enter: splitListItem(schema2.nodes.list_item),
       "Mod-[": outdent(schema2),
       "Mod-]": indent(schema2),
-      // Tab moves between table cells, and otherwise nests list items.
-      Tab: chainCommands(goToNextCell(1), sinkListItem(schema2.nodes.list_item)),
-      "Shift-Tab": chainCommands(goToNextCell(-1), liftListItem(schema2.nodes.list_item)),
+      // Tab nests a list item and otherwise moves between table cells --
+      // whichever the cursor is nearer to, so moving off the last cell of a
+      // table never falls through to the list around it.
+      Tab: tabCommand(schema2, 1, sinkListItem(schema2.nodes.list_item)),
+      "Shift-Tab": tabCommand(schema2, -1, liftListItem(schema2.nodes.list_item)),
       // Leave a code/html block downward
       "Mod-Enter": exitCode,
       "Shift-Enter": chainCommands(exitCode, (state, dispatch) => {

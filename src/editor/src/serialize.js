@@ -26,7 +26,7 @@
 
 import { DOMParser as PMDOMParser, DOMSerializer } from "prosemirror-model";
 import { render, GENERIC_BLOCK_TAGS, GENERIC_INLINE_TAGS } from "./schema.js";
-import { parseStyle, TEXT_STYLE_PROPS } from "./style.js";
+import { textStyleFromCSS } from "./style.js";
 
 // Block-level markup we preserve as literal HTML rather than parse lossily.
 // Dreamwidth's own block tags are here too: polls and embeds round-trip as
@@ -320,8 +320,7 @@ function replaceRaw(el, forceBlock) {
 function isTextStyleSpan(el) {
     if (el.localName != "span" || el.attributes.length != 1 || !el.hasAttribute("style"))
         return false;
-    const decls = parseStyle(el.getAttribute("style"));
-    if (!decls || !decls.length || !decls.every(([prop]) => TEXT_STYLE_PROPS[prop])) return false;
+    if (!textStyleFromCSS(el.getAttribute("style"))) return false;
     if (el.querySelector("a[href]")) return false;
     for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
         const tag = node.localName;
@@ -358,8 +357,17 @@ function spanOf(cell, name) {
     return SPAN_VALUE.test(value) ? +value : 0;
 }
 
+// Cell text is parsed like any other running text, with its whitespace
+// collapsed, which only shows if the table asks for whitespace to be kept.
+function keepsWhitespace(table) {
+    return [table, ...table.querySelectorAll("[style]")].some((el) =>
+        /white-space/i.test(el.getAttribute("style") || "")
+    );
+}
+
 function tableRows(table) {
-    if (!validAttrs(table) || !onlyChildren(table, ["tbody"])) return null;
+    if (!validAttrs(table) || !onlyChildren(table, ["tbody"]) || keepsWhitespace(table))
+        return null;
     const bodies = Array.from(table.children);
     if (bodies.length != 1 || bodies[0].attributes.length) return null;
     const body = bodies[0];

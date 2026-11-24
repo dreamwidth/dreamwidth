@@ -7,6 +7,7 @@
 import { lift } from "prosemirror-commands";
 import { sinkListItem, liftListItem } from "prosemirror-schema-list";
 import { TextSelection } from "prosemirror-state";
+import { CellSelection } from "prosemirror-tables";
 import { extraWithStyle, styleOfExtra, getStyleProp } from "./style.js";
 
 // Blocks alignment and indent apply to: anything holding a line of text.
@@ -15,15 +16,20 @@ const TEXT_BLOCKS = ["paragraph", "heading", "html_textblock"];
 // One indent step, the same as the old editor's.
 const INDENT_STEP = 40;
 
+// The text blocks in the selection. A selection of table cells has a range
+// per cell.
 function styledBlocks(state) {
     const found = [];
-    const { from, to } = state.selection;
-    state.doc.nodesBetween(from, to, (node, pos) => {
-        if (TEXT_BLOCKS.indexOf(node.type.name) >= 0) {
-            found.push({ node, pos });
+    const seen = new Set();
+    state.selection.ranges.forEach((range) => {
+        state.doc.nodesBetween(range.$from.pos, range.$to.pos, (node, pos) => {
+            if (TEXT_BLOCKS.indexOf(node.type.name) < 0) return true;
+            if (!seen.has(pos)) {
+                seen.add(pos);
+                found.push({ node, pos });
+            }
             return false;
-        }
-        return true;
+        });
     });
     return found;
 }
@@ -37,7 +43,7 @@ function updateBlockStyle(state, dispatch, prop, update, alsoRemove) {
     let changed = false;
     blocks.forEach(({ node, pos }) => {
         const current = getStyleProp(styleOfExtra(node.attrs.extra), prop);
-        const value = update(current, node);
+        const value = update(current, node, pos);
         if (value === undefined) return;
         const extra = extraWithStyle(node.attrs.extra, prop, value, alsoRemove);
         if (extra === undefined) return;
@@ -49,25 +55,49 @@ function updateBlockStyle(state, dispatch, prop, update, alsoRemove) {
     return true;
 }
 
-// The alignment of the block the cursor is in: its text-align, or an old
-// align="..." attribute.
+// A node's own alignment: text-align in its style, an old align="..."
+// attribute (which on a table places the table rather than its text), or
+// <center>.
+function ownAlignment(node) {
+    const extra = node.attrs.extra;
+    let value = getStyleProp(styleOfExtra(extra), "text-align");
+    if (!value && extra && extra.align && node.type.name != "table") value = extra.align;
+    if (!value && node.attrs.tag == "center") value = "center";
+    return value ? String(value).toLowerCase() : null;
+}
+
+// The alignment a block at pos inherits from what it sits in.
+function inheritedAlignment(doc, pos) {
+    const $pos = doc.resolve(pos);
+    for (let d = $pos.depth; d > 0; d--) {
+        const value = ownAlignment($pos.node(d));
+        if (value) return value;
+    }
+    return "left";
+}
+
+// The alignment of the block the cursor is in.
 export function blockAlignment(state) {
-    const parent = state.selection.$from.parent;
-    if (TEXT_BLOCKS.indexOf(parent.type.name) < 0) return null;
-    const extra = parent.attrs.extra;
-    const value = getStyleProp(styleOfExtra(extra), "text-align") || (extra && extra.align);
-    return value ? String(value).toLowerCase() : "left";
+    const { $from } = state.selection;
+    if (TEXT_BLOCKS.indexOf($from.parent.type.name) < 0) return null;
+    return ownAlignment($from.parent) || inheritedAlignment(state.doc, $from.before());
 }
 
 // value: left, center, right or justify. Left is the default, so it removes
-// the setting. An old align="..." attribute is replaced either way.
+// the setting -- unless the block would then inherit another alignment, when
+// it's set explicitly. An old align="..." attribute is replaced either way.
 export function setAlignment(value) {
     return (state, dispatch) => {
         if (!styledBlocks(state).length) return false;
         if (!dispatch) return true;
-        updateBlockStyle(state, dispatch, "text-align", () => (value == "left" ? null : value), [
-            "align",
-        ]);
+        updateBlockStyle(
+            state,
+            dispatch,
+            "text-align",
+            (current, node, pos) =>
+                value != "left" || inheritedAlignment(state.doc, pos) != "left" ? value : null,
+            ["align"],
+        );
         return true;
     };
 }
@@ -78,10 +108,15 @@ function marginPx(value) {
     return m ? +m[1] : null;
 }
 
-function inList(state, schema) {
+// Is the cursor in a list item, and not in a table inside one? (Indent and
+// Tab act on whichever is nearer.)
+export function inList(state, schema) {
     const { $from } = state.selection;
-    for (let d = $from.depth; d > 0; d--)
-        if ($from.node(d).type == schema.nodes.list_item) return true;
+    for (let d = $from.depth; d > 0; d--) {
+        const type = $from.node(d).type;
+        if (type == schema.nodes.list_item) return true;
+        if (type.spec.tableRole == "cell" || type.spec.tableRole == "header_cell") return false;
+    }
     return false;
 }
 
@@ -99,7 +134,8 @@ export function indent(schema) {
 }
 
 // The reverse: un-nest a list item, take a step of margin off, or failing
-// both, lift the block out of whatever wraps it (a quote, ...).
+// both, lift the block out of whatever wraps it (a quote, ...) -- but never out
+// of a cut tag, which would put its hidden text on show.
 export function outdent(schema) {
     const liftItem = liftListItem(schema.nodes.list_item);
     return (state, dispatch) => {
@@ -109,7 +145,11 @@ export function outdent(schema) {
             if (!px) return undefined;
             return px - INDENT_STEP > 0 ? px - INDENT_STEP + "px" : null;
         });
-        return unindented || lift(state, dispatch);
+        if (unindented) return true;
+        const { $from, $to } = state.selection;
+        const range = $from.blockRange($to);
+        if (range && range.parent.type == schema.nodes.cut) return false;
+        return lift(state, dispatch);
     };
 }
 
@@ -138,6 +178,41 @@ export function setTextStyle(schema, name, value) {
     return setTextStyles(schema, { [name]: value });
 }
 
+// What each text-style attribute is in an old entry's own markup: the CSS
+// property, and the attribute <font> uses for it.
+const OLD_MARKUP = {
+    color: { prop: "color", fontAttr: "color" },
+    background: { prop: "background-color", fontAttr: null },
+    fontSize: { prop: "font-size", fontAttr: "size" },
+};
+
+// An old entry's span or font may set the same thing the toolbar is setting,
+// and one nested inside the new style would still win. Take that setting off
+// it, dropping a span or font left with no attributes at all.
+function clearOldMarkup(tr, schema, node, start, end, changes) {
+    node.marks.forEach((mark) => {
+        if (mark.type != schema.marks.html_mark && mark.type != schema.marks.html_mark_inner)
+            return;
+        let extra = mark.attrs.extra;
+        Object.keys(changes).forEach((name) => {
+            const old = OLD_MARKUP[name];
+            if (!old || extra === undefined) return;
+            extra = extraWithStyle(
+                extra,
+                old.prop,
+                null,
+                mark.attrs.tag == "font" && old.fontAttr ? [old.fontAttr] : [],
+            );
+        });
+        if (extra === undefined) return;
+        if (JSON.stringify(extra) == JSON.stringify(mark.attrs.extra)) return;
+        tr.removeMark(start, end, mark);
+        const tag = mark.attrs.tag;
+        if (extra || (tag != "span" && tag != "font"))
+            tr.addMark(start, end, mark.type.create({ tag, extra }));
+    });
+}
+
 export function setTextStyles(schema, changes) {
     const type = schema.marks.text_style;
     return (state, dispatch) => {
@@ -163,6 +238,7 @@ export function setTextStyles(schema, changes) {
                     const end = Math.min(pos + node.nodeSize, to);
                     const current = type.isInSet(node.marks);
                     const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
+                    clearOldMarkup(tr, schema, node, start, end, changes);
                     if (hasStyle(attrs)) tr.addMark(start, end, type.create(attrs));
                     else tr.removeMark(start, end, type);
                     return false;
@@ -183,7 +259,8 @@ const NEW_TABLE = { border: "1", cellpadding: "4", style: "border-collapse: coll
 export function insertTable(schema, rows, cols) {
     return (state, dispatch) => {
         const { $from } = state.selection;
-        if ($from.parent.type.spec.code) return false;
+        // Over selected cells it would replace their contents.
+        if (state.selection instanceof CellSelection || $from.parent.type.spec.code) return false;
         if (!dispatch) return true;
         const { table, table_row, table_cell, paragraph } = schema.nodes;
         const rowNodes = [];

@@ -99,6 +99,21 @@ export const TEXT_STYLE_PROPS = {
     "font-size": "fontSize",
 };
 
+// The text-style attributes a style attribute stands for, or null if it holds
+// anything else. A repeated property or !important is refused too: the mark
+// keeps one plain value per property, so it couldn't say the same thing.
+export function textStyleFromCSS(text) {
+    const decls = parseStyle(text);
+    if (!decls || !decls.length) return null;
+    const attrs = { color: null, background: null, fontSize: null };
+    for (const [prop, value] of decls) {
+        const name = TEXT_STYLE_PROPS[prop];
+        if (!name || attrs[name] != null || /!\s*important/i.test(value)) return null;
+        attrs[name] = value;
+    }
+    return attrs;
+}
+
 // Values a person can type for a font size: a number with a CSS unit, or one
 // of the size keywords. Kept to these so the style the cleaner sees is plain.
 const SIZE_KEYWORDS = [

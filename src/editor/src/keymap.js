@@ -5,8 +5,16 @@ import { baseKeymap, toggleMark, chainCommands, exitCode } from "prosemirror-com
 import { undo, redo } from "prosemirror-history";
 import { undoInputRule } from "prosemirror-inputrules";
 import { splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list";
-import { goToNextCell } from "prosemirror-tables";
-import { indent, outdent } from "./commands.js";
+import { goToNextCell, isInTable } from "prosemirror-tables";
+import { indent, outdent, inList } from "./commands.js";
+
+function tabCommand(schema, direction, listCommand) {
+    return (state, dispatch) => {
+        if (inList(state, schema)) return listCommand(state, dispatch);
+        if (isInTable(state)) return goToNextCell(direction)(state, dispatch);
+        return false;
+    };
+}
 
 export function buildKeymap(schema, commands) {
     const keys = {
@@ -24,9 +32,11 @@ export function buildKeymap(schema, commands) {
         Enter: splitListItem(schema.nodes.list_item),
         "Mod-[": outdent(schema),
         "Mod-]": indent(schema),
-        // Tab moves between table cells, and otherwise nests list items.
-        Tab: chainCommands(goToNextCell(1), sinkListItem(schema.nodes.list_item)),
-        "Shift-Tab": chainCommands(goToNextCell(-1), liftListItem(schema.nodes.list_item)),
+        // Tab nests a list item and otherwise moves between table cells --
+        // whichever the cursor is nearer to, so moving off the last cell of a
+        // table never falls through to the list around it.
+        Tab: tabCommand(schema, 1, sinkListItem(schema.nodes.list_item)),
+        "Shift-Tab": tabCommand(schema, -1, liftListItem(schema.nodes.list_item)),
 
         // Leave a code/html block downward
         "Mod-Enter": exitCode,

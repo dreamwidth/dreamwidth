@@ -33,7 +33,7 @@
 
 import { Schema } from "prosemirror-model";
 import { tableNodes } from "prosemirror-tables";
-import { parseStyle, formatStyle, TEXT_STYLE_PROPS } from "./style.js";
+import { parseStyle, formatStyle, TEXT_STYLE_PROPS, textStyleFromCSS } from "./style.js";
 
 // Serialization mode. exportHTML sets raw = true while producing the stored
 // markup; for the live editor view event-handler attributes (onclick=...) are
@@ -143,6 +143,43 @@ function extraOf(dom) {
     return { extra: readExtra(dom) };
 }
 
+// Markup copied out of the editor (or another page) and pasted back in never
+// went through the import pre-pass, so it has real attributes rather than
+// stashed ones. Tables keep the attributes that shape them, and paragraphs
+// and headings keep their alignment and indent, so copying within the editor
+// doesn't strip what its own toolbar set.
+const PASTED_TABLE_ATTRS = [
+    "border",
+    "cellpadding",
+    "cellspacing",
+    "width",
+    "height",
+    "style",
+    "bgcolor",
+    "align",
+    "valign",
+];
+const PASTED_BLOCK_STYLES = ["text-align", "margin-left"];
+
+function tableExtra(dom) {
+    const stashed = readExtra(dom);
+    if (stashed) return stashed;
+    const extra = {};
+    PASTED_TABLE_ATTRS.forEach((name) => {
+        if (dom.hasAttribute(name)) extra[name] = dom.getAttribute(name);
+    });
+    return Object.keys(extra).length ? extra : null;
+}
+
+function blockExtra(dom) {
+    const stashed = readExtra(dom);
+    if (stashed) return stashed;
+    const decls = (parseStyle(dom.getAttribute("style")) || []).filter(
+        ([prop]) => PASTED_BLOCK_STYLES.indexOf(prop) >= 0
+    );
+    return decls.length ? { style: formatStyle(decls) } : null;
+}
+
 const EXTRA = { extra: { default: null } };
 
 function userAttrs(dom) {
@@ -174,7 +211,7 @@ const nodes = {
         attrs: EXTRA,
         content: "inline*",
         group: "block",
-        parseDOM: [{ tag: "p", getAttrs: extraOf }],
+        parseDOM: [{ tag: "p", getAttrs: (dom) => ({ extra: blockExtra(dom) }) }],
         toDOM(node) {
             return ["p", withExtra({}, node.attrs.extra), 0];
         },
@@ -207,7 +244,7 @@ const nodes = {
         defining: true,
         parseDOM: [1, 2, 3, 4, 5, 6].map((level) => ({
             tag: "h" + level,
-            getAttrs: (dom) => ({ level: level, extra: readExtra(dom) }),
+            getAttrs: (dom) => ({ level: level, extra: blockExtra(dom) }),
         })),
         toDOM(node) {
             return ["h" + node.attrs.level, withExtra({}, node.attrs.extra), 0];
@@ -429,7 +466,7 @@ const tables = tableNodes({
     cellAttributes: {
         extra: {
             default: null,
-            getFromDOM: readExtra,
+            getFromDOM: tableExtra,
             setDOMAttr: (value, attrs) => withExtra(attrs, value),
         },
         loose: {
@@ -443,25 +480,19 @@ const tables = tableNodes({
 });
 
 tables.table.attrs = EXTRA;
-tables.table.parseDOM = [{ tag: "table", getAttrs: extraOf }];
+tables.table.parseDOM = [{ tag: "table", getAttrs: (dom) => ({ extra: tableExtra(dom) }) }];
 tables.table.toDOM = (node) => ["table", withExtra({}, node.attrs.extra), ["tbody", 0]];
 tables.table_row.attrs = EXTRA;
-tables.table_row.parseDOM = [{ tag: "tr", getAttrs: extraOf }];
+tables.table_row.parseDOM = [{ tag: "tr", getAttrs: (dom) => ({ extra: tableExtra(dom) }) }];
 tables.table_row.toDOM = (node) => ["tr", withExtra({}, node.attrs.extra), 0];
 Object.assign(nodes, tables);
 
 // Text colour, highlight and font size, as <span style="...">. Imported only
 // from a span whose style holds nothing but these (serialize.js), so
-// everything else about a span stays in html_mark.
-function textStyleAttrs(dom) {
-    const decls = parseStyle(dom.getAttribute("data-style"));
-    if (!decls) return false;
-    const attrs = { color: null, background: null, fontSize: null };
-    for (const [prop, value] of decls) {
-        if (!TEXT_STYLE_PROPS[prop]) return false;
-        attrs[TEXT_STYLE_PROPS[prop]] = value;
-    }
-    return attrs;
+// everything else about a span stays in html_mark. A pasted span is read
+// directly.
+function textStyleAttrs(attr) {
+    return (dom) => textStyleFromCSS(dom.getAttribute(attr)) || false;
 }
 
 export function textStyleCSS(attrs) {
@@ -524,7 +555,10 @@ const marks = {
             background: { default: null },
             fontSize: { default: null },
         },
-        parseDOM: [{ tag: "dw-style", getAttrs: textStyleAttrs }],
+        parseDOM: [
+            { tag: "dw-style", getAttrs: textStyleAttrs("data-style") },
+            { tag: "span[style]", getAttrs: textStyleAttrs("style") },
+        ],
         toDOM(mark) {
             const attrs = {};
             const css = textStyleCSS(mark.attrs);
