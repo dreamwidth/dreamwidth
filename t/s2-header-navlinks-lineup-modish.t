@@ -59,6 +59,7 @@ sub stylesheets {
 
 sub declarations {
     my ( $css, $selector ) = @_;
+    $css =~ s{/\*.*?\*/}{}gs;
     return map { /^\s*([\w-]+):\s*(.*?)\s*$/ ? ( $1 => $2 ) : () }
         map    { split /;/ } $css =~ /(?:\A|(?<=[{}]))\s*\Q$selector\E\s*\{([^{}]*)\}/g;
 }
@@ -171,12 +172,26 @@ S2
         contrast_ok( $css, "$layout $label" );
     }
 
-    my $theme_id = 8;
-    my $themes   = read_style("$layout/themes.s2");
+    my $layer_id = 8;
+    if ( $layout eq 'lineup' ) {
+        load_layer( $compiler, ++$layer_id, 'user', <<'S2');
+layerinfo type = "user";
+set color_header_border = "";
+S2
+        foreach my $placement ( [ 3, 'header' ], [ 4, 'sidebar' ] ) {
+            my ( $nav_layer, $label ) = @$placement;
+            my $css    = stylesheets( S2::make_context( 1, 2, $nav_layer, $layer_id ) );
+            my %header = declarations( $css, '#header' );
+            is( $header{'border-top'},
+                '10px solid', "lineup $label nav: unset border color uses currentColor" );
+        }
+    }
+
+    my $themes = read_style("$layout/themes.s2");
     while ( $themes =~ /^\#NEWLAYER: ([^\n]+)\n(.*?)(?=^\#NEWLAYER:|\z)/msg ) {
         my ( $name, $source ) = ( $1, $2 );
-        load_layer( $compiler, ++$theme_id, 'theme', $source );
-        my $css = stylesheets( S2::make_context( 1, 2, $theme_id, 3 ) );
+        load_layer( $compiler, ++$layer_id, 'theme', $source );
+        my $css = stylesheets( S2::make_context( 1, 2, $layer_id, 3 ) );
         contrast_ok( $css, $name );
         my %body   = declarations( $css, 'body' );
         my %header = declarations( $css, '#header' );

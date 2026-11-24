@@ -148,10 +148,6 @@ function print_header_navlinks_stylesheet() {
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
     var string title_colors = generate_color_css($*color_page_title, new Color, new Color);
-    var string header_border = "";
-    if ($*color_header_border.as_string != "") {
-        $header_border = "border-top: 10px solid $*color_header_border;";
-    }
 
     var string entry_margin = "";
     if ( $*entry_userpic_style == "" ) { $entry_margin = "140px"; }
@@ -323,7 +319,7 @@ ol {
 ***************************************************************************/
 
 #header {
-    $header_border
+    border-top: 10px solid $*color_header_border;
     margin: 0 0 15px 0;
     padding: 10px;
     }
