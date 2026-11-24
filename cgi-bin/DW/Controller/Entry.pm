@@ -1625,11 +1625,11 @@ sub _render_preview {
     LJ::CleanHTML::clean_subject( \$subject );
 
     # preview poll
+    my $poll_error;
     if ( LJ::Poll->contains_new_poll( \$event ) ) {
-        my $error;
         my @polls = LJ::Poll->new_from_html(
             \$event,
-            \$error,
+            \$poll_error,
             {
                 'journalid' => $u->userid,
                 'posterid'  => $up->userid,
@@ -1674,6 +1674,10 @@ sub _render_preview {
 
     # expand the embedded content for real
     LJ::EmbedModule->expand_entry( $u, \$event, preview => 1 );
+
+    if ($poll_error) {
+        $event = qq{<div class="highlight-box">} . LJ::ehtml($poll_error) . qq{</div>} . $event;
+    }
 
     my $ctx;
     if ( $u && $up ) {

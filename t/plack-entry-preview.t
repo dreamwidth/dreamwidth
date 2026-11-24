@@ -115,6 +115,30 @@ qr{<code>&lt;poll-placeholder&gt;</code>.*?First poll.*?First question.*?Second 
     my @controls = $res->content =~ /<input type=["']radio["']/g;
     is( scalar @controls, 2, 'both poll controls render' );
     unlike( $res->content, qr/<poll-placeholder(?:-\d+)?>/, 'no internal poll markers leak' );
+
+    subtest 'Malformed poll' => sub {
+        my $res = $send->(
+            POST 'http://localhost/entry/preview',
+            [
+                usejournal     => $u->user,
+                security       => 'public',
+                subject        => 'Malformed poll preview',
+                event          => 'Keep this text. <poll></poll>',
+                editor         => 'html_raw0',
+                entrytime_date => '2020-01-02',
+                entrytime_time => '03:04',
+                trust_datetime => 1
+            ],
+            Cookie => $cookie
+        );
+        is( $res->code, 200, 'malformed poll preview renders' ) or return;
+        like(
+            $res->content,
+            qr/at least one question in a poll/i,
+            'preview explains the poll error'
+        );
+        like( $res->content, qr/Keep this text\./, 'preview retains the rest of the entry' );
+    };
 };
 
 is( count_rows( log2  => 'journalid' ), $before{entries}, 'preview creates no entry' );

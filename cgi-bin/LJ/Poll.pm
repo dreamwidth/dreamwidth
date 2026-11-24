@@ -222,7 +222,7 @@ sub new_from_html {
 
     my $err = sub {
         $$error = LJ::Lang::ml(@_);
-        return 0;
+        return;
     };
 
     while ( my $token = $p->get_token ) {

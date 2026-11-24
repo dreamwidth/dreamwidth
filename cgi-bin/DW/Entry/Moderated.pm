@@ -92,20 +92,22 @@ sub event {
         $event =~ s/\r//g;
     }
 
-    my $error;
-    my @polls = LJ::Poll->new_from_html(
-        \$event,
-        \$error,
-        {
-            journalid => $self->journal->userid,
-            posterid  => $self->poster->userid,
-        }
-    );
+    if ( LJ::Poll->contains_new_poll( \$event ) ) {
+        my $error;
+        my @polls = LJ::Poll->new_from_html(
+            \$event,
+            \$error,
+            {
+                journalid => $self->journal->userid,
+                posterid  => $self->poster->userid,
+            }
+        );
 
-    foreach my $poll (@polls) {
-        my $preview = $poll->preview;
-        my $ph      = $poll->placeholder;
-        $event =~ s/\Q$ph\E/$preview/;
+        foreach my $poll (@polls) {
+            my $preview = $poll->preview;
+            my $ph      = $poll->placeholder;
+            $event =~ s/\Q$ph\E/$preview/;
+        }
     }
     LJ::CleanHTML::clean_event(
         \$event,

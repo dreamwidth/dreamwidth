@@ -19,11 +19,12 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
+use DW::Entry::Moderated;
 use DW::Pay;
 use LJ::Entry;
 use LJ::Poll;
 use LJ::Protocol;
-use LJ::Test qw( temp_user );
+use LJ::Test qw( temp_comm temp_user );
 
 my $user = temp_user();
 
@@ -124,6 +125,31 @@ subtest 'Literal poll-placeholder attribute and legacy embed wrapper with poll' 
         $saved_combo,
         qr/\A\Q$before\E\n\n<poll-[1-9]\d*>\n\n<site-embed id="[1-9]\d*"\/>\z/,
 'poll and single-quoted legacy ljembed wrapper both convert cleanly alongside preserved Markdown'
+    );
+};
+
+subtest 'Moderation preview with a stray closing poll tag' => sub {
+    my $community = temp_comm();
+    $community->set_prop( moderated => 1 );
+    LJ::set_rel( $community, $user, 'P' );
+    my ( $result, $error ) = request(
+        'postevent',
+        usejournal => $community->user,
+        event      => 'A closing `</poll>` tag in a code example.',
+    );
+    is( $error, 0, 'submitted a Markdown entry for moderation' ) or return;
+
+    my ($modid) = $community->selectrow_array( 'SELECT modid FROM modlog WHERE journalid=?',
+        undef, $community->id );
+    my $entry = $modid && DW::Entry::Moderated->new( $community, $modid );
+    ok( $entry, 'loaded the queued entry' ) or return;
+
+    my $rendered = eval { $entry->event };
+    is( $@, '', 'moderation preview renders without throwing' ) or return;
+    like(
+        $rendered,
+        qr{<code>&lt;/poll&gt;</code>},
+        'moderation preview preserves the code example'
     );
 };
 
