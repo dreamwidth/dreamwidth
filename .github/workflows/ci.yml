@@ -77,6 +77,14 @@ jobs:
           service mysql start
           t/bin/initialize-db
 
+          # Tests that don't set $LJ::_T_CONFIG use the dev database, which the
+          # image baked from main when it was last built. Bring it up to this
+          # checkout's schema and proplists, or a new userprop fails until the
+          # next image build.
+          bin/upgrading/update-db.pl -r --innodb
+          bin/upgrading/update-db.pl -r --cluster=all --innodb
+          bin/upgrading/update-db.pl -p
+
       # Every test step below uses `if: ${{ !cancelled() }}` so one failing group
       # doesn't hide the others -- a single push surfaces every failure.
 
