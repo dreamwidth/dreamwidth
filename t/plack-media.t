@@ -29,7 +29,10 @@ BEGIN {
     };
 }
 
-plan tests => 22;
+use LJ::Test qw( temp_user );
+use LJ::Userpic;
+
+plan tests => 27;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -88,6 +91,34 @@ test_psgi $app, sub {
     isnt( $res->code, 200, "/userpics does not match userpic route" );
 };
 
+# Tests: a real userpic's 304 repeats its public 200 policy, so a cache
+# revalidating it keeps the CDN and browser lifetimes.
+{
+    my $u = temp_user();
+    open( my $fh, '<', "$ENV{LJHOME}/t/data/userpics/good.png" ) or die "good.png: $!";
+    binmode $fh;
+    my $data = do { local $/; <$fh> };
+    my $pic  = LJ::Userpic->create( $u, data => \$data );
+    my $path = '/userpic/' . $pic->picid . '/' . $u->userid;
+
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET $path );
+        is( $res->code, 200, 'real userpic is served' );
+        like( $res->header('Cache-Control') // '', qr/^public,/, 'userpic 200 is public' );
+
+        my $req = GET $path;
+        $req->header( 'If-Modified-Since' => $res->header('Last-Modified') );
+        my $res304 = $cb->($req);
+        is( $res304->code, 304, 'userpic revalidation returns 304' );
+        is(
+            $res304->header('Cache-Control'),
+            $res->header('Cache-Control'),
+            'userpic 304 repeats the 200 policy'
+        );
+    };
+}
+
 # ---- VGift tests ----
 
 # Test 5: VGift with If-Modified-Since returns 304
@@ -97,7 +128,8 @@ test_psgi $app, sub {
     $req->header( 'If-Modified-Since' => 'Thu, 01 Jan 2026 00:00:00 GMT' );
     my $res = $cb->($req);
 
-    is( $res->code, 304, "vgift returns 304 for If-Modified-Since" );
+    is( $res->code,                    304,            "vgift returns 304 for If-Modified-Since" );
+    is( $res->header('Cache-Control'), 'no-transform', 'vgift 304 repeats the 200 policy' );
 };
 
 # Test 6: VGift IMS from admin interface should NOT return 304
