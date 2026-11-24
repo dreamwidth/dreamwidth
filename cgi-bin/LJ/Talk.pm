@@ -3084,7 +3084,7 @@ sub _comment_html_is_suspicious {
     my $url_host     = qr{(?:\[[0-9a-f:.]+\]|[[:alnum:]])}i;
     my $url_tail     = qr{[^\s<>"\[\]]*};
     my $url          = qr{\b (?: (?:https?|ftp):// $url_host | www\.[[:alnum:]] ) $url_tail}ix;
-    my $relative_url = qr{\A // $url_host $url_tail \z}x;
+    my $relative_url = qr{\A // $url_host}x;
     my $url_count    = () = $decoded_body =~ /$url/g;
     if ( $body =~ /<a\b/i ) {
         my ( $href, $label, $label_url_count );
@@ -3096,9 +3096,10 @@ sub _comment_html_is_suspicious {
                 $href = $attr->{href};
                 ( $label, $label_url_count ) = ( '', 0 );
                 return unless defined $href;
+                $href =~ s/\A\s+//;
+                $href =~ s/\s+\z//;
                 if ( $href =~ $relative_url ) {
-                    my $already_counted = () = $href =~ /$url/g;
-                    $url_count += 1 - $already_counted;
+                    ++$url_count unless $href =~ /$url/;
                 }
                 elsif ( $href !~ /\A$url\z/ ) {
                     undef $href;
