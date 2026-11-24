@@ -46,11 +46,12 @@ jobs:
 
           # Tests that don't set $LJ::_T_CONFIG use the dev database, which the
           # image baked from main when it was last built. Bring it up to this
-          # checkout's schema and proplists, or a new userprop fails until the
-          # next image build.
+          # checkout's schema, proplists and translation strings, or a new
+          # userprop fails until the next image build.
           bin/upgrading/update-db.pl -r --innodb
           bin/upgrading/update-db.pl -r --cluster=all --innodb
           bin/upgrading/update-db.pl -p
+          bin/upgrading/texttool.pl load
 
       - name: Run the full test suite
         run: prove t/*.t
