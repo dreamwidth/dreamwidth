@@ -32,6 +32,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -49,16 +50,37 @@ NEXT = re.compile(re.escape(NEXT_START) + r".*?" + re.escape(NEXT_END), re.S)
 COMMAND = re.compile(r"^\s*/(approve|lgtm|merge|hold|unhold|fix\+\+|fix)(?!\w)", re.I | re.M)
 FOOTER = "I keep this comment up to date. New commits start the checks over."
 DRY_RUN = "--dry-run" in sys.argv
+# GitHub's API sometimes answers 5xx or times out for a moment. Reads are retried with backoff;
+# writes are not, since a write that timed out may have happened (merge checks for that itself).
+RETRY_DELAYS = (2, 5, 15)
+TIMEOUT = 30
+
+
+def transient(e):
+    if isinstance(e, urllib.error.HTTPError):
+        return e.code >= 500
+    return isinstance(e, (urllib.error.URLError, TimeoutError, ConnectionError))
 
 
 def api(method, path, data=None):
+    for delay in (*RETRY_DELAYS, None):
+        try:
+            return request(method, path, data)
+        except Exception as e:
+            if method != "GET" or delay is None or not transient(e):
+                raise
+            print(f"  GitHub API {method} {path.split('?')[0]} failed ({e}); retrying in {delay}s")
+            time.sleep(delay)
+
+
+def request(method, path, data=None):
     req = urllib.request.Request(
         path if path.startswith("http") else API + path, method=method,
         data=json.dumps(data).encode() if data is not None else None,
         headers={"Authorization": f"Bearer {TOKEN}", "Accept": "application/vnd.github+json",
                  "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "dw-bellwether",
                  "Content-Type": "application/json"})
-    with urllib.request.urlopen(req) as r:
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
         return json.loads(r.read() or b"null")
 
 
@@ -380,8 +402,17 @@ def handle_event():
 
 
 def sweep():
+    """Evaluate every open PR. One PR's error doesn't stop the others; the run still fails at the
+    end, so the error shows."""
+    failed = []
     for pr in paged(f"/repos/{REPO}/pulls?state=open"):
-        evaluate(pr["number"])
+        try:
+            evaluate(pr["number"])
+        except Exception as e:
+            print(f"#{pr['number']}: error: {e!r}")
+            failed.append(pr["number"])
+    if failed:
+        sys.exit(f"errors on {', '.join(f'#{n}' for n in failed)}")
 
 
 def main():
