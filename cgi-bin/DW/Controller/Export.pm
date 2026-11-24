@@ -377,7 +377,9 @@ sub posted_comments_handler {
         my ( @eligible, %by_journal );
         foreach my $comment (@matched) {
             next unless $live_entries{ $comment->journalid }->{ $comment->nodeid };
-            next unless $comment->visible_to($author);
+            my $visible = eval { $comment->visible_to($author) ? 1 : 0 };
+            return _posted_comments_unavailable($r) unless defined $visible;
+            next unless $visible;
             next if $seen{ $comment->singletonkey }++;
             if ($is_minor) {
                 my $restriction = DW::Logic::AdultContent->interstitial_type(

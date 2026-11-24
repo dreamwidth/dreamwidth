@@ -271,11 +271,17 @@ my @remaining = $stale->content =~ /<comment>/g;
 is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment' );
 
 {
-    my $reader    = \&LJ::get_cluster_reader;
-    my $master    = \&LJ::get_cluster_master;
-    my $journalid = $owner->id;
-    my $clusterid = $owner->clusterid;
-    my $jtalkid   = $adjacent->jtalkid;
+    my $reply =
+        $parent->t_reply( u => $author, state => 'S', body => 'screened-reply-reader-outage' );
+    $retime->( $reply, $march );
+    ok( $reply->is_screened, 'outage fixture is screened' );
+    is( $reply->parenttalkid, $parent->jtalkid, 'outage fixture replies to another author' );
+
+    my $reader           = \&LJ::get_cluster_reader;
+    my $master           = \&LJ::get_cluster_master;
+    my $journalid        = $owner->id;
+    my $clusterid        = $owner->clusterid;
+    my @uncached_talkids = map { $_->jtalkid } ( $adjacent, $reply, $parent );
 
     no warnings 'redefine';
     local *LJ::get_cluster_reader = sub {
@@ -290,26 +296,31 @@ is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment'
             return if $failure eq 'unavailable';
             return bless { dbh => $master->(@_) }, 'PostedCommentsTestDB';
         };
-        LJ::Talk::invalidate_talk2row_memcache( $journalid, $jtalkid );
+        LJ::Talk::invalidate_talk2row_memcache( $journalid, @uncached_talkids );
         my $failed = $download->( 'xml', year => 2024, month => 3, day => 1 );
         is( $failed->code, 503, "reader outage with primary $failure returns HTTP 503" );
         ok( !$failed->header('Content-Disposition'), 'reader outage does not send an attachment' );
         unlike(
             $failed->content,
-            qr/<comments>|next-month-boundary/,
+            qr/<comments>|next-month-boundary|screened-reply-reader-outage/,
             'reader outage does not send partial output'
         );
     }
 
-    LJ::Talk::invalidate_talk2row_memcache( $journalid, $jtalkid );
+    LJ::Talk::invalidate_talk2row_memcache( $journalid, @uncached_talkids );
     my $recovered = $download->( 'xml', year => 2024, month => 3, day => 1 );
     is( $recovered->code, 200, 'primary recovers the export while the reader is still down' );
     like( $recovered->header('Content-Disposition'),
         qr/attachment/, 'recovered XML is an attachment' );
     like( $recovered->content, qr/next-month-boundary/,
         'recovered export contains the live comment' );
+    like(
+        $recovered->content,
+        qr/screened-reply-reader-outage/,
+        'recovered export includes the screened reply without loading its parent'
+    );
     my @recovered_comments = $recovered->content =~ /<comment>/g;
-    is( scalar @recovered_comments, 1, 'primary retry skips the stale index row' );
+    is( scalar @recovered_comments, 2, 'primary retry skips the stale index row' );
 }
 
 my $deleted_entry = $owner->t_post_fake_entry;

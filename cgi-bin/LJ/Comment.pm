@@ -988,10 +988,6 @@ sub visible_to {
     my $posted_comment = $self->poster && $u->equals( $self->poster );
     my $posted_entry   = $self->entry->poster
         && $u->equals( $self->entry->poster );
-    my $posted_parent =
-           $self->parent
-        && $self->parent->poster
-        && $u->equals( $self->parent->poster );
     my $posted_by_admin = $self->poster
         && $self->poster->can_manage( $self->journal );
 
@@ -1002,7 +998,13 @@ sub visible_to {
                $u->can_manage( $self->journal )
             || $posted_comment
             || $posted_entry
-            || ( $posted_parent && $posted_by_admin )
+            || (
+                $posted_by_admin && do {
+                    my $parent        = $self->parent;
+                    my $parent_poster = $parent && $parent->poster;
+                    $parent_poster && $u->equals($parent_poster);
+                }
+            )
         )
         )
     {
