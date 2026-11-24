@@ -43,10 +43,7 @@ sub trusted_proxy_checker {
         my $key    = 'HTTP_' . uc($header);
         $key =~ tr/-/_/;
         my $sent = $env->{$key};
-        my $ok =
-               $LJ::CDN_PROXY_SECRET
-            && defined $sent
-            && $sent eq $LJ::CDN_PROXY_SECRET;
+        my $ok   = $LJ::CDN_PROXY_SECRET && defined $sent && $sent eq $LJ::CDN_PROXY_SECRET;
 
         # Without the secret, trust only the base proxies. If there are none,
         # trust nothing (the last hop is the client) rather than returning
