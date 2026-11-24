@@ -69,7 +69,8 @@ function header_navlinks_luminance(Color color) : int {
 
 function print_header_navlinks_stylesheet() {
     var Color surface = $*color_header_background;
-    if ($surface.as_string == "") { $surface = $*color_page_background; }
+    var bool transparent_header = $surface.as_string == "";
+    if ($transparent_header) { $surface = $*color_page_background; }
     if ($surface.as_string == "") { $surface = "#ffffff"; }
 
     var int background = header_navlinks_luminance($surface) + 50;
@@ -87,7 +88,10 @@ function print_header_navlinks_stylesheet() {
     }
 
     var string link_background = "transparent";
-    if ($*image_background_header_url != "") { $link_background = $surface.as_string; }
+    if ($*image_background_header_url != ""
+        or ($transparent_header and $*image_background_page_url != "")) {
+        $link_background = $surface.as_string;
+    }
     """
 #header .module-navlinks {
     background: transparent;

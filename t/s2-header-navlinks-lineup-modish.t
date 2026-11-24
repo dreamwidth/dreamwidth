@@ -16,11 +16,8 @@ use strict;
 use warnings;
 
 use Test::More;
-use HTTP::Request;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use DW::BML;
-use DW::Request::Standard;
 use LJ::S2;
 use S2;
 use S2::Compiler;
@@ -49,6 +46,7 @@ sub load_layer {
 
 sub stylesheets {
     my ($context) = @_;
+    LJ::S2::populate_system_props($context);
     my $css = '';
     local $S2::pout   = sub { $css .= join '', @_ };
     local $S2::pout_s = $S2::pout;
@@ -97,8 +95,6 @@ sub contrast_ok {
     cmp_ok( $contrast, '>=', 4.5, "$label: readable navigation text on its actual background" );
 }
 
-DW::Request::Standard->new( HTTP::Request->new( GET => 'http://www.dw.test/' ) );
-
 for my $layout (qw(lineup modish)) {
     my $compiler = S2::Compiler->new( {} );
     S2::set_domain("test-header-navlinks-$layout");
@@ -122,6 +118,25 @@ set color_page_background = "";
 set color_page_title = "";
 set color_page_text = "";
 S2
+    load_layer( $compiler, 6, 'user', <<'S2');
+layerinfo type = "user";
+set module_navlinks_section = "header";
+set color_header_background = "#202020";
+set image_background_header_url = "https://example.com/header.png";
+S2
+    load_layer( $compiler, 7, 'user', <<'S2');
+layerinfo type = "user";
+set module_navlinks_section = "header";
+set color_header_background = "";
+set color_page_background = "#edcba9";
+set image_background_page_url = "https://example.com/page.png";
+S2
+    load_layer( $compiler, 8, 'user', <<'S2');
+layerinfo type = "user";
+set module_navlinks_section = "header";
+set color_header_background = "#202020";
+set image_background_page_url = "https://example.com/page.png";
+S2
 
     my $header_css = stylesheets( S2::make_context( 1, 2, 3 ) );
     my %nav        = declarations( $header_css, '#header .module-navlinks' );
@@ -143,12 +158,33 @@ S2
     my $null_css = stylesheets( S2::make_context( 1, 2, 5 ) );
     contrast_ok( $null_css, "$layout with unset page and header colors" );
 
-    my $theme_id = 5;
+    foreach my $case (
+        [ 6, '#202020',     'with a header image' ],
+        [ 7, '#edcba9',     'with a page image and transparent header' ],
+        [ 8, 'transparent', 'with a page image and opaque header' ],
+        )
+    {
+        my ( $layer, $background, $label ) = @$case;
+        my $css  = stylesheets( S2::make_context( 1, 2, $layer ) );
+        my %link = declarations( $css, '#header .module-navlinks a' );
+        is( $link{'background-color'}, $background, "$layout $label: link background" );
+        contrast_ok( $css, "$layout $label" );
+    }
+
+    my $theme_id = 8;
     my $themes   = read_style("$layout/themes.s2");
     while ( $themes =~ /^\#NEWLAYER: ([^\n]+)\n(.*?)(?=^\#NEWLAYER:|\z)/msg ) {
         my ( $name, $source ) = ( $1, $2 );
         load_layer( $compiler, ++$theme_id, 'theme', $source );
-        contrast_ok( stylesheets( S2::make_context( 1, 2, $theme_id, 3 ) ), $name );
+        my $css = stylesheets( S2::make_context( 1, 2, $theme_id, 3 ) );
+        contrast_ok( $css, $name );
+        my %body   = declarations( $css, 'body' );
+        my %header = declarations( $css, '#header' );
+        my %link   = declarations( $css, '#header .module-navlinks a' );
+        unless ( grep { /url\(/ } ( $body{background} // '', $header{background} // '' ) ) {
+            is( $link{'background-color'},
+                'transparent', "$name: no fill without a background image" );
+        }
     }
 }
 
