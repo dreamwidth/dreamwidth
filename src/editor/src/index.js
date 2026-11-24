@@ -58,6 +58,8 @@ const DEFAULT_STRINGS = {
     hr: "Horizontal line",
     outdent: "Unindent",
     indent: "Indent",
+    more: "More",
+    alignLabel: "Alignment",
     alignLeft: "Align left",
     alignCenter: "Center",
     alignRight: "Align right",
@@ -71,7 +73,7 @@ const DEFAULT_STRINGS = {
     fontSizeCustomTitle: "Text size (for example 18px, 1.5em or large)",
     fontSizeInvalid:
         "That isn't a text size the editor understands. Try something like 18px, 1.5em or large.",
-    table: "Insert table",
+    table: "Insert table...",
     tableTitle: "Insert table",
     tableRows: "Rows",
     tableCols: "Columns",

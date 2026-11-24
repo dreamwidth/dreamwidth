@@ -133,6 +133,8 @@ postFormInitData.dwEditor = {
     "hr":               [%- ".rte.hr" | ml | js -%],
     "outdent":          [%- ".rte.outdent" | ml | js -%],
     "indent":           [%- ".rte.indent" | ml | js -%],
+    "more":             [%- ".rte.more" | ml | js -%],
+    "alignLabel":       [%- ".rte.align" | ml | js -%],
     "alignLeft":        [%- ".rte.align.left" | ml | js -%],
     "alignCenter":      [%- ".rte.align.center" | ml | js -%],
     "alignRight":       [%- ".rte.align.right" | ml | js -%],

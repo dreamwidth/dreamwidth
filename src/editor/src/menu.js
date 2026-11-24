@@ -5,7 +5,6 @@ import { toggleMark, setBlockType, wrapIn } from "prosemirror-commands";
 import { wrapInList } from "prosemirror-schema-list";
 import { undo, redo } from "prosemirror-history";
 import {
-    isInTable,
     addRowBefore,
     addRowAfter,
     addColumnBefore,
@@ -357,38 +356,116 @@ export function buildToolbar(schema, strings, pageOptions) {
         });
     }
 
-    // A select used as a menu of commands: it always shows its label, and
-    // each choice runs a command and snaps back.
-    function addActionMenu(group, spec) {
-        const menu = document.createElement("select");
-        menu.className = "dw-editor-actionmenu dw-editor-actionmenu-" + spec.name;
-        menu.setAttribute("aria-label", spec.label);
-        menu.title = spec.label;
-        const head = document.createElement("option");
-        head.value = "";
-        head.textContent = spec.label;
-        menu.appendChild(head);
-        const options = spec.actions.map((action, i) => {
-            const el = document.createElement("option");
-            el.value = String(i);
-            el.textContent = action.label;
-            menu.appendChild(el);
-            return el;
+    // A toolbar button that opens a small menu of commands (alignment,
+    // tables), so a family of related commands takes one slot in the
+    // toolbar. spec.icon(state) gives the button's icon; each item is
+    // { label, icon?, command, checked?(state) } or "separator".
+    function addDropdown(group, spec) {
+        const wrap = document.createElement("span");
+        wrap.className = "dw-editor-dropdown dw-editor-dropdown-" + spec.name;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "dw-editor-button dw-editor-dropdown-button";
+        btn.title = spec.title;
+        btn.setAttribute("aria-label", spec.title);
+        btn.setAttribute("aria-haspopup", "menu");
+        btn.setAttribute("aria-expanded", "false");
+        const face = document.createElement("span");
+        face.className = "dw-editor-dropdown-face";
+        btn.appendChild(face);
+        const caret = document.createElement("span");
+        caret.className = "dw-editor-dropdown-caret";
+        caret.setAttribute("aria-hidden", "true");
+        btn.appendChild(caret);
+        wrap.appendChild(btn);
+
+        const popup = document.createElement("div");
+        popup.className = "dw-editor-dropdown-menu";
+        popup.setAttribute("role", "menu");
+        popup.hidden = true;
+        wrap.appendChild(popup);
+
+        const items = spec.items.map((item) => {
+            if (item == "separator") {
+                const hr = document.createElement("div");
+                hr.className = "dw-editor-dropdown-separator";
+                hr.setAttribute("role", "separator");
+                popup.appendChild(hr);
+                return null;
+            }
+            const el = document.createElement("button");
+            el.type = "button";
+            el.className = "dw-editor-dropdown-item";
+            el.setAttribute("role", item.checked ? "menuitemradio" : "menuitem");
+            el.innerHTML = (item.icon || "") + "<span></span>";
+            el.lastChild.textContent = item.label;
+            el.addEventListener("mousedown", (e) => e.preventDefault());
+            el.addEventListener("click", (e) => {
+                e.preventDefault();
+                close();
+                if (!currentView) return;
+                item.command(currentView.state, currentView.dispatch, currentView);
+                currentView.focus();
+            });
+            popup.appendChild(el);
+            return { el, item };
         });
-        menu.addEventListener("change", () => {
-            const action = spec.actions[+menu.value];
-            menu.value = "";
-            if (!currentView || !action) return;
-            action.command(currentView.state, currentView.dispatch, currentView);
-            currentView.focus();
+
+        function onOutside(e) {
+            if (!wrap.contains(e.target)) close();
+        }
+        function open() {
+            if (currentView) toolbarUpdate(currentView);
+            popup.hidden = false;
+            btn.setAttribute("aria-expanded", "true");
+            document.addEventListener("mousedown", onOutside, true);
+            const first = items.find((entry) => entry && !entry.el.disabled);
+            if (first) first.el.focus();
+        }
+        function close() {
+            popup.hidden = true;
+            btn.setAttribute("aria-expanded", "false");
+            document.removeEventListener("mousedown", onOutside, true);
+        }
+
+        btn.addEventListener("mousedown", (e) => e.preventDefault());
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (popup.hidden) open();
+            else close();
         });
-        group.appendChild(menu);
+        // Escape closes; arrow keys move through the enabled items.
+        popup.addEventListener("keydown", (e) => {
+            const enabled = items.filter((entry) => entry && !entry.el.disabled);
+            const at = enabled.findIndex((entry) => entry.el == document.activeElement);
+            if (e.key == "Escape") {
+                e.preventDefault();
+                close();
+                btn.focus();
+            } else if ((e.key == "ArrowDown" || e.key == "ArrowUp") && enabled.length) {
+                e.preventDefault();
+                const step = e.key == "ArrowDown" ? 1 : -1;
+                enabled[(at + step + enabled.length) % enabled.length].el.focus();
+            }
+        });
+        group.appendChild(wrap);
 
         updaters.push((view) => {
-            menu.disabled = !spec.enabled(view.state);
-            spec.actions.forEach((action, i) => {
-                options[i].disabled = menu.disabled || !action.command(view.state, null, view);
+            face.innerHTML = spec.icon(view.state);
+            let any = false;
+            items.forEach((entry) => {
+                if (!entry) return;
+                entry.el.disabled = !entry.item.command(view.state, null, view);
+                if (!entry.el.disabled) any = true;
+                if (entry.item.checked)
+                    entry.el.setAttribute(
+                        "aria-checked",
+                        entry.item.checked(view.state) ? "true" : "false"
+                    );
             });
+            btn.disabled = !any;
+            if (!any) close();
         });
     }
 
@@ -488,11 +565,28 @@ export function buildToolbar(schema, strings, pageOptions) {
         html: ICONS.image,
         command: makeInsertImage(schema, strings, options.onImage),
     });
-    addButton(group, {
+    // Tables: insert one, and edit the one the cursor is in
+    addDropdown(group, {
         name: "table",
-        title: strings.table,
-        html: ICONS.table,
-        command: makeInsertTable(schema, strings),
+        title: strings.tableMenu,
+        icon: () => ICONS.table,
+        items: [
+            { label: strings.table, command: makeInsertTable(schema, strings) },
+            "separator",
+            { label: strings.tableRowBefore, command: addRowBefore },
+            { label: strings.tableRowAfter, command: addRowAfter },
+            { label: strings.tableColBefore, command: addColumnBefore },
+            { label: strings.tableColAfter, command: addColumnAfter },
+            { label: strings.tableDeleteRow, command: deleteRow },
+            { label: strings.tableDeleteCol, command: deleteColumn },
+            "separator",
+            { label: strings.tableMerge, command: mergeCells },
+            { label: strings.tableSplit, command: splitCell },
+            { label: strings.tableHeaderRow, command: toggleHeaderRow },
+            { label: strings.tableHeaderCol, command: toggleHeaderColumn },
+            "separator",
+            { label: strings.tableDelete, command: deleteTable },
+        ],
     });
     addButton(group, {
         name: "user",
@@ -561,43 +655,93 @@ export function buildToolbar(schema, strings, pageOptions) {
         command: indent(schema),
     });
 
-    // Alignment
+    // Alignment, as one button showing the current alignment
     group = addGroup();
-    [
-        { value: "left", title: strings.alignLeft, html: ICONS.alignLeft },
-        { value: "center", title: strings.alignCenter, html: ICONS.alignCenter },
-        { value: "right", title: strings.alignRight, html: ICONS.alignRight },
-        { value: "justify", title: strings.alignJustify, html: ICONS.alignJustify },
-    ].forEach((spec) => {
-        addButton(group, {
-            name: "align-" + spec.value,
-            title: spec.title,
-            html: spec.html,
-            command: setAlignment(spec.value),
-            active: (state) => blockAlignment(state) == spec.value,
-        });
+    const alignments = [
+        { value: "left", label: strings.alignLeft, icon: ICONS.alignLeft },
+        { value: "center", label: strings.alignCenter, icon: ICONS.alignCenter },
+        { value: "right", label: strings.alignRight, icon: ICONS.alignRight },
+        { value: "justify", label: strings.alignJustify, icon: ICONS.alignJustify },
+    ];
+    addDropdown(group, {
+        name: "align",
+        title: strings.alignLabel,
+        icon: (state) => {
+            const current = alignments.find((a) => a.value == blockAlignment(state));
+            return (current || alignments[0]).icon;
+        },
+        items: alignments.map((a) => ({
+            label: a.label,
+            icon: a.icon,
+            command: setAlignment(a.value),
+            checked: (state) => blockAlignment(state) == a.value,
+        })),
     });
 
-    // Table editing, for the table the cursor is in
-    group = addGroup();
-    addActionMenu(group, {
-        name: "table",
-        label: strings.tableMenu,
-        enabled: isInTable,
-        actions: [
-            { label: strings.tableRowBefore, command: addRowBefore },
-            { label: strings.tableRowAfter, command: addRowAfter },
-            { label: strings.tableColBefore, command: addColumnBefore },
-            { label: strings.tableColAfter, command: addColumnAfter },
-            { label: strings.tableDeleteRow, command: deleteRow },
-            { label: strings.tableDeleteCol, command: deleteColumn },
-            { label: strings.tableMerge, command: mergeCells },
-            { label: strings.tableSplit, command: splitCell },
-            { label: strings.tableHeaderRow, command: toggleHeaderRow },
-            { label: strings.tableHeaderCol, command: toggleHeaderColumn },
-            { label: strings.tableDelete, command: deleteTable },
-        ],
+    // Keep the toolbar to one row: groups that don't fit move, from the end,
+    // into a "More" panel, and come back out when there's room again.
+    const more = document.createElement("span");
+    more.className = "dw-editor-more";
+    const moreBtn = document.createElement("button");
+    moreBtn.type = "button";
+    moreBtn.className = "dw-editor-button dw-editor-more-button";
+    moreBtn.title = strings.more;
+    moreBtn.setAttribute("aria-label", strings.more);
+    moreBtn.setAttribute("aria-haspopup", "true");
+    moreBtn.setAttribute("aria-expanded", "false");
+    moreBtn.innerHTML = "&#8943;";
+    const morePanel = document.createElement("div");
+    morePanel.className = "dw-editor-more-panel";
+    morePanel.hidden = true;
+    more.appendChild(moreBtn);
+    more.appendChild(morePanel);
+    dom.appendChild(more);
+
+    const groups = Array.from(dom.children).filter((el) =>
+        el.classList.contains("dw-editor-toolbar-group")
+    );
+
+    function onOutsideMore(e) {
+        if (!more.contains(e.target)) closeMore();
+    }
+    function closeMore() {
+        morePanel.hidden = true;
+        moreBtn.setAttribute("aria-expanded", "false");
+        document.removeEventListener("mousedown", onOutsideMore, true);
+    }
+    moreBtn.addEventListener("mousedown", (e) => e.preventDefault());
+    moreBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!morePanel.hidden) return closeMore();
+        morePanel.hidden = false;
+        moreBtn.setAttribute("aria-expanded", "true");
+        document.addEventListener("mousedown", onOutsideMore, true);
     });
+    morePanel.addEventListener("keydown", (e) => {
+        if (e.key != "Escape" || e.defaultPrevented) return;
+        closeMore();
+        moreBtn.focus();
+    });
+
+    // Measured from the groups themselves: an open menu hanging past the
+    // edge mustn't count.
+    function overflows() {
+        const inBar = groups.filter((g) => g.parentNode == dom);
+        if (!inBar.length) return false;
+        const box = dom.getBoundingClientRect();
+        const pad = parseFloat(window.getComputedStyle(dom).paddingRight) || 0;
+        const moreWidth = more.hidden ? 0 : more.getBoundingClientRect().width + 2;
+        return inBar[inBar.length - 1].getBoundingClientRect().right > box.right - pad - moreWidth + 0.5;
+    }
+    function layout() {
+        groups.forEach((g) => dom.insertBefore(g, more));
+        more.hidden = true;
+        if (!overflows()) return closeMore();
+        more.hidden = false;
+        for (let i = groups.length - 1; i > 1 && overflows(); i--)
+            morePanel.insertBefore(groups[i], morePanel.firstChild);
+    }
+    if (typeof ResizeObserver == "function") new ResizeObserver(() => layout()).observe(dom);
 
     return {
         dom: dom,

@@ -45,6 +45,8 @@
 
 .event.placeholder=Your entry text...
 
+.rte.align=Alignment
+
 .rte.align.center=Center
 
 .rte.align.justify=Justify
@@ -127,6 +129,8 @@
 
 .rte.mention.literal=use as typed
 
+.rte.more=More
+
 .rte.ok=OK
 
 .rte.outdent=Unindent
@@ -147,7 +151,7 @@
 
 .rte.strike=Strikethrough
 
-.rte.table=Insert table
+.rte.table=Insert table...
 
 .rte.table.col.after=Insert column right
 

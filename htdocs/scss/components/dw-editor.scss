@@ -132,8 +132,9 @@ img.ProseMirror-separator {
 /* === Toolbar === */
 
 .dw-editor-toolbar {
+    position: relative;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; // one row; what doesn't fit goes in the More panel
     align-items: center;
     gap: 2px;
     padding: 4px;
@@ -182,14 +183,163 @@ img.ProseMirror-separator {
     border-color: #9bc;
 }
 
-.dw-editor-button:disabled {
-    opacity: 0.4;
+// The site's own button styles color a disabled button in; a toolbar button
+// that can't be used right now should just fade.
+.dw-editor-toolbar .dw-editor-button:disabled,
+.dw-editor-toolbar .dw-editor-button:disabled:hover {
+    background: none;
+    border-color: transparent;
+    color: #333;
+    opacity: 0.35;
     cursor: default;
 }
 
+// The site's button focus style looks like a pressed button; show focus only
+// for the keyboard, as an outline.
+.dw-editor-toolbar .dw-editor-button:focus:not(:hover):not([aria-pressed="true"]):not([aria-expanded="true"]) {
+    background: none;
+    border-color: transparent;
+}
+
+.dw-editor-toolbar .dw-editor-button:focus-visible {
+    outline: 2px solid #8cf;
+    outline-offset: -1px;
+}
+
+/* The More button and the panel holding the groups that didn't fit. */
+.dw-editor-more {
+    position: relative;
+    margin-left: auto;
+    flex: none;
+}
+
+.dw-editor-more[hidden],
+.dw-editor-more-panel[hidden] {
+    display: none;
+}
+
+.dw-editor-more-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+    width: max-content;
+    max-width: 320px;
+    margin-top: 2px;
+    padding: 4px;
+    background: #f4f4f4;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dw-editor-more-panel .dw-editor-dropdown-menu {
+    left: auto;
+    right: 0;
+}
+
+.dw-editor-toolbar-group {
+    flex: none;
+}
+
+/* A button that opens a menu (alignment, tables). */
+.dw-editor-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dw-editor-dropdown-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.dw-editor-dropdown-face .dw-editor-icon {
+    display: block;
+}
+
+.dw-editor-dropdown-caret {
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid currentColor;
+}
+
+.dw-editor-dropdown-button[aria-expanded="true"] {
+    background: #e2e2e2;
+    border-color: #ccc;
+}
+
+.dw-editor-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 20;
+    min-width: 12em;
+    margin-top: 2px;
+    padding: 4px 0;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dw-editor-dropdown-menu[hidden] {
+    display: none;
+}
+
+.dw-editor-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+    padding: 5px 12px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: #333;
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.dw-editor-dropdown-item .dw-editor-icon {
+    margin: 0;
+    flex: none;
+}
+
+.dw-editor-dropdown-item:hover:not(:disabled),
+.dw-editor-dropdown-item:focus:not(:disabled) {
+    background: #e8eef5;
+    outline: none;
+}
+
+.dw-editor-dropdown-item[aria-checked="true"] {
+    font-weight: bold;
+}
+
+.dw-editor-toolbar .dw-editor-dropdown-item:disabled,
+.dw-editor-toolbar .dw-editor-dropdown-item:disabled:hover {
+    background: none;
+    color: #999;
+    cursor: default;
+}
+
+.dw-editor-dropdown-separator {
+    height: 1px;
+    margin: 4px 0;
+    background: #ddd;
+}
+
 .dw-editor-blockselect,
-.dw-editor-sizeselect,
-.dw-editor-actionmenu {
+.dw-editor-sizeselect {
     width: auto;
     height: 28px;
     padding-top: 0;
