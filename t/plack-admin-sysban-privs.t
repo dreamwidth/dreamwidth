@@ -60,6 +60,16 @@ my $dbh    = LJ::get_db_writer();
 my $prefix = 'sysbanpriv-' . temp_user()->user . '-';
 my $value  = '192.0.2.254';
 my %bans;
+my $fixture_prlid;
+
+unless (
+    $dbh->selectrow_array( 'SELECT prlid FROM priv_list WHERE privcode = ?', undef, 'sysbanview' ) )
+{
+    $dbh->do( 'INSERT INTO priv_list (privcode, privname, is_public) VALUES (?, ?, ?)',
+        undef, 'sysbanview', 'View System Bans', '0' )
+        or BAIL_OUT( 'Could not register sysbanview test privilege: ' . $dbh->errstr );
+    $fixture_prlid = $dbh->{'mysql_insertid'};
+}
 
 # Fixed bandates avoid sleeping for the strict NOW() > bandate comparison.
 # No connection-blocking IP or cached sysban types are created.
@@ -88,6 +98,10 @@ END {
                 . 'AND notes LIKE ?',
             undef, "%$prefix%"
         );
+    }
+    if ($fixture_prlid) {
+        $dbh->do( 'DELETE FROM priv_list WHERE prlid = ?', undef, $fixture_prlid )
+            or die $dbh->errstr;
     }
 }
 
@@ -141,7 +155,7 @@ with_fake_memcache {
                 my $u = temp_user();
                 for my $grant (@$grants) {
                     $u->grant_priv(@$grant)
-                        or BAIL_OUT('Privilege seed missing: run update-db.pl -p before this test');
+                        or BAIL_OUT("Could not grant $grant->[0] for $name");
                 }
                 my %can_read  = map { $_ => 1 } @$reads;
                 my %can_write = map { $_ => 1 } @$writes;
