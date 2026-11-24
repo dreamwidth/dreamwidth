@@ -17,10 +17,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 43;
+use Test::More tests => 44;
 
-BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
+use LJ::Lang;
 use HTMLCleaner;
 
 my $orig_post;
@@ -299,6 +300,33 @@ qq{&lt;select ... &gt;&lt;option ... &gt;hello&lt;/option&gt;&lt;option ... &gt;
         "Full text of entry, with mismatched HTML tags within and with-out the cut" );
 }
 
+subtest 'Unclosed tag warnings preserve invalid markup error precedence' => sub {
+    my $source = '<strong>before <span broken!>after';
+    my ( $parse_error, $cut_warning, $full_entry_warning );
+    my $entry = $source;
+    LJ::CleanHTML::clean_event(
+        \$entry,
+        {
+            editor      => 'html_raw0',
+            cuturl      => '/123.html',
+            errref      => \$parse_error,
+            verbose_err => \$cut_warning,
+        }
+    );
+
+    my $details = ref($cut_warning) eq 'HASH' ? $cut_warning : { error => $cut_warning };
+    is( $parse_error, 'parseerror', 'The invalid markup still triggers a parse error' );
+    is( $details->{error}, '.error.markup.unclosed', 'With a cut URL, the unclosed warning wins' );
+    like( $details->{opts}{tags},
+        qr/&lt;strong&gt;.*?before/, 'The warning includes the unclosed opener and nearby source' );
+
+    $entry = $source;
+    LJ::CleanHTML::clean_event( \$entry,
+        { editor => 'html_raw0', verbose_err => \$full_entry_warning } );
+    is( $full_entry_warning->{error},
+        '.error.markup.extra', 'Without a cut URL, the detailed invalid markup warning wins' );
+};
+
 subtest 'Unclosed tag warnings identify the opening markup' => sub {
     my $warning_for = sub {
         my ($entry) = @_;
@@ -340,6 +368,22 @@ qr/&lt;span title=&quot;here &gt; there&quot;&gt;.*?real &amp;amp; &#39;quoted&#
         $warning->{opts}{tags},
         qr{<strong>&lt;strong&gt;</strong>second.*<strong>&lt;em&gt;</strong>first},
         'Highlights each opening tag separately when both are unclosed'
+    );
+
+    my $after_applet = '<applet>hidden</applet><applet>visible <strong>tail';
+    my $applet_warning;
+    LJ::CleanHTML::clean_event( \$after_applet,
+        { verbose_err => \$applet_warning, editor => 'html_raw0' } );
+    like(
+        $after_applet,
+        qr{visible <strong>tail</strong>},
+        'Keeps content after an unclosed eaten element when generating warnings'
+    );
+    unlike( $after_applet, qr/hidden|<applet\b/, 'Still discards closed eaten elements' );
+    like(
+        $applet_warning->{opts}{tags},
+        qr{visible <strong>&lt;strong&gt;</strong>tail},
+        'Highlights the unclosed tag after an eaten element'
     );
 
     my $unicode = "\x{2603} outside <em>inside \x{2603}";

@@ -1417,9 +1417,7 @@ TOKEN:
     # extra-paranoid check
     1 while $newdata =~ s/<script\b//ig;
 
-    # only add verbose errors for unclosed tags if we don't have another verbose error set
-    # otherwise, the tags error will overwrite more important errors like irreparable markup
-    if ( $verbose_err && ref($verbose_err) eq 'SCALAR' && !$$verbose_err && @unclosed_tags ) {
+    if ( $verbose_err && ref($verbose_err) eq 'SCALAR' && @unclosed_tags ) {
         my $tag_str = join ', ', map { _unclosed_tag_context( $data, $_ ) } @unclosed_tags;
         $$verbose_err = { error => '.error.markup.unclosed', opts => { tags => $tag_str } };
     }
