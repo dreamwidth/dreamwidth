@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 51;
+use Test::More tests => 55;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
@@ -366,6 +366,37 @@ foreach my $header (
         is( DW::CleanEmail->nonquoted_text("$header\nQuoted text"),
             '', "discarded the standalone quote header: $header" );
     }
+}
+
+foreach my $case (
+    [
+        'reply with a break before a nested div',
+        q{<div>First</div><div>Second<br><div>From: &lt;dw_null@dreamwidth.org&gt;</div></div>},
+        q{<div>First</div><div>Second},
+    ],
+    [
+        'reply directly before a nested blockquote',
+        q{<div>First</div><div><b>Second</b><blockquote>On Tue, <dw_null@dreamwidth.org> wrote:}
+            . "</blockquote></div><div>Quoted text</div>\nMore quoted text",
+        q{<div>First</div><div><b>Second</b>},
+    ],
+    [
+        'reply before a nested quote with its own wrapper',
+        q{<div><p>First</p><p>Second</p><hr><div class="gmail_quote"><div class="gmail_attr">}
+            . q{On Tue, <a href="mailto:dw_null@dreamwidth.org">DW Comment</a> wrote:</div></div></div>},
+        q{<div><p>First</p><p>Second</p>},
+    ],
+    [
+        'reply before a quote with a completed child block',
+        q{<div>First</div><div>Second<div><p>Sent: Tuesday</p>}
+            . q{From: &lt;dw_null@dreamwidth.org&gt;</div></div>},
+        q{<div>First</div><div>Second},
+    ],
+    )
+{
+    my ( $name, $body, $reply ) = @$case;
+    is( DW::CleanEmail->nonquoted_text($body),
+        $reply, "preserved the authored content in the $name" );
 }
 
 foreach my $address (
