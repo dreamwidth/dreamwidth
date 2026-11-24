@@ -48,7 +48,8 @@ sub trusted_proxy_checker {
         # Without the secret, trust only the base proxies. If there are none,
         # trust nothing (the last hop is the client) rather than returning
         # undef, which the caller reads as "trust every hop".
-        return $base || sub { 0 } unless $ok;
+        return $base || sub { 0 }
+            unless $ok;
     }
 
     return $base unless $cdn;
