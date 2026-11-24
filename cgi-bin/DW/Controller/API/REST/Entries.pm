@@ -45,27 +45,24 @@ my $entries = DW::Controller::API::REST->path( 'journals/entries.yaml', 1,
 sub _prepare_custom_groups {
     my ( $post, $journal, $current_security ) = @_;
 
-    my $has_groups = exists $post->{custom_groups};
-    my $has_legacy = exists $post->{custom_bit};
-    return 'Use either custom_groups or custom_bit, not both.' if $has_groups && $has_legacy;
+    return 'custom_bit is not supported. Use custom_groups instead.' if exists $post->{custom_bit};
 
     my $security = $post->{security} // $current_security;
-    if ( !$has_groups && !$has_legacy ) {
-        return 'Provide custom_groups or custom_bit when setting custom security.'
+    if ( !exists $post->{custom_groups} ) {
+        return 'Provide custom_groups when setting custom security.'
             if $security eq 'custom' && $current_security ne 'custom';
         return;
     }
 
-    my $field = $has_groups ? 'custom_groups' : 'custom_bit';
-    return "$field can only be used with custom security." unless $security eq 'custom';
+    return 'custom_groups can only be used with custom security.' unless $security eq 'custom';
     return 'Custom security is not supported for community entries.' if $journal->is_community;
 
     my $groups = $journal->trust_groups;
-    foreach my $id ( @{ $post->{$field} } ) {
+    foreach my $id ( @{ $post->{custom_groups} } ) {
         return "Unknown access filter ID: $id." unless exists $groups->{$id};
     }
 
-    $post->{custom_bit} = delete $post->{custom_groups} if $has_groups;
+    $post->{custom_bit} = delete $post->{custom_groups};
     return;
 }
 

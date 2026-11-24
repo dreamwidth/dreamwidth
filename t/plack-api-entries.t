@@ -156,6 +156,22 @@ subtest 'posting with custom access filters' => sub {
     is( $res->code, 200, 'a selected filter member can read the new entry' );
     ($res) = api_request( GET => "$base/$id", key => $skey );
     is( $res->code, 403, 'an unselected user cannot read the new entry' );
+
+    ( $res, $body ) = api_request(
+        POST => $base,
+        key  => $okey,
+        json => { text => 'owner-only custom post', security => 'custom', custom_groups => [] }
+    );
+    is( $res->code, 200, 'post with custom security and no selected filters' );
+    my $owner_only_id = $body->{entry_id};
+    ok( $owner_only_id, 'owner-only custom post returns an entry ID' ) or return;
+    is( entry_state( fresh_entry( $owner, $owner_only_id ) )->{allowmask}, 0, 'empty custom mask' );
+
+    ( $res, $body ) = api_request( GET => "$base/$owner_only_id", key => $okey );
+    is( $res->code,        200,      'owner can read the entry with no selected filters' );
+    is( $body->{security}, 'custom', 'empty selection saves custom security' );
+    ($res) = api_request( GET => "$base/$owner_only_id", key => $fkey );
+    is( $res->code, 403, 'a filter member cannot read the entry with no selected filters' );
 };
 
 subtest 'custom access filter validation' => sub {
@@ -204,41 +220,35 @@ subtest 'custom access filter validation' => sub {
 };
 
 subtest 'creating a custom entry with legacy custom_bit' => sub {
-    my ( $res, $body ) = api_request(
+    my ( undef, $before ) = api_request( GET => $base, key => $okey );
+    my ($res) = api_request(
         POST => $base,
         key  => $okey,
         json => { text => 'legacy custom post', security => 'custom', custom_bit => [$group] }
     );
-    is( $res->code, 200, 'create a custom entry with the legacy field' ) or return;
-    my $id = $body->{entry_id};
-    is(
-        entry_state( fresh_entry( $owner, $id ) )->{allowmask},
-        1 << $group,
-        'legacy create stores the selected mask'
-    );
-    ($res) = api_request( GET => "$base/$id", key => $fkey );
-    is( $res->code, 200, 'the selected member can read the entry' );
+    is( $res->code, 400, 'even a valid filter ID is rejected in the legacy field on create' );
+    my ( undef, $after ) = api_request( GET => $base, key => $okey );
+    is( scalar @$after, scalar @$before, 'the rejected request did not create an entry' );
 };
 
 subtest 'editing a custom entry with legacy custom_bit' => sub {
     my $id    = proto_post( $owner, security => 'usemask', allowmask => 1 << $group );
     my $path  = "$base/$id";
+    my $event = entry_state( fresh_entry( $owner, $id ) )->{event};
     my ($res) = api_request(
         POST => $path,
         key  => $okey,
         json => { text => 'new text for a narrower audience', custom_bit => [$other_group] }
     );
-    is( $res->code, 200, 'change filters using the legacy field without resending security' );
-    my $state = entry_state( fresh_entry( $owner, $id ) );
-    is( $state->{allowmask}, 1 << $other_group, 'legacy edit replaces the selected mask' );
-    is( $state->{event}, 'new text for a narrower audience', 'legacy edit saves the new text' );
-    ($res) = api_request( GET => $path, key => $fkey );
-    is( $res->code, 403, 'a removed member can no longer read the entry' );
-
+    is( $res->code, 400, 'legacy field cannot change the filters of an existing custom entry' );
     ($res) = api_request( POST => $path, key => $okey, json => { custom_bit => [] } );
-    is( $res->code, 200, 'the legacy field can explicitly clear the filters' );
-    my ( undef, $body ) = api_request( GET => $path, key => $okey );
-    is_deeply( $body->{custom_groups}, [], 'cleared selection reads back' );
+    is( $res->code, 400, 'an empty legacy field is also rejected' );
+
+    my $state = entry_state( fresh_entry( $owner, $id ) );
+    is( $state->{allowmask}, 1 << $group, 'the rejected requests did not change the entry mask' );
+    is( $state->{event},     $event,      'the rejected requests did not change the entry text' );
+    ($res) = api_request( GET => $path, key => $fkey );
+    is( $res->code, 200, 'the original filter member can still read the entry' );
 };
 
 subtest 'invalid legacy custom_bit is rejected without saving' => sub {
