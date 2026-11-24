@@ -18,6 +18,7 @@ no warnings 'uninitialized';
 use Carp;
 use Digest::SHA1;
 use Text::Fuzzy;
+use LJ::Hooks;
 use LJ::Subscription;
 use DW::Cache;
 
@@ -151,6 +152,86 @@ sub emails_visible {
 sub is_validated {
     my $u = shift;
     return $u->email_status eq "A";
+}
+
+sub confirm_current_email {
+    my ( $u, $email ) = @_;
+    my $userid = $u->id;
+
+    my $confirmed = _email_transaction(
+        sub {
+            my ($dbh) = @_;
+            my ($current) =
+                $dbh->selectrow_array( 'SELECT email FROM email WHERE userid = ? FOR UPDATE',
+                undef, $userid );
+            die $dbh->errstr if $dbh->err;
+            return 0 unless defined $current && $current eq $email;
+
+            my $updated =
+                $dbh->do( "UPDATE user SET status = 'A' WHERE userid = ? AND status <> 'A'",
+                undef, $userid )
+                or die $dbh->errstr;
+            return $updated > 0;
+        }
+    );
+    return 0 unless $confirmed;
+
+    LJ::memcache_kill( $userid, 'userid' );
+    $u->{status} = 'A';
+    $u->{_email} = $email;
+    LJ::Hooks::run_hooks( 'update_user', userid => $userid, fields => { status => 'A' } );
+    return 1;
+}
+
+sub set_unconfirmed_email {
+    my ( $u, $email ) = @_;
+    my $userid = $u->id;
+
+    my $previous_status = _email_transaction(
+        sub {
+            my ($dbh) = @_;
+            $dbh->do( 'REPLACE INTO email (userid, email) VALUES (?, ?)', undef, $userid, $email )
+                or die $dbh->errstr;
+            my ($status) =
+                $dbh->selectrow_array( 'SELECT status FROM user WHERE userid = ? FOR UPDATE',
+                undef, $userid );
+            die $dbh->errstr if $dbh->err;
+            die 'Account not found' unless defined $status;
+            if ( $status eq 'A' ) {
+                $dbh->do( "UPDATE user SET status = 'T' WHERE userid = ?", undef, $userid )
+                    or die $dbh->errstr;
+            }
+            return $status;
+        }
+    );
+
+    LJ::_update_email_cache( $userid, $email );
+    $u->{_email} = $email;
+    $u->{status} = $previous_status eq 'A' ? 'T' : $previous_status;
+    LJ::Hooks::run_hooks(
+        'update_user',
+        userid => $userid,
+        fields => { email => $email, status => 'T' }
+    ) if $previous_status eq 'A';
+    return 1;
+}
+
+sub _email_transaction {
+    my ($write) = @_;
+    my $dbh = LJ::get_db_writer() or die 'Database unavailable';
+    $dbh->begin_work or die $dbh->errstr;
+    my $result;
+    my $committed = eval {
+        $result = $write->($dbh);
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($committed) {
+        my $error = $@;
+        $dbh->rollback unless $dbh->{AutoCommit};
+        die $error;
+    }
+    return $result;
 }
 
 # return the setting indicating how a user can be found by their email address
@@ -957,8 +1038,11 @@ sub set_email {
 
     my $dbh = LJ::get_db_writer();
     $dbh->do( "REPLACE INTO email (userid, email) VALUES (?, ?)", undef, $userid, $email );
+    return _update_email_cache( $userid, $email );
+}
 
-    # update caches
+sub _update_email_cache {
+    my ( $userid, $email ) = @_;
     LJ::memcache_kill( $userid, "userid" );
     LJ::MemCache::delete( [ $userid, "email:$userid" ] );
     my $cache = DW::Cache->request->get( 'user_id', $userid ) or return;

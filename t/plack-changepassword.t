@@ -16,11 +16,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 21;
 use HTTP::Request::Common;
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Session;
 use LJ::Test qw(temp_user);
 
 my $app = do "$ENV{LJHOME}/app.psgi";
@@ -69,11 +70,11 @@ sub reloaded {
 # An account whose only address was never confirmed.
 {
     my $u = temp_user();
-    $u->update_self( { email => 'unconfirmed@example.com', status => 'N' } );
+    $u->update_self( { email => 'Unconfirmed@example.com', status => 'N' } );
     $u->set_password('Original-pass-42');
     @mail = ();
 
-    my $res = reset_password( $u, 'unconfirmed@example.com' );
+    my $res = reset_password( $u, 'Unconfirmed@example.com' );
     is( $res->code, 200, 'reset form submits' );
     like( $res->content, qr/password has been changed/, 'reset reports success' );
 
@@ -81,6 +82,92 @@ sub reloaded {
     ok( $u->check_password($newpass), 'new password is set' );
     ok( $u->is_validated,             'using the reset link confirms the address it was sent to' );
     is( scalar @mail, 1, 'password change notice is mailed' );
+}
+
+{
+    my $u = temp_user();
+    $u->update_self( { email => 'mixed@example.com', status => 'N' } );
+    $u->set_password('Original-pass-42');
+
+    my $res = reset_password( $u, 'Mixed@example.com' );
+    like( $res->content, qr/password has been changed/, 'case mismatch does not prevent reset' );
+    $u = reloaded($u);
+    ok( $u->check_password($newpass), 'reset sets the password despite the case mismatch' );
+    is( $u->email_status, 'N', 'case mismatch does not confirm the address' );
+}
+
+{
+    my $u = temp_user();
+    $u->update_self( { email => 'before@example.com', status => 'N' } );
+    $u->set_password('Original-pass-42');
+
+    my $mark_used = \&LJ::mark_authaction_used;
+    no warnings 'redefine';
+    local *LJ::mark_authaction_used = sub {
+        my $result = $mark_used->(@_);
+        my $dbh    = LJ::get_db_writer();
+        $dbh->do( 'UPDATE email SET email = ? WHERE userid = ?',
+            undef, 'after@example.com', $u->id )
+            or die $dbh->errstr;
+        LJ::memcache_kill( $u->id, 'email' );
+        return $result;
+    };
+
+    my $res = reset_password( $u, 'before@example.com' );
+    like(
+        $res->content,
+        qr/password has been changed/,
+        'reset finishes after an overlapping change'
+    );
+    $u = reloaded($u);
+    ok( $u->check_password($newpass), 'reset sets the password after the address changes' );
+    is( $u->email_raw, 'after@example.com', 'the overlapping email change persists' );
+    is( $u->email_status, 'N', 'the changed address is not confirmed by the reset' );
+}
+
+{
+    my $u = temp_user();
+    $u->update_self( { email => 'in-flight@example.com', status => 'N' } );
+    $u->set_password('Original-pass-42');
+
+    my $session = LJ::Session->create( $u, nolog => 1 );
+    my $cookie =
+          'ljmastersession='
+        . $session->master_cookie_string
+        . '; ljloggedin='
+        . $session->loggedin_cookie_string;
+    my $url = 'http://localhost/changeemail';
+
+    local $LJ::HOOKS{post_email_change} = [
+        sub {
+            my $dbh = LJ::get_db_writer();
+            $dbh->do( "UPDATE user SET status = 'A' WHERE userid = ?", undef, $u->id )
+                or die $dbh->errstr;
+            LJ::memcache_kill( $u->id, 'userid' );
+        }
+    ];
+
+    test_psgi $app, sub {
+        my $cb          = shift;
+        my $form        = $cb->( GET $url, Cookie => $cookie );
+        my ($form_auth) = $form->content =~ /name="lj_form_auth" value="([^"]+)"/;
+        my $res         = $cb->(
+            POST $url,
+            Cookie  => $cookie,
+            Content => [
+                lj_form_auth   => $form_auth,
+                email          => 'replacement@example.com',
+                force_spelling => 1,
+                password       => 'Original-pass-42',
+            ]
+        );
+        like( $res->content, qr/Email address changed successfully/,
+            'overlapping change finishes' );
+    };
+
+    $u = reloaded($u);
+    is( $u->email_raw, 'replacement@example.com', 'the change stores the replacement address' );
+    is( $u->email_status, 'T', 'validation of the old address does not carry over' );
 }
 
 # An account that changed to a new, unconfirmed address. A reset link sent to

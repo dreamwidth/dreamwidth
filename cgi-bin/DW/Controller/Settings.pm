@@ -526,8 +526,7 @@ sub changepassword_handler {
 
             # The reset link was mailed to this address, so using it confirms
             # the address, the same as following the confirmation link.
-            if ( $authu && !$u->is_validated && lc $aa->{arg1} eq lc $u->email_raw ) {
-                $u->update_self( { status => 'A' } );
+            if ( $authu && $u->confirm_current_email( $aa->{arg1} ) ) {
                 $u->update_email_alias;
                 LJ::Hooks::run_hook( 'email_verified', $u );
                 LJ::Hooks::run_hook( 'post_email_change',
