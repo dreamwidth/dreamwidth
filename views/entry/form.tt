@@ -78,48 +78,48 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
         [%- END -%]
 
+        [%# The format menu shares the subject's line, so it costs no height. %]
         <div class="row"><div class="columns">
-            <div class='subject-container'>
-                [%- form.textbox( label = dw.ml(".subject.label")
-                        name = "subject"
+            <div class='subject-format-row'>
+                <div class='subject-container'>
+                    [%- form.textbox( label = dw.ml(".subject.label")
+                            name = "subject"
 
-                        maxlength = limits.subject_length
-                        size = "50"
+                            maxlength = limits.subject_length
+                            size = "50"
 
-                        labelclass = "hidden"
-                        class = "draft-autosave"
+                            labelclass = "hidden"
+                            class = "draft-autosave"
 
-                        placeholder = dw.ml(".subject.placeholder")
-                ) -%]
+                            placeholder = dw.ml(".subject.placeholder")
+                    ) -%]
+                </div>
+                <div class='markup-container'>
+                    [%- form.select(
+                      label = 'Formatting type'
+                      labelclass = 'invisible'
+                      name = 'editor'
+                      id = 'editor'
+                      select = editors.selected
+                      items = editors.items
+                      class = "draft-autosave"
+                    ) -%]
+
+                    <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
+                      dw.img('help', '',
+                        {
+                          alt   => dw.ml('markup.helplink.alttext'),
+                          title => dw.ml('markup.helplink.alttext'),
+                          style => 'box-sizing: content-box;'
+                        }
+                      )
+                    -%]</a>
+                </div>
             </div>
         </div></div>
 
         <div class="row"><div class="columns">
             [%- PROCESS "entry/form-rte0-warning.tt" -%]
-        </div></div>
-
-        <div class="row"><div class="columns">
-            <div class='markup-container'>
-                [%- form.select(
-                  label = 'Formatting type'
-                  labelclass = 'invisible'
-                  name = 'editor'
-                  id = 'editor'
-                  select = editors.selected
-                  items = editors.items
-                  class = "draft-autosave"
-                ) -%]
-
-                <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
-                  dw.img('help', '',
-                    {
-                      alt   => dw.ml('markup.helplink.alttext'),
-                      title => dw.ml('markup.helplink.alttext'),
-                      style => 'box-sizing: content-box;'
-                    }
-                  )
-                -%]</a>
-            </div>
         </div></div>
 
         <div class="row"><div class="columns">
