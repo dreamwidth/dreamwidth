@@ -14,13 +14,15 @@ editor's output is untrusted input like any other.
 
 | File | Purpose |
 |---|---|
-| `src/schema.js` | Document schema, including DW-specific nodes (`cut`, `user`, `html_block`) and the generic pieces that carry unmodeled markup (`extra` attributes, `html_textblock`, `html_container`, `html_mark`, `html_inline`) |
+| `src/schema.js` | Document schema, including DW-specific nodes (`cut`, `user`, `html_block`), tables (`prosemirror-tables`), the `text_style` mark (color, highlight, size), and the generic pieces that carry unmodeled markup (`extra` attributes, `html_textblock`, `html_container`, `html_mark`, `html_inline`) |
 | `src/serialize.js` | HTML import/export: `<user>` tag balancing, the import pre-pass that preserves unknown markup, casual-HTML/Markdown conversion, raw-HTML block capture |
 | `src/paste.js` | Pasted poll/embed markup becomes an HTML block; `insertRawBlock` |
 | `src/nodeviews.js` | In-editor rendering for cut tags, user mentions, and HTML blocks |
 | `src/mentions.js` | `@username` autocomplete (circle-scoped; see `/__rpc_general?mode=list_circle`) |
 | `src/menu.js` | Toolbar |
-| `src/dialogs.js` | Link/image/user insertion dialogs (native `<dialog>`) |
+| `src/commands.js` | Toolbar commands: alignment, indent, text color/highlight/size, table insertion |
+| `src/style.js` | Reading and editing inline `style` attributes declaration by declaration |
+| `src/dialogs.js` | Link/image/user/table insertion dialogs (native `<dialog>`) |
 | `src/inputrules.js` | Markdown-style typing shortcuts (`**bold**`, `# heading`, `- list`, ...) |
 | `src/keymap.js` | Keyboard shortcuts |
 | `src/index.js` | Public API: `DWEditor.mount/unmount/isActive/getHTML/flush/isDirty/insertImage/insertHTMLBlock/focus` |
@@ -35,8 +37,14 @@ in `htdocs/scss/components/dw-editor.scss` (compiled to
 Opening an entry must not drop markup the editor has no button for. On import
 a pre-pass rewrites the parsed HTML so that `<span style>`, `<font>`,
 `<center>`, `<div>`, `<a name>`, `class`/`style`/`id` attributes and the like
-become generic nodes/marks (or literal HTML blocks for tables, polls, embeds and
-elements with no model at all), and export puts them back. User tags inside
+become generic nodes/marks (or literal HTML blocks for polls, embeds and
+elements with no model at all), and export puts them back. A table becomes an
+editable table when the table nodes can hold it exactly (a rectangular grid in
+one `<tbody>`, no caption or column groups, cells of all text or all blocks);
+any other table stays a literal block. A `<span>` styled with only color,
+background color and font size becomes the editable text-style mark when that
+doesn't change its nesting; text alignment and indent are `text-align` and
+`margin-left` in a block's `style`, edited in place. User tags inside
 literal blocks are restored to the spelling they had. The round-trip tests in
 `test/` pin this down: add a case there whenever you teach the editor a new kind
 of markup.

@@ -63,8 +63,8 @@ test("a modeled tag that carries attributes keeps them", () => {
     assertSurvives('<p><b style="color: red;">bold red</b></p>');
 });
 
-test("tables, polls, and embeds are kept as raw blocks", () => {
-    assertSurvives("<table><tbody><tr><td>cell</td></tr></tbody></table>");
+test("polls, embeds, and tables the editor can't model are kept as raw blocks", () => {
+    assertSurvives("<table><caption>c</caption><tbody><tr><td>cell</td></tr></tbody></table>");
     assertSurvives('<poll name="p" id="poll1"><poll-question type="radio"><poll-item>a</poll-item></poll-question></poll>');
     assertSurvives('<iframe src="http://example.com/v"></iframe>');
 });
@@ -87,8 +87,9 @@ test("user tags survive in text and inside preserved chunks", () => {
         normalized('<p>hi <user name="alice"> and <user name="bob"></p>')
     );
 
-    // Inside a table the original spelling comes back exactly.
-    const table = '<table><tbody><tr><td><user name="carol"> <lj comm="club"></td></tr></tbody></table>';
+    // Inside a preserved chunk the original spelling comes back exactly.
+    const table =
+        '<table><caption>c</caption><tbody><tr><td><user name="carol"> <lj comm="club"></td></tr></tbody></table>';
     const out = roundTrip(table);
     assert.match(out, /<user name="carol">/);
     assert.match(out, /<lj comm="club">/);
@@ -96,7 +97,7 @@ test("user tags survive in text and inside preserved chunks", () => {
 });
 
 test("a stray </user> inside a raw chunk is not stripped", () => {
-    const html = "<table><tbody><tr><td>&lt;/user&gt; text</td></tr></tbody></table>";
+    const html = "<dl><dt>&lt;/user&gt; text</dt></dl>";
     assert.match(roundTrip(html), /&lt;\/user&gt; text/);
 });
 

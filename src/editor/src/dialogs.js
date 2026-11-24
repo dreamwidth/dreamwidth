@@ -18,7 +18,9 @@ function buildDialog(title, fields, strings) {
         label.textContent = field.label;
         const input = document.createElement(field.multiline ? "textarea" : "input");
         if (field.multiline) input.rows = 5;
-        else input.type = "text";
+        else input.type = field.type || "text";
+        if (field.min != null) input.min = field.min;
+        if (field.max != null) input.max = field.max;
         input.name = field.name;
         input.value = field.value || "";
         if (field.placeholder) input.placeholder = field.placeholder;
@@ -110,4 +112,21 @@ export function embedDialog(strings) {
         [{ name: "code", label: strings.embedCode, required: true, multiline: true }],
         strings
     ).then((values) => values && values.code);
+}
+
+// Size of a new table. Resolves to { rows, cols } as numbers.
+export function tableDialog(strings) {
+    return buildDialog(
+        strings.tableTitle,
+        [
+            { name: "rows", label: strings.tableRows, value: "3", type: "number", min: 1, max: 50 },
+            { name: "cols", label: strings.tableCols, value: "3", type: "number", min: 1, max: 20 },
+        ],
+        strings
+    ).then((values) => {
+        if (!values) return null;
+        const rows = Math.min(50, Math.max(1, parseInt(values.rows, 10) || 0));
+        const cols = Math.min(20, Math.max(1, parseInt(values.cols, 10) || 0));
+        return { rows, cols };
+    });
 }

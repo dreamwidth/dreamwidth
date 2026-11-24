@@ -187,7 +187,10 @@ img.ProseMirror-separator {
     cursor: default;
 }
 
-.dw-editor-blockselect {
+.dw-editor-blockselect,
+.dw-editor-sizeselect,
+.dw-editor-actionmenu {
+    width: auto;
     height: 28px;
     padding-top: 0;
     padding-bottom: 0;
@@ -195,6 +198,71 @@ img.ProseMirror-separator {
     margin: 0; // override new.css's `select { margin: 0 0 1rem }`, which
     // otherwise makes the toolbar's flex row tall and leaves a gap under the icons
     font-size: 13px;
+}
+
+/* A color control: the native color input sits invisibly over the button,
+ * so a click opens the browser's color picker. The bar shows the current color. */
+.dw-editor-color {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dw-editor-color input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.dw-editor-color-bar {
+    display: block;
+    width: 14px;
+    height: 3px;
+    margin-top: 1px;
+    background: transparent;
+}
+
+.dw-editor-color.dw-editor-disabled {
+    opacity: 0.4;
+}
+
+.dw-editor-color.dw-editor-disabled input[type="color"] {
+    cursor: default;
+}
+
+/* === Tables === */
+
+/* Cells get a faint outline while editing, so a table without borders can
+ * still be seen and clicked into. It isn't part of the entry. */
+.dw-editor .ProseMirror table {
+    border-collapse: collapse;
+    margin: 0.5em 0;
+}
+
+.dw-editor .ProseMirror td,
+.dw-editor .ProseMirror th {
+    min-width: 2em;
+    padding: 3px 5px;
+    outline: 1px dashed #bbb;
+    vertical-align: top;
+}
+
+/* A cell holding running text is edited in a paragraph that isn't saved. */
+.dw-editor .ProseMirror td:not([data-dw-loose]) > p,
+.dw-editor .ProseMirror th:not([data-dw-loose]) > p {
+    margin: 0;
+}
+
+.dw-editor .ProseMirror .selectedCell {
+    background: rgba(140, 200, 255, 0.35);
 }
 
 /* === Cut tag === */

@@ -1,11 +1,43 @@
 // The editor toolbar: a hand-rolled strip of buttons (no menu library).
 // Button state refreshes on every editor update via update().
 
-import { toggleMark, setBlockType, wrapIn, lift } from "prosemirror-commands";
+import { toggleMark, setBlockType, wrapIn } from "prosemirror-commands";
 import { wrapInList } from "prosemirror-schema-list";
 import { undo, redo } from "prosemirror-history";
-import { linkDialog, imageDialog, userDialog, embedDialog } from "./dialogs.js";
+import {
+    isInTable,
+    addRowBefore,
+    addRowAfter,
+    addColumnBefore,
+    addColumnAfter,
+    deleteRow,
+    deleteColumn,
+    mergeCells,
+    splitCell,
+    toggleHeaderRow,
+    toggleHeaderColumn,
+    deleteTable,
+} from "prosemirror-tables";
+import {
+    linkDialog,
+    imageDialog,
+    userDialog,
+    embedDialog,
+    textDialog,
+    tableDialog,
+} from "./dialogs.js";
 import { insertRawBlock } from "./paste.js";
+import {
+    blockAlignment,
+    setAlignment,
+    indent,
+    outdent,
+    currentTextStyle,
+    setTextStyle,
+    setTextStyles,
+    insertTable,
+} from "./commands.js";
+import { normalizeColor, normalizeFontSize } from "./style.js";
 
 // Icons for the buttons that have no dependable text glyph. They're inline
 // SVG, so they don't rely on any font having an emoji or symbol (the emoji
@@ -27,6 +59,15 @@ const ICONS = {
     quote: icon('<path d="M3 11V8.2C3 6.2 4 5 5.8 4.6M8.6 11V8.2c0-2 1-3.2 2.8-3.6"/><path d="M3 11h2.6V8.2H3zM8.6 11h2.6V8.2H8.6z" fill="currentColor"/>'),
     cut: icon('<circle cx="4.4" cy="11.6" r="1.8"/><circle cx="11.6" cy="11.6" r="1.8"/><path d="M5.6 10.2L12 2.5M10.4 10.2L4 2.5"/>'),
     outdent: icon('<path d="M2.5 3h11M7 6.5h6.5M7 9.5h6.5M2.5 13h11"/><path d="M5 5.8L2.4 8 5 10.2z" fill="currentColor"/>'),
+    indent: icon('<path d="M2.5 3h11M7 6.5h6.5M7 9.5h6.5M2.5 13h11"/><path d="M2.4 5.8L5 8 2.4 10.2z" fill="currentColor"/>'),
+    alignLeft: icon('<path d="M2.5 3.5h11M2.5 6.5h7M2.5 9.5h11M2.5 12.5h7"/>'),
+    alignCenter: icon('<path d="M2.5 3.5h11M4.5 6.5h7M2.5 9.5h11M4.5 12.5h7"/>'),
+    alignRight: icon('<path d="M2.5 3.5h11M6.5 6.5h7M2.5 9.5h11M6.5 12.5h7"/>'),
+    alignJustify: icon('<path d="M2.5 3.5h11M2.5 6.5h11M2.5 9.5h11M2.5 12.5h11"/>'),
+    table: icon('<rect x="1.8" y="2.5" width="12.4" height="11" rx="1"/><path d="M1.8 6.2h12.4M1.8 9.9h12.4M6 2.5v11M10 2.5v11"/>'),
+    textColor: icon('<path d="M4.5 11L8 2.5 11.5 11M5.7 8h4.6"/>'),
+    highlight: icon('<path d="M9.8 2.6l3.6 3.6-5.6 5.6H4.2V8.2z"/><path d="M6.4 6l3.6 3.6"/>'),
+    removeColor: icon('<path d="M4.5 11L8 2.5 11.5 11M5.7 8h4.6"/><path d="M2.5 2.5l11 11"/>'),
     poll: icon('<path d="M2.5 13.5h11"/><rect x="3" y="7" width="2.2" height="6"/><rect x="6.9" y="3" width="2.2" height="10"/><rect x="10.8" y="9" width="2.2" height="4"/>'),
 };
 
@@ -117,6 +158,34 @@ function makeInsertPoll(pollUrl) {
     };
 }
 
+function makeInsertTable(schema, strings) {
+    return function (state, dispatch, view) {
+        const insert = insertTable(schema, 1, 1);
+        if (!dispatch) return insert(state);
+        tableDialog(strings).then((size) => {
+            if (!size) return;
+            insertTable(schema, size.rows, size.cols)(view.state, view.dispatch);
+            view.focus();
+        });
+        return true;
+    };
+}
+
+// The text-size menu's preset sizes.
+const FONT_SIZES = [
+    "10px",
+    "12px",
+    "14px",
+    "16px",
+    "18px",
+    "20px",
+    "24px",
+    "28px",
+    "32px",
+    "40px",
+    "48px",
+];
+
 function insertHr(schema) {
     return function (state, dispatch) {
         if (dispatch)
@@ -189,6 +258,144 @@ export function buildToolbar(schema, strings, pageOptions) {
         });
     }
 
+    // A color control: a button-sized native color picker. Picking a color
+    // applies it to the selection (or to what's typed next).
+    function addColorPicker(group, spec) {
+        const wrap = document.createElement("span");
+        wrap.className = "dw-editor-button dw-editor-color dw-editor-button-" + spec.name;
+        wrap.title = spec.title;
+        wrap.innerHTML = spec.html;
+        const bar = document.createElement("span");
+        bar.className = "dw-editor-color-bar";
+        wrap.appendChild(bar);
+        const input = document.createElement("input");
+        input.type = "color";
+        input.setAttribute("aria-label", spec.title);
+        wrap.appendChild(input);
+        input.addEventListener("change", () => {
+            if (!currentView) return;
+            const value = normalizeColor(input.value);
+            if (value)
+                setTextStyle(schema, spec.attr, value)(currentView.state, currentView.dispatch);
+            currentView.focus();
+        });
+        group.appendChild(wrap);
+
+        updaters.push((view) => {
+            const enabled = setTextStyle(schema, spec.attr, null)(view.state, null);
+            input.disabled = !enabled;
+            wrap.classList.toggle("dw-editor-disabled", !enabled);
+            const current = currentTextStyle(view.state, schema)[spec.attr];
+            bar.style.backgroundColor = current || "";
+            const hex = normalizeColor(current);
+            if (hex) input.value = hex;
+        });
+    }
+
+    // The text-size menu: preset sizes, "other size" (typed in), and default.
+    function addFontSize(group) {
+        const sizeSelect = document.createElement("select");
+        sizeSelect.className = "dw-editor-sizeselect";
+        sizeSelect.setAttribute("aria-label", strings.fontSize);
+        sizeSelect.title = strings.fontSize;
+        const option = (value, label) => {
+            const el = document.createElement("option");
+            el.value = value;
+            el.textContent = label;
+            sizeSelect.appendChild(el);
+            return el;
+        };
+        option("", strings.fontSize);
+        // Shows a size that isn't one of the presets (from an old entry, or
+        // typed in) while the cursor is in it.
+        const other = option("current", "");
+        other.hidden = true;
+        FONT_SIZES.forEach((size) => option(size, size));
+        option("custom", strings.fontSizeCustom);
+        option("default", strings.fontSizeDefault);
+
+        const apply = (value) => {
+            setTextStyle(schema, "fontSize", value)(currentView.state, currentView.dispatch);
+            currentView.focus();
+        };
+        sizeSelect.addEventListener("change", () => {
+            if (!currentView) return;
+            const choice = sizeSelect.value;
+            if (choice == "custom") {
+                const view = currentView;
+                textDialog(strings.fontSizeCustomTitle, strings, "").then((text) => {
+                    if (text == null || !text.trim()) return view.focus();
+                    const size = normalizeFontSize(text);
+                    if (!size) {
+                        window.alert(strings.fontSizeInvalid);
+                        return view.focus();
+                    }
+                    apply(size);
+                });
+            } else if (choice == "default") {
+                apply(null);
+            } else if (choice && choice != "current") {
+                apply(choice);
+            }
+            if (currentView) toolbarUpdate(currentView);
+        });
+        group.appendChild(sizeSelect);
+
+        updaters.push((view) => {
+            sizeSelect.disabled = !setTextStyle(schema, "fontSize", null)(view.state, null);
+            const current = currentTextStyle(view.state, schema).fontSize;
+            other.hidden = true;
+            if (!current) {
+                sizeSelect.value = "";
+            } else if (FONT_SIZES.indexOf(current) >= 0) {
+                sizeSelect.value = current;
+            } else {
+                other.textContent = current;
+                other.hidden = false;
+                sizeSelect.value = "current";
+            }
+        });
+    }
+
+    // A select used as a menu of commands: it always shows its label, and
+    // each choice runs a command and snaps back.
+    function addActionMenu(group, spec) {
+        const menu = document.createElement("select");
+        menu.className = "dw-editor-actionmenu dw-editor-actionmenu-" + spec.name;
+        menu.setAttribute("aria-label", spec.label);
+        menu.title = spec.label;
+        const head = document.createElement("option");
+        head.value = "";
+        head.textContent = spec.label;
+        menu.appendChild(head);
+        const options = spec.actions.map((action, i) => {
+            const el = document.createElement("option");
+            el.value = String(i);
+            el.textContent = action.label;
+            menu.appendChild(el);
+            return el;
+        });
+        menu.addEventListener("change", () => {
+            const action = spec.actions[+menu.value];
+            menu.value = "";
+            if (!currentView || !action) return;
+            action.command(currentView.state, currentView.dispatch, currentView);
+            currentView.focus();
+        });
+        group.appendChild(menu);
+
+        updaters.push((view) => {
+            menu.disabled = !spec.enabled(view.state);
+            spec.actions.forEach((action, i) => {
+                options[i].disabled = menu.disabled || !action.command(view.state, null, view);
+            });
+        });
+    }
+
+    function toolbarUpdate(view) {
+        updaters.forEach((fn) => fn(view));
+    }
+
     // History
     let group = addGroup();
     addButton(group, { name: "undo", title: strings.undo, html: "&#8617;", command: undo });
@@ -244,6 +451,28 @@ export function buildToolbar(schema, strings, pageOptions) {
         });
     });
 
+    // Text color, highlight, size
+    group = addGroup();
+    addColorPicker(group, {
+        name: "text-color",
+        title: strings.textColor,
+        html: ICONS.textColor,
+        attr: "color",
+    });
+    addColorPicker(group, {
+        name: "highlight",
+        title: strings.highlight,
+        html: ICONS.highlight,
+        attr: "background",
+    });
+    addButton(group, {
+        name: "remove-color",
+        title: strings.removeColor,
+        html: ICONS.removeColor,
+        command: setTextStyles(schema, { color: null, background: null }),
+    });
+    addFontSize(group);
+
     // Insertions: link, image, user mention
     group = addGroup();
     addButton(group, {
@@ -258,6 +487,12 @@ export function buildToolbar(schema, strings, pageOptions) {
         title: strings.image,
         html: ICONS.image,
         command: makeInsertImage(schema, strings, options.onImage),
+    });
+    addButton(group, {
+        name: "table",
+        title: strings.table,
+        html: ICONS.table,
+        command: makeInsertTable(schema, strings),
     });
     addButton(group, {
         name: "user",
@@ -314,10 +549,54 @@ export function buildToolbar(schema, strings, pageOptions) {
         command: insertHr(schema),
     });
     addButton(group, {
-        name: "lift",
+        name: "outdent",
         title: strings.outdent,
         html: ICONS.outdent,
-        command: lift,
+        command: outdent(schema),
+    });
+    addButton(group, {
+        name: "indent",
+        title: strings.indent,
+        html: ICONS.indent,
+        command: indent(schema),
+    });
+
+    // Alignment
+    group = addGroup();
+    [
+        { value: "left", title: strings.alignLeft, html: ICONS.alignLeft },
+        { value: "center", title: strings.alignCenter, html: ICONS.alignCenter },
+        { value: "right", title: strings.alignRight, html: ICONS.alignRight },
+        { value: "justify", title: strings.alignJustify, html: ICONS.alignJustify },
+    ].forEach((spec) => {
+        addButton(group, {
+            name: "align-" + spec.value,
+            title: spec.title,
+            html: spec.html,
+            command: setAlignment(spec.value),
+            active: (state) => blockAlignment(state) == spec.value,
+        });
+    });
+
+    // Table editing, for the table the cursor is in
+    group = addGroup();
+    addActionMenu(group, {
+        name: "table",
+        label: strings.tableMenu,
+        enabled: isInTable,
+        actions: [
+            { label: strings.tableRowBefore, command: addRowBefore },
+            { label: strings.tableRowAfter, command: addRowAfter },
+            { label: strings.tableColBefore, command: addColumnBefore },
+            { label: strings.tableColAfter, command: addColumnAfter },
+            { label: strings.tableDeleteRow, command: deleteRow },
+            { label: strings.tableDeleteCol, command: deleteColumn },
+            { label: strings.tableMerge, command: mergeCells },
+            { label: strings.tableSplit, command: splitCell },
+            { label: strings.tableHeaderRow, command: toggleHeaderRow },
+            { label: strings.tableHeaderCol, command: toggleHeaderColumn },
+            { label: strings.tableDelete, command: deleteTable },
+        ],
     });
 
     return {
@@ -325,7 +604,7 @@ export function buildToolbar(schema, strings, pageOptions) {
         commands: { editLink: editLink },
         update(view) {
             currentView = view;
-            updaters.forEach((fn) => fn(view));
+            toolbarUpdate(view);
         },
     };
 }

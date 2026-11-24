@@ -5,6 +5,8 @@ import { baseKeymap, toggleMark, chainCommands, exitCode } from "prosemirror-com
 import { undo, redo } from "prosemirror-history";
 import { undoInputRule } from "prosemirror-inputrules";
 import { splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list";
+import { goToNextCell } from "prosemirror-tables";
+import { indent, outdent } from "./commands.js";
 
 export function buildKeymap(schema, commands) {
     const keys = {
@@ -20,10 +22,11 @@ export function buildKeymap(schema, commands) {
         "Mod-k": commands.editLink,
 
         Enter: splitListItem(schema.nodes.list_item),
-        "Mod-[": liftListItem(schema.nodes.list_item),
-        "Mod-]": sinkListItem(schema.nodes.list_item),
-        Tab: sinkListItem(schema.nodes.list_item),
-        "Shift-Tab": liftListItem(schema.nodes.list_item),
+        "Mod-[": outdent(schema),
+        "Mod-]": indent(schema),
+        // Tab moves between table cells, and otherwise nests list items.
+        Tab: chainCommands(goToNextCell(1), sinkListItem(schema.nodes.list_item)),
+        "Shift-Tab": chainCommands(goToNextCell(-1), liftListItem(schema.nodes.list_item)),
 
         // Leave a code/html block downward
         "Mod-Enter": exitCode,

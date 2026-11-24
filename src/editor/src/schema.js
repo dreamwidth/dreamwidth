@@ -7,8 +7,12 @@
 //   cut         — <cut text="...">...</cut>, nestable
 //   user        — <user name="..." site="...">, an inline atom
 //   html_block  — a literal-HTML escape hatch; its text content is emitted
-//                 verbatim (for embeds, polls, tables, and anything else the
-//                 schema doesn't model)
+//                 verbatim (for embeds, polls, tables the table nodes can't
+//                 hold exactly, and anything else the schema doesn't model)
+//
+// Tables come from prosemirror-tables, and text_style carries the toolbar's
+// text color, highlight and size as <span style="...">. Alignment and indent
+// are text-align and margin-left in a block's preserved style (commands.js).
 //
 // Existing entries contain plenty of markup the editor has no toolbar button
 // for (<span style>, <font>, <center>, <a name>, class="...", ...). Opening
@@ -28,6 +32,8 @@
 // web content still gets the clean, schema-only treatment.
 
 import { Schema } from "prosemirror-model";
+import { tableNodes } from "prosemirror-tables";
+import { parseStyle, formatStyle, TEXT_STYLE_PROPS } from "./style.js";
 
 // Serialization mode. exportHTML sets raw = true while producing the stored
 // markup; for the live editor view event-handler attributes (onclick=...) are
@@ -410,6 +416,63 @@ const nodes = {
     text: { group: "inline" },
 };
 
+// Tables (prosemirror-tables). serialize.js only lets a table through as these
+// nodes when the editor can represent it exactly -- a plain grid of rows and
+// cells, no caption or column groups -- and keeps any other table as an HTML
+// block. Every table, row and cell attribute (border, width, bgcolor, style,
+// ...) rides along in `extra`. `loose` marks a cell whose stored content was
+// already blocks (<td><p>..</p></td>); other cells hold one paragraph for
+// editing that is unwrapped again on export, so <td>text</td> stays that way.
+const tables = tableNodes({
+    tableGroup: "block",
+    cellContent: "block+",
+    cellAttributes: {
+        extra: {
+            default: null,
+            getFromDOM: readExtra,
+            setDOMAttr: (value, attrs) => withExtra(attrs, value),
+        },
+        loose: {
+            default: false,
+            getFromDOM: (dom) => dom.hasAttribute("data-dw-loose") || null,
+            setDOMAttr: (value, attrs) => {
+                if (value) attrs["data-dw-loose"] = "1";
+            },
+        },
+    },
+});
+
+tables.table.attrs = EXTRA;
+tables.table.parseDOM = [{ tag: "table", getAttrs: extraOf }];
+tables.table.toDOM = (node) => ["table", withExtra({}, node.attrs.extra), ["tbody", 0]];
+tables.table_row.attrs = EXTRA;
+tables.table_row.parseDOM = [{ tag: "tr", getAttrs: extraOf }];
+tables.table_row.toDOM = (node) => ["tr", withExtra({}, node.attrs.extra), 0];
+Object.assign(nodes, tables);
+
+// Text colour, highlight and font size, as <span style="...">. Imported only
+// from a span whose style holds nothing but these (serialize.js), so
+// everything else about a span stays in html_mark.
+function textStyleAttrs(dom) {
+    const decls = parseStyle(dom.getAttribute("data-style"));
+    if (!decls) return false;
+    const attrs = { color: null, background: null, fontSize: null };
+    for (const [prop, value] of decls) {
+        if (!TEXT_STYLE_PROPS[prop]) return false;
+        attrs[TEXT_STYLE_PROPS[prop]] = value;
+    }
+    return attrs;
+}
+
+export function textStyleCSS(attrs) {
+    const decls = [];
+    Object.keys(TEXT_STYLE_PROPS).forEach((prop) => {
+        const value = attrs[TEXT_STYLE_PROPS[prop]];
+        if (value) decls.push([prop, value]);
+    });
+    return formatStyle(decls);
+}
+
 const marks = {
     // <span>, <font>, <small>, <a name>, or a modeled tag that carried
     // attributes (<b class="x">). Listed first so it wraps the other marks, which
@@ -450,6 +513,23 @@ const marks = {
             const attrs = viewAttr({}, "href", mark.attrs.href);
             if (mark.attrs.title) attrs.title = mark.attrs.title;
             return ["a", withExtra(attrs, mark.attrs.extra), 0];
+        },
+    },
+
+    // Sits inside links, so a colour applied to linked text shows (a link's
+    // own colour would otherwise win), and outside the other marks.
+    text_style: {
+        attrs: {
+            color: { default: null },
+            background: { default: null },
+            fontSize: { default: null },
+        },
+        parseDOM: [{ tag: "dw-style", getAttrs: textStyleAttrs }],
+        toDOM(mark) {
+            const attrs = {};
+            const css = textStyleCSS(mark.attrs);
+            if (css && (render.raw || safeForView(css))) attrs.style = css;
+            return ["span", attrs, 0];
         },
     },
 

@@ -45,6 +45,14 @@
 
 .event.placeholder=Your entry text...
 
+.rte.align.center=Center
+
+.rte.align.justify=Justify
+
+.rte.align.left=Align left
+
+.rte.align.right=Align right
+
 .rte.block=Paragraph style
 
 .rte.block.code=Code block
@@ -62,6 +70,12 @@
 .rte.cancel=Cancel
 
 .rte.code=Code
+
+.rte.color.highlight=Highlight color
+
+.rte.color.remove=Remove text and highlight color
+
+.rte.color.text=Text color
 
 .rte.cut=Cut tag
 
@@ -93,6 +107,8 @@
 
 .rte.image.url=Image URL
 
+.rte.indent=Indent
+
 .rte.italic=Italic
 
 .rte.link=Link
@@ -119,7 +135,49 @@
 
 .rte.redo=Redo
 
+.rte.size=Text size
+
+.rte.size.custom=Other size...
+
+.rte.size.custom.title=Text size (for example 18px, 1.5em or large)
+
+.rte.size.default=Default size
+
+.rte.size.invalid=That isn't a text size the editor understands. Try something like 18px, 1.5em or large.
+
 .rte.strike=Strikethrough
+
+.rte.table=Insert table
+
+.rte.table.col.after=Insert column right
+
+.rte.table.col.before=Insert column left
+
+.rte.table.col.delete=Delete column
+
+.rte.table.cols=Columns
+
+.rte.table.delete=Delete table
+
+.rte.table.header.col=Toggle header column
+
+.rte.table.header.row=Toggle header row
+
+.rte.table.menu=Table
+
+.rte.table.merge=Merge cells
+
+.rte.table.row.after=Insert row below
+
+.rte.table.row.before=Insert row above
+
+.rte.table.row.delete=Delete row
+
+.rte.table.rows=Rows
+
+.rte.table.split=Split cell
+
+.rte.table.title=Insert table
 
 .rte.toolbar=Formatting
 

@@ -4,7 +4,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { roundTrip } from "./helpers.js";
+import { roundTrip, normalized } from "./helpers.js";
 import { rawBlockFromText, flattenNewlines } from "../src/serialize.js";
 
 const casual = { links: true, mentions: true, sites: ["livejournal.com"] };
@@ -18,8 +18,16 @@ test("newlines inside <pre> are left alone when converting", () => {
 });
 
 test("raw chunks keep their newlines when converting", () => {
-    const html = "<table><tbody>\n<tr><td>x</td></tr>\n</tbody></table>";
-    assert.match(roundTrip(html, { casual }), /<tbody>\n<tr>/);
+    const html = "<dl>\n<dt>x</dt>\n</dl>";
+    assert.match(roundTrip(html, { casual }), /<dl>\n<dt>/);
+});
+
+test("converting leaves a table's layout whitespace alone but breaks lines in its cells", () => {
+    const html = "<table>\n<tr>\n<td>a\nb</td>\n</tr>\n</table>";
+    assert.equal(
+        normalized(roundTrip(html, { casual })),
+        normalized("<table><tbody><tr><td>a<br>b</td></tr></tbody></table>")
+    );
 });
 
 test("casual HTML's auto-links and @mentions become explicit markup", () => {

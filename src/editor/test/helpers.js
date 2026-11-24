@@ -7,6 +7,8 @@ import { JSDOM } from "jsdom";
 const dom = new JSDOM("<!doctype html><html><body></body></html>");
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
+// prosemirror-view (pulled in by prosemirror-tables) reads these at load time.
+if (!globalThis.navigator) globalThis.navigator = dom.window.navigator;
 
 const { schema } = await import("../src/schema.js");
 const { importHTML, exportHTML } = await import("../src/serialize.js");

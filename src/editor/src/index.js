@@ -20,6 +20,7 @@ import { EditorView } from "prosemirror-view";
 import { history } from "prosemirror-history";
 import { dropCursor } from "prosemirror-dropcursor";
 import { gapCursor } from "prosemirror-gapcursor";
+import { tableEditing } from "prosemirror-tables";
 
 import { schema } from "./schema.js";
 import { importHTML, exportHTML } from "./serialize.js";
@@ -56,6 +57,36 @@ const DEFAULT_STRINGS = {
     cut: "Cut tag",
     hr: "Horizontal line",
     outdent: "Unindent",
+    indent: "Indent",
+    alignLeft: "Align left",
+    alignCenter: "Center",
+    alignRight: "Align right",
+    alignJustify: "Justify",
+    textColor: "Text color",
+    highlight: "Highlight color",
+    removeColor: "Remove text and highlight color",
+    fontSize: "Text size",
+    fontSizeCustom: "Other size...",
+    fontSizeDefault: "Default size",
+    fontSizeCustomTitle: "Text size (for example 18px, 1.5em or large)",
+    fontSizeInvalid:
+        "That isn't a text size the editor understands. Try something like 18px, 1.5em or large.",
+    table: "Insert table",
+    tableTitle: "Insert table",
+    tableRows: "Rows",
+    tableCols: "Columns",
+    tableMenu: "Table",
+    tableRowBefore: "Insert row above",
+    tableRowAfter: "Insert row below",
+    tableColBefore: "Insert column left",
+    tableColAfter: "Insert column right",
+    tableDeleteRow: "Delete row",
+    tableDeleteCol: "Delete column",
+    tableMerge: "Merge cells",
+    tableSplit: "Split cell",
+    tableHeaderRow: "Toggle header row",
+    tableHeaderCol: "Toggle header column",
+    tableDelete: "Delete table",
     cutEdit: "Edit",
     cutCaption: "Cut text",
     cutDefault: "Read more",
@@ -156,6 +187,7 @@ export function mount(id, opts) {
             gapCursor(),
             trailingNode(),
             pastePlugin(),
+            tableEditing(),
         ],
     });
 

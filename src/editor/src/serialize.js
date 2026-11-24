@@ -7,10 +7,10 @@
 //      browser parser would swallow everything after it as children. We
 //      rewrite it to a balanced <dw-user> placeholder first (remembering
 //      whether it was spelled <user> or <lj>).
-//   2. Block markup the schema doesn't model (tables, polls, embeds, ...) and
-//      any element we have no model for is captured verbatim: as a
-//      <dw-html-block> (an editable literal-HTML block), or as a
-//      <dw-raw-inline> when it sits inside running text.
+//   2. Block markup the schema doesn't model (polls, embeds, tables the table
+//      nodes can't hold exactly, ...) and any element we have no model for is
+//      captured verbatim: as a <dw-html-block> (an editable literal-HTML
+//      block), or as a <dw-raw-inline> when it sits inside running text.
 //   3. <div>, <center>, <span>, <font>, <small>, <a name>, ... become
 //      <dw-block>/<dw-textblock>/<dw-inline> placeholders that remember the
 //      original tag and attributes; every other attribute the schema doesn't
@@ -26,6 +26,7 @@
 
 import { DOMParser as PMDOMParser, DOMSerializer } from "prosemirror-model";
 import { render, GENERIC_BLOCK_TAGS, GENERIC_INLINE_TAGS } from "./schema.js";
+import { parseStyle, TEXT_STYLE_PROPS } from "./style.js";
 
 // Block-level markup we preserve as literal HTML rather than parse lossily.
 // Dreamwidth's own block tags are here too: polls and embeds round-trip as
@@ -113,6 +114,7 @@ const INLINE_PARENTS = new Set([
     "a",
     "dw-textblock",
     "dw-inline",
+    "dw-style",
     "dw-user",
 ]);
 
@@ -158,7 +160,11 @@ function isBlockish(node) {
     const tag = node.localName;
     if (BLOCKISH.has(tag)) return true;
     return (
-        tag.indexOf("dw-") == 0 && tag != "dw-user" && tag != "dw-inline" && tag != "dw-raw-inline"
+        tag.indexOf("dw-") == 0 &&
+        tag != "dw-user" &&
+        tag != "dw-inline" &&
+        tag != "dw-style" &&
+        tag != "dw-raw-inline"
     );
 }
 
@@ -233,6 +239,7 @@ function classifyBlock(el) {
 // ahead of or behind the generic marks)?
 function isModeledMark(el) {
     if (el.localName == "a") return el.hasAttribute("href");
+    if (el.localName == "dw-style") return true;
     return MODELED_MARK_TAGS.has(el.localName) && el.attributes.length == 0;
 }
 
@@ -290,11 +297,123 @@ function toPlaceholder(el, placeholderTag, inner) {
     walk(placeholder);
 }
 
+// A table cell whose content is running text (see visitTable).
+function isTightCell(el) {
+    return (el.localName == "td" || el.localName == "th") && !el.hasAttribute("data-dw-loose");
+}
+
 function replaceRaw(el, forceBlock) {
     const html = restoreUserTags(el.outerHTML);
     const parent = el.parentNode;
-    const inline = !forceBlock && parent && parent.localName && INLINE_PARENTS.has(parent.localName);
+    const inline =
+        !forceBlock &&
+        parent &&
+        parent.localName &&
+        (INLINE_PARENTS.has(parent.localName) || isTightCell(parent));
     el.replaceWith(inline ? rawInline(html) : rawBlock(html));
+}
+
+// A <span style="..."> the text-style mark can stand for: nothing but colour,
+// highlight and font size, and sitting where that mark's rank puts it -- inside
+// any link, outside every other modeled mark, and not around a link. A span
+// that doesn't qualify is kept as a generic span, as before.
+function isTextStyleSpan(el) {
+    if (el.localName != "span" || el.attributes.length != 1 || !el.hasAttribute("style"))
+        return false;
+    const decls = parseStyle(el.getAttribute("style"));
+    if (!decls || !decls.length || !decls.every(([prop]) => TEXT_STYLE_PROPS[prop])) return false;
+    if (el.querySelector("a[href]")) return false;
+    for (let node = el.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+        const tag = node.localName;
+        if (tag == "a" && node.hasAttribute("href")) continue;
+        if (tag == "dw-style" || tag == "dw-inline" || isModeledMark(node)) return false;
+        if (!INLINE_PARENTS.has(tag)) break;
+    }
+    return true;
+}
+
+// ---- Tables --------------------------------------------------------------
+//
+// A table becomes editable table nodes only when they can hold it exactly:
+// rows of cells in one implicit or attribute-less <tbody>, a rectangular grid
+// once colspan/rowspan are counted, and cells whose content is either all
+// running text or all blocks. Anything else (captions, column groups, thead/
+// tfoot, a cell mixing text and blocks) is kept as an HTML block.
+
+const SPAN_VALUE = /^[1-9]\d{0,2}$/;
+
+function isBlank(node) {
+    return node.nodeType == 3 && node.nodeValue.trim() == "";
+}
+
+function onlyChildren(el, tags) {
+    return Array.from(el.childNodes).every(
+        (child) => isBlank(child) || (child.nodeType == 1 && tags.indexOf(child.localName) >= 0)
+    );
+}
+
+function spanOf(cell, name) {
+    if (!cell.hasAttribute(name)) return 1;
+    const value = cell.getAttribute(name).trim();
+    return SPAN_VALUE.test(value) ? +value : 0;
+}
+
+function tableRows(table) {
+    if (!validAttrs(table) || !onlyChildren(table, ["tbody"])) return null;
+    const bodies = Array.from(table.children);
+    if (bodies.length != 1 || bodies[0].attributes.length) return null;
+    const body = bodies[0];
+    if (!onlyChildren(body, ["tr"])) return null;
+
+    const rows = Array.from(body.children);
+    if (!rows.length) return null;
+    const grid = [];
+    for (let r = 0; r < rows.length; r++) {
+        const row = rows[r];
+        if (!validAttrs(row) || !onlyChildren(row, ["td", "th"]) || !row.children.length)
+            return null;
+        grid[r] = grid[r] || [];
+        let col = 0;
+        for (const cell of Array.from(row.children)) {
+            if (!validAttrs(cell) || classifyBlock(cell) == "raw") return null;
+            const colspan = spanOf(cell, "colspan");
+            const rowspan = spanOf(cell, "rowspan");
+            if (!colspan || !rowspan || r + rowspan > rows.length) return null;
+            while (grid[r][col]) col++;
+            for (let i = 0; i < rowspan; i++) {
+                grid[r + i] = grid[r + i] || [];
+                for (let j = 0; j < colspan; j++) {
+                    if (grid[r + i][col + j]) return null;
+                    grid[r + i][col + j] = true;
+                }
+            }
+            col += colspan;
+        }
+    }
+    const width = grid[0].length;
+    for (const line of grid) {
+        if (line.length != width) return null;
+        for (let c = 0; c < width; c++) if (!line[c]) return null;
+    }
+    return rows;
+}
+
+function visitTable(table) {
+    const rows = tableRows(table);
+    if (!rows) return replaceRaw(table, true);
+
+    stashAttrs(table, []);
+    rows.forEach((row) => {
+        stashAttrs(row, []);
+        Array.from(row.children).forEach((cell) => {
+            const loose = classifyBlock(cell) == "container";
+            stashAttrs(cell, ["colspan", "rowspan"]);
+            if (cell.hasAttribute("colspan")) cell.setAttribute("colspan", spanOf(cell, "colspan"));
+            if (cell.hasAttribute("rowspan")) cell.setAttribute("rowspan", spanOf(cell, "rowspan"));
+            if (loose) cell.setAttribute("data-dw-loose", "1");
+            walk(cell);
+        });
+    });
 }
 
 function visit(el) {
@@ -302,6 +421,7 @@ function visit(el) {
 
     if (tag == "dw-user") return;
     if (tag.indexOf("dw-") == 0) return replaceRaw(el);
+    if (tag == "table") return visitTable(el);
     if (RAW_BLOCK_TAGS.has(tag)) return replaceRaw(el, true);
     if (!validAttrs(el)) return replaceRaw(el);
 
@@ -353,6 +473,14 @@ function visit(el) {
         // modeled marks. Wedged between two, it's kept as an opaque fragment.
         const inside = hasModeledAncestor(el);
         if (inside && hasModeledDescendant(el)) return replaceRaw(el);
+        if (isTextStyleSpan(el)) {
+            const placeholder = document.createElement("dw-style");
+            placeholder.setAttribute("data-style", el.getAttribute("style"));
+            while (el.firstChild) placeholder.appendChild(el.firstChild);
+            el.replaceWith(placeholder);
+            walk(placeholder);
+            return;
+        }
         if (nestsInEqual(el, inside)) return replaceRaw(el);
         toPlaceholder(el, "dw-inline", inside);
         return;
@@ -462,10 +590,13 @@ function casualText(textNode, opts, inLink, inCode) {
     textNode.replaceWith(frag);
 }
 
+const TABLE_PARTS = new Set(["table", "tbody", "tr"]);
+
 function casualWalk(parent, opts, inLink, inCode) {
     Array.from(parent.childNodes).forEach((child) => {
         if (child.nodeType == 3) {
-            casualText(child, opts, inLink, inCode);
+            // Whitespace between a table's rows and cells isn't text.
+            if (!TABLE_PARTS.has(parent.localName)) casualText(child, opts, inLink, inCode);
         } else if (child.nodeType == 1) {
             const tag = child.localName;
             // Raw chunks and preformatted text keep their newlines.
@@ -499,6 +630,27 @@ function unwrapTightListItems(root) {
         if (!rest.every((el) => el.tagName == "UL" || el.tagName == "OL")) return;
         while (first.firstChild) li.insertBefore(first.firstChild, first);
         li.removeChild(first);
+    });
+}
+
+// The reverse of the cell handling in visitTable: a cell that was running
+// text was given a paragraph to edit in; take it back out.
+function unwrapTightCells(root) {
+    root.querySelectorAll("td, th").forEach((cell) => {
+        if (cell.hasAttribute("data-dw-loose")) {
+            cell.removeAttribute("data-dw-loose");
+            return;
+        }
+        const first = cell.firstElementChild;
+        if (
+            cell.childNodes.length != 1 ||
+            !first ||
+            first.tagName != "P" ||
+            first.attributes.length
+        )
+            return;
+        while (first.firstChild) cell.insertBefore(first.firstChild, first);
+        cell.removeChild(first);
     });
 }
 
@@ -570,6 +722,7 @@ export function exportHTML(schema, doc, opts) {
             // so it renders "tight" (<li>text</li>) -- matching what the editor
             // shows. Multi-block items keep their <p>s (they're genuinely loose).
             unwrapTightListItems(div);
+            unwrapTightCells(div);
 
             // Swap raw-HTML placeholders for markers that survive innerHTML
             // escaping, then substitute the literal chunks back in. </user> is
