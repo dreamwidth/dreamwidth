@@ -190,8 +190,9 @@ with_fake_memcache {
     };
 
     test_psgi $app, sub {
-        my $client  = shift;
-        my @editors = ( 'advanced', 'simple', 'advanced with legacy format' );
+        my $client = shift;
+        my @editors =
+            ( 'advanced', 'simple', 'advanced with legacy format', 'simple with legacy format' );
         push @editors, 'advanced rich text', 'advanced rich text while loading',
             'advanced rich text loading format round trip', 'advanced rich text fallback'
             if $ENV{DW_TEST_RTE};
@@ -202,7 +203,7 @@ with_fake_memcache {
             'advanced rich text fallback'                  => 'fallback',
         );
         for my $editor (@editors) {
-            my $legacy_format = $editor eq 'advanced with legacy format';
+            my $legacy_format = $editor =~ / with legacy format\z/;
             my $editor_mode   = $editor_modes{$editor} // '';
             my $rich_text     = $editor_mode ne '';
             my $delay_editor  = $editor_mode eq 'delay' || $editor_mode eq 'roundtrip';
@@ -226,7 +227,7 @@ with_fake_memcache {
                 ? ( $ENV{DW_BROWSER_BASE} // 'http://127.0.0.1:8080' )
                 : 'http://localhost';
             my $url = "$base/entry/$name/$id/edit?as=$name";
-            $url .= '&mode=simple' if $editor eq 'simple';
+            $url .= '&mode=simple' if $editor =~ /\Asimple\b/;
             my $form = $client->( GET $url )->content;
             like(
                 $form,
@@ -238,12 +239,10 @@ with_fake_memcache {
             my ($formats) = $form =~ /<select\b[^>]*\bname=["']editor["'][^>]*>(.*?)<\/select>/s;
             my ($format) =
                 ( $formats // '' ) =~ /<option\b(?=[^>]*\bselected\b)[^>]*\bvalue=["']([^"']+)/;
-            my $other_format;
+            my ($original_editor) = $form =~ /name=["']original_editor["'][^>]*value=["']([^"']+)/;
 
             if ($legacy_format) {
-                like( $format // '',
-                    qr/\Ahtml_(?:raw0|casual1)\z/, 'the form picks an HTML format' );
-                $other_format = $format eq 'html_raw0' ? 'html_casual1' : 'html_raw0';
+                is( $format, 'html_raw0', 'legacy entry opens in the preferred HTML format' );
                 $owner->set_prop( 'entry_editor2', 'html_casual1' );
             }
             is( $format, 'rte0', 'rich-text entry opens in the rich-text editor' ) if $rich_text;
@@ -277,6 +276,7 @@ with_fake_memcache {
                         subject              => delete $changes{subject} // 'test suite post.',
                         event                => delete $changes{event} // $body,
                         security             => delete $changes{security} // 'public',
+                        ( defined $original_editor ? ( original_editor => $original_editor ) : () ),
                         %changes,
                         ];
                 }
@@ -320,7 +320,7 @@ with_fake_memcache {
                 [ taglist  => 'new tag' ],
                 [ security => 'private' ],
                 );
-            unshift @edits, [ editor => $other_format ] if $legacy_format;
+            unshift @edits, [ editor => 'html_casual1' ] if $legacy_format;
             for my $change (@edits) {
                 my ( $field, $value ) = @$change;
                 $changes{$field} = $value;
@@ -340,6 +340,27 @@ with_fake_memcache {
     };
     $owner->do( 'DELETE FROM externalaccount WHERE userid=? AND acctid=?',
         undef, $owner->id, $account_id );
+}
+
+if ( $ENV{DW_TEST_RTE} ) {
+    my $owner = temp_user();
+    $owner->set_prop( 'entry_editor2', 'rte0' );
+    my $base = $ENV{DW_BROWSER_BASE} // 'http://127.0.0.1:8080';
+    my $url  = "$base/entry/new?as=" . $owner->user;
+    local $LJ::DISABLED{update_draft} = 0;
+    test_psgi $app, sub {
+        my $client = shift;
+        my ( $html, $filename ) = tempfile( UNLINK => 1 );
+        print {$html} $client->( GET $url )->content;
+        close $html or die $!;
+        my $text = 'New rich-text draft content';
+        open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
+            $filename, $url, '', $text, 'draft-switch'
+            or die $!;
+        my $body = do { local $/; <$browser> };
+        ok( close $browser, 'switched a new post with draft autosave enabled to HTML' );
+        like( $body // '', qr/\Q$text\E/, 'switching to HTML preserves typed rich-text content' );
+    };
 }
 
 done_testing;

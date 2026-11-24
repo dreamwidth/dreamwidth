@@ -17,6 +17,7 @@ const { readFileSync } = require("node:fs");
 const { launch } = require("./browser");
 
 async function submit(filename, url, visibility, edit, editorMode) {
+    const draftSwitch = editorMode === "draft-switch";
     const roundTrip = editorMode === "roundtrip";
     const delayEditor = editorMode === "delay" || roundTrip;
     const fallbackEditor = editorMode === "fallback";
@@ -69,6 +70,13 @@ async function submit(filename, url, visibility, edit, editorMode) {
                 || document.getElementById("entry-body___Frame"))) {
                 throw new Error("FCKeditor did not leave the fallback textarea in place");
             }
+        } else if (draftSwitch) {
+            await navigation;
+            await page.waitForFunction(() => {
+                const frame = document.getElementById("entry-body___Frame");
+                const editor = window.FCKeditorAPI?.GetInstance("entry-body");
+                return editor && editor.Status === frame.contentWindow.FCK_STATUS_COMPLETE;
+            });
         } else {
             await navigation;
             await page.waitForFunction(() => window.FCKeditor_LOADED);
@@ -82,6 +90,15 @@ async function submit(filename, url, visibility, edit, editorMode) {
         } else if (edit) {
             await page.evaluate(() => FCKeditorAPI.GetInstance("entry-body").Focus());
             await page.keyboard.type(edit);
+        }
+        if (draftSwitch) {
+            if (!await page.evaluate(() => should_init === true && LJDraft.timer != null)) {
+                throw new Error("Rich-text input did not schedule draft autosave");
+            }
+            await page.select("#editor", "html_casual1");
+            await page.waitForSelector("#entry-body", { visible: true });
+            process.stdout.write(await page.$eval("#entry-body", body => body.value));
+            return;
         }
         await page.select("#hide_crosspost_links", visibility);
         const [request] = await Promise.all([

@@ -39,6 +39,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <form method='post' id='js-post-entry' class='entry-simple' action='[% action.url | html %]'>
 <input type='hidden' id='nojs' value='1' name='nojs' />
 [%- dw.form_auth -%]
+[%- IF has_crosspost_links && original_editor -%]
+    [%- form.hidden( name = 'original_editor', value = original_editor ) -%]
+[%- END -%]
 [%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
 [%# The layout has no slug field, but the decoder clears a missing one; keep it. -%]
 [%- form.hidden( name = "entry_slug" ) -%]

@@ -43,6 +43,9 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
     <input type="hidden" id="nojs" value="1" name="nojs" />
 
     [%- dw.form_auth -%]
+    [%- IF has_crosspost_links && original_editor -%]
+        [%- form.hidden( name = 'original_editor', value = original_editor ) -%]
+    [%- END -%]
 
     <div class="current-entry row"><div class="columns"><!-- Start main column sub & entry -->
 

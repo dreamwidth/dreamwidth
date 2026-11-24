@@ -986,7 +986,8 @@ sub _edit {
                     my %edit_res = _do_edit(
                         $ditemid, $form_req,
                         { poster => $remote, journal => $journal },
-                        warnings => $warnings,
+                        warnings        => $warnings,
+                        original_editor => $post->{original_editor},
                     );
                     return $edit_res{render} if $edit_res{status} eq "ok";
 
@@ -1072,6 +1073,7 @@ sub _render_edit_form {
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
     _set_editors( $vars, $remote->prop('entry_editor2') );
+    $vars->{original_editor} = $post ? $post->{original_editor} : $vars->{editors}->{selected};
 
     $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $journal );
     if ($spellcheck_requested) {
@@ -1398,7 +1400,9 @@ sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
     my %flags = ( check_crosspost_visibility => 1 );
-    my $res   = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth, \%flags );
+    $flags{original_editor} = $opts{original_editor}
+        if DW::Formats::is_active( $opts{original_editor} );
+    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth, \%flags );
     return %$res if $res->{errors};
 
     my $remote  = $auth->{poster};
