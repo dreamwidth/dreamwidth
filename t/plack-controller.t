@@ -215,6 +215,103 @@ subtest 'account and support self-service' => sub {
     };
 };
 
+subtest 'deleted account can export its journal' => sub {
+    my $account = temp_user();
+    my $entry   = $account->t_post_fake_entry( subject => 'Entry saved before deletion' );
+    $entry->t_enter_comment( u => $account, body => 'Comment saved before deletion' );
+    my ( $year, $month ) = split /-/, $entry->eventtime_mysql, 3;
+    $account->update_self( { statusvis => 'D' } );
+    my $cookie = master_cookies( LJ::Session->create($account) );
+    my $base   = 'http://localhost';
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        my $form = $cb->( GET "$base/export", Cookie => $cookie );
+        is( $form->code, 200, 'deleted account can open the export form' );
+        my ( $action, $fields ) =
+            $form->content =~ m{<form action='(export_do[^']*)'[^>]*>(.*?)</form>}s;
+        my ($token) = ( $fields // '' ) =~ /name="lj_form_auth" value="([^"]+)"/;
+        ok( $action && $token, 'export form supplies a destination and form token' );
+
+        my @fields  = ( format => 'csv', year => $year, month => $month, field_subject => 1 );
+        my $url     = "$base/" . ( $action // 'export_do' );
+        my $invalid = $cb->( POST $url, Cookie => $cookie, Content => \@fields );
+        ok(
+            !$invalid->header('Content-Disposition'),
+            'export POST still requires form authentication'
+        );
+
+        my $download = $cb->(
+            POST $url,
+            Cookie  => $cookie,
+            Content => [ @fields, lj_form_auth => ( $token // '' ) ]
+        );
+        is( $download->code, 200, 'deleted account can download entries' );
+        like( $download->header('Content-Disposition') // '',
+            qr/^attachment;.*\.csv$/, 'entries are returned as a CSV attachment' );
+        like( $download->content, qr/Entry saved before deletion/, 'CSV contains the saved entry' );
+
+        my $comments_url = "$base/export_comments?get=comment_body";
+        is( $cb->( GET $comments_url )->code, 302, 'comment export still requires login' );
+        my $comments = $cb->( GET $comments_url, Cookie => $cookie );
+        is( $comments->code,         200,        'deleted account can download comments' );
+        is( $comments->content_type, 'text/xml', 'comments are returned as XML' );
+        like(
+            $comments->content,
+            qr{<body>Comment saved before deletion</body>},
+            'XML contains the saved comment'
+        );
+    };
+};
+
+subtest 'invisible accounts can follow up on a Support History search' => sub {
+    local @LJ::MANTICORE = ( '127.0.0.1', 9312, 9306 );
+    my $history_url = 'http://localhost/support/history';
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        for my $status ( 'D', 'S' ) {
+            my $account = temp_user();
+            $account->grant_priv('supporthelp');
+            $account->update_self( { statusvis => $status } );
+            my $cookie = master_cookies( LJ::Session->create($account) );
+
+            my $form = $cb->( GET $history_url, Cookie => $cookie );
+            my ($token) = $form->content =~ /name="lj_form_auth" value="([^"]+)"/;
+            my $search = $cb->(
+                POST $history_url,
+                Cookie  => $cookie,
+                Content => [ fulltext => ' ', lj_form_auth => ( $token // '' ) ]
+            );
+            is( $search->code, 200, "account status $status can start a history search" );
+            like(
+                $search->content,
+                qr/Please specify a search string/,
+                'initial search reaches query validation'
+            );
+            my ( $action, $fields ) =
+                $search->content =~ m{<form method="post" action="([^"]+)"[^>]*>(.*?)</form>}s;
+            my ($search_token) = ( $fields // '' ) =~ /name="lj_form_auth" value="([^"]+)"/;
+            ok( $action && $search_token, 'search response supplies a follow-up form' );
+
+            my $page = $cb->(
+                POST 'http://localhost' . ( $action // '/support/search' ),
+                Cookie => $cookie,
+                Content =>
+                    [ query => 'history', offset => 1020, lj_form_auth => ( $search_token // '' ) ]
+            );
+            is( $page->code, 200, "account status $status can submit a follow-up search page" );
+            like(
+                $page->content,
+                qr/Offset must be between 0 and 1000/,
+                'follow-up reaches pagination validation'
+            );
+        }
+    };
+};
+
 subtest 'deleted account can manage eligible old email addresses' => sub {
     my $account = temp_user();
     $account->update_self( { statusvis => 'D', status => 'T' } );

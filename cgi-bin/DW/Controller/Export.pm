@@ -47,7 +47,7 @@ sub get_encodings {
 }
 
 sub index_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my @enclist;
@@ -60,7 +60,7 @@ sub index_handler {
 }
 
 sub post_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
@@ -279,7 +279,7 @@ sub _dump_entry {
 #                     comment properties. There is no <maxid> or <nextid>;
 #                     clients step through windows up to comment_meta's maxid.
 sub comment_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r      = $rv->{r};
