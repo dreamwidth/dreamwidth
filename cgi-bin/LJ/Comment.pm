@@ -493,19 +493,20 @@ sub all_singletons {
 
 # class method:
 sub preload_rows {
-    my @to_load = ();
-    push @to_load, map { [ $_->journal, $_->jtalkid ] } values %unloaded_singletons;
+    my ( $class, %opts ) = @_;
+    my @pending = values %unloaded_singletons;
 
     # already loaded?
-    return 1 unless @to_load;
+    return 1 unless @pending;
+    %unloaded_singletons = () if $opts{discard_pending_on_error};
 
     # args: ([ journalid, jtalkid ], ...)
-    my @rows = LJ::Talk::get_talk2_row_multi(@to_load);
+    my @rows = LJ::Talk::get_talk2_row_multi( map { [ $_->journal, $_->jtalkid ] } @pending );
 
     # make a mapping of journalid-jtalkid => $row
     my %row_map = map { join( "-", $_->{journalid}, $_->{jtalkid} ) => $_ } @rows;
 
-    foreach my $obj ( values %unloaded_singletons ) {
+    foreach my $obj (@pending) {
         my $u = $obj->journal;
 
         my $row = $row_map{ join( "-", $u->id, $obj->jtalkid ) };

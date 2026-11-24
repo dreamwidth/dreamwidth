@@ -340,7 +340,7 @@ sub posted_comments_handler {
             next unless $journal->clusterid && !$journal->is_expunged;
             push @candidates, [ $nodeid, LJ::Comment->new( $journal, jtalkid => $jtalkid ) ];
         }
-        LJ::Comment->preload_rows;
+        eval { LJ::Comment->preload_rows( discard_pending_on_error => 1 ) };
 
         my %missing;
         foreach my $candidate (@candidates) {

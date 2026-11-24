@@ -270,6 +270,48 @@ is( $stale->code, 200, 'a comment absent on primary does not abort the download'
 my @remaining = $stale->content =~ /<comment>/g;
 is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment' );
 
+{
+    my $reader    = \&LJ::get_cluster_reader;
+    my $master    = \&LJ::get_cluster_master;
+    my $journalid = $owner->id;
+    my $clusterid = $owner->clusterid;
+    my $jtalkid   = $adjacent->jtalkid;
+
+    no warnings 'redefine';
+    local *LJ::get_cluster_reader = sub {
+        return if ( caller(1) )[3] eq 'LJ::Talk::get_talk2_row_multi' && $_[0] == $clusterid;
+        return $reader->(@_);
+    };
+
+    for my $failure ( 'unavailable', 'query error' ) {
+        local *LJ::get_cluster_master = sub {
+            return $master->(@_)
+                unless caller eq 'DW::Controller::Export' && $_[0]->id == $journalid;
+            return if $failure eq 'unavailable';
+            return bless { dbh => $master->(@_) }, 'PostedCommentsTestDB';
+        };
+        LJ::Talk::invalidate_talk2row_memcache( $journalid, $jtalkid );
+        my $failed = $download->( 'xml', year => 2024, month => 3, day => 1 );
+        is( $failed->code, 503, "reader outage with primary $failure returns HTTP 503" );
+        ok( !$failed->header('Content-Disposition'), 'reader outage does not send an attachment' );
+        unlike(
+            $failed->content,
+            qr/<comments>|next-month-boundary/,
+            'reader outage does not send partial output'
+        );
+    }
+
+    LJ::Talk::invalidate_talk2row_memcache( $journalid, $jtalkid );
+    my $recovered = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    is( $recovered->code, 200, 'primary recovers the export while the reader is still down' );
+    like( $recovered->header('Content-Disposition'),
+        qr/attachment/, 'recovered XML is an attachment' );
+    like( $recovered->content, qr/next-month-boundary/,
+        'recovered export contains the live comment' );
+    my @recovered_comments = $recovered->content =~ /<comment>/g;
+    is( scalar @recovered_comments, 1, 'primary retry skips the stale index row' );
+}
+
 my $deleted_entry = $owner->t_post_fake_entry;
 $retime->( $deleted_entry->t_enter_comment( u => $author, body => 'deleted-entry-body' ), $march );
 $owner_db->do( 'DELETE FROM log2 WHERE journalid=? AND jitemid=?',
