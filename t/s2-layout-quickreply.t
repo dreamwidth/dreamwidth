@@ -52,7 +52,7 @@ my $entry_url = 'https://testjournal.example/1.html';
 my $target    = 'entry-testjournal-1-reply';
 
 sub render_recent_entry {
-    my ( $ctx, $count, $enabled ) = @_;
+    my ( $ctx, $count, $enabled, $screened_count ) = @_;
     my $entry = {
         _type         => 'Entry',
         itemid        => 1,
@@ -66,10 +66,12 @@ sub render_recent_entry {
         comments      => LJ::S2::CommentInfo(
             {
                 count                => $count,
+                screened             => !!$screened_count,
+                screened_count       => $screened_count || 0,
                 enabled              => $enabled,
                 read_url             => $entry_url,
                 post_url             => "$entry_url?mode=reply",
-                show_readlink        => $enabled && $count > 0,
+                show_readlink        => $enabled && ( $count > 0 || $screened_count ),
                 show_readlink_hidden => $enabled,
                 show_postlink        => $enabled,
             }
@@ -162,8 +164,40 @@ for my $layout (qw(zesty negatives database)) {
                 );
             }
             else {
-                like( $text, qr{^$count\s+<img\b}, "$count comments: count still uses an icon" );
+                is_deeply(
+                    [ @attributes{qw(data-sing data-dual data-plur)} ],
+                    [ '1 comment', '2 comments', '3 comments' ],
+                    "$count comments: icon link has singular, dual and plural labels"
+                );
+                like(
+                    $text,
+                    qr{^<span class="entry-comment-count">$count</span>\s+<img\b},
+                    "$count comments: count can update independently of the icon"
+                );
             }
+        }
+
+        if ( $layout eq 'database' ) {
+            my $icons = render_recent_entry( S2::make_context( 1, 2 ), 0, 1, 2 );
+            like(
+                $icons,
+qr{<li class="entry-readlink"><a\b[^>]*data-plur="3 visible comments \+ 2 screened comments"[^>]*>},
+                'screened icon link stays visible and retains the screened count in its label'
+            );
+            like(
+                $icons,
+                qr{<span class="entry-comment-count">0</span>\s+<img\b[^>]*> \+ 2 <img\b},
+                'only the visible count is in the updatable span'
+            );
+
+            load_style_layer( $compiler, 3, 'user',
+                'layerinfo type = "user"; set entry_interaction_links = "text";' );
+            my $text = render_recent_entry( S2::make_context( 1, 2, 3 ), 4, 1 );
+            like(
+                $text,
+qr{<li class="entry-readlink"><a\b[^>]*data-sing="1 comment" data-dual="2 comments" data-plur="3 comments">4 comments</a>},
+                'text link still supplies the phrases for replacing its full text'
+            );
         }
 
         if ( $layout eq 'zesty' ) {

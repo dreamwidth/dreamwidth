@@ -137,6 +137,36 @@ $.extend( $.dw.quickreply, {
 })(jQuery);
 
 jQuery(function($) {
+    function updateReadLinkCount($readLink, count) {
+        if ( typeof count === "string" && /^\d+$/.test(count.trim()) ) {
+            count = Number(count);
+        }
+        if ( !Number.isSafeInteger(count) || count < 0 ) {
+            return;
+        }
+
+        var countText = String(count);
+        var $count = $readLink.find(".entry-comment-count");
+        if ( $count.length ) {
+            $count.text(countText);
+        }
+
+        var form = count === 1 ? "sing" : count === 2 ? "dual" : "plur";
+        var commentText = $readLink.attr("data-" + form);
+        if ( commentText === undefined ) {
+            return;
+        }
+        if ( form === "plur" ) {
+            commentText = commentText.replace(/\d+/, countText);
+        }
+
+        if ( $count.length ) {
+            $readLink.attr({ title: commentText, "aria-label": commentText });
+        } else {
+            $readLink.text(commentText);
+        }
+    }
+
     $("#qrform").submit(function(e) {
         var $form = $(this);
 
@@ -178,6 +208,7 @@ jQuery(function($) {
 
                                     // for the 0 -> 1 case, when the link starts out hidden
                                     $readLink.parent().show().next(".entry-readlink-empty").hide();
+                                    updateReadLinkCount($readLink, data.count);
 
                                     $readLink.ajaxtip(); // init
                                     if (data.extra) {
@@ -187,19 +218,6 @@ jQuery(function($) {
                                         // plain success message
                                         $readLink.ajaxtip("success", data.message);
                                     }
-
-                                    var commentText = '';
-                                    if ( data.count == 1 ) {
-                                        commentText = $readLink.data('sing');
-                                    }
-                                    else if ( data.count == 2 ) {
-                                        commentText = $readLink.data('dual');
-                                    }
-                                    else {
-                                        commentText = $readLink.data('plur').replace(/\d+/, data.count);
-                                    }
-
-                                    $readLink.text(commentText); // replace count
                                 });
 
                         }
