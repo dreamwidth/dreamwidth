@@ -465,6 +465,15 @@
     # real client IP will be found last in the resulting list.
     # $IS_TRUSTED_PROXY = sub { $_[0] eq '192.168.1.1'; };
 
+    # Proxies to trust only when the request also carries a shared secret in a
+    # header, for CDNs whose edge servers any of their customers can point at
+    # you. Your own CDN configuration adds the header; other customers' traffic
+    # through the same edges can't, so it's treated as coming from the edge
+    # server rather than whatever X-Forwarded-For it claims.
+    # $IS_CDN_PROXY = sub { $_[0] eq '192.0.2.10'; };
+    # $CDN_PROXY_SECRET = 'long random string';
+    # $CDN_PROXY_SECRET_HEADER = 'X-DW-WAF-Bypass';    # the default
+
     # By default, requests from internal/private IPs (RFC1918 + loopback) skip
     # request rate limiting -- this keeps load-balancer health checks, which
     # connect without a trusted X-Forwarded-For, from being throttled.
