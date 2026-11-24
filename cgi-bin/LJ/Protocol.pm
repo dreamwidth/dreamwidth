@@ -429,7 +429,11 @@ sub getinbox {
 
     # By default, notifications are sorted as "oldest are the first"
     # Reverse it by "newest are the first"
-    my @notifications = reverse $inbox->all_items;
+    my @notifications = reverse(
+        ( $req->{gettype} // '' ) eq $legacy_type_number{UserMessageSent}
+        ? $inbox->usermsg_sent_items
+        : $inbox->all_items
+    );
 
     $itemshow = scalar @notifications - $skip if scalar @notifications < $skip + $itemshow;
 

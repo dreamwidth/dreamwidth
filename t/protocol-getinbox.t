@@ -15,11 +15,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Event::AddedToCircle;
+use LJ::Event::UserMessageSent;
 use LJ::Event::XPostSuccess;
+use LJ::Message;
 use LJ::Protocol;
 use LJ::Test qw( temp_user );
 
@@ -30,6 +32,20 @@ my $circle_event = LJ::Event::AddedToCircle->new( $user, $other, 2 );
 my $xpost_event  = LJ::Event::XPostSuccess->new( $user, 1, 1 );
 my $circle_qid   = $inbox->enqueue( event => $circle_event )->qid;
 my $xpost_qid    = $inbox->enqueue( event => $xpost_event )->qid;
+
+my $message = LJ::Message->new(
+    {
+        journalid => $user->userid,
+        otherid   => $other->userid,
+        msgid     => LJ::alloc_global_counter('M'),
+        timesent  => time(),
+        subject   => 'Test sent message',
+        body      => 'Sent message body',
+    }
+);
+$message->save_to_db or die 'Unable to save the sent message fixture';
+my $sent_event = LJ::Event::UserMessageSent->new( $user, $message->msgid, $other );
+my $sent_qid   = $inbox->enqueue( event => $sent_event )->qid;
 
 my $getinbox = sub {
     my (%args) = @_;
@@ -46,3 +62,10 @@ is( $items{$xpost_qid}->{type},  0, 'an event without a legacy code uses type ze
 is( $items{$xpost_qid}->{typename}, 'XPostSuccess', 'the response identifies that event by name' );
 is_deeply( $getinbox->( gettype => 1 ), $unfiltered, 'a legacy filter does not hide other events' );
 is_deeply( $getinbox->( gettype => 12 ), $unfiltered, 'a retired filter does not empty the inbox' );
+
+my $sent = $getinbox->( gettype => 19 );
+is_deeply(
+    [ map { [ @{$_}{qw(qid type to subject body)} ] } @{ $sent->{items} || [] } ],
+    [ [ $sent_qid, 19, $other->user, 'Test sent message', 'Sent message body' ] ],
+    'gettype 19 returns only the sent message with its legacy code and contents'
+);
