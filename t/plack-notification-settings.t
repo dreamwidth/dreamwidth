@@ -15,11 +15,13 @@
 use strict;
 use warnings;
 
+use HTML::Parser;
 use HTTP::Request::Common;
 use Plack::Test;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Subscription;
 use LJ::Subscription::Pending;
 use LJ::Test qw(temp_user);
 
@@ -120,6 +122,72 @@ test_psgi $app, sub {
         qr{/manage/settings/notifications\z},
         'old tracking POST redirects to the Foundation route'
     );
+};
+
+subtest 'save processes old values for disabled notification controls' => sub {
+    my $fixed_inbox = $owner->subscribe(
+        event   => 'XPostFailure',
+        journal => $owner,
+        method  => 'Inbox',
+        flags   => 0,
+    );
+    my $disabled_inbox = $owner->subscribe(
+        %tracked,
+        method => 'Inbox',
+        flags  => $tracked{flags} | LJ::Subscription::DISABLED,
+    );
+    my $tracked_email = $owner->subscribe( %tracked, method => 'Email' );
+
+    test_psgi $app, sub {
+        my ($request) = @_;
+        my $form = $request->( GET $own );
+        is( $form->code, 200, 'owner can load settings with disabled controls' );
+
+        my ( %inputs, $in_settings_form );
+        my $parser = HTML::Parser->new( api_version => 3 );
+        $parser->handler(
+            start => sub {
+                my ( $tag, $attrs ) = @_;
+                $in_settings_form = ( $attrs->{id} // '' ) eq 'settings_form' if $tag eq 'form';
+                $inputs{ $attrs->{name} } = $attrs
+                    if $in_settings_form && $tag eq 'input' && defined $attrs->{name};
+            },
+            'tagname, attr',
+        );
+        $parser->handler( end => sub { $in_settings_form = 0 if $_[0] eq 'form'; }, 'tagname' );
+        $parser->parse( $form->content );
+        $parser->eof;
+
+        for my $subscription ( $fixed_inbox, $disabled_inbox, $tracked_email ) {
+            my $name = $subscription->freeze;
+            ok( exists $inputs{$name}{disabled}, 'the subscription checkbox is disabled' );
+            my $old = $inputs{"$name-old"} // {};
+            is( $old->{type}, 'hidden', 'the previous subscription is recorded in a hidden input' );
+            is( $old->{value}, 1, 'the previous subscription is marked as present' );
+        }
+
+        my @fields;
+        for my $input ( values %inputs ) {
+            next if exists $input->{disabled};
+            next
+                unless $input->{type} eq 'hidden'
+                || ( $input->{type} eq 'checkbox' && exists $input->{checked} );
+            push @fields, $input->{name} => $input->{value} // 'on';
+        }
+
+        my $saved = $request->( POST $own, [@fields] );
+        is( $saved->code, 200, 'owner can save the rendered form' );
+        ok(
+            !LJ::Subscription->new_by_id( $owner, $fixed_inbox->id ),
+            'save removes the stored subscription for an always-on Inbox event'
+        );
+        my @remaining = subscriptions();
+        is_deeply(
+            [ map { $_->id } @remaining ],
+            [ $disabled_inbox->id ],
+            'save removes the email subscription and preserves the disabled Inbox record'
+        );
+    };
 };
 
 done_testing;

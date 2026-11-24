@@ -108,7 +108,7 @@
                     <label for="[% sub.input_name | html %]" class="checkboxlabel notification-label">[% sub.title %]</label>
                   [% END %]
                 </span>
-                [% IF viewing_self && sub.subscribed && !sub.disabled %]
+                [% IF viewing_self && sub.subscribed %]
                   [% form.hidden(name = sub.input_name _ '-old', value = 1) %]
                 [% END %]
                 [% IF viewing_self && sub.subid %]
@@ -125,7 +125,7 @@
                         disabled = !viewing_self || opt.disabled, class = 'notification-email',
                         'aria-describedby' = 'event-' _ sub.input_name) %]
                   </span>
-                  [% IF viewing_self && !opt.note_pending && !opt.disabled %]
+                  [% IF viewing_self && !opt.note_pending %]
                     [% form.hidden(name = opt.notify_input_name _ '-old', value = opt.has_subs) %]
                   [% END %]
                 </div>
