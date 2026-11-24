@@ -121,23 +121,6 @@
     font-weight: bold;
 }
 
-.shop-category {
-    margin-top: 20px;
-}
-
-.shop-category-title {
-    font-size: larger;
-    font-weight: bold;
-}
-
-.shop-category-items {
-    margin-left: 10px;
-}
-
-.shop-category-item {
-    margin-left: 30px;
-}
-
 #shop-status-bar {
     margin: 20px 0;
     padding: 0.5em;
