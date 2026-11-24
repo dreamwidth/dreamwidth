@@ -163,6 +163,14 @@ subtest 'full gate keeps reason ordering and bypass metrics' => sub {
     $enabled{comment_html_auth} = 1;
     is( $check->( undef, 'https://one.example/ https://two.example/' ),
         'comment_html', 'later site HTML rule still overrides the bypass' );
+    is(
+        $check->(
+            undef,
+            '<a href="&#104;ttps://a.example">one</a> <a href="&#x68;ttps://b.example">two</a>'
+        ),
+        'comment_html',
+        'two entity-encoded links still override the bypass'
+    );
     is( scalar @bypasses, 0, 'no bypass metric when a later rule requires CAPTCHA' );
 };
 

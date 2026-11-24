@@ -3084,7 +3084,7 @@ sub _comment_html_is_suspicious {
         \b (?: (?:https?|ftp):// (?:\[[0-9a-f:.]+\]|[[:alnum:]]) | www\.[[:alnum:]] )
         [^\s<>"'\[\]]*
     }ix;
-    my $url_count = () = $body =~ /$url/g;
+    my $url_count = () = decode_entities($body) =~ /$url/g;
     if ( $url_count >= 2 && $body =~ /<a\b/i ) {
         my ( $href, $label, $label_url_count );
         my $parser = HTML::Parser->new( api_version => 3 );
@@ -3094,7 +3094,7 @@ sub _comment_html_is_suspicious {
                 my ( $attr, $raw ) = @_;
                 $href = $attr->{href};
                 undef $href
-                    unless defined $href && grep { decode_entities($_) eq $href } $raw =~ /$url/g;
+                    unless defined $href && grep { $_ eq $href } decode_entities($raw) =~ /$url/g;
                 ( $label, $label_url_count ) = ( '', 0 );
             },
             'attr,text'
@@ -3102,11 +3102,11 @@ sub _comment_html_is_suspicious {
         $parser->handler(
             text => sub {
                 return unless defined $href;
-                my ( $decoded, $raw ) = @_;
+                my ($decoded) = @_;
                 $label .= $decoded;
-                $label_url_count += () = $raw =~ /$url/g;
+                $label_url_count += () = $decoded =~ /$url/g;
             },
-            'dtext,text'
+            'dtext'
         );
         $parser->handler(
             end => sub {

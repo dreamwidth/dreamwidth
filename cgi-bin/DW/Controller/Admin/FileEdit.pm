@@ -129,7 +129,6 @@ sub index_controller {
             return 0 if $dbh->err;
 
             LJ::MemCache::set( "includefile:$filename", $content );
-            LJ::MemCache::delete("includefile_empty:$filename");
             return 1;
         };
 

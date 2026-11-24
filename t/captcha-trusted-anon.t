@@ -262,6 +262,7 @@ subtest 'site content rules challenge spam signals, not ordinary text or HTML' =
             '<details><summary>One link</summary><a href="https://www.x.test/">link</a></details>',
             '<a href="https://example.test/">https://example.test/</a>',
 '<a href="https://example.test/?x=1&amp;y=2"><b>https://example.test/?x=1&amp;y=2</b></a>',
+'<a href="&#104;ttps://example.test/?x=1&amp;y=2"><b>https://example.test/?x=1&amp;y=2</b></a>',
             'Use http instead of ftp here.',
             'See [notes] and [urls in the notes].',
             'Not a match: blockedXexample or unblocked.example.',
@@ -273,6 +274,8 @@ subtest 'site content rules challenge spam signals, not ordinary text or HTML' =
         for my $body (
             'One HTTPS://one.example/ and two www.two.example.',
             '<a href="https://one.example/">first</a> <a href="ftp://two.example/">second</a>',
+            '<a href="&#104;ttps://a.example">one</a> <a href="&#x68;ttps://b.example">two</a>',
+            '<a href="https&#58;//a.example">one</a> https://b.example',
             '<a href="https://one.example/">https://one.example/</a> https://two.example/',
             '<a href="https://one.example/">https://two.example/</a>',
             '<a href="https://one.example/">https://one.example/</a> '
@@ -315,22 +318,18 @@ subtest 'existing spam hook applies configured regexes and suspends only matchin
     };
 };
 
-subtest 'an empty blocklist is cached without hiding a writer outage' => sub {
+subtest 'an empty blocklist or writer outage does not break content checks' => sub {
     $journal->set_prop( opt_show_captcha_to => 'N' );
     local %LJ::CAPTCHA_FOR = ( comment_html_anon => 1 );
     my $get_writer = \&LJ::get_db_writer;
     LJ::Test::with_fake_memcache {
         my $available = 0;
-        my $lookups   = 0;
-        local *LJ::get_db_writer =
-            sub { ++$lookups; return $available ? $get_writer->(@_) : undef; };
+        local *LJ::get_db_writer = sub { return $available ? $get_writer->(@_) : undef; };
 
         is( $check->( body => 'Ordinary prose.' ), '', 'missing writer does not break the gate' );
         $available = 1;
         is( $check->( body => 'Ordinary prose.' ), '', 'empty list is not suspicious' );
-        is( $check->( body => 'Ordinary prose.' ), '', 'cached empty list is not suspicious' );
-        is( LJ::load_include('spamblocklist'), '', 'cached empty include returns empty string' );
-        is( $lookups, 2, 'retries after outage but not after a successful empty lookup' );
+        is( LJ::load_include('spamblocklist'),     '', 'empty include returns empty string' );
         ok(
             !ref LJ::MemCache::get('includefile:spamblocklist'),
             'includefile key never stores a reference'
@@ -338,12 +337,11 @@ subtest 'an empty blocklist is cached without hiding a writer outage' => sub {
 
         LJ::MemCache::set( 'includefile:spamblocklist', "blocked.example\r\n" );
         is( $check->( body => 'Visit blocked.example.' ),
-            'comment_html', 'plain text in includefile key overrides a cached empty marker' );
+            'comment_html', 'plain text in includefile key is used for content checks' );
     };
 };
 
-subtest 'load_include preserves legacy key format, missing includes, and FileEdit invalidation' =>
-    sub {
+subtest 'load_include reads newly imported content and FileEdit updates' => sub {
     my $get_writer = \&LJ::get_db_writer;
     local *DW::Request::get = $orig_dw_request_get;
 
@@ -354,14 +352,15 @@ subtest 'load_include preserves legacy key format, missing includes, and FileEdi
 
     eval {
         LJ::Test::with_fake_memcache {
-            my $lookups = 0;
-            local *LJ::get_db_writer = sub { ++$lookups; return $get_writer->(@_); };
-
             is( LJ::load_include($file), undef, 'missing include returns undef' );
-            is( LJ::load_include($file), undef, 'cached missing include returns undef' );
-            is( $lookups,                1,     'missing include hits memcache on repeat lookup' );
             ok( !ref LJ::MemCache::get("includefile:$file"),
                 'missing include never stores a reference under includefile key' );
+            $dbh->do(
+'INSERT INTO includetext (incname, inctext, updatetime) VALUES (?, ?, UNIX_TIMESTAMP())',
+                undef, $file, "imported.example\n"
+            ) or die $dbh->errstr;
+            is( LJ::load_include($file), "imported.example\n",
+                'newly imported content is visible after a missing lookup' );
 
             LJ::MemCache::set( 'includefile:common-passwords', '' );
             ok( length( LJ::load_include('common-passwords') // '' ),
@@ -396,6 +395,6 @@ subtest 'load_include preserves legacy key format, missing includes, and FileEdi
     my $err = $@;
     $dbh->do( 'DELETE FROM includetext WHERE incname=?', undef, $file );
     die $err if $err;
-    };
+};
 
 done_testing();
