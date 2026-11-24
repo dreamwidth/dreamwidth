@@ -226,6 +226,39 @@ unlike( $leap_day->content, qr/next-month-boundary/, 'excludes the next UTC mont
     }
 }
 
+{
+    my $reader = \&LJ::get_cluster_def_reader;
+    my $master = \&LJ::get_cluster_master;
+    my $key    = [ $owner->id, 'log2:' . $owner->id . ':' . $entry->jitemid ];
+
+    no warnings 'redefine';
+    local *LJ::get_cluster_def_reader = sub {
+        return
+            if caller eq 'LJ' && ( caller(1) )[3] eq 'LJ::get_log2_row' && $_[0]->id == $owner->id;
+        return $reader->(@_);
+    };
+
+    LJ::MemCache::delete($key);
+    my $reader_down = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    is( $reader_down->code, 200,
+        'an unavailable entry reader does not abort a primary-backed export' );
+    like( $reader_down->content, qr/next-month-boundary/,
+        'exports the live entry comment from primary' );
+
+    for my $failure ( 'unavailable', 'query error' ) {
+        local *LJ::get_cluster_master = sub {
+            return $master->(@_)
+                unless caller eq 'DW::Controller::Export' && $_[0]->id == $owner->id;
+            return if $failure eq 'unavailable';
+            return bless { dbh => $master->(@_), fail_log2 => 1 }, 'PostedCommentsTestDB';
+        };
+        LJ::MemCache::delete($key);
+        my $failed = $download->( 'xml', year => 2024, month => 3, day => 1 );
+        is( $failed->code, 503, "entry lookup with primary $failure returns HTTP 503" );
+        ok( !$failed->header('Content-Disposition'), 'failed entry lookup is not an attachment' );
+    }
+}
+
 my $absent_id = $adjacent->jtalkid + 1000;
 $author_db->do(
     q{INSERT INTO talkleft (userid, posttime, journalid, nodetype, nodeid, jtalkid)
@@ -236,6 +269,22 @@ my $stale = $download->( 'xml', year => 2024, month => 3, day => 1 );
 is( $stale->code, 200, 'a comment absent on primary does not abort the download' );
 my @remaining = $stale->content =~ /<comment>/g;
 is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment' );
+
+my $deleted_entry = $owner->t_post_fake_entry;
+$retime->( $deleted_entry->t_enter_comment( u => $author, body => 'deleted-entry-body' ), $march );
+$owner_db->do( 'DELETE FROM log2 WHERE journalid=? AND jitemid=?',
+    undef, $owner->id, $deleted_entry->jitemid )
+    or die $owner_db->errstr;
+LJ::MemCache::delete( [ $owner->id, 'log2:' . $owner->id . ':' . $deleted_entry->jitemid ] );
+
+my $private_entry = $owner->t_post_fake_entry( security => 'private' );
+$retime->( $private_entry->t_enter_comment( u => $author, body => 'private-entry-body' ), $march );
+
+my $not_visible = $download->( 'xml', year => 2024, month => 3, day => 1 );
+is( $not_visible->code, 200, 'deleted and private entries do not abort the download' );
+like( $not_visible->content, qr/next-month-boundary/, 'keeps the visible entry comment' );
+unlike( $not_visible->content, qr/deleted-entry-body/, 'skips the comment on a deleted entry' );
+unlike( $not_visible->content, qr/private-entry-body/, 'skips the comment on a private entry' );
 
 my $unavailable = $entry->t_enter_comment( u => $author, body => 'missing-text-fixture' );
 $retime->( $unavailable, $march - 1 );
@@ -306,10 +355,15 @@ package PostedCommentsTestDB {
 
     sub selectall_arrayref {
         my ( $self, $sql, @args ) = @_;
-        if ( defined $self->{talkleft_filter} ) {
+        if ( $self->{fail_log2} ) {
+            $sql .= ' AND no_such_column = 1' if $sql =~ /FROM log2 WHERE /;
+        }
+        elsif ( defined $self->{talkleft_filter} ) {
             $sql =~ s/FROM talkleft WHERE /FROM talkleft WHERE $self->{talkleft_filter} AND /;
         }
-        $sql .= ' AND no_such_column = 1' if $sql =~ /FROM talk2 WHERE /;
+        else {
+            $sql .= ' AND no_such_column = 1' if $sql =~ /FROM talk2 WHERE /;
+        }
         return $self->{dbh}->selectall_arrayref( $sql, @args );
     }
 

@@ -354,12 +354,30 @@ sub posted_comments_handler {
             return _posted_comments_unavailable($r) unless $loaded;
         }
 
-        my ( @eligible, %by_journal );
+        my ( @matched, %entry_candidates );
         foreach my $candidate (@candidates) {
             my ( $nodeid, $comment ) = @$candidate;
             next unless $comment->valid && $comment->posterid == $author->id;
             next unless $comment->nodetype eq 'L' && $comment->nodeid == $nodeid;
-            next if $comment->is_deleted || !$comment->visible_to($author);
+            next if $comment->is_deleted;
+            push @matched, $comment;
+            $entry_candidates{ $comment->journalid }->{$nodeid} ||= $comment->entry;
+        }
+
+        my %live_entries;
+        foreach my $journalid ( keys %entry_candidates ) {
+            my $loaded = eval {
+                _load_posted_entry_metadata( $journals->{$journalid},
+                    $entry_candidates{$journalid} );
+            };
+            return _posted_comments_unavailable($r) unless $loaded;
+            $live_entries{$journalid} = $loaded;
+        }
+
+        my ( @eligible, %by_journal );
+        foreach my $comment (@matched) {
+            next unless $live_entries{ $comment->journalid }->{ $comment->nodeid };
+            next unless $comment->visible_to($author);
             next if $seen{ $comment->singletonkey }++;
             if ($is_minor) {
                 my $restriction = DW::Logic::AdultContent->interstitial_type(
@@ -431,6 +449,28 @@ sub _load_posted_comment_metadata {
         $comments{ $row->{jtalkid} }->absorb_row(%$row);
     }
     return 1;
+}
+
+sub _load_posted_entry_metadata {
+    my ( $journal, $entries ) = @_;
+    my $primary = LJ::get_cluster_master($journal) or return;
+    my $bind    = join ',', ('?') x keys %$entries;
+    my $rows    = $primary->selectall_arrayref(
+        'SELECT jitemid, posterid, eventtime, logtime, security, allowmask, anum '
+            . "FROM log2 WHERE journalid=? AND jitemid IN ($bind)",
+        { Slice => {} },
+        $journal->id,
+        keys %$entries
+    );
+    return if !$rows || $primary->err;
+
+    my %loaded;
+    foreach my $row (@$rows) {
+        my $jitemid = $row->{jitemid};
+        $entries->{$jitemid}->absorb_row(%$row);
+        $loaded{$jitemid} = 1;
+    }
+    return \%loaded;
 }
 
 sub _read_posted_comment_text {
