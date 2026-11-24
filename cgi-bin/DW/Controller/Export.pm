@@ -337,9 +337,22 @@ sub posted_comments_handler {
             next unless $row->[4] eq 'L';
             my ( $journalid, $nodeid, $jtalkid ) = @$row;
             my $journal = $journals->{$journalid} or next;
+            next unless $journal->clusterid && !$journal->is_expunged;
             push @candidates, [ $nodeid, LJ::Comment->new( $journal, jtalkid => $jtalkid ) ];
         }
         LJ::Comment->preload_rows;
+
+        my %missing;
+        foreach my $candidate (@candidates) {
+            my $comment = $candidate->[1];
+            push @{ $missing{ $comment->journalid } }, $comment unless $comment->valid;
+        }
+        foreach my $journalid ( keys %missing ) {
+            my $loaded = eval {
+                _load_posted_comment_metadata( $journals->{$journalid}, $missing{$journalid} );
+            };
+            return _posted_comments_unavailable($r) unless $loaded;
+        }
 
         my ( @eligible, %by_journal );
         foreach my $candidate (@candidates) {
@@ -398,6 +411,26 @@ sub posted_comments_handler {
         $format eq 'csv' ? 'text/csv; charset=utf-8' : 'application/xml; charset=utf-8' );
     $r->print($_) foreach @output, $suffix;
     return $r->OK;
+}
+
+sub _load_posted_comment_metadata {
+    my ( $journal, $comments ) = @_;
+    my $primary  = LJ::get_cluster_master($journal) or return;
+    my %comments = map { $_->jtalkid => $_ } @$comments;
+    my $bind     = join ',', ('?') x keys %comments;
+    my $rows     = $primary->selectall_arrayref(
+        'SELECT jtalkid, nodetype, nodeid, parenttalkid, posterid, datepost, state '
+            . "FROM talk2 WHERE journalid=? AND jtalkid IN ($bind)",
+        { Slice => {} },
+        $journal->id,
+        keys %comments
+    );
+    return if !$rows || $primary->err;
+
+    foreach my $row (@$rows) {
+        $comments{ $row->{jtalkid} }->absorb_row(%$row);
+    }
+    return 1;
 }
 
 sub _read_posted_comment_text {

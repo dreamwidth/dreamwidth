@@ -161,6 +161,49 @@ like( $leap_day->header('Content-Disposition'), qr/-2024-02-29\.xml/, 'day in fi
 like( $leap_day->content, qr/day-end-boundary/, 'includes the last second of the leap day' );
 unlike( $leap_day->content, qr/next-month-boundary/, 'excludes the next UTC month' );
 
+{
+    my $reader    = \&LJ::get_cluster_reader;
+    my $master    = \&LJ::get_cluster_master;
+    my $journalid = $owner->id;
+    my $jtalkid   = $adjacent->jtalkid;
+    LJ::Talk::invalidate_talk2row_memcache( $journalid, $jtalkid );
+
+    no warnings 'redefine';
+    local *LJ::get_cluster_reader = sub {
+        my $dbh = $reader->(@_);
+        return $dbh unless ( caller(1) )[3] eq 'LJ::Talk::get_talk2_row_multi';
+        return bless { dbh => $dbh, journalid => $journalid, jtalkid => $jtalkid },
+            'PostedCommentsTestDB';
+    };
+
+    my $lagged = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    is( $lagged->code, 200, 'a metadata replica miss does not abort the download' );
+    like( $lagged->content, qr/next-month-boundary/,
+        'exports the live comment missing on the replica' );
+
+    for my $failure ( 'unavailable', 'query error' ) {
+        local *LJ::get_cluster_master = sub {
+            return $master->(@_) unless caller eq 'DW::Controller::Export';
+            return if $failure eq 'unavailable';
+            return bless { dbh => $master->(@_) }, 'PostedCommentsTestDB';
+        };
+        my $failed = $download->( 'xml', year => 2024, month => 3, day => 1 );
+        is( $failed->code, 503, "metadata retry with primary $failure returns HTTP 503" );
+        ok( !$failed->header('Content-Disposition'), 'failed metadata retry is not an attachment' );
+    }
+}
+
+my $absent_id = $adjacent->jtalkid + 1000;
+$author_db->do(
+    q{INSERT INTO talkleft (userid, posttime, journalid, nodetype, nodeid, jtalkid)
+        VALUES (?, ?, ?, 'L', ?, ?)},
+    undef, $author->id, $march, $owner->id, $entry->jitemid, $absent_id
+) or die $author_db->errstr;
+my $stale = $download->( 'xml', year => 2024, month => 3, day => 1 );
+is( $stale->code, 200, 'a comment absent on primary does not abort the download' );
+my @remaining = $stale->content =~ /<comment>/g;
+is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment' );
+
 my $unavailable = $entry->t_enter_comment( u => $author, body => 'missing-text-fixture' );
 $retime->( $unavailable, $march - 1 );
 $owner_db->do( 'DELETE FROM talktext2 WHERE journalid=? AND jtalkid=?',
@@ -218,5 +261,23 @@ for my $number ( 1 .. 26 ) {
 my $too_many_bytes = $download->( 'xml', year => 2024, month => 1 );
 is( $too_many_bytes->code, 422, 'caps response bytes after XML escaping below the row limit' );
 ok( !$too_many_bytes->header('Content-Disposition'), 'byte limit does not produce an attachment' );
+
+package PostedCommentsTestDB {
+
+    sub prepare {
+        my ( $self, $sql, @args ) = @_;
+        $sql =~ s{(FROM talk2 WHERE )(.+)}
+            {$1($2) AND (journalid <> $self->{journalid} OR jtalkid <> $self->{jtalkid})};
+        return $self->{dbh}->prepare( $sql, @args );
+    }
+
+    sub selectall_arrayref {
+        my ( $self, $sql, @args ) = @_;
+        $sql .= ' AND no_such_column = 1' if $sql =~ /FROM talk2 WHERE /;
+        return $self->{dbh}->selectall_arrayref( $sql, @args );
+    }
+
+    sub err { return $_[0]->{dbh}->err }
+}
 
 done_testing;
