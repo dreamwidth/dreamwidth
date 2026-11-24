@@ -68,6 +68,12 @@ sub declaration {
     return $values[-1];
 }
 
+sub header_options {
+    my ($settings) = @_;
+    return load_layer( 'user',
+        'layerinfo type = "user"; set module_navlinks_section = "header"; ' . $settings );
+}
+
 sub luminance {
     my ($color) = @_;
     $color =~ s/\A#([a-f0-9])([a-f0-9])([a-f0-9])\z/#$1$1$2$2$3$3/i;
@@ -86,8 +92,7 @@ my $base = read_style('core2base/layout.s2');
 
 for my $name (qw(snakesandboxes steppingstones)) {
     my $layout = load_layer( 'layout', $base . read_style("$name/layout.s2") );
-    my $header =
-        load_layer( 'user', 'layerinfo type = "user"; set module_navlinks_section = "header";' );
+    my $header = header_options('');
     my $sidebar =
         load_layer( 'user', 'layerinfo type = "user"; set module_navlinks_section = "one";' );
 
@@ -102,6 +107,44 @@ for my $name (qw(snakesandboxes steppingstones)) {
     unlike( $css, qr/\Q$nav\E[^{}]*\{[^{}]*:\s*;/, "$name: no empty navigation declarations" );
     unlike( stylesheets( $core, $layout, $sidebar ),
         qr/\Q$nav\E/, "$name: sidebar CSS is unchanged" );
+
+    my $transparent_header = header_options('set color_header_background = "";');
+    my $pale_page          = load_layer( 'theme', <<'S2' );
+layerinfo type = "theme";
+set color_page_background = "#f2f5ec";
+set color_page_title = "#123456";
+S2
+    is(
+        declaration(
+            stylesheets( $core, $layout, $pale_page, $transparent_header ), $nav, 'color'
+        ),
+        '#123456',
+        "$name: transparent header uses the page background for contrast"
+    );
+
+    my $empty_colors = header_options(<<'S2');
+set color_header_background = "";
+set color_page_background = "";
+set color_page_title = "#ffffff";
+S2
+    is( declaration( stylesheets( $core, $layout, $empty_colors ), $nav, 'color' ),
+        'inherit', "$name: no background color inherits the foreground" );
+
+    my $empty_title = header_options(<<'S2');
+set color_header_background = "#f2f5ec";
+set color_page_title = "";
+set color_page_text = "#123456";
+S2
+    is( declaration( stylesheets( $core, $layout, $empty_title ), $nav, 'color' ),
+        '#123456', "$name: empty title color falls through to the page text color" );
+
+    my $empty_foreground = header_options(<<'S2');
+set color_header_background = "#f2f5ec";
+set color_page_title = "";
+set color_page_text = "";
+S2
+    is( declaration( stylesheets( $core, $layout, $empty_foreground ), $nav, 'color' ),
+        '#000000', "$name: empty foreground candidates fall back to a contrasting swatch" );
 
     my $themes = read_style("$name/themes.s2");
     while ( $themes =~ /^\#NEWLAYER: ([^\n]+)\n(.*?)(?=^\#NEWLAYER:|\z)/msg ) {
@@ -120,6 +163,12 @@ for my $name (qw(snakesandboxes steppingstones)) {
             : 0;
         cmp_ok( $ratio, '>=', 4.5,
             "$theme_name: readable header navigation against the theme background" );
+
+        if ( $theme_name eq 'steppingstones/icechic' ) {
+            my $overridden_css = stylesheets( $core, $layout, $theme, $transparent_header );
+            is( declaration( $overridden_css, $nav, 'color' ),
+                '#060606', 'Ice Chic: transparent header keeps dark navigation text' );
+        }
     }
 }
 

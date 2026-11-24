@@ -165,12 +165,12 @@ function navlinks_luminance(Color swatch) : int {
 
 function header_navlinks_foreground() : string {
     var Color background = $*color_header_background;
-    if (isnull $background) { $background = $*color_page_background; }
-    if (isnull $background) { return "inherit"; }
+    if (isnull $background or $background.as_string == "") { $background = $*color_page_background; }
+    if (isnull $background or $background.as_string == "") { return "inherit"; }
 
     var int bg = navlinks_luminance($background) + 50;
     foreach var Color foreground ([$*color_page_title, $*color_page_text]) {
-        if (not isnull $foreground) {
+        if (not isnull $foreground and $foreground.as_string != "") {
             var int fg = navlinks_luminance($foreground) + 50;
             if ($fg * 10 >= $bg * 46 or $bg * 10 >= $fg * 46) { return "$foreground"; }
         }
