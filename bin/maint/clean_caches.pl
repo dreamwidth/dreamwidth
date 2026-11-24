@@ -15,6 +15,7 @@
 
 use strict;
 use DW::Locker;
+use LJ::MemCache;
 
 our %maint;
 
@@ -283,6 +284,7 @@ sub clean_caches_talkleft_xfp {
 
     my %insert_vals;
     my %delete_vals;
+    my %userids;
 
     # select out 1000 rows from random clusters
     my $sth =
@@ -303,6 +305,7 @@ sub clean_caches_talkleft_xfp {
                 . "nodeid=$qrow{'nodeid'} AND "
                 . "posttime=$qrow{'posttime'} AND "
                 . "jtalkid=$qrow{'jtalkid'})" );
+        $userids{ $row->{'clusterid'} }{ $row->{'userid'} } = 1;
 
         $row_ct++;
     }
@@ -322,6 +325,10 @@ sub clean_caches_talkleft_xfp {
         if ( $dbcm->err ) {
             print "    db error (insert): " . $dbcm->errstr . "\n";
             next;
+        }
+
+        foreach my $userid ( keys %{ $userids{$clusterid} } ) {
+            LJ::MemCache::delete( [ $userid, "talkleftct:$userid" ] );
         }
 
         # no error, delete from _xfp

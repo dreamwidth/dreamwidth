@@ -238,6 +238,10 @@ sub fix_talkleft {
 
     # Expunged users have clusterid 0 and no cluster database.
     if ( $tu->clusterid ) {
+        my $migration_key = join ':', 'change_poster_id:talkleft', $fu->id, $tu->id;
+        my $migration_lock =
+            DW::Locker->new->trylock( $migration_key, class => 'change_poster_id_talkleft' )
+            or die "Temporary failure locking talkleft migration: $DW::Locker::Error\n";
 
         # Any old-owner drain must finish before we rewrite staging. After the
         # rewrite, the cleaner can only drain these rows to the new owner.

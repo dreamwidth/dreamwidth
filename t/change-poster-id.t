@@ -435,4 +435,114 @@ for my $implementation (qw(task worker)) {
     };
 }
 
+for my $implementation (qw(task worker)) {
+    subtest "$implementation rejects overlap during talkleft copy and delete" => sub {
+        with_fake_memcache {
+            my $fu = temp_user( cluster => 1 );
+            my $tu = temp_user( cluster => 2 );
+            my $ju = temp_user( cluster => 1 );
+            $ju->t_post_fake_entry->t_enter_comment( u => $fu );
+
+            my $before = talkleft_rows( 1, $fu->id );
+            is( scalar @$before, 1, 'source starts with one comment' );
+
+            my $deliver = sub {
+                my ($backend) = @_;
+                my $args = { from_userid => $fu->id, to_userid => $tu->id };
+                if ( $backend eq 'task' ) {
+                    return DW::Task::ChangePosterId->new($args)->work('test-migration-lock');
+                }
+
+                my $status;
+                my $job = Test::MockObject->new;
+                $job->mock( arg               => sub { $args } );
+                $job->mock( completed         => sub { $status = DW::Task::COMPLETED; return } );
+                $job->mock( failed            => sub { $status = DW::Task::FAILED; return } );
+                $job->mock( permanent_failure => sub { die $_[1] } );
+                DW::Worker::ChangePosterId->work($job);
+                return $status;
+            };
+
+            my $other_backend = $implementation eq 'task' ? 'worker' : 'task';
+            my %attempts;
+            my $contending;
+            my $callbacks = {
+                do => sub {
+                    my ( $dbh, $sql, $attr, $userid ) = @_;
+                    return if $contending || !defined $userid;
+                    return unless $sql =~ /\A(INSERT INTO|DELETE FROM) talkleft /;
+                    my $operation = $1;
+                    return unless $userid == ( $operation eq 'INSERT INTO' ? $tu->id : $fu->id );
+                    $attempts{$operation}++;
+
+                    my $staging_lock =
+                        DW::Locker->new->trylock( 'talkleft_xfp', class => 'talkleft_xfp' );
+                    ok( $staging_lock, 'staging lock is free during the cluster writes' );
+                    $staging_lock->release if $staging_lock;
+
+                    $contending = 1;
+                    is( $deliver->($other_backend),
+                        DW::Task::FAILED,
+                        "overlapping $other_backend delivery backs off before $operation" );
+                    $contending = 0;
+                    return;
+                },
+            };
+
+            {
+                my $source = LJ::get_cluster_master($fu);
+                my $target = LJ::get_cluster_master($tu);
+                local $source->{Callbacks} = $callbacks;
+                local $target->{Callbacks} = $callbacks;
+                is( $deliver->($implementation), DW::Task::COMPLETED, 'first delivery completes' );
+            }
+
+            is_deeply(
+                \%attempts,
+                { 'INSERT INTO' => 1, 'DELETE FROM' => 1 },
+                'overlap exercised at both writes'
+            );
+            is_deeply( talkleft_rows( 1, $fu->id ), [], 'source row is removed' );
+            is_deeply( talkleft_rows( 2, $tu->id ), $before, 'only one target row is copied' );
+            is( $deliver->($other_backend),
+                DW::Task::COMPLETED, 'delivery can retry after release' );
+            is_deeply( talkleft_rows( 2, $tu->id ), $before, 'retry does not duplicate the row' );
+        };
+    };
+}
+
+subtest 'draining reassigned talkleft staging refreshes the claimant count' => sub {
+    with_fake_memcache {
+        my $fu = temp_user( cluster => 1 );
+        my $tu = temp_user( cluster => 2 );
+        my $ju = temp_user( cluster => 1 );
+        push @xfp_cleanup_uids, $fu->id, $tu->id;
+        my $entry = $ju->t_post_fake_entry;
+        $entry->t_enter_comment( u => $tu );
+
+        my $dbh = LJ::get_db_writer();
+        $dbh->do(
+            'INSERT INTO talkleft_xfp '
+                . '(userid, posttime, journalid, nodetype, nodeid, jtalkid, publicitem) '
+                . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
+            undef, $fu->id, time(), $ju->id, 'L', $entry->jitemid, 42, '1'
+        ) or die $dbh->errstr;
+
+        my $task =
+            DW::Task::ChangePosterId->new( { from_userid => $fu->id, to_userid => $tu->id } );
+        is( $task->work('test-xfp-count'), DW::Task::COMPLETED, 'task reassigns the staged row' );
+
+        my $memkey = [ $tu->id, 'talkleftct:' . $tu->id ];
+        is( $tu->num_comments_posted, 1,
+            'profile read before drain sees only the existing comment' );
+        is( LJ::MemCache::get($memkey), 1, 'incomplete count is cached' );
+
+        clean_caches_talkleft_xfp( $dbh, 0 );
+        is( scalar @{ talkleft_rows( 2, $tu->id ) },
+            2, 'staged comment is drained to the claimant' );
+        is( LJ::MemCache::get($memkey), undef, 'drain invalidates the stale count' );
+        is( $tu->num_comments_posted,   2,     'profile read after drain sees both comments' );
+    };
+};
+
 done_testing();
