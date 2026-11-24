@@ -2,6 +2,9 @@
 # answers for the account 'someone'. The pages and the comment export are in the XML files
 # beside this one. Group 1 ("Family") is the only friend group, so a group-locked entry
 # that mentions group 2 can't be mapped.
+
+use strict;
+
 {
     username => 'someone',
     hostname => 'livejournal.com',

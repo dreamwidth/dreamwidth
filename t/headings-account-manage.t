@@ -18,11 +18,11 @@ use warnings;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use DW::BML;
 use DW::Request::Standard;
 use DW::Template;
 use HTML::Parser;
 use HTTP::Request;
+use LJ::Lang;
 use LJ::UniqCookie;
 
 sub check_outline {
@@ -30,10 +30,8 @@ sub check_outline {
 
     subtest "$template: $state" => sub {
         LJ::start_request();
-        my $request =
-            DW::Request::Standard->new( HTTP::Request->new( GET => 'http://example.test/' ) );
-        $request->note( ml_lang => 'en' );
-        BML::set_language( 'en', \&LJ::Lang::get_text );
+        DW::Request::Standard->new( HTTP::Request->new( GET => 'http://example.test/' ) );
+        LJ::Lang::set_request_context( lang => 'en', getter => \&LJ::Lang::get_text );
         LJ::UniqCookie->set_current_uniq('headingsaccountmanage');
         my %sections;
         my $body = DW::Template->template_string( "$template.tt", $vars, \%sections );
