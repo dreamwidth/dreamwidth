@@ -25,6 +25,7 @@ use parent qw/ Plack::Middleware /;
 
 use LJ::Sysban;
 use LJ::UniqCookie;
+use Plack::Middleware::DW::XForwardedFor;
 
 sub call {
     my ( $self, $env ) = @_;
@@ -82,7 +83,7 @@ sub _request_ips {
     # CDN carries the CDN server's IP here, so a ban on one of those would
     # block everyone routed through it.
     if ( my $forward = $env->{HTTP_X_FORWARDED_FOR} ) {
-        my $trusted = ref $LJ::IS_TRUSTED_PROXY eq 'CODE' ? $LJ::IS_TRUSTED_PROXY : undef;
+        my $trusted = Plack::Middleware::DW::XForwardedFor::trusted_proxy_checker($env);
         my %seen    = map { $_ => 1 }
             grep { !( $trusted && $trusted->($_) ) } split( /\s*,\s*/, $forward );
         push @ips, keys %seen;
