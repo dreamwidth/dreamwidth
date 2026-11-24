@@ -3081,12 +3081,12 @@ sub _comment_html_is_suspicious {
     my ($body) = @_;
 
     my $decoded_body = decode_entities($body);
-    my $url          = qr{
-        \b (?: (?:https?|ftp):// (?:\[[0-9a-f:.]+\]|[[:alnum:]]) | www\.[[:alnum:]] )
-        [^\s<>"\[\]]*
-    }ix;
-    my $url_count = () = $decoded_body =~ /$url/g;
-    if ( $url_count >= 2 && $body =~ /<a\b/i ) {
+    my $url_host     = qr{(?:\[[0-9a-f:.]+\]|[[:alnum:]])}i;
+    my $url_tail     = qr{[^\s<>"\[\]]*};
+    my $url          = qr{\b (?: (?:https?|ftp):// $url_host | www\.[[:alnum:]] ) $url_tail}ix;
+    my $relative_url = qr{\A // $url_host $url_tail \z}x;
+    my $url_count    = () = $decoded_body =~ /$url/g;
+    if ( $body =~ /<a\b/i ) {
         my ( $href, $label, $label_url_count );
         my $parser = HTML::Parser->new( api_version => 3 );
         $parser->report_tags('a');
@@ -3094,8 +3094,15 @@ sub _comment_html_is_suspicious {
             start => sub {
                 my ($attr) = @_;
                 $href = $attr->{href};
-                undef $href unless defined $href && $href =~ /\A$url\z/;
                 ( $label, $label_url_count ) = ( '', 0 );
+                return unless defined $href;
+                if ( $href =~ $relative_url ) {
+                    my $already_counted = () = $href =~ /$url/g;
+                    $url_count += 1 - $already_counted;
+                }
+                elsif ( $href !~ /\A$url\z/ ) {
+                    undef $href;
+                }
             },
             'attr'
         );
@@ -3111,7 +3118,7 @@ sub _comment_html_is_suspicious {
         $parser->handler(
             end => sub {
                 return unless defined $href;
-                --$url_count if $label_url_count == 1 && $label =~ /\A\s*\Q$href\E\s*\z/;
+                $url_count -= $label_url_count if $label =~ /\A\s*\Q$href\E\s*\z/;
                 undef $href;
             },
             ''
