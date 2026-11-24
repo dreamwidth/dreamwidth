@@ -109,6 +109,9 @@ $formats{markdown} = $formats{markdown0};
 # Pass comment => 1 when building the menu for a comment; it offers
 # @comment_formats instead of @active_formats and ignores preferences for
 # formats that comments can't use (rte0, rte1), falling back to the default.
+# A comment redisplayed in one of those (after a preview or a failed post)
+# selects the offered format its text already renders as, so the text keeps
+# meaning the same thing.
 # For entries, a current or preferred retired format (rte0) selects its
 # replacement (rte1); the retired format itself is never in the menu.
 # Returns: Hashref like {selected => "format", items => [...]}. (Unfortunately,
@@ -125,8 +128,15 @@ sub select_items {
     if ($comment) {
 
         # Comments have no rich text editor. A form submitted before that was
-        # the case (or any rich format) is still accepted, but not offered back.
-        $current = '' if $current eq 'rte1' || is_retired($current);
+        # the case (or any rich format) is still accepted, but not offered back:
+        # rte1 is cleaned exactly like raw HTML, and rte0, which has no cleaner
+        # settings of its own, like the default format.
+        if ( $current eq 'rte1' ) {
+            $current = 'html_raw0';
+        }
+        elsif ( is_retired($current) ) {
+            $current = $default_format;
+        }
     }
     else {
         $current   = edit_format($current);

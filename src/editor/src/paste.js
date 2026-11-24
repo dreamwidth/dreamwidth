@@ -1,29 +1,45 @@
+// src/editor/src/paste.js
+//
 // Pasting Dreamwidth block markup. A poll's code, copied from the poll
 // creation page, or an embed's code is plain text that looks like HTML; pasted
 // as text it would become escaped, literal characters. Recognize it and drop it
 // in as an HTML block instead, which is how polls and embeds are carried.
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import { Plugin } from "prosemirror-state";
 import { rawBlockFromText } from "./serialize.js";
 
 // Insert a literal-HTML block after the block holding the cursor (replacing it
-// if it is an empty paragraph).
-export function insertRawBlock(view, html) {
-    const state = view.state;
+// if it is an empty paragraph), staying inside whatever holds that block -- a
+// poll or embed added inside a cut tag, list or table cell stays there.
+export function rawBlockTransaction(state, html) {
     const type = state.schema.nodes.html_block;
     const node = type.create(null, html ? state.schema.text(html) : null);
     const $from = state.selection.$from;
-    let tr = state.tr;
-    if ($from.depth == 0) {
-        tr = tr.insert($from.pos, node);
-    } else {
-        const block = $from.node(1);
-        if (block.type.name == "paragraph" && block.content.size == 0)
-            tr = tr.replaceWith($from.before(1), $from.after(1), node);
-        else tr = tr.insert($from.after(1), node);
+    for (let d = $from.depth; d > 0; d--) {
+        const block = $from.node(d);
+        const parent = $from.node(d - 1);
+        const index = $from.index(d - 1);
+        if (block.type.name == "paragraph" && block.content.size == 0) {
+            if (parent.canReplaceWith(index, index + 1, type))
+                return state.tr.replaceWith($from.before(d), $from.after(d), node);
+        } else if (parent.canReplaceWith(index + 1, index + 1, type)) {
+            return state.tr.insert($from.after(d), node);
+        }
     }
-    view.dispatch(tr.scrollIntoView());
+    return state.tr.insert($from.depth ? $from.after(1) : $from.pos, node);
+}
+
+export function insertRawBlock(view, html) {
+    view.dispatch(rawBlockTransaction(view.state, html).scrollIntoView());
     view.focus();
 }
 

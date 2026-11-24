@@ -1,3 +1,5 @@
+// src/editor/src/index.js
+//
 // Public API for the Dreamwidth rich text editor, exposed as window.DWEditor.
 //
 // The editor mounts over an existing <textarea>, which stays in the form as
@@ -14,6 +16,15 @@
 //   DWEditor.insertImage("entry-body", { src, alt })
 //   DWEditor.insertHTMLBlock("entry-body", html)
 //   DWEditor.focus("entry-body")
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";

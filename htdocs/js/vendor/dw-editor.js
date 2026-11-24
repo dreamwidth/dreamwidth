@@ -15584,13 +15584,16 @@ var DWEditor = (() => {
   }
 
   // src/dialogs.js
+  var dialogCount = 0;
   function buildDialog(title, fields, strings) {
     const dialog = document.createElement("dialog");
     dialog.className = "dw-editor-dialog";
     const form = document.createElement("form");
     form.method = "dialog";
     const heading = document.createElement("h3");
+    heading.id = "dw-editor-dialog-title-" + ++dialogCount;
     heading.textContent = title;
+    dialog.setAttribute("aria-labelledby", heading.id);
     form.appendChild(heading);
     const inputs = {};
     fields.forEach((field) => {
@@ -16230,6 +16233,10 @@ var DWEditor = (() => {
   // src/inputrules.js
   function markInputRule(regexp, markType) {
     return new InputRule(regexp, (state, match, start, end) => {
+      const code = markType.schema.marks.code;
+      const $start = state.doc.resolve(start);
+      if (code.isInSet(state.storedMarks || state.selection.$from.marks()) || code.isInSet($start.marks()) || state.doc.rangeHasMark(start, end, code))
+        return null;
       const fullStart = start + match[0].indexOf(match[1]);
       const textStart = fullStart + match[1].indexOf(match[2]);
       const textEnd = textStart + match[2].length;
@@ -17262,22 +17269,25 @@ var DWEditor = (() => {
   }
 
   // src/paste.js
-  function insertRawBlock(view, html) {
-    const state = view.state;
+  function rawBlockTransaction(state, html) {
     const type = state.schema.nodes.html_block;
     const node = type.create(null, html ? state.schema.text(html) : null);
     const $from = state.selection.$from;
-    let tr = state.tr;
-    if ($from.depth == 0) {
-      tr = tr.insert($from.pos, node);
-    } else {
-      const block = $from.node(1);
-      if (block.type.name == "paragraph" && block.content.size == 0)
-        tr = tr.replaceWith($from.before(1), $from.after(1), node);
-      else
-        tr = tr.insert($from.after(1), node);
+    for (let d = $from.depth; d > 0; d--) {
+      const block = $from.node(d);
+      const parent = $from.node(d - 1);
+      const index = $from.index(d - 1);
+      if (block.type.name == "paragraph" && block.content.size == 0) {
+        if (parent.canReplaceWith(index, index + 1, type))
+          return state.tr.replaceWith($from.before(d), $from.after(d), node);
+      } else if (parent.canReplaceWith(index + 1, index + 1, type)) {
+        return state.tr.insert($from.after(d), node);
+      }
     }
-    view.dispatch(tr.scrollIntoView());
+    return state.tr.insert($from.depth ? $from.after(1) : $from.pos, node);
+  }
+  function insertRawBlock(view, html) {
+    view.dispatch(rawBlockTransaction(view.state, html).scrollIntoView());
     view.focus();
   }
   function pastePlugin() {

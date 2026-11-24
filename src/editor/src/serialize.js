@@ -1,3 +1,5 @@
+// src/editor/src/serialize.js
+//
 // HTML import/export for the Dreamwidth rich text editor.
 //
 // Import: stored entry HTML -> ProseMirror document. The browser's parser
@@ -23,6 +25,15 @@
 // A load -> export round trip is meant to be lossless for anything the user
 // didn't touch. "Lossless" is semantic: whitespace is normalized, <b>/<i>
 // become <strong>/<em>, and loose top-level text gets wrapped in <p>.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import { DOMParser as PMDOMParser, DOMSerializer } from "prosemirror-model";
 import { render, GENERIC_BLOCK_TAGS, GENERIC_INLINE_TAGS } from "./schema.js";

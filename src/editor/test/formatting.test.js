@@ -1,7 +1,17 @@
+// src/editor/test/formatting.test.js
+//
 // Tables, alignment, indent, and text color/size: old entries' markup for
 // these loads as editable content without changing what it renders as, and
 // the toolbar commands write markup the cleaner keeps.
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -370,4 +380,32 @@ test("align left on right-to-left text sets left explicitly", () => {
         "Y",
     );
     assert.equal(blockAlignment(state), "center");
+});
+
+test("an embed added inside a cut stays inside it", async () => {
+    const { rawBlockTransaction } = await import("../src/paste.js");
+    let state = select(stateFor('<cut text="More"><p>hidden</p></cut>'), "hidden");
+    state = state.apply(
+        rawBlockTransaction(state, '<iframe src="https://example.com/v"></iframe>'),
+    );
+    assert.match(
+        exportHTML(schema, state.doc),
+        /<cut text="More"><p>hidden<\/p><iframe[^>]*><\/iframe><\/cut>/,
+    );
+});
+
+test("Markdown-style shortcuts leave text inside inline code alone", async () => {
+    const { EditorView } = await import("prosemirror-view");
+    const { buildInputRules } = await import("../src/inputrules.js");
+    const place = document.createElement("div");
+    let state = EditorState.create({
+        doc: importHTML(schema, "<p><code>*ptr</code></p>"),
+        plugins: [buildInputRules(schema)],
+    });
+    state = state.apply(state.tr.setSelection(TextSelection.atEnd(state.doc)));
+    const view = new EditorView(place, { state });
+    const { from } = view.state.selection;
+    const handled = view.someProp("handleTextInput", (f) => f(view, from, from, "*"));
+    assert.ok(!handled, "the emphasis rule didn't fire");
+    view.destroy();
 });

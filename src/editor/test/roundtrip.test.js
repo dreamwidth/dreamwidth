@@ -1,3 +1,5 @@
+// src/editor/test/roundtrip.test.js
+//
 // Load -> export round trips of existing entry HTML. Whatever the poster
 // didn't touch has to come back out: the editor is only safe to open old
 // entries in if it never silently drops markup it has no button for.
@@ -5,7 +7,15 @@
 // (Style attributes below are written the way jsdom serializes them -- with a
 // space and trailing semicolon -- because it reformats them when set from
 // script. Real browsers keep the text as written.)
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import test from "node:test";
 import assert from "node:assert/strict";

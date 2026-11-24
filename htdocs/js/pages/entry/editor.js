@@ -1,12 +1,22 @@
-/* Glue between the entry form and the rich text editor (DWEditor, the
+/* htdocs/js/pages/entry/editor.js
+ *
+ * Glue between the entry form and the rich text editor (DWEditor, the
  * ProseMirror bundle in js/vendor/dw-editor.js). Mounts the editor over the
  * #entry-body textarea whenever the format select is on 'rte1', and unmounts
  * it (writing the HTML back into the textarea) for any other format.
  *
  * Changing the format converts the text explicitly, so nothing is lost or
  * silently reinterpreted: see the notes on casual HTML and Markdown in
- * src/editor/src/serialize.js. Copyright (c) 2026 by Dreamwidth Studios, LLC.
- * Same terms as Perl itself.
+ * src/editor/src/serialize.js.
+ *
+ * Authors:
+ *     Mark Smith <mark@qq.is>
+ *
+ * Copyright (c) 2026 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
  */
 
 (function () {

@@ -1,3 +1,5 @@
+// src/editor/src/mentions.js
+//
 // @username autocomplete. Suggestions come exclusively from the logged-in
 // user's own circle (one fetch of /__rpc_general?mode=list_circle, cached for
 // the page lifetime) — deliberately NOT a global username search, so the
@@ -13,6 +15,15 @@
 // <user name="..."> or <user name="..." site="...">). Plain @text left in the
 // entry stays literal text: the rte1 format does not do server-side @mention
 // conversion, which is exactly why the editor resolves mentions itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import { Plugin, PluginKey } from "prosemirror-state";
 

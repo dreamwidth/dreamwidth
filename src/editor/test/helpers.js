@@ -1,6 +1,16 @@
+// src/editor/test/helpers.js
+//
 // Test setup: the editor's import/export code runs against the DOM, so give it
 // a jsdom one.
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import { JSDOM } from "jsdom";
 

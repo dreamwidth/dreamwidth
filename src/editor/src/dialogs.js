@@ -1,5 +1,18 @@
+// src/editor/src/dialogs.js
+//
 // Small form dialogs built on the native <dialog> element. Each returns a
 // Promise resolving to the entered values, or null if cancelled.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
+
+let dialogCount = 0;
 
 function buildDialog(title, fields, strings) {
     const dialog = document.createElement("dialog");
@@ -8,8 +21,11 @@ function buildDialog(title, fields, strings) {
     const form = document.createElement("form");
     form.method = "dialog";
 
+    // The heading names the dialog for screen readers.
     const heading = document.createElement("h3");
+    heading.id = "dw-editor-dialog-title-" + ++dialogCount;
     heading.textContent = title;
+    dialog.setAttribute("aria-labelledby", heading.id);
     form.appendChild(heading);
 
     const inputs = {};

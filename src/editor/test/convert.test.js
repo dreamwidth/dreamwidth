@@ -1,6 +1,16 @@
+// src/editor/test/convert.test.js
+//
 // Switching an entry between plain formats and the rich editor must neither
 // lose line breaks nor change what the server will render.
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import test from "node:test";
 import assert from "node:assert/strict";

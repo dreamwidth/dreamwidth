@@ -120,11 +120,12 @@ foreach my $pref (qw( rte0 rte1 )) {
 
 ok( !DW::Formats::is_active( 'rte1', comment => 1 ), "rte1 is not an active comment format." );
 
-foreach my $current (qw( rte0 rte1 )) {
+foreach my $case ( [ rte0 => $DW::Formats::default_format ], [ rte1 => 'html_raw0' ] ) {
+    my ( $current, $same ) = @$case;
     $select =
         DW::Formats::select_items( comment => 1, current => $current, preferred => 'markdown0' );
-    is( $select->{selected}, 'markdown0',
-        "A comment redisplayed with format $current uses the preference instead." );
+    is( $select->{selected}, $same,
+        "A comment redisplayed with format $current selects $same, which renders it the same." );
     ok(
         !( grep { $_ eq $current } @{ $values->($select) } ),
         "...and $current is not added to the comment menu."

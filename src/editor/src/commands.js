@@ -1,8 +1,18 @@
+// src/editor/src/commands.js
+//
 // Editing commands behind the formatting toolbar: alignment, indent, text
 // colour/highlight/size, and table insertion. Each follows ProseMirror's
 // command convention: (state, dispatch?) -> whether it applies, doing it
 // when dispatch is given.
-// Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
+//
+// Authors:
+//     Mark Smith <mark@qq.is>
+//
+// Copyright (c) 2026 by Dreamwidth Studios, LLC.
+//
+// This program is free software; you may redistribute it and/or modify it under
+// the same terms as Perl itself.  For a copy of the license, please reference
+// 'perldoc perlartistic' or 'perldoc perlgpl'.
 
 import { lift } from "prosemirror-commands";
 import { sinkListItem, liftListItem } from "prosemirror-schema-list";
