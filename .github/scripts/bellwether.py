@@ -28,10 +28,13 @@ the same terms as Perl itself. For a copy of the license, please reference
 'perldoc perlartistic' or 'perldoc perlgpl'.
 """
 
+import http.client
 import json
 import os
 import re
+import ssl
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -49,16 +52,53 @@ NEXT = re.compile(re.escape(NEXT_START) + r".*?" + re.escape(NEXT_END), re.S)
 COMMAND = re.compile(r"^\s*/(approve|lgtm|merge|hold|unhold|fix\+\+|fix)(?!\w)", re.I | re.M)
 FOOTER = "I keep this comment up to date. New commits start the checks over."
 DRY_RUN = "--dry-run" in sys.argv
+# GitHub's API sometimes answers 5xx or times out for a moment. Reads are retried with backoff;
+# writes are not, since a write that timed out may have happened (merge checks for that itself).
+RETRY_DELAYS = (2, 5, 15)
+TIMEOUT = 30
+# After a merge request that errored or timed out, how long to watch for the merge to show up.
+MERGE_SETTLE = (3, 5, 10)
+# What a request that never got a full answer raises: the request may or may not have happened.
+NO_ANSWER = (urllib.error.URLError, TimeoutError, ConnectionError, ssl.SSLError,
+             http.client.HTTPException)
+# The sweep also finishes the status of PRs merged this recently, in case the run that merged one
+# lost GitHub's answer.
+RECENT_MERGES = timedelta(hours=6)
+
+
+def transient(e):
+    if isinstance(e, urllib.error.HTTPError):
+        return e.code >= 500
+    return isinstance(e, NO_ANSWER)
+
+
+def error_detail(e):
+    """GitHub's message for an HTTP error, or its status if the body can't be read."""
+    try:
+        return json.loads(e.read() or b"{}").get("message") or f"HTTP {e.code} {e.reason}"
+    except Exception:
+        return f"HTTP {e.code} {e.reason}"
 
 
 def api(method, path, data=None):
+    for delay in (*RETRY_DELAYS, None):
+        try:
+            return request(method, path, data)
+        except Exception as e:
+            if method != "GET" or delay is None or not transient(e):
+                raise
+            print(f"  GitHub API {method} {path.split('?')[0]} failed ({e}); retrying in {delay}s")
+            time.sleep(delay)
+
+
+def request(method, path, data=None):
     req = urllib.request.Request(
         path if path.startswith("http") else API + path, method=method,
         data=json.dumps(data).encode() if data is not None else None,
         headers={"Authorization": f"Bearer {TOKEN}", "Accept": "application/vnd.github+json",
                  "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "dw-bellwether",
                  "Content-Type": "application/json"})
-    with urllib.request.urlopen(req) as r:
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
         return json.loads(r.read() or b"null")
 
 
@@ -88,9 +128,13 @@ _writers = {}
 def can_write(user):
     """Maintainers are the people with write access to the repository."""
     if user not in _writers:
+        # Only "not a collaborator" means no access. Any other error stops this PR, rather than
+        # counting a maintainer's /hold or review as nobody's.
         try:
             perm = api("GET", f"/repos/{REPO}/collaborators/{user}/permission")["permission"]
-        except urllib.error.HTTPError:
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                raise
             perm = "none"
         _writers[user] = perm in ("admin", "maintain", "write")
     return _writers[user]
@@ -225,6 +269,9 @@ def set_next(comment, text):
     fresh = comment if DRY_RUN else api("GET", f"/repos/{REPO}/issues/comments/{comment['id']}")
     if current_state(fresh) != current_state(comment):
         raise StateChanged()
+    # A recorded merge is final: another run may have merged it meanwhile.
+    if says_merged(fresh):
+        return print("  comment already records the merge")
     body = NEXT.sub(lambda _: f"{NEXT_START}\n{text}\n{NEXT_END}", fresh["body"])
     if body == fresh["body"]:
         return
@@ -258,6 +305,8 @@ def set_label(pr, label):
                 raise
     if add:
         api("POST", f"/repos/{REPO}/issues/{pr['number']}/labels", {"labels": add})
+    # Later calls in this run see the labels as they now are.
+    pr["labels"] = [{"name": x} for x in sorted((have - set(stale)) | set(add))]
 
 
 def evaluate(number):
@@ -266,6 +315,37 @@ def evaluate(number):
             return decide(number)
         except StateChanged:
             print("  triage updated the comment meanwhile; re-evaluating")
+    raise RuntimeError("triage kept updating the comment; gave up for this run")
+
+
+def says_merged(comment):
+    m = NEXT.search(comment["body"] or "")
+    return bool(m) and m.group(0)[len(NEXT_START):].lstrip().startswith("**Merged**")
+
+
+def finish_merge(number, comment, sha, reason=None):
+    """Record a merge on the status comment and clear the status labels. `reason` is left out
+    when the merge wasn't this run's (another run, or a person)."""
+    text = f"**Merged** as {sha[:11]}" + (f" after {reason}." if reason else ".")
+    for _ in range(3):
+        try:
+            set_next(comment, text)
+            break
+        except StateChanged:
+            comment, _ = status_comment(number)
+    else:
+        raise RuntimeError("triage kept updating the comment while recording the merge")
+    set_label(api("GET", f"/repos/{REPO}/pulls/{number}"), None)
+
+
+def merge_commit(number, waits=()):
+    """The merge commit if the PR has merged, waiting `waits` seconds between looks, else None."""
+    for wait in (0, *waits):
+        time.sleep(wait)
+        pr = api("GET", f"/repos/{REPO}/pulls/{number}")
+        if pr["merged"]:
+            return pr.get("merge_commit_sha") or ""
+    return None
 
 
 def decide(number, final_check=False):
@@ -273,7 +353,15 @@ def decide(number, final_check=False):
     pr = api("GET", f"/repos/{REPO}/pulls/{number}")
     print(f"#{number}:")
     if pr["state"] != "open":
-        return print("  closed")
+        print("  closed")
+        # A merge recorded nowhere (an earlier run lost GitHub's answer, or a person merged it)
+        # gets its comment finished now, and its status labels cleared even if the comment was.
+        if not pr.get("merged") or DRY_RUN:
+            return
+        comment, _ = status_comment(number)
+        if comment and NEXT.search(comment["body"] or "") and not says_merged(comment):
+            return finish_merge(number, comment, pr.get("merge_commit_sha") or "")
+        return set_label(pr, None)
     comment, state = status_comment(number)
     if not comment or not state or state.get("v") != 1:
         return print("  no Bellwether status")
@@ -350,16 +438,28 @@ def decide(number, final_check=False):
     if DRY_RUN:
         return print("  would merge")
     try:
-        merged = api("PUT", f"/repos/{REPO}/pulls/{number}/merge",
-                     {"merge_method": "squash", "sha": state["head"],
-                      "commit_title": f"{pr['title']} (#{number})"})
+        sha = api("PUT", f"/repos/{REPO}/pulls/{number}/merge",
+                  {"merge_method": "squash", "sha": state["head"],
+                   "commit_title": f"{pr['title']} (#{number})"})["sha"]
     except urllib.error.HTTPError as e:
-        if api("GET", f"/repos/{REPO}/pulls/{number}")["merged"]:
-            return print("  already merged")
-        detail = json.loads(e.read() or b"{}").get("message", e.reason)
-        return set_next(comment, f"**Merge failed.** GitHub said: {detail}\n\n{FOOTER}")
-    set_next(comment, f"**Merged** as {merged['sha'][:11]} after {reason}.")
-    set_label(pr, None)
+        if e.code < 500:
+            # GitHub refused. Someone else may have merged it first.
+            other = merge_commit(number)
+            if other is not None:
+                return finish_merge(number, comment, other)
+            return set_next(comment, f"**Merge failed.** GitHub said: {error_detail(e)}\n\n{FOOTER}")
+        sha = None
+        print(f"  merge answered {e.code}; checking whether it merged")
+    except (*NO_ANSWER, ValueError, KeyError, TypeError) as e:
+        sha = None
+        print(f"  merge got no usable answer ({e!r}); checking whether it merged")
+    if sha is None:
+        # The merge may have happened, or may still be happening. Watch for it; if it doesn't show,
+        # leave the comment on "Merging" and fail this PR, and a later run sorts it out either way.
+        sha = merge_commit(number, MERGE_SETTLE)
+        if sha is None:
+            raise RuntimeError("merge request got no clear answer and the PR hasn't merged")
+    finish_merge(number, comment, sha, reason)
 
 
 def handle_event():
@@ -370,9 +470,8 @@ def handle_event():
             evaluate(event["issue"]["number"])
     elif name == "workflow_run":
         sha = event["workflow_run"]["head_sha"]
-        for pr in paged(f"/repos/{REPO}/pulls?state=open"):
-            if pr["head"]["sha"] == sha:
-                evaluate(pr["number"])
+        evaluate_each(pr["number"] for pr in paged(f"/repos/{REPO}/pulls?state=open")
+                      if pr["head"]["sha"] == sha)
     elif name == "workflow_dispatch" and (event.get("inputs") or {}).get("pr"):
         evaluate(int(event["inputs"]["pr"]))
     else:
@@ -380,8 +479,25 @@ def handle_event():
 
 
 def sweep():
-    for pr in paged(f"/repos/{REPO}/pulls?state=open"):
-        evaluate(pr["number"])
+    """Evaluate every open PR, and every recently merged one whose status may be unfinished."""
+    recent = api("GET", f"/repos/{REPO}/pulls?state=closed&sort=updated&direction=desc&per_page=50")
+    merged = [pr["number"] for pr in recent
+              if pr.get("merged_at") and now() - parse_time(pr["merged_at"]) < RECENT_MERGES]
+    evaluate_each([*(pr["number"] for pr in paged(f"/repos/{REPO}/pulls?state=open")), *merged])
+
+
+def evaluate_each(numbers):
+    """Evaluate several PRs. One PR's error doesn't stop the others; the run still fails at the
+    end, so the error shows."""
+    failed = []
+    for number in numbers:
+        try:
+            evaluate(number)
+        except Exception as e:
+            print(f"#{number}: error: {e!r}")
+            failed.append(number)
+    if failed:
+        sys.exit(f"errors on {', '.join(f'#{n}' for n in failed)}")
 
 
 def main():
