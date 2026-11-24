@@ -16,29 +16,54 @@
 use strict;
 use warnings;
 use Test::More;
-use HTTP::Request;
 use HTML::Parser;
+use HTTP::Request::Common qw(GET POST);
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use DW::Cache;
+use DW::Request;
 use DW::Request::Standard;
 use LJ::Test qw(temp_user with_fake_memcache);
 use LJ::Widget::CustomTextModule;
 use LJ::S2;
+use S2;
 
+sub prepare_blank_heading_prop {
+    my $reader = LJ::get_db_reader();
+    local $reader->{RaiseError} = 1;
+    my ($propid) = $reader->selectrow_array( 'SELECT upropid FROM userproplist WHERE name = ?',
+        undef, 'customtext_title_blank' );
+    return if defined $propid;
+
+    $reader->do('CREATE TEMPORARY TABLE userproplist SELECT * FROM userproplist');
+    my ($next_propid) = $reader->selectrow_array('SELECT MAX(upropid) + 1 FROM userproplist');
+    $reader->do(
+        q{INSERT INTO userproplist (upropid, name, indexed, cldversion, datatype)
+          VALUES (?, ?, '0', 4, 'bool')}, undef, $next_propid, 'customtext_title_blank'
+    );
+}
+
+prepare_blank_heading_prop();
 my $u = temp_user();
 $u->set_prop( stylesys => 1 );
-$u->{_s2styleid}   = 0;
-$u->{_journalbase} = $u->journal_base;
-my $request = DW::Request::Standard->new( HTTP::Request->new( GET => 'http://localhost/' ) );
 my @context;
-$context[S2::PROPS] = {
+$context[S2::LAYERLIST] = [];
+$context[S2::PROPS]     = {
     text_module_customtext         => 'Custom Text',
     text_module_customtext_url     => '',
     text_module_customtext_content => ''
 };
-my $reset = 0;
+
+sub start_widget_request {
+    my ($http_request) = @_;
+    DW::Request->reset;
+    DW::Cache->request->clear;
+    DW::Request::Standard->new($http_request);
+    LJ::set_remote($u);
+}
 
 sub heading {
     my ( $expected, $description ) = @_;
+    start_widget_request( GET 'http://localhost/customize/options' );
     my $html = LJ::Widget::CustomTextModule->render_body( count => 0 );
     my $value;
     my $parser = HTML::Parser->new(
@@ -56,43 +81,45 @@ sub heading {
     );
     $parser->parse($html);
     is( $value, $expected, "$description in editor" );
+    LJ::set_remote(undef);
+    local $u->{_s2styleid}   = 0;
+    local $u->{_journalbase} = $u->journal_base;
     my $page = LJ::S2::Page( $u, { getargs => {}, ctx => \@context } );
     is( $page->{customtext_title}, $expected, "$description in journal page" );
 }
 
 sub save_heading {
-    my ($title) = @_;
-    LJ::Widget::CustomTextModule->handle_post(
-        {
-            module_customtext_title   => $title,
-            module_customtext_url     => '',
-            module_customtext_content => 'Custom text body',
-        }
+    my ( $title, $reset ) = @_;
+    start_widget_request(
+        POST 'http://localhost/customize/options',
+        Content => [
+            'Widget[CustomTextModule]_module_customtext_title'   => $title,
+            'Widget[CustomTextModule]_module_customtext_url'     => '',
+            'Widget[CustomTextModule]_module_customtext_content' => 'Custom text body',
+            ( $reset ? ( 'Widget[CustomizeTheme]_reset' => 1 ) : () ),
+        ]
     );
+    LJ::Widget::CustomTextModule->handle_post( LJ::Widget::CustomTextModule->post_fields );
 }
 
-{
-    no warnings 'redefine';
-    local *LJ::Widget::CustomTextModule::get_effective_remote = sub { $u };
-    local *LJ::Widget::post_fields_of_widget                  = sub { { reset => $reset } };
-    local *LJ::get_remote                                     = sub { undef };
-    local *S2::get_style_modtime                              = sub { 0 };
+with_fake_memcache {
+    heading( 'Custom Text', 'unset heading keeps default' );
+    save_heading('');
+    heading( '', 'saved blank heading remains blank' );
+    heading( '', 'rendering does not restore default' );
     with_fake_memcache {
-        heading( 'Custom Text', 'unset heading keeps default' );
-        save_heading('');
-        heading( '', 'saved blank heading remains blank' );
-        heading( '', 'rendering does not restore default' );
-        save_heading('A custom heading');
-        heading( 'A custom heading', 'named heading still works' );
-        save_heading('');
-        heading( '', 'named heading can be cleared' );
-        $reset = 1;
-        save_heading('');
-        heading( 'Custom Text', 'reset restores default' );
-        $reset = 0;
-        save_heading('Another heading');
-        heading( 'Another heading', 'heading can be set after reset' );
-        is( $u->prop('customtext_content'), 'Custom text body', 'body is retained' );
+        DW::Cache->request->clear;
+        $u = LJ::load_userid( $u->id, 'force' );
+        heading( '', 'blank heading persists after a database reload' );
     };
-}
+    save_heading('A custom heading');
+    heading( 'A custom heading', 'named heading still works' );
+    save_heading('');
+    heading( '', 'named heading can be cleared' );
+    save_heading( '', 1 );
+    heading( 'Custom Text', 'reset restores default' );
+    save_heading('Another heading');
+    heading( 'Another heading', 'heading can be set after reset' );
+    is( $u->prop('customtext_content'), 'Custom text body', 'body is retained' );
+};
 done_testing();
