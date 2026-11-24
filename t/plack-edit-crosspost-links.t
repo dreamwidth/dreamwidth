@@ -23,6 +23,31 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::External::Account;
 use LJ::Test qw(temp_user with_fake_memcache);
 
+my $temporary_logproplist;
+
+END {
+    $temporary_logproplist->do('DROP TEMPORARY TABLE logproplist')
+        if $temporary_logproplist && $temporary_logproplist->{Active};
+}
+
+unless ( LJ::get_prop( 'log', 'opt_hide_xpost_links' ) ) {
+    my $reader = LJ::get_db_reader();
+    local $reader->{RaiseError} = 1;
+    $reader->do('CREATE TEMPORARY TABLE logproplist SELECT * FROM logproplist');
+    $temporary_logproplist = $reader;
+    my ($propid) = $reader->selectrow_array('SELECT MAX(propid) + 1 FROM logproplist');
+    $reader->do(
+        q{INSERT INTO logproplist
+          (propid, name, datatype, scope, des, prettyname, sortorder, ownership)
+          VALUES (?, ?, 'bool', 'general', ?, ?, 107, 'user')},
+        undef, $propid, 'opt_hide_xpost_links',
+        q{Do not display this entry's links to crossposts}, 'Hide Links to Crossposts'
+    );
+    delete $LJ::CACHE_PROP{log};
+    delete $LJ::CACHE_PROPID{log};
+    LJ::load_props('log');
+}
+
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
