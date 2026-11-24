@@ -170,39 +170,38 @@ sub profile_handler {
     push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
     my %services_by_id = map { $_->{service_id} => $_ } @services;
 
-    my @db_service_rows;
-    my %existing_db_accts;
-    my %legacy_service_ids;
-    if (%$profile_accts) {
-        foreach my $site (@services) {
-            my $s_id = $site->{service_id};
-            next unless $profile_accts->{$s_id};
-            foreach my $acct ( @{ $profile_accts->{$s_id} } ) {
-                my ( $a_id, $val ) = @$acct;
-                $existing_db_accts{"$s_id:$a_id"} = 1;
-                push @db_service_rows,
+    my $stored_service_rows = sub {
+        my ($accounts) = @_;
+        my @rows;
+        if (%$accounts) {
+            foreach my $site (@services) {
+                foreach my $acct ( @{ $accounts->{ $site->{service_id} } || [] } ) {
+                    push @rows,
+                        {
+                        service => $site,
+                        dbid    => $acct->[0],
+                        value   => $acct->[1],
+                        };
+                }
+            }
+        }
+        else {
+            foreach my $site (@services) {
+                next unless $site->{userprop};
+                my $val = $u->{ $site->{userprop} };
+                next unless $val;
+                push @rows,
                     {
                     service => $site,
-                    dbid    => $a_id,
+                    dbid    => 0,
                     value   => $val,
                     };
             }
         }
-    }
-    else {
-        foreach my $site (@services) {
-            next unless $site->{userprop};
-            my $val = $u->{ $site->{userprop} };
-            next unless $val;
-            $legacy_service_ids{ $site->{service_id} } = 1;
-            push @db_service_rows,
-                {
-                service => $site,
-                dbid    => 0,
-                value   => $val,
-                };
-        }
-    }
+        return @rows;
+    };
+
+    my @db_service_rows = $stored_service_rows->($profile_accts);
 
     my $build_service_rows = sub {
         my ( $pending_existing, $pending_legacy, $pending_new ) = @_;
@@ -236,20 +235,8 @@ sub profile_handler {
                 };
         }
 
-        my @overflow_new;
         foreach my $row ( @{ $pending_new || [] } ) {
-            if ( $ct <= 26 ) {
-                push @rows,
-                    {
-                    ct        => $ct++,
-                    site      => $row->{site},
-                    value     => $row->{value} // '',
-                    submitted => 1,
-                    };
-            }
-            else {
-                push @overflow_new, { %$row, submitted => 1 };
-            }
+            push @rows, { %$row, ct => $ct++, submitted => 1 };
         }
 
         while ( $ct <= 26 ) {
@@ -261,10 +248,10 @@ sub profile_handler {
                 };
         }
 
-        return ( \@rows, \@overflow_new );
+        return \@rows;
     };
 
-    my ($service_rows) = $build_service_rows->();
+    my $service_rows = $build_service_rows->();
 
     # Email display
     # This is one prop in the backend, but two form fields on the settings page
@@ -360,10 +347,24 @@ sub profile_handler {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
         }
 
+        my %existing_db_accts;
+        my %legacy_service_ids;
+        foreach my $row (@db_service_rows) {
+            my $s_id = $row->{service}{service_id};
+            if ( my $a_id = $row->{dbid} ) {
+                $existing_db_accts{"$s_id:$a_id"} = 1;
+            }
+            else {
+                $legacy_service_ids{$s_id} = 1;
+            }
+        }
+
         my %pending_existing;
         my %pending_legacy;
         my @pending_new;
-        foreach my $ct ( 1 .. 26 ) {
+        my %posted_rows = map { /\Aextservice_(?:site|val)_([1-9][0-9]*)\z/ ? ( $1 => 1 ) : () }
+            keys %$POST;
+        foreach my $ct ( sort { length($a) <=> length($b) || $a cmp $b } keys %posted_rows ) {
             my $s_id = $POST->{"extservice_site_$ct"} // '';
             my $a_id = $POST->{"extservice_dbid_$ct"} // '';
             my $val  = $POST->{"extservice_val_$ct"}  // '';
@@ -385,18 +386,18 @@ sub profile_handler {
             }
         }
 
-        my ( $post_service_rows, $overflow_new ) =
+        my $post_service_rows =
             $build_service_rows->( \%pending_existing, \%pending_legacy, \@pending_new );
         $vars->{service_rows} = $post_service_rows;
 
         my %new_accts;
-        foreach my $row ( @$post_service_rows, @$overflow_new ) {
+        foreach my $row (@$post_service_rows) {
             next unless $row->{submitted};
             my $site = $row->{service} || $services_by_id{ $row->{site} // '' };
             next unless $site;
 
             my $s_id  = $site->{service_id};
-            my $field = $row->{ct} ? "extservice_val_$row->{ct}" : '';
+            my $field = "extservice_val_$row->{ct}";
             my $val   = $row->{value} // '';
 
             if ( $site->{name} eq 'mastodon' ) {
@@ -413,22 +414,6 @@ sub profile_handler {
             }
             elsif ( $val ne '' ) {
                 push @{ $new_accts{$s_id} }, $val;
-            }
-        }
-
-        my $valid_interests;
-        unless ( $POST->{'interests_absent'} ) {
-            my $maxinterests = $u->count_max_interests;
-            my @ints         = LJ::interest_string_to_list( $POST->{'interests'} );
-
-            if ( @ints > $maxinterests ) {
-                $errors->add( 'interests', 'error.interest.excessive2',
-                    { intcount => scalar(@ints), maxinterests => $maxinterests } );
-            }
-            else {
-                my @interrors;
-                $valid_interests = [ LJ::validate_interest_list( \@interrors, @ints ) ];
-                map { $errors->add( 'interests', @$_ ) } @interrors;
             }
         }
 
@@ -577,7 +562,38 @@ sub profile_handler {
         LJ::EmbedModule->parse_module_embed( $u, \$POST->{'bio'} );
         $u->set_bio( $POST->{'bio'} );
 
-        $u->set_interests($valid_interests) if $valid_interests;
+        # update interests
+        unless ( $POST->{'interests_absent'} ) {
+            my $maxinterests = $u->count_max_interests;
+
+            my @ints      = LJ::interest_string_to_list( $POST->{'interests'} );
+            my $intcount  = scalar(@ints);
+            my @interrors = ();
+
+            # Don't bother validating the interests if there are already too many
+            if ( $intcount > $maxinterests ) {
+                $errors->add(
+                    'interests',
+                    'error.interest.excessive2',
+                    {
+                        intcount     => $intcount,
+                        maxinterests => $maxinterests
+                    }
+                );
+            }
+            else {
+                # Clean interests, and make sure they're valid
+                my @valid_ints = LJ::validate_interest_list( \@interrors, @ints );
+                if ( @interrors > 0 ) {
+                    map { $errors->add( 'interests', @$_ ) } @interrors;
+                }
+                else {
+                    my $updated_interests_str = join( ", ", @valid_ints );
+                    $u->set_interests( \@valid_ints );
+                    $vars->{interests} = $updated_interests_str;
+                }
+            }
+        }
 
         LJ::Hooks::run_hooks( 'profile_save', $u, \%saved, $POST );
         LJ::Hooks::run_hooks( 'spam_check',   $u, $POST,   'userbio' );
@@ -610,6 +626,15 @@ sub profile_handler {
                 . "<li><a href='$LJ::SITEROOT/manage/icons$getextra'>"
                 . LJ::Lang::ml("$scope.success.editicons")
                 . "</a></li></ul>";
+        }
+
+        # interest validation (above) can add errors after the main save; if so,
+        # re-render with them instead of reporting success
+        if ( $errors->exist ) {
+            @db_service_rows = $stored_service_rows->( $u->load_profile_accts( force_db => 1 ) );
+            $vars->{service_rows} = $build_service_rows->();
+            $vars->{errors}       = $errors;
+            return DW::Template->render_template( 'manage/profile.tt', $vars );
         }
 
         return $r->msg_redirect( $success_msg, $r->SUCCESS, $profile_url );

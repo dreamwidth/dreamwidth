@@ -66,20 +66,30 @@ is_deeply( $owner->load_profile_accts->{ $mastodon->{service_id} },
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-subtest 'invalid profile submissions do not save Other Sites accounts' => sub {
+subtest 'Mastodon errors block profile saves, but interest errors do not' => sub {
     local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'profileMastodonTest';
     my $editor = temp_user();
 
-    my $url    = 'http://localhost/manage/profile?as=' . $editor->user;
+    my $url     = 'http://localhost/manage/profile?as=' . $editor->user;
+    my %profile = (
+        name                                     => 'Profile owner',
+        year                                     => 1990,
+        month                                    => 1,
+        day                                      => 1,
+        LJ__Setting__FindByEmail_opt_findbyemail => 'N',
+    );
     my %fields = (
-        name              => 'Profile owner',
+        %profile,
         extservice_site_1 => $mastodon->{service_id},
         extservice_val_1  => 'retry@social.example',
         extservice_site_2 => $services{patreon}->{service_id},
         extservice_val_2  => 'retry',
         interests => join( ', ', map { "interest $_" } 1 .. $editor->count_max_interests + 1 ),
     );
-    $fields{LJ__Setting__FindByEmail_opt_findbyemail} = 'N';
+    my $read_name = sub {
+        return LJ::get_db_writer()
+            ->selectrow_array( 'SELECT name FROM user WHERE userid = ?', undef, $editor->id );
+    };
 
     test_psgi $app, sub {
         my ($request) = @_;
@@ -87,12 +97,12 @@ subtest 'invalid profile submissions do not save Other Sites accounts' => sub {
         my ($token)   = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
         ok( $token, 'received a profile form token' ) or return;
 
-        my $original_name = $editor->{name};
+        my $original_name = $read_name->();
         my %invalid       = ( %fields, extservice_val_1 => 'retry', interests => 'gardening' );
         my $invalid_handle =
             $request->( POST $url, Content => [ %invalid, lj_form_auth => $token ] );
         is( $invalid_handle->code, 200, 'an incomplete handle returns the editor' );
-        is( LJ::load_userid( $editor->id, 1 )->{name},
+        is( scalar $read_name->(),
             $original_name, 'an incomplete handle leaves the profile name unchanged' );
         is_deeply( $editor->load_profile_accts( force_db => 1 ),
             {}, 'an incomplete handle prevents saving either service' );
@@ -109,13 +119,27 @@ subtest 'invalid profile submissions do not save Other Sites accounts' => sub {
             qr/<input(?=[^>]*\bname="extservice_val_1")[^>]*\bvalue="retry\@social\.example"/,
             'rejected form retains the new handle'
         );
-        is_deeply( $editor->load_profile_accts( force_db => 1 ),
-            {}, 'rejected form does not save either service' );
+        is( scalar $read_name->(),
+            $fields{name}, 'excess interests do not prevent saving the profile name' );
+        my $accounts = $editor->load_profile_accts( force_db => 1 );
+        is_deeply(
+            [ map { $_->[1] } @{ $accounts->{ $mastodon->{service_id} } || [] } ],
+            [ $fields{extservice_val_1} ],
+            'excess interests do not prevent saving Mastodon'
+        );
 
         ($token) = $rejected->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
         ok( $token, 'received a token for the retry' ) or return;
-        $fields{interests} = 'gardening';
-        my $accepted = $request->( POST $url, Content => [ %fields, lj_form_auth => $token ] );
+        my ($retry_fields) = _parse_extservice_rows( $rejected->content );
+        my $accepted = $request->(
+            POST $url,
+            Content => [
+                %$retry_fields,
+                %profile,
+                interests    => 'gardening',
+                lj_form_auth => $token,
+            ]
+        );
         ok( $accepted->is_redirect, 'corrected submission redirects to the profile' );
         is_deeply( [ keys %{ $editor->interests( { forceids => 1 } ) } ],
             ['gardening'], 'the corrected interests are saved' );
@@ -152,8 +176,10 @@ sub _parse_extservice_rows {
     }
 
     my %by_dbid;
-    foreach my $ct ( 1 .. 26 ) {
-        my $dbid = $fields{"extservice_dbid_$ct"};
+    foreach my $field ( keys %fields ) {
+        my ($ct) = $field =~ /\Aextservice_dbid_(\d+)\z/;
+        next unless defined $ct;
+        my $dbid = $fields{$field};
         next unless defined $dbid && $dbid ne '';
         $by_dbid{$dbid} = {
             ct    => $ct,
@@ -163,7 +189,7 @@ sub _parse_extservice_rows {
         };
     }
 
-    return ( \%fields, \%by_dbid );
+    return ( \%fields, \%by_dbid, \%errors );
 }
 
 subtest 'rejected edits keep account identities across intervening DB changes' => sub {
@@ -202,15 +228,14 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
 
             my %post = (
                 %$fields,
-                name                                     => 'Profile owner',
+                name                                     => '',
                 LJ__Setting__FindByEmail_opt_findbyemail => 'N',
                 extservice_val_1                         => '',
-                interests =>
-                    join( ', ', map { "interest $_" } 1 .. $editor->count_max_interests + 1 ),
-                lj_form_auth => $token,
+                interests                                => 'gardening',
+                lj_form_auth                             => $token,
             );
             my $rejected = $request->( POST $url, Content => [%post] );
-            is( $rejected->code, 200, 'excess interests return editor after intervening reorder' );
+            is( $rejected->code, 200, 'missing name returns editor after intervening reorder' );
 
             my ( $retry_fields, $retry_by_dbid ) = _parse_extservice_rows( $rejected->content );
             is( $retry_by_dbid->{$bob_id}{value},
@@ -317,16 +342,14 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
                 POST $url,
                 Content => [
                     %$fields,
-                    name                                     => 'Profile owner',
+                    name                                     => '',
                     LJ__Setting__FindByEmail_opt_findbyemail => 'N',
                     extservice_val_1                         => '',
-                    interests =>
-                        join( ', ', map { "interest $_" } 1 .. $editor->count_max_interests + 1 ),
-                    lj_form_auth => $token,
+                    interests                                => 'gardening',
+                    lj_form_auth                             => $token,
                 ]
             );
-            is( $rejected->code, 200,
-                'excess interests return editor for sibling service reorder' );
+            is( $rejected->code, 200, 'missing name returns editor for sibling service reorder' );
 
             my ( $retry_fields, $retry_by_dbid ) = _parse_extservice_rows( $rejected->content );
             is( $retry_by_dbid->{$bob_id}{value},
@@ -375,15 +398,14 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
                 POST $url,
                 Content => [
                     %$fields,
-                    name                                     => 'Profile owner',
+                    name                                     => '',
                     LJ__Setting__FindByEmail_opt_findbyemail => 'N',
                     extservice_val_1                         => '',
-                    interests =>
-                        join( ', ', map { "interest $_" } 1 .. $editor->count_max_interests + 1 ),
-                    lj_form_auth => $token,
+                    interests                                => 'gardening',
+                    lj_form_auth                             => $token,
                 ]
             );
-            is( $rejected->code, 200, 'excess interests return editor after intervening delete' );
+            is( $rejected->code, 200, 'missing name returns editor after intervening delete' );
 
             my ( $retry_fields, $retry_by_dbid ) = _parse_extservice_rows( $rejected->content );
             ok( !exists $retry_by_dbid->{$alice_id}, 'deleted account is omitted on redisplay' );
@@ -434,16 +456,15 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
                 POST $url,
                 Content => [
                     %$fields,
-                    name                                     => 'Profile owner',
+                    name                                     => '',
                     LJ__Setting__FindByEmail_opt_findbyemail => 'N',
                     extservice_site_2                        => $p_id,
                     extservice_val_2                         => 'newpatreon',
-                    interests =>
-                        join( ', ', map { "interest $_" } 1 .. $editor->count_max_interests + 1 ),
-                    lj_form_auth => $token,
+                    interests                                => 'gardening',
+                    lj_form_auth                             => $token,
                 ]
             );
-            is( $rejected->code, 200, 'excess interests return editor after intervening add' );
+            is( $rejected->code, 200, 'missing name returns editor after intervening add' );
 
             my ( $retry_fields, $retry_by_dbid ) = _parse_extservice_rows( $rejected->content );
             is( $retry_by_dbid->{$alice_id}{value},
@@ -478,6 +499,63 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
             is_deeply( [ map { $_->[1] } @{ $final->{$p_id} || [] } ],
                 ['newpatreon'], 'pending new Patreon account saves after retry' );
         }
+    };
+};
+
+subtest 'invalid new Mastodon handle survives a concurrent fill of the last slot' => sub {
+    local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'profileMastodonOverflowTest';
+    my $editor = temp_user();
+    my $url    = 'http://localhost/manage/profile?as=' . $editor->user;
+    my $m_id   = $mastodon->{service_id};
+    $editor->save_profile_accts( { $m_id => [ map { "user$_\@social.example" } 1 .. 25 ] } );
+
+    test_psgi $app, sub {
+        my ($request) = @_;
+        my $form      = $request->( GET $url );
+        my ($token)   = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        ok( $token, 'received token for the original form' ) or return;
+        my ($fields) = _parse_extservice_rows( $form->content );
+        is( $fields->{extservice_val_26}, '', 'the original form has one empty slot' );
+
+        $editor->save_profile_accts( { $m_id => ['another_tab@social.example'] } );
+        my $full    = $editor->load_profile_accts( force_db => 1 )->{$m_id};
+        my %profile = (
+            name                                     => 'Profile owner',
+            LJ__Setting__FindByEmail_opt_findbyemail => 'N',
+            interests                                => 'gardening',
+        );
+        my $rejected = $request->(
+            POST $url,
+            Content => [
+                %$fields, %profile,
+                extservice_site_26 => $m_id,
+                extservice_val_26  => 'not-a-handle',
+                lj_form_auth       => $token,
+            ]
+        );
+        is( $rejected->code, 200,
+            'invalid handle returns the editor even when every slot is full' );
+        my ( $retry_fields, $by_dbid, $errors ) = _parse_extservice_rows( $rejected->content );
+        is( scalar keys %$by_dbid, 26, 'all existing accounts remain editable' );
+        is( $retry_fields->{extservice_site_27}, $m_id,
+            'extra row retains the Mastodon selection' );
+        is( $retry_fields->{extservice_val_27},
+            'not-a-handle', 'extra row retains the invalid handle' );
+        ok( $errors->{extservice_val_27}, 'the extra textbox is marked invalid' );
+        is_deeply( $editor->load_profile_accts( force_db => 1 )->{$m_id},
+            $full, 'the invalid submission does not change any account' );
+
+        ($token) = $rejected->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        ok( $token, 'received token for the redisplayed form' ) or return;
+        $retry_fields->{extservice_val_27} = 'fixed@social.example';
+        my $accepted = $request->( POST $url,
+            Content => [ %$retry_fields, %profile, lj_form_auth => $token ] );
+        ok( $accepted->is_redirect, 'fixing the handle in the extra row succeeds' );
+        my $saved = $editor->load_profile_accts( force_db => 1 )->{$m_id};
+        is_deeply( [ grep { $_->[1] ne 'fixed@social.example' } @$saved ],
+            $full, 'the retry preserves all previous account IDs and values' );
+        is( scalar( grep { $_->[1] eq 'fixed@social.example' } @$saved ),
+            1, 'the retry saves exactly one corrected account' );
     };
 };
 
