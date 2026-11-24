@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 35;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
@@ -271,8 +271,8 @@ foo
 }
 
 # seen in the wild (#2907): an HTML-only reply, where the quoted header escapes
-# the angle brackets around our address. The cut is per line, and the
-# separator above the header is not recognized, so it stays.
+# the angle brackets around our address. The separator above the header is
+# not recognized, so it stays.
 {
     my $nonquoted = DW::CleanEmail->nonquoted_text(
         q{<div>reply text</div>
@@ -291,6 +291,41 @@ foo
         $nonquoted, q{<div>reply text</div>
 <div>&nbsp;</div>
 <div>---------------</div>}, "removed the quoted notification from an HTML reply"
+    );
+}
+
+foreach my $header (
+    q{<div>From: &lt;dw_null@dreamwidth.org&gt;</div>},
+    q{<p>On Monday, DW Comment <dw_null@dreamwidth.org> wrote:</p>},
+    q{<div><b>From:</b> <a href="mailto:dw_null@dreamwidth.org">DW Comment</a></div>},
+    )
+{
+    my $reply = '<div>My reply</div>';
+    is( DW::CleanEmail->nonquoted_text("$reply$header<div>Quoted text</div>\nMore quoted text"),
+        $reply, "kept the HTML reply before $header on the same line" );
+}
+
+foreach my $address (
+    q{<dw_null@dreamwidth.org.example>},      q{&lt;dw_null@dreamwidth.org.example&gt;},
+    q{mailto:dw_null@dreamwidth.org.example}, q{dw_null@dreamwidth.org.example},
+    q{<dw_null@dreamwidth.org-example>},      q{mailto:dw_null@dreamwidth.orgfoo},
+    q{mailto:dw_null@dreamwidth.org_example},
+    )
+{
+    my $reply = "My contact is $address.\nThanks!";
+    is( DW::CleanEmail->nonquoted_text($reply), $reply, "kept a different address: $address" );
+}
+
+foreach my $address (
+    q{<DW_NULL@DREAMWIDTH.ORG>},
+    q{&LT;DW_NULL@DREAMWIDTH.ORG&GT;},
+    q{MAILTO:DW_NULL@DREAMWIDTH.ORG},
+    )
+{
+    is(
+        DW::CleanEmail->nonquoted_text("My reply\nFrom: $address\nQuoted text"),
+        'My reply',
+        "removed the quoted header with uppercase address: $address"
     );
 }
 

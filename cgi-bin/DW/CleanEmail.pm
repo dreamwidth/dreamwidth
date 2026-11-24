@@ -33,6 +33,7 @@ sub nonquoted_text {
     my @lines = split /$/m, $text;
 
     my $num_lines = 0;
+    my $address   = quotemeta( $LJ::BOGUS_EMAIL // '' );
 
     # remove all quoted lines, nice and easy
     foreach (@lines) {
@@ -42,10 +43,22 @@ sub nonquoted_text {
         # but this can be in various languages, so  not hardcoding the text
         last if m/^\s*-{3,}[^-]+-{3,}\s*$/;
 
-        # the bogus email we sent the comments as, in a quoted header: <addr>,
-        # < addr>, <addr<mailto:addr>>, [mailto:addr] or &lt;addr&gt; (HTML replies).
-        # A bare mention of the address in the reply itself is kept.
-        last if $LJ::BOGUS_EMAIL && m/(?:<|&lt;|mailto:)\s?\Q$LJ::BOGUS_EMAIL\E/i;
+        if (
+            $address
+            && m{
+              <\h*$address\h*(?=>|<mailto:)
+            | &lt;\h*$address\h*(?=&gt;|&lt;mailto:)
+            | mailto:\h*$address(?=$|[\s>"'\]),;?]|&(?:gt|quot|apos|\#39);)
+        }ix
+            )
+        {
+            my $before_address = substr $_, 0, $-[0];
+            return join "", @lines[ 0 .. $num_lines - 1 ], $1
+                if $before_address =~
+                m{\A(.*</(?:div|p|blockquote)\s*>)\s*<(?:div|p|blockquote)[\s>]}is;
+
+            last;
+        }
 
         $num_lines++;
     }
