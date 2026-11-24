@@ -22,6 +22,7 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::IncomingEmail;
+use LJ::Session;
 use LJ::Support;
 use LJ::Test qw(temp_user with_fake_memcache);
 
@@ -212,12 +213,26 @@ with_fake_memcache {
                 or die $dbh->errstr;
         };
         $close->();
-        my $sp     = LJ::Support::load_request($spid);
-        my $reopen = $client->( GET "http://localhost/support/act?touch;$spid;$sp->{authcode}" );
-        is( $reopen->code, 200, 'The email action link reopens the request' );
+        my $sp         = LJ::Support::load_request($spid);
+        my $cookie_for = sub {
+            my ($user) = @_;
+            my $session = LJ::Session->create( $user, nolog => 1 );
+            return
+                  'ljmastersession='
+                . $session->master_cookie_string
+                . '; ljloggedin='
+                . $session->loggedin_cookie_string;
+        };
+        my $cookie     = $cookie_for->($requester);
+        my $reopen_url = "http://localhost/support/act?touch;$spid;$sp->{authcode}";
+        my $reopen     = $client->( GET $reopen_url, Cookie => $cookie );
+        is( $reopen->code, 303, 'The web reopen link sends the signed-in requester back' );
         is( LJ::Support::load_request($spid)->{state},
             'open', 'The link reopens before any comment' );
-        expect_delivery('Reopening with the action link alone sends no mail');
+        expect_delivery( 'Requester web reopen reaches New and Regreens before any comment',
+            $regreen );
+        $client->( GET $reopen_url, Cookie => $cookie );
+        expect_delivery('Reusing the link on an already-green request sends no mail');
         $reply->(
             $requester,
             replytype => 'comment',
@@ -225,6 +240,21 @@ with_fake_memcache {
         );
         expect_delivery( 'A comment after the separate reopen reaches All only', $all,
             $all_reader );
+
+        $close->();
+        my $anonymous_reopen = $client->( GET $reopen_url );
+        is( $anonymous_reopen->code, 200, 'The signed link works without a session' );
+        is( LJ::Support::load_request($spid)->{state},
+            'open', 'An unsigned-in visitor can still reopen with the link' );
+        expect_delivery( 'A signed requester link also reaches New and Regreens without a session',
+            $regreen );
+
+        $close->();
+        $helper->grant_priv( 'supportclose', $catkey ) or die 'Could not grant supportclose';
+        my $staff_reopen = $client->( GET $reopen_url, Cookie => $cookie_for->($helper) );
+        is( $staff_reopen->code, 303, 'A staff member can still reopen the request' );
+        is( LJ::Support::load_request($spid)->{state}, 'open', 'The staff reopen succeeds' );
+        expect_delivery('A staff reopen is not a requester regreen');
 
         my ( $localpart, $domain ) = split /\@/, $mailbox;
         my $auth  = LJ::Support::mini_auth($sp);
@@ -275,20 +305,21 @@ EMAIL
                 $all, $all_reader );
         }
 
-        $close->();
-        my $competing_dbh    = $dbh->clone() or die $dbh->errstr;
-        my $guarded_attempts = 0;
-        {
+        my $competing_dbh = $dbh->clone() or die $dbh->errstr;
+        for my $competing_reopen ( 0, 1 ) {
+            $close->();
+            my $guarded_attempts = 0;
             local $dbh->{Callbacks} = {
                 do => sub {
                     my ( undef, $statement ) = @_;
                     if ( $statement =~ /WHERE spid=\? AND state <=>/ ) {
                         die 'Requester reply exceeded five guarded attempts'
                             if ++$guarded_attempts > 5;
-                        $competing_dbh->do(
-'UPDATE support SET timelasthelp=COALESCE(timelasthelp, 0)+1 WHERE spid=?',
-                            undef, $spid
-                        ) or die $competing_dbh->errstr;
+                        my $change =
+                            $competing_reopen && $guarded_attempts == 5
+                            ? q{UPDATE support SET state='open', timeclosed=0, timetouched=UNIX_TIMESTAMP(), timelasthelp=0 WHERE spid=?}
+                            : 'UPDATE support SET timelasthelp=COALESCE(timelasthelp, 0)+1 WHERE spid=?';
+                        $competing_dbh->do( $change, undef, $spid ) or die $competing_dbh->errstr;
                     }
                     return;
                 },
@@ -297,11 +328,21 @@ EMAIL
                 eval { DW::IncomingEmail->process( $email->('I still need help.') ) },
                 'Email is processed despite repeated concurrent changes'
             ) or diag $@;
+
+            is( $guarded_attempts, 5,
+                'Requester reply stops retrying after five guarded attempts' );
+            is( LJ::Support::load_request($spid)->{state},
+                'open', 'The request is open after repeated concurrent changes' );
+            if ($competing_reopen) {
+                expect_delivery( 'Fallback reaches All only if another writer already reopened',
+                    $all, $all_reader );
+            }
+            else {
+                expect_delivery(
+                    'Fallback reaches New and Regreens and All when it reopens the request',
+                    $regreen, $all, $all_reader, $requester );
+            }
         }
-        is( $guarded_attempts, 5, 'Requester reply stops retrying after five guarded attempts' );
-        is( LJ::Support::load_request($spid)->{state},
-            'open', 'Fallback reopens the request after repeated concurrent changes' );
-        expect_delivery( 'Fallback reaches All without claiming a regreen', $all, $all_reader );
     };
 };
 

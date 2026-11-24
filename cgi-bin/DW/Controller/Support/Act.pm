@@ -67,7 +67,14 @@ sub act_handler {
     if ( $action eq 'touch' ) {
         return error_ml("$scope.request.locked") if LJ::Support::is_locked($sp);
 
-        LJ::Support::touch_request($spid)
+        my $requester_id;
+        if ( !$remote ) {
+            $requester_id = $sp->{requserid} || 0;
+        }
+        elsif ( LJ::Support::is_poster( $sp, $remote ) ) {
+            $requester_id = $remote->id;
+        }
+        LJ::Support::touch_request( $spid, requester_id => $requester_id )
             or return error_ml("$scope.touch.failed");
 
         # Someone who can close goes straight back to the request; everyone else

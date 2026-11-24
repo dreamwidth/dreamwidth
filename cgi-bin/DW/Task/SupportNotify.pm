@@ -83,6 +83,9 @@ sub work {
         }
 
     }
+    elsif ( $type eq 'reopen' ) {
+        ( $body, @emails ) = LJ::Support::reopen_notification( $sp, $userids, $a->{posterid} );
+    }
     elsif ( $type eq 'update' ) {
 
         # load the response we want to stuff in the email
@@ -180,9 +183,9 @@ sub work {
             fromname => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
             charset  => 'utf-8',
             subject  => (
-                $type eq 'update'
-                ? LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } )
-                : LJ::Lang::ml( "support.email.subject",              { number => $spid } )
+                $type eq 'new'
+                ? LJ::Lang::ml( "support.email.subject",              { number => $spid } )
+                : LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } )
             ),
             body => $body,
             wrap => 1,
