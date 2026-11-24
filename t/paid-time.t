@@ -136,7 +136,7 @@ subtest 'paid expiration counts icons on older journal entries' => sub {
     my $user = temp_user();
     DW::Pay::add_paid_time( $user, 'paid', 1 ) or die DW::Pay::error_text();
 
-    my ( $default, $used, $unused ) = _create_icons( $user, qw(good.jpg good.png good.gif) );
+    my ( $default, $unused, $used ) = _create_icons( $user, qw(good.jpg good.png good.gif) );
     $default->make_default;
     $used->set_keywords('used');
 
@@ -156,13 +156,13 @@ subtest 'paid expiration counts icons on older journal entries' => sub {
     is_deeply(
         _active_picids($user),
         [ $default->id, $used->id ],
-        'the default and the historically used icon stay active instead of the newest upload'
+        'the historically used icon stays active ahead of the earlier unused upload'
     );
 
     ok( DW::Pay::add_paid_time( $user, 'paid', 1 ), 'renew paid time' );
     is_deeply(
         _active_picids($user),
-        [ $default->id, $used->id, $unused->id ],
+        [ $default->id, $unused->id, $used->id ],
         'renewal reactivates the unused icon'
     );
 };
