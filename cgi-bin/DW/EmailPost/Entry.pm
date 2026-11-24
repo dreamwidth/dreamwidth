@@ -74,11 +74,12 @@ sub _parse_destination {
 sub _process {
     my $self = $_[0];
 
+    my $stripped_mms_prefix = $self->_strip_virgin_mobile_mms_prefix(qr/\A/);
     $self->_extract_pin;
     my $headers = $self->_extract_post_headers;
     $self->_extract_post_headers($headers) if !$self->{pin} && $self->_extract_pin;
-    $self->_check_pin_validity      or return $self->send_error;
-    $self->_cleanup_mobile_carriers or return $self->send_error;
+    $self->_check_pin_validity or return $self->send_error;
+    $self->_cleanup_mobile_carriers($stripped_mms_prefix) or return $self->send_error;
 
     # figure out what entryprops should be based on post headers in email
     # and user's defaults
@@ -394,8 +395,15 @@ sub _check_pin_validity {
     return 1;
 }
 
+# Virgin Mobile adds text to the top of the message, before any post headers.
+sub _strip_virgin_mobile_mms_prefix {
+    my ( $self, $start ) = @_;
+    return unless $self->{return_path} && $self->{return_path} =~ /vmpix\.com$/;
+    return $self->{body} =~ s/${start}This is an? MMS message\.\s+//;
+}
+
 sub _cleanup_mobile_carriers {
-    my $self = $_[0];
+    my ( $self, $stripped_mms_prefix ) = @_;
 
     # Is this message from a sprint PCS phone?  Sprint doesn't support
     # MMS (yet) - when it does, we should just be able to rip this block
@@ -547,11 +555,7 @@ sub _cleanup_mobile_carriers {
     # verizon crap.  remove paragraphs of text.
     $self->{body} =~ s/This message was sent using.+?Verizon.+?faster download\.//s;
 
-    # virgin mobile adds text to the *top* of the message, killing post-headers.
-    # Kill this silly (and grammatically incorrect) string.
-    if ( $return_path && $return_path =~ /vmpix\.com$/ ) {
-        $self->{body} =~ s/^This is an? MMS message\.\s+//ms;
-    }
+    $self->_strip_virgin_mobile_mms_prefix(qr/^/m) unless $stripped_mms_prefix;
 
     # UK service 'O2' does some bizarre stuff.
     # No concept of a subject - it uses the first 40 characters from the body,

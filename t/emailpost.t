@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 181;
+use Test::More tests => 210;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -184,6 +184,15 @@ BODY
     my $jitemid  = 6;
     my $preamble = "<!DOCTYPE html>\n<html>\n<head><title>Email title</title></head>\n";
 
+    my $mms = build_message( 'Virgin Mobile MMS',
+        'text/plain', "This is an MMS message.\n\npost-security: private\n\nA private MMS." );
+    $mms->head->replace( 'Return-Path', '<sender@vmpix.com>' );
+    my ( $mms_ok, $mms_msg ) = DW::EmailPost->get_handler($mms)->process;
+    ok( $mms_ok, 'Posted a Virgin Mobile MMS' ) or diag $mms_msg;
+    my $mms_entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $mms_entry->security, 'private', 'Privacy directive after the carrier prefix applies' );
+    is( $mms_entry->event_raw, 'A private MMS.', 'Carrier prefix and directive are not posted' );
+
     my $pin_mime = build_message(
         'Body PIN between settings',
         'text/plain',
@@ -262,6 +271,11 @@ BODY
         [ 'implied body after closed head',  "$preamble$directive</html>" ],
         [ 'implied body with a div wrapper', "$preamble<div>$directive</div></html>" ],
         [ 'implied body after title',        "<head><title>Mail</title>$directive" ],
+        [ 'directional div wrapper',         qq{<div dir="ltr">$directive</div>} ],
+        [
+            'styled paragraph after a setting',
+            qq{post-format: html\n<p class="mail-body" style="color: black">$directive</p>}
+        ],
         [
             'comment immediately inside body',
             "$implied_head<body><!-- mail client -->$directive</body>"
@@ -406,6 +420,28 @@ BODY
     );
 
     for my $case (
+        [ 'attributed blockquote', '<blockquote type="cite">', '</blockquote>' ],
+        [ 'Gmail quote',   '<div dir="ltr" class="mail-body gmail_quote">', '</div>' ],
+        [ 'Yahoo quote',   '<div class="yahoo&#95;quoted">',                '</div>' ],
+        [ 'Outlook reply', '<div id="divRplyFwdMsg">',                      '</div>' ],
+        )
+    {
+        my ( $label, $opening, $closing ) = @$case;
+        my $mime = build_message( "Leading $label",
+            'text/html',
+            "<div dir=\"ltr\">$opening\npost-security: private\nQuoted text.\n$closing</div>" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML beginning with a $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', "Quoted directive does not apply in a $label" );
+        like(
+            $entry->event_raw,
+            qr/post-security: private\s+Quoted text\./,
+            "Quoted directive is retained in a $label"
+        );
+    }
+
+    for my $case (
         [ 'on a setting line', 'post-foo: bar', '<blockquote>', '</blockquote>' ],
         [ 'after a continued value', "post-foo:\n  bar", '<div class="gmail_quote">', '</div>' ],
         )
@@ -473,6 +509,24 @@ BODY
         qr/post-(?:location|security):/i,
         'Settings with attributed inline formatting are removed'
     );
+
+    for my $case (
+        [ 'linked music',         '<a href="song">Song</a>' ],
+        [ 'code-formatted music', '<code>Song</code>' ],
+        )
+    {
+        my ( $label, $music ) = @$case;
+        my $mime = build_message( "HTML setting with $label",
+            'text/html', "post-music: $music\npost-security: private\n\nMessage" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->prop('current_music'), 'Song',
+            "The music is stored without markup for $label" );
+        is( $entry->security, 'private', "Privacy setting after $label still applies" );
+        unlike( $entry->event_raw, qr/post-(?:music|security):/i,
+            "Settings with $label are removed" );
+    }
 
     for my $case (
         [ 'quoted greater-than attribute', 'post-location: <span title="5 > 3">Somewhere</span>', ],

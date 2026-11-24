@@ -241,7 +241,7 @@ sub _extract_post_headers {
     my $start        = pos($body);
     my $end          = $start;
     my $markup       = '';
-    my $inline_name  = qr/(?:b|em|i|s|small|span|strong|u)/i;
+    my $inline_name  = qr/(?:a|b|code|em|i|s|small|span|strong|u)/i;
     my $inline_attrs = qr{
         \s++
         (?:
@@ -299,8 +299,8 @@ sub _html_header_offset {
     my $parser       = HTML::TokeParser->new( \$body_content );
     my $wrapper =
         defined $after_header
-        ? qr{<(?:div|p)[ \t]*>|<br[ \t]*/?>}i
-        : qr{<(?:div|p)[ \t]*>|<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
+        ? qr{<br[ \t]*/?>}i
+        : qr{<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $text ) = @$token;
@@ -311,7 +311,9 @@ sub _html_header_offset {
         }
         elsif ( $type eq 'S' || $type eq 'D' ) {
             my $raw = $type eq 'S' ? $token->[4] : $text;
-            last unless $raw =~ /\A$wrapper\z/;
+            last
+                unless $raw =~ /\A$wrapper\z/
+                || ( $type eq 'S' && _is_html_header_wrapper($token) );
             $offset += length $raw;
             if ( $type eq 'S' ) {
                 $line_start  = $offset;
@@ -338,6 +340,21 @@ sub _html_header_offset {
     }
 
     return $line_start;
+}
+
+sub _is_html_header_wrapper {
+    my ($token) = @_;
+    my ( undef, $tag, $attrs, $attr_order ) = @$token;
+    return unless $tag eq 'div' || $tag eq 'p';
+
+    my %seen;
+    return if grep { $seen{$_}++ || !/\A(?:align|class|dir|id|lang|style|title)\z/ } @$attr_order;
+
+    return !grep {
+        /\A(?:x_)*(?:gmail_(?:attr|extra|quote(?:_container)?)|yahoo_quoted|protonmail_quote
+            |moz-(?:cite-prefix|forward-container)|divrplyfwdmsg|appendonsend|olk_src_body_section
+            |zmail_extra|quoted?)\z/ix
+    } split /\s+/, join ' ', $attrs->{class} // '', $attrs->{id} // '';
 }
 
 sub _html_body_offset {
