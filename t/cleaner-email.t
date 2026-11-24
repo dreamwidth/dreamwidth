@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 35;
+use Test::More tests => 43;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
@@ -303,6 +303,40 @@ foreach my $header (
     my $reply = '<div>My reply</div>';
     is( DW::CleanEmail->nonquoted_text("$reply$header<div>Quoted text</div>\nMore quoted text"),
         $reply, "kept the HTML reply before $header on the same line" );
+}
+
+{
+    my $gmail_reply = q{<div dir="ltr">My reply</div>};
+    my $gmail_header =
+          q{<div class="gmail_quote"><div class="gmail_attr">}
+        . q{On Mon, DW Comment &lt;<a href="mailto:dw_null@dreamwidth.org">}
+        . q{dw_null@dreamwidth.org</a>&gt; wrote:</div></div>};
+    my $outlook_reply  = q{<div>My reply</div>};
+    my $outlook_header = q{<div><b>From:</b> DW Comment &lt;dw_null@dreamwidth.org&gt;</div>};
+    my $paragraphs     = q{<div>Para 1</div><div>Para 2</div>};
+
+    foreach my $case (
+        [ 'Gmail',                               $gmail_reply,   '<br>',   $gmail_header ],
+        [ 'Outlook',                             $outlook_reply, '<hr>',   $outlook_header ],
+        [ 'multi-paragraph Gmail',               $paragraphs,    '<br>',   $gmail_header ],
+        [ 'Gmail with <br/>',                    $gmail_reply,   '<br/>',  $gmail_header ],
+        [ 'Gmail with <br />',                   $gmail_reply,   '<br />', $gmail_header ],
+        [ 'Outlook with <hr/>',                  $outlook_reply, '<hr/>',  $outlook_header ],
+        [ 'multi-paragraph Outlook with <hr />', $paragraphs,    '<hr />', $outlook_header ],
+        [
+            'Outlook with repeated separators', $paragraphs,
+            '<br> <hr tabindex="-1">',          $outlook_header
+        ],
+        )
+    {
+        my ( $name, $reply, $separator, $header ) = @$case;
+        is(
+            DW::CleanEmail->nonquoted_text(
+                "$reply$separator$header<div>Quoted text</div>\nMore quoted text"),
+            $reply,
+            "kept all authored text and stripped the quoted header in $name"
+        );
+    }
 }
 
 foreach my $address (

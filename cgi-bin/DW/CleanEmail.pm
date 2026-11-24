@@ -53,9 +53,10 @@ sub nonquoted_text {
             )
         {
             my $before_address = substr $_, 0, $-[0];
-            return join "", @lines[ 0 .. $num_lines - 1 ], $1
-                if $before_address =~
-                m{\A(.*</(?:div|p|blockquote)\s*>)\s*<(?:div|p|blockquote)[\s>]}is;
+            my ( $reply, $header ) = $before_address =~ m{\A(.*</(?:div|p|blockquote)\s*>)(.*)\z}is;
+            return join "", @lines[ 0 .. $num_lines - 1 ], $reply
+                if defined $reply
+                && $header =~ m{\A(?:\s*<(?:br|hr)(?=[\s/>])[^>]*>)*\s*<(?:div|p|blockquote)[\s>]}i;
 
             last;
         }
