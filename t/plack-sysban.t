@@ -30,7 +30,7 @@ BEGIN {
     };
 }
 
-plan tests => 10;
+plan tests => 12;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -199,3 +199,30 @@ test_psgi $app, sub {
 
     is( $res->code, 200, "noanon_ip ban allows /login for anonymous user" );
 };
+
+# Tests 11-12: X-Forwarded-For hops that are our own trusted proxies (CDN
+# edges, the load balancer) are not checked against IP bans -- a ban on a CDN
+# server would otherwise block everyone routed through it -- while the client
+# hop still is.
+{
+    local $LJ::TRUST_X_HEADERS  = 1;
+    local $LJ::IS_TRUSTED_PROXY = sub { $_[0] eq '127.0.0.1' || $_[0] eq '198.51.100.7' };
+
+    reset_mocks();
+    $mock_ip_bans{'198.51.100.7'} = 1;
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET "/", 'X-Forwarded-For' => '203.0.113.5, 198.51.100.7' );
+
+        is( $res->code, 200, "IP ban on a trusted proxy hop does not block its clients" );
+    };
+
+    reset_mocks();
+    $mock_ip_bans{'203.0.113.5'} = 1;
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET "/", 'X-Forwarded-For' => '203.0.113.5, 198.51.100.7' );
+
+        is( $res->code, 403, "IP ban on the client behind a trusted proxy still blocks" );
+    };
+}
