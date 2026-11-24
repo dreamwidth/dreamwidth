@@ -43,9 +43,10 @@ local $LJ::SHOP{points} = [];
 
 my $dbh = LJ::get_db_writer() or die 'No test database';
 my ( @cartids, @paidids, @mail );
-my $accounts_email  = qr/\Q$LJ::ACCOUNTS_EMAIL\E/;
-my $renewal_link    = qr{/account\?for=self};
-my $pending_payment = qr/check or money order/i;
+my $accounts_email         = qr/\Q$LJ::ACCOUNTS_EMAIL\E/;
+my $renewal_link           = qr{/account\?for=self};
+my $community_renewal_link = qr{/account\?for=gift&user=};
+my $pending_payment        = qr/check or money order/i;
 
 END {
     if ($dbh) {
@@ -182,21 +183,70 @@ sub standard_notices {
         standard_notices($account);
     };
 
-    subtest 'Community notices remain unchanged' => sub {
-        my $community  = paid_account( temp_comm() );
-        my $maintainer = temp_user();
-        LJ::set_rel( $community, $maintainer, 'A' );
+    subtest 'Maintainer renewal changes community notices' => sub {
+        my $community        = paid_account( temp_comm() );
+        my $maintainer       = temp_user();
+        my $other_maintainer = temp_user();
+        $other_maintainer->set_email( $other_maintainer->user . '@example.test' );
+        LJ::set_rel( $community, $maintainer,       'A' );
+        LJ::set_rel( $community, $other_maintainer, 'A' );
         pending_cart( $maintainer, $community );
-        my ($warning) = reminder($community);
-        my ($expired) = expiration($community);
-        for my $notice ( $warning, $expired ) {
-            is( $notice->{to}, $maintainer->email_raw, 'Notice goes to the maintainer' );
+
+        set_expiration( $community, 10 * 86400 );
+        my @early = reminder($community);
+        is( scalar @early, 2, 'Both maintainers still get the 14-day reminder' );
+        for my $notice (@early) {
             like( $notice->{body} // '',
-                qr{/account\?for=gift&user=}, 'Notice uses the community renewal link' );
+                $community_renewal_link, 'The 14-day reminder is unchanged' );
             unlike( $notice->{body} // '',
-                $pending_payment, 'Community notice omits pending payment details' );
+                $pending_payment, 'The early reminder omits payment details' );
+        }
+
+        set_expiration( $community, 2 * 86400 );
+        my @warnings          = reminder($community);
+        my @expired           = expiration($community);
+        my @maintainer_emails = sort map { $_->email_raw } ( $maintainer, $other_maintainer );
+        for my $notices ( \@warnings, \@expired ) {
+            is_deeply( [ sort map { $_->{to} } @$notices ],
+                \@maintainer_emails, 'Notice goes to both maintainers' );
+            for my $notice (@$notices) {
+                like( $notice->{body} // '',
+                    $pending_payment, 'Notice mentions the pending payment' );
+                like( $notice->{body} // '',
+                    $accounts_email, 'Notice directs maintainers to Accounts' );
+                unlike( $notice->{body} // '',
+                    $community_renewal_link, 'Notice does not ask for another order' );
+            }
         }
     };
+
+    for my $scenario ( 'Non-maintainer gift', 'No pending community renewal' ) {
+        subtest $scenario => sub {
+            my $community  = paid_account( temp_comm() );
+            my $maintainer = temp_user();
+            LJ::set_rel( $community, $maintainer, 'A' );
+            if ( $scenario eq 'Non-maintainer gift' ) {
+                pending_cart( temp_user(), $community );
+            }
+            else {
+                pending_cart( $maintainer, $maintainer );
+            }
+            my @warnings = reminder($community);
+            my @expired  = expiration($community);
+            for my $notices ( \@warnings, \@expired ) {
+                is_deeply(
+                    [ map { $_->{to} } @$notices ],
+                    [ $maintainer->email_raw ],
+                    'Notice goes only to the maintainer'
+                );
+                my ($notice) = @$notices;
+                like( $notice->{body} // '',
+                    $community_renewal_link, 'Notice uses the community renewal link' );
+                unlike( $notice->{body} // '',
+                    $pending_payment, 'Notice omits unrelated pending payments' );
+            }
+        };
+    }
 }
 
 done_testing;
