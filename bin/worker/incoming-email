@@ -22,6 +22,7 @@ use DW::EmailPost;
 use LJ::Support;
 use LJ::Sysban;
 
+# Tests use do to load the helpers without starting the worker loop and expect a true return value.
 unless (caller) {
     schwartz_decl('LJ::Worker::IncomingEmail');
     schwartz_work();

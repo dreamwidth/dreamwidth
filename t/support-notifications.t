@@ -274,6 +274,34 @@ EMAIL
             expect_delivery( "$name email follow-up on the already-green request reaches All only",
                 $all, $all_reader );
         }
+
+        $close->();
+        my $competing_dbh    = $dbh->clone() or die $dbh->errstr;
+        my $guarded_attempts = 0;
+        {
+            local $dbh->{Callbacks} = {
+                do => sub {
+                    my ( undef, $statement ) = @_;
+                    if ( $statement =~ /WHERE spid=\? AND state <=>/ ) {
+                        die 'Requester reply exceeded five guarded attempts'
+                            if ++$guarded_attempts > 5;
+                        $competing_dbh->do(
+'UPDATE support SET timelasthelp=COALESCE(timelasthelp, 0)+1 WHERE spid=?',
+                            undef, $spid
+                        ) or die $competing_dbh->errstr;
+                    }
+                    return;
+                },
+            };
+            ok(
+                eval { DW::IncomingEmail->process( $email->('I still need help.') ) },
+                'Email is processed despite repeated concurrent changes'
+            ) or diag $@;
+        }
+        is( $guarded_attempts, 5, 'Requester reply stops retrying after five guarded attempts' );
+        is( LJ::Support::load_request($spid)->{state},
+            'open', 'Fallback reopens the request after repeated concurrent changes' );
+        expect_delivery( 'Fallback reaches All without claiming a regreen', $all, $all_reader );
     };
 };
 

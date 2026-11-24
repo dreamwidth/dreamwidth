@@ -950,24 +950,28 @@ sub touch_request {
     return 0 if LJ::Support::is_locked($spid);
 
     my $dbh = LJ::get_db_writer();
-
-    $dbh->do(
-        "UPDATE support"
-            . "   SET state='open', timeclosed=0, timetouched=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP()"
-            . " WHERE spid=?",
-        undef, $spid
-    ) or return 0;
+    _touch_request_row( $dbh, $spid ) or return 0;
 
     set_points( $spid, undef, 0 );
 
     return 1;
 }
 
+sub _touch_request_row {
+    my ( $dbh, $spid ) = @_;
+    return $dbh->do(
+        "UPDATE support"
+            . "   SET state='open', timeclosed=0, timetouched=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP()"
+            . " WHERE spid=?",
+        undef, $spid
+    );
+}
+
 sub _touch_after_requester_reply {
     my ( $dbh, $spid, $is_email ) = @_;
     return 0 if $is_email && is_locked($spid);
 
-    while (1) {
+    for ( 1 .. 5 ) {
         my ( $state, $touched, $last_help, $now ) = $dbh->selectrow_array(
             'SELECT state, timetouched, timelasthelp, UNIX_TIMESTAMP() FROM support WHERE spid=?',
             undef, $spid );
@@ -983,11 +987,15 @@ sub _touch_after_requester_reply {
             undef, $now, $spid, $state, $touched, $last_help
         );
         return 0 unless defined $updated;
-        next unless $updated > 0 || ( $was_open && $touched == $now );
+        next unless $updated > 0;
 
         set_points( $spid, undef, 0 ) if $is_email;
         return $regreen;
     }
+
+    _touch_request_row( $dbh, $spid ) or return 0;
+    set_points( $spid, undef, 0 ) if $is_email;
+    return 0;
 }
 
 # Extra email addresses are stored as support properties
