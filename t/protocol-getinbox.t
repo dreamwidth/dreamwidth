@@ -45,7 +45,7 @@ my $message = LJ::Message->new(
 );
 $message->save_to_db or die 'Unable to save the sent message fixture';
 my $sent_event = LJ::Event::UserMessageSent->new( $user, $message->msgid, $other );
-my $sent_qid   = $inbox->enqueue( event => $sent_event )->qid;
+$inbox->enqueue( event => $sent_event ) or die 'Unable to queue the sent message fixture';
 
 my $getinbox = sub {
     my (%args) = @_;
@@ -56,16 +56,12 @@ my $getinbox = sub {
 
 my $unfiltered = $getinbox->();
 my %items      = map { $_->{qid} => $_ } @{ $unfiltered->{items} || [] };
-is( scalar keys %items,          2, 'getinbox returns both queued notifications' );
+is( scalar keys %items,          2, 'getinbox returns only the two ordinary notifications' );
 is( $items{$circle_qid}->{type}, 1, 'a recognized event keeps its legacy protocol code' );
 is( $items{$xpost_qid}->{type},  0, 'an event without a legacy code uses type zero' );
 is( $items{$xpost_qid}->{typename}, 'XPostSuccess', 'the response identifies that event by name' );
 is_deeply( $getinbox->( gettype => 1 ), $unfiltered, 'a legacy filter does not hide other events' );
 is_deeply( $getinbox->( gettype => 12 ), $unfiltered, 'a retired filter does not empty the inbox' );
 
-my $sent = $getinbox->( gettype => 19 );
-is_deeply(
-    [ map { [ @{$_}{qw(qid type to subject body)} ] } @{ $sent->{items} || [] } ],
-    [ [ $sent_qid, 19, $other->user, 'Test sent message', 'Sent message body' ] ],
-    'gettype 19 returns only the sent message with its legacy code and contents'
-);
+is_deeply( $getinbox->( gettype => 19 ),
+    $unfiltered, 'the former sent-message filter returns the ordinary inbox' );
