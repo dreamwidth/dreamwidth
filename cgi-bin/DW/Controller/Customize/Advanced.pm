@@ -234,7 +234,7 @@ sub layers_handler {
     my $POST          = $r->post_args;
     my $u             = $rv->{u};
     my $remote        = $rv->{remote};
-    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $remote );
+    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
     my $GET           = $r->get_args;
     my $authas        = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
@@ -436,7 +436,7 @@ sub styles_handler {
     my $POST          = $r->post_args;
     my $u             = $rv->{u};
     my $remote        = $rv->{remote};
-    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $remote );
+    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
     my $GET           = $r->get_args;
     my $authas        = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
