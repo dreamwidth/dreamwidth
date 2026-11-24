@@ -289,3 +289,85 @@ test("align left inside a centered block sets left explicitly", () => {
     assert.match(exportHTML(schema, state.doc), /<p style="text-align: left;">X<\/p>/);
     assert.equal(blockAlignment(state), "left");
 });
+
+function pasteParse(source) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = source;
+    return PMDOMParser.fromSchema(schema).parse(tpl.content);
+}
+
+test("a table inside something that keeps whitespace stays an HTML block", () => {
+    const doc = importHTML(
+        schema,
+        '<div style="white-space: pre-wrap;"><table><tr><td>a   b\nc</td></tr></table></div>',
+    );
+    let found = null;
+    doc.descendants((node) => {
+        if (!found && (node.type.name == "table" || node.type.name == "html_block"))
+            found = node.type.name;
+    });
+    assert.equal(found, "html_block");
+    // nowrap collapses spaces anyway, so it doesn't stop a table being editable.
+    const nowrap = importHTML(
+        schema,
+        '<table style="white-space: nowrap;"><tr><td>x</td></tr></table>',
+    );
+    assert.equal(nowrap.firstChild.type.name, "table");
+});
+
+test("pasted nested spans keep the color they inherited, and tables their class", () => {
+    const doc = pasteParse(
+        '<p><span style="color: red;">outer <span style="font-size: 20px;">both</span></span></p>',
+    );
+    const both = doc.firstChild.lastChild;
+    assert.equal(both.text, "both");
+    assert.equal(both.marks[0].attrs.color, "red");
+    assert.equal(both.marks[0].attrs.fontSize, "20px");
+
+    const table = pasteParse(
+        '<table class="table" summary="S" border="1"><tr><td>x</td></tr></table>',
+    );
+    assert.deepEqual(
+        { ...table.firstChild.attrs.extra },
+        { class: "table", summary: "S", border: "1" },
+    );
+});
+
+test("recoloring keeps the order of the old spans around the text", () => {
+    let state = select(
+        stateFor(
+            '<p><span class="outer" style="font-size: 20px; color: red;"><span style="font-size: 2em;">X</span></span></p>',
+        ),
+        "X",
+    );
+    state = run(state, setTextStyle(schema, "color", "#0000ff"));
+    assert.match(
+        exportHTML(schema, state.doc),
+        /<span class="outer" style="font-size: 20px;"><span style="font-size: 2em;"><span style="color: (#0000ff|rgb\(0, 0, 255\));">X<\/span><\/span><\/span>/,
+    );
+});
+
+test("a color chosen at the caret isn't overridden by an old font for the next text", () => {
+    let state = stateFor('<p><strong><font color="red" face="serif">ABC</font></strong></p>');
+    let posB = null;
+    state.doc.descendants((node, pos) => {
+        if (node.isText) posB = pos + 1;
+    });
+    state = state.apply(state.tr.setSelection(TextSelection.create(state.doc, posB)));
+    state = run(state, setTextStyle(schema, "color", "#0000ff"));
+    state = state.apply(state.tr.insertText("new"));
+    const out = exportHTML(schema, state.doc);
+    assert.match(out, /<font face="serif">(<span[^>]*>)?new/);
+    assert.match(out, /<font color="red" face="serif">A<\/font>/);
+});
+
+test("align left on right-to-left text sets left explicitly", () => {
+    let state = select(stateFor('<div dir="rtl"><p style="text-align: center;">X</p></div>'), "X");
+    state = run(state, setAlignment("left"));
+    assert.match(exportHTML(schema, state.doc), /<p style="text-align: left;">X<\/p>/);
+    state = select(
+        stateFor('<center><div style="text-align: inherit;"><p>Y</p></div></center>'),
+        "Y",
+    );
+    assert.equal(blockAlignment(state), "center");
+});

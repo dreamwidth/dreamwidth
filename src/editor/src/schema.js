@@ -149,6 +149,13 @@ function extraOf(dom) {
 // and headings keep their alignment and indent, so copying within the editor
 // doesn't strip what its own toolbar set.
 const PASTED_TABLE_ATTRS = [
+    "class",
+    "summary",
+    "title",
+    "dir",
+    "lang",
+    "frame",
+    "rules",
     "border",
     "cellpadding",
     "cellspacing",
@@ -490,9 +497,22 @@ Object.assign(nodes, tables);
 // Text colour, highlight and font size, as <span style="...">. Imported only
 // from a span whose style holds nothing but these (serialize.js), so
 // everything else about a span stays in html_mark. A pasted span is read
-// directly.
+// directly; one nested in another pasted span takes on the settings it
+// inherited from it, since only one text style can apply to a piece of text.
 function textStyleAttrs(attr) {
-    return (dom) => textStyleFromCSS(dom.getAttribute(attr)) || false;
+    return (dom) => {
+        const attrs = textStyleFromCSS(dom.getAttribute(attr));
+        if (!attrs || attr != "style") return attrs || false;
+        for (let node = dom.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+            if (node.localName != "span") continue;
+            const outer = textStyleFromCSS(node.getAttribute("style"));
+            if (!outer) continue;
+            Object.keys(attrs).forEach((name) => {
+                if (attrs[name] == null) attrs[name] = outer[name];
+            });
+        }
+        return attrs;
+    };
 }
 
 export function textStyleCSS(attrs) {

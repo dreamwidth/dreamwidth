@@ -358,10 +358,26 @@ function spanOf(cell, name) {
 }
 
 // Cell text is parsed like any other running text, with its whitespace
-// collapsed, which only shows if the table asks for whitespace to be kept.
+// collapsed, which only shows if the table, something in it, or something
+// around it asks for whitespace to be kept. (Elements around it have already
+// been visited, so their style may be stashed in data-dw-x.)
+const KEEPS_WHITESPACE = /white-space\s*:\s*(pre|pre-wrap|pre-line|break-spaces)\b/i;
+
+function styleText(el) {
+    if (el.hasAttribute("style")) return el.getAttribute("style");
+    try {
+        return (JSON.parse(el.getAttribute("data-dw-x") || "{}") || {}).style || "";
+    } catch (e) {
+        return "";
+    }
+}
+
 function keepsWhitespace(table) {
-    return [table, ...table.querySelectorAll("[style]")].some((el) =>
-        /white-space/i.test(el.getAttribute("style") || "")
+    const around = [];
+    for (let node = table.parentNode; node && node.nodeType == 1; node = node.parentNode)
+        around.push(node);
+    return [table, ...table.querySelectorAll("*"), ...around].some((el) =>
+        KEEPS_WHITESPACE.test(styleText(el))
     );
 }
 

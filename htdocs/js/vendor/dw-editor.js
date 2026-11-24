@@ -14494,6 +14494,13 @@ var DWEditor = (() => {
     return { extra: readExtra(dom) };
   }
   var PASTED_TABLE_ATTRS = [
+    "class",
+    "summary",
+    "title",
+    "dir",
+    "lang",
+    "frame",
+    "rules",
     "border",
     "cellpadding",
     "cellspacing",
@@ -14806,7 +14813,23 @@ var DWEditor = (() => {
   tables.table_row.toDOM = (node) => ["tr", withExtra({}, node.attrs.extra), 0];
   Object.assign(nodes, tables);
   function textStyleAttrs(attr) {
-    return (dom) => textStyleFromCSS(dom.getAttribute(attr)) || false;
+    return (dom) => {
+      const attrs = textStyleFromCSS(dom.getAttribute(attr));
+      if (!attrs || attr != "style")
+        return attrs || false;
+      for (let node = dom.parentNode; node && node.nodeType == 1; node = node.parentNode) {
+        if (node.localName != "span")
+          continue;
+        const outer = textStyleFromCSS(node.getAttribute("style"));
+        if (!outer)
+          continue;
+        Object.keys(attrs).forEach((name) => {
+          if (attrs[name] == null)
+            attrs[name] = outer[name];
+        });
+      }
+      return attrs;
+    };
   }
   function textStyleCSS(attrs) {
     const decls = [];
@@ -15203,9 +15226,22 @@ var DWEditor = (() => {
     const value = cell.getAttribute(name).trim();
     return SPAN_VALUE.test(value) ? +value : 0;
   }
+  var KEEPS_WHITESPACE = /white-space\s*:\s*(pre|pre-wrap|pre-line|break-spaces)\b/i;
+  function styleText(el) {
+    if (el.hasAttribute("style"))
+      return el.getAttribute("style");
+    try {
+      return (JSON.parse(el.getAttribute("data-dw-x") || "{}") || {}).style || "";
+    } catch (e) {
+      return "";
+    }
+  }
   function keepsWhitespace(table) {
-    return [table, ...table.querySelectorAll("[style]")].some(
-      (el) => /white-space/i.test(el.getAttribute("style") || "")
+    const around = [];
+    for (let node = table.parentNode; node && node.nodeType == 1; node = node.parentNode)
+      around.push(node);
+    return [table, ...table.querySelectorAll("*"), ...around].some(
+      (el) => KEEPS_WHITESPACE.test(styleText(el))
     );
   }
   function tableRows(table) {
@@ -16958,14 +16994,22 @@ var DWEditor = (() => {
       dispatch(tr.scrollIntoView());
     return true;
   }
+  var ALIGNMENTS = ["left", "center", "right", "justify"];
   function ownAlignment(node) {
     const extra = node.attrs.extra;
-    let value = getStyleProp(styleOfExtra(extra), "text-align");
-    if (!value && extra && extra.align && node.type.name != "table")
-      value = extra.align;
-    if (!value && node.attrs.tag == "center")
-      value = "center";
-    return value ? String(value).toLowerCase() : null;
+    const candidates = [getStyleProp(styleOfExtra(extra), "text-align")];
+    if (extra && node.type.name != "table")
+      candidates.push(extra.align);
+    if (node.attrs.tag == "center")
+      candidates.push("center");
+    for (const value of candidates) {
+      const align = String(value || "").toLowerCase();
+      if (ALIGNMENTS.indexOf(align) >= 0)
+        return align;
+    }
+    if (extra && String(extra.dir || "").toLowerCase() == "rtl")
+      return "right";
+    return null;
   }
   function inheritedAlignment(doc3, pos) {
     const $pos = doc3.resolve(pos);
@@ -16992,7 +17036,13 @@ var DWEditor = (() => {
         state,
         dispatch,
         "text-align",
-        (current, node, pos) => value != "left" || inheritedAlignment(state.doc, pos) != "left" ? value : null,
+        (current, node, pos) => {
+          if (value != "left")
+            return value;
+          const extra = node.attrs.extra;
+          const rtl = extra && String(extra.dir || "").toLowerCase() == "rtl";
+          return rtl || inheritedAlignment(state.doc, pos) != "left" ? "left" : null;
+        },
         ["align"]
       );
       return true;
@@ -17057,18 +17107,16 @@ var DWEditor = (() => {
     const mark = type.isInSet(marks2 || []);
     return mark ? mark.attrs : NO_STYLE;
   }
-  function setTextStyle(schema2, name, value) {
-    return setTextStyles(schema2, { [name]: value });
-  }
   var OLD_MARKUP = {
     color: { prop: "color", fontAttr: "color" },
     background: { prop: "background-color", fontAttr: null },
     fontSize: { prop: "font-size", fontAttr: "size" }
   };
-  function clearOldMarkup(tr, schema2, node, start, end, changes) {
-    node.marks.forEach((mark) => {
+  function withoutOldSettings(marks2, schema2, changes) {
+    const out = [];
+    marks2.forEach((mark) => {
       if (mark.type != schema2.marks.html_mark && mark.type != schema2.marks.html_mark_inner)
-        return;
+        return out.push(mark);
       let extra = mark.attrs.extra;
       Object.keys(changes).forEach((name) => {
         const old = OLD_MARKUP[name];
@@ -17081,15 +17129,23 @@ var DWEditor = (() => {
           mark.attrs.tag == "font" && old.fontAttr ? [old.fontAttr] : []
         );
       });
-      if (extra === void 0)
-        return;
-      if (JSON.stringify(extra) == JSON.stringify(mark.attrs.extra))
-        return;
-      tr.removeMark(start, end, mark);
+      if (extra === void 0 || JSON.stringify(extra) == JSON.stringify(mark.attrs.extra))
+        return out.push(mark);
       const tag = mark.attrs.tag;
       if (extra || tag != "span" && tag != "font")
-        tr.addMark(start, end, mark.type.create({ tag, extra }));
+        out.push(mark.type.create({ tag, extra }));
     });
+    return out;
+  }
+  function styledMarks(marks2, schema2, changes) {
+    const type = schema2.marks.text_style;
+    const current = type.isInSet(marks2);
+    const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
+    const rest = type.removeFromSet(withoutOldSettings(marks2, schema2, changes));
+    return hasStyle(attrs) ? type.create(attrs).addToSet(rest) : rest;
+  }
+  function setTextStyle(schema2, name, value) {
+    return setTextStyles(schema2, { [name]: value });
   }
   function setTextStyles(schema2, changes) {
     const type = schema2.marks.text_style;
@@ -17101,12 +17157,7 @@ var DWEditor = (() => {
         return true;
       const tr = state.tr;
       if (empty2) {
-        const marks2 = state.storedMarks || $from.marks();
-        const current = type.isInSet(marks2);
-        const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
-        tr.removeStoredMark(type);
-        if (hasStyle(attrs))
-          tr.addStoredMark(type.create(attrs));
+        tr.setStoredMarks(styledMarks(state.storedMarks || $from.marks(), schema2, changes));
       } else {
         state.selection.ranges.forEach((range) => {
           const from2 = range.$from.pos;
@@ -17118,13 +17169,13 @@ var DWEditor = (() => {
               return false;
             const start = Math.max(pos, from2);
             const end = Math.min(pos + node.nodeSize, to);
-            const current = type.isInSet(node.marks);
-            const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
-            clearOldMarkup(tr, schema2, node, start, end, changes);
-            if (hasStyle(attrs))
-              tr.addMark(start, end, type.create(attrs));
-            else
-              tr.removeMark(start, end, type);
+            const marks2 = styledMarks(node.marks, schema2, changes);
+            if (!Mark.sameSet(marks2, node.marks))
+              tr.replaceWith(
+                start,
+                end,
+                schema2.text(node.text.slice(start - pos, end - pos), marks2)
+              );
             return false;
           });
         });

@@ -7,6 +7,7 @@
 import { lift } from "prosemirror-commands";
 import { sinkListItem, liftListItem } from "prosemirror-schema-list";
 import { TextSelection } from "prosemirror-state";
+import { Mark } from "prosemirror-model";
 import { CellSelection } from "prosemirror-tables";
 import { extraWithStyle, styleOfExtra, getStyleProp } from "./style.js";
 
@@ -58,12 +59,21 @@ function updateBlockStyle(state, dispatch, prop, update, alsoRemove) {
 // A node's own alignment: text-align in its style, an old align="..."
 // attribute (which on a table places the table rather than its text), or
 // <center>.
+// Only the four the toolbar sets count; anything else (inherit, start, ...)
+// leaves it to what's around. Right-to-left text starts on the right.
+const ALIGNMENTS = ["left", "center", "right", "justify"];
+
 function ownAlignment(node) {
     const extra = node.attrs.extra;
-    let value = getStyleProp(styleOfExtra(extra), "text-align");
-    if (!value && extra && extra.align && node.type.name != "table") value = extra.align;
-    if (!value && node.attrs.tag == "center") value = "center";
-    return value ? String(value).toLowerCase() : null;
+    const candidates = [getStyleProp(styleOfExtra(extra), "text-align")];
+    if (extra && node.type.name != "table") candidates.push(extra.align);
+    if (node.attrs.tag == "center") candidates.push("center");
+    for (const value of candidates) {
+        const align = String(value || "").toLowerCase();
+        if (ALIGNMENTS.indexOf(align) >= 0) return align;
+    }
+    if (extra && String(extra.dir || "").toLowerCase() == "rtl") return "right";
+    return null;
 }
 
 // The alignment a block at pos inherits from what it sits in.
@@ -94,8 +104,13 @@ export function setAlignment(value) {
             state,
             dispatch,
             "text-align",
-            (current, node, pos) =>
-                value != "left" || inheritedAlignment(state.doc, pos) != "left" ? value : null,
+            (current, node, pos) => {
+                if (value != "left") return value;
+                // Left is the default unless something says otherwise.
+                const extra = node.attrs.extra;
+                const rtl = extra && String(extra.dir || "").toLowerCase() == "rtl";
+                return rtl || inheritedAlignment(state.doc, pos) != "left" ? "left" : null;
+            },
             ["align"],
         );
         return true;
@@ -171,13 +186,6 @@ export function currentTextStyle(state, schema) {
     return mark ? mark.attrs : NO_STYLE;
 }
 
-// Set text-style attributes (color, background, fontSize) on the selection,
-// keeping the others each piece of text already has. changes maps attribute
-// names to values; a null value removes that one.
-export function setTextStyle(schema, name, value) {
-    return setTextStyles(schema, { [name]: value });
-}
-
 // What each text-style attribute is in an old entry's own markup: the CSS
 // property, and the attribute <font> uses for it.
 const OLD_MARKUP = {
@@ -187,12 +195,14 @@ const OLD_MARKUP = {
 };
 
 // An old entry's span or font may set the same thing the toolbar is setting,
-// and one nested inside the new style would still win. Take that setting off
-// it, dropping a span or font left with no attributes at all.
-function clearOldMarkup(tr, schema, node, start, end, changes) {
-    node.marks.forEach((mark) => {
+// and one nested inside the new style would still win. Return the marks with
+// that setting taken off such a span or font (one left with no attributes is
+// dropped), in the same order.
+function withoutOldSettings(marks, schema, changes) {
+    const out = [];
+    marks.forEach((mark) => {
         if (mark.type != schema.marks.html_mark && mark.type != schema.marks.html_mark_inner)
-            return;
+            return out.push(mark);
         let extra = mark.attrs.extra;
         Object.keys(changes).forEach((name) => {
             const old = OLD_MARKUP[name];
@@ -204,13 +214,28 @@ function clearOldMarkup(tr, schema, node, start, end, changes) {
                 mark.attrs.tag == "font" && old.fontAttr ? [old.fontAttr] : [],
             );
         });
-        if (extra === undefined) return;
-        if (JSON.stringify(extra) == JSON.stringify(mark.attrs.extra)) return;
-        tr.removeMark(start, end, mark);
+        if (extra === undefined || JSON.stringify(extra) == JSON.stringify(mark.attrs.extra))
+            return out.push(mark);
         const tag = mark.attrs.tag;
-        if (extra || (tag != "span" && tag != "font"))
-            tr.addMark(start, end, mark.type.create({ tag, extra }));
+        if (extra || (tag != "span" && tag != "font")) out.push(mark.type.create({ tag, extra }));
     });
+    return out;
+}
+
+// The marks text should have once changes are applied to its text style.
+function styledMarks(marks, schema, changes) {
+    const type = schema.marks.text_style;
+    const current = type.isInSet(marks);
+    const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
+    const rest = type.removeFromSet(withoutOldSettings(marks, schema, changes));
+    return hasStyle(attrs) ? type.create(attrs).addToSet(rest) : rest;
+}
+
+// Set text-style attributes (color, background, fontSize) on the selection,
+// keeping the others each piece of text already has. changes maps attribute
+// names to values; a null value removes that one.
+export function setTextStyle(schema, name, value) {
+    return setTextStyles(schema, { [name]: value });
 }
 
 export function setTextStyles(schema, changes) {
@@ -222,11 +247,7 @@ export function setTextStyles(schema, changes) {
 
         const tr = state.tr;
         if (empty) {
-            const marks = state.storedMarks || $from.marks();
-            const current = type.isInSet(marks);
-            const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
-            tr.removeStoredMark(type);
-            if (hasStyle(attrs)) tr.addStoredMark(type.create(attrs));
+            tr.setStoredMarks(styledMarks(state.storedMarks || $from.marks(), schema, changes));
         } else {
             state.selection.ranges.forEach((range) => {
                 const from = range.$from.pos;
@@ -236,11 +257,16 @@ export function setTextStyles(schema, changes) {
                     if (!parent.type.allowsMarkType(type)) return false;
                     const start = Math.max(pos, from);
                     const end = Math.min(pos + node.nodeSize, to);
-                    const current = type.isInSet(node.marks);
-                    const attrs = Object.assign({}, NO_STYLE, current && current.attrs, changes);
-                    clearOldMarkup(tr, schema, node, start, end, changes);
-                    if (hasStyle(attrs)) tr.addMark(start, end, type.create(attrs));
-                    else tr.removeMark(start, end, type);
+                    const marks = styledMarks(node.marks, schema, changes);
+                    // Swapping the text for itself with the new marks keeps
+                    // their order (removing and re-adding one would move it).
+                    // The size is unchanged, so later positions still hold.
+                    if (!Mark.sameSet(marks, node.marks))
+                        tr.replaceWith(
+                            start,
+                            end,
+                            schema.text(node.text.slice(start - pos, end - pos), marks),
+                        );
                     return false;
                 });
             });
