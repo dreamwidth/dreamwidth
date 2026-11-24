@@ -31,6 +31,9 @@ sub FriendsPage {
     $p->{'friends_title'}    = LJ::ehtml( $u->{'friendspagetitle'} );
     $p->{'friends_subtitle'} = LJ::ehtml( $u->{'friendspagesubtitle'} );
 
+    my $is_reading_page = $p->{view} eq 'read';
+    $p->{head_content} .= qq[<meta name="dw-reading-page" content="1" />\n] if $is_reading_page;
+
     LJ::need_res( LJ::S2::tracking_popup_js() );
 
     # include JS for quick reply, icon browser, and ajax cut tag
@@ -246,7 +249,7 @@ ENTRY:
         $opts->{cleanhtml_extra} = {
             maximgheight    => $maximgheight,
             maximgwidth     => $maximgwidth,
-            details_open    => $opts->{cut_disable},
+            details_open    => $is_reading_page && $opts->{cut_disable},
             imageplaceundef => $remote ? $remote->{'opt_imageundef'} : undef
         };
 

@@ -64,13 +64,13 @@ async function checkControls(browser, cookies, route) {
             document.body.append(nav);
         });
         const unchanged = [["Menu", true], ["Other menu", false]];
-        await page.click(EXPAND);
+        await page.locator(EXPAND).click();
         await page.waitForSelector(AJAX_DETAILS);
         assert.deepEqual(await detailsState(page), OPEN,
             "expand all opens entry Details, including nested and AJAX-loaded Details");
         assert.deepEqual(await detailsState(page, "#fixture-nav details"), unchanged);
 
-        await page.click(COLLAPSE);
+        await page.locator(COLLAPSE).click();
         assert.deepEqual(await detailsState(page), CLOSED,
             "collapse all closes the Details and removes the expanded cut");
         assert.deepEqual(await detailsState(page, "#fixture-nav details"), unchanged);
@@ -98,15 +98,40 @@ async function checkPreference(browser, cookies, route) {
     }
 }
 
+async function checkJournalControls(browser, cookies, route) {
+    const page = await openPage(browser, cookies, route, true);
+    try {
+        assert.deepEqual(await detailsState(page), CLOSED);
+        await page.click(OUTER_DETAILS + " > summary");
+        const before = [["Field notes", true], ["One more observation", false]];
+        assert.deepEqual(await detailsState(page), before);
+
+        await page.locator(EXPAND).click();
+        await page.waitForSelector(AJAX_DETAILS);
+        const expanded = await detailsState(page);
+
+        await page.locator(COLLAPSE).click();
+        await page.waitForSelector(AJAX_DETAILS, { hidden: true });
+        const collapsed = await detailsState(page);
+
+        assert.deepEqual({ expanded, collapsed }, {
+            expanded: [...before, ["Detour notes", false]],
+            collapsed: before,
+        }, "bulk controls toggle cuts without changing journal entry Details");
+    } finally {
+        await page.close();
+    }
+}
+
 async function checkDetailsOnly(browser, cookies, route) {
     const page = await openPage(browser, cookies, route, true);
     try {
         assert.ok(await page.$(COLLAPSE), "Details alone enable collapse all");
-        await page.click(COLLAPSE);
+        await page.locator(COLLAPSE).click();
         await page.waitForSelector(EXPAND);
         assert.ok((await detailsState(page)).every(([, open]) => !open),
             "collapse all works when the page has Details and no collapsible cut tags");
-        await page.click(EXPAND);
+        await page.locator(EXPAND).click();
         assert.ok((await detailsState(page)).every(([, open]) => open),
             "expand all works when the page has Details and no collapsible cut tags");
         await page.click(OUTER_DETAILS + " > summary");
@@ -123,15 +148,18 @@ async function run() {
         browser = await launch();
         const cookies = await login(browser, fixture.user, fixture.password);
         const route = "/~" + fixture.user + "/read";
+        const journal = "/~" + fixture.poster + "/";
         const cases = [
             ["cut controls", () => checkControls(browser, cookies, route)],
+            ["Recent page cut controls", () => checkJournalControls(browser, cookies, journal)],
+            ["Day page cut controls", () => checkJournalControls(browser, cookies, journal + fixture.day + "/")],
             ["reading preference", async () => {
                 setPreference(fixture, true);
                 await checkPreference(browser, cookies, route);
             }],
             ["Details-only controls", () => checkDetailsOnly(browser, cookies, route)],
             ["journal preference is separate", async () => {
-                const page = await openPage(browser, cookies, "/~" + fixture.poster + "/", false);
+                const page = await openPage(browser, cookies, journal, false);
                 try {
                     assert.deepEqual(await detailsState(page), CLOSED);
                 } finally {

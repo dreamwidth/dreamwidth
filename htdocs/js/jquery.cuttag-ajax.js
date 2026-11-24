@@ -4,7 +4,7 @@ var isExpandingAll = 0;
 
 var loadPending = 0;
 
-var entryDetails = ".entry-content details";
+var entryDetails;
 
 // Test for SVG support from
 // http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
@@ -159,7 +159,7 @@ $.widget("dw.cuttag", {
             replaceDiv.html(resObj.text)
                 .css("display","block").addClass("cuttag-open");
 
-            if ( isExpandingAll )
+            if ( isExpandingAll && entryDetails )
                 replaceDiv.find("details").filter(entryDetails).prop("open", true);
 
             var closeEnd = $("<span>");
@@ -305,9 +305,13 @@ $.extend( $.dw.cuttag_controls, {
         var controls = $(".cutTagControls");
         if ( !controls.length ) return;
 
+        if ( $("head meta[name='dw-reading-page']").length ) entryDetails = ".entry-content details";
+
         controls.each(function (_,element) {
             $(element).cuttag_controls();
         });
+
+        if ( !entryDetails ) return;
 
         var updateQueued = false;
         document.addEventListener("toggle", function(event) {

@@ -61,11 +61,12 @@ my $writer;
 eval {
     $writer = fixture_account('Field notes');
     apply_theme( $reader, 'aulait' );
+    apply_theme( $writer, 'aulait' );
     $reader->set_prop( 'opt_cut_disable_reading', 0 );
     $reader->set_prop( 'opt_cut_disable_journal', 0 );
     $reader->add_edge( $writer, watch => { nonotify => 1 } ) or die 'Could not subscribe';
 
-    $writer->t_post_fake_entry(
+    my $entry = $writer->t_post_fake_entry(
         subject => 'A walk by the river',
         body    => join( '',
             '<p>A few notes from a quiet walk at the end of the day.</p>',
@@ -78,7 +79,10 @@ eval {
         ),
     );
 
-    print encode_json( { user => $reader->user, poster => $writer->user, password => $password } ),
+    my ($day) = split ' ', $entry->eventtime_mysql;
+    $day =~ tr{-}{/};
+    print encode_json(
+        { user => $reader->user, poster => $writer->user, password => $password, day => $day } ),
         "\n";
     1;
 } or do {
