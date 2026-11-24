@@ -26,7 +26,7 @@ my %options = (
 
 sub should_render {
     my ( $class, $u ) = @_;
-    return $u && !$u->is_identity;
+    return $u && !$u->is_identity && LJ::get_prop( user => 'opt_min_comment_age' );
 }
 
 sub label { 'New Account Comments' }

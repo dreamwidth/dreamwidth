@@ -120,8 +120,9 @@ sub _categories {
                 qw(
                     DW::Setting::EmailAlias DW::Setting::ContactInfo LJ::Setting::UserMessaging
                     LJ::Setting::MinSecurity DW::Setting::SynLevel LJ::Setting::SearchInclusion
-                    LJ::Setting::EnableComments DW::Setting::NewAccountComments LJ::Setting::CommentScreening
-                    LJ::Setting::CommentCaptcha LJ::Setting::CommentIP LJ::Setting::Display::BanUsers DW::Setting::AllowVgiftsFrom
+                    LJ::Setting::EnableComments DW::Setting::NewAccountComments
+                    LJ::Setting::CommentScreening LJ::Setting::CommentCaptcha LJ::Setting::CommentIP
+                    LJ::Setting::Display::BanUsers DW::Setting::AllowVgiftsFrom
                     DW::Setting::RandomPaidGifts DW::Setting::GlobalSearch DW::Setting::AllowSearchBy
                     DW::Setting::CommunityPromo
                     )

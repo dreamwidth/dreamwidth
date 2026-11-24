@@ -67,6 +67,21 @@ sub try_comment {
     return ( $comment, $error );
 }
 
+unless ( LJ::get_prop( user => 'opt_min_comment_age' ) ) {
+    subtest 'comments work before the account age setting is installed' => sub {
+        ok( !$setting->should_render($owner), 'unavailable setting cannot be configured' );
+        my ( $comment, $error ) = try_comment( $entry, $poster );
+        ok( $comment, 'new commenters are not blocked' ) or diag explain $error;
+    };
+
+    my $db = LJ::get_db_writer();
+    $db->do(
+        q{INSERT INTO userproplist (name, indexed, cldversion, multihomed, datatype, scope)
+          VALUES ('opt_min_comment_age', '0', 4, '0', 'num', 'general')
+          ON DUPLICATE KEY UPDATE name = name}
+    ) or BAIL_OUT( $db->errstr );
+}
+
 subtest 'default and invalid settings' => sub {
     my ( $comment, $error ) = try_comment( $entry, $poster );
     ok( $comment, 'just-created account can comment by default' ) or diag explain $error;

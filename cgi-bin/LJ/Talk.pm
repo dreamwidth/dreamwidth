@@ -3115,8 +3115,11 @@ sub post_comment {
     my $itemid   = $item->jitemid;
 
     my $commenter = $comment->{u};
-    my $min_age   = $journalu->prop('opt_min_comment_age');
-    if ( $min_age && $commenter && !$commenter->can_manage($journalu) ) {
+    my $min_age =
+          $commenter && LJ::get_prop( user => 'opt_min_comment_age' )
+        ? $journalu->prop('opt_min_comment_age')
+        : undef;
+    if ( $min_age && !$commenter->can_manage($journalu) ) {
         my $created = $commenter->timecreate;
         if ( !$created || time() - $created < $min_age ) {
             my $username = LJ::ehtml( $journalu->user );
