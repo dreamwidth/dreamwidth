@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 43;
+use Test::More tests => 51;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
@@ -336,6 +336,35 @@ foreach my $header (
             $reply,
             "kept all authored text and stripped the quoted header in $name"
         );
+    }
+}
+
+{
+    my $gmail_header =
+        q{<div class="gmail_quote">On Tue, Foo &lt;dw_null@dreamwidth.org&gt; wrote:</div>};
+    my $from_header = q{<div>From: &lt;dw_null@dreamwidth.org&gt;</div>};
+
+    foreach my $case (
+        [ 'unwrapped Gmail with a break',    'My reply', '<br>',         $gmail_header ],
+        [ 'unwrapped Outlook with rules',    'My reply', '<br /><hr />', $from_header ],
+        [ 'unwrapped Gmail without a break', 'My reply', '',             $gmail_header ],
+        [ 'inline HTML before Gmail', '<span>My reply</span>', '<br>', $gmail_header ],
+        )
+    {
+        my ( $name, $reply, $separator, $header ) = @$case;
+        is( DW::CleanEmail->nonquoted_text("$reply$separator$header\nQuoted text"),
+            $reply, "preserved the reply in $name" );
+    }
+
+    foreach my $header (
+        q{On Tue, Foo <dw_null@dreamwidth.org> wrote:},
+        $from_header,
+        "  $gmail_header",
+        "  <br /><hr />$from_header",
+        )
+    {
+        is( DW::CleanEmail->nonquoted_text("$header\nQuoted text"),
+            '', "discarded the standalone quote header: $header" );
     }
 }
 
