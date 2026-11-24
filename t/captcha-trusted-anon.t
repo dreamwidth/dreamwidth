@@ -261,6 +261,8 @@ subtest 'site content rules challenge spam signals, not ordinary text or HTML' =
             'Thanks for your message!',
             '<details><summary>One link</summary><a href="https://www.x.test/">link</a></details>',
             '<a href="https://example.test/">https://example.test/</a>',
+            q{<a href="https://example.test/O'Reilly">https://example.test/O'Reilly</a>},
+            q{<a href='https://example.test/'>https://example.test/</a>},
 '<a href="https://example.test/?x=1&amp;y=2"><b>https://example.test/?x=1&amp;y=2</b></a>',
 '<a href="&#104;ttps://example.test/?x=1&amp;y=2"><b>https://example.test/?x=1&amp;y=2</b></a>',
             'Use http instead of ftp here.',
@@ -277,6 +279,10 @@ subtest 'site content rules challenge spam signals, not ordinary text or HTML' =
             '<a href="&#104;ttps://a.example">one</a> <a href="&#x68;ttps://b.example">two</a>',
             '<a href="https&#58;//a.example">one</a> https://b.example',
             '<a href="https://one.example/">https://one.example/</a> https://two.example/',
+            q{<a href="https://example.test/O'Reilly">https://example.test/O'Reilly</a> }
+            . 'https://two.example/',
+            q{<a href='https://one.example/'>https://one.example/</a> }
+            . q{<a href='https://two.example/'>https://two.example/</a>},
             '<a href="https://one.example/">https://two.example/</a>',
             '<a href="https://one.example/">https://one.example/</a> '
             . '<a href="https://one.example/">https://one.example/</a>',
@@ -286,6 +292,8 @@ subtest 'site content rules challenge spam signals, not ordinary text or HTML' =
             '[*] First item',
             '[custom_tag]text[/custom_tag]',
             'Visit sub.Blocked.example for details.',
+            '<a href="https://blocked&#46;example/">link</a>',
+            'https://blocked&#x2e;example/',
             )
         {
             is( $check->( body => $body ), 'comment_html', "suspicious comment: $body" );

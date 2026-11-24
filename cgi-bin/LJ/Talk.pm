@@ -3080,24 +3080,24 @@ sub journal_captcha_policy {
 sub _comment_html_is_suspicious {
     my ($body) = @_;
 
-    my $url = qr{
+    my $decoded_body = decode_entities($body);
+    my $url          = qr{
         \b (?: (?:https?|ftp):// (?:\[[0-9a-f:.]+\]|[[:alnum:]]) | www\.[[:alnum:]] )
-        [^\s<>"'\[\]]*
+        [^\s<>"\[\]]*
     }ix;
-    my $url_count = () = decode_entities($body) =~ /$url/g;
+    my $url_count = () = $decoded_body =~ /$url/g;
     if ( $url_count >= 2 && $body =~ /<a\b/i ) {
         my ( $href, $label, $label_url_count );
         my $parser = HTML::Parser->new( api_version => 3 );
         $parser->report_tags('a');
         $parser->handler(
             start => sub {
-                my ( $attr, $raw ) = @_;
+                my ($attr) = @_;
                 $href = $attr->{href};
-                undef $href
-                    unless defined $href && grep { $_ eq $href } decode_entities($raw) =~ /$url/g;
+                undef $href unless defined $href && $href =~ /\A$url\z/;
                 ( $label, $label_url_count ) = ( '', 0 );
             },
-            'attr,text'
+            'attr'
         );
         $parser->handler(
             text => sub {
@@ -3131,7 +3131,7 @@ sub _comment_html_is_suspicious {
         $opened{$tag} = 1 unless $closing;
     }
 
-    return LJ::Hooks::run_hook( 'spam_blocklist_match', $body ) ? 1 : 0;
+    return LJ::Hooks::run_hook( 'spam_blocklist_match', $decoded_body ) ? 1 : 0;
 }
 
 # Does what it says on the tin.
