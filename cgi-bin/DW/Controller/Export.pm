@@ -303,16 +303,16 @@ sub posted_comments_handler {
         $end = $start + 86400;
     }
 
-    my $author = $rv->{remote};
-    my $limit  = POSTED_COMMENTS_LIMIT + 1;
-    my $dbcr   = LJ::get_cluster_reader($author);
-    return _posted_comments_unavailable($r) unless $dbcr;
-    my $rows = $dbcr->selectall_arrayref(
+    my $author  = $rv->{remote};
+    my $limit   = POSTED_COMMENTS_LIMIT + 1;
+    my $primary = LJ::get_cluster_master($author);
+    return _posted_comments_unavailable($r) unless $primary;
+    my $rows = $primary->selectall_arrayref(
         "SELECT journalid, nodeid, jtalkid, posttime, nodetype FROM talkleft "
             . "WHERE userid=? AND posttime>=? AND posttime<? LIMIT $limit",
         undef, $author->id, $start, $end
     );
-    return _posted_comments_unavailable($r) if !$rows || $dbcr->err;
+    return _posted_comments_unavailable($r) if !$rows || $primary->err;
     return _posted_comments_too_large( $r, $day ) if @$rows > POSTED_COMMENTS_LIMIT;
 
     my @fields = qw(journal permalink datetime subject body icon_keyword);

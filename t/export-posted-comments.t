@@ -162,6 +162,38 @@ like( $leap_day->content, qr/day-end-boundary/, 'includes the last second of the
 unlike( $leap_day->content, qr/next-month-boundary/, 'excludes the next UTC month' );
 
 {
+    my $reader = \&LJ::get_cluster_reader;
+    no warnings 'redefine';
+    local *LJ::get_cluster_reader = sub {
+        my $dbh = $reader->(@_);
+        return $dbh unless caller eq 'DW::Controller::Export' && $_[0]->id == $author->id;
+        return bless { dbh => $dbh, talkleft_filter => '1 = 0' }, 'PostedCommentsTestDB';
+    };
+
+    my $lagged = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    is( $lagged->code, 200, 'an index replica miss does not abort the download' );
+    like( $lagged->content, qr/next-month-boundary/,
+        'exports the comment missing from the replica index' );
+}
+
+{
+    my $master = \&LJ::get_cluster_master;
+    no warnings 'redefine';
+    for my $failure ( 'unavailable', 'query error' ) {
+        local *LJ::get_cluster_master = sub {
+            return $master->(@_)
+                unless caller eq 'DW::Controller::Export' && $_[0]->id == $author->id;
+            return if $failure eq 'unavailable';
+            return bless { dbh => $master->(@_), talkleft_filter => 'no_such_column = 1' },
+                'PostedCommentsTestDB';
+        };
+        my $failed = $download->( 'xml', year => 2024, month => 3, day => 1 );
+        is( $failed->code, 503, "index lookup with primary $failure returns HTTP 503" );
+        ok( !$failed->header('Content-Disposition'), 'failed index lookup is not an attachment' );
+    }
+}
+
+{
     my $reader    = \&LJ::get_cluster_reader;
     my $master    = \&LJ::get_cluster_master;
     my $journalid = $owner->id;
@@ -183,7 +215,8 @@ unlike( $leap_day->content, qr/next-month-boundary/, 'excludes the next UTC mont
 
     for my $failure ( 'unavailable', 'query error' ) {
         local *LJ::get_cluster_master = sub {
-            return $master->(@_) unless caller eq 'DW::Controller::Export';
+            return $master->(@_)
+                unless caller eq 'DW::Controller::Export' && $_[0]->id == $journalid;
             return if $failure eq 'unavailable';
             return bless { dbh => $master->(@_) }, 'PostedCommentsTestDB';
         };
@@ -273,6 +306,9 @@ package PostedCommentsTestDB {
 
     sub selectall_arrayref {
         my ( $self, $sql, @args ) = @_;
+        if ( defined $self->{talkleft_filter} ) {
+            $sql =~ s/FROM talkleft WHERE /FROM talkleft WHERE $self->{talkleft_filter} AND /;
+        }
         $sql .= ' AND no_such_column = 1' if $sql =~ /FROM talk2 WHERE /;
         return $self->{dbh}->selectall_arrayref( $sql, @args );
     }
