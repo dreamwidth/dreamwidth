@@ -120,11 +120,17 @@ paths:
                     IDs from `GET /journals/{username}/accesslists` for this
                     journal.
 
-                    Use only with `custom` security, which requires this field.
+                    With `custom` security, provide this field or `custom_bit`.
 
                     An empty array selects no filters.
-
-                    Requests containing `custom_bit` are rejected.
+                  items:
+                    type: integer
+                    minimum: 1
+                    maximum: 60
+                custom_bit:
+                  type: array
+                  description: Legacy alias for `custom_groups`. Do not send both fields in the
+                    same request.
                   items:
                     type: integer
                     minimum: 1

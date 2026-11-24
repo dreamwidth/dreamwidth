@@ -203,30 +203,92 @@ subtest 'custom access filter validation' => sub {
     is( $state->{allowmask}, 1 << $group,        'invalid requests did not change the entry mask' );
 };
 
-subtest 'legacy custom_bit is rejected without saving' => sub {
-    my $id = proto_post( $owner, security => 'usemask', allowmask => 1 << $group );
-    my ( undef, $before ) = api_request( GET => $base, key => $okey );
+subtest 'creating a custom entry with legacy custom_bit' => sub {
     my ( $res, $body ) = api_request(
         POST => $base,
         key  => $okey,
-        json => { text => 'new filtered entry', custom_bit => [$other_group] }
+        json => { text => 'legacy custom post', security => 'custom', custom_bit => [$group] }
     );
-    is( $res->code, 400, 'legacy fields cannot silently create a public entry' );
-    like( $body->{error}, qr/custom_groups/, 'creation error points to the supported field' );
+    is( $res->code, 200, 'create a custom entry with the legacy field' ) or return;
+    my $id = $body->{entry_id};
+    is(
+        entry_state( fresh_entry( $owner, $id ) )->{allowmask},
+        1 << $group,
+        'legacy create stores the selected mask'
+    );
+    ($res) = api_request( GET => "$base/$id", key => $fkey );
+    is( $res->code, 200, 'the selected member can read the entry' );
+};
 
-    ( $res, $body ) = api_request(
-        POST => "$base/$id",
+subtest 'editing a custom entry with legacy custom_bit' => sub {
+    my $id    = proto_post( $owner, security => 'usemask', allowmask => 1 << $group );
+    my $path  = "$base/$id";
+    my ($res) = api_request(
+        POST => $path,
         key  => $okey,
         json => { text => 'new text for a narrower audience', custom_bit => [$other_group] }
     );
-    is( $res->code, 400, 'legacy filter edits cannot silently leave the old audience in place' );
-    like( $body->{error}, qr/custom_groups/, 'edit error points to the supported field' );
+    is( $res->code, 200, 'change filters using the legacy field without resending security' );
+    my $state = entry_state( fresh_entry( $owner, $id ) );
+    is( $state->{allowmask}, 1 << $other_group, 'legacy edit replaces the selected mask' );
+    is( $state->{event}, 'new text for a narrower audience', 'legacy edit saves the new text' );
+    ($res) = api_request( GET => $path, key => $fkey );
+    is( $res->code, 403, 'a removed member can no longer read the entry' );
+
+    ($res) = api_request( POST => $path, key => $okey, json => { custom_bit => [] } );
+    is( $res->code, 200, 'the legacy field can explicitly clear the filters' );
+    my ( undef, $body ) = api_request( GET => $path, key => $okey );
+    is_deeply( $body->{custom_groups}, [], 'cleared selection reads back' );
+};
+
+subtest 'invalid legacy custom_bit is rejected without saving' => sub {
+    my $id     = proto_post( $owner, security => 'usemask', allowmask => 1 << $group );
+    my $public = proto_post($owner);
+    my $event  = entry_state( fresh_entry( $owner, $id ) )->{event};
+    my ( undef, $before ) = api_request( GET => $base, key => $okey );
+
+    for my $invalid (
+        [ scalar       => { custom_bit => $group } ],
+        [ null         => { custom_bit => undef } ],
+        [ null_id      => { custom_bit => [undef] } ],
+        [ reserved_bit => { custom_bit => [0] } ],
+        [ out_of_range => { custom_bit => [61] } ],
+        [ fractional   => { custom_bit => [1.5] } ],
+        [ missing_id   => { custom_bit => [58] } ],
+        [ foreign      => { custom_bit => [ $group, $foreign_group ] } ],
+        [ wrong_mode   => { custom_bit => [$group], security => 'public' } ],
+        [ conflict     => { custom_bit => [$other_group], custom_groups => [] } ],
+        )
+    {
+        my ( $label, $fields ) = @$invalid;
+        my ($res) = api_request(
+            POST => $base,
+            key  => $okey,
+            json => { text => "invalid legacy create $label", security => 'custom', %$fields }
+        );
+        is( $res->code, 400, "$label: invalid legacy filters refused on create" );
+        ($res) = api_request(
+            POST => "$base/$id",
+            key  => $okey,
+            json => { text => "invalid legacy edit $label", %$fields }
+        );
+        is( $res->code, 400, "$label: invalid legacy filters refused on edit" );
+    }
+
+    for my $path ( $base, "$base/$public" ) {
+        my ($res) = api_request(
+            POST => $path,
+            key  => $okey,
+            json => { text => 'no custom security', custom_bit => [$other_group] }
+        );
+        is( $res->code, 400, "legacy filters cannot silently write a public entry at $path" );
+    }
 
     my ( undef, $after ) = api_request( GET => $base, key => $okey );
-    is( scalar @$after, scalar @$before, 'legacy input did not create an entry' );
+    is( scalar @$after, scalar @$before, 'invalid legacy input did not create an entry' );
     my $state = entry_state( fresh_entry( $owner, $id ) );
-    is( $state->{event},     "body $post_count", 'legacy input did not change the entry text' );
-    is( $state->{allowmask}, 1 << $group,        'legacy input did not change the entry mask' );
+    is( $state->{event},     $event,      'invalid legacy input did not change the entry text' );
+    is( $state->{allowmask}, 1 << $group, 'invalid legacy input did not change the entry mask' );
 };
 
 subtest 'editing custom access filters' => sub {
@@ -275,12 +337,14 @@ subtest 'community posting and editing' => sub {
     is( $res->code, 403, 'non-member cannot post to the community' );
 
     my $member_group = $friend->create_trust_group( groupname => 'member filter' );
-    my $custom =
-        { text => 'custom community post', security => 'custom', custom_groups => [$member_group] };
-    ($res) = api_request( POST => $cbase, key => $fkey, json => $custom );
-    is( $res->code, 400, 'member cannot post with custom filters in a community' );
-    ($res) = api_request( POST => "$cbase/$id", key => $fkey, json => $custom );
-    is( $res->code, 400, 'member cannot make a community entry custom' );
+    for my $field (qw(custom_groups custom_bit)) {
+        my $custom =
+            { text => 'custom community post', security => 'custom', $field => [$member_group] };
+        ($res) = api_request( POST => $cbase, key => $fkey, json => $custom );
+        is( $res->code, 400, "member cannot post with $field in a community" );
+        ($res) = api_request( POST => "$cbase/$id", key => $fkey, json => $custom );
+        is( $res->code, 400, "member cannot make a community entry custom with $field" );
+    }
     ( $res, $body ) = api_request( GET => "$cbase/$id", key => $fkey );
     is( $body->{security}, 'public', 'rejected edit leaves community entry public' );
 
