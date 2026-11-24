@@ -18,6 +18,7 @@ use warnings;
 
 package DW::Worker::ChangePosterId;
 use base 'TheSchwartz::Worker';
+use DW::Locker;
 use LJ::User;
 
 sub schwartz_capabilities { return ('DW::Worker::ChangePosterId'); }
@@ -221,8 +222,10 @@ sub fix_talkleft {
     # Expunged users have clusterid 0 and no cluster database.
     if ( $tu->clusterid ) {
 
-        # Update global talkleft_xfp before clustered talkleft so clean_caches
-        # cannot drain a row back to the old user's cluster in between.
+        # Any old-owner drain must finish before we rewrite staging. After the
+        # rewrite, the cleaner can only drain these rows to the new owner.
+        my $lock = DW::Locker->new->trylock( 'talkleft_xfp', class => 'talkleft_xfp' )
+            or die "Temporary failure locking talkleft_xfp: $DW::Locker::Error\n";
         my $dbh = LJ::get_db_writer()
             or die "Temporary failure connecting to global master.\n";
 
@@ -233,6 +236,7 @@ sub fix_talkleft {
             die $dbh->errstr if $dbh->err;
             last unless $rv && $rv > 0;
         }
+        $lock->release;
 
         if ( $fu->clusterid ) {
             my $from_dbcm = LJ::get_cluster_master($fu)
@@ -284,6 +288,8 @@ sub fix_talkleft {
 
                             # Avoid duplicating a row if a previous attempt crashed after
                             # inserting on the target cluster and before deleting from the source.
+                            # The table has no unique key; we assume one row per
+                            # (userid, journalid, nodetype, nodeid, jtalkid).
                             my $exists = $to_dbcm->selectrow_array(
                                 'SELECT 1 FROM talkleft '
                                     . 'WHERE userid = ? AND posttime = ? AND journalid = ? '

@@ -14,12 +14,12 @@
 # part of this distribution.
 
 use strict;
+use DW::Locker;
 
 our %maint;
 
 $maint{'clean_caches'} = sub {
     my $dbh = LJ::get_db_writer();
-    my $sth;
 
     my $verbose = $LJ::LJMAINT_VERBOSE;
 
@@ -132,74 +132,7 @@ $maint{'clean_caches'} = sub {
     }
     print "    deleted $count\n";
 
-    # move rows from talkleft_xfp to talkleft
-    print "-I- Moving talkleft_xfp.\n";
-
-    my $xfp_count = $dbh->selectrow_array("SELECT COUNT(*) FROM talkleft_xfp");
-    print "    rows found: $xfp_count\n";
-
-    if ($xfp_count) {
-
-        my @xfp_cols      = qw(userid posttime journalid nodetype nodeid jtalkid publicitem);
-        my $xfp_cols      = join( ",", @xfp_cols );
-        my $xfp_cols_join = join( ",", map { "t.$_" } @xfp_cols );
-
-        my %insert_vals;
-        my %delete_vals;
-
-        # select out 1000 rows from random clusters
-        $sth =
-            $dbh->prepare( "SELECT u.clusterid,u.user,$xfp_cols_join "
-                . "FROM talkleft_xfp t, user u "
-                . "WHERE t.userid=u.userid LIMIT 1000" );
-        $sth->execute();
-        my $row_ct = 0;
-        while ( my $row = $sth->fetchrow_hashref ) {
-
-            my %qrow = map { $_, $dbh->quote( $row->{$_} ) } @xfp_cols;
-
-            push @{ $insert_vals{ $row->{'clusterid'} } },
-                ( "(" . join( ",", map { $qrow{$_} } @xfp_cols ) . ")" );
-            push @{ $delete_vals{ $row->{'clusterid'} } },
-                (     "(userid=$qrow{'userid'} AND "
-                    . "journalid=$qrow{'journalid'} AND "
-                    . "nodetype=$qrow{'nodetype'} AND "
-                    . "nodeid=$qrow{'nodeid'} AND "
-                    . "posttime=$qrow{'posttime'} AND "
-                    . "jtalkid=$qrow{'jtalkid'})" );
-
-            $row_ct++;
-        }
-
-        foreach my $clusterid ( sort keys %insert_vals ) {
-            my $dbcm = LJ::get_cluster_master($clusterid);
-            unless ($dbcm) {
-                print "    cluster down: $clusterid\n";
-                next;
-            }
-
-            print "    cluster $clusterid: " . scalar( @{ $insert_vals{$clusterid} } ) . " rows\n"
-                if $verbose;
-            $dbcm->do( "INSERT INTO talkleft ($xfp_cols) VALUES "
-                    . join( ",", @{ $insert_vals{$clusterid} } ) )
-                . "\n";
-            if ( $dbcm->err ) {
-                print "    db error (insert): " . $dbcm->errstr . "\n";
-                next;
-            }
-
-            # no error, delete from _xfp
-            $dbh->do(
-                "DELETE FROM talkleft_xfp WHERE " . join( " OR ", @{ $delete_vals{$clusterid} } ) )
-                . "\n";
-            if ( $dbh->err ) {
-                print "    db error (delete): " . $dbh->errstr . "\n";
-                next;
-            }
-        }
-
-        print "    rows remaining: " . ( $xfp_count - $row_ct ) . "\n";
-    }
+    clean_caches_talkleft_xfp( $dbh, $verbose );
 
     # move clustered active_user stats from each cluster to the global active_user_summary table
     print "-I- Migrating active_user records.\n";
@@ -328,5 +261,80 @@ $maint{'clean_caches'} = sub {
         # next cluster
     }
 };
+
+sub clean_caches_talkleft_xfp {
+    my ( $dbh, $verbose ) = @_;
+    print "-I- Moving talkleft_xfp.\n";
+
+    # Keep the staging snapshot valid through the clustered insert and staging delete.
+    my $lock = DW::Locker->new->trylock( 'talkleft_xfp', class => 'talkleft_xfp' );
+    unless ($lock) {
+        print "    skipping talkleft_xfp drain: $DW::Locker::Error\n";
+        return;
+    }
+
+    my $xfp_count = $dbh->selectrow_array("SELECT COUNT(*) FROM talkleft_xfp");
+    print "    rows found: $xfp_count\n";
+    return unless $xfp_count;
+
+    my @xfp_cols      = qw(userid posttime journalid nodetype nodeid jtalkid publicitem);
+    my $xfp_cols      = join( ",", @xfp_cols );
+    my $xfp_cols_join = join( ",", map { "t.$_" } @xfp_cols );
+
+    my %insert_vals;
+    my %delete_vals;
+
+    # select out 1000 rows from random clusters
+    my $sth =
+        $dbh->prepare( "SELECT u.clusterid,u.user,$xfp_cols_join "
+            . "FROM talkleft_xfp t, user u "
+            . "WHERE t.userid=u.userid LIMIT 1000" );
+    $sth->execute();
+    my $row_ct = 0;
+    while ( my $row = $sth->fetchrow_hashref ) {
+        my %qrow = map { $_, $dbh->quote( $row->{$_} ) } @xfp_cols;
+
+        push @{ $insert_vals{ $row->{'clusterid'} } },
+            ( "(" . join( ",", map { $qrow{$_} } @xfp_cols ) . ")" );
+        push @{ $delete_vals{ $row->{'clusterid'} } },
+            (     "(userid=$qrow{'userid'} AND "
+                . "journalid=$qrow{'journalid'} AND "
+                . "nodetype=$qrow{'nodetype'} AND "
+                . "nodeid=$qrow{'nodeid'} AND "
+                . "posttime=$qrow{'posttime'} AND "
+                . "jtalkid=$qrow{'jtalkid'})" );
+
+        $row_ct++;
+    }
+
+    foreach my $clusterid ( sort keys %insert_vals ) {
+        my $dbcm = LJ::get_cluster_master($clusterid);
+        unless ($dbcm) {
+            print "    cluster down: $clusterid\n";
+            next;
+        }
+
+        print "    cluster $clusterid: " . scalar( @{ $insert_vals{$clusterid} } ) . " rows\n"
+            if $verbose;
+        $dbcm->do( "INSERT INTO talkleft ($xfp_cols) VALUES "
+                . join( ",", @{ $insert_vals{$clusterid} } ) )
+            . "\n";
+        if ( $dbcm->err ) {
+            print "    db error (insert): " . $dbcm->errstr . "\n";
+            next;
+        }
+
+        # no error, delete from _xfp
+        $dbh->do(
+            "DELETE FROM talkleft_xfp WHERE " . join( " OR ", @{ $delete_vals{$clusterid} } ) )
+            . "\n";
+        if ( $dbh->err ) {
+            print "    db error (delete): " . $dbh->errstr . "\n";
+            next;
+        }
+    }
+
+    print "    rows remaining: " . ( $xfp_count - $row_ct ) . "\n";
+}
 
 1;

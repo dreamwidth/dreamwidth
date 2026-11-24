@@ -22,8 +22,10 @@ use Test::MockObject;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user with_fake_memcache );
+use DW::Locker;
 use DW::Task::ChangePosterId;
 use DW::Worker::ChangePosterId;
+BEGIN { require "$ENV{LJHOME}/bin/maint/clean_caches.pl"; }
 
 my @xfp_cleanup_uids;
 
@@ -338,5 +340,99 @@ subtest 'legacy DW::Worker::ChangePosterId updates talkleft consistently' => sub
         is( $tu->num_comments_posted, 1, 'legacy worker updated to user count' );
     };
 };
+
+for my $implementation (qw(task worker)) {
+    subtest "$implementation coordinates the talkleft_xfp handoff" => sub {
+        with_fake_memcache {
+            my $fu = temp_user( cluster => 1 );
+            my $tu = temp_user( cluster => 2 );
+            push @xfp_cleanup_uids, $fu->id, $tu->id;
+
+            my $dbh = LJ::get_db_writer();
+            my @row = ( time(), $fu->id, 'L', 42, 7, '1' );
+            $dbh->do(
+                'INSERT INTO talkleft_xfp '
+                    . '(userid, posttime, journalid, nodetype, nodeid, jtalkid, publicitem) '
+                    . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
+                undef, $fu->id, @row
+            ) or die $dbh->errstr;
+
+            my $staging_owners = sub {
+                my $owners = $dbh->selectcol_arrayref(
+                    'SELECT userid FROM talkleft_xfp WHERE userid IN (?, ?) ORDER BY userid',
+                    undef, $fu->id, $tu->id )
+                    or die $dbh->errstr;
+                return $owners;
+            };
+            my $run_migration = sub {
+                my ($expect_success) = @_;
+                my $args = { from_userid => $fu->id, to_userid => $tu->id };
+                if ( $implementation eq 'task' ) {
+                    my $task     = DW::Task::ChangePosterId->new($args);
+                    my $expected = $expect_success ? DW::Task::COMPLETED : DW::Task::FAILED;
+                    is( $task->work('test-xfp-lock'),
+                        $expected, 'task reports the expected status' );
+                }
+                else {
+                    my ( $completed, $failed ) = ( 0, '' );
+                    my $job = Test::MockObject->new;
+                    $job->mock( arg       => sub { $args } );
+                    $job->mock( completed => sub { $completed = 1 } );
+                    $job->mock( failed    => sub { $failed = $_[1]; return } );
+                    $job->mock(
+                        permanent_failure => sub { fail('worker reported permanent failure') } );
+                    DW::Worker::ChangePosterId->work($job);
+                    is( $completed, $expect_success, 'worker completes only with the lock free' );
+
+                    if ($expect_success) {
+                        is( $failed, '', 'worker retry did not fail' );
+                    }
+                    else {
+                        like( $failed, qr/talkleft_xfp/,
+                            'worker reports a retryable lock failure' );
+                    }
+                }
+            };
+
+            my $lock = DW::Locker->new->trylock( 'talkleft_xfp', class => 'talkleft_xfp' )
+                or BAIL_OUT("Could not acquire test lock: $DW::Locker::Error");
+            $run_migration->(0);
+            is_deeply(
+                $staging_owners->(),
+                [ $fu->id ],
+                'migration leaves staging untouched while locked'
+            );
+            clean_caches_talkleft_xfp( $dbh, 0 );
+            is_deeply(
+                $staging_owners->(),
+                [ $fu->id ],
+                'cleaner leaves staging untouched while locked'
+            );
+            is_deeply( talkleft_rows( 1, $fu->id ), [], 'cleaner has not copied the source row' );
+            is_deeply( talkleft_rows( 2, $tu->id ), [], 'neither actor copied a target row' );
+            $lock->release;
+
+            if ( $implementation eq 'task' ) {
+                clean_caches_talkleft_xfp( $dbh, 0 );
+                is_deeply( talkleft_rows( 1, $fu->id ),
+                    [ \@row ], 'cleaner drains to source before migration' );
+                $run_migration->(1);
+            }
+            else {
+                $run_migration->(1);
+                is_deeply(
+                    $staging_owners->(),
+                    [ $tu->id ],
+                    'migration repoints staging before drain'
+                );
+            }
+            clean_caches_talkleft_xfp( $dbh, 0 );
+            is_deeply( $staging_owners->(), [], 'cleaner removes the drained staging row' );
+            is_deeply( talkleft_rows( 1, $fu->id ), [], 'no row remains under the old owner' );
+            is_deeply( talkleft_rows( 2, $tu->id ),
+                [ \@row ], 'exactly one row reaches the new owner' );
+        };
+    };
+}
 
 done_testing();
