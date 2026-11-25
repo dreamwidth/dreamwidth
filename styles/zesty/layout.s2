@@ -1339,12 +1339,58 @@ function Page::lay_print_comment_details(CommentInfo c) : void {
     print $c->lay_get_details(0, true);
 }
 
+function lay_comment_count_text(int count) : string {
+    var bool plural = lang_map_plural($count) != 0;
+    var string link = lay_string_placeholders($plural ? $*text_some_comments_link : $*text_a_comment_link, [string($count)]);
+    return lay_string_placeholders($plural ? $*text_some_comments : $*text_a_comment, [$link]);
+}
+
+function CommentInfo::lay_print_quickreply_read_link() : void {
+    if ($.count > 0 or $.show_readlink_hidden) {
+        var string hidden = $.count == 0 ? " style='display:none'" : "";
+        var string text = $.count > 0 ? lay_comment_count_text($.count) : "";
+        var string sing = ehtml(striphtml(lay_comment_count_text(1)));
+        var string dual = ehtml(striphtml(lay_comment_count_text(2)));
+        var string plur = ehtml(striphtml(lay_comment_count_text(3)));
+        var string url = ehtml($.read_url);
+        """<span class="entry-readlink"$hidden><a href="$url" data-sing="$sing" data-dual="$dual" data-plur="$plur">$text</a></span>""";
+    }
+    if ($.count == 0) {
+        """<span class="entry-readlink-empty">$*text_no_comments</span>""";
+    }
+    if (not $.enabled) {
+        print " " + $*text_comments_disabled;
+    }
+}
+
 # Prints a link to an entry's ReplyPage.
 #
 function Page::lay_print_entry_reply_link(CommentInfo c) : void {
     if ($c.show_postlink) {
         var string link = """<a href="$c.post_url">$*reply_link_link_text</a>""";
         print " " + lay_string_placeholders( $*reply_link_text, [$link] );
+    }
+}
+
+# Same as above, but the link opens quick reply in the container named by target.
+#
+function Page::lay_print_entry_reply_link(Entry e, string target) : void {
+    if ($e.comments.show_postlink) {
+        var string marker = "[[reply-link]]";
+        var string text = lay_string_placeholders( $*reply_link_text, [$marker] );
+        if (not $text->contains($marker)) {
+            print " $text";
+            return;
+        }
+        var string[] parts = $text->split($marker);
+        print " ";
+        if (size $parts > 0) {
+            print $parts[0];
+        }
+        $e->print_reply_link({ "linktext" => $*reply_link_link_text, "target" => $target });
+        if (size $parts > 1) {
+            print $parts[1];
+        }
     }
 }
 
@@ -1431,14 +1477,16 @@ function Page::lay_print_entry_left(Entry e) : void {
 }
 
 function Page::lay_print_entry_footer(Entry e) {
+    var string target = $e.dom_id + "-reply";
     """
-    <div class="links">
+    <div class="links" data-quickreply-target="$target">
     """;
-    $this->lay_print_comment_details( $e.comments );
-    $this->lay_print_entry_reply_link( $e.comments );
+    $e.comments->lay_print_quickreply_read_link();
+    $this->lay_print_entry_reply_link( $e, $target );
     """
     </div>
     """;
+    $e->print_reply_container({ "target" => $target, "class" => "quickreply" });
 }
 
 
@@ -1842,8 +1890,8 @@ function Page::print() {
     $this->print_body();
 
     $this->lay_footer();
+    $this->print_wrapper_end();
     """
-</body>
 </html>
 """;
 }
@@ -2502,7 +2550,7 @@ function EntryPage::lay_print_entry_comments_bar() : void {
     <div class="entry-comments-bar">
         <span class="comments-title">""";
         $this->lay_print_comment_details( $.entry.comments );
-        $this->lay_print_entry_reply_link( $.entry.comments );
+        $this->lay_print_entry_reply_link( $.entry, "topcomment" );
         """</span>
     """; $this->lay_comment_pagination(); """
     </div>
@@ -2526,6 +2574,7 @@ function EntryPage::print_body() : void {
     $this->lay_back_forward();
 
     $this->lay_print_entry_comments_bar();
+    $this->print_reply_container({ "target" => "topcomment", "class" => "quickreply" });
 
     $this->lay_print_comments();
 
