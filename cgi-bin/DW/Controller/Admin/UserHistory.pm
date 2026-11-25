@@ -99,7 +99,7 @@ sub statushistory_controller {
         return DW::Template->render_template( 'admin/statushistory.tt', $vars );
     }
 
-    # Page only the rows this viewer can see, including in the page count.
+    # Include only rows this viewer can see in the page and its lookahead.
     unless ( $LJ::IS_DEV_SERVER || $rv->{remote}->has_priv( 'historyview', '' ) ) {
         my %types = $rv->{remote}->priv_args('historyview');
         my @types = map { $dbr->quote($_) } sort keys %types;
@@ -118,45 +118,50 @@ sub statushistory_controller {
     };
     my $sort = $form_args->{'orderby'} || 'shdate';
     $sort = 'shdate' unless exists $sort_columns->{$sort};
-    my $orderby = $sort_columns->{$sort};
-
     my $flow = 'DESC';
     $flow = 'ASC' if $form_args->{'flow'} && $form_args->{'flow'} eq 'asc';
 
+    # A secondary sort for dates prevents MySQL from walking the existing indexes.
+    # Without a unique key, the order of equal dates is not guaranteed.
+    my $orderby = "$sort_columns->{$sort} $flow";
+    $orderby .= ', s.shdate, s.userid, s.adminid, BINARY s.shtype' if $sort ne 'shdate';
+
     my $page_size = 1000;
-    my ($count) = $dbr->selectrow_array( "SELECT COUNT(*) FROM statushistory s " . $where );
-    return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
+    my $limit     = $page_size + 1;
+    my $page      = $form_args->{'page'} || '';
+    $page = 1 unless $page =~ /\A[1-9][0-9]{0,8}\z/;
 
-    my $pages = int( ( $count + $page_size - 1 ) / $page_size ) || 1;
-    my $page = $form_args->{'page'} || '';
+    my $query =
+          "SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes "
+        . "FROM statushistory s "
+        . "LEFT JOIN useridmap ua ON s.adminid=ua.userid "
+        . "LEFT JOIN useridmap u ON s.userid=u.userid "
+        . $where
+        . "ORDER BY $orderby LIMIT $limit OFFSET ";
 
-    # Validate before arithmetic, and never let an arbitrary offset exceed the result set.
-    $page = 1 unless $page =~ /\A[1-9][0-9]{0,8}\z/ && $page <= $pages;
-    my $offset = ( $page - 1 ) * $page_size;
+    my $rows;
+    while (1) {
+        my $offset = ( $page - 1 ) * $page_size;
+        $rows = $dbr->selectall_arrayref( $query . $offset, { Slice => {} } );
+        return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
 
-    $vars->{pages}     = { current => $page, total_pages => $pages };
+        last if @$rows || $page == 1;
+        $page = 1;
+    }
+
+    my $has_next = @$rows > $page_size;
+    pop @$rows if $has_next;
+    $vars->{rows}  = $rows;
+    $vars->{pages} = {
+        current => $page,
+        prev    => $page > 1 ? $page - 1 : 0,
+        next    => $has_next ? $page + 1 : 0,
+    };
     $vars->{page_args} = {
         ( map { $_ => $form_args->{$_} } qw(user admin type) ),
         orderby => $sort,
         flow    => lc $flow,
     };
-
-    # There is no unique key in statushistory. Break timestamp/collation ties with
-    # stored values; hash the full notes because MySQL sorts TEXT by a limited prefix.
-    # Completely identical rows are interchangeable. New records can shift offsets.
-    my $ties = 's.shdate, s.userid, s.adminid, BINARY s.shtype, SHA2(s.notes, 256)';
-
-    $vars->{rows} = $dbr->selectall_arrayref(
-        "SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes "
-            . "FROM statushistory s "
-            . "LEFT JOIN useridmap ua ON s.adminid=ua.userid "
-            . "LEFT JOIN useridmap u ON s.userid=u.userid "
-            . $where
-            . "ORDER BY $orderby $flow, $ties LIMIT $offset, $page_size",
-        { Slice => {} }
-    );
-
-    return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
 
     $vars->{canview} = sub {
         return 1 if $LJ::IS_DEV_SERVER;

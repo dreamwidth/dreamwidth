@@ -65,9 +65,7 @@
     END %]
 </b></p>
 
-[% INCLUDE components/pagination.tt
-     current => pages.current, total_pages => pages.total_pages,
-     cur_args => page_args, path => '/admin/statushistory' %]
+[% INCLUDE history_pagination %]
 
 <table border='1' cellpadding='5' width='100%'>
   <thead><tr>
@@ -102,7 +100,19 @@
 
 </table>
 
-[% INCLUDE components/pagination.tt
-     current => pages.current, total_pages => pages.total_pages,
-     cur_args => page_args, path => '/admin/statushistory' %]
+[% INCLUDE history_pagination %]
+[% END %]
+
+[% BLOCK history_pagination %]
+  [% IF pages.prev || pages.next %]
+    <ul class="pagination">
+      [% FOREACH direction IN [ 'prev', 'next' ] %]
+        [% IF pages.$direction %]
+          [% link = dw.create_url( '/admin/statushistory', keep_args => 1,
+                                  cur_args => page_args, args => { page => pages.$direction } ) %]
+          <li class="arrow"><a href="[% link | html %]">[% ".btn.$direction" | ml %]</a></li>
+        [% END %]
+      [% END %]
+    </ul>
+  [% END %]
 [% END %]

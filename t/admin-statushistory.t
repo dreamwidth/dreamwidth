@@ -17,7 +17,6 @@ use strict;
 use warnings;
 
 use Test::More;
-use Digest::SHA qw(sha256_hex);
 use HTTP::Request::Common qw(GET POST);
 use URI;
 
@@ -68,16 +67,15 @@ with_fake_memcache {
     ok( length($type) <= 20, 'fixture fits the real shtype column' );
     ok( $limited->grant_priv( 'historyview', $type ), 'type-restricted history viewer' );
 
+    $dbh->begin_work or die $dbh->errstr;
     my $insert = $dbh->prepare(
         'INSERT INTO statushistory (userid, adminid, shtype, shdate, notes) VALUES (?,?,?,?,?)');
     my @notes = map { ( 'x' x 1100 ) . sprintf( ' synthetic row %04d', $_ ) } 1 .. 2005;
     push @notes, $notes[0], '<b>synthetic</b>' . "\n" . 'second line';
 
-    # Every main row shares a timestamp, user, actor and type. Long notes also
-    # share a prefix longer than MySQL's usual max_sort_length. Insert backwards
-    # so storage order cannot accidentally satisfy the tie-breaking expectation.
-    for my $note ( reverse @notes ) {
-        $insert->execute( $subject->id, $actor->id, $type, '2001-01-01 00:00:00', $note );
+    for my $index ( reverse 0 .. $#notes ) {
+        my $date = sprintf '2001-01-01 00:%02d:%02d', int( $index / 60 ), $index % 60;
+        $insert->execute( $subject->id, $actor->id, $type, $date, $notes[$index] );
         die $dbh->errstr if $dbh->err;
     }
     $insert->execute(
@@ -120,6 +118,7 @@ with_fake_memcache {
         );
     }
     die $dbh->errstr if $dbh->err;
+    $dbh->commit or die $dbh->errstr;
 
     my $remote;
     local *LJ::get_remote        = sub { $remote };
@@ -159,7 +158,7 @@ with_fake_memcache {
         return $dbh->selectall_arrayref(
             'SELECT userid, adminid, shtype, shdate, notes FROM statushistory '
                 . 'WHERE userid IN (?,?) '
-                . 'ORDER BY shdate, userid, adminid, BINARY shtype, SHA2(notes, 256)',
+                . 'ORDER BY shdate, userid, adminid, BINARY shtype, notes',
             undef, $subject->id, $other->id
         );
     };
@@ -169,17 +168,21 @@ with_fake_memcache {
 
     # The existing type search is case insensitive; restrict this traversal to
     # the exact type via the viewer's real privilege, as well as all three filters.
-    my @expected = sort { sha256_hex($a) cmp sha256_hex($b) } @notes;
+    my @expected = reverse @notes;
 
-    subtest 'traverse more than 1000 rows with timestamp and long-note ties' => sub {
+    subtest 'traverse history in timestamp order across three pages' => sub {
         my @seen;
         for my $page ( 1 .. 3 ) {
             my $res = $request->( { %query, page => $page }, remote => $limited );
             is( $res->{template}, 'admin/statushistory.tt', 'renders the history template' );
             is_deeply(
                 $res->{vars}{pages},
-                { current => $page, total_pages => 3 },
-                "page $page of three"
+                {
+                    current => $page,
+                    prev    => $page > 1 ? $page - 1 : 0,
+                    next    => $page < 3 ? $page + 1 : 0
+                },
+                "page $page has the correct neighbors"
             );
             my $rows = $res->{vars}{rows};
             is( scalar @$rows, $page == 3 ? 7 : 1000, 'bounded page with exact last boundary' );
@@ -189,7 +192,7 @@ with_fake_memcache {
             unlike( $res->{html}, qr/\[truncated\]/, 'no obsolete truncation warning' );
         }
         is_deeply( \@seen, \@expected,
-            'every record appears in deterministic order, including duplicates' );
+            'every record appears in date order, including duplicate notes' );
         my $first = $request->( { %query, page => 1 }, remote => $limited );
         is_deeply(
             [ map { $_->{notes} } @{ $first->{vars}{rows} } ],
@@ -222,10 +225,11 @@ with_fake_memcache {
         is( scalar @bars, 2, 'pager above and below the table' );
         for my $bar (@bars) {
             my @links = $bar =~ /href="([^"]+)"/g;
-            ok( @links, 'pager has real navigation links' );
+            my @link_pages;
             for my $link (@links) {
-                my $url  = URI->new($link);
+                my $url  = URI->new( LJ::dhtml($link) );
                 my %args = $url->query_form;
+                push @link_pages, $args{page};
                 is( $url->path, '/admin/statushistory', 'correct destination' );
                 is_deeply(
                     { map { $_ => $args{$_} } qw(user admin type orderby flow) },
@@ -238,6 +242,7 @@ with_fake_memcache {
                 is( $dest->{vars}{pages}{current},
                     $args{page}, 'following pager reaches requested page' );
             }
+            is_deeply( \@link_pages, [ 1, 3 ], 'pager links only to the previous and next pages' );
         }
         my @sort_links = $res->{html} =~ /<th><a href='([^']+)'/g;
         is( scalar @sort_links, 5, 'each column still sorts' );
@@ -284,22 +289,34 @@ with_fake_memcache {
         }
     };
 
-    subtest 'exact page boundaries' => sub {
+    subtest 'exact page boundaries with equal timestamps' => sub {
         for my $size ( 1000, 1001 ) {
             my $res = $request->( { type => "$boundary_type-$size" } );
             is( scalar @{ $res->{vars}{rows} }, 1000, 'first page has exactly 1000 rows' );
             is(
-                $res->{vars}{pages}{total_pages},
-                $size == 1000 ? 1 : 2,
-                'page count handles exact and one-over boundaries'
+                $res->{vars}{pages}{next},
+                $size == 1000 ? 0 : 2,
+                'next page exists only when one extra row is found'
             );
+            is( $res->{vars}{pages}{prev}, 0, 'first page has no previous page' );
             if ( $size == 1000 ) {
                 unlike( $res->{html}, qr/class="pagination"/, 'no phantom page at the boundary' );
             }
             else {
                 like( $res->{html}, qr/class="pagination"/, 'one extra row produces a pager' );
+                my @first_page = map { $_->{notes} } @{ $res->{vars}{rows} };
                 $res = $request->( { type => "$boundary_type-$size", page => 2 } );
                 is( scalar @{ $res->{vars}{rows} }, 1, 'second page contains the extra row' );
+                is_deeply(
+                    $res->{vars}{pages},
+                    { current => 2, prev => 1, next => 0 },
+                    'last page goes back but not forward'
+                );
+                is_deeply(
+                    [ sort ( @first_page, map { $_->{notes} } @{ $res->{vars}{rows} } ) ],
+                    [ sort map { "boundary $_" } 1 .. $size ],
+                    'equal timestamps straddling the boundary do not lose or repeat a row'
+                );
             }
         }
     };
@@ -310,8 +327,7 @@ with_fake_memcache {
             my $field = $filter eq 'type' ? 'shtype' : $filter;
             ok( !grep( { lc( $_->{$field} ) ne lc( $query{$filter} ) } @{ $res->{vars}{rows} } ),
                 "$filter search excludes disjoint values" );
-            is( $res->{vars}{pages}{total_pages},
-                3, "$filter search includes its larger result set" );
+            is( $res->{vars}{pages}{next}, 2, "$filter search has more matching rows" );
         }
         my $res = $request->(
             { user => $other->user, admin => $other_actor->user, type => 'other_type' } );
@@ -353,7 +369,11 @@ with_fake_memcache {
             remote => $limited
         );
         is_deeply( $res->{vars}{rows}, [], 'limited viewer cannot query another type' );
-        is( $res->{vars}{pages}{total_pages}, 1, 'hidden rows do not affect page count' );
+        is_deeply(
+            $res->{vars}{pages},
+            { current => 1, prev => 0, next => 0 },
+            'hidden rows do not produce navigation'
+        );
         unlike(
             $res->{html},
             qr/class="pagination"|different actor|must hide/,
@@ -364,8 +384,11 @@ with_fake_memcache {
             remote => $limited
         );
         is_deeply( $res->{vars}{rows}, [], 'more than 1000 hidden rows stay hidden' );
-        is( $res->{vars}{pages}{total_pages}, 1,
-            'hidden multi-page result does not leak its size' );
+        is_deeply(
+            $res->{vars}{pages},
+            { current => 1, prev => 0, next => 0 },
+            'hidden multi-page result does not leak its size'
+        );
         unlike( $res->{html}, qr/class="pagination"/,
             'hidden multi-page result has no navigation' );
         $res = $request->( { %query, page => 2 }, remote => $plain );
