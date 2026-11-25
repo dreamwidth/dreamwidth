@@ -91,13 +91,20 @@ my $get_handle = sub {
     return $handle{$name} = $db;
 };
 
-# a replica's master is the configured server whose host and port match the
-# replica's own record of where it replicates from
+my %server_id;
 my $master_of = sub {
-    my $ss = shift;
-    foreach my $name ( sort keys %dbinfo ) {
+    my $ss         = shift;
+    my @candidates = sort keys %dbinfo;
+    if ( my $master_id = $ss->{master_server_id} ) {
+        my @matches = grep { ( $server_id{$_} || 0 ) == $master_id } @candidates;
+        return $matches[0] if @matches == 1;
+        @candidates = @matches ? @matches : grep { !$server_id{$_} } @candidates;
+    }
+
+    return "" unless $ss->{master_host};
+    foreach my $name (@candidates) {
         my $src = $dbinfo{$name};
-        next unless lc( $src->{host} // "" ) eq lc( $ss->{master_host} // "" );
+        next unless lc( $src->{host} // "" ) eq lc( $ss->{master_host} );
         next unless ( $src->{port} || 3306 ) == ( $ss->{master_port} || 3306 );
         return $name;
     }
@@ -115,6 +122,8 @@ my $check_master_status = sub {
 
     my ( $masterfile, $masterpos ) = $db->selectrow_array("SHOW MASTER STATUS");
     $master_status{$name} = [ $masterfile, $masterpos ];
+    my ($id) = eval { $db->selectrow_array('SELECT @@server_id') };
+    $server_id{$name} = $id if $id;
 };
 
 my $check = sub {
@@ -189,6 +198,14 @@ my $check = sub {
         }
 
         $master = $master_of->($ss);
+        if ( !$master && ( $ss->{master_host} || $ss->{master_server_id} ) ) {
+            my $endpoint =
+                $ss->{master_host}
+                ? "$ss->{master_host}:" . ( $ss->{master_port} || 3306 )
+                : "unknown host";
+            my $id = $ss->{master_server_id} || "unknown";
+            push @errors, "$name: Unresolved master: $endpoint (server ID $id)";
+        }
         my $ms = $master_status{$master} || [];
 
         #print "  master: [@$ms], slave at: [$ss->{master_log_file}, $ss->{read_master_log_pos}]\n";
