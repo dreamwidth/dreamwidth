@@ -73,4 +73,26 @@ foreach my $case (@cases) {
     }
 }
 
+foreach my $case ( [ 'href', 'title', '<a %s>Link</a>' ], [ 'src', 'alt', '<img %s />' ], ) {
+    my ( $url_attr, $text_attr, $tag ) = @$case;
+    subtest "relative $url_attr preserves UTF-8" => sub {
+        my $html = sprintf $tag, qq{$url_attr="caf&ccedil;-$cedilla" $text_attr="&ccedil;"};
+
+        LJ::CleanHTML::resolve_relative_urls( \$html, 'https://example.invalid/feed/' );
+
+        like(
+            $html,
+            qr{\b$url_attr="https://example\.invalid/feed/caf%C3%A7-%C3%A7"},
+            'resolved URL percent-encodes the UTF-8 bytes of both characters'
+        );
+        like(
+            $html,
+            qr{\b$text_attr="\Q$cedilla\E"},
+            'rewritten tag preserves the decoded text attribute'
+        );
+        ok( LJ::is_utf8($html),      'output is valid UTF-8 bytes' );
+        ok( !Encode::is_utf8($html), 'output has no Perl character flag' );
+    };
+}
+
 done_testing();

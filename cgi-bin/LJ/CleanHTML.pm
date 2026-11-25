@@ -1414,6 +1414,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
     my $p = HTML::TokeParser->new($data);
+    $p->utf8_mode(1);
 
     # where we look for relative URLs
     my $rel_source = {
