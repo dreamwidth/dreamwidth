@@ -22,6 +22,10 @@ use strict;
 
 use Carp qw/ confess /;
 
+sub reading_page_max_age {
+    return $LJ::MAX_FRIENDS_VIEW_AGE || 14 * 86400;
+}
+
 # name: $u->watch_items
 # des: Return watch list items for a given user, filter, and period.
 # args: hash of items, key/values:
@@ -65,8 +69,8 @@ sub watch_items {
     my $events_day = $args{events_day};
     undef $events_day unless $remote && $u->can_use_daily_readpage;
 
-    my $filter  = $args{content_filter};
-    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600 * 24 * 14;    # 2 week default.
+    my $filter         = $args{content_filter};
+    my $max_age        = reading_page_max_age();
     my $lastmax        = $LJ::EndOfTime - ( $events_day ? $events_day->[0] : time() - $max_age );
     my $lastmax_cutoff = 0
         ; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)

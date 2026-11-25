@@ -15,15 +15,44 @@
 use strict;
 use warnings;
 
+use HTML::Entities qw(decode_entities);
 use POSIX qw(tzset);
 use Test::More;
 use URI;
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user with_fake_memcache);
 use LJ::S2;
+use S2;
+use S2::Compiler;
+
+S2::set_domain('test-reading-pagination');
+my $compiler = S2::Compiler->new( {} );
+for my $layer ( [ 1, 'core', 'core2.s2' ], [ 2, 'layout', 'zesty/layout.s2' ] ) {
+    my ( $id, $type, $file ) = @$layer;
+    open my $source_file, '<', "$ENV{LJHOME}/styles/$file" or die "Cannot open $file: $!";
+    my $source = do { local $/; <$source_file> };
+    my $compiled;
+    $compiler->compile_source(
+        {
+            type           => $type,
+            source         => \$source,
+            output         => \$compiled,
+            layerid        => $id,
+            builtinPackage => 'S2::Builtin::LJ',
+        }
+    );
+    S2::load_layer( $id, $compiled, 0 );
+}
+my $zesty = S2::make_context( 1, 2 );
+
+sub zesty_reading_url {
+    my ( $page, $params ) = @_;
+    my $url = S2::run_function( $zesty, 'FriendsPage::lay_build_url(string{})', $page, $params );
+    return URI->new( decode_entities($url) );
+}
 
 no warnings 'redefine';
-local *LJ::S2::Page   = sub { return { head_content => '' }; };
+local *LJ::S2::Page   = sub { return { head_content => '', base_url => $_[0]->{_journalbase} }; };
 local *LJ::S2::Friend = sub { return {}; };
 local *LJ::S2::Entry_from_entryobj = sub {
     my ( undef, $entry ) = @_;
@@ -106,6 +135,26 @@ with_fake_memcache {
 
     my %selection = ( show => 'P', filter => 0, security => 'public' );
     my $first     = $read_page->( $reader, %selection );
+    for my $action ( [ '.id', 123 ], [ '.mode', 'expanded' ] ) {
+        my ( $param, $value ) = @$action;
+        my $url = zesty_reading_url( $first, { $param => $value } );
+        is( $url->path, '/read', "Zesty $param keeps the unfiltered reading path" );
+        is_deeply(
+            { $url->query_form },
+            { $param => $value, security => 'public' },
+            "Zesty $param preserves the public security filter in the query"
+        );
+    }
+    $reader->create_content_filter( name => 'public' ) or die 'Cannot create public content filter';
+    my $content_page = LJ::S2::FriendsPage( $reader, $reader,
+        { view => 'read', getargs => {}, pathextra => '/public' } );
+    my $content_url = zesty_reading_url( $content_page, { '.mode' => 'expanded' } );
+    is( $content_url->path, '/read/public', 'a content filter named public still uses the path' );
+    is_deeply(
+        { $content_url->query_form },
+        { '.mode' => 'expanded' },
+        'a content filter does not become a security filter'
+    );
     is_deeply( $older->($first), { %selection, skip => 3 }, 'ordinary links preserve filters' );
     my $second = $read_page->( $reader, %{ $older->($first) } );
     is( $older->($second)->{skip}, 5, 'regular navigation links to its actual clamped offset' );
@@ -155,6 +204,10 @@ with_fake_memcache {
         { view => 'read', getargs => \%utf8_args, securityfilter => $group_id } );
     is( $group_page->{filter_name},
         $utf8_group, 'numeric trust group security filter preserves non-ASCII group name' );
+    my $group_url  = zesty_reading_url( $group_page, { '.mode' => 'expanded' } );
+    my %group_args = LJ::parse_args( $group_url->query );
+    is( $group_url->path, '/read', 'Zesty does not put the trust group in the path' );
+    is( $group_args{security}, "group:$utf8_group", 'Zesty preserves the encoded trust group' );
 
     for my $direction (qw(backward forward)) {
         my %parsed = LJ::parse_args( URI->new( $group_page->{nav}->{"${direction}_url"} )->query );
@@ -210,6 +263,49 @@ with_fake_memcache {
         $ids->( $read_page->($reader) ),
         'a free owner date request shows regular posts'
     );
+
+    local $LJ::MAX_FRIENDS_VIEW_AGE;
+    my $old_reader = temp_user();
+    my $old_writer = temp_user();
+    $old_reader->{_journalbase} = 'https://older.example';
+    $old_reader->add_to_class('paid_user') or die 'Cannot make historical test reader paid';
+    $old_reader->add_edge( $old_writer, watch => { nonotify => 1 } );
+    my $cutoff   = time() - 14 * 86400;
+    my $old_time = $cutoff - 86400;
+    my $old_post = $post->( $old_writer, $old_time, 'public' );
+    $dbh->do(
+'UPDATE userusage SET timecreate=FROM_UNIXTIME(?), timeupdate=FROM_UNIXTIME(?) WHERE userid=?',
+        undef,
+        $old_time,
+        $old_time,
+        $old_writer->id
+    ) or die 'Could not set historical journal times';
+    LJ::MemCache::delete( [ $old_writer->id, "$_:" . $old_writer->id ] ) for qw(tc tu log2lt);
+
+    LJ::set_remote($old_reader);
+    my $historical_page = sub {
+        return LJ::S2::FriendsPage( $old_reader, $old_reader,
+            { view => 'read', getargs => $_[0] } );
+    };
+    my $empty = $historical_page->( {} );
+    is_deeply( $ids->($empty), [], 'posts before the age limit do not appear in regular mode' );
+    is_deeply(
+        $older->($empty),
+        { date => LJ::mysql_date( $cutoff, 1 ) },
+        'an empty paid reading page links to the UTC date of the age cutoff'
+    );
+    ok( $empty->{nav}->{backward_by_date}, 'the empty page labels the link as a date handoff' );
+    my $cutoff_page = $historical_page->( $older->($empty) );
+    is_deeply( $ids->( $historical_page->( $older->($cutoff_page) ) ),
+        [$old_post], 'the cutoff link lets readers navigate to an older subscribed entry' );
+    {
+        local $LJ::MAX_FRIENDS_VIEW_AGE = 7 * 86400;
+        is(
+            $older->( $historical_page->( {} ) )->{date},
+            LJ::mysql_date( time() - 7 * 86400, 1 ),
+            'the handoff uses the configured age cutoff'
+        );
+    }
     LJ::unset_remote();
 };
 tzset();

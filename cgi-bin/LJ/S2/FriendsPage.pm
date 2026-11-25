@@ -19,6 +19,7 @@ use LJ::Lang;
 
 package LJ::S2;
 use DW::Logic::AdultContent;
+use DW::Logic::LogItems;
 use URI::Escape qw(uri_escape);
 
 sub FriendsPage {
@@ -90,7 +91,11 @@ sub FriendsPage {
     }
     $opts->{'headers'}->{'Last-Modified'} = LJ::time_to_http($lastmod);
 
-    my $get = $opts->{'getargs'};
+    my $get      = $opts->{'getargs'};
+    my $security = $opts->{securityfilter};
+    my $security_arg =
+        defined $security && defined $get->{security} ? uri_escape( $get->{security} ) : '';
+    $p->{security_filter_arg} = $security_arg;
 
     my $ret;
 
@@ -117,6 +122,7 @@ sub FriendsPage {
 
     my $get_date         = $get->{date} || '';
     my $can_read_by_date = $remote && $u->equals($remote) && $u->can_use_daily_readpage;
+    my $can_handoff      = $opts->{view} eq 'read' && $can_read_by_date;
 
     my $events_day;
     if ( $can_read_by_date && $get_date =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/ ) {
@@ -150,10 +156,10 @@ sub FriendsPage {
         || $u->content_filters( name => "Default View" );
 
     my $filter;
-    if ( $opts->{securityfilter} ) {
+    if ($security) {
         my $filter =
-              $opts->{securityfilter} =~ /\A[0-9]+\z/
-            ? $u->trust_groups( id => $opts->{securityfilter} )
+              $security =~ /\A[0-9]+\z/
+            ? $u->trust_groups( id => $security )
             : undef;
         $p->{filter_active} = 1;
         if ( defined $filter ) {
@@ -161,7 +167,7 @@ sub FriendsPage {
         }
         else {
             # something went wrong; just use the group number
-            $p->{filter_name} = $opts->{securityfilter};
+            $p->{filter_name} = $security;
         }
     }
     else {
@@ -198,7 +204,7 @@ sub FriendsPage {
         idsbycluster     => \%idsbycluster,
         showtypes        => $get->{show},
         friendsoffriends => $opts->{view} eq 'network',
-        security         => $opts->{securityfilter},
+        security         => $security,
         dateformat       => 'S2',
         events_day       => $events_day,
     );
@@ -213,7 +219,7 @@ sub FriendsPage {
         $friends{$_}->{'bgcolor'} = $friends_row{$_}->{'bgcolor'} || '#000000';
     }
 
-    return $p unless %friends || $events_day;
+    return $p unless %friends || $events_day || $can_handoff;
 
     my %posters;
     {
@@ -300,11 +306,10 @@ ENTRY:
 
     # these are the same for both previous and next links
     my %linkvars;
-    $linkvars{show}   = $get->{show}       if defined $get->{show} && $get->{show} =~ /^\w+$/;
-    $linkvars{date}   = $get_date          if $events_day;
-    $linkvars{filter} = $get->{filter} + 0 if defined $get->{filter};
-    $linkvars{security} = uri_escape( $get->{security} )
-        if defined $opts->{securityfilter} && defined $get->{security};
+    $linkvars{show}     = $get->{show}       if defined $get->{show} && $get->{show} =~ /^\w+$/;
+    $linkvars{date}     = $get_date          if $events_day;
+    $linkvars{filter}   = $get->{filter} + 0 if defined $get->{filter};
+    $linkvars{security} = $security_arg      if length $security_arg;
 
     # if we've skipped down, then we can skip back up
     if ($skip) {
@@ -346,8 +351,10 @@ ENTRY:
         $prevvars{date} = LJ::mysql_date( $events_day->[0] - 86400, 1 );
         $nav->{'backward_url'} = LJ::S2::make_link( $base, \%prevvars );
     }
-    elsif ( $opts->{view} eq 'read' && $can_read_by_date && defined $oldest_post_time ) {
-        $linkvars{date} = LJ::mysql_date( $oldest_post_time, 1 );
+    elsif ($can_handoff) {
+        my $handoff_time = $oldest_post_time
+            // ( $nowtime - DW::Logic::LogItems::reading_page_max_age() );
+        $linkvars{date} = LJ::mysql_date( $handoff_time, 1 );
         $nav->{'backward_url'}     = LJ::S2::make_link( $base, \%linkvars );
         $nav->{'backward_by_date'} = 1;
     }

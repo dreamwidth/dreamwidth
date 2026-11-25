@@ -640,6 +640,9 @@ class FriendsPage extends RecentPage
 
     var string filter_name
     "The name of the filter in effect, if it has a name. This is only used when 'custom' [member[FriendsPage.filter_active]] is true.";
+
+    var readonly string security_filter_arg
+    "The URL-escaped value of the security query parameter, or an empty string when no security filter is active.";
 }
 
 class DayPage extends Page
@@ -1559,7 +1562,7 @@ set text_day_prev = "Previous Day";
 set text_day_next = "Next Day";
 
 property string text_reading_by_date {
-    des = "Text to link from the end of the reading page to the oldest displayed date";
+    des = "Text to link from the regular reading page to earlier entries by date";
     noui = 1;
 }
 set text_reading_by_date = "Earlier entries by date";

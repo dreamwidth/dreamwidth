@@ -835,6 +835,9 @@ class FriendsPage extends RecentPage
 
     var string friends_mode
     "The 'mode' of this view. An empty string indicates a normal friends view, while 'network' indicates the network view.";
+
+    var readonly string security_filter_arg
+    "The URL-escaped value of the security query parameter, or an empty string when no security filter is active.";
 }
 
 class DayPage extends Page
@@ -2822,7 +2825,7 @@ property string text_day_prev {
     maxlength = 20;
 }
 property string text_reading_by_date {
-    des = "Text to link from the end of the reading page to the oldest displayed date";
+    des = "Text to link from the regular reading page to earlier entries by date";
     noui = 1;
 }
 property string text_day_next {

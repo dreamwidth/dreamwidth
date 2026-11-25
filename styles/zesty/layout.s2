@@ -1935,9 +1935,9 @@ function FriendsPage::lay_build_url(string{} items) : string {
         $url = $url + "/read";
     }
 
-    # Page might be a friends group.
-    #
-    if ($.filter_active) {
+    if ($.security_filter_arg != "") {
+        $items{"security"} = $.security_filter_arg;
+    } elseif ($.filter_active) {
         $url = $url + "/$.filter_name";
     }
 

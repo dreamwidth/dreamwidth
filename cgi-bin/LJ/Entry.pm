@@ -27,6 +27,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 our $AUTOLOAD;
 use Carp qw/ croak confess /;
 use DW::Cache;
+use DW::Logic::LogItems;
 use DW::Task::DeleteEntry;
 use DW::Task::SearchCopier;
 use DW::Search;
@@ -1860,7 +1861,7 @@ sub get_log2_recent_log {
     $dont_store = 1 unless defined $tu;
 
     # get reliable log2lt data from the db
-    my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600 * 24 * 14;    # 2 weeks default
+    my $max_age = DW::Logic::LogItems::reading_page_max_age();
     my $sql     = "
         SELECT
             jitemid, posterid, eventtime, rlogtime,
