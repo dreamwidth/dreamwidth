@@ -24,6 +24,9 @@ use Unicode::MapUTF8 ();
 
 my $workdir                = "/tmp";
 my $html_inline_name       = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
+my $html_value_inline_name = qr{
+    (?:$html_inline_name|abbr|bdi|bdo|cite|del|dfn|ins|kbd|mark|q|samp|strike|time|var)
+}ix;
 my $html_block_name        = qr/(?:div|p)/;
 my $html_break_tag         = qr{<br[ \t]*/?>}i;
 my $html_office_open       = qr{<o:p[ \t]*>}i;
@@ -265,11 +268,15 @@ sub _extract_post_headers {
             )
         )*+
     }x;
-    my $inline_tag   = qr{<(?:$html_inline_name(?:$inline_attrs)?/?>|/$html_inline_name\s*+>)}i;
+    my $inline_tag =
+        qr{<(?:$html_value_inline_name(?:$inline_attrs)?/?>|/$html_value_inline_name\s*+>)}i;
     my $value_markup = qr/$inline_tag|$html_office_open$html_placeholder_space$html_office_close/;
     my $value_text   = $is_html ? qr/(?:[^<\r\n]|$value_markup)*+/ : qr/[^\r\n]*/;
     my $value_start  = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
     my $value_end    = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
+    my $value_prefix = $is_html ? qr/(?:[ \t]|$value_markup)*+/ : qr/[ \t]*+/;
+    my $indent       = $is_html ? qr/[ \t]++/ : qr/[ \t]*+/;
+    my $next_header  = qr/$value_prefix(?:lj|post)-[^:\r\n]+:/i;
 
     while (1) {
         if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
@@ -279,18 +286,28 @@ sub _extract_post_headers {
         last if $is_html && $body =~ /\G(?:[ \t]*\r?\n)*(?:lj|post)-[^:<\r\n]*</igc;
         last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):($value_text)$value_end/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), $3 );
-        $value = _html_header_value( \$body, $-[3], $value, $value_markup, \@wrappers )
+        my $retained = '';
+        $value = _html_header_value( \$body, $-[3], $value, $value_markup, \@wrappers, \$retained )
             if $is_html;
         $value = LJ::trim($value);
-        if ( !length($value) && $body =~ /\G[ \t]+(?=$value_start)($value_text)$value_end/gc ) {
+
+        my $in_quote = grep { $_ eq 'q' } @wrappers;
+        if (   !length($value)
+            && !$in_quote
+            && $body =~
+            /\G(?!$next_header|\+[a-z0-9]+\b)$indent(?=$value_start)($value_text)$value_end/igc )
+        {
             $value = $1;
-            $value = _html_header_value( \$body, $-[1], $value, $value_markup, \@wrappers )
+            $value =
+                _html_header_value( \$body, $-[1], $value, $value_markup, \@wrappers, \$retained )
                 if $is_html;
-            $value = LJ::trim($value);
+            $value    = LJ::trim($value);
+            $in_quote = grep { $_ eq 'q' } @wrappers;
         }
         $headers->{$prefix}{$name} = $value;
-        $markup .= substr( $body, $end, $line_start - $end );
+        $markup .= substr( $body, $end, $line_start - $end ) . $retained;
         $end = pos($body);
+        last if $in_quote;
     }
 
     substr( $body, $start, $end - $start, $markup );
@@ -304,30 +321,41 @@ sub _extract_post_headers {
 # Keep the wrapper stack in sync when a tag is consumed as part of a value.
 # Leave unmatched closes and quoted wrappers for the boundary scan to reject.
 sub _html_header_value {
-    my ( $body, $start, $value, $value_markup, $wrappers ) = @_;
+    my ( $body, $start, $value, $value_markup, $wrappers, $retained ) = @_;
     my $plain  = '';
     my $offset = 0;
+    my @openings;
 
     while ( $value =~ /$value_markup/g ) {
         my ( $tag_start, $tag_end ) = ( $-[0], $+[0] );
         $plain .= substr( $value, $offset, $tag_start - $offset );
         my $raw = substr( $value, $tag_start, $tag_end - $tag_start );
-        unless ( $raw =~ /\A$html_office_open/ || $raw =~ m{\A<$html_inline_name\s*/>\z} ) {
+        unless ( $raw =~ /\A$html_office_open/ || $raw =~ m{\A<$html_value_inline_name\s*/>\z} ) {
             my $token = HTML::TokeParser->new( \$raw )->get_token;
-            if ( $token->[0] eq 'S' && _is_html_header_wrapper($token) ) {
+            if ( $token->[0] eq 'S' && _is_html_header_wrapper( $token, $html_value_inline_name ) )
+            {
                 push @$wrappers, $token->[1];
+                push @openings,  $raw;
             }
             elsif ( $token->[0] eq 'E' && _is_html_wrapper_close( $token, $wrappers ) ) {
                 pop @$wrappers;
+                if (@openings) {
+                    pop @openings;
+                }
+                else {
+                    $$retained .= $raw;
+                }
             }
             else {
                 pos($$body) = $start + $tag_start;
-                return $plain;
+                $offset = length $value;
+                last;
             }
         }
         $offset = $tag_end;
     }
 
+    $$retained .= join '', @openings;
     return $plain . substr( $value, $offset );
 }
 
@@ -410,9 +438,10 @@ sub _is_html_wrapper_close {
 }
 
 sub _is_html_header_wrapper {
-    my ($token) = @_;
+    my ( $token, $inline_name ) = @_;
+    $inline_name //= $html_inline_name;
     my ( undef, $tag, $attrs, $attr_order ) = @$token;
-    my $inline = $tag =~ /\A$html_inline_name\z/;
+    my $inline = $tag =~ /\A$inline_name\z/;
     return unless $inline || $tag =~ /\A$html_block_name\z/;
 
     my %seen;

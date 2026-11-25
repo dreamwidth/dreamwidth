@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 376;
+use Test::More tests => 416;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -385,6 +385,49 @@ BODY
     is( $entry->security,  'private',         'Wrapped header sets private security' );
     is( $entry->event_raw, 'A private post.', 'Wrapped header and continuation are not published' );
 
+    for my $case (
+        [ 'unindented value',                   'text/plain', "post-security:\nprivate" ],
+        [ 'keyboard markup around the value',   'text/html',  'post-security: <kbd>private</kbd>' ],
+        [ 'quote markup around only the value', 'text/html',  'post-security: <q>private</q>' ],
+        [
+            'modern inline markup inside the value',
+            'text/html',
+            'post-security: pri<mark>vate</mark>'
+        ],
+        [
+            'post directive after empty directive',
+            'text/plain',
+            "post-icon:\npost-security: private"
+        ],
+        [
+            'legacy directive after empty directive',
+            'text/plain',
+            "post-icon:\nlj-security: private"
+        ],
+        )
+    {
+        my ( $label, $type, $headers ) = @$case;
+        my $mime = build_message( "Privacy with $label", $type, "$headers\n\nA private post." );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted entry with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security,  'private',         "Entry with $label is private" );
+        is( $entry->event_raw, 'A private post.', "No setting text from $label is published" );
+    }
+
+    $mime = build_message(
+        'Body PIN after an empty directive',
+        'text/plain',
+        "post-icon:\n+$emailpin\npost-security: private\n\nA private post.",
+        "$user\@$user_email_info->{POSTDOMAIN}"
+    );
+    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+    ok( $ok, 'Empty directive does not consume the body PIN' ) or diag $msg;
+    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+    is( $entry->security, 'private', 'Privacy setting after empty directive and PIN applies' );
+    is( $entry->event_raw, 'A private post.',
+        'Empty directive, PIN and setting are not published' );
+
     $mime = build_message( 'HTML with an implicit head close',
         'text/html',
         "<!doctype html><html><head><title>Mail</title><body>\npost-security: private\n\nMessage" );
@@ -421,6 +464,7 @@ BODY
 
     for my $case (
         [ 'attributed blockquote', '<blockquote type="cite">', '</blockquote>' ],
+        [ 'inline quote',          '<q>',                      '</q>' ],
         [ 'Gmail quote',   '<div dir="ltr" class="mail-body gmail_quote">', '</div>' ],
         [ 'Yahoo quote',   '<div class="yahoo&#95;quoted">',                '</div>' ],
         [ 'Outlook reply', '<div id="divRplyFwdMsg">',                      '</div>' ],
@@ -442,7 +486,8 @@ BODY
     }
 
     for my $case (
-        [ 'on a setting line', 'post-foo: bar', '<blockquote>', '</blockquote>' ],
+        [ 'on a setting line',     'post-foo: bar',     '<blockquote>', '</blockquote>' ],
+        [ 'after a setting value', 'post-format: html', '<q><br>',      '</q>' ],
         [ 'after a continued value', "post-foo:\n  bar", '<div class="gmail_quote">', '</div>' ],
         )
     {
@@ -684,6 +729,27 @@ BODY
         );
     }
 
+    for my $case (
+        [
+            'formatting around only the directive',
+            '<b>post-format: html</b><br>Body',
+            qr/\A(?:<b><\/b>)?<br>Body\z/
+        ],
+        [
+            'formatting from the value into the body',
+            'post-format: <b>html<br>Body</b>',
+            qr/\A<b><br>Body<\/b>\z/
+        ],
+        )
+    {
+        my ( $label, $body, $expected ) = @$case;
+        my $mime = build_message( "HTML with $label", 'text/html', $body );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        like( $entry->event_raw, $expected, "Body markup stays balanced with $label" );
+    }
+
     for my $case ( [ 'empty', '' ], [ 'nonbreaking space', '&nbsp;' ], [ 'whitespace', " \r\n\t" ] )
     {
         my ( $label, $space ) = @$case;
@@ -850,6 +916,21 @@ BODY
         qr/post-security: public/,
         'Text after same-line inline comment is retained'
     );
+
+    for my $case (
+        [ 'empty security',           'text/plain', 'post-security: ' ],
+        [ 'empty legacy security',    'text/plain', 'lj-security: ' ],
+        [ 'unreadable HTML security', 'text/html',  'post-security: <img alt="private">' ],
+        )
+    {
+        my ( $label, $type, $header ) = @$case;
+        my $mime = build_message( "Privacy with $label", $type, "$header\n\nA private post." );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( !$ok, "Rejected entry with $label" );
+        like( $msg, qr/security.*value/i, "Error explains the missing value for $label" );
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        ok( !$entry->valid, "No entry published with $label" );
+    }
 }
 
 sub build_message {

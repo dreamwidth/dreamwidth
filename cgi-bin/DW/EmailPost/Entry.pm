@@ -147,6 +147,11 @@ sub _extract_pin {
 sub _set_props {
     my ( $self, $u, $email_date, %post_headers ) = @_;
 
+    if ( exists $post_headers{security} && !length( $post_headers{security} // '' ) ) {
+        $self->{error} = 'A security directive requires a value.';
+        return;
+    }
+
     my $props = {};
     my $time  = {};
 
@@ -247,8 +252,8 @@ sub _set_props {
 
     # "lc" is right here because groupnames are forcibly lowercased in
     # LJ::User->trust_groups;
-    $security = lc $post_headers{security}
-        || $u->emailpost_security;    # FIXME: relies on emailpost_security ne 'usemask'?
+    $security =
+        exists $post_headers{security} ? lc $post_headers{security} : $u->emailpost_security;
 
     if ( $security =~ /^(public|private|friends|access)$/ ) {
         if ( $1 eq 'friends' or $1 eq 'access' ) {
@@ -256,7 +261,7 @@ sub _set_props {
             $amask    = 1;
         }
     }
-    elsif ($security) {               # Assume a trust group list if unknown security.
+    elsif ( length $security ) {    # Assume a trust group list if unknown security.
             # Get the mask for the requested trust group list, discarding those
             # that don't exist.
         $amask = 0;
