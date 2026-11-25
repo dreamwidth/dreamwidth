@@ -972,7 +972,13 @@ TOKEN:
                     # some responsive images use srcset as well as src;
                     # both attributes should be proxied for https if requested
                     if ( defined $hash->{srcset} ) {
-                        $hash->{srcset} =~ s!\b(http://\S+)!$sanitize_url->( $1 )!egi;
+                        my $valid_srcset = 1;
+                        $hash->{srcset} =~ s!\b(https?://\S*[^,\s])!do {
+                            my $url = $sanitize_url->($1);
+                            $valid_srcset &&= length $url;
+                            $url;
+                        }!egi;
+                        delete $hash->{srcset} unless $valid_srcset;
                     }
 
                     if ($img_bad) {
@@ -1476,6 +1482,14 @@ TOKEN:
                     my $rel_url = $hash->{$k};
                     $global_did_mod = $did_mod = 1;
 
+                    if ( $rel_url =~ m!\A//! ) {
+                        $rel_url = _escape_non_ascii_web_url($rel_url);
+                        unless ( length $rel_url ) {
+                            delete $hash->{$k};
+                            next;
+                        }
+                    }
+
                     $base_uri ||= URI->new($base);
                     $hash->{$k} = URI->new_abs( $rel_url, $base_uri )->as_string;
                 }
@@ -1923,9 +1937,25 @@ sub canonical_url {
 
 sub _escape_non_ascii_web_url {
     my ($url) = @_;
-    return $url if LJ::is_ascii($url) || $url !~ m!\A(?:https?:)?//!i;
+    return $url if LJ::is_ascii($url);
 
-    return uri_escape( LJ::no_utf8_flag($url), '^\x00-\x7F' );
+    my ( $prefix, $authority, $rest ) = $url =~ m{\A((?:https?:)?//)([^/?#]*)(.*)\z}is;
+    return $url unless defined $prefix;
+
+    if ( $authority =~ /[^\x00-\x7F]/ ) {
+        my ( $userinfo, $host, $port ) = $authority =~ /\A((?:[^@]*@)?)([^:@]+)(:[0-9]*)?\z/;
+        return '' unless defined $host && $userinfo !~ /[^\x21-\x7E]|\\/;
+        return '' unless utf8::is_utf8($host) || utf8::decode($host);
+        return '' if $host =~ /[^a-zA-Z0-9.\x80-\x{10FFFF}-]|[\p{Space}\p{C}]/;
+
+        $host = URI->new("http://$host/")->host;
+        my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/i;
+        return '' unless defined $host && $host =~ /\A$label(?:\.$label)*\.?\z/;
+        return '' if length($host) > ( $host =~ /\.\z/ ? 254 : 253 );
+        $authority = $userinfo . $host . ( $port // '' );
+    }
+
+    return $prefix . $authority . uri_escape( LJ::no_utf8_flag($rest), '^\x00-\x7F' );
 }
 
 sub https_url {
@@ -1933,7 +1963,7 @@ sub https_url {
     $url = _escape_non_ascii_web_url($url);
 
     # https:// and the relative // protocol don't need proxying
-    return $url if $url =~ m!^(?:https://|//)!;
+    return $url if !$url || $url =~ m!^(?:https://|//)!;
 
     # if this link is on a site that supports HTTPS, upgrade the protocol
     my $https_ok = %LJ::KNOWN_HTTPS_SITES ? \%LJ::KNOWN_HTTPS_SITES : {};

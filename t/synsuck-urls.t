@@ -59,13 +59,19 @@ my $rss = encode_utf8(<<'RSS');
 <img alt="encoded" src="http://images.example.test/%d1%80.jpg?crop=a%2fb">
 <img alt="query" src="http://images.example.test/caf%C3%A9/猫.jpg?name=😀&amp;size=2">
 <img alt="ascii" src="http://images.example.test/plain.jpg?size=2&amp;fit=cover">
-<img alt="https" src="https://images.example.test/猫.jpg">
+<img alt="https" src="https://images.example.test/猫.jpg"
+    srcset="https://images.example.test/猫.jpg 1x, https://images.example.test/猫-大.jpg 2x">
+<img alt="idn" src="http://пример.рф/путь.jpg">
+<img alt="invalid-idn" src="http://пример..рф/путь.jpg">
+<img alt="invalid-idn-srcset" src="https://images.example.test/fallback.jpg"
+    srcset="https://пример..рф/путь.jpg 2x">
 <img alt="relative" src="../猫.jpg">
 <img alt="relative-entity" src="../猫&#x1F600;.jpg">
 <img alt="unsafe" src="JaVaScRiPt:猫" srcset="data:image/png,猫">
 <a title="absolute" href="https://news.example.test/новости?name=猫&amp;id=a%2fb">News</a>
 <a title="relative" href="../новости">Relative</a>
 <a title="scheme-relative" href="//news.example.test/новости">Scheme-relative</a>
+<a title="idn" href="//пример.рф:8443/путь?name=猫#é">International hostname</a>
 <a title="unsafe" href="jav&#x61;script&#58;猫">Unsafe</a>
 <a title="data" href="data:text/html,猫">Unsafe</a>
 </p>]]></description></item>
@@ -93,8 +99,9 @@ while ( my $tag = $parser->get_tag( 'img', 'a' ) ) {
 }
 
 my $proxy = sub {
-    my ($target) = @_;
-    my $host_path = "images.example.test/$target";
+    my ( $target, $host ) = @_;
+    $host //= 'images.example.test';
+    my $host_path = "$host/$target";
     my $signature = substr( md5_hex("${salt}http://$host_path"), 0, 12 );
     my $source    = $feed->id . '-' . $entry->ditemid;
     return "$LJ::PROXY_URL/$signature/$source/$host_path";
@@ -140,10 +147,26 @@ is(
     $proxy->('plain.jpg?size=2&fit=cover'),
     'ASCII URL and signature are unchanged'
 );
+my $https_image = 'https://images.example.test/%E7%8C%AB';
+is( $images{https}{src}, "$https_image.jpg", 'HTTPS images are encoded without proxying' );
 is(
-    $images{https}{src},
-    'https://images.example.test/%E7%8C%AB.jpg',
-    'HTTPS images are encoded without proxying'
+    $images{https}{srcset},
+    "$https_image.jpg 1x, $https_image-%E5%A4%A7.jpg 2x",
+    'HTTPS responsive images are encoded like src without proxying'
+);
+is(
+    $images{idn}{src},
+    $proxy->( '%D0%BF%D1%83%D1%82%D1%8C.jpg', 'xn--e1afmkfd.xn--p1ai' ),
+    'proxy signs the punycode hostname and percent-encoded path'
+);
+ok(
+    $images{'invalid-idn'} && !length( $images{'invalid-idn'}{src} // '' ),
+    'malformed internationalized hostname is not sent to the proxy'
+);
+is_deeply(
+    $images{'invalid-idn-srcset'},
+    { alt => 'invalid-idn-srcset', src => 'https://images.example.test/fallback.jpg' },
+    'malformed responsive image URL falls back to src'
 );
 is(
     $images{relative}{src},
@@ -171,6 +194,11 @@ is(
     $links{'scheme-relative'}{href},
     "https://news.example.test/$news_path",
     'scheme-relative link resolves to the encoded URL'
+);
+is(
+    $links{idn}{href},
+    'https://xn--e1afmkfd.xn--p1ai:8443/%D0%BF%D1%83%D1%82%D1%8C?name=%E7%8C%AB#%C3%A9',
+    'scheme-relative link preserves the port and escapes its path, query, and fragment'
 );
 
 ok( $images{unsafe} && !length( $images{unsafe}{src} // '' ), 'javascript image URL is stripped' );
