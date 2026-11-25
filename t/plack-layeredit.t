@@ -121,6 +121,35 @@ my $cookie =
     . '; ljloggedin='
     . $session->loggedin_cookie_string;
 
+subtest 'advanced customization backlinks preserve only community context' => sub {
+    test_psgi $app, sub {
+        my $cb              = shift;
+        my $community_query = '?authas=' . $comm->user;
+
+        for my $route (qw(layers styles)) {
+            my $res = $cb->( GET "$base/$route$community_query", Cookie => $cookie );
+            like(
+                $res->content,
+                qr{href="[^"]*/customize/advanced/\Q$community_query\E">&lt;&lt;</a>},
+                "$route backlink keeps the selected community"
+            );
+        }
+
+        ok( $admin->grant_priv( 'siteadmin', 'styleview' ), 'grant site admin style access' );
+
+        for my $route (qw(layers styles)) {
+            my $res = $cb->( GET "$base/$route?user=" . $stranger->user, Cookie => $cookie );
+            like(
+                $res->content,
+                qr{href="[^"]*/customize/advanced/">&lt;&lt;</a>},
+                "$route backlink drops the admin viewing parameter"
+            );
+        }
+
+        $admin->revoke_priv( 'siteadmin', 'styleview' );
+    };
+};
+
 subtest 'advanced customization uses the selected journal edit policy' => sub {
     my $hook = 'no_theme_or_layer_edit';
     LJ::Hooks::are_hooks($hook);

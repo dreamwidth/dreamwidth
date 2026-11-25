@@ -478,6 +478,7 @@ sub styles_handler {
         $getextra_amp = "&user=" . $u->user;
     }
 
+    $vars->{noactions}    = $noactions;
     $vars->{getextra}     = $getextra;
     $vars->{getextra_amp} = $getextra_amp;
 
