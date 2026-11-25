@@ -15,11 +15,13 @@
 use strict;
 use warnings;
 
-use Test::More tests => 30;
+use Test::More tests => 31;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use File::Temp qw(tempdir);
 use LJ::Test qw(with_fake_memcache);
+use Log::Log4perl;
+use Log::Log4perl::Appender::TestBuffer;
 
 use DW::Task;
 use DW::Task::SynSuck;
@@ -35,6 +37,7 @@ use DW::TaskQueue::Dedup;
 
     sub SendMessageBatch {
         my ( $self, %args ) = @_;
+        die $self->{exception} if exists $self->{exception};
         my @ids = map { $_->{Id} } @{ $args{Entries} };
         push @{ $self->{requests} }, [ $args{QueueUrl}, @ids ];
         my $rejected = !$self->{accept_all} && $ids[0] eq 'id-0';
@@ -47,6 +50,13 @@ use DW::TaskQueue::Dedup;
     package Local::SQSBatchResult;
 
     sub Failed { return $_[0]->{failed}; }
+}
+
+{
+
+    package Local::SQSException;
+
+    sub message { return 'simulated SQS service exception'; }
 }
 
 {
@@ -82,6 +92,26 @@ use DW::TaskQueue::Dedup;
             [ sort ( ref $task, ref $other ) ],
             'Both queues are attempted regardless of dispatch order'
         );
+    };
+
+    subtest 'SQS send logs request-level exceptions' => sub {
+        my $log_config = q{
+log4perl.rootLogger=OFF
+log4perl.logger.DW.TaskQueue.SQS=ERROR, Capture
+log4perl.appender.Capture=Log::Log4perl::Appender::TestBuffer
+log4perl.appender.Capture.layout=Log::Log4perl::Layout::PatternLayout
+log4perl.appender.Capture.layout.ConversionPattern=%m%n
+};
+        Log::Log4perl::init( \$log_config );
+        my $logs = Log::Log4perl::Appender::TestBuffer->by_name('Capture');
+        local $sqs->{exception} = "simulated SQS transport failure\n";
+        ok( !$queue->send($task), 'A thrown string reports request failure' );
+        like( $logs->buffer, qr/simulated SQS transport failure/, 'String exception is logged' );
+
+        $logs->buffer('');
+        $sqs->{exception} = bless {}, 'Local::SQSException';
+        ok( !$queue->send($task), 'A thrown object reports request failure' );
+        like( $logs->buffer, qr/simulated SQS service exception/, 'Exception message is logged' );
     };
 }
 

@@ -101,9 +101,10 @@ email worker needs a mail queue.
 
 Notices group case variants of the same address, not provider-specific aliases
 such as plus tags. The outbox checkpoints acknowledged mail submissions and
-retries rejections. It does not guarantee exactly-once delivery if the mail
-queue accepts a submission but its acknowledgement or the following database
-commit is lost.
+retries rejections after one minute. It drops the recipient and logs the failure
+after ten failed submissions. It does not guarantee exactly-once delivery if
+the mail queue accepts a submission but its acknowledgement or the following
+database commit is lost.
 
 Configure the site's sender addresses and `$DOMAIN_EMAIL` for your provider.
 The old `%EMAIL_VIA_SES` hash remains supported when `%SMTP_SERVER` is unset;

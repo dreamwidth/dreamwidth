@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 159;
+use Test::More tests => 162;
 use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -741,6 +741,101 @@ subtest 'A failed source write rolls back the target move' => sub {
     ok( $actor->rename( $target_name, token => $token ), 'The same token works on retry' );
 };
 
+subtest 'System token allocation failure leaves both usernames unchanged' => sub {
+    my $dbh = LJ::get_db_writer();
+    foreach my $operation (qw(rename swap)) {
+        my $source      = temp_user();
+        my $target      = temp_comm();
+        my $source_name = $source->user;
+        my $target_name = $target->user;
+        my @tokens      = ( new_token($source) );
+        push @tokens, new_token($source) if $operation eq 'swap';
+        LJ::update_user( $source, { status => 'A' } );
+        LJ::set_rel( $target, $source, 'A' );
+        my $change = sub {
+            return $operation eq 'rename'
+                ? $source->rename( $target_name, token => $tokens[0] )
+                : $source->swap_usernames( $target, tokens => \@tokens );
+        };
+
+        LJ::load_user($source_name);
+        LJ::load_user($target_name);
+        my $allocations = 0;
+        {
+            no warnings 'redefine';
+            local *DW::RenameToken::create_token = sub {
+                $allocations++;
+                die 'simulated system token allocation failure';
+            };
+            my $changed = eval { $change->() };
+            is( $@, '', "$operation reports allocation failure without throwing" );
+            ok( !$changed, "$operation fails when the system token cannot be allocated" );
+        }
+        is( $allocations, 1, "$operation attempted system token allocation" );
+
+        foreach my $account ( [ $source->id, $source_name ], [ $target->id, $target_name ] ) {
+            my ( $userid, $name ) = @$account;
+            my $stored_names = $dbh->selectrow_arrayref(
+                'SELECT user.user, useridmap.user FROM user JOIN useridmap USING (userid) '
+                    . 'WHERE userid=?',
+                undef, $userid
+            );
+            is_deeply(
+                $stored_names,
+                [ $name, $name ],
+                "$operation leaves both name records intact"
+            );
+            my $cached = LJ::load_user($name);
+            is( $cached && $cached->id, $userid, "$operation leaves the name lookup consistent" );
+        }
+        is_deeply(
+            [ map { token_status($_) } @tokens ],
+            [ ('U') x @tokens ],
+            "$operation does not consume customer tokens on failure"
+        );
+        ok( $change->(), "$operation succeeds on retry with the same tokens" );
+        is_deeply(
+            [ map { token_status($_) } @tokens ],
+            [ ('A') x @tokens ],
+            "$operation consumes customer tokens only on success"
+        );
+    }
+};
+
+subtest 'A failed commit discards the allocated system token' => sub {
+    my $source      = temp_user();
+    my $target      = temp_comm();
+    my $source_name = $source->user;
+    my $target_name = $target->user;
+    my $token       = new_token($source);
+    LJ::set_rel( $target, $source, 'A' );
+
+    my $dbh             = LJ::get_db_writer();
+    my $original_create = DW::RenameToken->can('create_token');
+    my $system_token;
+    {
+        no warnings 'redefine';
+        local *DW::RenameToken::create_token = sub { $system_token = $original_create->(@_) };
+        local *DBI::db::commit               = sub { die 'simulated commit failure' };
+        ok(
+            !$source->rename( $target_name, token => $token ),
+            'The failed commit refuses the rename'
+        );
+    }
+    ok( $system_token, 'A system token was reserved before commit' ) or return;
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM renames WHERE renid=?',
+            undef, $system_token->id
+        ),
+        0,
+        'The reserved token does not remain after rollback'
+    );
+    is( LJ::load_userid( $source->id, 1 )->user, $source_name, 'The source name rolled back' );
+    is( LJ::load_userid( $target->id, 1 )->user, $target_name, 'The target name rolled back' );
+    is( token_status($token), 'U', 'The customer token remains unused' );
+};
+
 subtest 'An outbox write failure rolls back a community rename' => sub {
     my $community = temp_comm();
     my $target    = temp_comm();
@@ -861,6 +956,56 @@ subtest 'Queue failures do not undo a rename or stop other notices' => sub {
     );
     is( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
         0, 'Polling again does not replay an accepted recipient or continuation' );
+};
+
+subtest 'A permanently failing notice recipient stops retrying' => sub {
+    my $community = temp_comm();
+    my $admin     = temp_user();
+    my $member    = temp_user();
+    my $mailbox   = 'rename-permanent-failure@example.com';
+    LJ::set_rel( $community, $admin,  'A' );
+    LJ::set_rel( $community, $member, 'E' );
+    LJ::update_user( $member, { status => 'A', email => $mailbox } );
+    ok(
+        $community->rename( $community->user . 'new', token => new_token($admin), user => $admin ),
+        'Rename stages a notice'
+    );
+
+    my $dbh               = LJ::get_db_writer();
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @attempts;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @attempts, @{ $task->args->[0]->{rcpts} };
+        return undef;
+    };
+
+    my $make_due = sub {
+        $dbh->do(
+            'UPDATE community_rename_recipient SET next_attempt=0 WHERE noticeid IN '
+                . '(SELECT noticeid FROM community_rename_notice WHERE commid=?)',
+            undef, $community->id
+        );
+    };
+    foreach my $attempt ( 1 .. 10 ) {
+        $make_due->();
+        ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+            "Worker processes due attempt $attempt" );
+    }
+    $make_due->();
+    is( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        0, 'No work remains after the last allowed failure' );
+    is_deeply( \@attempts, [ ($mailbox) x 10 ], 'Mail submission stops after ten failures' );
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM community_rename_notice WHERE commid=?', undef,
+            $community->id
+        ),
+        0,
+        'The completed notice is deleted'
+    );
 };
 
 note("-- community-to-personal");

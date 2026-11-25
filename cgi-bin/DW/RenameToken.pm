@@ -65,12 +65,13 @@ Args
 =item ownerid => id of the user who gets to use the rename token
 =item cartid => id of the cart where this rename token was bought
 =item systemtoken => whether this token is owned by the system instead of a user. Used for automatically generated tokens -- manual renames, moving aside a user to ex_* etc. When this is on, the ownerid is ignored.
+=item dbh => optional writer handle to use when reserving a token in an existing transaction
 =cut
 
 sub create_token {
     my ( $class, %opts ) = @_;
 
-    my $dbh = LJ::get_db_writer()
+    my $dbh = $opts{dbh} || LJ::get_db_writer()
         or die "Unable to connect to database.\n";
 
     # renuserid 0 = not yet applied; apply() sets it to the renamed journal.

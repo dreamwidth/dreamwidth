@@ -2918,6 +2918,7 @@ CREATE TABLE community_rename_recipient (
     mailbox VARBINARY(200) NOT NULL,
     memberid INT UNSIGNED NOT NULL,
     next_attempt INT UNSIGNED NOT NULL DEFAULT 0,
+    failures TINYINT UNSIGNED NOT NULL DEFAULT 0,
 
     PRIMARY KEY (noticeid, mailbox),
     INDEX (noticeid, next_attempt)
@@ -3166,6 +3167,14 @@ register_alter(
             );
             next unless defined $engine && lc($engine) ne 'innodb';
             do_alter( $table, "ALTER TABLE $table ENGINE=InnoDB" );
+        }
+
+        if (   table_relevant('community_rename_recipient')
+            && column_type( 'community_rename_recipient', 'failures' ) eq '' )
+        {
+            do_alter( 'community_rename_recipient',
+'ALTER TABLE community_rename_recipient ADD failures TINYINT UNSIGNED NOT NULL DEFAULT 0'
+            );
         }
 
         if ( column_type( "users_for_paid_accounts", "journaltype" ) eq "" ) {

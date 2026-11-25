@@ -22,6 +22,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Paws;
+use Scalar::Util qw(blessed);
 use Time::HiRes qw/ time /;
 use UUID::Tiny qw/ :std /;
 
@@ -173,14 +174,27 @@ sub send {
             ' bytes to queue: ', $queue_name );
         my $res =
             eval { $self->{sqs}->SendMessageBatch( QueueUrl => $queue_url, Entries => \@messages ) };
-        my $failed = $res ? scalar @{ $res->Failed || [] } : scalar @messages;
-        my $sent   = scalar(@messages) - $failed;
+        my $exception = $@;
+        my $failed    = $res ? scalar @{ $res->Failed || [] } : scalar @messages;
+        my $sent      = scalar(@messages) - $failed;
         if ($sent) {
             DW::Stats::increment( 'dw.taskqueue.action.send_ok', $sent, $tags );
             DW::Stats::increment( 'dw.taskqueue.sent_messages',  $sent, $tags );
         }
         if ($failed) {
-            $log->error( 'Failed to send ', $failed, ' SQS message(s) to queue: ', $queue_name );
+            my @detail;
+            unless ($res) {
+                my $message =
+                    blessed($exception) && $exception->can('message')
+                    ? $exception->message
+                    : $exception;
+                @detail = ( ': ', $message ) if defined $message && length $message;
+            }
+            $log->error(
+                'Failed to send ',
+                $failed, ' SQS message(s) to queue: ',
+                $queue_name, @detail
+            );
             DW::Stats::increment( 'dw.taskqueue.action.send_error', $failed, $tags );
             return undef if !$res || @tasks == 1;
         }

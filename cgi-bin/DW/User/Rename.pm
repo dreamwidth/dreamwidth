@@ -243,9 +243,10 @@ sub rename {
     return 0 if $errors->exist;
 
     my $fromusername = $self->user;
-    my ( $source, $target, $aside_name );
+    my ( $source, $target, %aside );
     return 0 unless _change_usernames(
         $errors,
+        \%aside,
         sub {
             my ($dbh) = @_;
             $source = _lock_username( $dbh, $fromusername );
@@ -256,8 +257,8 @@ sub rename {
             $tousername = LJ::canonical_username($tousername);
             $target     = $load_target->($tousername) if $opts{force};
             if ($target) {
-                $aside_name = _unused_ex_username( $dbh, $tousername, $errors ) or return 0;
-                return 0 unless _write_username( $dbh, $target, $tousername, $aside_name );
+                $aside{name} = _unused_ex_username( $dbh, $tousername, $errors ) or return 0;
+                return 0 unless _write_username( $dbh, $target, $tousername, $aside{name} );
             }
             return 0 unless _write_username( $dbh, $source, $fromusername, $tousername );
             return 1 unless $source->is_community;
@@ -268,7 +269,7 @@ sub rename {
         }
     );
 
-    _finish_move_aside( $target, $tousername, $aside_name ) if $target;
+    _finish_move_aside( $target, $tousername, \%aside ) if $target;
     _finish_rename( $self, $fromusername, $tousername, %opts );
     return 1;
 }
@@ -314,9 +315,10 @@ sub swap_usernames {
 
     my $u1name = $u1->user;
     my $u2name = $u2->user;
-    my ( $aside_name, %admin_opts );
+    my ( %aside, %admin_opts );
     return 0 unless _change_usernames(
         $errors,
+        \%aside,
         sub {
             my ($dbh) = @_;
             my %locked = map { $_ => _lock_username( $dbh, $_ ) } sort ( $u1name, $u2name );
@@ -329,21 +331,21 @@ sub swap_usernames {
                 unless _can_rename_to( $first, $u2name, $load_target, $dbh, %opts, %admin_opts )
                 && _can_rename_to( $second, $u1name, $load_target, $dbh, %opts, %admin_opts );
 
-            $aside_name = _unused_ex_username( $dbh, $u2name, $errors ) or return 0;
+            $aside{name} = _unused_ex_username( $dbh, $u2name, $errors ) or return 0;
             return
-                   _write_username( $dbh, $second, $u2name, $aside_name )
-                && _write_username( $dbh, $first,  $u1name,     $u2name )
-                && _write_username( $dbh, $second, $aside_name, $u1name );
+                   _write_username( $dbh, $second, $u2name, $aside{name} )
+                && _write_username( $dbh, $first,  $u1name,      $u2name )
+                && _write_username( $dbh, $second, $aside{name}, $u1name );
         }
     );
 
-    _finish_move_aside( $u2, $u2name, $aside_name );
+    _finish_move_aside( $u2, $u2name, \%aside );
 
     # ugh, but need it to avoid duplicate timestamps in infohistory
     sleep(1);
 
-    _finish_rename( $u1, $u1name,     $u2name, %opts, %admin_opts, token => $tokens[0] );
-    _finish_rename( $u2, $aside_name, $u1name, %opts, %admin_opts, token => $tokens[1] );
+    _finish_rename( $u1, $u1name,      $u2name, %opts, %admin_opts, token => $tokens[0] );
+    _finish_rename( $u2, $aside{name}, $u1name, %opts, %admin_opts, token => $tokens[1] );
     return 1;
 }
 
@@ -428,7 +430,7 @@ sub _can_use_community_name {
 }
 
 sub _change_usernames {
-    my ( $errors, $change ) = @_;
+    my ( $errors, $aside, $change ) = @_;
 
     my $changed = eval {
         my $dbh = LJ::get_db_writer() or die 'No username writer';
@@ -441,9 +443,21 @@ sub _change_usernames {
             my ($transactional_tables) = $dbh->selectrow_array(
                 "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() "
                     . "AND table_name IN ('user', 'useridmap', 'reluser') AND engine='InnoDB'" );
-            $transactional_tables == 3 && $change->($dbh) && $dbh->commit;
+            if ( $transactional_tables == 3 && $change->($dbh) ) {
+                if ( $aside->{name} ) {
+                    $aside->{token} = DW::RenameToken->create_token( systemtoken => 1, dbh => $dbh )
+                        or die 'No system rename token';
+                }
+                $dbh->commit;
+            }
         };
-        $dbh->rollback unless $committed || $dbh->{AutoCommit};
+        unless ($committed) {
+            $dbh->rollback unless $dbh->{AutoCommit};
+            if ( $aside->{token} ) {
+                $dbh->do( "DELETE FROM renames WHERE renid=? AND status='U'",
+                    undef, $aside->{token}->id );
+            }
+        }
         $committed;
     };
     $errors->add( 'touser', 'rename.error.usernamechanged' ) unless $changed || $errors->exist;
@@ -756,13 +770,9 @@ sub _unused_ex_username {
 }
 
 sub _finish_move_aside {
-    my ( $user, $fromusername, $aside_name ) = @_;
+    my ( $user, $fromusername, $aside ) = @_;
 
-    _finish_rename(
-        $user, $fromusername, $aside_name,
-        redirect => 0,
-        token    => DW::RenameToken->create_token( systemtoken => 1 )
-    );
+    _finish_rename( $user, $fromusername, $aside->{name}, redirect => 0, token => $aside->{token} );
 }
 
 *LJ::User::can_rename_to  = \&can_rename_to;

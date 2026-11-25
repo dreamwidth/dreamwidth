@@ -19,8 +19,9 @@ use warnings;
 use LJ::Sendmail;
 use Log::Log4perl;
 
-use constant BATCH_SIZE => 25;
-use constant RETRY_SECS => 60;
+use constant BATCH_SIZE   => 25;
+use constant RETRY_SECS   => 60;
+use constant MAX_ATTEMPTS => 10;
 
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
@@ -136,8 +137,8 @@ sub _deliver {
     my ( $dbh, $notice, $recipient, $subject, $body ) = @_;
     my @key = ( $notice->{noticeid}, $recipient );
 
-    my ($memberid) = $dbh->selectrow_array(
-        'SELECT memberid FROM community_rename_recipient WHERE noticeid=? AND mailbox=? '
+    my ( $memberid, $failures ) = $dbh->selectrow_array(
+        'SELECT memberid, failures FROM community_rename_recipient WHERE noticeid=? AND mailbox=? '
             . 'AND next_attempt<=UNIX_TIMESTAMP() FOR UPDATE',
         undef, @key
     );
@@ -149,16 +150,20 @@ sub _deliver {
     ($address) = $dbh->selectrow_array( "$lookup LIMIT 1", undef, $notice->{commid}, $recipient )
         unless defined $address;
 
-    if ( !defined $address || eval { _queue_email( $address, $subject, $body ) } ) {
+    my $failed = defined $address && !eval { _queue_email( $address, $subject, $body ) };
+    if ( !$failed || ++$failures >= MAX_ATTEMPTS ) {
         $dbh->do( 'DELETE FROM community_rename_recipient WHERE noticeid=? AND mailbox=?',
             undef, @key );
+        $log->error( 'Dropped a recipient from community rename notice ',
+            $notice->{noticeid}, ' after ', $failures, ' failed mail submissions' )
+            if $failed;
     }
     else {
         $log->error('Could not queue a community rename notice email; will retry');
         $dbh->do(
-            'UPDATE community_rename_recipient SET next_attempt=UNIX_TIMESTAMP()+? '
+            'UPDATE community_rename_recipient SET failures=?, next_attempt=UNIX_TIMESTAMP()+? '
                 . 'WHERE noticeid=? AND mailbox=?',
-            undef, RETRY_SECS, @key
+            undef, $failures, RETRY_SECS, @key
         );
     }
 }
