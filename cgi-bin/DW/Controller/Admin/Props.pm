@@ -125,7 +125,12 @@ sub _save_entryprop_changes {
     my @names = sort keys %$changes;
     return unless @names;
 
-    my $journal   = $entry->journal;
+    my $journal = $entry->journal;
+    if ( $journal->is_readonly ) {
+        $errors->add_string( '', 'This journal is read-only. Entry properties cannot be changed.' );
+        return;
+    }
+
     my @entry_key = ( $journal->id, $entry->jitemid );
     my $dbh       = LJ::get_cluster_master($journal);
     unless ($dbh) {

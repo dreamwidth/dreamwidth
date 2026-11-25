@@ -309,4 +309,32 @@ is( persisted_music(), undef, 'the absent property is not created' );
     );
 }
 
+my $move_form = post_entryprops( $admin, url => $entry_url );
+my ($move_bit) = grep { ( $LJ::CAP{$_}{_name} // '' ) eq '_moveinprogress' } keys %LJ::CAP;
+BAIL_OUT('The test configuration needs a cluster move capability') unless defined $move_bit;
+ok(
+    $owner->update_self( { raw => "caps=caps|(1<<$move_bit)" } ),
+    'set the cluster move capability on the journal'
+);
+ok( LJ::load_userid( $owner->id, 'force' )->is_readonly, 'the moving journal is read-only' );
+
+my $audit_db    = LJ::get_db_writer();
+my $audit_query = 'SELECT * FROM statushistory WHERE userid = ? AND shtype = ? '
+    . 'ORDER BY adminid, shdate, notes';
+my @audit_key    = ( $owner->id, 'entryprops' );
+my $audit_before = $audit_db->selectall_arrayref( $audit_query, undef, @audit_key );
+my $move_save    = post_entryprops(
+    $admin,
+    url   => $entry_url,
+    _save => 1,
+    baseline( $move_form, 'current_location' ), prop_current_location => 'During move',
+);
+like( $move_save, qr/journal is read-only/, 'an edit to a moving journal is rejected' );
+unlike( $move_save, qr/Changes saved/, 'an edit to a moving journal is not reported as saved' );
+is( persisted_prop('current_location'), 'Audit failed', 'the stored property is unchanged' );
+is_deeply( $audit_db->selectall_arrayref( $audit_query, undef, @audit_key ),
+    $audit_before, 'the rejected edit leaves the audit history unchanged' );
+ok( $owner->update_self( { raw => "caps=caps&~(1<<$move_bit)" } ),
+    'clear the cluster move capability' );
+
 done_testing;
