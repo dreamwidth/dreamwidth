@@ -43,7 +43,17 @@ for my $layer ( [ 1, 'core', 'core2.s2' ], [ 2, 'layout', 'zesty/layout.s2' ] ) 
     );
     S2::load_layer( $id, $compiled, 0 );
 }
+my $core2 = S2::make_context(1);
 my $zesty = S2::make_context( 1, 2 );
+
+sub render_core2_body {
+    my ($page) = @_;
+    my $html = '';
+    local $S2::pout   = sub { $html .= join '', @_ };
+    local $S2::pout_s = $S2::pout;
+    S2::run_code( $core2, 'RecentPage::print_body()', $page );
+    return $html;
+}
 
 sub zesty_reading_url {
     my ( $page, $params ) = @_;
@@ -295,7 +305,40 @@ with_fake_memcache {
         'an empty paid reading page links to the UTC date of the age cutoff'
     );
     ok( $empty->{nav}->{backward_by_date}, 'the empty page labels the link as a date handoff' );
+    my $regular_html = render_core2_body($empty);
+    like(
+        $regular_html,
+        qr/only the most recent 1000 entries posted within the last 14 days/,
+        'Core2 explains the regular scrollback limit on the empty paid reading page'
+    );
+    like(
+        $regular_html,
+        qr{<a\b[^>]*>Earlier entries by date</a>},
+        'Core2 renders the date handoff beside the regular reading notice'
+    );
+    unlike(
+        $regular_html,
+        qr/There were no entries on this day\./,
+        'Core2 does not show the empty-day notice in regular mode'
+    );
+
     my $cutoff_page = $historical_page->( $older->($empty) );
+    my $dated_html  = render_core2_body($cutoff_page);
+    like(
+        $dated_html,
+        qr/There were no entries on this day\./,
+        'Core2 shows the empty-day notice in date mode'
+    );
+    like(
+        $dated_html,
+        qr{<a\b[^>]*>Previous Day</a>},
+        'Core2 renders the previous-day link beside the empty-day notice'
+    );
+    unlike(
+        $dated_html,
+        qr/only the most recent 1000 entries posted within the last 14 days/,
+        'Core2 does not show the regular scrollback notice in date mode'
+    );
     is_deeply( $ids->( $historical_page->( $older->($cutoff_page) ) ),
         [$old_post], 'the cutoff link lets readers navigate to an older subscribed entry' );
     {

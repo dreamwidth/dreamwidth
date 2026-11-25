@@ -5709,7 +5709,7 @@ function RecentPage::print_body {
                         $this->print_entry($e);
                     }
                 }
-            } elseif ( $this isa FriendsPage and $.nav.backward_url != "" ) {
+            } elseif ( $this isa FriendsPage and $.nav.backward_url != "" and not $.nav.backward_by_date and $.nav.backward_count == 0 ) {
                 print safe "<div class=\"text_noentries text_noentries_day\">$*text_noentries_day</div>";
             }
 
@@ -5723,7 +5723,7 @@ function RecentPage::print_body {
 }
 
 function RecentPage::print_navigation( string{} opts ) [fixed] {
-    var bool noentries = $this isa FriendsPage and $.nav.backward_url == "" and $opts{"class"} == "bottomnav";
+    var bool noentries = $this isa FriendsPage and ( $.nav.backward_url == "" or ( size $.entries == 0 and $.nav.backward_by_date ) ) and $opts{"class"} == "bottomnav";
     # Navigation is empty if there are no links or text to show
     var bool empty = $.nav.backward_url == "" and $.nav.forward_url == "" and not $noentries;
     var string emptyclass = $empty ? " empty" : "";
