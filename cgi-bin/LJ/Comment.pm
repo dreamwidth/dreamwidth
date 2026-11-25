@@ -695,6 +695,14 @@ sub props {
     return $self->{props} || {};
 }
 
+sub absorb_props {
+    my ( $self, $props ) = @_;
+    $self->{props}         = $props // {};
+    $self->{_loaded_props} = 1;
+    delete $unloaded_prop_singletons{ $self->singletonkey };
+    return 1;
+}
+
 # class method:  preloads the props on the provided list of Comment objects.
 sub preload_props {
     my ( $class, $journalid, @to_load ) = @_;
@@ -704,9 +712,7 @@ sub preload_props {
 
     # iterate over comment objects to load and fill in their props members
     foreach my $c_obj (@to_load) {
-        $c_obj->{props}         = $prop_ret->{ $c_obj->jtalkid } || {};
-        $c_obj->{_loaded_props} = 1;
-        delete $unloaded_prop_singletons{ $c_obj->singletonkey };
+        $c_obj->absorb_props( $prop_ret->{ $c_obj->jtalkid } );
     }
 
     return 1;
@@ -731,9 +737,7 @@ sub _load_props {
 
     # iterate over comment objects to load and fill in their props members
     foreach my $c_obj (@to_load) {
-        $c_obj->{props}         = $prop_ret->{ $c_obj->jtalkid } || {};
-        $c_obj->{_loaded_props} = 1;
-        delete $unloaded_prop_singletons{ $c_obj->singletonkey };
+        $c_obj->absorb_props( $prop_ret->{ $c_obj->jtalkid } );
     }
 
     return 1;
@@ -954,7 +958,7 @@ sub viewable_by_others {
 }
 
 sub visible_to {
-    my ( $self, $u ) = @_;
+    my ( $self, $u, %opts ) = @_;
 
     my $trace = $LJ::ESN::CURRENT_TRACE // '';
 
@@ -973,7 +977,7 @@ sub visible_to {
         return 0;
     }
 
-    unless ( $self->entry->visible_to($u) ) {
+    unless ( $self->entry->visible_to( $u, undef, %opts ) ) {
         $log->debug(
             sprintf(
                 '[esn %s] visible_to: reject user=%s(%d) reason=entry_not_visible'

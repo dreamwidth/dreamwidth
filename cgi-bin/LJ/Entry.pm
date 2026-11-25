@@ -1015,7 +1015,7 @@ sub editable_by {
 
 # instance method:  returns bool, if remote user can view this entry
 sub visible_to {
-    my ( $self, $remote, $canview ) = @_;
+    my ( $self, $remote, $canview, %opts ) = @_;
     return 0 unless $self->valid;
 
     my ( $viewall, $viewsome ) = ( 0, 0 );
@@ -1077,7 +1077,8 @@ sub visible_to {
             if $self->journal->is_community
             && ( $remote->member_of( $self->journal ) || $remote->can_manage( $self->journal ) );
 
-        my $gmask   = $self->journal->trustmask($remote);
+        my $gmask =
+            $self->journal->trustmask( $remote, { die_on_error => $opts{die_on_trustmask_error} } );
         my $allowed = ( int($gmask) & int( $self->{'allowmask'} ) );
         return $allowed ? 1 : 0;    # no need to return matching mask
     }

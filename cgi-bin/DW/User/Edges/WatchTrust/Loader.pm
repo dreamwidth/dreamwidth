@@ -26,7 +26,7 @@ use DW::Cache;
 
 # returns trustmask between two users
 sub _trustmask {
-    my ( $from_userid, $to_userid ) = @_;
+    my ( $from_userid, $to_userid, $opts ) = @_;
 
     # Memoize per request; the trustmask cache is cleared in LJ::start_request
     # (via DW::Cache) and invalidated on edge changes.
@@ -43,7 +43,10 @@ sub _trustmask {
         $mask = $dbr->selectrow_array(
             'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
             undef, $from_userid, $to_userid );
-        return 0 if $dbr->err;    # transient error: don't cache
+        if ( $dbr->err ) {
+            die 'Could not read trustmask' if $opts && $opts->{die_on_error};
+            return 0;    # transient error: don't cache
+        }
         $mask = $mask ? $mask + 0 : 0;    # force numeric
 
         LJ::MemCache::set( $memkey, $mask, 3600 );

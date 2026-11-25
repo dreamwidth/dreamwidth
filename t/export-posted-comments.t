@@ -159,6 +159,73 @@ like( $recovered_props->header('Content-Disposition'),
 like( $recovered_props->content, qr/own-subject/, 'recovery includes the visible comment' );
 unlike( $recovered_props->content, qr/age-blocked-body/, 'recovery preserves the hard age block' );
 
+{
+    ok( $owner->add_edge( $author, trust => { nonotify => 1 } ), 'restore access to the entry' );
+    my $allowed = $download->('xml');
+    like( $allowed->content, qr/revoked-body/, 'restored access includes the locked comment' );
+    my ( $ownerid, $authorid ) = ( $owner->id, $author->id );
+    LJ::MemCache::delete( [ $ownerid, "trustmask:$ownerid:$authorid" ] );
+
+    my $reader = \&LJ::get_db_reader;
+    no warnings 'redefine';
+    local *LJ::get_db_reader = sub {
+        my $dbh = $reader->(@_);
+        return $dbh unless caller eq 'DW::User::Edges::WatchTrust::Loader';
+        return bless { dbh => $dbh }, 'PostedCommentsTestDB';
+    };
+    my $failed = $download->('xml');
+    is( $failed->code, 503, 'trustmask query error returns HTTP 503' );
+    ok( !$failed->header('Content-Disposition'), 'trustmask error does not send an attachment' );
+    unlike( $failed->content, qr/<comments>|own-subject/,
+        'trustmask error sends no partial export' );
+    ok( $owner->remove_edge( $author, trust => { nonotify => 1 } ), 'revoke restored access' );
+}
+
+my $legacy = $entry->t_enter_comment( u => $author, body => 'legacy fixture' );
+$retime->( $legacy, timegm( 0, 0, 0, 1, 0, 2023 ) );
+ok( $owner->update_self( { oldenc => 10 } ), 'set the journal legacy encoding to ISO-8859-1' );
+my $mapid = $author->get_mapid_from_keyword( 'legacy-icon', create => 1 ) or die 'icon mapid';
+$legacy->set_props( unknown8bit => 1, picture_mapid => $mapid );
+$owner_db->do( 'UPDATE talktext2 SET subject=?, body=? WHERE journalid=? AND jtalkid=?',
+    undef, "caf\xE9", "cr\xE8me", $owner->id, $legacy->jtalkid )
+    or die $owner_db->errstr;
+{
+    my $reader     = \&LJ::get_cluster_reader;
+    my $def_reader = \&LJ::get_cluster_def_reader;
+    no warnings 'redefine';
+    local *LJ::get_cluster_reader = sub {
+        return if caller eq 'LJ' && ( caller(1) )[3] eq 'LJ::load_talk_props2';
+        return $reader->(@_);
+    };
+    local *LJ::get_cluster_def_reader = sub {
+        return if caller eq 'LJ' && ( caller(1) )[3] eq 'LJ::load_talk_props2';
+        return $def_reader->(@_);
+    };
+    my $journalid = $owner->id;
+    my $jtalkid   = $legacy->jtalkid;
+    LJ::MemCache::delete( [ $journalid, "talkprop:$journalid:$jtalkid" ] );
+    my $available = $download->( 'xml', year => 2023, month => 1 );
+    is( $available->code, 200, 'export works without a comment-property reader' );
+    like(
+        $available->content,
+        qr{<icon_keyword>legacy-icon</icon_keyword>},
+        'exports the icon keyword'
+    );
+    like( $available->content, qr{<subject>caf\xC3\xA9</subject>}, 'converts the legacy subject' );
+    like( $available->content, qr{<body>cr\xC3\xA8me</body>},      'converts the legacy body' );
+
+    my $master = \&LJ::get_cluster_master;
+    local *LJ::get_cluster_master = sub {
+        my $dbh = $master->(@_);
+        return $dbh unless caller eq 'DW::Controller::Export' && $_[0]->id == $journalid;
+        return bless { dbh => $dbh, fail_talkprop2 => 1 }, 'PostedCommentsTestDB';
+    };
+    my $failed = $download->( 'xml', year => 2023, month => 1 );
+    is( $failed->code, 503, 'comment property query error returns HTTP 503' );
+    ok( !$failed->header('Content-Disposition'), 'comment property error sends no attachment' );
+    unlike( $failed->content, qr/<comments>/, 'comment property error sends no partial export' );
+}
+
 my $csv      = $download->('csv');
 my $csv_body = $csv->header('Content-Disposition') ? $csv->content : '';
 like( $csv->header('Content-Disposition'), qr/attachment;.*\.csv/, 'CSV is an attachment' );
@@ -437,10 +504,11 @@ package PostedCommentsTestDB {
 
     sub selectall_arrayref {
         my ( $self, $sql, @args ) = @_;
-        if ( $self->{fail_log2} || $self->{fail_logprop2} ) {
+        if ( $self->{fail_log2} || $self->{fail_logprop2} || $self->{fail_talkprop2} ) {
             $sql .= ' AND no_such_column = 1'
                 if ( $self->{fail_log2} && $sql =~ /\blog2\b/ )
-                || ( $self->{fail_logprop2} && $sql =~ /\blogprop2\b/ );
+                || ( $self->{fail_logprop2}  && $sql =~ /\blogprop2\b/ )
+                || ( $self->{fail_talkprop2} && $sql =~ /\btalkprop2\b/ );
         }
         elsif ( defined $self->{talkleft_filter} ) {
             $sql =~ s/FROM talkleft WHERE /FROM talkleft WHERE $self->{talkleft_filter} AND /;
@@ -449,6 +517,12 @@ package PostedCommentsTestDB {
             $sql .= ' AND no_such_column = 1' if $sql =~ /FROM talk2 WHERE /;
         }
         return $self->{dbh}->selectall_arrayref( $sql, @args );
+    }
+
+    sub selectrow_array {
+        my ( $self, $sql, @args ) = @_;
+        $sql .= ' AND no_such_column = 1' if $sql =~ /\bwt_edges\b/;
+        return $self->{dbh}->selectrow_array( $sql, @args );
     }
 
     sub err { return $_[0]->{dbh}->err }

@@ -377,7 +377,8 @@ sub posted_comments_handler {
         my ( @eligible, %by_journal );
         foreach my $comment (@matched) {
             next unless $live_entries{ $comment->journalid }->{ $comment->nodeid };
-            my $visible = eval { $comment->visible_to($author) ? 1 : 0 };
+            my $visible =
+                eval { $comment->visible_to( $author, die_on_trustmask_error => 1 ) ? 1 : 0 };
             return _posted_comments_unavailable($r) unless defined $visible;
             next unless $visible;
             next if $seen{ $comment->singletonkey }++;
@@ -487,6 +488,30 @@ sub _load_posted_entry_metadata {
     return \%loaded;
 }
 
+sub _load_posted_comment_props {
+    my ( $primary, $journal, $comments ) = @_;
+    my $bind = join ',', ('?') x keys %$comments;
+    my $rows = $primary->selectall_arrayref(
+        'SELECT jtalkid, tpropid, value FROM talkprop2 '
+            . "WHERE journalid=? AND jtalkid IN ($bind)",
+        undef, $journal->id, keys %$comments
+    );
+    return if !$rows || $primary->err;
+
+    my %props;
+    if (@$rows) {
+        LJ::load_props('talk') unless $LJ::CACHE_PROPID{'talk'};
+        my $proplist = $LJ::CACHE_PROPID{'talk'} or return;
+        foreach my $row (@$rows) {
+            my ( $jtalkid, $propid, $value ) = @$row;
+            my $prop = $proplist->{$propid} or next;
+            $props{$jtalkid}->{ $prop->{name} } = $value;
+        }
+    }
+    $comments->{$_}->absorb_props( $props{$_} ) foreach keys %$comments;
+    return 1;
+}
+
 sub _read_posted_comment_text {
     my ( $author, $journal, $comments ) = @_;
     my $primary  = LJ::get_cluster_master($journal) or return;
@@ -500,6 +525,8 @@ sub _read_posted_comment_text {
         undef, $journal->id, $author->id, keys %comments
     );
     return if !$rows || $primary->err;
+    return {} unless @$rows;
+    return unless _load_posted_comment_props( $primary, $journal, \%comments );
 
     my %text;
     foreach my $row (@$rows) {
