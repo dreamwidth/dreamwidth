@@ -4233,7 +4233,8 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
         }
 
         if ( table_relevant('logtext2') && column_type( 'logtext2', 'syn_full_subject' ) eq '' ) {
-            do_alter( 'logtext2', 'ALTER TABLE logtext2 ADD COLUMN syn_full_subject MEDIUMTEXT' );
+            do_alter( 'logtext2',
+                'ALTER TABLE logtext2 ADD COLUMN syn_full_subject MEDIUMTEXT, ALGORITHM=INSTANT' );
         }
     }
 );

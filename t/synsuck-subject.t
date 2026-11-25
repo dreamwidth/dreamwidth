@@ -27,6 +27,21 @@ use LJ::S2;
 use LJ::SynSuck;
 use LJ::Test qw(temp_feed);
 
+{
+    open my $migration, '<', "$ENV{LJHOME}/bin/upgrading/update-db-general.pl"
+        or die "Cannot read database migrations: $!";
+    local $/;
+    my ($alter) = <$migration> =~ /
+        ^\s*do_alter\(\s*['"]logtext2['"],\s*['"]
+        (ALTER\s+TABLE\s+logtext2\s+ADD\s+COLUMN\s+syn_full_subject\b[^'"]*)['"]
+    /imx;
+    like(
+        $alter // '',
+        qr/,\s*ALGORITHM\s*=\s*INSTANT\s*$/i,
+        'the full subject migration refuses a table rebuild'
+    );
+}
+
 local $LJ::TASK_QUEUE_BACKEND    = 'localdisk';
 local $LJ::TASK_QUEUE_LOCAL_PATH = tempdir( CLEANUP => 1 );
 
