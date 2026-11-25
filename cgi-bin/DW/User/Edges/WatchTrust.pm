@@ -199,42 +199,34 @@ sub _del_wt_edge {
     my $do_watch = $de_watch ? 1 : 0;
     my $do_trust = $de_trust ? 1 : 0;
 
-    # get what we know
-    my $does_watch = $from_u->watches($to_u);
-    my $does_trust = $from_u->trusts($to_u);
-    return 1 unless $does_watch || $does_trust;
-
-    # make sure we have a valid edge to remove
-    return 1
-        unless ( $de_watch && $does_watch )
-        || ( $de_trust && $does_trust );
-
     my $dbh = LJ::get_db_writer()
         or return 0;
+    my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
+    my $existing = $dbh->selectrow_array(
+        'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+        undef, $from_userid, $to_userid );
+    return 0 if $dbh->err;
+    $existing ||= 0;
+
+    my $watch_bit = 1 << 61;
+    unless ( ( $do_watch && ( $existing & $watch_bit ) ) || ( $do_trust && ( $existing & 1 ) ) ) {
+        DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $existing );
+        return 1;
+    }
 
     my $mask = 0;
-
-    # deletes are easy, these are cases where we're removing both edges,
-    # or removing the only remaining edge
-    if (   ( $de_watch && $de_trust )
-        || ( $de_watch && $does_watch && !$does_trust )
-        || ( $de_trust && $does_trust && !$does_watch ) )
-    {
-
-        $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
-            undef, $from_u->id, $to_u->id );
-        return 0 if $dbh->err;
-
-        # at this point, we're guaranteed to have only the other edge remaining
+    $mask |= $existing & $watch_bit   unless $do_watch;
+    $mask |= $existing & ~( 7 << 61 ) unless $do_trust;
+    if ( $mask & ( $watch_bit | 1 ) ) {
+        $dbh->do( 'UPDATE wt_edges SET groupmask = ? WHERE from_userid = ? AND to_userid = ?',
+            undef, $mask, $from_userid, $to_userid );
     }
     else {
-
-        $mask = $de_trust ? 1 << 61 : $from_u->trustmask($to_u);
-
-        $dbh->do( 'UPDATE wt_edges SET groupmask = ? WHERE from_userid = ? AND to_userid = ?',
-            undef, $mask, $from_u->id, $to_u->id );
-        return 0 if $dbh->err;
+        $mask = 0;
+        $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $from_userid, $to_userid );
     }
+    return 0 if $dbh->err;
 
     # kill memcaches
     LJ::memcache_kill( $from_u, 'wt_edges' );
@@ -244,8 +236,8 @@ sub _del_wt_edge {
     LJ::memcache_kill( $from_u, 'trusted' );
     LJ::memcache_kill( $to_u,   'watched_by' );
     LJ::memcache_kill( $to_u,   'trusted_by' );
-    LJ::MemCache::delete( [ $from_u->id, "trustmask:" . $from_u->id . ":" . $to_u->id ] );
-    DW::Cache->request->set( 'trustmask', $from_u->id . ":" . $to_u->id, $mask );
+    LJ::MemCache::delete( [ $from_userid, "trustmask:$from_userid:$to_userid" ] );
+    DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $mask );
 
     # fire notifications if we have theschwartz
     my $notify =
@@ -894,16 +886,27 @@ sub delete_trust_group {
         or return 0;
 
     # iterate over everybody in this group and remove the bit
-    my $tglist = $u->trust_group_members( id => $bit, force_database => 1 );
-    foreach my $tid ( keys %{ $tglist || {} } ) {
+    my $members = $dbh->selectall_arrayref(
+        'SELECT to_userid, groupmask FROM wt_edges WHERE from_userid = ? AND groupmask & (1 << ?)',
+        undef, $userid, $bit
+    );
+    return 0 if $dbh->err;
+
+    my $group_bit = 1 << $bit;
+    foreach my $member (@$members) {
+        my ( $tid, $mask ) = @$member;
         $dbh->do(
 q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
-            undef, $bit, $u->id, $tid
+            undef, $bit, $userid, $tid
         );
+        if ( $dbh->err ) {
+            LJ::memcache_kill( $userid, 'wt_list' );
+            return 0;
+        }
 
         # don't forget memcache
         LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
-        DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
+        DW::Cache->request->set( 'trustmask', "$userid:$tid", $mask & ~$group_bit );
     }
 
     # finally remove the trust group, huzzah

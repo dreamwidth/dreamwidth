@@ -191,6 +191,56 @@ subtest 'remove trust then watch while the reader still has both' => sub {
     );
 };
 
+subtest 'removing watch does not restore revoked access' => sub {
+    reset_pair();
+    $owner->add_edge(
+        $peer,
+        trust => { mask     => 21, nonotify => 1 },
+        watch => { nonotify => 1 }
+    );
+    ok( $owner->remove_edge( $peer, trust => { nonotify => 1 } ), 'revoke access' );
+    is( saved_mask(), $watch, 'writer has only watch' );
+    clear_pair_cache();
+
+    with_lagging_reader(
+        $watch | 21,
+        sub {
+            my $reader = shift;
+            ok( $owner->trusts($peer),   'stale reader still shows revoked access' );
+            ok( $reader->{reads}{$pair}, 'the stale reader supplied the old mask' );
+            ok( $owner->remove_edge( $peer, watch => { nonotify => 1 } ), 'remove watch' );
+            is( saved_mask(), undef, 'writer no longer has an edge' );
+            ok( !$owner->trusts($peer), 'revoked access stays absent in this request' );
+        }
+    );
+};
+
+subtest 'deleting a trust group refreshes the request mask' => sub {
+    reset_pair();
+    my $deleted = $owner->create_trust_group( groupname => 'Deleted group' );
+    my $kept    = $owner->create_trust_group( groupname => 'Kept group' );
+    my $remaining_trust = 1 | ( 1 << $kept );
+    my $old_trust       = $remaining_trust | ( 1 << $deleted );
+    $owner->add_edge(
+        $peer,
+        trust => { mask     => $old_trust, nonotify => 1 },
+        watch => { nonotify => 1 }
+    );
+    clear_pair_cache();
+
+    with_lagging_reader(
+        $watch | $old_trust,
+        sub {
+            is( $owner->trustmask($peer), $old_trust, 'prime the mask before deletion' );
+            ok( $owner->delete_trust_group( id => $deleted ), 'delete the trust group' );
+            is( saved_mask(), $watch | $remaining_trust, 'writer cleared only the deleted bit' );
+            is( $owner->trustmask($peer),
+                $remaining_trust, 'request no longer grants the deleted group' );
+            ok( $owner->watches($peer), 'watch remains visible in the request' );
+        }
+    );
+};
+
 subtest 'write-through ends with the request' => sub {
     reset_pair();
     with_lagging_reader(
