@@ -458,20 +458,32 @@ sub _load_posted_entry_metadata {
     my $primary = LJ::get_cluster_master($journal) or return;
     my $bind    = join ',', ('?') x keys %$entries;
     my $rows    = $primary->selectall_arrayref(
-        'SELECT jitemid, posterid, eventtime, logtime, security, allowmask, anum '
-            . "FROM log2 WHERE journalid=? AND jitemid IN ($bind)",
+        'SELECT entry.jitemid, entry.posterid, entry.eventtime, entry.logtime, '
+            . 'entry.security, entry.allowmask, entry.anum, entry.replycount, prop.propid, prop.value '
+            . 'FROM log2 entry LEFT JOIN logprop2 prop '
+            . 'ON prop.journalid=entry.journalid AND prop.jitemid=entry.jitemid '
+            . "WHERE entry.journalid=? AND entry.jitemid IN ($bind)",
         { Slice => {} },
         $journal->id,
         keys %$entries
     );
     return if !$rows || $primary->err;
+    return {} unless @$rows;
 
+    LJ::load_props('log') unless $LJ::CACHE_PROPID{'log'};
+    my $proplist = $LJ::CACHE_PROPID{'log'} or return;
     my %loaded;
     foreach my $row (@$rows) {
         my $jitemid = $row->{jitemid};
-        $entries->{$jitemid}->absorb_row(%$row);
-        $loaded{$jitemid} = 1;
+        unless ( exists $loaded{$jitemid} ) {
+            $entries->{$jitemid}->absorb_row(%$row);
+            $loaded{$jitemid} = { replycount => $row->{replycount} };
+        }
+        next unless defined $row->{propid};
+        my $prop = $proplist->{ $row->{propid} } or next;
+        $loaded{$jitemid}->{ $prop->{name} } = $row->{value};
     }
+    $entries->{$_}->absorb_props( $loaded{$_} ) foreach keys %loaded;
     return \%loaded;
 }
 

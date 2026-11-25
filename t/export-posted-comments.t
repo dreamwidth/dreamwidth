@@ -130,6 +130,35 @@ unlike(
 my @comments = $xml_body =~ /<comment>/g;
 is( scalar @comments, 3, 'only eligible comments are exported' );
 
+{
+    my $master = \&LJ::get_cluster_master;
+    no warnings 'redefine';
+    local *LJ::get_cluster_master = sub {
+        my $dbh = $master->(@_);
+        return $dbh unless caller eq 'DW::Controller::Export' && $_[0]->id == $owner->id;
+        return bless { dbh => $dbh, fail_logprop2 => 1 }, 'PostedCommentsTestDB';
+    };
+
+    my $failed = $download->('xml');
+    is( $failed->code, 503, 'entry property query error returns HTTP 503' );
+    ok(
+        !$failed->header('Content-Disposition'),
+        'entry property error does not send an attachment'
+    );
+    unlike(
+        $failed->content,
+        qr/<comments>|own-subject|age-blocked-body/,
+        'entry property error does not send partial output'
+    );
+}
+
+my $recovered_props = $download->('xml');
+is( $recovered_props->code, 200, 'export succeeds when the destination property read recovers' );
+like( $recovered_props->header('Content-Disposition'),
+    qr/attachment/, 'recovery sends an attachment' );
+like( $recovered_props->content, qr/own-subject/, 'recovery includes the visible comment' );
+unlike( $recovered_props->content, qr/age-blocked-body/, 'recovery preserves the hard age block' );
+
 my $csv      = $download->('csv');
 my $csv_body = $csv->header('Content-Disposition') ? $csv->content : '';
 like( $csv->header('Content-Disposition'), qr/attachment;.*\.csv/, 'CSV is an attachment' );
@@ -408,8 +437,10 @@ package PostedCommentsTestDB {
 
     sub selectall_arrayref {
         my ( $self, $sql, @args ) = @_;
-        if ( $self->{fail_log2} ) {
-            $sql .= ' AND no_such_column = 1' if $sql =~ /FROM log2 WHERE /;
+        if ( $self->{fail_log2} || $self->{fail_logprop2} ) {
+            $sql .= ' AND no_such_column = 1'
+                if ( $self->{fail_log2} && $sql =~ /\blog2\b/ )
+                || ( $self->{fail_logprop2} && $sql =~ /\blogprop2\b/ );
         }
         elsif ( defined $self->{talkleft_filter} ) {
             $sql =~ s/FROM talkleft WHERE /FROM talkleft WHERE $self->{talkleft_filter} AND /;

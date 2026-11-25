@@ -488,8 +488,7 @@ sub preload_props_all {
         my $props = {};
         LJ::load_log_props2( $uid, \@load, $props );
         foreach my $jid ( keys %$props ) {
-            $hr->{$jid}->{props}         = $props->{$jid};
-            $hr->{$jid}->{_loaded_props} = 1;
+            $hr->{$jid}->absorb_props( $props->{$jid} );
         }
     }
 }
@@ -607,15 +606,19 @@ sub props {
     return $self->{props} || {};
 }
 
+sub absorb_props {
+    my ( $self, $props ) = @_;
+    $self->{props}         = $props;
+    $self->{_loaded_props} = 1;
+}
+
 sub _load_props {
     my $self = $_[0];
     return 1 if $self->{_loaded_props};
 
     my $props = {};
     LJ::load_log_props2( $self->{u}, [ $self->{jitemid} ], $props );
-    $self->{props} = $props->{ $self->{jitemid} };
-
-    $self->{_loaded_props} = 1;
+    $self->absorb_props( $props->{ $self->{jitemid} } );
     return 1;
 }
 
