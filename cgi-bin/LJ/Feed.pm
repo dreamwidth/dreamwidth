@@ -908,7 +908,8 @@ sub merge_feed {
         if $from_u->equals($to_u);
 
     # we don't want to unlimit this, so reject if we have too many users
-    my @ids = $from_u->watched_by_userids( limit => $LJ::MAX_WT_EDGES_LOAD + 1 );
+    my $watcher_limit = $LJ::MAX_WT_EDGES_LOAD + 1;
+    my @ids           = $from_u->watched_by_userids( limit => $watcher_limit );
     return ( 0,
               "Unable to merge feeds. Too many users are watching the feed '"
             . $from_u->user
@@ -940,13 +941,15 @@ sub merge_feed {
         $dbh->selectrow_array( "SELECT synurl FROM syndicated WHERE userid=?", undef, $to_u->id );
 
     # 1) set up redirection for 'from_user' -> 'to_user'
+    $from_u->set_prop( renamedto => $to_u->user )
+        or return ( 0, "Unable to set userprop.  Database unavailable?" );
     {
-        my $lock = DW::User::ContentFilters::Filter::lock_feed_redirects()
-            or return ( 0, "Unable to lock feed redirects: $DW::Locker::Error." );
-        $from_u->set_prop( "renamedto", $to_u->user )
-            or return ( 0, "Unable to set userprop.  Database unavailable?" );
-        $from_u->update_self( { journaltype => 'R', statusvis => 'R' } )
-            or return ( 0, "Unable to mark the feed as redirected." );
+        local $dbh->{RaiseError} = 0;
+        unless ( $from_u->update_self( { journaltype => 'R', statusvis => 'R' } ) ) {
+            $from_u->set_prop( renamedto => undef )
+                or return ( 0, "Unable to mark the feed as redirected or clear the redirect." );
+            return ( 0, "Unable to mark the feed as redirected." );
+        }
     }
 
     # 2) delete the row in the syndicated table for the user
@@ -962,10 +965,26 @@ sub merge_feed {
     return ( 0, "Database Error: " . $dbh->errstr )
         if $dbh->err;
 
-    # 4) make users who watch 'from_user' now watch 'to_user'
-    # we can't just use delete_ and add_ edges, because we would lose
-    # custom group and colors data
+    # 4) move watch edges in place to keep custom groups and colors. Read the
+    # watcher list on the writer after publication: an earlier merge may have
+    # moved watchers here since the preflight check.
+    my @warnings;
     my ( $from_id, $to_id ) = ( $from_u->id, $to_u->id );
+    my $watchers = $dbh->selectcol_arrayref(
+        'SELECT from_userid FROM wt_edges WHERE to_userid = ?'
+            . " AND groupmask & 1<<61 LIMIT $watcher_limit",
+        undef, $from_id
+    );
+    if ( !$watchers || $dbh->err ) {
+        push @warnings, 'Unable to refresh the watcher list: ' . $dbh->errstr;
+    }
+    else {
+        @ids = @$watchers;
+        if ( @ids == $watcher_limit ) {
+            pop @ids;
+            push @warnings, 'The watcher limit was exceeded after publishing the feed redirect.';
+        }
+    }
     if (@ids) {
 
         # users who already watch 'to_user' keep that edge, and the update below
@@ -1015,7 +1034,6 @@ sub merge_feed {
     }
 
     # log to statushistory
-    my @warnings;
     my $remote = LJ::get_remote();
     my $msg    = "Merged " . $from_u->user . " to " . $to_u->user . " using URL: $url.";
     foreach my $feed ( [ $from_u, $from_oldurl ], [ $to_u, $to_oldurl ] ) {
@@ -1040,6 +1058,8 @@ sub _migrate_content_filters {
     my ( $from_id, $to_id, $ids ) = @_;
 
     local $LJ::THROW_ERRORS = 0;
+    my $dbh = LJ::get_db_writer()
+        or return 'Unable to migrate reading filters: feed writer unavailable.';
     my @warnings;
     my $batch_size = 500;
     for ( my $i = 0 ; $i < @$ids ; $i += $batch_size ) {
@@ -1071,66 +1091,81 @@ sub _migrate_content_filters {
             }
             local $dbcm->{RaiseError} = 0;
 
-            my $placeholders = join( ',', ('?') x @$cuids );
-            my $rows         = $dbcm->selectall_arrayref(
-                "SELECT userid, filterid, data FROM content_filter_data "
-                    . "WHERE userid IN ($placeholders)",
-                undef, @$cuids
-            );
-            if ( !$rows || $dbcm->err ) {
+            foreach my $uid (@$cuids) {
                 push @warnings,
-                      "Unable to load reading filters on cluster $cid for users "
-                    . join( ', ', @$cuids ) . ': '
-                    . $dbcm->errstr;
-                next CLUSTER;
+                    _migrate_watcher_filters( $dbh, $dbcm, $users->{$uid}, $from_id, $to_id );
+            }
+        }
+    }
+
+    return @warnings;
+}
+
+sub _migrate_watcher_filters {
+    my ( $dbh, $dbcm, $watcher, $from_id, $to_id ) = @_;
+    my $uid  = $watcher->id;
+    my $lock = DW::User::ContentFilters::Filter::lock_feed_merge($uid)
+        or return "Unable to lock reading filters for user $uid: $DW::Locker::Error.";
+
+    my $rows = $dbcm->selectall_arrayref(
+        'SELECT filterid, data FROM content_filter_data WHERE userid = ?',
+        undef, $uid );
+    return "Unable to load reading filters for user $uid: " . $dbcm->errstr
+        if !$rows || $dbcm->err;
+
+    my @warnings;
+FILTER: foreach my $row (@$rows) {
+        my ( $filterid, $raw ) = @$row;
+        my $attempts_remaining = 3;
+        while (1) {
+            next FILTER unless defined $raw;
+            my $data = do {
+                local $@;
+                eval { thaw($raw) }
+            };
+            next FILTER unless ref $data eq 'HASH' && exists $data->{$from_id};
+
+            unless ( $attempts_remaining-- ) {
+                push @warnings, "Reading filter $filterid for user $uid kept changing.";
+                next FILTER;
             }
 
-        FILTER: foreach my $row (@$rows) {
-                my ( $uid, $filterid, $raw ) = @$row;
-                my $attempts_remaining = 3;
-                while (1) {
-                    next FILTER unless defined $raw;
-                    my $data = do {
-                        local $@;
-                        eval { thaw($raw) }
-                    };
-                    next FILTER unless ref $data eq 'HASH' && exists $data->{$from_id};
+            my $target_id =
+                eval { DW::User::ContentFilters::Filter::resolve_feed_target( $dbh, $to_id ) };
+            unless ($target_id) {
+                my $error = $@ || 'no surviving feed found';
+                push @warnings,
+                    "Unable to resolve a feed for reading filter $filterid for user $uid: $error";
+                next FILTER;
+            }
 
-                    unless ( $attempts_remaining-- ) {
-                        push @warnings, "Reading filter $filterid for user $uid kept changing.";
-                        next FILTER;
-                    }
+            DW::User::ContentFilters::Filter::remap_feed_member( $data, $from_id, $target_id );
+            my $updated = $dbcm->do(
+                'UPDATE content_filter_data SET data = ?'
+                    . ' WHERE userid = ? AND filterid = ? AND data = ?',
+                undef, nfreeze($data), $uid, $filterid, $raw
+            );
+            unless ( defined $updated ) {
+                push @warnings,
+                    "Unable to update reading filter $filterid for user $uid: " . $dbcm->errstr;
+                next FILTER;
+            }
+            last if $updated == 1;
 
-                    DW::User::ContentFilters::Filter::remap_feed_member( $data, $from_id, $to_id );
-                    my $updated = $dbcm->do(
-                        'UPDATE content_filter_data SET data = ?'
-                            . ' WHERE userid = ? AND filterid = ? AND data = ?',
-                        undef, nfreeze($data), $uid, $filterid, $raw
-                    );
-                    unless ( defined $updated ) {
-                        push @warnings, "Unable to update reading filter $filterid for user $uid: "
-                            . $dbcm->errstr;
-                        next FILTER;
-                    }
-                    last if $updated == 1;
+            $raw = $dbcm->selectrow_array(
+                'SELECT data FROM content_filter_data WHERE userid = ? AND filterid = ?',
+                undef, $uid, $filterid );
+            if ( $dbcm->err ) {
+                push @warnings,
+                    "Unable to reload reading filter $filterid for user $uid: " . $dbcm->errstr;
+                next FILTER;
+            }
+        }
 
-                    $raw = $dbcm->selectrow_array(
-                        'SELECT data FROM content_filter_data WHERE userid = ? AND filterid = ?',
-                        undef, $uid, $filterid );
-                    if ( $dbcm->err ) {
-                        push @warnings, "Unable to reload reading filter $filterid for user $uid: "
-                            . $dbcm->errstr;
-                        next FILTER;
-                    }
-                }
-
-                my $u = $users->{$uid};
-                $u->memc_delete("cfd:$filterid");
-                if ( $u->{_content_filters} ) {
-                    foreach my $cf ( @{ $u->{_content_filters} } ) {
-                        delete $cf->{_data} if $cf->id == $filterid;
-                    }
-                }
+        $watcher->memc_delete("cfd:$filterid");
+        if ( $watcher->{_content_filters} ) {
+            foreach my $cf ( @{ $watcher->{_content_filters} } ) {
+                delete $cf->{_data} if $cf->id == $filterid;
             }
         }
     }

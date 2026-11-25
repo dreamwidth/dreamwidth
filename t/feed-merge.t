@@ -136,6 +136,201 @@ subtest 'a save with pre-merge members follows feed redirects' => sub {
     );
 };
 
+subtest 'a feed save only holds its owner lock' => sub {
+    my $feed    = temp_feed();
+    my $first   = temp_user();
+    my $second  = temp_user( cluster => $first->clusterid );
+    my @filters = map { $_->content_filters( id => $_->create_content_filter( name => 'Feeds' ) ) }
+        ( $first, $second );
+    my $writer = LJ::get_cluster_master($first);
+    my $master = LJ::get_db_writer();
+    my ( $saved, $error, %held );
+    {
+        local $writer->{Callbacks} = {
+            do => sub {
+                my ( $handle, $sql, $attr, $owner ) = @_;
+                return unless $sql =~ /^REPLACE\b.*\bINTO content_filter_data\b/;
+                $held{$owner} = $master->selectrow_array( 'SELECT IS_USED_LOCK(?)',
+                    undef, "dwl:content_filter_feed_merge:$owner" );
+                return unless $owner == $first->id;
+
+                $saved = eval { $filters[1]->add_row( userid => $feed->id ) };
+                $error = $@;
+                return;
+            },
+        };
+        ok( $filters[0]->add_row( userid => $feed->id ), 'The first save completed' );
+    }
+
+    ok( $saved, 'The second owner can save while the first is still writing' )
+        or diag( $error || 'The nested save did not complete' );
+    ok( $held{ $first->id } && $held{ $second->id }, 'Each write holds its own database lock' );
+    if ($saved) {
+        my $data = persisted_filter( $second, $filters[1]->id );
+        ok( exists $data->{ $feed->id }, 'The second owner persisted the feed' );
+    }
+};
+
+subtest 'a migration follows redirects published by overlapping merges' => sub {
+    my ( $source, $intermediate, $next, $target ) = map { temp_feed() } 1 .. 4;
+    my $watcher  = temp_user();
+    my $filterid = $watcher->create_content_filter( name => 'Feeds' );
+    $watcher->add_edge( $source, watch => { nonotify => 1 } );
+    $watcher->content_filters( id => $filterid )
+        ->add_row( userid => $source->id, adultcontent => 'sfw' );
+
+    my $writer    = LJ::get_db_writer();
+    my $source_id = $source->id;
+    my $overlapped;
+    {
+        local $writer->{Callbacks} = {
+            do => sub {
+                my ( $handle, $sql ) = @_;
+                return unless $sql =~ /^INSERT INTO statushistory\b.*VALUES \($source_id,/;
+
+                $overlapped = 1;
+                local $handle->{Callbacks};
+                check_merge( $intermediate, $next );
+                check_merge( $next,         $target );
+                return;
+            },
+        };
+        check_merge( $source, $intermediate );
+    }
+
+    ok( $overlapped, 'The later redirects were published before migrating the source filter' );
+    my $data = persisted_filter( $watcher, $filterid );
+    is_deeply(
+        $data,
+        { $target->id => { adultcontent => 'sfw' } },
+        'The source settings were migrated through both redirects to the final feed'
+    );
+};
+
+subtest 'a merge picks up watchers transferred after its initial check' => sub {
+    my ( $source, $intermediate, $target ) = map { temp_feed() } 1 .. 3;
+    my $watcher  = temp_user();
+    my $filterid = $watcher->create_content_filter( name => 'Feeds' );
+    $watcher->add_edge( $source, watch => { nonotify => 1 } );
+    $watcher->content_filters( id => $filterid )->add_row( userid => $source->id );
+
+    my $writer = LJ::get_db_writer();
+    my $overlapped;
+    {
+        local $writer->{Callbacks} = {
+            selectrow_array => sub {
+                my ( $handle, $sql, $attr, $userid ) = @_;
+                return if $overlapped || $sql !~ /^SELECT synurl FROM syndicated\b/;
+                return unless $userid == $intermediate->id;
+
+                $overlapped = 1;
+                local $handle->{Callbacks};
+                check_merge( $source, $intermediate );
+                is_deeply(
+                    [ keys %{ persisted_filter( $watcher, $filterid ) } ],
+                    [ $intermediate->id ],
+                    'The first merge persisted the intermediate feed'
+                );
+                return;
+            },
+        };
+        check_merge( $intermediate, $target );
+    }
+
+    ok( $overlapped, 'The first merge finished after the later merge checked for watchers' );
+    my $data = persisted_filter( $watcher, $filterid );
+    is_deeply(
+        [ keys %$data ],
+        [ $target->id ],
+        'The second merge migrated the transferred watcher'
+    );
+};
+
+subtest 'a compare-and-swap retry uses a newly published redirect' => sub {
+    my ( $source, $intermediate, $target ) = map { temp_feed() } 1 .. 3;
+    my $watcher  = temp_user();
+    my $filterid = $watcher->create_content_filter( name => 'Feeds' );
+    $watcher->add_edge( $source, watch => { nonotify => 1 } );
+    $watcher->content_filters( id => $filterid )->add_row( userid => $source->id );
+
+    my $writer = LJ::get_cluster_master($watcher);
+    my $published;
+    {
+        local $writer->{Callbacks} = {
+            do => sub {
+                my ( $handle, $sql, $attr, $data, $uid, $fid, $raw ) = @_;
+                return if $published || $sql !~ /^UPDATE content_filter_data\b/;
+                return unless $uid == $watcher->id && $fid == $filterid;
+
+                $published = $intermediate->set_prop( renamedto => $target->user )
+                    && $intermediate->update_self( { journaltype => 'R', statusvis => 'R' } );
+                my $current = thaw($raw);
+                $current->{ $source->id }{adultcontent} = 'nonexplicit';
+                local $handle->{Callbacks};
+                $handle->do(
+                    'UPDATE content_filter_data SET data = ? WHERE userid = ? AND filterid = ?',
+                    undef, nfreeze($current), $uid, $fid )
+                    or die $handle->errstr;
+                return;
+            },
+        };
+        check_merge( $source, $intermediate );
+    }
+
+    ok( $published, 'The destination redirected during the first write attempt' );
+    is_deeply(
+        persisted_filter( $watcher, $filterid ),
+        { $target->id => { adultcontent => 'nonexplicit' } },
+        'The retry used the live destination and retained the competing edit'
+    );
+};
+
+subtest 'a failed status update clears the unpublished redirect' => sub {
+    my $source    = temp_feed();
+    my $target    = temp_feed();
+    my $writer    = LJ::get_db_writer();
+    my $source_id = $source->id;
+    my $failed_update;
+    my ( $ok, $message );
+    {
+        local $writer->{RaiseError} = 0;
+        local $writer->{PrintError} = 0;
+        local $writer->{Callbacks}  = {
+            do => sub {
+                return unless $_[1] =~ /^UPDATE user SET .* WHERE userid=$source_id$/;
+                $failed_update = $_[1] =~ s/\bstatusvis\b/invalid_statusvis_column/;
+                return;
+            },
+        };
+        ( $ok, $message ) =
+            LJ::Feed::merge_feed( from => $source, to => $target, url => "$LJ::SITEROOT/feed.rss" );
+    }
+
+    ok( $failed_update, 'The status update was sent with an invalid column' );
+    ok( !$ok,           'The merge reported failure' );
+    like(
+        $message,
+        qr/Unable to mark the feed as redirected/,
+        'The status update error is reported'
+    );
+    my $status = $writer->selectrow_array( 'SELECT statusvis FROM user WHERE userid = ?',
+        undef, $source_id );
+    is( $status, 'V', 'The source remains visible in the database' );
+    $source->uncache_prop('renamedto');
+    my $redirect = LJ::DB::require_master( sub { $source->prop('renamedto') } );
+    is( $redirect, undef, 'No redirect remains on the writer' );
+};
+
+sub check_merge {
+    my ( $source, $target )  = @_;
+    my ( $ok,     $message ) = LJ::Feed::merge_feed(
+        from => $source,
+        to   => $target,
+        url  => "$LJ::SITEROOT/feed.rss#" . $target->user
+    );
+    ok( $ok, 'Merged ' . $source->user . ' into ' . $target->user ) or diag $message;
+}
+
 sub persisted_filter {
     my ( $watcher, $filterid ) = @_;
     my $raw = $watcher->writer->selectrow_array(

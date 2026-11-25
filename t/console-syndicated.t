@@ -155,14 +155,14 @@ with_fake_memcache {
     ok( !$u_news->contains_userid( $feed2->id ),
         'Pretend merge does not add surviving feed to filter' );
 
-    my $writer = LJ::get_cluster_master($u);
+    my $writer   = LJ::get_db_writer();
+    my $feed1_id = $feed1->id;
     my $saved;
     {
         local $writer->{Callbacks} = {
             do => sub {
-                my ( $handle, $sql, $attr, $data, $uid, $filterid ) = @_;
-                return if $saved || $sql !~ /^UPDATE content_filter_data\b/;
-                return unless $uid == $u->id && $filterid == $u_news_fid;
+                my ( $handle, $sql ) = @_;
+                return unless $sql =~ /^INSERT INTO statushistory\b.*VALUES \($feed1_id,/;
 
                 local $DW::Request::cur_req;
                 local $DW::Request::determined;
@@ -205,7 +205,7 @@ with_fake_memcache {
                 . " using URL: $LJ::SITEROOT/feed.rss#2."
         );
     }
-    ok( $saved, 'The user saved the News filter just before the merge wrote it' );
+    ok( $saved, 'The user saved the News filter after redirect publication and before migration' );
     $feed1 = LJ::load_user( $feed1->user );
     ok( $feed1->is_renamed, "Feed redirection set up correctly." );
     is( scalar $feed1->watched_by_userids, 0, "No watches remaining for " . $feed1->user );

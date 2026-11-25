@@ -315,7 +315,7 @@ sub _save {
     my $u    = $self->owner;
     my $data = $self->data;    # do this in case we called _save before load
 
-    my $lock = _normalize_merged_feeds($data);
+    my $lock = _lock_and_normalize_feed_members( $u->id, $data );
 
     $u->do( q{REPLACE INTO content_filter_data (userid, filterid, data) VALUES (?, ?, ?)},
         undef, $u->id, $self->id, nfreeze($data) );
@@ -326,19 +326,19 @@ sub _save {
     return 1;
 }
 
-# A save either finishes before the redirect is published (and the migration can
-# see it), or sees the redirect before writing. The merge releases this lock
-# before scanning filters; its compare-and-swap protects newer saves.
-sub lock_feed_redirects {
+# Merges publish redirects first, then take this lock before reading the owner's
+# filters. A save either sees the redirect or finishes before the migration reads it.
+sub lock_feed_merge {
+    my ($ownerid) = @_;
     return DW::Locker->new->trylock(
-        'content_filter_feed_redirects',
-        class => 'content_filter_feed_redirects',
+        "content_filter_feed_merge:$ownerid",
+        class => 'content_filter_feed_merge',
         wait  => 10
     );
 }
 
-sub _normalize_merged_feeds {
-    my ($data) = @_;
+sub _lock_and_normalize_feed_members {
+    my ( $ownerid, $data ) = @_;
     my @members = grep { /\A[1-9][0-9]*\z/ } keys %$data;
     return unless @members;
 
@@ -352,51 +352,52 @@ sub _normalize_merged_feeds {
 
     # The initial read includes both feed types, so a feed redirected while
     # acquiring the lock is still checked by the second read.
-    my $lock = lock_feed_redirects() or die "Unable to lock feed redirects: $DW::Locker::Error";
+    my $lock = lock_feed_merge($ownerid)
+        or die "Unable to lock reading filter save for user $ownerid: $DW::Locker::Error";
     $placeholders = join( ',', ('?') x @$feed_ids );
-    my $redirects = $dbh->selectall_arrayref(
-        "SELECT userid, clusterid, dversion FROM user WHERE userid IN ($placeholders) "
+    my $redirects = $dbh->selectcol_arrayref(
+        "SELECT userid FROM user WHERE userid IN ($placeholders) "
             . "AND journaltype = 'R' AND statusvis = 'R' ORDER BY userid",
-        { Slice => {} },
-        @$feed_ids
+        undef, @$feed_ids
     );
     die $dbh->errstr if $dbh->err;
-    return $lock unless @$redirects;
-
-    my $prop = LJ::get_prop( 'user', 'renamedto' ) or die 'Unable to load renamedto property';
-
-    # Resolve renamedto on the writers: in-flight requests can have pre-merge userprops cached.
-REDIRECT: foreach my $source (@$redirects) {
-        my $current = $source;
-        my %seen;
-        while ( !$seen{ $current->{userid} }++ ) {
-            my $clustered = $current->{dversion} >= $prop->{cldversion};
-            my $table     = $clustered ? 'userproplite2' : 'userprop';
-            my $writer    = $clustered ? LJ::get_cluster_master( $current->{clusterid} ) : $dbh;
-            die "Unable to load redirect for user $current->{userid}" unless $writer;
-            my $name = $writer->selectrow_array(
-                "SELECT value FROM $table WHERE userid = ? AND upropid = ?",
-                undef, $current->{userid}, $prop->{id} );
-            die $writer->errstr if $writer->err;
-            $name = LJ::canonical_username($name);
-            next REDIRECT unless $name;
-
-            $current = $dbh->selectrow_hashref(
-                'SELECT userid, clusterid, dversion, journaltype, statusvis'
-                    . ' FROM user WHERE user = ?',
-                undef, $name
-            );
-            die $dbh->errstr if $dbh->err;
-            next REDIRECT unless $current;
-            if ( $current->{journaltype} eq 'Y' ) {
-                remap_feed_member( $data, $source->{userid}, $current->{userid} );
-                next REDIRECT;
-            }
-            next REDIRECT unless $current->{journaltype} eq 'R' && $current->{statusvis} eq 'R';
-        }
+    foreach my $source_id (@$redirects) {
+        my $target_id = resolve_feed_target( $dbh, $source_id );
+        remap_feed_member( $data, $source_id, $target_id )
+            if $target_id && $target_id != $source_id;
     }
 
     return $lock;
+}
+
+# Resolve renamedto on the writers: in-flight requests can have pre-merge userprops cached.
+sub resolve_feed_target {
+    my ( $dbh, $userid ) = @_;
+    my $select  = 'SELECT userid, clusterid, dversion, journaltype, statusvis FROM user';
+    my $current = $dbh->selectrow_hashref( "$select WHERE userid = ?", undef, $userid );
+    die $dbh->errstr if $dbh->err;
+
+    my ( $prop, %seen );
+    while ( $current && !$seen{ $current->{userid} }++ ) {
+        return $current->{userid} if $current->{journaltype} eq 'Y';
+        return unless $current->{journaltype} eq 'R' && $current->{statusvis} eq 'R';
+
+        $prop ||= LJ::get_prop( 'user', 'renamedto' ) or die 'Unable to load renamedto property';
+        my $clustered = $current->{dversion} >= $prop->{cldversion};
+        my $table     = $clustered ? 'userproplite2' : 'userprop';
+        my $writer    = $clustered ? LJ::get_cluster_master( $current->{clusterid} ) : $dbh;
+        die "Unable to load redirect for user $current->{userid}" unless $writer;
+        my $name =
+            $writer->selectrow_array( "SELECT value FROM $table WHERE userid = ? AND upropid = ?",
+            undef, $current->{userid}, $prop->{id} );
+        die $writer->errstr if $writer->err;
+        $name = LJ::canonical_username($name);
+        return unless $name;
+
+        $current = $dbh->selectrow_hashref( "$select WHERE user = ?", undef, $name );
+        die $dbh->errstr if $dbh->err;
+    }
+    return;
 }
 
 sub remap_feed_member {
