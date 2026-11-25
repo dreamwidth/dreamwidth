@@ -158,27 +158,27 @@ sub confirm_current_email {
     my ( $u, $email ) = @_;
     my $userid = $u->id;
 
-    my $confirmed = _email_transaction(
+    my $confirmed_email = _email_transaction(
         sub {
             my ($dbh) = @_;
             my ($current) =
                 $dbh->selectrow_array( 'SELECT email FROM email WHERE userid = ? FOR UPDATE',
                 undef, $userid );
             die $dbh->errstr if $dbh->err;
-            return 0 unless defined $current && $current eq $email;
+            return undef unless defined $current && lc($current) eq lc($email);
 
             my $updated =
                 $dbh->do( "UPDATE user SET status = 'A' WHERE userid = ? AND status <> 'A'",
                 undef, $userid )
                 or die $dbh->errstr;
-            return $updated > 0;
+            return $updated > 0 ? $current : undef;
         }
     );
-    return 0 unless $confirmed;
+    return 0 unless defined $confirmed_email;
 
     LJ::memcache_kill( $userid, 'userid' );
     $u->{status} = 'A';
-    $u->{_email} = $email;
+    $u->{_email} = $confirmed_email;
     LJ::Hooks::run_hooks( 'update_user', userid => $userid, fields => { status => 'A' } );
     return 1;
 }

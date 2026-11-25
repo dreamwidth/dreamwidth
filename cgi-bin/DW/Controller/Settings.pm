@@ -530,7 +530,7 @@ sub changepassword_handler {
                 $u->update_email_alias;
                 LJ::Hooks::run_hook( 'email_verified', $u );
                 LJ::Hooks::run_hook( 'post_email_change',
-                    { user => $u, newemail => $aa->{arg1}, suspend => 1 } );
+                    { user => $u, newemail => $u->email_raw, suspend => 1 } );
             }
 
             # End this account's sessions. Normally that logs the user out

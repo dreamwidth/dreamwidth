@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 use HTTP::Request::Common;
 use Plack::Test;
 
@@ -90,10 +90,11 @@ sub reloaded {
     $u->set_password('Original-pass-42');
 
     my $res = reset_password( $u, 'Mixed@example.com' );
-    like( $res->content, qr/password has been changed/, 'case mismatch does not prevent reset' );
+    like( $res->content, qr/password has been changed/, 'mixed-case address can reset' );
     $u = reloaded($u);
-    ok( $u->check_password($newpass), 'reset sets the password despite the case mismatch' );
-    is( $u->email_status, 'N', 'case mismatch does not confirm the address' );
+    ok( $u->check_password($newpass), 'reset sets the password from a mixed-case address' );
+    ok( $u->is_validated,             'mixed-case reset link confirms the stored address' );
+    is( $u->email_raw, 'mixed@example.com', 'reset preserves the stored address casing' );
 }
 
 {
