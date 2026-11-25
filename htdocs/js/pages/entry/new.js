@@ -260,12 +260,11 @@ var postForm = (function($) {
 
             if ( isCommunity ) {
                 options = ["public", "members"];
-                if ( info.can_manage ) {
+                var hasAdminAudience = info.can_manage || minsecurity === "private";
+                if ( hasAdminAudience ) {
                     options.push("admin");
-                } else if ( minsecurity === "private" ) {
-                    minsecurity = "access";
                 }
-                if ( oldval === "custom" || (oldval === "private" && !info.can_manage) ) {
+                if ( oldval === "custom" || (oldval === "private" && !hasAdminAudience) ) {
                     oldval = "access";
                 }
             } else {

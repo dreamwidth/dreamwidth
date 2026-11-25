@@ -331,6 +331,11 @@ sub _render_new_form {
     # prepopulate if we haven't been through this form already
     $vars->{formdata} = $post || _prepopulate($get);
 
+    my $journal = $vars->{journalu};
+    if ( $journal && $journal->is_community && $journal->newpost_minsecurity eq 'private' ) {
+        $vars->{security} = [ $vars->{security_options}->{admin} ];
+    }
+
     # Had to wait for formdata before figuring out the editors list -- if we
     # have a WIP form submission with errors, we want to reuse what the user
     # already chose.
@@ -582,7 +587,7 @@ sub _init {
         "admin" => {
             value  => "private",
             label  => ".admin.label",
-            format => ".private.format",
+            format => ".admin.format",
             image  => $LJ::Img::img{"security-private"},
         },
         "access" => {

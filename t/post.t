@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 101;
+use Test::More tests => 105;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
@@ -28,6 +28,7 @@ use DW::FormErrors;
 use DW::Routing::CallInfo;
 use LJ::Community;
 use LJ::Entry;
+use LJ::Protocol;
 
 use FindBin qw($Bin);
 chdir "$Bin/data/userpics" or die "Failed to chdir to t/data/userpics";
@@ -417,6 +418,41 @@ note("Post - security:custom");
     my $entry = LJ::Entry->new( $u, jitemid => $res->{itemid} );
     is( $entry->security,  "usemask", "Custom security" );
     is( $entry->allowmask, 6,         "Custom security allowmask" );
+}
+
+note("Post - community security minimum");
+{
+    my $poster    = temp_user();
+    my $community = temp_comm();
+    $poster->update_self( { status => 'A' } );
+    $poster->join_community( $community, 1, 1 );
+    my $post = sub {
+        my ($security) = @_;
+        my $req = {
+            ver        => $LJ::PROTOCOL_VER,
+            username   => $poster->user,
+            usejournal => $community->user,
+            event      => "Community minimum security test: $security",
+            tz         => 'guess',
+            security   => $security,
+        };
+        my $err;
+        my $res =
+            LJ::Protocol::do_request( 'postevent', $req, \$err, { noauth => 1, u => $poster } );
+        return ( $res, $err );
+    };
+
+    my ( $denied, $err ) = $post->('private');
+    ok( !$denied, 'A non-admin cannot choose private without a private minimum' );
+    is( $err, 106, 'Protocol still refuses optional private security' );
+
+    $community->set_prop( newpost_minsecurity => 'private' );
+    for my $security ( 'public', 'private' ) {
+        my ( $res, $err ) = $post->($security);
+        my $entry = $res && LJ::Entry->new( $community, jitemid => $res->{itemid} );
+        is( $entry && $entry->security, 'private', "A $security request saves as private" )
+            or diag("Protocol error: $err");
+    }
 }
 
 note("Post - security:public, but with allowmask (probably changed their mind)");

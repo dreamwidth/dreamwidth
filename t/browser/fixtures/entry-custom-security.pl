@@ -50,32 +50,58 @@ if (@ARGV) {
 }
 
 my $password = LJ::rand_chars(16);
-my $user;
-until ($user) {
-    $user = LJ::User->create_personal(
-        user     => $prefix . LJ::rand_chars(4),
-        email    => 'browser-test@example.com',
-        password => $password,
-        name     => 'Custom access browser test',
-    );
-}
-$user->update_self( { status => 'A', statusvis => 'V' } );
 
-my @bits = map { $user->create_trust_group( groupname => $_ ) }
+sub make_personal {
+    my $user;
+    until ($user) {
+        $user = LJ::User->create_personal(
+            user     => $prefix . LJ::rand_chars(4),
+            email    => 'browser-test@example.com',
+            password => $password,
+            name     => 'Custom access browser test',
+        );
+    }
+    $user->update_self( { status => 'A', statusvis => 'V' } );
+    return $user;
+}
+
+my $user  = make_personal();
+my $admin = make_personal();
+my @bits  = map { $user->create_trust_group( groupname => $_ ) }
     ( 'Book Club', 'Neighbors', 'Writing Group' );
 
-my $community;
-until ($community) {
-    $community = LJ::User->create_community(
-        user         => $prefix . LJ::rand_chars(4),
-        name         => 'Custom access browser test community',
-        admin_userid => $user->id,
-        membership   => 'open',
-        postlevel    => 'members',
-    );
+sub make_community {
+    my ($manager) = @_;
+    my $community;
+    until ($community) {
+        $community = LJ::User->create_community(
+            user         => $prefix . LJ::rand_chars(4),
+            name         => 'Custom access browser test community',
+            admin_userid => $manager->id,
+            membership   => 'open',
+            postlevel    => 'members',
+        );
+    }
+    return $community;
 }
+
+my $community = make_community($user);
 croak 'Custom security fixture cannot post to its community' unless $user->can_post_to($community);
 
+my $restricted = make_community($admin);
+$restricted->set_prop( newpost_minsecurity => 'private' );
+$user->join_community( $restricted, 1, 1 );
+croak 'Expected a non-admin with posting access in the restricted community'
+    unless $user->can_post_to($restricted) && !$user->can_manage($restricted);
+
 print encode_json(
-    { user => $user->user, password => $password, bits => \@bits, community => $community->user } ),
+    {
+        user       => $user->user,
+        password   => $password,
+        bits       => \@bits,
+        community  => $community->user,
+        restricted => $restricted->user,
+        admin      => $admin->user,
+    }
+    ),
     "\n";

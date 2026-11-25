@@ -25,6 +25,11 @@ const post = 'input[name="action:post"]';
 const journal = "#js-usejournal";
 const optionsURL = "/__rpc_getsecurityoptions";
 
+function isOptionsFor(url, user) {
+    const parsed = new URL(url);
+    return parsed.pathname === optionsURL && parsed.searchParams.get("user") === user;
+}
+
 function storedSecurity(user, subject) {
     return JSON.parse(execFileSync("perl", [
         path.join(__dirname, "fixtures", fixtureName + ".pl"), "--entry", user, subject,
@@ -82,10 +87,6 @@ async function checkPosting(browser, cookies, fixture, javaScript) {
 async function checkJournalSwitching(browser, cookies, fixture) {
     const page = await browser.newPage();
     const first = `#custom-bit-${fixture.bits[0]}`;
-    const isOptionsFor = (url, user) => {
-        const parsed = new URL(url);
-        return parsed.pathname === optionsURL && parsed.searchParams.get("user") === user;
-    };
     const groupState = () => page.$eval(first, input => ({
         hidden: input.closest("fieldset").hidden,
         disabled: input.matches(":disabled"),
@@ -166,6 +167,49 @@ async function checkJournalSwitching(browser, cookies, fixture) {
     }
 }
 
+async function checkPrivateMinimum(browser, cookies, fixture) {
+    const page = await browser.newPage();
+    const enabledAudiences = () => page.$eval(security, select => ({
+        selected: select.value,
+        label: select.selectedOptions[0].text,
+        enabled: Array.from(select.options).filter(option => !option.disabled).map(option => option.value),
+    }));
+    const expected = { selected: "private", label: "administrators only", enabled: ["private"] };
+    try {
+        await page.setCookie(...cookies);
+        await page.goto(BASE + "/entry/new", { waitUntil: "networkidle2" });
+        const [response] = await Promise.all([
+            page.waitForResponse(response => isOptionsFor(response.url(), fixture.restricted)),
+            page.select(journal, fixture.restricted),
+        ]);
+        const { ret } = await response.json();
+        assert.equal(ret.can_manage, 0, "the poster is not a community administrator");
+        assert.equal(ret.minsecurity, "private", "the RPC returns the configured minimum");
+        await page.waitForNetworkIdle();
+        assert.deepEqual(await enabledAudiences(), expected,
+            "only the enforced administrators-only audience is selectable");
+
+        const subject = "Community with an administrators-only minimum";
+        await page.type('[name="subject"]', subject);
+        await page.type('[name="event"]', "Synthetic administrators-only community entry");
+        await Promise.all([
+            page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+            page.click(post),
+        ]);
+        assert.deepEqual(storedSecurity(fixture.restricted, subject), { security: "private", mask: 0 },
+            "the non-admin's entry saves with the audience shown by the form");
+        console.log("PASS: non-admin posting honors the community's administrators-only minimum");
+
+        await page.setJavaScriptEnabled(false);
+        await page.goto(BASE + "/entry/" + fixture.restricted + "/new", { waitUntil: "domcontentloaded" });
+        assert.deepEqual(await enabledAudiences(), expected,
+            "a preselected community offers the same enforced audience without JavaScript");
+        console.log("PASS: server-rendered entry form honors the administrators-only minimum");
+    } finally {
+        await page.close();
+    }
+}
+
 (async () => {
     const fixture = createFixture(fixtureName);
     let browser;
@@ -181,10 +225,13 @@ async function checkJournalSwitching(browser, cookies, fixture) {
             }
         }
         await checkJournalSwitching(browser, cookies, fixture);
+        await checkPrivateMinimum(browser, cookies, fixture);
     } finally {
         if (browser) await browser.close();
+        deleteFixture(fixtureName, fixture.restricted);
         deleteFixture(fixtureName, fixture.community);
         deleteFixture(fixtureName, fixture.user);
+        deleteFixture(fixtureName, fixture.admin);
     }
 })().catch(error => {
     console.error(error);
