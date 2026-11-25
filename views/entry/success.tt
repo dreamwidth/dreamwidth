@@ -54,7 +54,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 [%- IF crossposts.size -%]
 <ul class='no-bullet'>
     [%- FOREACH crosspost IN crossposts -%]
-        <li class="alert-box [% IF crosspost.status == "error" %] alert [%- ELSE -%] success [%- END -%]">
+        <li class="alert-box [% IF crosspost.status == "error" %]alert[% ELSE %]success crosspost-requested[% END %]">
             [%- crosspost.text -%]
         </li>
     [%- END -%]

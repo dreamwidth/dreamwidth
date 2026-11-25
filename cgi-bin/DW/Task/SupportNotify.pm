@@ -83,7 +83,8 @@ sub work {
 
         foreach my $u ( values %$userids ) {
             next unless $u->should_receive_support_notifications( $sp->{_cat}{spcatid} );
-            push @emails, $u->email_raw;
+            my $email = $u->email_raw;
+            push @emails, $email if defined $email && length $email;
         }
 
     }
@@ -171,7 +172,8 @@ sub work {
             next unless $u->should_receive_support_notifications( $sp->{_cat}{spcatid} );
             next unless LJ::Support::can_read_response( $sp, $u, $rtype, $posterid );
             next if $posterid == $u->id && !$u->prop('opt_getselfsupport');
-            push @emails, $u->email_raw;
+            my $email = $u->email_raw;
+            push @emails, $email if defined $email && length $email;
         }
     }
 

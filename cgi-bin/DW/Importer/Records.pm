@@ -16,6 +16,8 @@
 
 package DW::Importer::Records;
 
+use strict;
+
 =head1 NAME
 
 DW::Importer::Records - The shapes of the data that flows through an import

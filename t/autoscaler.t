@@ -19,7 +19,7 @@ use strict;
 use warnings;
 use Test::More tests => 31;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 use DW::Autoscaler;
 
 # ---------------------------------------------------------------------------

@@ -15,12 +15,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost::Comment;
+use LJ::Emailpost::Web;
 use LJ::Test;
+use MIME::Entity;
 
 my $subject;
 my $u = temp_user();
@@ -77,3 +79,73 @@ is(
     "Make sure punctuation isn't escaped",
     "custom parent subject, punctuated email subject"
 );
+
+subtest 'Email replies and CAPTCHA' => sub {
+    local $LJ::T_ALLOW_EMAILPOST        = 1;
+    local $LJ::EMAIL_REPLY_DOMAIN       = 'reply.example.com';
+    local $LJ::DISABLED{captcha}        = 0;
+    local %LJ::CAPTCHA_FOR              = ( comment_html_auth => 1 );
+    local $LJ::CAPTCHA_HCAPTCHA_SITEKEY = 'test-sitekey';
+    local $LJ::CAPTCHA_HCAPTCHA_SECRET  = 'test-secret';
+
+    my $owner     = temp_user();
+    my $commenter = temp_user();
+    $commenter->update_self( { status          => 'A' } );
+    $owner->update_self(     { opt_whocanreply => 'all' } );
+
+    my $entry  = $owner->t_post_fake_entry;
+    my $parent = $entry->t_enter_comment( u => $owner );
+    my $from   = $commenter->user . '@example.com';
+    my $to     = DW::EmailPost::Comment->replyto_address( $commenter, $owner,
+        $entry->ditemid, $parent->dtalkid );
+    LJ::Emailpost::Web::set_allowed_senders( $commenter, { $from => { get_errors => 1 } } );
+
+    my @bounces;
+    no warnings qw(redefine once);
+    local *LJ::send_mail = sub { push @bounces, $_[0]; return 1; };
+
+    my $reply = sub {
+        my ($text) = @_;
+        @bounces = ();
+        my $mime = MIME::Entity->build(
+            From    => $from,
+            To      => $to,
+            Subject => 'A comment reply',
+            Type    => 'text/plain',
+            Data    => "$text\n",
+        );
+        my $ok;
+        with_fake_memcache { ($ok) = DW::EmailPost::Comment->new($mime)->process; };
+        return $ok;
+    };
+
+    my $text = 'Here is my reply to the discussion.';
+    my $url  = $parent->reply_url;
+    $owner->set_prop( opt_show_captcha_to => 'A' );
+    ok( !$reply->($text), 'email cannot post a reply when the journal requires a CAPTCHA' );
+    is( scalar @bounces, 1, 'one bounce was sent' );
+    like( $bounces[0]{body}, qr/CAPTCHA.*required/i, 'bounce explains the CAPTCHA requirement' );
+    like( $bounces[0]{body}, qr/\Q$url\E/,  'bounce links to the reply form for the parent' );
+    like( $bounces[0]{body}, qr/\Q$text\E/, 'bounce includes the attempted reply text' );
+
+    $owner->set_prop( opt_show_captcha_to => 'N' );
+    ok(
+        !$reply->('Compare http://first.example with http://second.example'),
+        'email still rejects a reply flagged by the content anti-spam check'
+    );
+    is( scalar @bounces, 1, 'anti-spam rejection sent one bounce' );
+    like(
+        $bounces[0]{body},
+        qr/Message looks like spam/,
+        'anti-spam bounce retains the spam error'
+    );
+
+    ok( $reply->($text), 'ordinary reply posts successfully without the CAPTCHA requirement' );
+    is( scalar @bounces, 0, 'successful reply did not send a bounce' );
+    my @replies = grep { $_->parenttalkid == $parent->jtalkid } $entry->comment_list;
+    is( scalar @replies, 1, 'only the successful reply was stored under the parent' );
+    like( $replies[0] && $replies[0]->body_raw,
+        qr/\A\Q$text\E\s*\z/, 'stored reply has the email text' );
+};
+
+done_testing();

@@ -1212,6 +1212,16 @@ property builtin string SITEROOT {
     doc_flags = "[sys]";
     des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"https://www.dreamwidth.com\".";
 }
+property builtin string SITELOGO {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The URL of the current site's full logo, or an empty string if no logo is configured.";
+}
+property builtin string SITELOGOICON {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The URL of the current site's logo icon, or an empty string if no icon is configured.";
+}
 property builtin string PALIMGROOT {
     noui = 1;
     doc_flags = "[sys]";
@@ -1447,6 +1457,11 @@ property string entry_metadata_position {
     values = "top|Before entry text|bottom|After entry text";
 }
 
+property string entry_tags_position {
+    des = "Place of tags in entries";
+    values = "top|Before entry text|bottom|After entry text";
+}
+
 property string userlite_interaction_links {
     des = "Select whether user interaction links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
@@ -1492,6 +1507,7 @@ set entry_userpic_style = "";
 set comment_userpic_style = "";
 set userpics_position = "left";
 set entry_metadata_position = "bottom";
+set entry_tags_position = "bottom";
 set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
 set entry_interaction_links = "text";
@@ -5121,6 +5137,7 @@ function Page::print_entry(Entry e)
     """<div class="inner">\n""";
     $e->print_userpic();
     $e->print_poster();
+    if ($*entry_tags_position == "top") { $e->print_tags(); }
     if ($*entry_metadata_position == "top") { $e->print_metadata(); }
     $e->print_text();
     if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
@@ -5130,7 +5147,7 @@ function Page::print_entry(Entry e)
 
     """<div class="footer">\n""";
     """<div class="inner">\n""";
-    $e->print_tags();
+    if ($*entry_tags_position != "top") { $e->print_tags(); }
     $this->print_entry_footer($e);
     "</div>\n</div>\n";
 
@@ -5437,7 +5454,7 @@ function EntryLite::print_userpic() {
     print "<div class=\"userpic\">";
     if ( defined $this.userpic )
     {
-        if ( $*use_shared_pic )
+        if ( $*use_shared_pic and not $this isa Comment )
         {
             print """<a href="$this.journal.userpic_listing_url">""";
         }

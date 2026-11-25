@@ -13,6 +13,7 @@
 
 package LJ::Event::OfficialPost;
 use strict;
+use LJ::Lang;
 use LJ::Entry;
 use Carp qw(croak);
 use base 'LJ::Event::JournalNewEntry';
@@ -137,7 +138,7 @@ sub as_string {
 
 sub subscription_as_html {
     my ( $class, $subscr ) = @_;
-    return BML::ml( 'event.officialpost', { sitename => $LJ::SITENAME } )
+    return LJ::Lang::ml( 'event.officialpost', { sitename => $LJ::SITENAME } )
         ;    # $LJ::SITENAME makes a new announcement
 }
 

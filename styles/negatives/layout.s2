@@ -881,7 +881,11 @@ var string raquo = (not $*all_entrysubjects and $e.subject == "" and $.view != "
     $e->print_interaction_links( "topcomment" );
     $e->print_management_links();
     println "</div>";
-    $this->print_reply_container({"target" => "topcomment" });
+    if ($this isa EntryPage) {
+        $this->print_reply_container({"target" => "topcomment" });
+    } else {
+        $e->print_reply_container({"target" => $e.dom_id + "-reply" });
+    }
     $e->print_wrapper_end();
 }
 

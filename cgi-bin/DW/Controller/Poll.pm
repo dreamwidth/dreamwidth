@@ -115,7 +115,10 @@ sub index_handler {
 sub create_handler {
     my ($opts) = @_;
 
-    my ( $ok, $rv ) = controller( form_auth => 1, authas => 1 );
+    # The generic authas check only allows journals the user manages, but polls
+    # can be generated for any journal the user can post to, so the target
+    # journal is checked below instead.
+    my ( $ok, $rv ) = controller( form_auth => 1 );
     return $rv unless $ok;
 
     my $r        = $rv->{r};
@@ -172,52 +175,41 @@ sub create_handler {
     $vars->{rules} = \%RULES;
     my $remote_can_make_polls = $remote->can_create_polls;
 
-    my $authas = $get->{'authas'} || $remote->{'user'};
-    my $u;
+    # A poll can be made for the user's own journal, or for any community the
+    # user can post to where either the user or the community can make polls,
+    # which is what posting the poll requires (see LJ::Protocol).
+    my $can_poll_in = sub {
+        my $journalu = $_[0] or return 0;
+        return 1 if $journalu->equals($remote);
+        return 0 unless $journalu->is_community && $remote->can_post_to($journalu);
+        return $remote_can_make_polls || $journalu->can_create_polls;
+    };
 
-    # If remote can make polls, make sure they can post to the authas journal
-    # If remote can't make polls, make sure they maintain the authas journal
-    if ($remote_can_make_polls) {
-        my $authas_u = LJ::load_user($authas);
-        $u = $authas_u if $authas_u and $remote->can_post_to($authas_u);
-    }
-    else {
-        $u = LJ::get_authas_user($authas);
-    }
-
-    # Return error if previous check was unsuccessful
-    return error_ml('error.invalidauth') unless ($u);
+    my $u = LJ::load_user( $get->{'authas'} || $remote->user );
+    return error_ml('error.invalidauth') unless $can_poll_in->($u);
+    my $authas = $u->user;
 
     # first pageview, show authas
     if ( !$r->did_post || $post->{'start_over'} ) {
 
-        # postto switcher form
-        # If remote can make polls, show all communities they have posting access to
-        # If remote can't make polls, show only paid communities they maintain
+        # postto switcher form: the communities the user posts to or maintains,
+        # plus the requested one, which may allow posting by non-members
+        my %communities = map { $_->user => 1 }
+            grep { $_ && $can_poll_in->($_) && !$_->equals($remote) } $u,
+            $remote->posting_access_list,
+            map { LJ::load_user($_) } $remote->get_authas_list( { type => 'C' } );
+
         my $postto_html = "<form method='get' action='create'>\n";
-        if ($remote_can_make_polls) {
-            $postto_html .= LJ::make_authas_select(
-                $remote,
-                {
-                    'authas'   => $get->{'authas'},
-                    foundation => 1,
-                    'label'    => LJ::Lang::ml('web.postto.label'),
-                    'button'   => LJ::Lang::ml('web.postto.btn')
-                }
-            ) . "\n";
-        }
-        else {
-            $postto_html .= LJ::make_authas_select(
-                $remote,
-                {
-                    'authas'   => $get->{'authas'},
-                    foundation => 1,
-                    'label'    => LJ::Lang::ml('web.postto.label'),
-                    'button'   => LJ::Lang::ml('web.postto.btn'),
-                    'cap'      => 'makepoll',
-                }
-            ) . "\n";
-        }
+        $postto_html .= LJ::make_authas_select(
+            $remote,
+            {
+                'authas'   => $authas,
+                foundation => 1,
+                'label'    => LJ::Lang::ml('web.postto.label'),
+                'button'   => LJ::Lang::ml('web.postto.btn'),
+                'list'     => [ $remote->user, sort keys %communities ],
+            }
+        ) . "\n";
         $postto_html .= "</form>\n\n";
         $vars->{postto_html} = $postto_html;
     }
@@ -684,10 +676,7 @@ sub create_handler {
 
             return error_ml( "$ml_scope.error.parsing2", { 'err' => $err } ) if $err;
 
-            my $update_url =
-                LJ::BetaFeatures->user_in_beta( $remote => "updatepage" )
-                ? "$LJ::SITEROOT/entry/new"
-                : "$LJ::SITEROOT/update";
+            my $update_url = "$LJ::SITEROOT/entry/new";
             my $usejournal = $getextra ? "?usejournal=$authas" : '';
             $vars->{update_url} = $update_url . $usejournal;
             $vars->{pollobj}    = $pollobj;

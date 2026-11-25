@@ -25,6 +25,7 @@ use Storable;
 use DW::BlobStore;
 use LJ::Event::NewUserpic;
 use LJ::Global::Constants;
+use LJ::JSON;
 
 ##
 ## Potential properties of an LJ::Userpic object
@@ -1431,6 +1432,7 @@ sub TO_JSON {
         url      => $self->url,
         comment  => $self->comment,
         keywords => \@keywords,
+        default  => LJ::JSON->to_boolean( scalar $self->is_default ),
     };
 
     if ( $remote && $remote eq $self->u ) {

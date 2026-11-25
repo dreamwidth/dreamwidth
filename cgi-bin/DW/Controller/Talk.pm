@@ -346,6 +346,13 @@ sub talkpost_do_handler {
             \$need_captcha, \@errors );
     }
 
+    # Explain any visible challenge when the journal setting independently
+    # requires one, whatever reason (or the generic redisplay '1') came first.
+    # Use the authenticated commenter, not posted form fields or the session
+    # viewer.
+    my $captcha_journal_setting = $need_captcha
+        && LJ::Talk::Post::journal_captcha_policy( $commenter, $journalu ) eq 'required';
+
     # If there's anything in @errors at the end of prepare_and_validate_comment,
     # it returns undef instead of a $comment, even if it wasn't the one to
     # add those errors. So all the "non-fatal" errors we've been logging above
@@ -404,13 +411,14 @@ sub talkpost_do_handler {
 
         my $talkform = LJ::Talk::talkform(
             {
-                journalu   => $journalu,
-                parpost    => $comment->{parent},
-                replyto    => $comment->{parent}->{talkid},
-                ditemid    => $comment->{entry}->ditemid,
-                do_captcha => $need_captcha,
-                errors     => @errors ? \@errors : undef,
-                form       => $POST,
+                journalu                => $journalu,
+                parpost                 => $comment->{parent},
+                replyto                 => $comment->{parent}->{talkid},
+                ditemid                 => $comment->{entry}->ditemid,
+                do_captcha              => $need_captcha,
+                captcha_journal_setting => $captcha_journal_setting,
+                errors                  => @errors ? \@errors : undef,
+                form                    => $POST,
             }
         );
 
@@ -446,13 +454,14 @@ sub talkpost_do_handler {
 
         my $talkform = LJ::Talk::talkform(
             {
-                journalu   => $journalu,
-                parpost    => $parpost,
-                replyto    => $POST->{replyto} || $POST->{parenttalkid},
-                ditemid    => $POST->{itemid},
-                do_captcha => $need_captcha,
-                errors     => \@errors,
-                form       => $POST,
+                journalu                => $journalu,
+                parpost                 => $parpost,
+                replyto                 => $POST->{replyto} || $POST->{parenttalkid},
+                ditemid                 => $POST->{itemid},
+                do_captcha              => $need_captcha,
+                captcha_journal_setting => $captcha_journal_setting,
+                errors                  => \@errors,
+                form                    => $POST,
             }
         );
         $vars->{title} = '.title.error';

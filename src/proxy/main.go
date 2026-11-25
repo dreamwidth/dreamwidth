@@ -61,6 +61,11 @@ var (
 	HOTLINK_DOMAIN string        = "example.org"
 )
 
+const unavailableImage = `<svg xmlns="http://www.w3.org/2000/svg" width="272" height="36" viewBox="0 0 272 36">
+  <rect x="0.5" y="0.5" width="271" height="35" rx="4" fill="#f5f5f5" stroke="#999"/>
+  <text x="136" y="23" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#222">Image unavailable using HTTPS proxy</text>
+</svg>`
+
 func main() {
 	var port = flag.Int("port", 6250, "Port to listen on")
 	var listen = flag.String("listen", "0.0.0.0", "IP to listen on")
@@ -92,7 +97,7 @@ func main() {
 	}
 
 	PROXY_FILE_REQ = make(chan *ProxyFileRequest, 10)
-	go handleProxyFileRequests()
+	go handleProxyFileRequests(PROXY_FILE_REQ)
 	go cleanCacheFiles()
 
 	log.Printf("Listening on %s:%d", *listen, *port)
@@ -179,7 +184,10 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 
 	path, err := getProxyFile(token, orig_url)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("%s", err), 500)
+		w.Header().Set("Content-Type", "image/svg+xml")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Cache-Control", "no-store")
+		io.WriteString(w, unavailableImage)
 		return
 	}
 
@@ -295,11 +303,9 @@ func getProxyFile(token, orig_url string) (string, error) {
 }
 
 // handleProxyFileRequests is just the routine that manages the proxyFiles structure.
-func handleProxyFileRequests() {
+func handleProxyFileRequests(requests <-chan *ProxyFileRequest) {
 	proxyFiles := make(map[string]*ProxyFile)
-	for {
-		req := <-PROXY_FILE_REQ
-
+	for req := range requests {
 		resp, ok := proxyFiles[req.Token]
 		if ok {
 			req.Response <- resp

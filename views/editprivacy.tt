@@ -8,7 +8,7 @@
     <p> [% dw.ml('xpost.respected', {"aopts" => "href='$site.root/manage/settings/?cat=othersites'"}) %] </p>
 
     <form method='post' action='./editprivacy'>
-    <h1> [% dw.ml('.timeframe') %] </h1>
+    <h2> [% dw.ml('.timeframe') %] </h2>
     <div class="row">
             <div class="columns">
                     [%- form.radio( "name" = "time", "id" = "time_all", "value" = "all", selected = (POST.time == 'time_all'), 'label' = dw.ml('.timeframe.all')) -%]
@@ -65,7 +65,7 @@
 
         </div>
         </div>
-        <h1> [% dw.ml('.privacy') %] </h1>
+        <h2> [% dw.ml('.privacy') %] </h2>
         <div class="row">
             <div class="columns large-1">
                 <span class="inline right"><b>From:</b></span>

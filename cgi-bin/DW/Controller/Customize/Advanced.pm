@@ -167,7 +167,8 @@ sub layerbrowse_handler {
 "<span style=\"border: 1px solid #000000; padding-left: 2em; background-color: $ecolor\">&nbsp;</span> <tt>$ecolor</tt>";
             }
             elsif ( defined $v->{'_type'} ) {
-                $v = BML::ml( '.propformat.object', { 'type' => LJ::ehtml( $v->{'_type'} ) } );
+                $v = LJ::Lang::ml( '/customize/advanced/layerbrowse.tt.propformat.object',
+                    { 'type' => LJ::ehtml( $v->{'_type'} ) } );
             }
             else {
                 if ( scalar(%$v) ) {
@@ -273,7 +274,7 @@ sub layers_handler {
             : '/customize/advanced/layers.tt.error.usercantuseadvanced'
         ),
         undef,
-        { authas => $rv->{authas_html} }
+        { authas_form => $rv->{authas_form} }
     ) unless $u->can_create_s2_styles || $viewall;
 
     if ( $POST->{'action:create'} && !$noactions ) {
@@ -458,7 +459,7 @@ sub styles_handler {
             : '/customize/advanced/styles.tt.error.usercantuseadvanced'
         ),
         undef,
-        { authas => $rv->{authas_html} }
+        { authas_form => $rv->{authas_form} }
     ) unless $u->can_create_s2_styles || $viewall;
 
     return error_ml('/customize/advanced/index.tt.error.advanced.editing.denied')

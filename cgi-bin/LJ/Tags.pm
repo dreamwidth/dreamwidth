@@ -16,6 +16,7 @@ use strict;
 
 use LJ::Global::Constants;
 use LJ::Lang;
+use LJ::TextUtil;
 use DW::Cache;
 
 # <LJFUNC>

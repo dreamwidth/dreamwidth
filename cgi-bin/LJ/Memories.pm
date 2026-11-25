@@ -396,8 +396,8 @@ sub get_keywordids {
 # }
 
 # this messy function gets memories based on an options hashref.  this is an
-# API API and isn't recommended for use by BML etc... add to the API and have
-# API functions call this if needed.
+# internal API and isn't recommended for direct use elsewhere... add to the
+# API and have API functions call this if needed.
 #
 # options in $opts hashref:
 #   security => [ 'public', 'private', ... ], or some subset thereof
@@ -606,7 +606,7 @@ sub get_by_keyword {
 # des: Retrieves keyword/keyids without big joins, returns a hashref.
 # args: uobj
 # des-uobj: User object to get keyword pairs for.
-# returns: Hashref; { keywordid => keyword }
+# returns: Hashref; { keywordid => keyword }; undef on error.
 # </LJFUNC>
 sub get_keywords {
     my $u = shift;
@@ -624,14 +624,20 @@ sub get_keywords {
         $use_reader = 1;
         $dbcm       = LJ::get_cluster_reader($u);
     }
+    return undef unless $dbcm;
+
+    # A failed query must return undef rather than an empty map: callers treat
+    # a missing keyword as a nonexistent category, and the map is cached.
     my $ids = $dbcm->selectcol_arrayref( 'SELECT DISTINCT kwid FROM memkeyword2 WHERE userid = ?',
         undef, $u->userid );
-    if ( @{ $ids || [] } ) {
+    return undef if !$ids || $dbcm->err;
+    if (@$ids) {
         my $in   = join ",", @$ids;
         my $rows = $dbcm->selectall_arrayref(
             'SELECT kwid, keyword FROM userkeywords ' . "WHERE userid = ? AND kwid IN ($in)",
             undef, $u->userid );
-        $ret->{ $_->[0] } = $_->[1] foreach @{ $rows || [] };
+        return undef if !$rows || $dbcm->err;
+        $ret->{ $_->[0] } = $_->[1] foreach @$rows;
     }
 
     my $expiration = $LJ::MEMCACHE_EXPIRATION{'memkwid'} || 86400;

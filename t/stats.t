@@ -16,7 +16,7 @@ use warnings;
 
 use Test::More tests => 4;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm"; }
 
 use DW::Stats;
 use IO::Socket::INET;

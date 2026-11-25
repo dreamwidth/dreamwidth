@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Test::More tests => 12;
+use Test::More tests => 15;
 BEGIN { use_ok('LJ::UserSearch') };
 
 #########################
@@ -82,6 +82,25 @@ is_deeply($lastres, [8, 5], "matches 5 and 8");
     LJ::UserSearch::isect_updatetime_gte($now - 25);
     $lastres = LJ::UserSearch::get_results();
     is(scalar @$lastres, 26, "got 26 results");
+}
+
+# records replaced with update_user use the same packing as add_usermeta
+{
+    # low byte 0, so an unconverted copy would become a tiny update time
+    # (age, journal type and region match the record's original values)
+    my $newest = ($now + 3600) & ~0xff;
+    LJ::UserSearch::update_user(10, pack("NCCCx", $newest, 3, 3, 10));
+
+    # low byte 0xff, so an unconverted copy would land far in the future
+    my $stale = ($now - 86400 * 1000) | 0xff;
+    LJ::UserSearch::update_user(990, pack("NCCCx", $stale, 3, 2, 190));
+
+    LJ::UserSearch::init_new_search();
+    LJ::UserSearch::isect_updatetime_gte($now - 50);
+    $lastres = LJ::UserSearch::get_results();
+    is($lastres->[0], 10, "record updated to a new time sorts first");
+    ok(!grep({ $_ == 990 } @$lastres), "record updated to an old time no longer matches");
+    is(scalar @$lastres, 51, "still got 51 results");
 }
 
 # test journaltype

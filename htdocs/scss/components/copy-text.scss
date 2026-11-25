@@ -1,0 +1,35 @@
+/* Read-only field with a copy-to-clipboard button
+ * Markup comes from LJ::html_copy_text (form.copy_text in templates)
+ */
+
+.copy-text {
+    margin-bottom: 1rem;
+}
+
+.copy-text-field {
+    display: flex;
+    align-items: stretch;
+
+    input[type="text"] {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0;
+    }
+
+    .copy-text-button {
+        flex: 0 0 auto;
+        margin: 0;
+        padding: 0 1rem;
+
+        // Foundation's .button display would otherwise override [hidden]
+        &[hidden] {
+            display: none;
+        }
+    }
+}
+
+.copy-text-status {
+    display: block;
+    min-height: 1.5em;
+    font-size: smaller;
+}

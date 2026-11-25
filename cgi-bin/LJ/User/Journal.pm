@@ -464,6 +464,31 @@ sub entryform_width {
     }
 }
 
+# The entry form layout that old posting and editing links open: "simple" (the
+# default, laid out like the retired update page) or "advanced". Pass a value
+# to store it; that returns the stored value, or undef if it was not stored.
+# An explicit "simple" is stored too, so it survives the updatepage beta
+# migration.
+sub entryform_layout {
+    my ( $u, $layout ) = @_;
+
+    my $stored = $u->raw_prop('entryform_layout') // '';
+    if ( defined $layout ) {
+        return undef unless $layout =~ /\A(?:simple|advanced)\z/;
+        return $layout if $layout eq $stored;
+        return $u->set_prop( entryform_layout => $layout ) ? $layout : undef;
+    }
+
+    return $stored if $stored =~ /\A(?:simple|advanced)\z/;
+
+    # People who opted into the native editor through the updatepage beta get
+    # its advanced layout until bin/upgrading/migrate-updatepage-beta.pl
+    # stores that for them. Read their beta list directly: is_in_beta rewrites
+    # the list when any beta has expired, and this runs on every old link.
+    my @betas = split /\s*,\s*/, $u->raw_prop('betafeatures_list') // '';
+    return ( grep { $_ eq 'updatepage' } @betas ) ? 'advanced' : 'simple';
+}
+
 # don't call this directly, only use the wrapper functions below.
 sub _editor_props {
     my ( $u, $propname, $new_editor ) = @_;

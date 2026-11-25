@@ -120,6 +120,19 @@ sub can_rename_to {
         # able to rename to unregistered accounts
         return { ret => 1 } unless $tou;
 
+        if ( $tou->is_renamed && $tou->is_redirect && ( my $next = $tou->prop('renamedto') ) ) {
+            my $target = $tou->get_renamed_user;
+            $errors->add(
+                'touser',
+                'rename.error.redirect',
+                {
+                    to     => LJ::ehtml( $tou->user ),
+                    target => LJ::ehtml( $target && !$target->is_redirect ? $target->user : $next ),
+                }
+            );
+            return { ret => 0 };
+        }
+
         # some journals can not be renamed to
         if (   $tou->is_suspended
             || $tou->is_readonly
@@ -416,7 +429,7 @@ sub _rename {
         $self,
         {
             action       => 'account_renamed',
-            ip           => eval { BML::get_remote_ip() } || "[unknown]",
+            ip           => LJ::get_remote_ip() || "[unknown]",
             old_username => $fromusername,
         }
     )->fire;

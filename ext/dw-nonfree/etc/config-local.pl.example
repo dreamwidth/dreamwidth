@@ -89,11 +89,6 @@
     $SUGGESTIONS_COMM = "dw_suggestions";
     $SUGGESTIONS_USER = "suggestions_bot";
 
-    # 404 page
-    # Uncomment if you don't want the (dw-free) default, 404-error.bml
-    # (Note: you need to provide your own 404-error-local.bml)
-    $PAGE_404 = "404-error-local.bml";
-
     # additional domain from which to serve the iframes for embedded content
     # for security reasons, we strongly recommend that this not be on your $DOMAIN
     #$EMBED_MODULE_DOMAIN = "embedded.dreamwidth.net";
@@ -143,6 +138,9 @@
     $APPLE_TOUCH_ICON = "$LJ::RELATIVE_SITEROOT/apple-touch-icon.png";
     # Similarly for the icon used by Facebook for previews on links
     $FACEBOOK_PREVIEW_ICON = "$LJ::RELATIVE_SITEROOT/img/Swirly-d-square.png";
+
+    $SITE_LOGO_IMAGE = "tropo-red/dw_logo.png";
+    $SITE_LOGO_ICON_IMAGE = "Swirly-d-square.png";
 
     # Needed for concatenation of static resources (see bin/build-static.sh)
     $STATDOCS = "$HOME/build/static";

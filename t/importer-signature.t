@@ -17,11 +17,14 @@ use warnings;
 
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use Crypt::PK::Ed25519;
+use Log::Log4perl qw( :levels );
 use MIME::Base64 qw( encode_base64 );
 
+use lib "$ENV{LJHOME}/cgi-bin";
 use DW::Importer::Signature;
+
+Log::Log4perl->easy_init($OFF);
 
 my $sig = 'DW::Importer::Signature';
 

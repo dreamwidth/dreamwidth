@@ -171,15 +171,13 @@ sub controller {
 
         my $authas_args = $args{authas} == 1 ? {} : $args{authas};
 
-        # older pages
-        $vars->{authas_html} =
-            LJ::make_authas_select( $vars->{remote}, { authas => $vars->{u}->user } );
+        # older pages -- honor the same list-scoping options (e.g. type) as the
+        # Foundation variant so the inline switcher matches it.
+        $vars->{authas_html} = LJ::make_authas_select( $vars->{remote},
+            { authas => $vars->{u}->user, %{ $authas_args || {} } } );
 
         # foundation pages
-        $vars->{authas_form} =
-              "<form action='"
-            . LJ::create_url()
-            . "' method='get'>"
+        $vars->{authas_form} = "<form method='get'>"
             . LJ::make_authas_select( $vars->{remote},
             { authas => $vars->{u}->user, foundation => 1, %{ $authas_args || {} } } )
             . "</form>";

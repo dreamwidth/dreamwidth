@@ -16,7 +16,6 @@
 package DW::FeedCanonicalizer;
 use strict;
 use 5.010;
-require 'ljlib.pl';
 use URI;
 use URI::Escape;
 

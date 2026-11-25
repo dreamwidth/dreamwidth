@@ -1,0 +1,338 @@
+[%# views/entry/form-simple.tt
+
+Simple mode of the entry form: the same fields and behaviour as the advanced
+form, laid out like the retired update page.
+
+Authors:
+    Mark Smith <mark@qq.is>
+
+Copyright (c) 2026 by Dreamwidth Studios, LLC.
+
+This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.  For a copy of the license, please reference
+'perldoc perlartistic' or 'perldoc perlgpl'.
+%]
+
+[%- PROCESS "entry/form-head.tt" -%]
+[%- dw.need_res( { group => "foundation" },
+    # new.js initialises fancy selects; the advanced form loads this via its components
+    "js/components/jquery.fancy-select.js"
+    "stc/css/pages/entry/simple.css"
+    "js/pages/entry/simple.js"
+) -%]
+
+[%- sections.title = action.edit ? dw.ml( '.title.edit' ) : dw.ml( 'entryform.simple.title' ) -%]
+[%- sections.contentopts = '' -%]
+
+[%- months = [ '', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+               'September', 'October', 'November', 'December' ] -%]
+[%- post_label = dw.ml( 'entryform.update3' ) -%]
+
+[%- IF warnings.exist -%]
+    [%- FOREACH warning IN warnings.get_all -%]
+        <div class="warningbar">[%- warning.message -%]</div>
+    [%- END -%]
+[%- END -%]
+
+<p class='simple-mode-switch'><a class='js-layout-switch'[% IF remote %] data-layout='advanced'[% END %] data-confirm='[% 'entryform.simple.switch.confirm' | ml | html %]' href='[% dw.create_url( undef, keep_args => 1, no_blank => 1, args => { mode => '' } ) | html %]'>[% 'entryform.simple.advanced' | ml %]</a></p>
+
+<form method='post' id='js-post-entry' class='entry-simple' action='[% action.url | html %]'>
+<input type='hidden' id='nojs' value='1' name='nojs' />
+[%- dw.form_auth -%]
+[%- form.hidden( id = "js-remote", name = "poster_remote", value = remote.user ) -%]
+[%# The layout has no slug field, but the decoder clears a missing one; keep it. -%]
+[%- form.hidden( name = "entry_slug" ) -%]
+
+<div id='updateForm'><div id='entry-form-wrapper'>
+
+[%- IF remote -%]
+<div id='userpic'>
+    [%- IF remote.icon_keyword_menu.size > 0 -%]
+        [%- INCLUDE "components/icon-select-icon.tt" -%]
+    [%- ELSE -%]
+        <p id='userpic_preview' class='userpic_preview_border'>
+            <a href='[% site.root %]/manage/icons'>[% 'entryform.userpic.upload' | ml %]</a>
+        </p>
+    [%- END -%]
+</div>
+[%- END -%]
+
+<div id='metainfo'>
+    [%- IF remote -%]
+    <p class='pkg'>
+        <label class='left'>[% 'entryform.postas' | ml %]</label>
+        <span class='metainfo-value'>[% remote.ljuser_display %]</span>
+    </p>
+    [%- END -%]
+
+    <p class='pkg' id='usejournal_row'>
+    [%- IF journallist.size > 1 -%]
+        <label for='js-usejournal' class='left'>[% 'entryform.postto' | ml %]</label>
+        <select name='usejournal' id='js-usejournal' class='select'>
+        [%- FOREACH journal IN journallist -%]
+            [%- value = journal.equals( remote ) ? '' : journal.user -%]
+            <option value='[% value | html %]'[% ' selected="selected"' IF formdata.usejournal == value %]>[% journal.user | html %]</option>
+        [%- END -%]
+        </select>
+    [%- ELSIF journallist.first -%]
+        [%- onlyjournal = journallist.first -%]
+        <label class='left'>[% 'entryform.postto' | ml %]</label>
+        <span class='metainfo-value'>[% onlyjournal.ljuser_display %]</span>
+        [%- form.hidden( name = "usejournal", id = "js-usejournal", value = onlyjournal.user,
+                "data-is-admin" = ( onlyjournal.is_community && remote.can_manage( onlyjournal ) ? 1 : 0 )
+                "data-is-comm" = ( onlyjournal.is_community ? 1 : 0 ) ) -%]
+    [%- ELSE -%]
+        <label for='js-usejournal' class='left'>[% 'entryform.postto' | ml %]</label>
+        [%- form.textbox( name = "usejournal", id = "js-usejournal", class = "text", size = "15" ) -%]
+    [%- END -%]
+    </p>
+
+    [%# Hooks match the advanced form's date panel, so the shared date and time
+        pickers, auto-update and community backdate handling apply here too. -%]
+    [%- outoforder_is_community = 0;
+        UNLESS action.edit;
+            outoforder_is_community = journalu.is_community;
+            FOREACH journal IN journallist;
+                IF journal.user == formdata.usejournal;
+                    outoforder_is_community = journal.is_community;
+                END;
+            END;
+        END;
+    -%]
+    <div class='pkg displaydate-component' id='collapse-target-displaydate'>
+        <label for='js-entrytime-date' class='left'>[% 'entryform.date' | ml %]</label>
+        [%- form.hidden( name = "trust_datetime", id = "js-trust-datetime", value = displaydate.trust_initial ) -%]
+        <span id='currentdate'><span id='currentdate-date'>
+            [%- monthnum = displaydate.month + 0; months.$monthnum %] [% displaydate.day + 0 %], [% displaydate.year %], [% displaydate.hour %]:[% displaydate.minute -%]
+        </span> <a href='#' id='currentdate-edit'>[% 'entryform.date.edit' | ml %]</a></span>
+        <div id='modifydate' class='inner'>
+            [%- form.textbox( name = "entrytime_date", id = "js-entrytime-date", size = "10", maxlength = "10",
+                    class = "text", autocomplete = "off",
+                    default = "$displaydate.year-$displaydate.month-$displaydate.day" ) -%]
+            [%- INCLUDE "components/icon-button.tt"
+                    button = { class = "secondary picker-button", id = "js-entrytime-date-button" }
+                    icon = "calendar"
+                    text = dw.ml( '/entry/module-displaydate.tt.label.picker.date' ) -%]
+            [%- form.textbox( name = "entrytime_time", id = "js-entrytime-time", size = "5", maxlength = "5",
+                    class = "text", autocomplete = "off",
+                    default = "$displaydate.hour:$displaydate.minute" ) -%]
+            [%- INCLUDE "components/icon-button.tt"
+                    button = { class = "secondary picker-button", id = "js-entrytime-time-button" }
+                    icon = "clock"
+                    text = dw.ml( '/entry/module-displaydate.tt.label.picker.time' ) -%]
+            <span class='note'>[% 'entryform.date.24hournote' | ml %]</span>
+            <div class='picker-output'></div>
+            <div>[%- form.checkbox( name = "update_displaydate", id = "js-entrytime-autoupdate", value = "1",
+                    default = displaydate_check,
+                    label = dw.ml( '/entry/module-displaydate.tt.label.autoupdate' ) ) -%]</div>
+            <div id='js-entrytime-outoforder-row'[% " class='display_none'" IF outoforder_is_community %]>
+                [%- form.checkbox( name = "entrytime_outoforder", id = "js-entrytime-outoforder", value = "1",
+                        disabled = outoforder_is_community, label = dw.ml( 'entryform.backdated4' ) ) -%]
+            </div>
+        </div>
+    </div>
+
+    [%- IF remote.icon_keyword_menu.size > 0 -%]
+    <div class='pkg' id='icon_row'>
+        <label for='prop_picture_keyword' class='left'>[% 'entryform.simple.icon' | ml %]</label>
+        [%- INCLUDE "components/icon-select-dropdown.tt" omit_random_button = 1 class = "draft-autosave" -%]
+    </div>
+    [%- END -%]
+</div><!-- end #metainfo -->
+
+<div id='infobox'>[% infobox %]</div><!-- end #infobox -->
+
+<div id='compose-entry' class='pkg'>
+    <label class='left' for='id-subject-0'>[% 'entryform.subject' | ml %]</label>
+    [%- form.textbox( name = "subject", id = "id-subject-0", class = "text draft-autosave", size = "43",
+            maxlength = limits.subject_length ) -%]
+    <ul id='entry-tabs'>
+        <li id='jrich'><a href='#'>[% 'entryform.simple.richtext' | ml %]</a></li>
+        <li id='jplain'><a href='#'>[% 'entryform.simple.html' | ml %]</a></li>
+    </ul>
+</div><!-- end #compose-entry -->
+
+[%- IF spellcheck.did -%]
+<div id='spellcheck-results'><strong>[% 'entryform.spellchecked' | ml %]</strong><br />[% spellcheck.html %]</div>
+[%- END -%]
+
+<div id='htmltools' class='pkg'>
+    <ul class='pkg'>
+        <li class='image'><a href='#' role='button' data-image-insert-open>[% 'entryform.insert.image2' | ml %]</a></li>
+    </ul>
+    <span id='linebreaks'>
+        <label for='editor'>[% 'entryform.simple.format' | ml %]</label>
+        <select name='editor' id='editor' class='draft-autosave'>
+        [%- FOREACH item IN editors.items -%]
+            <option value='[% item.value | html %]'[% ' selected="selected"' IF item.value == editors.selected %]
+                [%- ' hidden="hidden"' IF item.value == 'rte0' %]>[% item.text | html %]</option>
+        [%- END -%]
+        </select>
+        <a href="[% 'markup.helplink.url' | ml %]" tabindex="-1" target="_blank">[%-
+          dw.img( 'help', '', { alt => dw.ml('markup.helplink.alttext'), title => dw.ml('markup.helplink.alttext') } )
+        -%]</a>
+    </span>
+</div>
+
+<div id='draft-container' class='pkg'>
+    [%- form.textarea( name = "event", id = "entry-body", class = "draft-autosave",
+            rows = "20", cols = "50", wrap = "soft" ) -%]
+</div><!-- end #draft-container -->
+<small id='draftstatus' role='status' aria-live='polite'></small>
+
+[%- WRAPPER components/modal.tt id="js-image-insert" class="small" -%]
+<h2>[% '.image.open' | ml %]</h2>
+<div class="row"><div class="columns">
+    <label for="entry-image-url">[% '.insertimage.url' | ml %]</label>
+    <input id="entry-image-url" type="text" inputmode="url">
+    <small class="image-insert-note">[% '.insertimage.example' | ml %]: http://www.example.com/some-picture.jpg</small>
+</div></div>
+<div class="row"><div class="columns">
+    <label for="entry-image-alt">[% '.insertimage.alt.label' | ml %]</label>
+    <input id="entry-image-alt" type="text">
+    <small class="image-insert-note">[% '.insertimage.alt.body' | ml %] [% image_alt_faq %].</small>
+</div></div>
+<div class="row"><div class="columns image-insert-actions">
+    <button type="button" class="button" data-image-insert-confirm>[% '.image.insert' | ml %]</button>
+    <button type="button" class="button secondary" data-image-insert-cancel>[% '.image.cancel' | ml %]</button>
+</div></div>
+[%- END -%]
+
+<div id='options' class='pkg'>
+    <p class='pkg'>
+        <label for='js-taglist' class='left options'>[% 'entryform.tags' | ml %]</label>
+        <span class='taglist-field'>
+        [%- form.textarea( name = "taglist", id = "js-taglist", class = "draft-autosave",
+                cols = "20", rows = "1" ) -%]
+        </span>
+        [%- IF journalu %] <a id='js-taglist-link' target='_blank' href='[% journalu.journal_base %]/tag/'>[% '/entry/module-tags.tt.link.tagspage' | ml %]</a>[% END -%]
+    </p>
+    [%- INCLUDE "components/tag-browser.tt" -%]
+
+    <p class='pkg'>
+        <span class='inputgroup-left'>
+            <label for='js-current-mood' class='left options'>[% 'entryform.mood' | ml %]</label>
+            [%- moodselect = [];
+                FOREACH mood IN moods; moodselect.push( mood.id, mood.name ); END -%]
+            [%- form.select( name = "current_mood", id = "js-current-mood", class = "draft-autosave",
+                    items = moodselect ) -%]
+            [%- form.textbox( name = "current_mood_other", id = "js-current-mood-other",
+                    class = "text draft-autosave", size = "15", maxlength = "30" ) -%]
+        </span>
+        <span class='inputgroup-right'>
+            <label for='comment_settings' class='left options'>[% 'entryform.comment.settings2' | ml %]</label>
+            [%- form.select( name = "comment_settings", id = "comment_settings", class = "draft-autosave",
+                    items = [ "" "Journal Default" "nocomments" "Disabled" "noemail" "Don't Email" ] ) -%]
+        </span>
+    </p>
+
+    <p class='pkg'>
+        <span class='inputgroup-left'>
+            <label for='current-location' class='left options'>[% 'entryform.location' | ml %]</label>
+            [%- form.textbox( name = "current_location", id = "current-location", class = "text draft-autosave",
+                    size = "35", maxlength = limits.current_length ) -%]
+        </span>
+        <span class='inputgroup-right'>
+            <label for='opt_screening' class='left options'>[% 'entryform.comment.screening2' | ml %]</label>
+            [%- form.select( name = "opt_screening", id = "opt_screening", class = "draft-autosave",
+                    items = [ "" "Journal Default" "N" "Disabled" "R" "Anonymous Only"
+                              "F" "Non-access List" "A" "All Comments" ] ) -%]
+        </span>
+    </p>
+
+    <p class='pkg'>
+        <span class='inputgroup-left'>
+            <label for='current-music' class='left options'>[% 'entryform.music' | ml %]</label>
+            [%- form.textbox( name = "current_music", id = "current-music", class = "text draft-autosave",
+                    size = "35", maxlength = limits.current_length ) -%]
+        </span>
+        <span class='inputgroup-right'>
+            <label for='age_restriction' class='left options'>[% 'entryform.adultcontent' | ml %]</label>
+            [%- form.select( name = "age_restriction", id = "age_restriction", class = "draft-autosave",
+                    items = [ "" dw.ml( 'entryform.adultcontent.default' )
+                              "none" dw.ml( 'entryform.adultcontent.none' )
+                              "discretion" dw.ml( 'entryform.adultcontent.concepts' )
+                              "restricted" dw.ml( 'entryform.adultcontent.explicit' ) ] ) -%]
+        </span>
+    </p>
+
+    <p class='pkg'>
+        <label for='age_restriction_reason' class='left options'>[% 'entryform.adultcontentreason' | ml %]</label>
+        [%- form.textbox( name = "age_restriction_reason", id = "age_restriction_reason",
+                class = "text draft-autosave", size = "35", maxlength = "255" ) -%]
+    </p>
+
+    [%- IF remote && crosspostlist.size -%]
+    <div class='crosspost-component'>[%- dw.scoped_include( "entry/module-crosspost.tt" ) -%]</div>
+    [%- ELSIF remote -%]
+    <p class='pkg'>
+        <label class='left options'>[% 'entryform.xpost' | ml %]</label>
+        <a href='[% crosspost_url | html %]'>[% 'entryform.xpost.manage' | ml %]</a>
+    </p>
+    [%- END -%]
+
+    [%- IF remote -%]
+    <div class='community-administration'>
+        <p class='pkg'>
+            [%- form.checkbox( label = dw.ml( '/entry/module-community-flags.tt.label.adminpost' ),
+                    name = "flags_adminpost", id = "flags_adminpost", value = "1" ) -%]
+        </p>
+    </div>
+    [%- END -%]
+
+    <p class='pkg option-buttons'>
+        [%- form.submit( name = "action:preview", id = "js-preview-button", value = dw.ml( 'entryform.preview' ) ) -%]
+        [%- IF spellcheck_enabled %] [% form.submit( name = "action:spellcheck", value = dw.ml( 'entryform.spellcheck' ) ) -%][% END %]
+        <input type='button' value='[% 'entryform.updatedate' | ml %]' id='js-update-date' />
+    </p>
+</div><!-- end #options -->
+
+<div id='submitbar' class='pkg'>
+    <div id='security_container'>
+        <label for='js-security'>[% 'entryform.security2' | ml %]</label>
+        <select name='security' id='js-security' class='select'>
+        [%- is_comm = journalu && journalu.is_community;
+            valuelabels = { public = 'label.security.public2', custom = 'label.security.custom',
+                access  = is_comm ? 'label.security.members' : 'label.security.accesslist',
+                private = is_comm ? 'label.security.maintainers' : 'label.security.private2' } -%]
+        [%- FOREACH level IN security -%]
+            <option value='[% level.value | html %]'[% ' selected="selected"' IF level.value == formdata.security %]>[% dw.ml( valuelabels.${level.value} ) | html %]</option>
+        [%- END -%]
+        </select>
+        [%- IF customgroups.size > 0 -%]
+        <a href='#' id='js-custom-groups-edit' data-reveal-id='js-custom-groups'>[% 'entryform.simple.editcustom' | ml %]</a>
+        [%- END -%]
+        [%- IF action.edit -%]
+            [%- form.submit( name = "action:post", value = dw.ml( 'entryform.save' ) ) -%]
+            [%- form.submit( name = "action:delete", id = "js-delete-button", value = dw.ml( 'entryform.delete' ) ) -%]
+        [%- ELSE -%]
+            [%- post_journal = journalu ? journalu.user : remote.user -%]
+            [%- form.submit( name = "action:post", id = "js-post-button",
+                    value = post_journal ? post_label _ ' ' _ post_journal : dw.ml( '.button.post' ),
+                    "data-label-prefix" = post_label, "data-label-default" = dw.ml( '.button.post' ) ) -%]
+        [%- END -%]
+    </div><!-- end #security_container -->
+</div><!-- end #submitbar -->
+
+[%# new.js returns the custom-groups dialog to .components.js-only when it closes. -%]
+<div class='components js-only'>
+    [%- dw.scoped_include( "entry/module-access.tt" ) -%]
+    [%- UNLESS remote -%]
+        [%- dw.scoped_include( "entry/login.tt" ) -%]
+    [%- END -%]
+</div>
+
+</div><!-- end #entry-form-wrapper --></div><!-- end #updateForm -->
+</form>
+
+<script>
+// The simple form keeps the retired update page's wording for security levels.
+[%- seclabels = { public = 'label.security.public2', access = 'label.security.accesslist',
+                  private = 'label.security.private2', members = 'label.security.members',
+                  admin = 'label.security.maintainers', custom = 'label.security.custom' } -%]
+[%- FOREACH level IN seclabels.keys.sort %]
+if (postFormInitData.security[[% level | js %]]) postFormInitData.security[[% level | js %]].label = [% dw.ml( seclabels.$level ) | js %];
+[%- END %]
+</script>
+
+[%- PROCESS "entry/form-scripts.tt" -%]

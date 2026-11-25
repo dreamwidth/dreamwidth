@@ -27,6 +27,8 @@ captcha.button=Continue
 
 captcha.invalid=Incorrect response in the antispam field. Please try again.
 
+captcha.journal_setting=This journal's settings require you to complete a CAPTCHA before commenting.
+
 captcha.loading=Loading anti-spam test...
 
 captcha.title=Please fill out the CAPTCHA as an anti-spam measure
@@ -82,6 +84,12 @@ contentflag.viewingexplicit.byposter.community=You're about to view content that
 contentflag.viewingexplicit.byjournal.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
 
 contentflag.viewingexplicit.byposter.personal=You're about to view content that the journal owner has marked as possibly inappropriate for anyone under the age of 18.
+
+copytext.button=Copy
+
+copytext.copied=Copied to clipboard.
+
+copytext.failed=Couldn't copy automatically. The text is selected: press Ctrl+C (or Cmd+C on a Mac) to copy it.
 
 cprod.directory.text3.v1=Your account level doesn't give you access to the directory.
 
@@ -688,6 +696,26 @@ entryform.security2=Show this entry to:
 entryform.spellcheck=Spell check
 
 entryform.spellcheck.noerrors=No spelling errors found
+
+entryform.spellcheck.unavailable=Spell check is currently unavailable
+
+entryform.simple.advanced=Advanced editor
+
+entryform.simple.editcustom=Edit custom groups
+
+entryform.simple.format=Format:
+
+entryform.simple.html=HTML
+
+entryform.simple.icon=Icon:
+
+entryform.simple.richtext=Rich Text
+
+entryform.simple.switch=Simple editor
+
+entryform.simple.switch.confirm=Switching editors reloads this page and loses changes you haven't posted. Switch anyway?
+
+entryform.simple.title=Post an Entry
 
 entryform.spellchecked=Spell-checked entry:
 
@@ -1573,8 +1601,6 @@ esn.view_profile=[[openlink]]View [[postername]]'s profile[[closelink]]
 
 esn.view_thread=[[openlink]]View the thread[[closelink]] beginning with this comment
 
-esn.view_threadroot=[[openlink]]Go to the top of the thread[[closelink]] this comment is part of
-
 esn.your_inbox=Your Inbox
 
 esn.you_can=You can:
@@ -1934,7 +1960,7 @@ interests.enmasse.btn=Show List
 
 interests.enmasse.intro=Modify your interests based on those of:
 
-interests.error.ignored=Sorry, we're unable to help you find users matching the interests you've provided.
+interests.error.ignored=Sorry, we're unable to help you find accounts matching the interests you've provided.
 
 interests.error.longinterest=As [[sitename]] does not support interests longer than [[maxlen]] characters, your search for <b>[[old_int]]</b> was converted into a search for <b>[[new_int]]</b> instead.
 
@@ -1944,13 +1970,13 @@ interests.error.toomany=You can't search for more than [[num]] interests at a ti
 
 interests.findsim_do.account.notallowed=Your account type doesn't let you use this tool.
 
-interests.findsim_do.nomatch=Nobody similar to [[user]].
+interests.findsim_do.nomatch=No accounts have interests similar to those of [[user]].
 
 interests.findsim_do.notdefined=[[user]] has no interests defined.
 
 interests.interested.btn=Find
 
-interests.interested.in=Find people interested in:
+interests.interested.in=Find accounts interested in:
 
 interests.popular.disabled=The popular interests feature is unavailable.
 
@@ -2101,7 +2127,7 @@ menunav.explore.randomcommunity=Random Community
 
 menunav.explore.randomjournal=Random Journal
 
-menunav.explore.sitesearch=Site and Journal Search
+menunav.explore.sitesearch=Entry Search
 
 menunav.organize=Organize
 
@@ -2190,6 +2216,8 @@ poll.dberror=Database error: [[errmsg]]
 poll.dberror.items=Database error inserting items: [[errmsg]]
 
 poll.dberror.questions=Database error inserting questions: [[errmsg]]
+
+poll.error.accttype=Your account type doesn't allow you to create polls.
 
 poll.error.badmaxlength=Maxlength attribute on lj-pq text tags must be an integer from 1-255.
 
@@ -2427,6 +2455,8 @@ rename.error.noto=No username provided to rename to.
 
 rename.error.notoken=Rename token not provided or unavailable.
 
+rename.error.redirect=You cannot rename to "[[to]]" because it redirects to "[[target]]". Please contact Support for further assistance.
+
 rename.error.reserved="[[to]]" is a reserved username.
 
 rename.error.tokenapplied=This token has already been used.
@@ -2540,10 +2570,6 @@ setting.bio.note=_none
 setting.bio.question=Bio:
 
 setting.birthday.question=What's your birthday?
-
-setting.birthdaydisplay.error.invalid=Invalid option
-
-setting.birthdaydisplay.question=Birthday display options:
 
 setting.commentcaptcha.label=Anti-Spam
 
@@ -2897,12 +2923,6 @@ setting.entryeditor.option.richtext=Rich Text
 setting.excludeownstats.label=Journal Statistics
 
 setting.excludeownstats.option=Do not include me in my own statistics
-
-setting.gender.error.invalid=Invalid option
-
-setting.gender.error.wrongtype=Only personal or identity journals can have a gender.
-
-setting.gender.question=For statistical purposes, please provide your gender. (It will not be publicly displayed.)
 
 setting.globalsearch.label=Site-Wide Search Inclusion
 
@@ -4531,6 +4551,8 @@ web.controlstrip.btn.logout=Log out
 
 web.controlstrip.btn.view=View
 
+web.controlstrip.links.acceptinvite=Accept invitation
+
 web.controlstrip.links.addfeed=Subscribe
 
 web.controlstrip.links.addtocircle=Add to Your Circle
@@ -5303,6 +5325,10 @@ widget.s2propgroup.collapse=collapse all
 
 widget.s2propgroup.expand=expand all
 
+widget.s2propgroup.image.help=Use the image's direct URL, such as https://example.com/image.png. Files from your computer and HTML/embed code will not work here.
+
+widget.s2propgroup.image.url=URL
+
 widget.s2propgroup.language.custom=(Custom)
 
 widget.s2propgroup.language.default=(Default)
@@ -5323,13 +5349,15 @@ widget.search.btn.go=Go
 
 widget.search.email=Email
 
+widget.search.entries=Entry Search
+
 widget.search.faq=FAQ
 
 widget.search.interest=Interest
 
 widget.search.region=Region
 
-widget.search.siteuser=Site and Account
+widget.search.siteuser=Site Pages and Accounts
 
 widget.search.title=Search
 

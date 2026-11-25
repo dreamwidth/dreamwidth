@@ -17,11 +17,26 @@ use warnings;
 
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN {
+    $LJ::_T_CONFIG = 1;
+    require "$ENV{LJHOME}/cgi-bin/LJ/Directories.pm";
+}
+use LJ::DB;
+use DW::Auth::Challenge;
 
 plan tests => 8;
 
-use DW::Auth::Challenge;
+local @LJ::MEMCACHE_SERVERS = ();
+
+my $secret_time = time();
+$secret_time -= $secret_time % 3600;
+my $secret = 'auth challenge test secret';
+
+sub LJ::get_secret {
+    my ($time) = @_;
+    return ( $secret_time, $secret ) unless defined $time;
+    return $time == $secret_time ? $secret : undef;
+}
 
 # Test generation
 my $chal  = DW::Auth::Challenge->generate;

@@ -58,7 +58,6 @@ my %host_path_match = (
 
     "bandcamp.com"                => [ qr!^/EmbeddedPlayer/!, 1 ],
     "player.bilibili.com"         => [ qr!^/player.html$!,    1 ],
-    "blip.tv"                     => [ qr!^/play/!,           1 ],
     "percolate.blogtalkradio.com" => [ qr!^/offsiteplayer$!,  1 ],
     "app.box.com"                 => [ qr!^/embed/s/!,        1 ],
 
@@ -147,7 +146,6 @@ my %host_path_match = (
 
     "embed.ted.com" => [ qr!^/talks/!, 1 ],
 
-    "vid.me"           => [ qr!^/e/!,                              1 ],
     "player.vimeo.com" => [ qr!^/video/\d+$!,                      1 ],
     "vine.co"          => [ qr!^/v/[a-zA-Z0-9]{11}/embed/simple$!, 1 ],
 

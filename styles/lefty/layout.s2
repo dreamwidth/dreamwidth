@@ -279,7 +279,7 @@ var string navlinks_css = "";
   .module-navlinks ul {
     letter-spacing: .1em;
     margin: 0;
-    padding:.5em 0;
+    padding: 0;
     text-transform: lowercase;
     }
 
@@ -288,6 +288,7 @@ var string navlinks_css = "";
     }
 
   .module-navlinks li a {
+    display: inline-block;
     padding: .5em;
     }
 

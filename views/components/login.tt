@@ -8,12 +8,13 @@
 
     variables: 
     - 'short' - determines whether to render a compact version (for the controlstrip)
+    - 'remember_me_id' - optional checkbox ID when another login form is on the page
     - 'returnto' -
   %]
   [%- BLOCK remember_me; # form element is in a different spot in controlstrip, sigh
     form.checkbox(
         value => 1,
-        id => "login_remember_me",
+        id => (remember_me_id || "login_remember_me"),
         name => "remember_me",
         label => dw.ml('sitescheme.accountlinks.login.rememberme' ),
         tabindex => (short ? "3" : "0")

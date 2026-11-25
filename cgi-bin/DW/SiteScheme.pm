@@ -32,8 +32,7 @@ my %sitescheme_data = (
     'gradation-horizontal' => { parent => 'common', title    => "Gradation Horizontal" },
     'gradation-vertical'   => { parent => 'common', title    => "Gradation Vertical" },
     lynx                   => { parent => 'common', title    => "Lynx (light mode)" },
-    global                 => { engine => 'current' },
-    tt_runner              => { engine => 'bml',    internal => 1 },
+    global                 => {},
 );
 
 my $data_loaded = 0;
@@ -82,11 +81,7 @@ sub engine {
 }
 
 sub supports_tt {
-    return $_[0]->engine eq 'tt' || $_[0]->engine eq 'current';
-}
-
-sub supports_bml {
-    return $_[0]->engine eq 'bml' || $_[0]->engine eq 'current';
+    return $_[0]->engine eq 'tt';
 }
 
 =head2 C<< DW::SiteScheme->inheritance( $scheme ) >>
@@ -173,7 +168,9 @@ Get the user's current sitescheme, using the following in order:
 
 =item skin / usescheme GET argument
 
-=item BMLschemepref cookie
+=item BMLschemepref cookie (account preference)
+
+=item BMLschemeprefanon cookie (anonymous preference)
 
 =item Default sitescheme ( first sitescheme in sitescheme_order )
 
@@ -194,7 +191,8 @@ sub current {
                $r->note('bml_use_scheme')
             || $r->get_args->{skin}
             || $r->get_args->{usescheme}
-            || $r->cookie('BMLschemepref');
+            || $r->cookie('BMLschemepref')
+            || $r->cookie('BMLschemeprefanon');
     }
 
     return $rv if defined $rv and defined $sitescheme_data{$rv};
@@ -218,8 +216,7 @@ sub default {
 
 Set the sitescheme for the request.
 
-Note: this must be called early enough in a request
-before calling into bml_handler for BML, or before render_template for TT
+Note: this must be called early enough in a request, before render_template,
 otherwise has no action.
 
 =cut
@@ -238,7 +235,8 @@ sub set_for_request {
 Set the sitescheme for the user.
 
 If $u does not exist, this will default to remote
-if $u ( or remote ) is undef, this will only set the cookie.
+if $u ( or remote ) is undef, this will only set the anonymous preference cookie.
+Account preferences do not replace the anonymous preference.
 
 Note: If done early enough in the process this will affect the current request.
 See the note on set_for_request
@@ -252,10 +250,18 @@ sub set_for_user {
     my $u      = exists $_[2] ? $_[2] : LJ::get_remote();
 
     return 0 unless exists $sitescheme_data{$scheme};
-    my $cval = $scheme;
-    if ( $scheme eq $sitescheme_order[0] && !$LJ::SAVE_SCHEME_EXPLICITLY ) {
-        $cval = undef;
+    my $cookie = $u ? 'BMLschemepref' : 'BMLschemeprefanon';
+    my $cval   = $scheme;
+
+    # An account default needs a cookie to override a different anonymous preference.
+    unless ($u) {
+
+        # An anonymous choice replaces any preference left by an older cookie.
         $r->delete_cookie( domain => ".$LJ::DOMAIN", name => 'BMLschemepref' );
+        if ( $scheme eq $sitescheme_order[0] && !$LJ::SAVE_SCHEME_EXPLICITLY ) {
+            $cval = undef;
+            $r->delete_cookie( domain => ".$LJ::DOMAIN", name => $cookie );
+        }
     }
 
     my $expires = undef;
@@ -269,7 +275,7 @@ sub set_for_user {
     }
 
     $r->add_cookie(
-        name    => 'BMLschemepref',
+        name    => $cookie,
         value   => $cval,
         expires => $expires,
         domain  => ".$LJ::DOMAIN",

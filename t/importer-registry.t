@@ -19,7 +19,7 @@ use warnings;
 
 use Test::More;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
 use DW::Importer::Registry;
 
 my $reg = 'DW::Importer::Registry';

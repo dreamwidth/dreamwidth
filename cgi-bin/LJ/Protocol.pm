@@ -14,6 +14,8 @@
 # part of this distribution.
 
 use strict;
+
+use DW::Request;
 no warnings 'uninitialized';
 
 use Digest::MD5;
@@ -242,8 +244,12 @@ sub addcomment {
     if ( $req->{journal} ) {
         $journal = LJ::load_user( $req->{journal} ) or return fail( $err, 100 );
         my $entry = LJ::Entry->new( $journal, ditemid => $req->{ditemid} );
-        return fail( $err, 214 )
-            if LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $entry );
+        my $captcha_reason =
+            LJ::Talk::Post::require_captcha_test( $u, $journal, $req->{body}, $entry );
+        if ($captcha_reason) {
+            $flags->{captcha_reason} = $captcha_reason;
+            return fail( $err, 214 );
+        }
     }
     else {
         $journal = $u;
@@ -571,7 +577,12 @@ sub sendmessage {
     @to = keys %to;
 
     my @msg;
-    BML::set_language('en');    # FIXME
+
+    # Protocol error text is a wire contract, not a rendered page: force
+    # English regardless of the sender's negotiated language. getter => undef
+    # discards any getter already on the request; set_request_context merges
+    # keys, so omitting it would keep one (doc/BML-TRANSLATION-SHIM.md §4).
+    LJ::Lang::set_request_context( lang => 'en', getter => undef );
 
     foreach my $to (@to) {
         my $tou = LJ::load_user($to);
@@ -693,10 +704,8 @@ sub login {
     LJ::text_out( \$res->{'fullname'} ) if $ver >= 1;
 
     if ( $req->{'clientversion'} =~ /^\S+\/\S+$/ ) {
-        eval {
-            my $apache_r = BML::get_request();
-            $apache_r->notes->{clientver} = $req->{'clientversion'};
-        };
+        my $r = DW::Request->get;
+        $r->note( clientver => $req->{'clientversion'} ) if $r;
     }
 
     ## update or add to clientusage table
@@ -1676,15 +1685,12 @@ sub postevent {
     my $clean_event = $event;
     my $errref;
 
-    # TODO: accept editor prop and thread it through to the cleaner.
-    my $editor = undef;
-    LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor } );
+    LJ::CleanHTML::clean_event( \$clean_event,
+        { errref => \$errref, editor => $req->{props}->{editor} } );
     $res->{message} = translate(
         $u, $errref,
         {
-                  aopts => "href='$LJ::SITEROOT/editjournal?journal="
-                . $uowner->user
-                . "&itemid=$ditemid'"
+            aopts => "href='$LJ::SITEROOT/entry/" . $uowner->user . "/$ditemid/edit'"
         }
     ) if $errref;
 
@@ -1751,14 +1757,14 @@ sub postevent {
     }
 
     # argh, this is all too ugly.  need to unify more postpost stuff into async
-    $u->invalidate_directory_record;
+    $uowner->invalidate_directory_record;
 
     # Insert the slug (try to, this will fail if this slug is already used)
     my $slug = LJ::canonicalize_slug( $req->{slug} );
     if ( defined $slug && length $slug > 0 ) {
-        $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+        $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
             undef, $ownerid, $jitemid, $slug );
-        if ( $u->err ) {
+        if ( $uowner->err ) {
             $res->{message} ||= 'Sorry, it looks like that slug has already been used. '
                 . 'Your entry has been posted without a slug, but you can still edit it to add a unique slug.';
         }
@@ -2186,17 +2192,16 @@ sub editevent {
     my $clean_event = $event;
     my $errref;
 
-    # TODO: get editor prop from the new props (or current, if unchanged) and
-    # thread it through to the cleaner.
-    my $editor = undef;
+    my $editor =
+        exists $req->{props}->{editor}
+        ? $req->{props}->{editor}
+        : $curprops{$itemid}->{editor};
     LJ::CleanHTML::clean_event( \$clean_event, { errref => \$errref, editor => $editor } );
     $add_message->(
         translate(
             $u, $errref,
             {
-                      aopts => "href='$LJ::SITEROOT/editjournal?journal="
-                    . $uowner->user
-                    . "&itemid=$ditemid'"
+                aopts => "href='$LJ::SITEROOT/entry/" . $uowner->user . "/$ditemid/edit'"
             }
         )
     ) if $errref;
@@ -2284,14 +2289,14 @@ sub editevent {
     # present, we leave the slug alone.
     if ( exists $req->{slug} ) {
         LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
-        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
             undef, $ownerid, $itemid );
 
         my $slug = LJ::canonicalize_slug( $req->{slug} );
         if ( defined $slug && length $slug > 0 ) {
-            $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+            $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
                 undef, $ownerid, $itemid, $slug );
-            if ( $u->err ) {
+            if ( $uowner->err ) {
                 $add_message->( 'Sorry, it looks like that slug has already been used. '
                         . 'Your entry has been updated, but you can still edit it again to add a unique slug.'
                 );
@@ -2346,13 +2351,6 @@ sub getevents {
 
     # can't pull events from deleted/suspended journal
     return fail( $err, 307 ) unless $uowner->is_visible || $uowner->is_readonly;
-
-    my $reject_code = $LJ::DISABLE_PROTOCOL{getevents};
-    if ( ref $reject_code eq "CODE" ) {
-        my $apache_r = eval { BML::get_request() };
-        my $errmsg   = $reject_code->( $req, $flags, $apache_r );
-        if ($errmsg) { return fail( $err, "311", $errmsg ); }
-    }
 
     # if this is on, we sort things different (logtime vs. posttime)
     # to avoid timezone issues
@@ -3498,9 +3496,9 @@ sub check_altusage {
     # we are going to load the alt user
     $flags->{u_owner} = LJ::load_user($alt);
     $flags->{ownerid} = $flags->{u_owner} ? $flags->{u_owner}->id : undef;
-    my $apache_r = eval { BML::get_request() };
-    $apache_r->notes->{journalid} = $flags->{ownerid}
-        if $apache_r && !$apache_r->notes->{journalid};
+    my $r = DW::Request->get;
+    $r->note( journalid => $flags->{ownerid} )
+        if $r && !$r->note('journalid');
 
     # allow usage if we're told explicitly that it's okay
     if ( $flags->{usejournal_okay} ) {

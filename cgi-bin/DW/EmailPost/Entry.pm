@@ -30,6 +30,7 @@ use strict;
 use LJ::Protocol;
 
 use Date::Parse;
+use DateTime;
 use IO::Handle;
 use XML::Simple;
 use DW::Media;
@@ -147,6 +148,21 @@ sub _set_props {
 
     # Pull the Date: header details
     my ( $ss, $mm, $hh, $day, $month, $year, $zone ) = strptime($email_date);
+
+    # The Date: header is in the sender's mail client timezone. If the user
+    # has set a timezone, post at the same moment in that timezone instead.
+    if ( defined $zone && ( my $tz = $u->prop('timezone') ) ) {
+        my $epoch = str2time($email_date);
+        my $dt =
+            defined $epoch
+            ? eval { DateTime->from_epoch( epoch => $epoch, time_zone => $tz ) }
+            : undef;
+        if ($dt) {
+            ( $ss, $mm, $hh ) = ( $dt->second, $dt->minute, $dt->hour );
+            ( $day, $month, $year ) = ( $dt->day, $dt->month - 1, $dt->year - 1900 );
+            $zone = $dt->offset;
+        }
+    }
 
     # If we had an lj/post-date pseudo header, override the real Date header
     ( $ss, $mm, $hh, $day, $month, $year, $zone ) = strptime( $post_headers{date} )

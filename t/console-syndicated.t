@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 13;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -60,13 +60,18 @@ is( $run->( "syn_editurl " . $feed2->user . " $LJ::SITEROOT/feed.rss" ),
 my $u2 = temp_user();
 my $u3 = temp_user();
 
-$u->add_edge( $feed1, watch => { nonotify => 1 } );
-$u2->add_edge( $feed1, watch => { nonotify => 1 } );
+# $u2 watches both feeds, with custom colors only on the one being merged away;
+# $u3 watches both feeds, with custom colors only on the one being kept
+my $color = sub { LJ::color_todb( $_[0] ) };
+$u->add_edge( $feed1,
+    watch => { fgcolor => $color->('#0000ff'), bgcolor => $color->('#ffff00'), nonotify => 1 } );
+$u2->add_edge( $feed1,
+    watch => { fgcolor => $color->('#ff0000'), bgcolor => $color->('#00ff00'), nonotify => 1 } );
+$u3->add_edge( $feed1, watch => { nonotify => 1 } );
 
 $u2->add_edge( $feed2, watch => { nonotify => 1 } );
-$u3->add_edge( $feed2, watch => { nonotify => 1 } );
-
-# check colors?
+$u3->add_edge( $feed2,
+    watch => { fgcolor => $color->('#123456'), bgcolor => $color->('#abcdef'), nonotify => 1 } );
 
 my $oldlimit = $LJ::MAX_WT_EDGES_LOAD;
 $LJ::MAX_WT_EDGES_LOAD = 1;
@@ -93,3 +98,23 @@ $feed1 = LJ::load_user( $feed1->user );
 ok( $feed1->is_renamed, "Feed redirection set up correctly." );
 is( scalar $feed1->watched_by_userids, 0, "No watches remaining for " . $feed1->user );
 is( scalar $feed2->watched_by_userids, 3, "3 watchers for " . $feed2->user );
+
+my $colors_for_feed2 = sub {
+    my $edge = $_[0]->watch_list->{ $feed2->id } || {};
+    return [ $edge->{fgcolor}, $edge->{bgcolor} ];
+};
+is_deeply(
+    $colors_for_feed2->($u),
+    [ '#0000ff', '#ffff00' ],
+    "Colors moved to the merged feed for a user who only watched the old feed."
+);
+is_deeply(
+    $colors_for_feed2->($u2),
+    [ '#ff0000', '#00ff00' ],
+    "Colors kept for a user who watched both feeds and customized the old one."
+);
+is_deeply(
+    $colors_for_feed2->($u3),
+    [ '#123456', '#abcdef' ],
+    "Colors kept for a user who watched both feeds and customized only the new one."
+);

@@ -79,7 +79,7 @@ sub get_menu_navigation {
                     display => $loggedout,
                 },
                 {
-                    url     => "$LJ::SITEROOT/update",
+                    url     => "$LJ::SITEROOT/entry/new",
                     text    => "menunav.create.updatejournal",
                     display => $loggedin_hasjournal,
                 },

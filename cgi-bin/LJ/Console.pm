@@ -200,7 +200,8 @@ sub command_reference_html {
         $ret .= "</code>";
         $ret .= " (unavailable)" unless $class->can_execute;
         $ret .= "</h2>\n";
-        $ret .= "<p><em><?_ml error.console.notpermitted _ml?></em></p>" unless $class->can_execute;
+        $ret .= "<p><em>" . LJ::Lang::ml('error.console.notpermitted') . "</em></p>"
+            unless $class->can_execute;
 
         $ret .= $class->desc;
 

@@ -222,9 +222,13 @@ sub js {
                 confirmed = confirm("Save your changes?");
             }
 
-            if (confirmed) {
-                $('customize-form').submit();
+            if (!confirmed) {
+                Event.stop(evt);
+                return false;
             }
+
+            Event.stop(evt);
+            $('customize-form').submit();
         },
         form_change: function () {
             if (this.form_changed == true) { return; }
