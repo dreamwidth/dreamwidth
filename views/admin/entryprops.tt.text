@@ -1,3 +1,5 @@
 .admin.link=Entry Properties
 
 .admin.text=View or edit the properties set on a particular entry.
+
+.error.unknown8bit=This entry uses a legacy text encoding. Entry properties cannot be changed here.

@@ -309,6 +309,41 @@ is( persisted_music(), undef, 'the absent property is not created' );
     );
 }
 
+my $audit_db    = LJ::get_db_writer();
+my $audit_query = 'SELECT * FROM statushistory WHERE userid = ? AND shtype = ? '
+    . 'ORDER BY adminid, shdate, notes';
+my @audit_key = ( $owner->id, 'entryprops' );
+
+$entry->set_prop( unknown8bit => 1 );
+my $legacy_view = post_entryprops( $admin, url => $entry_url );
+like(
+    $legacy_view,
+    qr/<strong>current_location:<\/strong>\s*Audit failed/,
+    'the legacy entry still shows its location'
+);
+unlike(
+    $legacy_view,
+    qr/\bname=['"](?:prop_|baseline_|_save['"])/,
+    'the legacy entry has no edit controls or save form'
+);
+
+my $legacy_audit_before = $audit_db->selectall_arrayref( $audit_query, undef, @audit_key );
+my $legacy_save         = post_entryprops(
+    $admin,
+    url                       => $entry_url,
+    _save                     => 1,
+    baseline_current_location => encode_base64( 'Audit failed', '' ),
+    prop_current_location     => encode_utf8("Caf\x{e9}"),
+);
+like( $legacy_save, qr/uses a legacy text encoding/, 'a legacy entry edit is rejected' );
+unlike( $legacy_save, qr/Changes saved/, 'a legacy entry edit is not reported as saved' );
+is( persisted_prop('current_location'), 'Audit failed', 'the legacy property is unchanged' );
+is( persisted_prop('unknown8bit'), 1, 'the legacy encoding flag is unchanged' );
+is_deeply( $audit_db->selectall_arrayref( $audit_query, undef, @audit_key ),
+    $legacy_audit_before, 'the legacy entry audit history is unchanged' );
+$entry->set_prop( unknown8bit      => undef );
+$entry->set_prop( current_location => 'Audit failed' );
+
 my $move_form = post_entryprops( $admin, url => $entry_url );
 my ($move_bit) = grep { ( $LJ::CAP{$_}{_name} // '' ) eq '_moveinprogress' } keys %LJ::CAP;
 BAIL_OUT('The test configuration needs a cluster move capability') unless defined $move_bit;
@@ -318,10 +353,6 @@ ok(
 );
 ok( LJ::load_userid( $owner->id, 'force' )->is_readonly, 'the moving journal is read-only' );
 
-my $audit_db    = LJ::get_db_writer();
-my $audit_query = 'SELECT * FROM statushistory WHERE userid = ? AND shtype = ? '
-    . 'ORDER BY adminid, shdate, notes';
-my @audit_key    = ( $owner->id, 'entryprops' );
 my $audit_before = $audit_db->selectall_arrayref( $audit_query, undef, @audit_key );
 my $move_save    = post_entryprops(
     $admin,

@@ -130,6 +130,10 @@ sub _save_entryprop_changes {
         $errors->add_string( '', 'This journal is read-only. Entry properties cannot be changed.' );
         return;
     }
+    if ( $entry->prop('unknown8bit') ) {
+        $errors->add( '', '/admin/entryprops.tt.error.unknown8bit' );
+        return;
+    }
 
     my @entry_key = ( $journal->id, $entry->jitemid );
     my $dbh       = LJ::get_cluster_master($journal);
@@ -294,7 +298,8 @@ sub entryprops_handler {
             $entry_info{edit_url} =
                 "$LJ::SITEROOT/users/" . $journal->user . '/' . $entry->ditemid . '.html';
 
-            my %entry_props = %{ $entry->props || {} };
+            my $can_edit_entry = $can_save && !$entry->prop('unknown8bit');
+            my %entry_props    = %{ $entry->props || {} };
             if ( $post->{_save} ) {
                 my $changes = _entryprop_changes( $post, $errors );
                 $saved =
@@ -308,7 +313,7 @@ sub entryprops_handler {
                     description => "",
                 );
                 my $raw_value = $prop{value};
-                if (   $can_save
+                if (   $can_edit_entry
                     && _editable_entryprop($prop_name)
                     && _is_entryprop_text($raw_value) )
                 {
