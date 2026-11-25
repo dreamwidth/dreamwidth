@@ -48,6 +48,26 @@ use DW::Cache;
     sub DESTROY { }
 }
 
+{
+
+    package WatchTrustRevokingWriter;
+
+    sub do {
+        my ( $self, $sql, @args ) = @_;
+        $self->{revoke}->() if $sql =~ /^UPDATE wt_edges SET groupmask = groupmask & /;
+        return $self->{writer}->do( $sql, @args );
+    }
+
+    our $AUTOLOAD;
+
+    sub AUTOLOAD {
+        my $self = shift;
+        ( my $method = $AUTOLOAD ) =~ s/.*:://;
+        return $self->{writer}->$method(@_);
+    }
+    sub DESTROY { }
+}
+
 my $owner = temp_user();
 my $peer  = temp_user();
 my $other = temp_user();
@@ -237,6 +257,45 @@ subtest 'deleting a trust group refreshes the request mask' => sub {
             is( $owner->trustmask($peer),
                 $remaining_trust, 'request no longer grants the deleted group' );
             ok( $owner->watches($peer), 'watch remains visible in the request' );
+        }
+    );
+};
+
+subtest 'deleting a trust group preserves a concurrent revocation' => sub {
+    reset_pair();
+    my $deleted   = $owner->create_trust_group( groupname => 'Concurrently deleted group' );
+    my $old_trust = 1 | ( 1 << $deleted );
+    ok( $owner->add_edge( $peer, trust => { mask => $old_trust, nonotify => 1 } ), 'grant access' );
+    clear_pair_cache();
+
+    with_lagging_reader(
+        $old_trust,
+        sub {
+            is( $owner->trustmask($peer), $old_trust, 'prime the mask before revocation' );
+            my $original = \&LJ::get_db_writer;
+            my $writer   = bless {
+                writer => $dbh,
+                revoke => sub {
+                    my $rows =
+                        $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+                        undef, $owner->id, $peer->id );
+                    is( $rows, 1, 'revoke access just before the group update' );
+                },
+                },
+                'WatchTrustRevokingWriter';
+            {
+                no warnings 'redefine';
+                local *LJ::get_db_writer = sub {
+                    return $writer if caller eq 'DW::User';
+                    return $original->(@_);
+                };
+                ok( $owner->delete_trust_group( id => $deleted ), 'delete the trust group' );
+            }
+
+            is( DW::Cache->request->get( 'trustmask', $pair ), 0, 'cache the absent edge as zero' );
+            eval { $owner->trustmask( $peer, 1 ) };
+            like( $@, qr/non-trusted edge/, 'refuse to save access filters for the revoked edge' );
+            is( saved_mask(), undef, 'the revoked edge stays deleted' );
         }
     );
 };

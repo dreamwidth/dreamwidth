@@ -850,6 +850,9 @@ sub delete_trust_group {
     my $bit = $grp->{groupnum} + 0;
     return 0 unless $bit >= 1 && $bit <= 60;
 
+    # This cleanup is intentionally non-transactional across entries, tags, and edges.
+    # If an edge operation fails, keep the group row so a retry can finish cleanup.
+
     # remove all posts from allowing that group:
     my @posts_to_clean = @{
         $u->selectcol_arrayref(
@@ -886,27 +889,36 @@ sub delete_trust_group {
         or return 0;
 
     # iterate over everybody in this group and remove the bit
-    my $members = $dbh->selectall_arrayref(
-        'SELECT to_userid, groupmask FROM wt_edges WHERE from_userid = ? AND groupmask & (1 << ?)',
-        undef, $userid, $bit
-    );
+    my $members = $dbh->selectcol_arrayref(
+        'SELECT to_userid FROM wt_edges WHERE from_userid = ? AND groupmask & (1 << ?)',
+        undef, $userid, $bit );
     return 0 if $dbh->err;
 
-    my $group_bit = 1 << $bit;
-    foreach my $member (@$members) {
-        my ( $tid, $mask ) = @$member;
+    my $had_edge_error = 0;
+    foreach my $tid (@$members) {
         $dbh->do(
 q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
             undef, $bit, $userid, $tid
         );
-        if ( $dbh->err ) {
-            LJ::memcache_kill( $userid, 'wt_list' );
-            return 0;
-        }
 
-        # don't forget memcache
+        my $mask;
+        $mask = $dbh->selectrow_array(
+            'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $userid, $tid )
+            unless $dbh->err;
+        my $edge_error = $dbh->err;
+
         LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
-        DW::Cache->request->set( 'trustmask', "$userid:$tid", $mask & ~$group_bit );
+        if ($edge_error) {
+            DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
+            $had_edge_error = 1;
+            next;
+        }
+        DW::Cache->request->set( 'trustmask', "$userid:$tid", ( $mask // 0 ) + 0 );
+    }
+    if ($had_edge_error) {
+        LJ::memcache_kill( $userid, 'wt_list' );
+        return 0;
     }
 
     # finally remove the trust group, huzzah
