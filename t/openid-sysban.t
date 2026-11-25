@@ -15,14 +15,19 @@
 use strict;
 use warnings;
 
+use Digest::MD5 qw(md5_hex);
 use HTTP::Request::Common;
 use Plack::Test;
 use Test::More;
 use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use DW::AccountSwitcher;
+use DW::API::Key;
+use DW::Auth::Challenge;
 use LJ::Console;
 use LJ::OpenID;
+use LJ::Protocol;
 use LJ::Session;
 use LJ::Sysban;
 use LJ::Test qw(temp_user with_fake_memcache);
@@ -48,6 +53,7 @@ END {
             my $account = LJ::User::load_existing_identity_user( 'O', $url );
             next unless $account;
             LJ::Session->destroy_all_sessions($account);
+            $dbh->do( 'DELETE FROM api_key WHERE userid = ?',     undef, $account->id );
             $dbh->do( 'DELETE FROM identitymap WHERE userid = ?', undef, $account->id );
             $account->delete_and_purge_completely;
         }
@@ -164,12 +170,16 @@ with_fake_memcache {
         like( $result->header('Location') // '', qr{/login$}, 'An unbanned callback logs in' );
         my $existing = LJ::User::load_existing_identity_user( 'O', $existing_url );
         ok( $existing, 'An unbanned callback creates an account' ) or BAIL_OUT('No OpenID fixture');
-        my $session = LJ::Session->create( $existing, exptype => 'short' );
-        my $cookie =
-              'ljmastersession='
-            . $session->master_cookie_string
-            . '; ljloggedin='
-            . $session->loggedin_cookie_string;
+        my $session        = LJ::Session->create( $existing, exptype => 'short' );
+        my $session_cookie = sub {
+            my ($current) = @_;
+            return
+                  'ljmastersession='
+                . $current->master_cookie_string
+                . '; ljloggedin='
+                . $current->loggedin_cookie_string;
+        };
+        my $cookie    = $session_cookie->($session);
         my $login_url = 'http://localhost/openid/login';
         my $logged_in = GET( $login_url, Cookie => $cookie );
         like(
@@ -177,6 +187,39 @@ with_fake_memcache {
             qr/must first.*log out/i,
             'The existing OpenID session is authenticated before the ban'
         );
+
+        my $key_session = LJ::Session->create( $existing, exptype => 'short' );
+        my $getkey =
+            GET( 'http://localhost/api/getkey', Cookie => $session_cookie->($key_session) );
+        my $key;
+        my $journal = temp_user()->user;
+        my $bearer  = sub {
+            my ($credential) = @_;
+            return $request->(
+                GET "http://localhost/api/v1/journals/$journal/tags",
+                Authorization => "Bearer $credential"
+            );
+        };
+        my $challenge_login = sub {
+            my ( $account, $credential ) = @_;
+            my $challenge = DW::Auth::Challenge->generate;
+            return LJ::Protocol::check_login( $account, $challenge,
+                md5_hex( $challenge . md5_hex($credential) ) );
+        };
+        my $stored = { userid => $existing->id, sessid => $session->id, auth => $session->{auth} };
+
+        subtest 'accept OpenID credentials before a domain ban' => sub {
+            my $response = $request->($getkey);
+            is( $response->code, 200, 'An allowed OpenID session can get an API key' );
+            $key = $response->content;
+            ok( $key =~ /\A[a-zA-Z0-9]{32}\z/, 'The endpoint issues a key' )
+                or BAIL_OUT('No OpenID API key fixture');
+            is( $bearer->($key)->code, 200, 'REST accepts the OpenID bearer key' );
+            ok( $challenge_login->( $existing, $key ),
+                'Protocol challenge authentication accepts the key' );
+            ok( $session->valid,                                 'The OpenID session is valid' );
+            ok( DW::AccountSwitcher->_resolve($stored)->{valid}, 'The stored account is usable' );
+        };
 
         subtest 'manage an OpenID domain ban' => sub {
             my $admin = temp_user();
@@ -324,6 +367,30 @@ with_fake_memcache {
             }
         };
 
+        subtest 'reject OpenID credentials after a domain ban' => sub {
+            is( $bearer->($key)->code,
+                401, 'REST rejects the previously accepted OpenID bearer key' );
+            ok( !$challenge_login->( $existing, $key ),
+                'Protocol challenge authentication rejects the key' );
+            ok( !DW::API::Key->new_for_user($existing), 'A banned account cannot mint a new key' );
+            ok( !$session->valid,                       'The OpenID session is no longer valid' );
+            my $resolved = DW::AccountSwitcher->_resolve($stored);
+            ok(
+                !$resolved->{valid} && !$resolved->{sess},
+                'The stored account is no longer usable'
+            );
+            ok(
+                LJ::Session->instance( $existing, $session->id ),
+                'Read-only checks do not destroy the session'
+            );
+
+            my $response = $request->($getkey);
+            like( $response->header('Location') // '',
+                qr{/login\?returnto=},
+                'A banned OpenID session cannot get a key from /api/getkey' );
+            ok( index( $response->content, $key ) == -1, 'The response does not disclose the key' );
+        };
+
         subtest 'match and enforce the active ban' => sub {
             for my $value ( $host, uc($host), "http://$host/", $banned_url,
                 "https://DEEP.SUB.$host.:8443/profile?x=1" )
@@ -382,9 +449,14 @@ with_fake_memcache {
             $verified_url = $allowed_url;
             like( $request->( GET $callback )->header('Location') // '',
                 qr{/login$}, 'An allowed provider can still complete login' );
+            my $allowed = LJ::User::load_existing_identity_user( 'O', $allowed_url );
+            ok( $allowed, 'An allowed provider can still create an account' ) or return;
+            my $allowed_key = DW::API::Key->new_for_user($allowed);
+            ok( $allowed_key, 'An unaffected OpenID account can mint keys' ) or return;
+            is( $bearer->( $allowed_key->hash )->code, 200, 'REST accepts the unaffected key' );
             ok(
-                LJ::User::load_existing_identity_user( 'O', $allowed_url ),
-                'An allowed provider can still create an account'
+                $challenge_login->( $allowed, $allowed_key->hash ),
+                'Protocol challenge authentication accepts the unaffected key'
             );
         };
 

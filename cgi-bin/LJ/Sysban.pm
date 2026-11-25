@@ -30,6 +30,12 @@ sub can_manage_type {
     return $actor->has_priv( 'sysban', $what );
 }
 
+sub openid_account_banned {
+    my ($u) = @_;
+    my $openid = $u && $u->openid_identity;
+    return $openid && sysban_check( 'openid_domain', $openid );
+}
+
 sub _openid_domain {
     my ( $value, %opts ) = @_;
     return unless defined $value;
