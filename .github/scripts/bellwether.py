@@ -372,7 +372,9 @@ def finish_merge(number, comment, sha, reason=None):
 
 
 WAITING = ("**Ready to merge.** I merge PRs that waited out the grace period on my hourly check, "
-           f"at most {AUTO_PER_HOUR} an hour.\n\n{FOOTER}")
+           f"at most {AUTO_PER_HOUR} an hour.\n\n{FOOTER}" if AUTO_PER_HOUR else
+           "**Ready to merge.** Merging after the grace period is paused "
+           "(`BELLWETHER_AUTO_PER_HOUR` is 0). Maintainers: reply `/merge` to merge it.")
 
 
 def merge_commit(number, waits=()):
