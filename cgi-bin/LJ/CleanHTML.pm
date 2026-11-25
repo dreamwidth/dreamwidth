@@ -206,8 +206,7 @@ sub clean {
     # Create the HTML parser we'll use to navigate the text from here on out:
     my $p = HTML::TokeParser->new($data);
 
-    # Entity references must decode to UTF-8 bytes, like the rest of the entry.
-    $p->utf8_mode(1);
+    $p->utf8_mode(1) unless utf8::is_utf8($$data);
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -1414,7 +1413,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
     my $p = HTML::TokeParser->new($data);
-    $p->utf8_mode(1);
+    $p->utf8_mode(1) unless utf8::is_utf8($$data);
 
     # where we look for relative URLs
     my $rel_source = {

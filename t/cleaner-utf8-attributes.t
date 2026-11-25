@@ -95,4 +95,32 @@ foreach my $case ( [ 'href', 'title', '<a %s>Link</a>' ], [ 'src', 'alt', '<img 
     };
 }
 
+subtest 'clean accepts a Perl character string' => sub {
+    my $html = qq{<a href="https://example.invalid/post" title="\x{2665} &ccedil;">Link</a>};
+    ok( utf8::is_utf8($html), 'input has the Perl character flag' );
+
+    my $parsed = eval { LJ::CleanHTML::clean_event( \$html, {} ); 1 };
+    ok( $parsed, 'clean_event does not croak' ) or return diag($@);
+
+    my $expected = Encode::encode_utf8("\x{2665} \x{e7}");
+    like( $html, qr{\btitle="\Q$expected\E"}, 'title preserves characters and decodes the entity' );
+    ok( LJ::is_utf8($html), 'output is valid UTF-8 bytes' );
+};
+
+subtest 'resolve_relative_urls accepts a Perl character string' => sub {
+    my $html = qq{<a href="post" title="\x{2665} &ccedil;">Link</a>};
+    ok( utf8::is_utf8($html), 'input has the Perl character flag' );
+
+    my $parsed =
+        eval { LJ::CleanHTML::resolve_relative_urls( \$html, 'https://example.invalid/feed/' ); 1 };
+    ok( $parsed, 'resolve_relative_urls does not croak' ) or return diag($@);
+
+    like( $html, qr{\bhref="https://example\.invalid/feed/post"}, 'relative URL becomes absolute' );
+    like(
+        $html,
+        qr{\btitle="\x{2665} \x{e7}"},
+        'title preserves characters and decodes the entity'
+    );
+};
+
 done_testing();
