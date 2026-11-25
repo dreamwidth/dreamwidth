@@ -15,7 +15,8 @@
 #   BELLWETHER_ENABLED        "false" stops all of it (default: on)
 #   BELLWETHER_AUTO_MERGE     "true" merges ready PRs after the grace period
 #                             with no maintainer's go-ahead (default: off)
-#   BELLWETHER_AUTO_PER_HOUR  most of those merges per hour (default: 2)
+#   BELLWETHER_AUTO_PER_HOUR  most of those merges per hour, made by the
+#                             hourly sweep (default: 2)
 #
 
 name: Bellwether
@@ -43,7 +44,9 @@ permissions:
 concurrency:
   # One run per PR at a time. A sweep can still evaluate a PR alongside a
   # comment run; each re-checks everything right before merging, and the
-  # merge call is pinned to the reviewed head.
+  # merge call is pinned to the reviewed head. Sweeps (and CI completions)
+  # share one group, so they never overlap: merges after the grace period
+  # happen only in a sweep, which is what keeps BELLWETHER_AUTO_PER_HOUR.
   group: bellwether-${{ github.event.issue.number || github.event.inputs.pr || 'sweep' }}
   cancel-in-progress: false
 
