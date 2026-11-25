@@ -80,6 +80,35 @@ def error_detail(e):
         return f"HTTP {e.code} {e.reason}"
 
 
+def env_count(name, default):
+    """A whole-number repository variable, or `default` when it's unset or not a whole number."""
+    raw = (os.environ.get(name) or "").strip()
+    if not raw:
+        return default
+    try:
+        return max(0, int(raw))
+    except ValueError:
+        print(f"{name}={raw!r} isn't a whole number; using {default}")
+        return default
+
+
+# Repository variables. BELLWETHER_AUTO_MERGE turns on merging after the grace period with no
+# maintainer's go-ahead; BELLWETHER_AUTO_PER_HOUR caps those merges so they don't all land at once.
+# Merges a maintainer asked for aren't capped.
+AUTO_MERGE = os.environ.get("BELLWETHER_AUTO_MERGE", "") == "true"
+AUTO_PER_HOUR = env_count("BELLWETHER_AUTO_PER_HOUR", 2)
+# Merges after the grace period happen only in a sweep, which counts them here: Bellwether's merges
+# in the last hour (maintainer-requested ones too, so the hour's total stays low), read when the
+# first one comes due. Sweeps share one concurrency group, so they never overlap; runs for comments
+# on different PRs can run side by side, so they leave these merges to the sweep. None outside a
+# sweep, and until something comes due. The cap spreads merges out; it isn't a safety check, so
+# rare races (a merge whose answer was lost showing up only after the next sweep counted, or PRs
+# shifting between pages while it counts) can let one extra through.
+SWEEPING = False
+auto_merged = None
+dry_merged = 0
+
+
 def api(method, path, data=None):
     for delay in (*RETRY_DELAYS, None):
         try:
@@ -260,8 +289,9 @@ def current_state(comment):
     return m.group(1) if m else None
 
 
-def set_next(comment, text):
-    """Replace the "what happens next" part of the status comment, if it changed.
+def set_next(comment, text, unless=()):
+    """Replace the "what happens next" part of the status comment, if it changed and doesn't start
+    with one of `unless`.
 
     Triage owns the state line. This re-reads the comment first and only ever rewrites the next
     part of what it finds, so it can't put back a state that triage has since replaced. If the
@@ -272,6 +302,9 @@ def set_next(comment, text):
     # A recorded merge is final: another run may have merged it meanwhile.
     if says_merged(fresh):
         return print("  comment already records the merge")
+    m = NEXT.search(fresh["body"] or "")
+    if unless and m and m.group(0)[len(NEXT_START):].lstrip().startswith(unless):
+        return print("  comment shows a merge under way; left alone")
     body = NEXT.sub(lambda _: f"{NEXT_START}\n{text}\n{NEXT_END}", fresh["body"])
     if body == fresh["body"]:
         return
@@ -338,6 +371,12 @@ def finish_merge(number, comment, sha, reason=None):
     set_label(api("GET", f"/repos/{REPO}/pulls/{number}"), None)
 
 
+WAITING = ("**Ready to merge.** I merge PRs that waited out the grace period on my hourly check, "
+           f"at most {AUTO_PER_HOUR} an hour.\n\n{FOOTER}" if AUTO_PER_HOUR else
+           "**Ready to merge.** Merging after the grace period is paused "
+           "(`BELLWETHER_AUTO_PER_HOUR` is 0). Maintainers: reply `/merge` to merge it.")
+
+
 def merge_commit(number, waits=()):
     """The merge commit if the PR has merged, waiting `waits` seconds between looks, else None."""
     for wait in (0, *waits):
@@ -350,6 +389,7 @@ def merge_commit(number, waits=()):
 
 def decide(number, final_check=False):
     """Evaluate one PR. With `final_check`, only report whether it may still merge right now."""
+    global auto_merged, dry_merged
     pr = api("GET", f"/repos/{REPO}/pulls/{number}")
     print(f"#{number}:")
     if pr["state"] != "open":
@@ -371,6 +411,7 @@ def decide(number, final_check=False):
     if pr["base"]["ref"] != pr["base"]["repo"]["default_branch"]:
         # Triage tests PRs merged onto the default branch only.
         return print(f"  targets {pr['base']['ref']}, not the default branch")
+    waiting = None
     go, hold, changes, fixing = commands(pr, state["head_seen_at"], state.get("fixes_done") or [],
                                          state.get("fix_failed_at"))
 
@@ -399,11 +440,18 @@ def decide(number, final_check=False):
     if go:
         label("bw: merging")
         reason = f"{', '.join(go)} approved it"
-    elif state["ready"] and state.get("ready_since"):
+    elif state["ready"] and state.get("ready_since") and AUTO_MERGE:
         label(state.get("label"))
         hours = state["grace_hours"]
         if now() < parse_time(state["ready_since"]) + timedelta(hours=hours):
             return set_next(comment, state["next"])
+        if not SWEEPING:
+            waiting = "merges after the grace period wait for the hourly sweep"
+        else:
+            if auto_merged is None:
+                auto_merged = recent_merges() + dry_merged
+            if auto_merged >= AUTO_PER_HOUR:
+                waiting = f"{auto_merged} merges already this hour; next sweep"
         reason = f"{hours} hours passed with no `/hold`"
     else:
         label(state.get("label"))
@@ -427,6 +475,11 @@ def decide(number, final_check=False):
     if problems:
         return set_next(comment, f"**Not merged yet: {'; '.join(problems)}.** "
                                  f"I'll merge it once that's sorted.\n\n{FOOTER}")
+    if waiting:
+        # Due, and nothing else stops it: it waits for a sweep with room under the cap. A sweep
+        # may be merging it right now, so a Merging line stays.
+        print(f"  due, but {waiting}")
+        return set_next(comment, WAITING, unless=("**Merging",))
     if final_check:
         return "ok"
 
@@ -435,7 +488,15 @@ def decide(number, final_check=False):
     if decide(number, final_check=True) != "ok":
         return
     set_next(comment, f"**Merging: {reason}.**")
+    # Once a sweep has counted this hour's merges, each merge it asks for counts from the moment
+    # it's asked for: one GitHub may have made counts even when its answer was lost.
+    counted = auto_merged is not None
+    if counted:
+        auto_merged += 1
     if DRY_RUN:
+        # A merge simulated before the count can't show in it, so it's added when the count is read.
+        if SWEEPING and not counted:
+            dry_merged += 1
         return print("  would merge")
     try:
         sha = api("PUT", f"/repos/{REPO}/pulls/{number}/merge",
@@ -443,7 +504,9 @@ def decide(number, final_check=False):
                    "commit_title": f"{pr['title']} (#{number})"})["sha"]
     except urllib.error.HTTPError as e:
         if e.code < 500:
-            # GitHub refused. Someone else may have merged it first.
+            # GitHub refused. Someone else may have merged it first. Either way it isn't ours.
+            if counted:
+                auto_merged -= 1
             other = merge_commit(number)
             if other is not None:
                 return finish_merge(number, comment, other)
@@ -478,8 +541,31 @@ def handle_event():
         sweep()
 
 
+def recent_merges():
+    """How many PRs Bellwether merged in the last hour. Closed PRs come most recently updated
+    first, and merging updates a PR, so every merge in the last hour is before the first PR
+    updated before then."""
+    cutoff = now() - timedelta(hours=1)
+    count, page = 0, 1
+    while True:
+        prs = api("GET", f"/repos/{REPO}/pulls?state=closed&sort=updated&direction=desc"
+                         f"&per_page=100&page={page}")
+        for pr in prs:
+            if parse_time(pr["updated_at"]) <= cutoff:
+                return count
+            if pr.get("merged_at") and parse_time(pr["merged_at"]) > cutoff:
+                merged_by = api("GET", f"/repos/{REPO}/pulls/{pr['number']}").get("merged_by") or {}
+                count += merged_by.get("login") == BOT
+        if len(prs) < 100:
+            return count
+        page += 1
+
+
 def sweep():
-    """Evaluate every open PR, and every recently merged one whose status may be unfinished."""
+    """Evaluate every open PR, and every recently merged one whose status may be unfinished.
+    Merges after the grace period happen here and nowhere else."""
+    global SWEEPING
+    SWEEPING = True
     recent = api("GET", f"/repos/{REPO}/pulls?state=closed&sort=updated&direction=desc&per_page=50")
     merged = [pr["number"] for pr in recent
               if pr.get("merged_at") and now() - parse_time(pr["merged_at"]) < RECENT_MERGES]
