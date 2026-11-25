@@ -928,8 +928,10 @@ BODY
         my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
         ok( !$ok, "Rejected entry with $label" );
         like( $msg, qr/security.*value/i, "Error explains the missing value for $label" );
-        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
-        ok( !$entry->valid, "No entry published with $label" );
+        my $entry     = LJ::Entry->new( $u, jitemid => $jitemid + 1 );
+        my $published = $entry->valid;
+        ++$jitemid if $published;
+        ok( !$published, "No entry published with $label" );
     }
 }
 
