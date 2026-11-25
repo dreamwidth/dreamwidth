@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 270;
+use Test::More tests => 324;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -629,11 +629,10 @@ BODY
         my ( $label, $space ) = @$case;
         my $placeholder = "<o:p>$space</o:p>";
         my $paragraph   = '<p class=MsoNormal>';
-        my $preamble    = $label eq 'whitespace' ? $placeholder : '';
         my $mime        = build_message(
             "Outlook message with $label placeholders",
             'text/html',
-            "$paragraph${preamble}post-format: html$placeholder</p>"
+            "$paragraph${placeholder}post-format: html$placeholder</p>"
                 . "${paragraph}post-security: private$placeholder</p>"
                 . "${paragraph}Secret$placeholder</p>"
         );
@@ -653,6 +652,87 @@ BODY
             $entry->event_raw,
             qr/\Q${paragraph}Secret\E<o:p>(?:\s|&nbsp;)*<\/o:p><\/p>\z/,
             "Message body is retained with $label Outlook placeholders"
+        );
+    }
+
+    for my $case (
+        [
+            'fonts in divs',
+            '<div><font face="Arial">post-format: html<br></font></div>'
+                . '<div><font face="Arial">post-security: private</font></div>'
+                . '<div><font face="Arial">Secret</font></div>',
+        ],
+        [
+            'spans with breaks',
+            '<span>post-format: html<br></span><span>post-security: private<br></span>'
+                . '<span>Secret</span>',
+        ],
+        [
+            'span with newlines',
+            "<span>\npost-format: html\n</span>\npost-security: private\n\nSecret"
+        ],
+        [
+            'spans with Office placeholders',
+            "<p class=MsoNormal><span>post-format: html\n<o:p></o:p></span></p>"
+                . '<p class=MsoNormal><span>post-security: private<o:p></o:p></span></p>'
+                . '<p class=MsoNormal><span>Secret<o:p></o:p></span></p>',
+        ],
+        [
+            'nested value formatting',
+            '<span>post-format: <span>html</span><br></span>'
+                . '<span>post-security: private<br>Secret</span>',
+        ],
+        [ 'bare empty value tag', "post-format: html<span/>\npost-security: private\n\nSecret" ],
+        )
+    {
+        my ( $label, $body ) = @$case;
+        my $mime = build_message( "Consecutive settings in $label", 'text/html', $body );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is(
+            $entry->prop('editor'),
+            DW::Formats::validate('html_casual_latest'),
+            "Format setting in $label applies"
+        );
+        is( $entry->security, 'private', "Privacy setting in $label applies" );
+        unlike( $entry->event_raw, qr/post-(?:format|security):/,
+            "Both settings are removed in $label" );
+        like( $entry->event_raw, qr/Secret/, "Message body in $label is retained" );
+    }
+
+    for my $case (
+        [ 'unopened leading close',       '</span>',                            '',        "\n" ],
+        [ 'unopened close after a break', 'post-format: html<br></span><span>', '</span>', '' ],
+        [
+            'close after an empty value tag', 'post-format: html<span/><br></span><span>',
+            '</span>',                        ''
+        ],
+        [ 'unopened close in a value', 'post-format: html</span>', '', "\n" ],
+        [ 'repeated close', '<span>post-format: html</span><br></span><span>',    '</span>', '' ],
+        [ 'same-line text', '<span>post-format: html <!-- note --></span><span>', '</span>', '' ],
+        [
+            'prose after the first setting', '<span>post-format: html<br></span><span>Intro text',
+            '</span>',                       "\n"
+        ],
+        [
+            'quoted span after the first setting',
+            '<span>post-format: html<br></span><span class="gmail_quote">',
+            '</span>', ''
+        ],
+        )
+    {
+        my ( $label, $opening, $closing, $separator ) = @$case;
+        my $mime = build_message( "Setting-looking text after $label",
+            'text/html', "$opening${separator}post-security: private\n$closing\nMessage" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', "Privacy setting after $label does not apply" );
+        like(
+            $entry->event_raw,
+            qr/post-security: private/,
+            "Setting-looking text after $label is retained"
         );
     }
 

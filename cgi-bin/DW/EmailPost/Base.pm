@@ -241,7 +241,8 @@ sub _extract_post_headers {
     pos($body) = 0;
 
     my $is_html = $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html';
-    pos($body) = _html_header_offset($body) if $is_html;
+    my @inline_wrappers;
+    pos($body) = _html_header_offset( $body, \@inline_wrappers ) if $is_html;
 
     my $start        = pos($body);
     my $end          = $start;
@@ -269,17 +270,19 @@ sub _extract_post_headers {
 
     while (1) {
         if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
-            pos($body) = _html_header_offset( $body, $end );
+            pos($body) = _html_header_offset( $body, \@inline_wrappers, $end );
         }
         my $line_start = pos($body);
         last if $is_html && $body =~ /\G(?:[ \t]*\r?\n)*(?:lj|post)-[^:<\r\n]*</igc;
         last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):($value_text)$value_end/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), $3 );
-        $value =~ s/$value_markup//g if $is_html;
+        $value = _html_header_value( \$body, $-[3], $value, $value_markup, \@inline_wrappers )
+            if $is_html;
         $value = LJ::trim($value);
         if ( !length($value) && $body =~ /\G[ \t]+(?=$value_start)($value_text)$value_end/gc ) {
             $value = $1;
-            $value =~ s/$value_markup//g if $is_html;
+            $value = _html_header_value( \$body, $-[1], $value, $value_markup, \@inline_wrappers )
+                if $is_html;
             $value = LJ::trim($value);
         }
         $headers->{$prefix}{$name} = $value;
@@ -295,17 +298,46 @@ sub _extract_post_headers {
     return $headers;
 }
 
+# Keep the wrapper stack in sync when a tag is consumed as part of a value.
+# Leave unmatched closes and quoted wrappers for the boundary scan to reject.
+sub _html_header_value {
+    my ( $body, $start, $value, $value_markup, $inline_wrappers ) = @_;
+    my $plain  = '';
+    my $offset = 0;
+
+    while ( $value =~ /$value_markup/g ) {
+        my ( $tag_start, $tag_end ) = ( $-[0], $+[0] );
+        $plain .= substr( $value, $offset, $tag_start - $offset );
+        my $raw = substr( $value, $tag_start, $tag_end - $tag_start );
+        unless ( $raw =~ /\A$html_office_open/ || $raw =~ m{\A<$html_inline_name\s*/>\z} ) {
+            my $token = HTML::TokeParser->new( \$raw )->get_token;
+            if ( $token->[0] eq 'S' && _is_html_header_wrapper($token) ) {
+                push @$inline_wrappers, $token->[1];
+            }
+            elsif ( $token->[0] eq 'E' && _is_html_inline_close( $token, $inline_wrappers ) ) {
+                pop @$inline_wrappers;
+            }
+            else {
+                pos($$body) = $start + $tag_start;
+                return $plain;
+            }
+        }
+        $offset = $tag_end;
+    }
+
+    return $plain . substr( $value, $offset );
+}
+
 # Skip leading breaks, formatting wrappers and empty Outlook <o:p> placeholders.
 # The first prose, quote container or unclosed comment ends the scan.
 sub _html_header_offset {
-    my ( $body, $after_header ) = @_;
+    my ( $body, $inline_wrappers, $after_header ) = @_;
     my $offset       = $after_header // _html_body_offset($body);
     my $line_start   = $offset;
     my $at_boundary  = !defined $after_header || substr( $body, 0, $offset ) =~ /\n\z/;
     my $body_content = substr( $body, $offset );
     my $parser       = HTML::TokeParser->new( \$body_content );
     my $document_tag = qr{<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
-    my @inline_wrappers;
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $text ) = @$token;
@@ -324,7 +356,7 @@ sub _html_header_offset {
             }
             elsif ( $type eq 'S' && _is_html_header_wrapper($token) ) {
                 if ( $text =~ /\A$html_inline_name\z/ ) {
-                    push @inline_wrappers, $text;
+                    push @$inline_wrappers, $text;
                 }
                 else {
                     $at_boundary = 1;
@@ -345,8 +377,8 @@ sub _html_header_offset {
             $offset += $length;
             $line_start = $offset if $at_boundary && $type eq 'S';
         }
-        elsif ( $type eq 'E' && _is_html_inline_close( $token, \@inline_wrappers ) ) {
-            pop @inline_wrappers;
+        elsif ( $type eq 'E' && _is_html_inline_close( $token, $inline_wrappers ) ) {
+            pop @$inline_wrappers;
             $offset += length $token->[2];
             $line_start = $offset if $at_boundary;
         }
