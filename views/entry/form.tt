@@ -193,6 +193,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                                 label = journal.user
                                 value = (isJournal ? "" : journal.user)
                                 format = dw.ml( ".select.usejournal.format", { user => userFormat } )
+                                tag_permission = tag_permissions.${journal.user}
                             });
                         END
                     ~%]
