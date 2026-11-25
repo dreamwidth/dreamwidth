@@ -24,6 +24,8 @@ BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::SiteScheme;
 use DW::Template;
+use LJ::S2;
+use LJ::S2Theme;
 use LJ::Talk;
 use LJ::Protocol;
 use LJ::Tags;
@@ -212,6 +214,68 @@ test_psgi $app, sub {
             is( $response->code, 200, "$path is available" );
             like( $response->content,     $tag_nav,    "$path renders tag navigation" );
             like( stylesheets($response), $smoothness, "$path retains the tag navigation theme" );
+        }
+    };
+
+    subtest 'Venture colors contextual menus and jQuery UI widgets' => sub {
+        my $theme = LJ::S2Theme->load_by_uniq('venture/radiantaqua') or die 'Missing Radiant Aqua';
+        my $styleid = LJ::S2::create_style( $owner, 'Venture contextual menu' )
+            or die 'Could not create Venture style';
+        my $layer = LJ::S2::create_layer( $owner, $theme->layoutid, 'user' )
+            or die 'Could not create Venture customization';
+        my $source = <<'S2';
+layerinfo type = "user";
+set color_entry_link = "#515151";
+set color_entry_link_visited = "#525252";
+set color_entry_link_hover = "#535353";
+set color_entry_link_active = "#545454";
+S2
+        my $error;
+        LJ::S2::layer_compile( $layer, \$error, { s2ref => \$source } ) or die $error;
+        LJ::S2::set_style_layers(
+            $owner, $styleid,
+            core   => $theme->coreid,
+            layout => $theme->layoutid,
+            theme  => $theme->themeid,
+            user   => $layer,
+        ) or die 'Could not set Venture style layers';
+        $owner->set_prop( s2_style => $styleid );
+
+        my $stylesheet = "/res/$styleid/stylesheet";
+        my $response   = $request->( GET "$journal/", Cookie => "ljsession=$session" );
+        is( $response->code, 200, 'Venture journal is available' );
+        like(
+            stylesheets($response),
+            qr/$contextual.*\Q$stylesheet\E/s,
+            'Venture loads after the default contextual menu styles'
+        );
+
+        my $style = $request->( GET "$journal$stylesheet" );
+        is( $style->code, 200, 'Venture stylesheet is available' );
+        my $css = $style->content;
+        $css =~ s{/\*.*?\*/}{}gs;
+        my %rules;
+        while ( $css =~ /([^{}]+)\{([^{}]*)\}/g ) {
+            my ( $selectors, $declarations ) = ( $1, $2 );
+            for my $selector ( split /,/, $selectors ) {
+                $selector =~ s/^\s+|\s+$//g;
+                $rules{$selector} .= ";$declarations";
+            }
+        }
+        for my $scope ( '.ContextualPopup', '.ui-widget-content' ) {
+            for my $expected (
+                [ '',           background => '#e9e9e9' ],
+                [ ' a',         color      => '#2a90a2' ],
+                [ ' a:visited', color      => '#888888' ],
+                [ ' a:hover',   color      => '#39b7cc' ],
+                [ ' a:active',  color      => '#999999' ],
+                )
+            {
+                my ( $suffix, $property, $color ) = @$expected;
+                my $selector = "$scope$suffix";
+                my @colors   = ( $rules{$selector} // '' ) =~ /;\s*\Q$property\E:\s*(#[0-9a-f]+)/gi;
+                is( lc( $colors[-1] // '' ), $color, "$selector uses the Venture page $property" );
+            }
         }
     };
 };
