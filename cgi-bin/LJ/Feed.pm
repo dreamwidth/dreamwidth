@@ -1020,10 +1020,8 @@ sub merge_feed {
 sub _is_custom_filter_row {
     my ($row) = @_;
     return 0 unless ref $row eq 'HASH';
-    return 1 if $row->{adultcontent}        && $row->{adultcontent} ne 'any';
-    return 1 if $row->{postertype}          && $row->{postertype} ne 'any';
-    return 1 if $row->{tagmode}             && $row->{tagmode} ne 'any_of';
-    return 1 if ref $row->{tags} eq 'ARRAY' && @{ $row->{tags} };
+    return 1 if $row->{adultcontent} && $row->{adultcontent} ne 'any';
+    return 1 if $row->{postertype}   && $row->{postertype} ne 'any';
     return 0;
 }
 
@@ -1058,29 +1056,48 @@ sub _migrate_content_filters {
             return ( 0, "Database Error: " . $dbcm->errstr )
                 if $dbcm->err;
 
-            foreach my $row (@$rows) {
+        FILTER: foreach my $row (@$rows) {
                 my ( $uid, $filterid, $raw ) = @$row;
-                next unless defined $raw;
+                my $attempts_remaining = 3;
+                while (1) {
+                    next FILTER unless defined $raw;
+                    my $data = do {
+                        local $@;
+                        eval { thaw($raw) }
+                    };
+                    next FILTER unless ref $data eq 'HASH' && exists $data->{$from_id};
 
-                my $data = do {
-                    local $@;
-                    eval { thaw($raw) }
-                };
-                next unless ref $data eq 'HASH' && exists $data->{$from_id};
+                    return ( 0,
+                        "Reading filter $filterid for user $uid kept changing during feed merge." )
+                        unless $attempts_remaining--;
 
-                my $from_row = delete $data->{$from_id};
-                if ( !exists $data->{$to_id} ) {
-                    $data->{$to_id} = ref $from_row eq 'HASH' ? $from_row : { tags => [] };
+                    my $from_row = delete $data->{$from_id};
+                    $from_row = {} unless ref $from_row eq 'HASH';
+                    delete @$from_row{qw(tags tagmode)};
+
+                    if ( !exists $data->{$to_id} || _is_custom_filter_row($from_row) ) {
+                        my $to_row = $data->{$to_id};
+                        if ( ref $to_row eq 'HASH' ) {
+                            foreach my $field (qw(tags tagmode)) {
+                                $from_row->{$field} = $to_row->{$field} if exists $to_row->{$field};
+                            }
+                        }
+                        $data->{$to_id} = $from_row;
+                    }
+
+                    my $updated = $dbcm->do(
+                        'UPDATE content_filter_data SET data = ?'
+                            . ' WHERE userid = ? AND filterid = ? AND data = ?',
+                        undef, nfreeze($data), $uid, $filterid, $raw
+                    );
+                    return ( 0, "Database Error: " . $dbcm->errstr ) unless defined $updated;
+                    last if $updated == 1;
+
+                    $raw = $dbcm->selectrow_array(
+                        'SELECT data FROM content_filter_data WHERE userid = ? AND filterid = ?',
+                        undef, $uid, $filterid );
+                    return ( 0, "Database Error: " . $dbcm->errstr ) if $dbcm->err;
                 }
-                elsif ( _is_custom_filter_row($from_row) ) {
-                    $data->{$to_id} = $from_row;
-                }
-
-                $dbcm->do(
-                    'UPDATE content_filter_data SET data = ? WHERE userid = ? AND filterid = ?',
-                    undef, nfreeze($data), $uid, $filterid );
-                return ( 0, "Database Error: " . $dbcm->errstr )
-                    if $dbcm->err;
 
                 my $u = $users->{$uid};
                 $u->memc_delete("cfd:$filterid");

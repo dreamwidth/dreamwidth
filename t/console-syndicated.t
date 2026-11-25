@@ -18,10 +18,15 @@
 use strict;
 use warnings;
 
-use Test::More tests => 44;
+use Test::More tests => 49;
+use HTTP::Request::Common qw(POST);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use DW::Controller::RPC::Misc;
+use DW::Request::Standard;
 use LJ::Console;
+use LJ::JSON;
+use LJ::Tags;
 use LJ::Test qw (temp_user temp_feed with_fake_memcache);
 local $LJ::T_NO_COMMAND_PRINT = 1;
 
@@ -81,14 +86,23 @@ with_fake_memcache {
     # - $u watching only $feed1 (News has $feed1 + custom adultcontent + unrelated $u3;
     #   Unrelated has only $u3 and must not gain $feed2)
     # - $u2 watching both feeds (OnlyOld has $feed1 with custom adultcontent;
-    #   Both has $feed1 with custom adultcontent and $feed2 with defaults;
+    #   Both customizes adultcontent on $feed1 and tags on both feeds;
     #   OnlyNew has only $feed2 with custom adultcontent)
-    # - $u3 watching both feeds (Both has $feed1 with defaults and $feed2 with custom adultcontent)
+    # - $u3 watching both feeds (Both customizes tags on $feed1 and adultcontent on $feed2)
+    my $old_tag  = LJ::Tags::create_usertag( $feed1, 'old' )->{old} or die 'Creating old feed tag';
+    my $new_tags = LJ::Tags::create_usertag( $feed2, 'new, surviving' )
+        or die 'Creating surviving feed tags';
+    my @new_tags    = @$new_tags{qw(new surviving)};
     my $u_news_fid  = $u->create_content_filter( name => 'News' );
     my $u_unrel_fid = $u->create_content_filter( name => 'Unrelated' );
-    my $u_news  = $u->content_filters( id => $u_news_fid );
-    my $u_unrel = $u->content_filters( id => $u_unrel_fid );
-    $u_news->add_row( userid => $feed1->id, adultcontent => 'sfw' );
+    my $u_news      = $u->content_filters( id => $u_news_fid );
+    my $u_unrel     = $u->content_filters( id => $u_unrel_fid );
+    $u_news->add_row(
+        userid       => $feed1->id,
+        adultcontent => 'sfw',
+        tags         => [$old_tag],
+        tagmode      => 'none_of'
+    );
     $u_news->add_row( userid => $u3->id );
     $u_unrel->add_row( userid => $u3->id );
 
@@ -99,13 +113,18 @@ with_fake_memcache {
     my $u2_both     = $u2->content_filters( id => $u2_both_fid );
     my $u2_only_new = $u2->content_filters( id => $u2_only_new_fid );
     $u2_only_old->add_row( userid => $feed1->id, adultcontent => 'nonexplicit' );
-    $u2_both->add_row( userid => $feed1->id, adultcontent => 'sfw' );
-    $u2_both->add_row( userid => $feed2->id );
+    $u2_both->add_row(
+        userid       => $feed1->id,
+        adultcontent => 'sfw',
+        tags         => [$old_tag],
+        tagmode      => 'none_of'
+    );
+    $u2_both->add_row( userid => $feed2->id, tags => \@new_tags, tagmode => 'all_of' );
     $u2_only_new->add_row( userid => $feed2->id, adultcontent => 'nonexplicit' );
 
     my $u3_both_fid = $u3->create_content_filter( name => 'Both' );
     my $u3_both     = $u3->content_filters( id => $u3_both_fid );
-    $u3_both->add_row( userid => $feed1->id );
+    $u3_both->add_row( userid => $feed1->id, tags => [$old_tag], tagmode => 'none_of' );
     $u3_both->add_row( userid => $feed2->id, adultcontent => 'nonexplicit' );
 
     # Warm watch/trustmask caches before merging to verify cache invalidation
@@ -136,15 +155,57 @@ with_fake_memcache {
     ok( !$u_news->contains_userid( $feed2->id ),
         'Pretend merge does not add surviving feed to filter' );
 
-    is(
-        $run->(
-            "syn_merge " . $feed1->user . " to " . $feed2->user . " using $LJ::SITEROOT/feed.rss#2"
-        ),
-        "success: Merged "
-            . $feed1->user . " to "
-            . $feed2->user
-            . " using URL: $LJ::SITEROOT/feed.rss#2."
-    );
+    my $writer = LJ::get_cluster_master($u);
+    my $saved;
+    {
+        local $writer->{Callbacks} = {
+            do => sub {
+                my ( $handle, $sql, $attr, $data, $uid, $filterid ) = @_;
+                return if $saved || $sql !~ /^UPDATE content_filter_data\b/;
+                return unless $uid == $u->id && $filterid == $u_news_fid;
+
+                local $DW::Request::cur_req;
+                local $DW::Request::determined;
+                my $request = DW::Request::Standard->new(
+                    POST "$LJ::SITEROOT/__rpc_contentfilters?mode=save_filters",
+                    [
+                        json => to_json(
+                            {
+                                $u_news_fid => {
+                                    members => {
+                                        $feed1->id => {
+                                            adultcontent => 'sfw',
+                                            tags         => { $old_tag => 1 },
+                                            tagmode      => 'none_of',
+                                        },
+                                        $u3->id => { adultcontent => 'nonexplicit' },
+                                    },
+                                    sortorder => $u_news->sortorder,
+                                    public    => $u_news->public,
+                                },
+                            }
+                        ),
+                    ],
+                );
+                DW::Controller::RPC::Misc::contentfilters_handler();
+                $saved = from_json( $request->response_content )->{ok};
+                return;
+            },
+        };
+        is(
+            $run->(
+                      "syn_merge "
+                    . $feed1->user . " to "
+                    . $feed2->user
+                    . " using $LJ::SITEROOT/feed.rss#2"
+            ),
+            "success: Merged "
+                . $feed1->user . " to "
+                . $feed2->user
+                . " using URL: $LJ::SITEROOT/feed.rss#2."
+        );
+    }
+    ok( $saved, 'The user saved the News filter just before the merge wrote it' );
     $feed1 = LJ::load_user( $feed1->user );
     ok( $feed1->is_renamed, "Feed redirection set up correctly." );
     is( scalar $feed1->watched_by_userids, 0, "No watches remaining for " . $feed1->user );
@@ -179,6 +240,10 @@ with_fake_memcache {
     ok( $u_news->contains_userid( $feed2->id ),  '$u News filter now contains surviving feed' );
     is( ( $u_news->data->{ $feed2->id } || {} )->{adultcontent},
         'sfw', '$u News filter kept custom adultcontent setting' );
+    ok( !@{ $u_news->data->{ $feed2->id }{tags} || [] },
+        '$u News filter dropped old feed tag IDs' );
+    ok( !exists $u_news->data->{ $feed2->id }{tagmode},
+        '$u News filter dropped old feed tag mode' );
     ok( $u_news->contains_userid( $u3->id ), '$u News filter kept unrelated member' );
 
     ok( !$u_unrel->contains_userid( $feed1->id ), '$u Unrelated filter has no old feed' );
@@ -197,6 +262,11 @@ with_fake_memcache {
     ok( $u2_both->contains_userid( $feed2->id ),  '$u2 Both filter kept surviving feed' );
     is( ( $u2_both->data->{ $feed2->id } || {} )->{adultcontent},
         'sfw', '$u2 Both filter carried over custom adultcontent from old feed' );
+    is_deeply(
+        [ @{ $u2_both->data->{ $feed2->id } }{qw(tags tagmode)} ],
+        [ \@new_tags, 'all_of' ],
+        '$u2 Both filter kept surviving feed tag settings'
+    );
 
     ok( !$u2_only_new->contains_userid( $feed1->id ), '$u2 OnlyNew filter has no old feed' );
     ok( $u2_only_new->contains_userid( $feed2->id ),  '$u2 OnlyNew filter kept surviving feed' );
@@ -224,4 +294,6 @@ with_fake_memcache {
     );
     is( ( $news_fresh->data->{ $feed2->id } || {} )->{adultcontent},
         'sfw', 'Fresh request: News filter retains custom adultcontent' );
+    is( ( $news_fresh->data->{ $u3->id } || {} )->{adultcontent},
+        'nonexplicit', 'Fresh request: News filter retains the concurrent edit' );
 };
