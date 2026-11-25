@@ -399,7 +399,7 @@ sub getinbox {
     # get the user's inbox
     my $inbox = $u->notification_inbox or return fail( $err, 500, "Cannot get user inbox" );
 
-    my %type_number = (
+    my %legacy_type_number = (
         AddedToCircle        => 1,
         Birthday             => 2,
         CommunityInvite      => 3,
@@ -411,19 +411,12 @@ sub getinbox {
         JournalNewComment    => 9,
         JournalNewEntry      => 10,
         NewUserpic           => 11,
-        NewVGift             => 12,
         OfficialPost         => 13,
-        PermSale             => 14,
         PollVote             => 15,
-        SupOfficialPost      => 16,
         UserExpunged         => 17,
         UserMessageRecvd     => 18,
         UserMessageSent      => 19,
     );
-    my %number_type = reverse %type_number;
-
-    my @notifications;
-
     my $sync_date;
 
     # check lastsync for valid date
@@ -434,18 +427,9 @@ sub getinbox {
         }
     }
 
-    if ( $req->{gettype} ) {
-        @notifications =
-            grep { $_->event->class eq "LJ::Event::" . $number_type{ $req->{gettype} } }
-            $inbox->items;
-    }
-    else {
-        @notifications = $inbox->all_items;
-    }
-
     # By default, notifications are sorted as "oldest are the first"
     # Reverse it by "newest are the first"
-    @notifications = reverse @notifications;
+    my @notifications = reverse $inbox->all_items;
 
     $itemshow = scalar @notifications - $skip if scalar @notifications < $skip + $itemshow;
 
@@ -455,7 +439,7 @@ sub getinbox {
 
         my $raw = $item->event->raw_info( $u, { extended => $req->{extended} } );
 
-        my $type_index = $type_number{ $raw->{type} };
+        my $type_index = $legacy_type_number{ $raw->{type} };
         if ( defined $type_index ) {
             $raw->{type} = $type_index;
         }
