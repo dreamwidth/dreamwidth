@@ -112,14 +112,34 @@ if ( defined $import_file ) {
         wait  => 30,
     ) or die "Cannot acquire email domain import lock: $DW::Locker::Error.\n";
 
-    my $active = $dbh->selectcol_arrayref(
-        q{SELECT value FROM sysban WHERE status = 'active' AND what = 'email_domain'
-          AND bandate <= NOW() AND (banuntil > NOW() OR banuntil = 0 OR banuntil IS NULL)}
-    );
+    my $active_bans = q{FROM sysban WHERE status = 'active' AND what = 'email_domain'
+        AND bandate <= NOW() AND (banuntil > NOW() OR banuntil = 0 OR banuntil IS NULL)};
+    my $active = $dbh->selectall_arrayref("SELECT value, UNIX_TIMESTAMP(banuntil) $active_bans");
     die "Cannot read existing email domain bans: " . $dbh->errstr . "\n" if !$active || $dbh->err;
 
-    my %banned    = map { lc($_) => 1 } grep     { defined } @$active;
-    my @protected = map { lc LJ::trim($_) } grep { defined && /\S/ } (
+    my %banned    = map { lc( $_->[0] ) => $_->[1] || 0 } grep { defined $_->[0] } @$active;
+    my $is_banned = sub {
+        my ($domain) = @_;
+        return 0 unless exists $banned{$domain};
+        my $expires = $banned{$domain};
+        return 1 if defined $expires && ( !$expires || $expires > time() );
+
+        my $live = $dbh->selectrow_arrayref(
+            "SELECT UNIX_TIMESTAMP(banuntil) $active_bans AND value = ?
+            ORDER BY (banuntil IS NULL OR banuntil = 0) DESC, banuntil DESC LIMIT 1",
+            undef, $domain,
+        );
+        die "Cannot recheck email domain ban: " . $dbh->errstr . "\n" if $dbh->err;
+        if ($live) {
+            $banned{$domain} = $live->[0] || 0;
+            return 1;
+        }
+        delete $banned{$domain};
+        return 0;
+    };
+
+    my $new_ban_expiry = defined $ban_seconds ? undef : 0;
+    my @protected      = map { lc LJ::trim($_) } grep { defined && /\S/ } (
         $LJ::DOMAIN, $LJ::USER_DOMAIN, $LJ::EMAIL_POST_DOMAIN, $LJ::EMAIL_REPLY_DOMAIN,
         @LJ::INCOMING_EMAIL_DOMAINS,
     );
@@ -146,7 +166,7 @@ if ( defined $import_file ) {
         {
             $error = 'protected email domain';
         }
-        elsif ( $banned{$domain} ) {
+        elsif ( $is_banned->($domain) ) {
             ++$duplicates;
             next;
         }
@@ -163,11 +183,11 @@ if ( defined $import_file ) {
                 require_audit => 1,
             );
             if ( ref $result eq 'ERROR' ) {
-                $banned{$domain} = 1 if $result->{persisted};
+                $banned{$domain} = $new_ban_expiry if $result->{persisted};
                 $error = $result->{message};
             }
             else {
-                $banned{$domain} = 1;
+                $banned{$domain} = $new_ban_expiry;
                 ++$added;
             }
         }

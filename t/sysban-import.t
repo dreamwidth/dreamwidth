@@ -247,6 +247,83 @@ ok(
         'ban inserted after initial deadline takes effect in real email lookup' );
 }
 
+{
+    my $expired    = "expired-during-import.$suffix";
+    my $renewed    = "renewed-during-import.$suffix";
+    my $checkpoint = "import-checkpoint.$suffix";
+    my $dir        = tempdir( CLEANUP => 1 );
+    my $fifo       = "$dir/expiring.fifo";
+    mkfifo( $fifo, 0600 ) or die "mkfifo $fifo failed: $!";
+    sysopen( my $writer, $fifo, O_RDWR ) or die "sysopen $fifo failed: $!";
+    my $old_fh = select $writer;
+    $| = 1;
+    select $old_fh;
+
+    my $expires = $dbh->selectrow_array('SELECT UNIX_TIMESTAMP() + 6');
+    for my $domain ( $expired, $renewed ) {
+        my $result = LJ::Sysban::create(
+            what     => 'email_domain',
+            value    => $domain,
+            exptime  => $expires,
+            note     => "Original $note",
+            noremote => 1,
+        );
+        BAIL_OUT('Could not seed expiring domain sysban') if ref $result;
+    }
+
+    my ( $pid, $out ) = spawn_import_path( $fifo, 0, "--note=$note" );
+    print {$writer} "$expired\n$renewed\n$checkpoint\n";
+    my $started;
+    while ( time() < $expires && !$started ) {
+        $started = $dbh->selectrow_array(
+            'SELECT 1 FROM sysban WHERE what = ? AND value = ? AND bandate < FROM_UNIXTIME(?)',
+            undef, 'email_domain', $checkpoint, $expires, );
+        sleep 0.05 unless $started;
+    }
+    ok( $started, 'import reads existing bans before they expire' );
+
+    my $remaining = $expires - time();
+    sleep $remaining if $remaining > 0;
+    my $replacement = LJ::Sysban::create(
+        what     => 'email_domain',
+        value    => $renewed,
+        bandays  => 0,
+        note     => "Original $note",
+        noremote => 1,
+    );
+    BAIL_OUT('Could not renew domain sysban') if ref $replacement;
+
+    print {$writer} "$expired\n$renewed\n";
+    close $writer;
+
+    my ( $expiry_status, $expiry_log ) = finish_import( $pid, $out );
+    is( $expiry_status, 0, 'import succeeds after existing bans expire' );
+    like(
+        $expiry_log,
+        qr/2 added, 3 duplicates, 0 rejected/,
+        'import adds the expired domain but skips the one renewed during import'
+    );
+    is(
+        $dbh->selectrow_array(
+            "SELECT COUNT(*) FROM sysban WHERE what = 'email_domain' AND status = 'active' "
+                . 'AND value = ? AND note = ? AND banuntil IS NULL',
+            undef,
+            $expired,
+            $note,
+        ),
+        1,
+        'domain whose ban expired during import now has a permanent ban'
+    );
+    is(
+        $dbh->selectrow_array(
+            "SELECT COUNT(*) FROM sysban WHERE what = 'email_domain' AND value = ? AND note = ?",
+            undef, $renewed, $note,
+        ),
+        0,
+        'import does not add a ban when another writer has renewed it'
+    );
+}
+
 # Concurrent overlapping imports serialize deduplication
 {
     my $dir   = tempdir( CLEANUP => 1 );
