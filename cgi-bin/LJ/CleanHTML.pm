@@ -15,7 +15,7 @@ package LJ::CleanHTML;
 use strict;
 
 use URI;
-use URI::Escape qw(uri_escape);
+use URI::Escape qw(uri_escape uri_unescape);
 use Socket qw(AF_INET6 inet_pton);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
@@ -937,8 +937,14 @@ TOKEN:
                     }
 
                     unless ( $hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei ) {
-                        $hash->{href} =
+                        my $url =
                             _escape_non_ascii_web_url( canonical_url( $hash->{href}, 1 ) );
+                        if ( length $url ) {
+                            $hash->{href} = $url;
+                        }
+                        else {
+                            delete $hash->{href};
+                        }
                     }
                 }
 
@@ -1958,9 +1964,11 @@ sub _escape_non_ascii_web_url {
                 $host = URI->new("http://$host/")->host;
             }
 
-            my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/i;
-            return '' unless defined $host && $host =~ /\A$label(?:\.$label)*\.?\z/;
-            return '' if length($host) > ( $host =~ /\.\z/ ? 254 : 253 );
+            return '' unless defined $host;
+            my $decoded_host = uri_unescape($host);
+            my $label        = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
+            return '' unless $decoded_host =~ /\A$label(?:\.$label)*\.?\z/;
+            return '' if length($decoded_host) > ( $decoded_host =~ /\.\z/ ? 254 : 253 );
         }
 
         $authority =

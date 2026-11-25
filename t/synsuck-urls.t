@@ -75,9 +75,14 @@ my $rss = encode_utf8(<<'RSS');
 <a title="scheme-relative" href="//news.example.test/новости">Scheme-relative</a>
 <a title="idn" href="//пример.рф:8443/путь?name=猫#é">International hostname</a>
 <a title="userinfo" href="https://josé@example.com/photo.jpg">International username</a>
+<a title="userinfo-escaped-host" href="https://josé@%65xample.com/path">Escaped hostname</a>
+<a title="userinfo-host-delimiter" href="https://josé@bad%2Fhost.com/">Encoded delimiter</a>
+<a title="userinfo-host-control" href="https://josé@bad%00host.com/">Encoded control</a>
+<a title="userinfo-host-bad-escape" href="https://josé@bad%ZZhost.com/">Malformed escape</a>
 <a title="userinfo-idn" href="http://josé@пример.рф/путь.jpg">International authority</a>
 <a title="userinfo-relative" href="//josé@example.com/photo.jpg">Relative username</a>
 <a title="userinfo-invalid-idn" href="//josé@пример..рф/путь.jpg">Malformed hostname</a>
+<a title="absolute-invalid-idn" href="http://пример..рф/">Malformed absolute hostname</a>
 <a title="unsafe" href="jav&#x61;script&#58;猫">Unsafe</a>
 <a title="data" href="data:text/html,猫">Unsafe</a>
 </p>]]></description></item>
@@ -221,6 +226,16 @@ is(
     'absolute link escapes its username with an ASCII hostname'
 );
 is(
+    $links{'userinfo-escaped-host'}{href},
+    'https://jos%C3%A9@%65xample.com/path',
+    'escaping the username preserves an existing escape in a valid ASCII hostname'
+);
+
+for my $invalid_host (qw(delimiter control bad-escape)) {
+    my $link = $links{"userinfo-host-$invalid_host"};
+    ok( $link && !exists $link->{href}, "hostname with $invalid_host loses href" );
+}
+is(
     $links{'userinfo-idn'}{href},
     'http://jos%C3%A9@xn--e1afmkfd.xn--p1ai/%D0%BF%D1%83%D1%82%D1%8C.jpg',
     'absolute link escapes its username and path and converts the internationalized hostname'
@@ -233,6 +248,10 @@ is(
 ok(
     $links{'userinfo-invalid-idn'} && !exists $links{'userinfo-invalid-idn'}{href},
     'a scheme-relative link with userinfo still rejects a malformed internationalized hostname'
+);
+ok(
+    $links{'absolute-invalid-idn'} && !exists $links{'absolute-invalid-idn'}{href},
+    'an absolute link with a malformed internationalized hostname loses href'
 );
 
 ok( $images{unsafe} && !length( $images{unsafe}{src} // '' ), 'javascript image URL is stripped' );
