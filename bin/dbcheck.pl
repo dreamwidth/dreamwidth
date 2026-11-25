@@ -12,6 +12,11 @@
 # modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
+#
+# Monitoring uses the application login from %LJ::DBINFO on each server.
+# On MySQL, it needs REPLICATION CLIENT for replication and binary log status.
+# PROCESS is needed for server-wide connection counts; without it, SHOW
+# PROCESSLIST only shows the configured login's own connections.
 
 use strict;
 
@@ -43,7 +48,11 @@ if ($help) {
             . "    --onlyerrors    Will be silent unless there are errors.\n" . "\n"
             . "Commands\n"
             . "   (none)           Shows replication status.\n"
-            . "   queries <host>   Shows active queries on host, sorted by running time.\n" );
+            . "   queries <host>   Shows active queries on host, sorted by running time.\n\n"
+            . "MySQL privileges for the %LJ::DBINFO login on each server:\n"
+            . "   REPLICATION CLIENT is required for replication and binary log checks.\n"
+            . "   PROCESS is required to see all connections in SHOW PROCESSLIST.\n"
+            . "   Without PROCESS, connection counts only cover that login's own connections.\n" );
 }
 
 # every database server the site connects to is listed in %LJ::DBINFO, along
@@ -64,15 +73,22 @@ foreach my $name ( keys %LJ::DBINFO ) {
 }
 die "No master database is configured in %LJ::DBINFO\n" unless $dbinfo{master};
 
-my %root_handle;    # name -> $db
-my $get_root_handle = sub {
+my %handle;    # name -> $db
+my $get_handle = sub {
     my $name = shift;
-    return $root_handle{$name} if exists $root_handle{$name};
+    return $handle{$name} if exists $handle{$name};
     debug("Connecting to '$name' ...");
     $LJ::DB_TIMEOUT = 1;
-    my $db = $LJ::DBIRole->get_dbh_conn( $LJ::DBIRole->make_dbh_fdsn( $dbinfo{$name} ) );
-    debug("  ($name: failed to connect)") unless $db;
-    return $root_handle{$name} = $db;
+    my $db = $LJ::DBIRole->get_dbh_conn( { unshared => 1 },
+        $LJ::DBIRole->make_dbh_fdsn( $dbinfo{$name} ) );
+    if ($db) {
+        $db->{ShowErrorStatement} = 1;
+        $db->{HandleError}        = sub { die "$name: $_[0]\n" };
+    }
+    else {
+        debug("  ($name: failed to connect)");
+    }
+    return $handle{$name} = $db;
 };
 
 # a replica's master is the configured server whose host and port match the
@@ -94,7 +110,7 @@ my %master_status;    # name -> [ $file, $pos ]
 my $check_master_status = sub {
     my $name = shift;
     die "Bogus DB: $name" unless $dbinfo{$name};
-    my $db = $get_root_handle->($name);
+    my $db = $get_handle->($name);
     return unless $db;
 
     my ( $masterfile, $masterpos ) = $db->selectrow_array("SHOW MASTER STATUS");
@@ -116,7 +132,7 @@ my $check = sub {
         $roles = join( ", ", sort keys %drole );
     }
 
-    my $db = $get_root_handle->($name);
+    my $db = $get_handle->($name);
     unless ($db) {
         printf( "%-18s %-18s ($roles)\n", $name, "" ) unless $opt_err;
         push @errors, "Can't connect to $name";
@@ -288,7 +304,7 @@ sub _sorted_names {
 
 sub check_report {
     foreach my $name ( sort keys %dbinfo ) {
-        my $db = $get_root_handle->($name);
+        my $db = $get_handle->($name);
 
         unless ($db) {
             print "$name\t?\t?\t?\n";
@@ -318,7 +334,7 @@ sub rate_report {
         print "\n";
         my $sum = 0;
         foreach my $name ( sorted_names() ) {
-            my $db = $get_root_handle->($name);
+            my $db = $get_handle->($name);
 
             next unless $db;
             my ( undef, $qs ) = $db->selectrow_array("SHOW STATUS LIKE 'Questions'");
