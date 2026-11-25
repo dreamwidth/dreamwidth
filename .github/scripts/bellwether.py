@@ -106,6 +106,7 @@ AUTO_PER_HOUR = env_count("BELLWETHER_AUTO_PER_HOUR", 2)
 # shifting between pages while it counts) can let one extra through.
 SWEEPING = False
 auto_merged = None
+dry_merged = 0
 
 
 def api(method, path, data=None):
@@ -288,8 +289,9 @@ def current_state(comment):
     return m.group(1) if m else None
 
 
-def set_next(comment, text):
-    """Replace the "what happens next" part of the status comment, if it changed.
+def set_next(comment, text, unless=()):
+    """Replace the "what happens next" part of the status comment, if it changed and doesn't start
+    with one of `unless`.
 
     Triage owns the state line. This re-reads the comment first and only ever rewrites the next
     part of what it finds, so it can't put back a state that triage has since replaced. If the
@@ -300,6 +302,9 @@ def set_next(comment, text):
     # A recorded merge is final: another run may have merged it meanwhile.
     if says_merged(fresh):
         return print("  comment already records the merge")
+    m = NEXT.search(fresh["body"] or "")
+    if unless and m and m.group(0)[len(NEXT_START):].lstrip().startswith(unless):
+        return print("  comment shows a merge under way; left alone")
     body = NEXT.sub(lambda _: f"{NEXT_START}\n{text}\n{NEXT_END}", fresh["body"])
     if body == fresh["body"]:
         return
@@ -370,16 +375,6 @@ WAITING = ("**Ready to merge.** I merge PRs that waited out the grace period on 
            f"at most {AUTO_PER_HOUR} an hour.\n\n{FOOTER}")
 
 
-def set_waiting(comment):
-    """Say a due PR is waiting for a sweep, unless the comment already records a merge under way
-    (a sweep can be merging it while a comment run looks at it)."""
-    fresh = comment if DRY_RUN else api("GET", f"/repos/{REPO}/issues/comments/{comment['id']}")
-    m = NEXT.search(fresh["body"] or "")
-    if m and m.group(0)[len(NEXT_START):].lstrip().startswith(("**Merging", "**Merged")):
-        return
-    return set_next(comment, WAITING)
-
-
 def merge_commit(number, waits=()):
     """The merge commit if the PR has merged, waiting `waits` seconds between looks, else None."""
     for wait in (0, *waits):
@@ -392,7 +387,7 @@ def merge_commit(number, waits=()):
 
 def decide(number, final_check=False):
     """Evaluate one PR. With `final_check`, only report whether it may still merge right now."""
-    global auto_merged
+    global auto_merged, dry_merged
     pr = api("GET", f"/repos/{REPO}/pulls/{number}")
     print(f"#{number}:")
     if pr["state"] != "open":
@@ -414,6 +409,7 @@ def decide(number, final_check=False):
     if pr["base"]["ref"] != pr["base"]["repo"]["default_branch"]:
         # Triage tests PRs merged onto the default branch only.
         return print(f"  targets {pr['base']['ref']}, not the default branch")
+    waiting = None
     go, hold, changes, fixing = commands(pr, state["head_seen_at"], state.get("fixes_done") or [],
                                          state.get("fix_failed_at"))
 
@@ -448,13 +444,12 @@ def decide(number, final_check=False):
         if now() < parse_time(state["ready_since"]) + timedelta(hours=hours):
             return set_next(comment, state["next"])
         if not SWEEPING:
-            print("  due; merges after the grace period wait for the hourly sweep")
-            return set_waiting(comment)
-        if auto_merged is None:
-            auto_merged = recent_merges()
-        if auto_merged >= AUTO_PER_HOUR:
-            print(f"  due, but {auto_merged} merges already this hour; next sweep")
-            return set_waiting(comment)
+            waiting = "merges after the grace period wait for the hourly sweep"
+        else:
+            if auto_merged is None:
+                auto_merged = recent_merges() + dry_merged
+            if auto_merged >= AUTO_PER_HOUR:
+                waiting = f"{auto_merged} merges already this hour; next sweep"
         reason = f"{hours} hours passed with no `/hold`"
     else:
         label(state.get("label"))
@@ -478,6 +473,11 @@ def decide(number, final_check=False):
     if problems:
         return set_next(comment, f"**Not merged yet: {'; '.join(problems)}.** "
                                  f"I'll merge it once that's sorted.\n\n{FOOTER}")
+    if waiting:
+        # Due, and nothing else stops it: it waits for a sweep with room under the cap. A sweep
+        # may be merging it right now, so a Merging line stays.
+        print(f"  due, but {waiting}")
+        return set_next(comment, WAITING, unless=("**Merging",))
     if final_check:
         return "ok"
 
@@ -492,6 +492,9 @@ def decide(number, final_check=False):
     if counted:
         auto_merged += 1
     if DRY_RUN:
+        # A merge simulated before the count can't show in it, so it's added when the count is read.
+        if SWEEPING and not counted:
+            dry_merged += 1
         return print("  would merge")
     try:
         sha = api("PUT", f"/repos/{REPO}/pulls/{number}/merge",
