@@ -258,6 +258,63 @@ like( $leap_day->content, qr/day-end-boundary/, 'includes the last second of the
 unlike( $leap_day->content, qr/next-month-boundary/, 'excludes the next UTC month' );
 
 {
+    my $writer        = \&LJ::get_db_writer;
+    my $reader        = \&LJ::get_db_reader;
+    my $faulty_lookup = sub {
+        my ( $failure, $get_db ) = @_;
+        return sub {
+            return $get_db->(@_)
+                unless caller eq 'DW::Controller::Export'
+                || ( caller(1) )[3] eq 'LJ::load_userids_multiple';
+            return if $failure eq 'unavailable';
+            return bless { dbh => $get_db->(@_), fail_user => 1 }, 'PostedCommentsTestDB';
+        };
+    };
+
+    local $LJ::CACHE_NO_ISAM{user} = 1;
+    no warnings 'redefine';
+    for my $failure ( 'query error', 'unavailable' ) {
+        local *LJ::get_db_writer = $faulty_lookup->( $failure, $writer );
+        local *LJ::get_db_reader = $faulty_lookup->( $failure, $reader );
+        LJ::memcache_kill( $owner->id, 'userid' );
+        my $failed = $download->( 'xml', year => 2024, month => 3, day => 1 );
+        is( $failed->code, 503, "central user lookup with $failure returns HTTP 503" );
+        ok( !$failed->header('Content-Disposition'), 'central user failure is not an attachment' );
+        unlike(
+            $failed->content,
+            qr/<comments>|next-month-boundary/,
+            'central user failure sends no archive data'
+        );
+    }
+}
+
+{
+    my ($missing_journalid) =
+        LJ::get_db_writer()->selectrow_array('SELECT MAX(userid) + 1 FROM user');
+    $author_db->do(
+        q{INSERT INTO talkleft (userid, posttime, journalid, nodetype, nodeid, jtalkid)
+            VALUES (?, ?, ?, 'L', ?, ?)},
+        undef, $author->id, $march, $missing_journalid, $entry->jitemid, $adjacent->jtalkid
+    ) or die $author_db->errstr;
+    my $available = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    is( $available->code, 200, 'a confirmed missing journal does not abort the download' );
+    like( $available->content, qr/next-month-boundary/, 'keeps the comment in the live journal' );
+    my @comments = $available->content =~ /<comment>/g;
+    is( scalar @comments, 1, 'skips the index row for the missing journal' );
+    $author_db->do( 'DELETE FROM talkleft WHERE userid=? AND journalid=?',
+        undef, $author->id, $missing_journalid )
+        or die $author_db->errstr;
+}
+
+{
+    my $loaded = DW::Controller::Export::_load_posted_entry_metadata( $owner,
+        { $concepts->jitemid => $concepts } );
+    ok( $loaded->{ $concepts->jitemid }, 'an entry with comments is recognized as live' );
+    is( $concepts->prop('adult_content'), 'concepts', 'preloads the stored age restriction' );
+    is( $concepts->prop('replycount'),    undef,      'reply count is not an entry property' );
+}
+
+{
     my $reader = \&LJ::get_cluster_reader;
     no warnings 'redefine';
     local *LJ::get_cluster_reader = sub {
@@ -404,7 +461,16 @@ is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment'
     }
 
     LJ::Talk::invalidate_talk2row_memcache( $journalid, @uncached_talkids );
-    my $recovered = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    my ( $recovered, @warnings );
+    {
+        local $SIG{__WARN__} = sub { push @warnings, @_ };
+        $recovered = $download->( 'xml', year => 2024, month => 3, day => 1 );
+    }
+    like(
+        join( '', @warnings ),
+        qr/unable to get cluster reader: $clusterid\b/,
+        'primary fallback logs the replica error'
+    );
     is( $recovered->code, 200, 'primary recovers the export while the reader is still down' );
     like( $recovered->header('Content-Disposition'),
         qr/attachment/, 'recovered XML is an attachment' );
@@ -417,6 +483,14 @@ is( scalar @remaining, 1, 'skips the stale index row and keeps the live comment'
     );
     my @recovered_comments = $recovered->content =~ /<comment>/g;
     is( scalar @recovered_comments, 2, 'primary retry skips the stale index row' );
+
+    LJ::Comment->reset_singletons;
+    LJ::Talk::invalidate_talk2row_memcache( $journalid, $adjacent->jtalkid );
+    my $pending = LJ::Comment->new( $owner, jtalkid => $adjacent->jtalkid );
+    eval { LJ::Comment->preload_rows( discard_pending => 1 ) };
+    like( $@, qr/unable to get cluster reader/, 'failed preload reports the reader outage' );
+    my $invalid = eval { !$pending->valid };
+    ok( $invalid, 'discarded pending comment can be checked without querying the reader again' );
 }
 
 my $deleted_entry = $owner->t_post_fake_entry;
@@ -497,6 +571,7 @@ package PostedCommentsTestDB {
 
     sub prepare {
         my ( $self, $sql, @args ) = @_;
+        $sql .= ' AND no_such_column = 1' if $self->{fail_user} && $sql =~ /FROM user WHERE /;
         $sql =~ s{(FROM talk2 WHERE )(.+)}
             {$1($2) AND (journalid <> $self->{journalid} OR jtalkid <> $self->{jtalkid})};
         return $self->{dbh}->prepare( $sql, @args );
@@ -504,7 +579,10 @@ package PostedCommentsTestDB {
 
     sub selectall_arrayref {
         my ( $self, $sql, @args ) = @_;
-        if ( $self->{fail_log2} || $self->{fail_logprop2} || $self->{fail_talkprop2} ) {
+        if ( $self->{fail_user} ) {
+            $sql .= ' AND no_such_column = 1' if $sql =~ /FROM user WHERE /;
+        }
+        elsif ( $self->{fail_log2} || $self->{fail_logprop2} || $self->{fail_talkprop2} ) {
             $sql .= ' AND no_such_column = 1'
                 if ( $self->{fail_log2} && $sql =~ /\blog2\b/ )
                 || ( $self->{fail_logprop2}  && $sql =~ /\blogprop2\b/ )
@@ -525,7 +603,8 @@ package PostedCommentsTestDB {
         return $self->{dbh}->selectrow_array( $sql, @args );
     }
 
-    sub err { return $_[0]->{dbh}->err }
+    sub err   { return $_[0]->{dbh}->err }
+    sub quote { return $_[0]->{dbh}->quote( $_[1] ) }
 }
 
 done_testing;

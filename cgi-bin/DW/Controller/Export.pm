@@ -30,6 +30,7 @@ use DW::Logic::AdultContent;
 use DW::Mood;
 use LJ::Comment;
 use LJ::Time;
+use LJ::User;
 use Time::Local qw( timegm );
 use Unicode::MapUTF8;
 
@@ -326,9 +327,10 @@ sub posted_comments_handler {
     my $size   = bytes::length($prefix) + bytes::length($suffix);
 
     my @ordered = sort { $a->[3] <=> $b->[3] || $a->[0] <=> $b->[0] || $a->[2] <=> $b->[2] } @$rows;
-    my %journal_ids = map { $_->[0] => 1 } @ordered;
-    my $journals    = LJ::load_userids( keys %journal_ids );
-    my $is_minor    = $author->is_minor;
+    my %journal_ids = map { $_->[0] => 1 } grep { $_->[4] eq 'L' } @ordered;
+    my $journals    = eval { _load_posted_journals( keys %journal_ids ) };
+    return _posted_comments_unavailable($r) unless $journals;
+    my $is_minor = $author->is_minor;
     my %seen;
     while (@ordered) {
         my @batch = splice @ordered, 0, POSTED_COMMENTS_BATCH;
@@ -340,7 +342,8 @@ sub posted_comments_handler {
             next unless $journal->clusterid && !$journal->is_expunged;
             push @candidates, [ $nodeid, LJ::Comment->new( $journal, jtalkid => $jtalkid ) ];
         }
-        eval { LJ::Comment->preload_rows( discard_pending_on_error => 1 ) };
+        eval { LJ::Comment->preload_rows( discard_pending => 1 ) };
+        warn "Posted comments export: comment metadata preload failed: $@" if $@;
 
         my %missing;
         foreach my $candidate (@candidates) {
@@ -434,6 +437,19 @@ sub posted_comments_handler {
     return $r->OK;
 }
 
+sub _load_posted_journals {
+    my (@journal_ids) = @_;
+    return {} unless @journal_ids;
+
+    my $primary = LJ::get_db_writer() or return;
+    my $bind    = join ',', ('?') x @journal_ids;
+    my $rows    = $primary->selectall_arrayref( "SELECT * FROM user WHERE userid IN ($bind)",
+        { Slice => {} }, @journal_ids );
+    return if !$rows || $primary->err;
+
+    return { map { $_->{userid} => LJ::_set_u_req_cache( LJ::User->new_from_row($_) ) } @$rows };
+}
+
 sub _load_posted_comment_metadata {
     my ( $journal, $comments ) = @_;
     my $primary  = LJ::get_cluster_master($journal) or return;
@@ -460,7 +476,7 @@ sub _load_posted_entry_metadata {
     my $bind    = join ',', ('?') x keys %$entries;
     my $rows    = $primary->selectall_arrayref(
         'SELECT entry.jitemid, entry.posterid, entry.eventtime, entry.logtime, '
-            . 'entry.security, entry.allowmask, entry.anum, entry.replycount, prop.propid, prop.value '
+            . 'entry.security, entry.allowmask, entry.anum, prop.propid, prop.value '
             . 'FROM log2 entry LEFT JOIN logprop2 prop '
             . 'ON prop.journalid=entry.journalid AND prop.jitemid=entry.jitemid '
             . "WHERE entry.journalid=? AND entry.jitemid IN ($bind)",
@@ -473,19 +489,19 @@ sub _load_posted_entry_metadata {
 
     LJ::load_props('log') unless $LJ::CACHE_PROPID{'log'};
     my $proplist = $LJ::CACHE_PROPID{'log'} or return;
-    my %loaded;
+    my ( %live, %props );
     foreach my $row (@$rows) {
         my $jitemid = $row->{jitemid};
-        unless ( exists $loaded{$jitemid} ) {
+        unless ( $live{$jitemid} ) {
             $entries->{$jitemid}->absorb_row(%$row);
-            $loaded{$jitemid} = { replycount => $row->{replycount} };
+            $live{$jitemid} = 1;
         }
         next unless defined $row->{propid};
         my $prop = $proplist->{ $row->{propid} } or next;
-        $loaded{$jitemid}->{ $prop->{name} } = $row->{value};
+        $props{$jitemid}->{ $prop->{name} } = $row->{value};
     }
-    $entries->{$_}->absorb_props( $loaded{$_} ) foreach keys %loaded;
-    return \%loaded;
+    $entries->{$_}->absorb_props( $props{$_} ) foreach keys %live;
+    return \%live;
 }
 
 sub _load_posted_comment_props {

@@ -498,7 +498,9 @@ sub preload_rows {
 
     # already loaded?
     return 1 unless @pending;
-    %unloaded_singletons = () if $opts{discard_pending_on_error};
+
+    # Callers using discard_pending must re-check valid and reload misses themselves.
+    %unloaded_singletons = () if $opts{discard_pending};
 
     # args: ([ journalid, jtalkid ], ...)
     my @rows = LJ::Talk::get_talk2_row_multi( map { [ $_->journal, $_->jtalkid ] } @pending );
