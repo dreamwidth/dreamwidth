@@ -183,7 +183,7 @@ sub insert_admin_ban {
     return $banid;
 }
 
-subtest 'admin reads and modifications respect stored ban types' => sub {
+subtest 'admin preserves existing sysban permissions' => sub {
     local $LJ::IS_DEV_SERVER              = 1;
     local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'sysbanAdminTest';
     local @LJ::MEMCACHE_SERVERS           = ('fake');
@@ -234,16 +234,10 @@ subtest 'admin reads and modifications respect stored ban types' => sub {
                 qr/\Q$note $label{$type}\E/,
                 "sysban:$type can list its own bans"
             );
-            my $denied_list = $post->( $user, query => 1, bantype => $other );
-            unlike(
-                $denied_list,
-                qr/\Q$note $label{$other}\E/,
-                "sysban:$type cannot list $other notes"
-            );
             like(
-                $denied_list,
-                qr/do not have the correct privileges/i,
-                "sysban:$type receives a denial listing $other bans"
+                $post->( $user, query => 1, bantype => $other ),
+                qr/\Q$note $label{$other}\E/,
+                "sysban:$type can list $other bans"
             );
 
             for my $include_expired ( 0, 1 ) {
@@ -278,28 +272,47 @@ subtest 'admin reads and modifications respect stored ban types' => sub {
         like( $all, qr/\Q$note $label{account_create}\E/, 'sysban:* can query registration bans' );
         like( $all, qr/\Q$note $label{talk_ip_test}\E/, 'sysban:* can query comment CAPTCHA bans' );
 
+        my $new_ip = '192.0.2.98';
+        like(
+            $post->(
+                $staff{talk_ip_test},
+                add     => 1,
+                bantype => 'account_create',
+                value   => $new_ip,
+                bandays => 7,
+                note    => "$note unauthorized"
+            ),
+            qr/do not have the correct privileges/i,
+            'adding a registration ban requires the registration ban privilege'
+        );
+        is(
+            $dbh->selectrow_array(
+                'SELECT COUNT(*) FROM sysban WHERE what = ? AND value = ? AND note = ?',
+                undef, 'account_create', $new_ip, "$note unauthorized"
+            ),
+            0,
+            'the denied add does not create a registration ban'
+        );
+
         for my $type ( sort keys %banid ) {
             my ($other) = grep { $_ ne $type } keys %banid;
-            my $denied = $post->(
+            my $updated = $post->(
                 $staff{$type},
                 modify  => 1,
                 banid   => $banid{$other},
                 expire  => 0,
                 bandays => 'X',
                 bantype => $type,
-                note    => "$note unauthorized"
+                note    => "$note updated $label{$other}"
             );
-            like(
-                $denied,
-                qr/do not have the correct privileges/i,
-                "sysban:$type cannot modify $other bans"
-            );
-            my $row = $dbh->selectrow_arrayref( 'SELECT note, banuntil FROM sysban WHERE banid = ?',
+            like( $updated, qr/Ban modified/i, "sysban:$type can modify $other bans" );
+            my $row = $dbh->selectrow_arrayref(
+                'SELECT note, banuntil <= NOW() FROM sysban WHERE banid = ?',
                 undef, $banid{$other} );
             is_deeply(
                 $row,
-                [ "$note $label{$other}", undef ],
-                "the denied update leaves the $other ban unchanged"
+                [ "$note updated $label{$other}", 1 ],
+                "the $other ban is expired and its note is stored"
             );
         }
 

@@ -40,12 +40,12 @@ sub sysban_controller {
     my $scope = '/admin/sysban/index.tt';
 
     my $r         = DW::Request->get;
-    my $remote    = $rv->{remote};
     my $form_args = $r->post_args;
     my $vars      = {};
 
     {    # construct sorted list of sysban privs visible to remote
 
+        my $remote = $rv->{remote};
         my @sysban_privs;
 
         my @all_sb_args = LJ::list_valid_args('sysban');
@@ -76,12 +76,6 @@ sub sysban_controller {
 
     return error_ml("$scope.error.noaction") unless $vars->{action};
 
-    my $bantype = $form_args->{bantype} // '';
-    if ( $vars->{action} eq 'query' || $vars->{action} eq 'add' ) {
-        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
-            unless length $bantype && $remote->has_priv( 'sysban', $bantype );
-    }
-
     $vars->{localtime} = sub { scalar localtime( $_[0] ) };
 
     if ( $vars->{action} eq 'addnew' ) {
@@ -96,7 +90,8 @@ sub sysban_controller {
 
         my $existing_bans = {};
 
-        LJ::Sysban::populate_full( $existing_bans, $bantype, $vars->{limit}, $vars->{skip} );
+        LJ::Sysban::populate_full( $existing_bans, $form_args->{bantype}, $vars->{limit},
+            $vars->{skip} );
 
         $vars->{existing_bans} = $existing_bans;
 
@@ -120,6 +115,12 @@ sub sysban_controller {
     }
 
     if ( $vars->{action} eq 'add' ) {    # this action comes from the addnew form
+
+        my $bantype = $form_args->{bantype} // '';
+        my $remote  = $rv->{remote};
+
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
+            unless length $bantype && $remote->has_priv( 'sysban', $bantype );
 
         return error_ml("$scope.error.nonote") unless $form_args->{note};
 

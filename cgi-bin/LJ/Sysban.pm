@@ -704,7 +704,7 @@ sub _unbannable_ip_error {
 
 # <LJFUNC>
 # name: LJ::Sysban::modify
-# des: modifies a ban's expiry or note if the current user can manage its stored type
+# des: modifies a ban's expiry or note
 # args: banid, bandays, expire, note (passed in as hash)
 # des-banid: the ban ID we're modifying
 # des-bandays: the new expiry
@@ -735,9 +735,9 @@ sub modify {
 
     my ( $what, $value ) =
         $dbh->selectrow_array( 'SELECT what, value FROM sysban WHERE banid = ?', undef, $banid );
-    my $remote = LJ::get_remote();
-    return bless { message => 'You do not have the correct privileges to modify this ban' }, 'ERROR'
-        unless defined $what && $remote && $remote->has_priv( 'sysban', $what );
+    return bless { message => $dbh->errstr }, 'ERROR' if $dbh->err;
+    $what  //= '';
+    $value //= '';
 
     my $banuntil = "NULL";
     if ($bandays) {
@@ -757,8 +757,8 @@ sub modify {
         }
     }
 
-    $dbh->do( "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=? AND what=?",
-        undef, $opts{note}, $banid, $what );
+    $dbh->do( "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=?",
+        undef, $opts{note}, $banid );
 
     if ( $dbh->err ) {
         return bless { message => $dbh->errstr, }, 'ERROR';
@@ -767,6 +767,7 @@ sub modify {
     LJ::MemCache::delete('sysban:account_create') if $what eq 'account_create';
 
     # log in statushistory
+    my $remote = LJ::get_remote();
     $banuntil = $opts{'bandays'} ? LJ::mysql_time($expire) : "forever";
 
     LJ::statushistory_add( 0, $remote, 'sysban_modify',
