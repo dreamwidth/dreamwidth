@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 324;
+use Test::More tests => 376;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -596,6 +596,66 @@ BODY
         is( $entry->security, 'private', "Privacy setting after $label applies" );
         like( $entry->event_raw, qr/\A\Q$opening\E\s*Secret\z/,
             "Privacy setting after $label is removed and body is retained" );
+    }
+
+    for my $case (
+        [ 'paragraph with a break', "<p><br></p>\npost-security: private\n\nSecret" ],
+        [ 'div with a break',       "<div><br></div>\npost-security: private\n\nSecret" ],
+        [ 'empty paragraph',        '<p></p><p>post-security: private</p><p>Secret</p>' ],
+        [ 'empty div',              "<div></div>\npost-security: private\n\nSecret" ],
+        [ 'nested empty blocks',    "<div><p><br></p></div>\npost-security: private\n\nSecret" ],
+        [ 'nonbreaking space',      "<p>&nbsp;</p>\npost-security: private\n\nSecret" ],
+        [
+            'empty paragraph before two settings',
+            "<p><br></p>\npost-comments: noemail\npost-security: private\n\nSecret"
+        ],
+        [
+            'consecutive empty blocks before and between settings',
+            '<p><br></p><div></div><p>post-comments: noemail</p><div><br></div><p></p>'
+                . "post-security: private\n\nSecret"
+        ],
+        )
+    {
+        my ( $label, $message ) = @$case;
+        my $mime = build_message( "Leading settings with $label", 'text/html', $message );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private', "Privacy setting with $label applies" );
+        ok( $entry->prop('opt_noemail'), "Comment email setting with $label applies" )
+            if $message =~ /post-comments:/;
+        unlike(
+            $entry->event_raw,
+            qr/post-(?:comments|security):/,
+            "Settings with $label are removed"
+        );
+        like( $entry->event_raw, qr/Secret(?:<\/p>)?\z/, "Body with $label is retained" );
+    }
+
+    for my $case (
+        [ 'paragraph containing prose',         '<p>Hello</p>',                "\n", '' ],
+        [ 'unopened leading paragraph close',   '</p>',                        "\n", '' ],
+        [ 'unopened div close after a setting', 'post-format: html<br></div>', "\n", '' ],
+        [ 'mismatched block close',             '<div><p></div></p>',          "\n", '' ],
+        [ 'block close without a break',        '<p>post-format: html</p>',    '',   '' ],
+        [
+            'quote after an empty paragraph', '<p><br></p><div class="gmail_quote">', "\n",
+            '</div>'
+        ],
+        )
+    {
+        my ( $label, $opening, $separator, $closing ) = @$case;
+        my $mime = build_message( "Setting-looking text after $label",
+            'text/html', "$opening${separator}post-security: private\n\nSecret$closing" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', "Privacy setting after $label does not apply" );
+        like(
+            $entry->event_raw,
+            qr/post-security: private\s+Secret/,
+            "Setting-looking text and body after $label are retained"
+        );
     }
 
     for my $case (

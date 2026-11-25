@@ -22,12 +22,13 @@ use HTML::TokeParser ();
 use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
-my $workdir           = "/tmp";
-my $html_inline_name  = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
-my $html_break_tag    = qr{<br[ \t]*/?>}i;
-my $html_office_open  = qr{<o:p[ \t]*>}i;
-my $html_office_space = qr/(?:[ \t\r\n\f]|&nbsp;)*+/i;
-my $html_office_close = qr{</o:p[ \t]*>}i;
+my $workdir                = "/tmp";
+my $html_inline_name       = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
+my $html_block_name        = qr/(?:div|p)/;
+my $html_break_tag         = qr{<br[ \t]*/?>}i;
+my $html_office_open       = qr{<o:p[ \t]*>}i;
+my $html_placeholder_space = qr/(?:[ \t\r\n\f]|&nbsp;)*+/i;
+my $html_office_close      = qr{</o:p[ \t]*>}i;
 
 =head1 NAME
 
@@ -43,8 +44,10 @@ This is the basic email posting behavior. Subclasses should implement the follow
 
 =item _parse_destination - given an auth string taken from the "to:" email header, set the user/journal/validated information
 
-=item _process - process the email. Call $self->_extract_post_headers before applying post
-options and $self->cleanup_body_final before submitting the body.
+=item _process
+
+Process the email. Call C<< $self->_extract_post_headers >> before applying post options
+and C<< $self->cleanup_body_final >> before submitting the body.
 
 =back
 
@@ -241,8 +244,8 @@ sub _extract_post_headers {
     pos($body) = 0;
 
     my $is_html = $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html';
-    my @inline_wrappers;
-    pos($body) = _html_header_offset( $body, \@inline_wrappers ) if $is_html;
+    my @wrappers;
+    pos($body) = _html_header_offset( $body, \@wrappers ) if $is_html;
 
     my $start        = pos($body);
     my $end          = $start;
@@ -263,25 +266,25 @@ sub _extract_post_headers {
         )*+
     }x;
     my $inline_tag   = qr{<(?:$html_inline_name(?:$inline_attrs)?/?>|/$html_inline_name\s*+>)}i;
-    my $value_markup = qr/$inline_tag|$html_office_open$html_office_space$html_office_close/;
+    my $value_markup = qr/$inline_tag|$html_office_open$html_placeholder_space$html_office_close/;
     my $value_text   = $is_html ? qr/(?:[^<\r\n]|$value_markup)*+/ : qr/[^\r\n]*/;
     my $value_start  = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
     my $value_end    = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
 
     while (1) {
         if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
-            pos($body) = _html_header_offset( $body, \@inline_wrappers, $end );
+            pos($body) = _html_header_offset( $body, \@wrappers, $end );
         }
         my $line_start = pos($body);
         last if $is_html && $body =~ /\G(?:[ \t]*\r?\n)*(?:lj|post)-[^:<\r\n]*</igc;
         last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):($value_text)$value_end/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), $3 );
-        $value = _html_header_value( \$body, $-[3], $value, $value_markup, \@inline_wrappers )
+        $value = _html_header_value( \$body, $-[3], $value, $value_markup, \@wrappers )
             if $is_html;
         $value = LJ::trim($value);
         if ( !length($value) && $body =~ /\G[ \t]+(?=$value_start)($value_text)$value_end/gc ) {
             $value = $1;
-            $value = _html_header_value( \$body, $-[1], $value, $value_markup, \@inline_wrappers )
+            $value = _html_header_value( \$body, $-[1], $value, $value_markup, \@wrappers )
                 if $is_html;
             $value = LJ::trim($value);
         }
@@ -301,7 +304,7 @@ sub _extract_post_headers {
 # Keep the wrapper stack in sync when a tag is consumed as part of a value.
 # Leave unmatched closes and quoted wrappers for the boundary scan to reject.
 sub _html_header_value {
-    my ( $body, $start, $value, $value_markup, $inline_wrappers ) = @_;
+    my ( $body, $start, $value, $value_markup, $wrappers ) = @_;
     my $plain  = '';
     my $offset = 0;
 
@@ -312,10 +315,10 @@ sub _html_header_value {
         unless ( $raw =~ /\A$html_office_open/ || $raw =~ m{\A<$html_inline_name\s*/>\z} ) {
             my $token = HTML::TokeParser->new( \$raw )->get_token;
             if ( $token->[0] eq 'S' && _is_html_header_wrapper($token) ) {
-                push @$inline_wrappers, $token->[1];
+                push @$wrappers, $token->[1];
             }
-            elsif ( $token->[0] eq 'E' && _is_html_inline_close( $token, $inline_wrappers ) ) {
-                pop @$inline_wrappers;
+            elsif ( $token->[0] eq 'E' && _is_html_wrapper_close( $token, $wrappers ) ) {
+                pop @$wrappers;
             }
             else {
                 pos($$body) = $start + $tag_start;
@@ -331,7 +334,7 @@ sub _html_header_value {
 # Skip leading breaks, formatting wrappers and empty Outlook <o:p> placeholders.
 # The first prose, quote container or unclosed comment ends the scan.
 sub _html_header_offset {
-    my ( $body, $inline_wrappers, $after_header ) = @_;
+    my ( $body, $wrappers, $after_header ) = @_;
     my $offset       = $after_header // _html_body_offset($body);
     my $line_start   = $offset;
     my $at_boundary  = !defined $after_header || substr( $body, 0, $offset ) =~ /\n\z/;
@@ -355,16 +358,12 @@ sub _html_header_offset {
                 $at_boundary = 1 if $type eq 'S';
             }
             elsif ( $type eq 'S' && _is_html_header_wrapper($token) ) {
-                if ( $text =~ /\A$html_inline_name\z/ ) {
-                    push @$inline_wrappers, $text;
-                }
-                else {
-                    $at_boundary = 1;
-                }
+                push @$wrappers, $text;
+                $at_boundary = 1 if $text =~ /\A$html_block_name\z/;
             }
             elsif ( $type eq 'S' && $raw =~ /\A$html_office_open\z/ ) {
                 my $closing = $parser->get_token or last;
-                if ( $closing->[0] eq 'T' && $closing->[1] =~ /\A$html_office_space\z/ ) {
+                if ( $closing->[0] eq 'T' && $closing->[1] =~ /\A$html_placeholder_space\z/ ) {
                     $length += length $closing->[1];
                     $closing = $parser->get_token or last;
                 }
@@ -377,15 +376,10 @@ sub _html_header_offset {
             $offset += $length;
             $line_start = $offset if $at_boundary && $type eq 'S';
         }
-        elsif ( $type eq 'E' && _is_html_inline_close( $token, $inline_wrappers ) ) {
-            pop @$inline_wrappers;
+        elsif ( $type eq 'E' && _is_html_wrapper_close( $token, $wrappers ) ) {
+            pop @$wrappers;
             $offset += length $token->[2];
             $line_start = $offset if $at_boundary;
-        }
-        elsif ( $type eq 'E' && defined $after_header && $token->[2] =~ m{\A</(?:div|p)[ \t]*>\z}i )
-        {
-            $offset += length $token->[2];
-            $at_boundary = 0;
         }
         elsif ( $type eq 'T' ) {
             $text =~ /\A((?:[ \t]*\r?\n)*)[ \t\f]*/;
@@ -393,7 +387,11 @@ sub _html_header_offset {
                 $line_start  = $offset + length $1;
                 $at_boundary = 1;
             }
-            last if $+[0] != length $text;
+            last
+                if $+[0] != length $text
+                && !( @$wrappers
+                && $wrappers->[-1] =~ /\A$html_block_name\z/
+                && $text =~ /\A$html_placeholder_space\z/ );
             $offset += length $text;
         }
         else {
@@ -404,9 +402,8 @@ sub _html_header_offset {
     return $line_start;
 }
 
-# Let a break inside inline formatting establish a directive boundary even when
-# followed by closing tags. Only close wrappers reached without crossing prose.
-sub _is_html_inline_close {
+# Closing a matched wrapper preserves a boundary established by a break or block open.
+sub _is_html_wrapper_close {
     my ( $token, $wrappers ) = @_;
     my ( undef, $tag, $raw ) = @$token;
     return @$wrappers && $tag eq $wrappers->[-1] && $raw =~ m{\A</\Q$tag\E\s*>\z}i;
@@ -416,7 +413,7 @@ sub _is_html_header_wrapper {
     my ($token) = @_;
     my ( undef, $tag, $attrs, $attr_order ) = @$token;
     my $inline = $tag =~ /\A$html_inline_name\z/;
-    return unless $inline || $tag eq 'div' || $tag eq 'p';
+    return unless $inline || $tag =~ /\A$html_block_name\z/;
 
     my %seen;
     return
