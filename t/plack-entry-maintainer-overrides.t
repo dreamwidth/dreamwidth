@@ -41,7 +41,10 @@ sub get_form {
     my $parser = HTML::TokeParser->new( \$html );
     while ( my $tag = $parser->get_tag('form') ) {
         next unless ( $tag->[1]{id} // '' ) eq $id;
-        my %form = ( comment_settings => '' );
+        my %form = (
+            comment_settings => '',
+            admin_hint       => $html =~ />\s*Disabled by administrator\s*</ ? 1 : 0,
+        );
         my $in_comments;
         while ( my $tag = $parser->get_tag(qw(input select option /select /form)) ) {
             my ( $name, $attr ) = @$tag;
@@ -103,7 +106,9 @@ test_psgi $app, sub {
             $poster_url .= '&mode=simple' if $layout eq 'simple';
             my $id = 'js-post-entry';
 
-            my $form        = get_form( $client, $poster_url, $id );
+            my $form = get_form( $client, $poster_url, $id );
+            ok( $form->{admin_hint},
+                'editor shows the hint when only the admin disables comments' );
             my %edit_fields = (
                 subject  => 'Edited by the poster',
                 event    => 'Entry body',
@@ -134,6 +139,8 @@ test_psgi $app, sub {
                 reload_entry($entry)->comments_disabled_poster,
                 'poster can disable comments separately'
             );
+            $form = get_form( $client, $poster_url, $id );
+            ok( !$form->{admin_hint}, 'editor hides the hint when both disable comments' );
 
             my $admin_form = get_form( $client, $admin_url, 'updateForm' );
             ok(

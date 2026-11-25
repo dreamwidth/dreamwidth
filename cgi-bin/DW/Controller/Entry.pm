@@ -967,7 +967,7 @@ sub _render_edit_form {
     $vars->{warnings} = $warnings;
 
     $vars->{formdata} = $post || DW::Entry::_backend_to_form( 0, $entry_obj );
-    $vars->{comments_disabled_by_maintainer} = $entry_obj->prop('opt_nocomments_maintainer');
+    $vars->{comments_disabled_by_maintainer} = $entry_obj->comments_disabled_maintainer;
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
