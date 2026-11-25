@@ -22,6 +22,8 @@ use Test::More;
 
 BEGIN { require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
+use DW::SiteScheme;
+use DW::Template;
 use LJ::Talk;
 use LJ::Protocol;
 use LJ::Tags;
@@ -30,9 +32,11 @@ use LJ::Test qw(temp_user);
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-my $smoothness = qr/jquery\.ui\.theme\.smoothness\.css/;
-my $contextual = qr/jquery\.contextualhover\.css/;
-my $ajaxtip    = qr/jquery\.ajaxtip\.css/;
+my $smoothness            = qr/jquery\.ui\.theme\.smoothness\.css/;
+my $contextual            = qr/jquery\.contextualhover\.css/;
+my $ajaxtip               = qr/jquery\.ajaxtip\.css/;
+my $dark_hive             = qr/jquery\.ui\.theme\.dark-hive\.css/;
+my $gradation_theme_order = qr/$smoothness.*$dark_hive/s;
 
 local $LJ::TASK_QUEUE_LOCAL_PATH = tempdir( CLEANUP => 1 );
 my $owner = temp_user();
@@ -48,6 +52,7 @@ END {
 LJ::Tags::update_logtags( $owner, $tagged->jitemid,
     { set_string => 'resource-test', remote => $owner } )
     or die 'Could not tag entry';
+$untagged->t_enter_comment( u => $owner );
 my $journal = 'http://localhost/users/' . $owner->user;
 
 my $session = do {
@@ -75,20 +80,113 @@ test_psgi $app, sub {
         };
     }
 
-    for my $path ( '/entry/new', '/entry/new?mode=simple', '/inbox/compose' ) {
-        subtest "Blueshift autocomplete on $path" => sub {
-            my $separator = $path =~ /\?/ ? '&' : '?';
-            my $response  = $request->(
-                GET "http://localhost$path${separator}skin=blueshift",
-                Cookie => "ljsession=$session"
-            );
-            is( $response->code, 200, 'widget page is available' );
-            my $styles = stylesheets($response);
-            like( $styles, qr{blueshift/blueshift\.css}, 'uses Blueshift' );
-            like( $styles, qr/jquery\.ui\.autocomplete\.css/, 'includes the autocomplete widget' );
-            like( $styles, $smoothness, 'styles the autocomplete menu and its keyboard selection' );
-        };
+    for my $skin ( 'blueshift', 'gradation-horizontal', 'lynx' ) {
+        for my $path ( '/entry/new', '/entry/new?mode=simple', '/inbox/compose' ) {
+            subtest "$skin autocomplete on $path" => sub {
+                my $separator = $path =~ /\?/ ? '&' : '?';
+                my $response  = $request->(
+                    GET "http://localhost$path${separator}skin=$skin",
+                    Cookie => "ljsession=$session"
+                );
+                is( $response->code, 200, 'widget page is available' );
+                my $styles = stylesheets($response);
+                like( $styles, qr{/$skin\.css}, "uses $skin" );
+                like(
+                    $styles,
+                    qr/jquery\.ui\.autocomplete\.css/,
+                    'includes the autocomplete widget'
+                );
+                if ( $skin eq 'blueshift' ) {
+                    like( $styles, $smoothness, 'Smoothness styles Blueshift autocomplete' );
+                }
+                else {
+                    unlike( $styles, $smoothness, 'Foundation skin styles autocomplete' );
+                }
+            };
+        }
     }
+
+    subtest 'inbox dialogs' => sub {
+        my $response = $request->( GET '/inbox?skin=lynx', Cookie => "ljsession=$session" );
+        is( $response->code, 200, 'inbox is available' );
+        like( $response->content, qr/jquery\.esn\.js/,           'includes subscription controls' );
+        like( $response->content, qr/jquery\.commentmanage\.js/, 'includes comment management' );
+        like( $response->content, qr/jquery\.ui\.dialog\.js/,    'includes the dialog widget' );
+        like( stylesheets($response), $smoothness, 'styles the inbox dialogs' );
+    };
+
+    subtest 'Gradation inbox uses Foundation resources' => sub {
+        my $response =
+            $request->( GET '/inbox?skin=gradation-horizontal', Cookie => "ljsession=$session" );
+        is( $response->code, 200, 'inbox is available' );
+        my $styles = stylesheets($response);
+        like(
+            $styles,
+            qr{css/skins/gradation/gradation-horizontal\.css},
+            'uses Foundation Gradation'
+        );
+        like( $styles, $smoothness, 'styles the inbox dialogs' );
+        unlike( $styles, $dark_hive, 'legacy Dark Hive does not compete with the dialog theme' );
+    };
+
+    subtest 'site-skinned comment management dialog' => sub {
+        my $entry_url = "$journal/" . $untagged->ditemid . '.html?style=site&skin=lynx';
+        my $response  = $request->( GET $entry_url, Cookie => "ljsession=$session" );
+        is( $response->code, 200, 'entry is available to its owner' );
+        like( $response->content, qr{href="[^"]*/delcomment\?},  'can delete a comment' );
+        like( $response->content, qr/jquery\.commentmanage\.js/, 'includes comment management' );
+        like( stylesheets($response), qr{/lynx\.css}, 'uses the Lynx site skin' );
+        like( stylesheets($response), $smoothness,    'styles the comment management dialog' );
+
+        my $guest = $request->( GET $entry_url );
+        is( $guest->code, 200, 'entry is available to guests' );
+        unlike( stylesheets($guest), $smoothness, 'guests do not get a dialog theme' );
+    };
+
+    subtest 'subscription dialog on an unfiltered journal' => sub {
+        my $response = $request->( GET "$journal/", Cookie => "ljsession=$session" );
+        is( $response->code, 200, 'recent view is available when signed in' );
+        like( $response->content,     qr/jquery\.esn\.js/, 'includes subscription controls' );
+        like( stylesheets($response), $smoothness,         'styles the subscription dialog' );
+    };
+
+    subtest 'Gradation jQuery dialog theme precedence' => sub {
+        local $LJ::BETA_FEATURES{nos2foundation} = { sitewide => 1 };
+        my $site_style = 'style=site&skin=gradation-horizontal';
+
+        subtest 'comment management' => sub {
+            local $LJ::DISABLED{userpicselect} = 1;
+            local $LJ::DISABLED{esn_ajax}      = 1;
+            my $entry_url = "$journal/" . $untagged->ditemid . ".html?$site_style";
+            my $response  = $request->( GET $entry_url, Cookie => "ljsession=$session" );
+            is( $response->code, 200, 'entry is available' );
+            like( $response->content, qr{href="[^"]*/delcomment\?}, 'can delete a comment' );
+            like( stylesheets($response), $gradation_theme_order,
+                'Dark Hive is applied after the comment management theme' );
+        };
+
+        subtest 'subscription controls' => sub {
+            my $response =
+                $request->( GET "$journal/?$site_style", Cookie => "ljsession=$session" );
+            is( $response->code, 200, 'recent view is available' );
+            like( $response->content, qr/jquery\.esn\.js/, 'includes subscription controls' );
+            like( stylesheets($response), $gradation_theme_order,
+                'Dark Hive is applied after the subscription theme' );
+        };
+
+        subtest 'tag navigation' => sub {
+            my $entry_url = "$journal/" . $tagged->ditemid . ".html?$site_style";
+            my $response  = $request->( GET $entry_url );
+            is( $response->code, 200, 'tagged entry is available to guests' );
+            like(
+                $response->content,
+                qr/class="tag-text"\s+data-journal=/,
+                'renders tag navigation'
+            );
+            like( stylesheets($response), $gradation_theme_order,
+                'Dark Hive is applied after the tag navigation theme' );
+        };
+    };
 
     subtest 'guest journal tooltip and tag navigation resources' => sub {
         my $untagged_page = $request->( GET "$journal/" . $untagged->ditemid . '.html' );
@@ -141,6 +239,13 @@ sub stylesheets {
     LJ::Talk::init_iconbrowser_js();
     my $head = LJ::res_includes( nojs => 1, no_scripttags => 1 );
     like( $head, $smoothness, 'the legacy icon dialog still gets its theme' );
+
+    DW::Request->reset;
+    DW::Request::Standard->new( HTTP::Request->new( GET => 'http://localhost/' ) );
+    my $page = DW::Template->render_scheme( DW::SiteScheme->get('gradation-horizontal'), '', {} );
+    like( $page, $gradation_theme_order,
+        'Dark Hive is applied after the legacy icon dialog theme' );
+    DW::Request->reset;
 }
 
 done_testing;

@@ -61,7 +61,7 @@ sub ReplyPage {
 <script type="text/javascript" src="$LJ::JSPREFIX/md5.js"></script>
 };
 
-    LJ::need_res( LJ::S2::tracking_popup_js($remote) );
+    LJ::S2::init_tracking_popup_js($remote);
 
     # include JS for quick reply, icon browser, and ajax cut tag
     LJ::Talk::init_s2journal_js(

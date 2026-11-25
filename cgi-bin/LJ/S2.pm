@@ -1849,11 +1849,11 @@ sub use_journalstyle_entry_page {
     return $reparse_userprop->();
 }
 
-sub tracking_popup_js {
+sub init_tracking_popup_js {
     my ($remote) = @_;
-    return () unless LJ::is_enabled('esn_ajax');
+    return unless LJ::is_enabled('esn_ajax');
 
-    return (
+    LJ::need_res(
         { group => 'all' }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.widget.js
@@ -1868,8 +1868,10 @@ sub tracking_popup_js {
 
             js/jquery.esn.js
             ),
-        ( $remote && $remote->can_use_esn ? ('stc/jquery/jquery.ui.theme.smoothness.css') : () ),
     );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' )
+        if $remote && $remote->can_use_esn;
 }
 
 sub use_journalstyle_icons_page {
@@ -2078,7 +2080,8 @@ sub TagList {
     @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
 
     return "" if $opts->{no_entry_body};
-    LJ::need_res('stc/jquery/jquery.ui.theme.smoothness.css')
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' )
         if @$taglist && $opts->{show_tag_navigation};
     return "" unless $opts->{enable_tags_compatibility} && @$taglist;
     return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );

@@ -7,6 +7,9 @@ jquery: stc/jquery.ajaxtip.css
 jquery: js/jquery.commentmanage.js
 jquery: js/jquery/jquery.ui.core.js
 jquery: js/jquery/jquery.ui.dialog.js
+jquery: stc/jquery/jquery.ui.theme.smoothness.css
+jquery: stc/jquery/jquery.ui.dialog.css
+jquery: stc/jquery.commentmanage.css
 jquery: js/jquery/jquery.ui.tooltip.js
 jquery: js/jquery/jquery.ui.position.js
 */

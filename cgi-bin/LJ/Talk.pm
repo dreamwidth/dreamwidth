@@ -1811,12 +1811,13 @@ sub init_iconbrowser_js {
         # for the formatting of the icon selector popup
         'js/jquery/jquery.ui.dialog.js',
         'stc/jquery/jquery.ui.dialog.css',
-        'stc/jquery/jquery.ui.theme.smoothness.css',
 
         # logic for the icon selector
         'js/jquery.iconselector.js',
         'stc/jquery.iconselector.css',
     );
+    LJ::need_res( { group => 'jquery', priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' );
 
     # The Old-Old Icon Browser: Weird ancient technology. Not the exciting kind.
     # Used on: New entry page (if NOT in "updatepage" beta), inbox's "compose"

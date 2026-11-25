@@ -524,8 +524,10 @@ sub EntryPage {
             stc/jquery.commentmanage.css
             )
     );
-    LJ::need_res('stc/jquery/jquery.ui.theme.smoothness.css') if $remote;
-    LJ::need_res( LJ::S2::tracking_popup_js($remote) );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' )
+        if $remote;
+    LJ::S2::init_tracking_popup_js($remote);
 
     # init shortcut js if selected
     LJ::Talk::init_s2journal_shortcut_js( $remote, $p );
