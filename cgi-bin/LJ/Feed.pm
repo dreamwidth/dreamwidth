@@ -16,6 +16,8 @@ package LJ::Feed;
 use strict;
 
 use DW::Cache;
+use DW::Locker;
+use DW::User::ContentFilters::Filter;
 use LJ::Entry;
 use Storable qw( nfreeze thaw );
 use XML::Atom::Person;
@@ -851,7 +853,10 @@ sub _get_feeds_from_db {
     return $popsyn;
 }
 
-=head2 C<< LJ::Feed::merge( %opts ) >>
+=head2 C<< LJ::Feed::merge_feed( %opts ) >>
+
+Returns success, a message, and (when the merge ran) an arrayref of warnings.
+A warning does not undo a completed feed merge.
 
 =over
 
@@ -935,9 +940,14 @@ sub merge_feed {
         $dbh->selectrow_array( "SELECT synurl FROM syndicated WHERE userid=?", undef, $to_u->id );
 
     # 1) set up redirection for 'from_user' -> 'to_user'
-    $from_u->update_self( { journaltype => 'R', statusvis => 'R' } );
-    $from_u->set_prop( "renamedto", $to_u->user )
-        or return ( 0, "Unable to set userprop.  Database unavailable?" );
+    {
+        my $lock = DW::User::ContentFilters::Filter::lock_feed_redirects()
+            or return ( 0, "Unable to lock feed redirects: $DW::Locker::Error." );
+        $from_u->set_prop( "renamedto", $to_u->user )
+            or return ( 0, "Unable to set userprop.  Database unavailable?" );
+        $from_u->update_self( { journaltype => 'R', statusvis => 'R' } )
+            or return ( 0, "Unable to mark the feed as redirected." );
+    }
 
     # 2) delete the row in the syndicated table for the user
     #    that is now renamed
@@ -955,6 +965,7 @@ sub merge_feed {
     # 4) make users who watch 'from_user' now watch 'to_user'
     # we can't just use delete_ and add_ edges, because we would lose
     # custom group and colors data
+    my ( $from_id, $to_id ) = ( $from_u->id, $to_u->id );
     if (@ids) {
 
         # users who already watch 'to_user' keep that edge, and the update below
@@ -986,7 +997,6 @@ sub merge_feed {
             if $dbh->err;
 
         # clear memcache and request cache keys
-        my ( $from_id, $to_id ) = ( $from_u->id, $to_u->id );
         foreach my $id (@ids) {
             LJ::memcache_kill( $id, 'wt_edges' );
             LJ::memcache_kill( $id, 'wt_list' );
@@ -1002,32 +1012,35 @@ sub merge_feed {
 
         LJ::memcache_kill( $to_id, 'wt_edges_rev' );
         LJ::memcache_kill( $to_id, 'watched_by' );
-
-        # 5) move 'from_user' reading filter memberships and settings to 'to_user'
-        my ( $cf_ok, $cf_err ) = _migrate_content_filters( $from_id, $to_id, \@ids );
-        return ( 0, $cf_err ) unless $cf_ok;
     }
 
     # log to statushistory
+    my @warnings;
     my $remote = LJ::get_remote();
     my $msg    = "Merged " . $from_u->user . " to " . $to_u->user . " using URL: $url.";
-    LJ::statushistory_add( $from_u, $remote, 'synd_merge', $msg . " Old URL was $from_oldurl." );
-    LJ::statushistory_add( $to_u,   $remote, 'synd_merge', $msg . " Old URL was $to_oldurl." );
+    foreach my $feed ( [ $from_u, $from_oldurl ], [ $to_u, $to_oldurl ] ) {
+        my ( $account, $oldurl ) = @$feed;
+        unless (
+            LJ::statushistory_add(
+                $account, $remote, 'synd_merge', $msg . " Old URL was $oldurl."
+            )
+            )
+        {
+            push @warnings, 'Unable to write merge audit entry for ' . $account->user . '.';
+        }
+    }
 
-    return ( 1, $msg );
-}
+    # 5) move 'from_user' reading filter memberships and settings to 'to_user'
+    push @warnings, _migrate_content_filters( $from_id, $to_id, \@ids ) if @ids;
 
-sub _is_custom_filter_row {
-    my ($row) = @_;
-    return 0 unless ref $row eq 'HASH';
-    return 1 if $row->{adultcontent} && $row->{adultcontent} ne 'any';
-    return 1 if $row->{postertype}   && $row->{postertype} ne 'any';
-    return 0;
+    return ( 1, $msg, \@warnings );
 }
 
 sub _migrate_content_filters {
     my ( $from_id, $to_id, $ids ) = @_;
 
+    local $LJ::THROW_ERRORS = 0;
+    my @warnings;
     my $batch_size = 500;
     for ( my $i = 0 ; $i < @$ids ; $i += $batch_size ) {
         my $end = $i + $batch_size - 1;
@@ -1037,15 +1050,26 @@ sub _migrate_content_filters {
         my $users = LJ::load_userids(@chunk);
         my %by_cluster;
         foreach my $uid (@chunk) {
-            my $u = $users->{$uid} or next;
+            my $u = $users->{$uid};
+            unless ($u) {
+                push @warnings, "Unable to load watcher $uid to migrate their reading filters.";
+                next;
+            }
             next unless $u->clusterid;
             push @{ $by_cluster{ $u->clusterid } }, $uid;
         }
 
-        foreach my $cid ( sort { $a <=> $b } keys %by_cluster ) {
+    CLUSTER: foreach my $cid ( sort { $a <=> $b } keys %by_cluster ) {
             my $cuids = $by_cluster{$cid};
-            my $dbcm  = LJ::get_cluster_master($cid)
-                or return ( 0, "Database Error: Unable to connect to cluster $cid." );
+            my $dbcm  = LJ::get_cluster_master($cid);
+            unless ($dbcm) {
+                push @warnings,
+                      "Unable to migrate reading filters on cluster $cid for users "
+                    . join( ', ', @$cuids )
+                    . ': cluster unavailable.';
+                next CLUSTER;
+            }
+            local $dbcm->{RaiseError} = 0;
 
             my $placeholders = join( ',', ('?') x @$cuids );
             my $rows         = $dbcm->selectall_arrayref(
@@ -1053,8 +1077,13 @@ sub _migrate_content_filters {
                     . "WHERE userid IN ($placeholders)",
                 undef, @$cuids
             );
-            return ( 0, "Database Error: " . $dbcm->errstr )
-                if $dbcm->err;
+            if ( !$rows || $dbcm->err ) {
+                push @warnings,
+                      "Unable to load reading filters on cluster $cid for users "
+                    . join( ', ', @$cuids ) . ': '
+                    . $dbcm->errstr;
+                next CLUSTER;
+            }
 
         FILTER: foreach my $row (@$rows) {
                 my ( $uid, $filterid, $raw ) = @$row;
@@ -1067,36 +1096,32 @@ sub _migrate_content_filters {
                     };
                     next FILTER unless ref $data eq 'HASH' && exists $data->{$from_id};
 
-                    return ( 0,
-                        "Reading filter $filterid for user $uid kept changing during feed merge." )
-                        unless $attempts_remaining--;
-
-                    my $from_row = delete $data->{$from_id};
-                    $from_row = {} unless ref $from_row eq 'HASH';
-                    delete @$from_row{qw(tags tagmode)};
-
-                    if ( !exists $data->{$to_id} || _is_custom_filter_row($from_row) ) {
-                        my $to_row = $data->{$to_id};
-                        if ( ref $to_row eq 'HASH' ) {
-                            foreach my $field (qw(tags tagmode)) {
-                                $from_row->{$field} = $to_row->{$field} if exists $to_row->{$field};
-                            }
-                        }
-                        $data->{$to_id} = $from_row;
+                    unless ( $attempts_remaining-- ) {
+                        push @warnings, "Reading filter $filterid for user $uid kept changing.";
+                        next FILTER;
                     }
 
+                    DW::User::ContentFilters::Filter::remap_feed_member( $data, $from_id, $to_id );
                     my $updated = $dbcm->do(
                         'UPDATE content_filter_data SET data = ?'
                             . ' WHERE userid = ? AND filterid = ? AND data = ?',
                         undef, nfreeze($data), $uid, $filterid, $raw
                     );
-                    return ( 0, "Database Error: " . $dbcm->errstr ) unless defined $updated;
+                    unless ( defined $updated ) {
+                        push @warnings, "Unable to update reading filter $filterid for user $uid: "
+                            . $dbcm->errstr;
+                        next FILTER;
+                    }
                     last if $updated == 1;
 
                     $raw = $dbcm->selectrow_array(
                         'SELECT data FROM content_filter_data WHERE userid = ? AND filterid = ?',
                         undef, $uid, $filterid );
-                    return ( 0, "Database Error: " . $dbcm->errstr ) if $dbcm->err;
+                    if ( $dbcm->err ) {
+                        push @warnings, "Unable to reload reading filter $filterid for user $uid: "
+                            . $dbcm->errstr;
+                        next FILTER;
+                    }
                 }
 
                 my $u = $users->{$uid};
@@ -1110,7 +1135,7 @@ sub _migrate_content_filters {
         }
     }
 
-    return ( 1, '' );
+    return @warnings;
 }
 
 1;

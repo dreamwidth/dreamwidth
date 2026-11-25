@@ -118,13 +118,13 @@ sub merge_controller {
             my $to_u   = LJ::want_user($to);
             foreach my $feed_id (@userids) {
                 my $from = $feed_id;
-                my ( $ok, $msg ) = LJ::Feed::merge_feed(
+                my ( $ok, $msg, $warnings ) = LJ::Feed::merge_feed(
                     from    => $from,
                     to      => $to_u,
                     url     => $url,
                     pretend => ( $confirmed ? 0 : 1 )
                 );
-                push @merge_plan, [ LJ::want_user($from), $to_u, $ok, $msg ];
+                push @merge_plan, [ LJ::want_user($from), $to_u, $ok, $msg, $warnings ];
                 $failed = 1 unless $ok;
             }
             $vars->{merge_plan} = \@merge_plan;
