@@ -28,7 +28,6 @@ use base qw(DW::EmailPost::Base);
 use strict;
 
 use LJ::Protocol;
-use LJ::Userpic;
 
 use Date::Parse;
 use DateTime;
@@ -195,15 +194,8 @@ sub _set_props {
     # are used.
     $props->{taglist} = $post_headers{tags};
     my $keyword = $post_headers{userpic} || $post_headers{icon} || undef;
-    if ( defined $keyword && lc $keyword eq 'random' ) {
-        my @icons = grep { !( $_->inactive || $_->expunged || $_->suspended ) }
-            LJ::Userpic->load_user_userpics($u);
-        my @keywords = grep { length } map { $_->keywords( raw => 1 ) } @icons;
-        unless ( grep { $_ eq $keyword } @keywords ) {
-            $keyword = @keywords ? $keywords[ int rand @keywords ] : undef;
-        }
-    }
-    $props->{picture_keyword} = $keyword // $u->{emailpost_userpic};
+    $props->{picture_keyword} = $self->_choose_icon_keyword( $u, $keyword )
+        // $u->{emailpost_userpic};
     if ( my $id = DW::Mood->mood_id( $post_headers{mood} ) ) {
         $props->{current_moodid} = $id;
     }

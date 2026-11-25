@@ -161,10 +161,10 @@ sub _check_sender {
 sub _set_props {
     my ( $self, $u, %post_headers ) = @_;
 
-    my $props = {};
-    $props->{picture_keyword} = $post_headers{userpic}
-        || $post_headers{icon};
-    $props->{editor} = $self->_choose_editor( $post_headers{format} );
+    my $props   = {};
+    my $keyword = $post_headers{userpic} || $post_headers{icon};
+    $props->{picture_keyword} = $self->_choose_icon_keyword( $u, $keyword );
+    $props->{editor}          = $self->_choose_editor( $post_headers{format} );
 
     $self->{props} = $props;
 

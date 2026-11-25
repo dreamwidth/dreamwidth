@@ -308,7 +308,7 @@ subtest 'new headers still respect PIN, journal permissions, and privacy' => sub
     is( $posted && $posted->allowmask, 1,         'entry uses the community access list' );
 };
 
-subtest 'random icon uses only real keywords on eligible icons' => sub {
+subtest 'random icon includes keywordless active icons and excludes inactive icons' => sub {
     my $sender = temp_user();
     LJ::Emailpost::Web::set_allowed_senders( $sender,
         { $user_email_info->{FROM_EMAIL} => { get_errors => 1 } } );
@@ -321,20 +321,23 @@ subtest 'random icon uses only real keywords on eligible icons' => sub {
     is( scalar $unkeyworded->keywords( raw => 1 ), '', 'active icon has no real keyword' );
     ok( LJ::Userpic->new( $sender, $inactive->id )->inactive, 'named icon is inactive' );
 
-    my ( $none, $message ) = email_entry( $sender, $sender, $emailpin, 'post-icon: random' );
-    ok( $none && $none->valid, 'no eligible keywords does not prevent posting' )
+    my ( $keywordless, $message ) = email_entry( $sender, $sender, $emailpin, 'post-icon: random' );
+    ok( $keywordless && $keywordless->valid, 'the entry posts with a keywordless icon available' )
         or do { diag $message; return };
-    ok(
-        $none && !length( $none->userpic_kw // '' ),
-        'does not assign a synthetic or inactive keyword'
+    is(
+        $keywordless->userpic_kw,
+        'pic#' . $unkeyworded->id,
+        'stores a selection for the only active icon, even though it has no keyword'
     );
+    my $icon = $keywordless->userpic;
+    is( $icon && $icon->id, $unkeyworded->id, 'the stored selection resolves to that icon' );
 
-    my $eligible = add_icon( $sender, 'good.gif', 'pic#favorite' );
+    $unkeyworded->set_keywords('pic#favorite');
     my ($selected) = email_entry( $sender, $sender, $emailpin, 'post-icon: RANDOM' );
     is( $selected && $selected->userpic_kw, 'pic#favorite', 'a literal pic# keyword is eligible' );
 
-    $eligible->set_keywords('Random');
-    $unkeyworded->set_keywords('another');
+    $unkeyworded->set_keywords('Random');
+    add_icon( $sender, 'good.gif', 'another' );
     srand(2314);
     foreach ( 1 .. 4 ) {
         my ($explicit) = email_entry( $sender, $sender, $emailpin, 'post-icon: Random' );
