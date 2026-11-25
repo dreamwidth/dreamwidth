@@ -18,6 +18,7 @@ use warnings;
 use HTTP::Request::Common;
 use Plack::Test;
 use Test::More;
+use Test::MockTime qw(set_fixed_time restore_time);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -67,6 +68,63 @@ PERL
     close $pipe;
     return ( $? >> 8, $output // '' );
 }
+
+with_fake_memcache {
+    subtest 'reuse and invalidate the OpenID domain cache' => sub {
+        my $type           = 'openid_domain';
+        my $key            = "sysban:$type";
+        my $cache_host     = "cache-$host";
+        my $scheduled_host = "scheduled-$host";
+        my $now            = $dbh->selectrow_array('SELECT UNIX_TIMESTAMP()');
+
+        ok( !LJ::Sysban::sysban_check( $type, $cache_host ), 'An unbanned host warms the cache' );
+        ok( defined LJ::MemCache::get($key), 'A negative lookup populates the cache' );
+        $dbh->do(
+'INSERT INTO sysban (what, value, bandate, banuntil) VALUES (?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))',
+            undef, $type, $scheduled_host, $now + 120, $now + 150
+        ) or die $dbh->errstr;
+        push @banids, $dbh->{mysql_insertid};
+
+        my $created = LJ::Sysban::create(
+            what     => $type,
+            value    => $cache_host,
+            bandays  => 0,
+            note     => 'Cache fixture',
+            noremote => 1
+        );
+        ok( $created && !ref $created, 'A moderator can create a domain ban' ) or return;
+        push @banids, $created;
+        ok( !defined LJ::MemCache::get($key), 'A create invalidates the warmed list' );
+        ok( LJ::Sysban::sysban_check( $type, "sub.$cache_host" ),
+            'A newly banned subdomain is blocked' );
+        ok( !LJ::Sysban::sysban_check( $type, $scheduled_host ),
+            'A scheduled ban is not yet active' );
+
+        set_fixed_time( $now + 120 );
+        ok( LJ::Sysban::sysban_check( $type, $scheduled_host ), 'A cached ban starts on schedule' );
+        set_fixed_time( $now + 150 );
+        ok( !LJ::Sysban::sysban_check( $type, $scheduled_host ),
+            'A cached ban stops at its expiry' );
+        restore_time();
+
+        ok( defined LJ::MemCache::get($key), 'Checks share the warmed list' );
+        my $admin = temp_user();
+        $admin->grant_priv( 'sysban', $type );
+        LJ::User->set_remote($admin);
+        my $modified = LJ::Sysban::modify(
+            banid   => $created,
+            expire  => 0,
+            bandays => 'X',
+            what    => $type,
+            value   => $cache_host,
+            note    => 'cache fixture lifted'
+        );
+        LJ::User->unset_remote;
+        isnt( ref $modified, 'ERROR', 'The moderator can lift the active ban' );
+        ok( !defined LJ::MemCache::get($key), 'An edit invalidates the warmed list' );
+        ok( !LJ::Sysban::sysban_check( $type, $cache_host ), 'The lifted ban no longer applies' );
+    };
+};
 
 with_fake_memcache {
     test_psgi $app, sub {
@@ -460,12 +518,16 @@ with_fake_memcache {
             my $admin = temp_user();
             $admin->grant_priv( 'sysban', 'openid_domain' );
             if ($banid) {
+                LJ::User->set_remote($admin);
                 my $result = LJ::Sysban::modify(
-                    actor   => $admin,
                     banid   => $banid,
+                    expire  => 0,
                     bandays => 'X',
                     note    => 'lifted',
+                    what    => 'openid_domain',
+                    value   => $host,
                 );
+                LJ::User->unset_remote;
                 isnt( ref $result, 'ERROR', 'The ban can be edited and expired' );
                 my $bans =
                     LJ::Sysban::populate_full_by_value_with_expired( $host, 'openid_domain' );

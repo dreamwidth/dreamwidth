@@ -53,7 +53,10 @@
 
     <form method='post' action='sysban'>
       [% dw.form_auth %]
+      [% form.hidden( name = 'expire', value = existing_bans.$bankey.expire ) %]
       [% form.hidden( name = 'banid',  value = existing_bans.$bankey.banid  ) %]
+      [% form.hidden( name = 'value',  value = bankey ) %]
+      [% form.hidden( name = 'bantype' ); # from formdata %]
       <td>
         [% form.select( name = 'bandays', selected = 'E',
                         items = [ 'E',  dw.ml( '.select.E'  ),

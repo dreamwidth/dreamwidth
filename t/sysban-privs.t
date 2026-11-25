@@ -47,9 +47,6 @@ ok( LJ::Sysban::can_manage_type( $full, 'fixture_beta' ),  'Wildcard allows anot
 ok( !LJ::Sysban::can_manage_type( $full,         '*' ), 'Wildcard is not itself a ban type' );
 ok( !LJ::Sysban::can_manage_type( moderator(''), '' ),  'An empty grant does not name a type' );
 ok( !LJ::Sysban::can_manage_type( moderator(), 'fixture_alpha' ), 'The grant is required' );
-is_deeply( LJ::Sysban::populate_full_by_value('fixture.invalid'), {}, 'No allowed types to query' );
-is_deeply( LJ::Sysban::populate_full_by_value_with_expired('fixture.invalid'),
-    {}, 'No allowed types to query with expired bans' );
 
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
@@ -81,12 +78,31 @@ with_fake_memcache {
         return $banids[-1];
     };
     my $banid = $add_ban->( 'openid_domain', $host, 'Scoped active ban', 2 );
-    $add_ban->( 'openid_domain',  $host,         'Scoped expired ban',                 -1 );
-    $add_ban->( 'email_domain',   $host,         'Other type ban',                     2 );
+    $add_ban->( 'openid_domain', $host, 'Scoped expired ban', -1 );
+    my $email_banid = $add_ban->( 'email_domain', $host, 'Other type ban', 2 );
     $add_ban->( 'OPENID_DOMAIN',  $host,         'Uppercase type ban',                 2 );
     $add_ban->( 'openid_domain ', $host,         'Padded type ban',                    2 );
     $add_ban->( 'OPENID_DOMAIN',  "sub.$host",   'Uppercase type with distinct value', 2 );
     $add_ban->( 'openid_domain',  "exact-$host", 'Different exact value',              2 );
+    my $legacy_email = "legacy\@$host";
+    my $legacy_id    = $add_ban->( 'EMAIL', $legacy_email, 'Legacy mixed-case ban', 2 );
+
+    subtest 'case-insensitive lookups still find legacy types' => sub {
+        my %bans;
+        LJ::Sysban::populate_full( \%bans, 'email' );
+        is( $bans{$legacy_email}{banid}, $legacy_id, 'The email list includes the EMAIL row' );
+        for my $lookup ( \&LJ::Sysban::populate_full_by_value,
+            \&LJ::Sysban::populate_full_by_value_with_expired )
+        {
+            my $bans = $lookup->( $legacy_email, 'email', 'openid_domain' );
+            is( $bans->{EMAIL}[0]{banid},
+                $legacy_id, 'Exact-value lookup also finds the mixed-case email row' );
+            my $all_legacy = $lookup->($host);
+            ok( exists $all_legacy->{email_domain},
+                'No type restriction still includes legacy bans' );
+            ok( !exists $all_legacy->{openid_domain}, 'OpenID bans always require the exact type' );
+        }
+    };
 
     subtest 'cannot edit a ban of a different type' => sub {
         my $stored = sub {
@@ -94,12 +110,16 @@ with_fake_memcache {
                 undef, $banid );
         };
         my $before = $stored->();
+        LJ::User->set_remote($email_admin);
         my $result = LJ::Sysban::modify(
-            actor   => $email_admin,
             banid   => $banid,
+            expire  => 0,
             bandays => 'X',
             note    => 'Unauthorized replacement',
+            what    => 'email_domain',
+            value   => $host,
         );
+        LJ::User->unset_remote;
         is( ref $result, 'ERROR', 'Edit fails without the stored type grant' );
         is_deeply( $stored->(), $before, 'The stored note and expiry are unchanged' );
     };
@@ -147,9 +167,16 @@ with_fake_memcache {
                 'Type listing excludes expired and nonmatching types'
             );
             unlike(
-                $scoped_post->( query => 1, bantype => 'email_domain' ),
-                qr/Other type ban/,
-                'The controller does not list an ungranted type'
+                $scoped_post->( query => 1, bantype => 'OPENID_DOMAIN' ),
+                qr/Scoped active ban/,
+                'A case variant does not bypass the OpenID type match'
+            );
+            my ( undef, $email_post ) = $visit->($email_admin);
+            return unless $email_post;
+            unlike(
+                $email_post->( query => 1, bantype => 'openid_domain' ),
+                qr/Scoped active ban/,
+                'A legacy scoped moderator cannot list canonical OpenID bans'
             );
 
             my $active = $scoped_post->( queryone => 1, queryvalue => $host );
@@ -186,6 +213,36 @@ qr/Scoped expired ban|Other type ban|Uppercase type|Padded type|Different exact 
                 qr/Uppercase type|Padded type|Different exact value/,
                 'Wildcard search does not include unregistered types or other values'
             );
+
+            subtest 'legacy web listing and editing still use the page grant' => sub {
+                like(
+                    $scoped_post->( query => 1, bantype => 'email_domain' ),
+                    qr/Other type ban/,
+                    'The page grant still allows listing a legacy type'
+                );
+
+                my $expire = $dbh->selectrow_array(
+                    'SELECT UNIX_TIMESTAMP(banuntil) FROM sysban WHERE banid = ?',
+                    undef, $email_banid );
+                my @edit = (
+                    modify  => 1,
+                    expire  => $expire,
+                    bandays => 'E',
+                    bantype => 'email_domain',
+                    value   => $host,
+                    note    => 'Edited legacy ban'
+                );
+                like( $scoped_post->( @edit, banid => $email_banid ),
+                    qr/Success/i, 'The edit form reports success' );
+                is_deeply(
+                    $dbh->selectrow_arrayref(
+                        'SELECT note, UNIX_TIMESTAMP(banuntil) FROM sysban WHERE banid = ?',
+                        undef, $email_banid
+                    ),
+                    [ 'Edited legacy ban', $expire ],
+                    'The original form parameters edit the note without changing expiry'
+                );
+            };
         };
     };
 };

@@ -39,13 +39,12 @@ sub sysban_controller {
 
     my $scope = '/admin/sysban/index.tt';
 
-    my $r            = DW::Request->get;
-    my $form_args    = $r->post_args;
-    my $remote       = $rv->{remote};
-    my %priv_args    = $remote->priv_args('sysban');
-    my @types        = $priv_args{'*'} ? LJ::list_valid_args('sysban') : keys %priv_args;
-    my @sysban_types = grep { LJ::Sysban::can_manage_type( $remote, $_ ) } sort @types;
-    my $vars         = { sysban_menu => [ map { $_, $_ } @sysban_types ] };
+    my $r         = DW::Request->get;
+    my $form_args = $r->post_args;
+    my $remote    = $rv->{remote};
+    my %priv_args = $remote->priv_args('sysban');
+    my @types     = sort( $priv_args{'*'} ? LJ::list_valid_args('sysban') : keys %priv_args );
+    my $vars      = { sysban_menu => [ map { $_, $_ } @types ] };
 
     return DW::Template->render_template( 'admin/sysban/index.tt', $vars )
         unless $r->did_post;
@@ -59,8 +58,8 @@ sub sysban_controller {
     return error_ml("$scope.error.noaction") unless $vars->{action};
 
     my $bantype = $form_args->{bantype};
-    if ( $vars->{action} =~ /\A(?:addnew|add|query)\z/ ) {
-        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml( $bantype // '' ) } )
+    if ( ( $bantype // '' ) eq 'openid_domain' && $vars->{action} =~ /\A(?:addnew|query)\z/ ) {
+        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
             unless LJ::Sysban::can_manage_type( $remote, $bantype );
     }
 
@@ -88,10 +87,12 @@ sub sysban_controller {
     if ( $vars->{action} eq 'modify' ) {    # this action comes from the query form
 
         my $modify = LJ::Sysban::modify(
-            actor   => $remote,
             banid   => $form_args->{banid},
+            expire  => $form_args->{expire},
             bandays => $form_args->{bandays},
             note    => $form_args->{note},
+            what    => $bantype,
+            value   => $form_args->{value},
         );
 
         return error_ml( "$scope.error.modify", { message => $modify->{message} } )
@@ -102,6 +103,9 @@ sub sysban_controller {
     }
 
     if ( $vars->{action} eq 'add' ) {    # this action comes from the addnew form
+
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml( $bantype // '' ) } )
+            unless $remote->has_priv( 'sysban', $bantype );
 
         return error_ml("$scope.error.nonote") unless $form_args->{note};
 
@@ -137,7 +141,7 @@ sub sysban_controller {
             ? sub { LJ::Sysban::populate_full_by_value_with_expired(@_) }
             : sub { LJ::Sysban::populate_full_by_value(@_) };
 
-        $vars->{sysbans} = $lookup->( $form_args->{queryvalue}, @sysban_types );
+        $vars->{sysbans} = $lookup->( $form_args->{queryvalue}, @types );
     }
 
     return DW::Template->render_template( 'admin/sysban/index.tt', $vars );

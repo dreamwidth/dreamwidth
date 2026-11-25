@@ -74,9 +74,45 @@ sub parse_openid_domain {
 }
 
 sub openid_discovered_sysban_check {
-    my $host = _openid_domain( $_[0], discovered => 1 );
+    return _cached_openid_domain_check( scalar _openid_domain( $_[0], discovered => 1 ) );
+}
+
+sub _cached_openid_domain_check {
+    my ($host) = @_;
     return 0 unless defined $host;
-    return _domain_ban_matches( LJ::get_db_reader(), 'openid_domain', $host );
+
+    my $key  = 'sysban:openid_domain';
+    my $bans = LJ::MemCache::get($key);
+    unless ($bans) {
+        my $dbh = LJ::get_db_writer();
+        return undef unless $dbh;
+
+        my $rows = $dbh->selectall_arrayref(
+            q{SELECT value, UNIX_TIMESTAMP(bandate), UNIX_TIMESTAMP(banuntil)
+              FROM sysban
+              WHERE status = 'active' AND CAST(what AS BINARY) = 'openid_domain'
+                AND value IS NOT NULL AND bandate IS NOT NULL
+                AND (NOW() < banuntil OR banuntil = 0 OR banuntil IS NULL)}
+        );
+        return undef unless $rows;
+
+        $bans = {};
+        for my $row (@$rows) {
+            my ( $value, $starts, $expires ) = @$row;
+            push @{ $bans->{ lc $value } }, [ $starts || 0, $expires || 0 ];
+        }
+        LJ::MemCache::set( $key, $bans, 120 );
+    }
+
+    my $now = time();
+    while ( $host =~ /\./ ) {
+        for my $interval ( @{ $bans->{$host} // [] } ) {
+            my ( $starts, $expires ) = @$interval;
+            return 1 if $now >= $starts && ( !$expires || $now < $expires );
+        }
+        $host =~ s/\A[^.]+\.//;
+    }
+    return 0;
 }
 
 sub _domain_ban_matches {
@@ -312,6 +348,10 @@ sub sysban_check {
         return $LJ::SPAMREPORT_BANNED{$value};
     }
 
+    if ( $what eq 'openid_domain' ) {
+        return _cached_openid_domain_check( scalar _openid_domain($value) );
+    }
+
     # need the db below here
     my $dbr = LJ::get_db_reader();
     return undef unless $dbr;
@@ -334,10 +374,6 @@ sub sysban_check {
             }, undef, $wh, $vl
         );
     };
-
-    if ( $what eq 'openid_domain' ) {
-        return _domain_ban_matches( $dbr, $what, scalar _openid_domain($value) );
-    }
 
     # check both ban by email and ban by domain if we have an email address
     if ( $what eq 'email' ) {
@@ -416,6 +452,20 @@ sub populate_full {
     return _db_sysban_populate_full(@_);
 }
 
+sub _sysban_type_filter {
+    my @legacy = grep { ( $_ // '' ) ne 'openid_domain' } @_;
+    my $openid = "CAST(what AS BINARY) = 'openid_domain'";
+    if ( !@_ ) {
+        return ("NOT ($openid)");
+    }
+    return ($openid) unless @legacy;
+
+    my $in_what = join ', ', ('?') x @legacy;
+    my $legacy =
+        @legacy < @_ ? "what IN ($in_what) OR $openid" : "what IN ($in_what) AND NOT ($openid)";
+    return ( "($legacy)", @legacy );
+}
+
 sub _db_sysban_populate_full {
     my ( $where, $what, $limit, $skip ) = @_;
     my $dbh = LJ::get_db_writer();
@@ -423,15 +473,16 @@ sub _db_sysban_populate_full {
 
     # build cache from db
     my $limitsql = $limit ? " ORDER BY banid DESC LIMIT ? OFFSET ?" : "";
+    my ( $type_filter, @bind ) = _sysban_type_filter($what);
     my $sth =
         $dbh->prepare( "SELECT banid, value, "
             . "UNIX_TIMESTAMP(banuntil), note "
             . "FROM sysban "
-            . "WHERE status='active' AND CAST(what AS BINARY)=? "
+            . "WHERE status='active' AND $type_filter "
             . "AND NOW() > bandate "
             . "AND (NOW() < banuntil OR banuntil IS NULL)"
             . $limitsql );
-    $sth->execute( $what, $limit, $skip );
+    $sth->execute( @bind, $limit ? ( $limit, $skip ) : () );
     return undef if $sth->err;
     while ( my ( $banid, $val, $exp, $note ) = $sth->fetchrow_array ) {
         $where->{$val}->{banid}  = $banid || 0;
@@ -471,12 +522,11 @@ sub populate_full_by_value_with_expired {
 
 sub _db_sysban_populate_full_by_value {
     my ( $value, $no_expired, @types ) = @_;
-    return {} unless @types;
 
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
-    my $in_what  = join ', ', ('?') x @types;
+    my ( $type_filter, @bind ) = _sysban_type_filter(@types);
     my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
 
     # build cache from db
@@ -485,12 +535,12 @@ sub _db_sysban_populate_full_by_value {
            FROM sysban
            WHERE status = 'active'
                  AND value = ?
-                 AND CAST(what AS BINARY) IN ( $in_what )
+                 AND $type_filter
                  AND NOW() > bandate
                  $banuntil
         }
     );
-    $sth->execute( $value, @types );
+    $sth->execute( $value, @bind );
     return undef if $sth->err;
 
     my $where;
@@ -605,7 +655,7 @@ sub create {
     my $exptime = $opts{bandays} ? time() + 86400 * $opts{bandays} : 0;
     $exptime = $opts{exptime} if $opts{exptime};
 
-    # special case: creating ip/uniq/spamreport ban
+    # special case: creating a cached ban
     ban_do( $opts{what}, $opts{value}, $exptime );
 
     # log in statushistory
@@ -723,18 +773,24 @@ sub validate {
 # <LJFUNC>
 # name: LJ::Sysban::modify
 # des: modifies the expiry or note field of an entry
-# args: actor, banid, bandays, note (passed in as hash)
-# des-actor: the moderator making the change
+# args: banid, expire, bandays, note, what, value (passed in as hash)
 # des-banid: the ban ID we're modifying
 # des-bandays: the new expiry
+# des-expire: the old expiry
 # des-note: the new note (optional)
-# returns: ban ID on success, ERROR object on failure
+# des-what: the ban type
+# des-value: the ban value
+# returns: ERROR object on failure
 # </LJFUNC>
 sub modify {
-    my %opts  = @_;
-    my $actor = $opts{actor};
-    return bless { message => 'Cannot modify this ban' }, 'ERROR'
-        unless $actor && ( $opts{banid} // '' ) =~ /\A[1-9][0-9]*\z/;
+    my %opts = @_;
+    unless ( $opts{banid} && defined $opts{expire} ) {
+        return
+            bless {
+            message => "Arguments must be passed as a hash; ban ID and old expiry are required\n"
+            },
+            'ERROR';
+    }
 
     if ( $opts{note} && length( $opts{note} ) > 255 ) {
         return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
@@ -743,15 +799,23 @@ sub modify {
     my $dbh = LJ::get_db_writer();
     return bless { message => 'Cannot modify this ban' }, 'ERROR' unless $dbh;
 
-    my $ban = $dbh->selectrow_hashref(
-        'SELECT banid, what, value, UNIX_TIMESTAMP(banuntil) AS expire FROM sysban WHERE banid = ?',
+    my $openid = $dbh->selectrow_hashref(
+        q{SELECT value, UNIX_TIMESTAMP(banuntil) AS expire FROM sysban
+          WHERE banid = ? AND CAST(what AS BINARY) = 'openid_domain'},
         undef, $opts{banid}
     );
-    return bless { message => 'Cannot modify this ban' }, 'ERROR'
-        unless $ban && can_manage_type( $actor, $ban->{what} );
+    return bless { message => $dbh->errstr }, 'ERROR' if $dbh->err;
 
-    my $banid   = $ban->{banid};
-    my $expire  = $ban->{expire} || 0;
+    my $remote = LJ::get_remote();
+    if ($openid) {
+        return bless { message => 'Cannot modify this ban' }, 'ERROR'
+            unless can_manage_type( $remote, 'openid_domain' );
+        @opts{qw(what value expire)} =
+            ( 'openid_domain', $openid->{value}, $openid->{expire} || 0 );
+    }
+
+    my $banid   = $opts{banid};
+    my $expire  = $opts{expire};
     my $bandays = $opts{bandays};
 
     my $banuntil = "NULL";
@@ -772,33 +836,38 @@ sub modify {
         }
     }
 
-    my $matched = $dbh->do(
-        "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=? AND CAST(what AS BINARY)=?",
-        undef, $opts{note}, $banid, $ban->{what} );
+    my $operator = $openid ? '=' : '<>';
+    my $matched  = $dbh->do(
+        "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=? "
+            . "AND CAST(what AS BINARY) $operator 'openid_domain'",
+        undef, $opts{note}, $banid
+    );
 
     if ( $dbh->err ) {
         return bless { message => $dbh->errstr, }, 'ERROR';
     }
-    return bless { message => 'Cannot modify this ban' }, 'ERROR' unless $matched && $matched > 0;
+    return bless { message => 'Cannot modify this ban' }, 'ERROR'
+        if $openid && !( $matched && $matched > 0 );
+    ban_undo('openid_domain') if $openid;
 
     # log in statushistory
     $banuntil = $bandays ? LJ::mysql_time($expire) : "forever";
 
-    LJ::statushistory_add( 0, $actor, 'sysban_modify',
+    LJ::statushistory_add( 0, $remote, 'sysban_modify',
               "banid=$banid; status=active; "
             . "bandate="
             . LJ::mysql_time()
             . "; banuntil=$banuntil; "
-            . "what=$ban->{what}; value=$ban->{value}; "
+            . "what=$opts{what}; value=$opts{value}; "
             . "note=$opts{'note'};" );
 
-    return $banid;
+    return $openid ? $banid : $dbh->{'mysql_insertid'};
 
 }
 
 sub ban_do {
     my ( $what, $value, $until ) = @_;
-    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    my %types = ( ip => 1, uniq => 1, spamreport => 1, openid_domain => 1 );
     return unless $types{$what};
 
     LJ::MemCache::delete("sysban:$what");
@@ -808,7 +877,7 @@ sub ban_do {
 
 sub ban_undo {
     my ( $what, $value ) = @_;
-    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    my %types = ( ip => 1, uniq => 1, spamreport => 1, openid_domain => 1 );
     return unless $types{$what};
 
     LJ::MemCache::delete("sysban:$what");
