@@ -315,6 +315,7 @@ with_fake_memcache {
 'INSERT INTO sysban (what, value, bandate) VALUES (?, ?, NOW() - INTERVAL 1 SECOND)',
                     undef, $what, $lookalike_host
                 ) or die $dbh->errstr;
+                LJ::MemCache::delete('sysban:openid_domain');
                 push @banids, $dbh->{mysql_insertid};
                 ok( !LJ::Sysban::sysban_check( 'openid_domain', "https://$lookalike_host/" ),
                     "The row with type '$what' does not ban its domain" );
