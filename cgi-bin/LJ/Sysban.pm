@@ -43,7 +43,11 @@ sub _openid_domain {
     return if $opts{storage} && $value =~ /[^\x00-\x7f]|%/;
     unless ( $opts{discovered} ) {
         return if $value =~ /[\s<>]/;
-        $value = "http://$value" unless $value =~ m{\A[a-z][a-z0-9+.-]*://}i;
+        unless ( $value =~ m{\A[a-z][a-z0-9+.-]*://}i ) {
+            return if $value =~ m{\A[^/?#]*\@};
+            return if $value =~ m{\A[a-z][a-z0-9+.-]*:(?![0-9]+(?:\z|[/?#]))}i;
+            $value = "http://$value";
+        }
     }
     return unless $value =~ m{\Ahttps?://}i;
 
@@ -54,13 +58,16 @@ sub _openid_domain {
     my $uri  = URI->new($value);
     my $host = $uri->host // '';
     if ( $host =~ /[^\x00-\x7f]/ ) {
-        return unless utf8::decode($host) && $host =~ /\A(?:[a-z0-9.-]|[^\x00-\x7f])+\z/i;
+        return unless utf8::decode($host) && $host =~ /\A(?:[a-z0-9_.-]|[^\x00-\x7f])+\z/i;
         $uri->host($host);
         $host = $uri->host // '';
     }
     $host = lc($host);
     $host =~ s/\.\z//;
-    my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/;
+    my $label =
+        $opts{storage}
+        ? qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/
+        : qr/[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?/;
     return unless $host =~ /\A$label(?:\.$label)+\z/;
 
     if ( $opts{storage} ) {

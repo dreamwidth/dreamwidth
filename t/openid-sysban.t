@@ -35,21 +35,27 @@ use LJ::Test qw(temp_user with_fake_memcache);
 my $app = do "$ENV{LJHOME}/app.psgi";
 die $@ unless ref $app eq 'CODE';
 
-my $host          = 'openid-' . lc( LJ::rand_chars(10) ) . '.test';
-my $banned_url    = "https://sub.$host/new";
-my $existing_url  = "http://$host/existing";
-my $allowed_url   = "https://not-$host/new";
-my $delegated_url = "https://delegated-$host/new";
-my $callback      = 'http://localhost/openid/login?openid.mode=id_res';
-my $restricted    = qr/restricted OpenID logins/i;
-my $dbh           = LJ::get_db_writer();
+my $host           = 'openid-' . lc( LJ::rand_chars(10) ) . '.test';
+my $banned_url     = "https://sub.$host/new";
+my $underscore_url = "https://A_B.$host/new";
+my $nested_url     = "https://deep.a_b.$host/new";
+my $existing_url   = "http://a_b.$host/existing";
+my $allowed_url    = "https://a_b.not-$host/new";
+my $delegated_url  = "https://delegated-$host/new";
+my $callback       = 'http://localhost/openid/login?openid.mode=id_res';
+my $restricted     = qr/restricted OpenID logins/i;
+my $dbh            = LJ::get_db_writer();
 my @banids;
 my $banid;
 
 END {
     if ($dbh) {
         $dbh->do( 'DELETE FROM sysban WHERE banid = ?', undef, $_ ) for @banids;
-        foreach my $url ( $banned_url, $existing_url, $allowed_url, $delegated_url ) {
+        foreach my $url (
+            $banned_url,   $underscore_url, $nested_url,
+            $existing_url, $allowed_url,    $delegated_url
+            )
+        {
             my $account = LJ::User::load_existing_identity_user( 'O', $url );
             next unless $account;
             LJ::Session->destroy_all_sessions($account);
@@ -129,6 +135,29 @@ with_fake_memcache {
         isnt( ref $modified, 'ERROR', 'The moderator can lift the active ban' );
         ok( !defined LJ::MemCache::get($key), 'An edit invalidates the warmed list' );
         ok( !LJ::Sysban::sysban_check( $type, $cache_host ), 'The lifted ban no longer applies' );
+    };
+
+    subtest 'match an existing underscore domain ban literally' => sub {
+        my $type      = 'openid_domain';
+        my $ban_value = "a_b.exact-$host";
+        $dbh->do( 'INSERT INTO sysban (what, value, bandate) VALUES (?, ?, NOW())',
+            undef, $type, $ban_value )
+            or die $dbh->errstr;
+        push @banids, $dbh->{mysql_insertid};
+        LJ::MemCache::delete("sysban:$type");
+
+        ok(
+            LJ::Sysban::sysban_check( $type, 'https://' . uc($ban_value) . '/' ),
+            'An existing underscore ban matches the exact host case-insensitively'
+        );
+        ok(
+            LJ::Sysban::openid_discovered_sysban_check("https://sub.$ban_value/"),
+            'An existing underscore ban also covers discovered subdomains'
+        );
+        ok(
+            !LJ::Sysban::sysban_check( $type, "https://axb.exact-$host/" ),
+            'An underscore in a stored ban is not a wildcard'
+        );
     };
 };
 
@@ -392,8 +421,13 @@ with_fake_memcache {
         };
 
         subtest 'match and enforce the active ban' => sub {
-            for my $value ( $host, uc($host), "http://$host/", $banned_url,
-                "https://DEEP.SUB.$host.:8443/profile?x=1" )
+            for my $value (
+                $host,                      uc($host),
+                "http://$host/",            $banned_url,
+                $underscore_url,            $nested_url,
+                "https://user\@a_b.$host/", "https://b%C3%BCcher.a_b.$host/",
+                "https://DEEP.SUB.$host.:8443/profile?x=1"
+                )
             {
                 ok( LJ::Sysban::sysban_check( 'openid_domain', $value ), "Bans $value" );
             }
@@ -407,27 +441,44 @@ with_fake_memcache {
                 'A hostname with embedded whitespace is still rejected as invalid'
             );
 
-            for my $value ( $allowed_url, "https://$host.elsewhere.test/" ) {
+            for my $value (
+                $allowed_url,                    "https://not-$host/",
+                "https://$host.elsewhere.test/", "ssh://a_b.$host/",
+                "https:///a_b.$host/",           "https://a_b..$host/",
+                "https://a_b.$host:invalid/",    "https://a_b.$host\@elsewhere.test/",
+                "not a URL: $underscore_url",    "mailto:user\@a_b.$host",
+                "mailto:a_b.$host",              "user\@a_b.$host"
+                )
+            {
                 ok( !LJ::Sysban::sysban_check( 'openid_domain', $value ), "Allows $value" );
+                ok(
+                    !LJ::Sysban::openid_discovered_sysban_check($value),
+                    "Does not match discovered value $value"
+                );
             }
 
             my $post_login = sub {
                 return $request->( POST $login_url, Content => [ openid_url => $_[0] ] );
             };
-            like( $post_login->($banned_url)->content, $restricted, 'Login refuses a banned URL' );
+            my $comment_journal = temp_user();
+            for my $url ( $banned_url, $underscore_url, $nested_url ) {
+                like( $post_login->($url)->content, $restricted, "Login refuses $url" );
+                my ( $ok, $error ) = DW::Controller::Talk::authenticate_user_and_mutate_form(
+                    { usertype => 'openid', oidurl => $url },
+                    undef, $comment_journal );
+                ok( !$ok, "OpenID comment authentication refuses $url" );
+                like( ref $error ? '' : $error,
+                    $restricted, 'The comment refusal gives the reason' );
+            }
+            $comment_journal->writer->do( 'DELETE FROM pendcomments WHERE jid = ?',
+                undef, $comment_journal->id );
             is(
                 $post_login->($allowed_url)->header('Location'),
                 'https://provider.test/verify',
                 'Login still redirects for an allowed URL'
             );
 
-            my ( $ok, $error ) = DW::Controller::Talk::authenticate_user_and_mutate_form(
-                { usertype => 'openid', oidurl => $banned_url },
-                undef, temp_user() );
-            ok( !$ok, 'OpenID comment authentication refuses the banned URL' );
-            like( ref $error ? '' : $error, $restricted, 'The comment refusal gives the reason' );
-
-            for my $url ( $banned_url, $existing_url ) {
+            for my $url ( $banned_url, $existing_url, $nested_url ) {
                 $verified_url = $url;
                 my $response = $request->( GET $callback );
                 like( $response->content, $restricted, "Verification refuses $url" );
@@ -474,11 +525,13 @@ with_fake_memcache {
             use warnings 'redefine';
 
             for my $source ( 'claimed identity', 'provider endpoint', 'delegate URL' ) {
-                $discovered_url = $source eq 'claimed identity' ? $banned_url : $delegated_url;
+                $discovered_url = $source eq 'claimed identity' ? $nested_url : $delegated_url;
                 $provider_url =
-                    $source eq 'provider endpoint' ? $banned_url : 'https://provider.test/verify';
+                      $source eq 'provider endpoint'
+                    ? $underscore_url
+                    : 'https://provider.test/verify';
                 $delegate_url =
-                    $source eq 'delegate URL' ? $banned_url : 'https://delegate.test/account';
+                    $source eq 'delegate URL' ? $nested_url : 'https://delegate.test/account';
 
                 my $login =
                     $request->( POST $login_url, Content => [ openid_url => $allowed_url ] );
