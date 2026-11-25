@@ -22,9 +22,12 @@ use HTML::TokeParser ();
 use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
-my $workdir          = "/tmp";
-my $html_inline_name = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
-my $html_break_tag   = qr{<br[ \t]*/?>}i;
+my $workdir           = "/tmp";
+my $html_inline_name  = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
+my $html_break_tag    = qr{<br[ \t]*/?>}i;
+my $html_office_open  = qr{<o:p[ \t]*>}i;
+my $html_office_space = qr/(?:[ \t\r\n\f]|&nbsp;)*+/i;
+my $html_office_close = qr{</o:p[ \t]*>}i;
 
 =head1 NAME
 
@@ -258,10 +261,11 @@ sub _extract_post_headers {
             )
         )*+
     }x;
-    my $inline_tag  = qr{<(?:$html_inline_name(?:$inline_attrs)?\/?>|\/$html_inline_name\s*+>)}i;
-    my $value_text  = $is_html ? qr/(?:[^<\r\n]|$inline_tag)*+/ : qr/[^\r\n]*/;
-    my $value_start = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
-    my $value_end   = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
+    my $inline_tag   = qr{<(?:$html_inline_name(?:$inline_attrs)?/?>|/$html_inline_name\s*+>)}i;
+    my $value_markup = qr/$inline_tag|$html_office_open$html_office_space$html_office_close/;
+    my $value_text   = $is_html ? qr/(?:[^<\r\n]|$value_markup)*+/ : qr/[^\r\n]*/;
+    my $value_start  = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
+    my $value_end    = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
 
     while (1) {
         if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
@@ -271,11 +275,11 @@ sub _extract_post_headers {
         last if $is_html && $body =~ /\G(?:[ \t]*\r?\n)*(?:lj|post)-[^:<\r\n]*</igc;
         last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):($value_text)$value_end/igc;
         my ( $prefix, $name, $value ) = ( lc($1), lc($2), $3 );
-        $value =~ s/$inline_tag//g if $is_html;
+        $value =~ s/$value_markup//g if $is_html;
         $value = LJ::trim($value);
         if ( !length($value) && $body =~ /\G[ \t]+(?=$value_start)($value_text)$value_end/gc ) {
             $value = $1;
-            $value =~ s/$inline_tag//g if $is_html;
+            $value =~ s/$value_markup//g if $is_html;
             $value = LJ::trim($value);
         }
         $headers->{$prefix}{$name} = $value;
@@ -291,6 +295,8 @@ sub _extract_post_headers {
     return $headers;
 }
 
+# Skip leading breaks, formatting wrappers and empty Outlook <o:p> placeholders.
+# The first prose, quote container or unclosed comment ends the scan.
 sub _html_header_offset {
     my ( $body, $after_header ) = @_;
     my $offset       = $after_header // _html_body_offset($body);
@@ -299,6 +305,7 @@ sub _html_header_offset {
     my $body_content = substr( $body, $offset );
     my $parser       = HTML::TokeParser->new( \$body_content );
     my $document_tag = qr{<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
+    my @inline_wrappers;
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $text ) = @$token;
@@ -310,19 +317,38 @@ sub _html_header_offset {
         elsif ( $type eq 'S' || $type eq 'D' ) {
             my $raw    = $type eq 'S' ? $token->[4] : $text;
             my $length = length $raw;
-            unless ( $raw =~ /\A$html_break_tag\z/
-                || ( !defined $after_header && $raw =~ /\A$document_tag\z/ )
-                || ( $type eq 'S' && _is_html_header_wrapper($token) ) )
+            if ( $raw =~ /\A$html_break_tag\z/
+                || ( !defined $after_header && $raw =~ /\A$document_tag\z/ ) )
             {
-                last unless $type eq 'S' && $text =~ /\A$html_inline_name\z/;
-                $length = _html_wrapped_break_length( $parser, $token );
-                last unless $length;
+                $at_boundary = 1 if $type eq 'S';
+            }
+            elsif ( $type eq 'S' && _is_html_header_wrapper($token) ) {
+                if ( $text =~ /\A$html_inline_name\z/ ) {
+                    push @inline_wrappers, $text;
+                }
+                else {
+                    $at_boundary = 1;
+                }
+            }
+            elsif ( $type eq 'S' && $raw =~ /\A$html_office_open\z/ ) {
+                my $closing = $parser->get_token or last;
+                if ( $closing->[0] eq 'T' && $closing->[1] =~ /\A$html_office_space\z/ ) {
+                    $length += length $closing->[1];
+                    $closing = $parser->get_token or last;
+                }
+                last unless $closing->[0] eq 'E' && $closing->[2] =~ /\A$html_office_close\z/;
+                $length += length $closing->[2];
+            }
+            else {
+                last;
             }
             $offset += $length;
-            if ( $type eq 'S' ) {
-                $line_start  = $offset;
-                $at_boundary = 1;
-            }
+            $line_start = $offset if $at_boundary && $type eq 'S';
+        }
+        elsif ( $type eq 'E' && _is_html_inline_close( $token, \@inline_wrappers ) ) {
+            pop @inline_wrappers;
+            $offset += length $token->[2];
+            $line_start = $offset if $at_boundary;
         }
         elsif ( $type eq 'E' && defined $after_header && $token->[2] =~ m{\A</(?:div|p)[ \t]*>\z}i )
         {
@@ -330,7 +356,7 @@ sub _html_header_offset {
             $at_boundary = 0;
         }
         elsif ( $type eq 'T' ) {
-            $text =~ /\A((?:[ \t]*\r?\n)*)[ \t]*/;
+            $text =~ /\A((?:[ \t]*\r?\n)*)[ \t\f]*/;
             if ( length $1 ) {
                 $line_start  = $offset + length $1;
                 $at_boundary = 1;
@@ -346,47 +372,25 @@ sub _html_header_offset {
     return $line_start;
 }
 
-sub _html_wrapped_break_length {
-    my ( $parser, $opening ) = @_;
-    my @open_tags = ( $opening->[1] );
-    my $length    = length $opening->[4];
-    my $has_break;
-
-    while ( my $token = $parser->get_token ) {
-        my ( $type, $text ) = @$token;
-        if ( $type eq 'S' ) {
-            if ( $token->[4] =~ /\A$html_break_tag\z/ ) {
-                $has_break = 1;
-            }
-            else {
-                return unless $text =~ /\A$html_inline_name\z/;
-                push @open_tags, $text;
-            }
-            $length += length $token->[4];
-        }
-        elsif ( $type eq 'E' ) {
-            return unless $text eq pop @open_tags && $token->[2] =~ m{\A</\Q$text\E\s*>\z}i;
-            $length += length $token->[2];
-            return $has_break ? $length : undef unless @open_tags;
-        }
-        elsif ( $type eq 'T' && $text !~ /[^ \t\r\n\f]/ ) {
-            $length += length $text;
-        }
-        else {
-            return;
-        }
-    }
-
-    return;
+# Let a break inside inline formatting establish a directive boundary even when
+# followed by closing tags. Only close wrappers reached without crossing prose.
+sub _is_html_inline_close {
+    my ( $token, $wrappers ) = @_;
+    my ( undef, $tag, $raw ) = @$token;
+    return @$wrappers && $tag eq $wrappers->[-1] && $raw =~ m{\A</\Q$tag\E\s*>\z}i;
 }
 
 sub _is_html_header_wrapper {
     my ($token) = @_;
     my ( undef, $tag, $attrs, $attr_order ) = @$token;
-    return unless $tag eq 'div' || $tag eq 'p';
+    my $inline = $tag =~ /\A$html_inline_name\z/;
+    return unless $inline || $tag eq 'div' || $tag eq 'p';
 
     my %seen;
-    return if grep { $seen{$_}++ || !/\A(?:align|class|dir|id|lang|style|title)\z/ } @$attr_order;
+    return
+        if grep { $seen{$_}++ || ( !$inline && !/\A(?:align|class|dir|id|lang|style|title)\z/ ) }
+        @$attr_order;
+    return if exists $attrs->{cite} || ( $attrs->{type} // '' ) =~ /\Acite\z/i;
 
     return !grep {
         /\A(?:x_)*(?:gmail_(?:attr|extra|quote(?:_container)?)|yahoo_quoted|protonmail_quote
@@ -395,6 +399,8 @@ sub _is_html_header_wrapper {
     } split /\s+/, join ' ', $attrs->{class} // '', $attrs->{id} // '';
 }
 
+# Skip document metadata before the body, including inert head templates and
+# noscript content. Stop when visible content begins, even without a <body> tag.
 sub _html_body_offset {
     my ($body) = @_;
     my $parser = HTML::TokeParser->new( \$body );

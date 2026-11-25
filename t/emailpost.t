@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 233;
+use Test::More tests => 270;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -596,6 +596,86 @@ BODY
         is( $entry->security, 'private', "Privacy setting after $label applies" );
         like( $entry->event_raw, qr/\A\Q$opening\E\s*Secret\z/,
             "Privacy setting after $label is removed and body is retained" );
+    }
+
+    for my $case (
+        [ 'multiline span', '<span>', "\npost-security: private\n\n", '</span>' ],
+        [
+            'font inside a div',
+            '<div><font face="Arial">',
+            'post-security: private<br>post-comments: noemail<br>',
+            '</font></div>'
+        ],
+        )
+    {
+        my ( $label, $opening, $settings, $closing ) = @$case;
+        my $mime = build_message( "Leading settings in $label",
+            'text/html', "$opening${settings}Secret$closing" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with leading settings in $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private', "Privacy setting in $label applies" );
+        ok( $entry->prop('opt_noemail'), 'Comment email setting inside the font applies' )
+            if $settings =~ /post-comments:/;
+        like(
+            $entry->event_raw,
+            qr/\A\Q$opening\E(?:\s|<br>)*Secret\Q$closing\E\z/,
+            "Settings are removed and formatted body is retained in $label"
+        );
+    }
+
+    for my $case ( [ 'empty', '' ], [ 'nonbreaking space', '&nbsp;' ], [ 'whitespace', " \r\n\t" ] )
+    {
+        my ( $label, $space ) = @$case;
+        my $placeholder = "<o:p>$space</o:p>";
+        my $paragraph   = '<p class=MsoNormal>';
+        my $preamble    = $label eq 'whitespace' ? $placeholder : '';
+        my $mime        = build_message(
+            "Outlook message with $label placeholders",
+            'text/html',
+            "$paragraph${preamble}post-format: html$placeholder</p>"
+                . "${paragraph}post-security: private$placeholder</p>"
+                . "${paragraph}Secret$placeholder</p>"
+        );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted Outlook message with $label placeholders" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is(
+            $entry->prop('editor'),
+            DW::Formats::validate('html_casual_latest'),
+            "Format setting before $label Outlook placeholder applies"
+        );
+        is( $entry->security, 'private',
+            "Privacy setting after $label Outlook placeholder applies" );
+        unlike( $entry->event_raw, qr/post-(?:format|security):/,
+            "Both settings are removed with $label Outlook placeholders" );
+        like(
+            $entry->event_raw,
+            qr/\Q${paragraph}Secret\E<o:p>(?:\s|&nbsp;)*<\/o:p><\/p>\z/,
+            "Message body is retained with $label Outlook placeholders"
+        );
+    }
+
+    for my $case (
+        [ 'plain span prose',  '<span>Intro text</span>',    '' ],
+        [ 'quoted span',       '<span class="gmail_quote">', '</span>' ],
+        [ 'unclosed comment',  '<span><!-- mail client',     '</span>' ],
+        [ 'Office prose',      '<o:p>Intro text</o:p>',      '' ],
+        [ 'unknown namespace', '<custom:quote>Intro text',   '</custom:quote>' ],
+        )
+    {
+        my ( $label, $opening, $closing ) = @$case;
+        my $mime = build_message( "HTML with $label",
+            'text/html', "$opening\npost-security: private\n$closing" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', "No directive applies after $label" );
+        like(
+            $entry->event_raw,
+            qr/post-security: private/,
+            "Text resembling a directive after $label is retained"
+        );
     }
 
     {
