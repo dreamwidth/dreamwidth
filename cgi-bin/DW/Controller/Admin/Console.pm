@@ -20,6 +20,9 @@ use DW::Controller::Admin;
 use DW::Auth::Challenge;
 use LJ::Console;
 
+# Limit how long a leaked signed token can be used to prefill commands.
+use constant EXPIRED_FORM_RECOVERY_WINDOW => 7 * 86400;
+
 =head1 NAME
 
 DW::Controller::Admin::Console - Admin console
@@ -79,7 +82,9 @@ sub console_handler {
 
             my $check = { dont_check_count => 1 };
             DW::Auth::Challenge->check( $token, $check );
-            return error_ml('error.invalidform') unless $check->{valid};
+            return error_ml('error.invalidform')
+                unless $check->{valid}
+                && time() <= $check->{expires_at} + EXPIRED_FORM_RECOVERY_WINDOW;
 
             $invalid_form       = 1;
             $submitted_commands = $commands;

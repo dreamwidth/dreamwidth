@@ -89,9 +89,10 @@ with_fake_memcache {
         is( commands_value($initial), '',  'initial command input is empty' );
         my $valid = form_token($initial);
         ok( $valid, 'console supplies a signed form token' );
-        my $expired =
-            DW::Auth::Challenge->generate( -1, DW::Auth::Challenge->get_attributes($valid) );
-        my $bad_signature = $valid;
+        my $form_attributes  = DW::Auth::Challenge->get_attributes($valid);
+        my $recently_expired = DW::Auth::Challenge->generate( -86400, $form_attributes );
+        my $stale_expired    = DW::Auth::Challenge->generate( -30 * 86400, $form_attributes );
+        my $bad_signature    = $valid;
         substr( $bad_signature, -1, 1 ) = substr( $valid, -1, 1 ) eq '0' ? '1' : '0';
         my $other_token = form_token( $get->($other_auth) );
         my $forged_user = $other_token;
@@ -105,6 +106,7 @@ with_fake_memcache {
             [ 'invalid signature', $bad_signature ],
             [ 'different user',    $other_token ],
             [ 'forged user ID',    $forged_user ],
+            [ 'stale expired',     $stale_expired ],
         );
         my $commands = qq{print "</textarea><script>CONSOLE_MARKER</script> & text"\nprint second};
 
@@ -127,7 +129,7 @@ with_fake_memcache {
 
         my $old_session_token = form_token( $get->($second_session) );
         my @recoverable       = (
-            [ 'expired',           $expired ],
+            [ 'recently expired',  $recently_expired ],
             [ 'different session', $old_session_token ],
             [
                 'expired old session',

@@ -36,6 +36,7 @@ use LJ::Utils;
 # return 1 "good" 0 "bad", plus sets keys in $opts:
 # 'valid'=1/0 whether the string itself was valid
 # 'expired'=1/0 whether the challenge expired, provided it's valid
+# 'expires_at'=Unix timestamp when the challenge expires, provided it's valid
 # 'count'=N number of times we've seen this challenge, including this one,
 #           provided it's valid and not expired
 # $opts also supports in parameters:
@@ -55,9 +56,8 @@ sub check {
     $valid = 0
         unless Digest::MD5::md5_hex( $chalbare . $secret ) eq $chalsig;
 
-    $expired = 1
-        unless ( not $valid )
-        or time() - ( $stime + $s_age ) < $goodfor;
+    my $expires_at = $valid ? $stime + $s_age + $goodfor : undef;
+    $expired = 1 if $valid && time() >= $expires_at;
 
     # Check for token dups
     if ( $valid && !$expired && !$opts->{dont_check_count} ) {
@@ -94,9 +94,10 @@ sub check {
     }
 
     if ($opts) {
-        $opts->{expired} = $expired;
-        $opts->{valid}   = $valid;
-        $opts->{count}   = $count;
+        $opts->{expired}    = $expired;
+        $opts->{expires_at} = $valid ? $expires_at : undef;
+        $opts->{valid}      = $valid;
+        $opts->{count}      = $count;
     }
 
     return ( $valid && !$expired && ( $count == 1 || $opts->{dont_check_count} ) );
