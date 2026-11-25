@@ -16,6 +16,7 @@ use strict;
 
 use URI;
 use URI::Escape qw(uri_escape);
+use Socket qw(AF_INET6 inet_pton);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
 use HTML::TokeParser;
@@ -1943,16 +1944,27 @@ sub _escape_non_ascii_web_url {
     return $url unless defined $prefix;
 
     if ( $authority =~ /[^\x00-\x7F]/ ) {
-        my ( $userinfo, $host, $port ) = $authority =~ /\A((?:[^@]*@)?)([^:@]+)(:[0-9]*)?\z/;
-        return '' unless defined $host && $userinfo !~ /[^\x21-\x7E]|\\/;
-        return '' unless utf8::is_utf8($host) || utf8::decode($host);
-        return '' if $host =~ /[^a-zA-Z0-9.\x80-\x{10FFFF}-]|[\p{Space}\p{C}]/;
+        my ( $userinfo, $host, $port ) =
+            $authority =~ /\A((?:[^@]*@)?)(\[[0-9A-Fa-f:.]+\]|[^:@\[\]]+)(:[0-9]*)?\z/;
+        return '' unless defined $host && $userinfo !~ /[\x00-\x20\x7F\\]/;
 
-        $host = URI->new("http://$host/")->host;
-        my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/i;
-        return '' unless defined $host && $host =~ /\A$label(?:\.$label)*\.?\z/;
-        return '' if length($host) > ( $host =~ /\.\z/ ? 254 : 253 );
-        $authority = $userinfo . $host . ( $port // '' );
+        if ( $host =~ /\A\[(.+)\]\z/ ) {
+            return '' unless inet_pton( AF_INET6, $1 );
+        }
+        else {
+            unless ( LJ::is_ascii($host) ) {
+                return '' unless utf8::is_utf8($host) || utf8::decode($host);
+                return '' if $host =~ /[^a-zA-Z0-9.\x80-\x{10FFFF}-]|[\p{Space}\p{C}]/;
+                $host = URI->new("http://$host/")->host;
+            }
+
+            my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/i;
+            return '' unless defined $host && $host =~ /\A$label(?:\.$label)*\.?\z/;
+            return '' if length($host) > ( $host =~ /\.\z/ ? 254 : 253 );
+        }
+
+        $authority =
+            uri_escape( LJ::no_utf8_flag($userinfo), '^\x00-\x7F' ) . $host . ( $port // '' );
     }
 
     return $prefix . $authority . uri_escape( LJ::no_utf8_flag($rest), '^\x00-\x7F' );

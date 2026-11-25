@@ -63,6 +63,8 @@ my $rss = encode_utf8(<<'RSS');
     srcset="https://images.example.test/猫.jpg 1x, https://images.example.test/猫-大.jpg 2x">
 <img alt="idn" src="http://пример.рф/путь.jpg">
 <img alt="invalid-idn" src="http://пример..рф/путь.jpg">
+<img alt="userinfo" src="https://пользователь:пароль%2f@[2001:db8::1]:8443/img.png">
+<img alt="userinfo-invalid-idn" src="https://josé@пример..рф/путь.jpg">
 <img alt="invalid-idn-srcset" src="https://images.example.test/fallback.jpg"
     srcset="https://пример..рф/путь.jpg 2x">
 <img alt="relative" src="../猫.jpg">
@@ -72,6 +74,10 @@ my $rss = encode_utf8(<<'RSS');
 <a title="relative" href="../новости">Relative</a>
 <a title="scheme-relative" href="//news.example.test/новости">Scheme-relative</a>
 <a title="idn" href="//пример.рф:8443/путь?name=猫#é">International hostname</a>
+<a title="userinfo" href="https://josé@example.com/photo.jpg">International username</a>
+<a title="userinfo-idn" href="http://josé@пример.рф/путь.jpg">International authority</a>
+<a title="userinfo-relative" href="//josé@example.com/photo.jpg">Relative username</a>
+<a title="userinfo-invalid-idn" href="//josé@пример..рф/путь.jpg">Malformed hostname</a>
 <a title="unsafe" href="jav&#x61;script&#58;猫">Unsafe</a>
 <a title="data" href="data:text/html,猫">Unsafe</a>
 </p>]]></description></item>
@@ -163,6 +169,15 @@ ok(
     $images{'invalid-idn'} && !length( $images{'invalid-idn'}{src} // '' ),
     'malformed internationalized hostname is not sent to the proxy'
 );
+my $image_user = '%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C';
+my $image_pass = '%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C';
+is( $images{userinfo}{src}, "https://$image_user:$image_pass%2f\@[2001:db8::1]:8443/img.png",
+    'image credentials are escaped without changing the separator, existing escape, or IP literal'
+);
+ok(
+    $images{'userinfo-invalid-idn'} && !length( $images{'userinfo-invalid-idn'}{src} // '' ),
+    'an absolute image URL with userinfo still rejects a malformed internationalized hostname'
+);
 is_deeply(
     $images{'invalid-idn-srcset'},
     { alt => 'invalid-idn-srcset', src => 'https://images.example.test/fallback.jpg' },
@@ -199,6 +214,25 @@ is(
     $links{idn}{href},
     'https://xn--e1afmkfd.xn--p1ai:8443/%D0%BF%D1%83%D1%82%D1%8C?name=%E7%8C%AB#%C3%A9',
     'scheme-relative link preserves the port and escapes its path, query, and fragment'
+);
+is(
+    $links{userinfo}{href},
+    'https://jos%C3%A9@example.com/photo.jpg',
+    'absolute link escapes its username with an ASCII hostname'
+);
+is(
+    $links{'userinfo-idn'}{href},
+    'http://jos%C3%A9@xn--e1afmkfd.xn--p1ai/%D0%BF%D1%83%D1%82%D1%8C.jpg',
+    'absolute link escapes its username and path and converts the internationalized hostname'
+);
+is(
+    $links{'userinfo-relative'}{href},
+    'https://jos%C3%A9@example.com/photo.jpg',
+    'scheme-relative link escapes its username before resolution'
+);
+ok(
+    $links{'userinfo-invalid-idn'} && !exists $links{'userinfo-invalid-idn'}{href},
+    'a scheme-relative link with userinfo still rejects a malformed internationalized hostname'
 );
 
 ok( $images{unsafe} && !length( $images{unsafe}{src} // '' ), 'javascript image URL is stripped' );
