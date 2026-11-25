@@ -210,8 +210,8 @@ sub index_controller {
             $errors->add( "account", ".error.noacct" );
         }
 
-        $errors->add( "subject", ".error.nosubj" ) unless $subject;
-        $errors->add( "message", ".error.nomsg" )  unless $message;
+        $errors->add( "subject", ".error.nosubj" ) unless length $subject;
+        $errors->add( "message", ".error.nomsg" )  unless length $message;
 
         if ($support_req) {
             if ( $support_req =~ /^\d+$/ ) {

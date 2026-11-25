@@ -216,6 +216,57 @@ is_deeply(
     'persists zero in every field'
 );
 
+my $zero_edit = $client->request( GET url( $forms, $admin, id => $formid ) );
+like(
+    $zero_edit->content,
+    qr{href="/admin/sendmail/forms\?id=$formid">0</a>},
+    'manager lists zero as the form name'
+);
+is( field( $zero_edit, 'name' ),    '0', 'manager prefills zero name' );
+is( field( $zero_edit, 'subject' ), '0', 'manager prefills zero subject' );
+is( body_field($zero_edit), '0', 'manager prefills zero body' );
+
+my $zero_compose = $client->request( GET url( $index, $admin ) );
+like(
+    $zero_compose->content,
+    qr{<option value="$formid"[^>]*>0</option>},
+    'compose offers the saved form named zero'
+);
+my $zero_load = submit(
+    $index, $admin,
+    load_form    => 1,
+    form_id      => $formid,
+    lj_form_auth => token($zero_compose)
+);
+is( field( $zero_load, 'subject' ), '0', 'loading prefills zero subject' );
+is( body_field($zero_load), '0', 'loading prefills zero body' );
+
+my $zero_send = submit(
+    $index, $admin,
+    account      => 'support',
+    subject      => '0',
+    message      => '0',
+    lj_form_auth => token($zero_load)
+);
+like( $zero_send->content, qr/specify a recipient/, 'zero draft reaches recipient validation' );
+unlike(
+    $zero_send->content,
+    qr/(?:subject|text) cannot be blank/,
+    'compose accepts zero subject and body as nonempty'
+);
+is( field( $zero_send, 'subject' ), '0', 'compose keeps zero subject after validation error' );
+is( body_field($zero_send), '0', 'compose keeps zero body after validation error' );
+
+my $blank_send = submit(
+    $index, $admin,
+    account      => 'support',
+    subject      => ' ',
+    message      => ' ',
+    lj_form_auth => token($zero_load)
+);
+like( $blank_send->content, qr/subject cannot be blank/, 'compose rejects whitespace subject' );
+like( $blank_send->content, qr/text cannot be blank/,    'compose rejects whitespace body' );
+
 my $updated = encode_utf8("R\x{e9}vis\x{e9}") . ' ' . $subject;
 my $save    = submit(
     $forms, $admin, %{ { %fields, subject => $updated } },
