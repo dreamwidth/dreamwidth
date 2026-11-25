@@ -22,7 +22,9 @@ use HTML::TokeParser ();
 use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
-my $workdir = "/tmp";
+my $workdir          = "/tmp";
+my $html_inline_name = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
+my $html_break_tag   = qr{<br[ \t]*/?>}i;
 
 =head1 NAME
 
@@ -241,7 +243,6 @@ sub _extract_post_headers {
     my $start        = pos($body);
     my $end          = $start;
     my $markup       = '';
-    my $inline_name  = qr/(?:a|b|code|em|i|s|small|span|strong|u)/i;
     my $inline_attrs = qr{
         \s++
         (?:
@@ -257,7 +258,7 @@ sub _extract_post_headers {
             )
         )*+
     }x;
-    my $inline_tag  = qr{<(?:$inline_name(?:$inline_attrs)?\/?>|\/$inline_name\s*+>)}i;
+    my $inline_tag  = qr{<(?:$html_inline_name(?:$inline_attrs)?\/?>|\/$html_inline_name\s*+>)}i;
     my $value_text  = $is_html ? qr/(?:[^<\r\n]|$inline_tag)*+/ : qr/[^\r\n]*/;
     my $value_start = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
     my $value_end   = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
@@ -297,10 +298,7 @@ sub _html_header_offset {
     my $at_boundary  = !defined $after_header || substr( $body, 0, $offset ) =~ /\n\z/;
     my $body_content = substr( $body, $offset );
     my $parser       = HTML::TokeParser->new( \$body_content );
-    my $wrapper =
-        defined $after_header
-        ? qr{<br[ \t]*/?>}i
-        : qr{<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
+    my $document_tag = qr{<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
 
     while ( my $token = $parser->get_token ) {
         my ( $type, $text ) = @$token;
@@ -310,11 +308,17 @@ sub _html_header_offset {
             $line_start = $offset if $at_boundary;
         }
         elsif ( $type eq 'S' || $type eq 'D' ) {
-            my $raw = $type eq 'S' ? $token->[4] : $text;
-            last
-                unless $raw =~ /\A$wrapper\z/
-                || ( $type eq 'S' && _is_html_header_wrapper($token) );
-            $offset += length $raw;
+            my $raw    = $type eq 'S' ? $token->[4] : $text;
+            my $length = length $raw;
+            unless ( $raw =~ /\A$html_break_tag\z/
+                || ( !defined $after_header && $raw =~ /\A$document_tag\z/ )
+                || ( $type eq 'S' && _is_html_header_wrapper($token) ) )
+            {
+                last unless $type eq 'S' && $text =~ /\A$html_inline_name\z/;
+                $length = _html_wrapped_break_length( $parser, $token );
+                last unless $length;
+            }
+            $offset += $length;
             if ( $type eq 'S' ) {
                 $line_start  = $offset;
                 $at_boundary = 1;
@@ -340,6 +344,40 @@ sub _html_header_offset {
     }
 
     return $line_start;
+}
+
+sub _html_wrapped_break_length {
+    my ( $parser, $opening ) = @_;
+    my @open_tags = ( $opening->[1] );
+    my $length    = length $opening->[4];
+    my $has_break;
+
+    while ( my $token = $parser->get_token ) {
+        my ( $type, $text ) = @$token;
+        if ( $type eq 'S' ) {
+            if ( $token->[4] =~ /\A$html_break_tag\z/ ) {
+                $has_break = 1;
+            }
+            else {
+                return unless $text =~ /\A$html_inline_name\z/;
+                push @open_tags, $text;
+            }
+            $length += length $token->[4];
+        }
+        elsif ( $type eq 'E' ) {
+            return unless $text eq pop @open_tags && $token->[2] =~ m{\A</\Q$text\E\s*>\z}i;
+            $length += length $token->[2];
+            return $has_break ? $length : undef unless @open_tags;
+        }
+        elsif ( $type eq 'T' && $text !~ /[^ \t\r\n\f]/ ) {
+            $length += length $text;
+        }
+        else {
+            return;
+        }
+    }
+
+    return;
 }
 
 sub _is_html_header_wrapper {

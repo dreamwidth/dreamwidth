@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 210;
+use Test::More tests => 233;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -511,8 +511,10 @@ BODY
     );
 
     for my $case (
-        [ 'linked music',         '<a href="song">Song</a>' ],
-        [ 'code-formatted music', '<code>Song</code>' ],
+        [ 'linked music',             '<a href="song">Song</a>' ],
+        [ 'code-formatted music',     '<code>Song</code>' ],
+        [ 'font-formatted music',     '<font>Song</font>' ],
+        [ 'nested inline formatting', '<big><tt><sup>Song</sup><sub></sub></tt></big>' ],
         )
     {
         my ( $label, $music ) = @$case;
@@ -576,6 +578,41 @@ BODY
             "Privacy setting after compact HTML comment ($label) is removed" );
         like( $entry->event_raw, qr/Message/,
             "Message body after compact HTML comment ($label) is retained" );
+    }
+
+    for my $case (
+        [ 'leading break',               "<br>\n" ],
+        [ 'compact self-closing break',  '<br/>' ],
+        [ 'spaced self-closing break',   "<br />\n" ],
+        [ 'nested inline break wrapper', qq{<span style="color: black"><b><br></b></span>\n} ],
+        )
+    {
+        my ( $label, $opening ) = @$case;
+        my $mime = build_message( "HTML with $label",
+            'text/html', "${opening}post-security: private\n\nSecret" );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'private', "Privacy setting after $label applies" );
+        like( $entry->event_raw, qr/\A\Q$opening\E\s*Secret\z/,
+            "Privacy setting after $label is removed and body is retained" );
+    }
+
+    {
+        my $mime = build_message(
+            'HTML with text in a leading inline wrapper',
+            'text/html',
+            "<span><br>Message</span>\npost-security: private\n\nMore text"
+        );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, 'Posted HTML with text in a leading inline wrapper' ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, 'public', 'A nonempty wrapper starts the message body' );
+        like(
+            $entry->event_raw,
+            qr/Message<\/span>\s+post-security: private/,
+            'Text resembling a directive after a nonempty wrapper is retained'
+        );
     }
 
     $mime = build_message(
