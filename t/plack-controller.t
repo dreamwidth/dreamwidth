@@ -28,6 +28,9 @@ BEGIN {
 }
 
 use DW::API::Key;
+use DW::OAuth::Access;
+use DW::OAuth::Consumer;
+use DW::OAuth::Request;
 use LJ::JSON;
 use LJ::Session;
 use LJ::Test qw(temp_user);
@@ -213,6 +216,115 @@ subtest 'account and support self-service' => sub {
                 0, 'deleted account can turn off its support notifications' );
         }
     };
+};
+
+subtest 'invisible accounts can revoke their own OAuth authorizations' => sub {
+    local @LJ::SECRETS{qw(oauth_consumer oauth_request oauth_access)} =
+        ( 'test-consumer', 'test-request', 'test-access' );
+
+    my $base = 'http://localhost';
+    my ( $application, $other_application ) = map {
+        my $consumer = DW::OAuth::Consumer->new(
+            u       => $visible,
+            name    => $_,
+            website => 'https://example.test/'
+        );
+        $consumer->approved(1);
+        $consumer->active(1);
+        $consumer->save or die 'Could not save test OAuth consumer';
+        $consumer;
+    } ( 'Test OAuth application', 'Other OAuth application' );
+
+    for my $grant (
+        [ $application,       $deleted ],
+        [ $application,       $suspended ],
+        [ $other_application, $visible ]
+        )
+    {
+        my ( $consumer, $account ) = @$grant;
+        my $request = DW::OAuth::Request->new( $consumer, userid => $account->id );
+        DW::OAuth::Access->new($request) or die 'Could not create test OAuth authorization';
+        $request->delete;
+    }
+
+    my $detail_path = '/oauth/token/' . $application->id;
+    my $other_path  = '/oauth/token/' . $other_application->id;
+    my $other_user  = '?user=' . $visible->user;
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        for my $session ( $deleted_session, $suspended_session ) {
+            my $account = $session->owner;
+            subtest 'account status ' . $account->statusvis => sub {
+                my $cookie = master_cookies($session);
+
+                my $history = $cb->( GET "$base/manage/logins", Cookie => $cookie );
+                is( $history->code, 200, 'Login History remains available' );
+                like( $history->content, qr{href="/oauth/"}, 'Login History links to the list' );
+                like( $history->content, qr{href="\Q$detail_path\E"},
+                    'Login History links to the grant' );
+
+                my $list = $cb->( GET "$base/oauth/$other_user", Cookie => $cookie );
+                is( $list->code, 200, 'OAuth list remains available' );
+                ok(
+                    $list->content =~ qr{\Q$detail_path\E["']},
+                    'OAuth list shows the grant for this account'
+                );
+                unlike( $list->content, qr{\Q$other_path\E["']},
+                    'OAuth list does not expose grants for another account' );
+
+                my $detail = $cb->( GET "$base$detail_path", Cookie => $cookie );
+                is( $detail->code, 200, 'OAuth detail remains available' );
+                is( $cb->( GET "$base$other_path$other_user", Cookie => $cookie )->code,
+                    404, 'OAuth detail does not expose a grant for another account' );
+                my ($fields) = $detail->content =~
+                    m{<form\b[^>]*\Q$detail_path/deauthorize\E[^>]*>(.*?)</form>}is;
+                my ($token) = ( $fields // '' ) =~ /name="lj_form_auth" value="([^"]+)"/;
+                ok( $token, 'the revoke form includes a real form token' );
+
+                my $invalid = $cb->(
+                    POST "$base$detail_path/deauthorize",
+                    Cookie  => $cookie,
+                    Content => [ lj_form_auth => 'invalid' ]
+                );
+                ok(
+                    $invalid->content =~ qr/Invalid form submission/i,
+                    'invalid form authentication is rejected'
+                );
+                ok(
+                    DW::OAuth::Access->from_consumer( $account, $application->id ),
+                    'invalid form authentication leaves the grant in place'
+                );
+
+                my @form = ( lj_form_auth => ( $token // '' ) );
+                is(
+                    $cb->(
+                        POST "$base$other_path/deauthorize$other_user",
+                        Cookie  => $cookie,
+                        Content => \@form
+                    )->code,
+                    404,
+                    'valid form authentication cannot revoke a grant for another account'
+                );
+                ok( DW::OAuth::Access->from_consumer( $visible, $other_application->id ),
+                    'the other account keeps its grant' );
+
+                my $revoke = $cb->(
+                    POST "$base$detail_path/deauthorize",
+                    Cookie  => $cookie,
+                    Content => \@form
+                );
+                is( $revoke->header('Location'),
+                    '/oauth/', 'owner returns to the OAuth list after revocation' );
+                ok( !DW::OAuth::Access->from_consumer( $account, $application->id ),
+                    'the grant is removed for its owner' );
+            };
+        }
+    };
+
+    $application->delete;
+    $other_application->delete;
 };
 
 subtest 'deleted account can export its journal' => sub {
