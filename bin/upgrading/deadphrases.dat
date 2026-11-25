@@ -2,6 +2,7 @@
 #
 
 general /entry/module-access.tt.select
+general entryform.simple.editcustom
 
 general /allpics.bml.edit
 general /allpics.bml.nopics.text

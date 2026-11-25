@@ -44,22 +44,40 @@ async function tabTo(page, selector) {
     assert.fail("Could not reach " + selector + " by tabbing");
 }
 
-async function checkPosting(browser, cookies, fixture, javaScript) {
+async function checkPosting(browser, cookies, fixture, mode, javaScript) {
     const page = await browser.newPage();
     try {
-        const subject = javaScript ? "Keyboard custom access" : "No JavaScript custom access";
+        const subject = `Keyboard custom access (${mode}, JS=${javaScript})`;
         await page.setJavaScriptEnabled(javaScript);
         await page.setCookie(...cookies);
-        const response = await page.goto(BASE + "/entry/new", { waitUntil: "networkidle2" });
+        const response = await page.goto(BASE + "/entry/new?mode=" + mode, { waitUntil: "networkidle2" });
         assert.equal(response.status(), 200, "entry form loads");
+        assert.equal(await page.$eval("#js-post-entry", form => form.classList.contains("entry-simple")),
+            mode === "simple", "the requested layout renders");
 
         await tabTo(page, '[name="subject"]');
         await page.keyboard.type(subject);
         await tabTo(page, '[name="event"]');
         await page.keyboard.type("Synthetic browser regression entry");
+        if (javaScript) {
+            assert.equal(await page.$eval("#js-custom-groups", group => group.hidden && group.disabled),
+                true, "groups are initially hidden and disabled");
+        }
         await tabTo(page, security);
         await page.keyboard.press("End");
         assert.equal(await page.$eval(security, select => select.value), "custom");
+
+        const reveal = '[data-reveal-id="js-custom-groups"]';
+        const oldTrigger = await page.$(reveal);
+        if (oldTrigger && javaScript) await oldTrigger.click();
+        const groupState = await page.$eval("#js-custom-groups", (group, reveal) => ({
+            inline: group.form === document.getElementById("js-post-entry"),
+            hasRevealTrigger: !!document.querySelector(reveal),
+            backdropVisible: [...document.querySelectorAll(".reveal-modal-bg")]
+                .some(backdrop => backdrop.getClientRects().length > 0),
+        }), reveal);
+        assert.deepEqual(groupState, { inline: true, hasRevealTrigger: false, backdropVisible: false },
+            "custom groups stay in the post form without a Reveal trigger or backdrop");
 
         const [first, , last] = fixture.bits.map(bit => `#custom-bit-${bit}`);
         assert.ok(await page.waitForSelector(first, { visible: true, timeout: 2500 }),
@@ -78,7 +96,7 @@ async function checkPosting(browser, cookies, fixture, javaScript) {
         const expected = (1 << fixture.bits[0]) | (1 << fixture.bits[2]);
         assert.deepEqual(stored, { security: "usemask", mask: expected },
             "the journal saves exactly the two keyboard-selected groups");
-        console.log("PASS: keyboard-selected custom security persists (JS=" + javaScript + ")");
+        console.log(`PASS: keyboard-selected custom security persists (${mode}, JS=${javaScript})`);
     } finally {
         await page.close();
     }
@@ -216,12 +234,14 @@ async function checkPrivateMinimum(browser, cookies, fixture) {
     try {
         browser = await launch();
         const cookies = await login(browser, fixture.user, fixture.password);
-        for (const javaScript of [true, false]) {
-            try {
-                await checkPosting(browser, cookies, fixture, javaScript);
-            } catch (error) {
-                console.error("FAIL: keyboard custom security (JS=" + javaScript + ")", error);
-                process.exitCode = 1;
+        for (const mode of ["advanced", "simple"]) {
+            for (const javaScript of [true, false]) {
+                try {
+                    await checkPosting(browser, cookies, fixture, mode, javaScript);
+                } catch (error) {
+                    console.error(`FAIL: keyboard custom security (${mode}, JS=${javaScript})`, error);
+                    process.exitCode = 1;
+                }
             }
         }
         await checkJournalSwitching(browser, cookies, fixture);

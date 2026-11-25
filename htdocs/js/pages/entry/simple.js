@@ -82,12 +82,5 @@
             name = name || $("#js-remote").val();
             $post.val(name ? $post.data("label-prefix") + " " + name : $post.data("label-default"));
         });
-
-        // The shared security code opens the custom-groups dialog on change;
-        // offer a way back into it while "Custom" stays selected.
-        var $customEdit = $("#js-custom-groups-edit");
-        $("#js-security").on("change", function () {
-            $customEdit.toggle($(this).val() === "custom");
-        }).triggerHandler("change");
     });
 }(jQuery));

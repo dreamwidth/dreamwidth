@@ -299,9 +299,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             <option value='[% level.value | html %]'[% ' selected="selected"' IF level.value == formdata.security %]>[% dw.ml( valuelabels.${level.value} ) | html %]</option>
         [%- END -%]
         </select>
-        [%- IF customgroups.size > 0 -%]
-        <a href='#' id='js-custom-groups-edit' data-reveal-id='js-custom-groups'>[% 'entryform.simple.editcustom' | ml %]</a>
-        [%- END -%]
+        [%- dw.scoped_include( "entry/module-access.tt" ) -%]
         [%- IF action.edit -%]
             [%- form.submit( name = "action:post", value = dw.ml( 'entryform.save' ) ) -%]
             [%- form.submit( name = "action:delete", id = "js-delete-button", value = dw.ml( 'entryform.delete' ) ) -%]
@@ -314,13 +312,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
     </div><!-- end #security_container -->
 </div><!-- end #submitbar -->
 
-[%# new.js returns the custom-groups dialog to .components.js-only when it closes. -%]
+[%- UNLESS remote -%]
 <div class='components js-only'>
-    [%- dw.scoped_include( "entry/module-access.tt" ) -%]
-    [%- UNLESS remote -%]
-        [%- dw.scoped_include( "entry/login.tt" ) -%]
-    [%- END -%]
+    [%- dw.scoped_include( "entry/login.tt" ) -%]
 </div>
+[%- END -%]
 
 </div><!-- end #entry-form-wrapper --></div><!-- end #updateForm -->
 </form>

@@ -701,8 +701,6 @@ entryform.spellcheck.unavailable=Spell check is currently unavailable
 
 entryform.simple.advanced=Advanced editor
 
-entryform.simple.editcustom=Edit custom groups
-
 entryform.simple.format=Format:
 
 entryform.simple.html=HTML
