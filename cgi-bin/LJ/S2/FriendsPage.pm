@@ -211,6 +211,7 @@ sub FriendsPage {
 
     my $is_prev_exist = scalar @items - $itemshow > 0 ? 1 : 0;
     pop @items if $is_prev_exist;
+    my $oldest_scanned_time = @items ? $LJ::EndOfTime - $items[-1]->{rlogtime} : undef;
 
     while ( $_ = each %friends ) {
 
@@ -352,7 +353,7 @@ ENTRY:
         $nav->{'backward_url'} = LJ::S2::make_link( $base, \%prevvars );
     }
     elsif ($can_handoff) {
-        my $handoff_time = $oldest_post_time
+        my $handoff_time = $oldest_post_time // $oldest_scanned_time
             // ( $nowtime - DW::Logic::LogItems::reading_page_max_age() );
         $linkvars{date} = LJ::mysql_date( $handoff_time, 1 );
         $nav->{'backward_url'}     = LJ::S2::make_link( $base, \%linkvars );

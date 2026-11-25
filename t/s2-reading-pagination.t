@@ -95,9 +95,10 @@ with_fake_memcache {
     my $dbh           = LJ::get_db_writer();
 
     my $post = sub {
-        my ( $journal, $time, $security ) = @_;
+        my ( $journal, $time, $security, $statusvis ) = @_;
         my $entry =
             $journal->t_post_fake_entry( security => $security, body => "Fixture at $time" );
+        $entry->set_prop( statusvis => $statusvis ) if defined $statusvis;
         $journal->do(
             'UPDATE log2 SET rlogtime=? WHERE journalid=? AND jitemid=?',
             undef, $LJ::EndOfTime - $time,
@@ -349,6 +350,37 @@ with_fake_memcache {
             'the handoff uses the configured age cutoff'
         );
     }
+
+    subtest 'a final scrollback page of suspended entries' => sub {
+        local $LJ::MAX_SCROLLBACK_FRIENDS = 4;
+        my $reader = temp_user();
+        my $writer = temp_user();
+        $reader->{_journalbase} = 'https://suspensions.example';
+        $reader->add_to_class('paid_user') or die 'Cannot make test reader paid';
+        $reader->add_edge( $writer, watch => { nonotify => 1 } );
+        my $first_time = $start - 86400;
+        my $older_post = $post->( $writer, $first_time, 'public' );
+        $post->( $writer, $_, 'public', 'S' ) for ( $first_time + 1, $start, $start + 1 );
+        $post->( $writer, $end, 'public' );
+        $dbh->do( 'UPDATE userusage SET timecreate=FROM_UNIXTIME(?) WHERE userid=?',
+            undef, $first_time, $writer->id )
+            or die 'Could not set creation time';
+        LJ::MemCache::delete( [ $writer->id, "$_:" . $writer->id ] ) for qw(tc log2lt);
+
+        LJ::set_remote($reader);
+        my $read = sub {
+            return LJ::S2::FriendsPage( $reader, $reader, { view => 'read', getargs => $_[0] } );
+        };
+        my $page = $read->( { skip => 1 } );
+        is_deeply( $ids->($page), [], 'regular mode hides every entry on the final page' );
+        is_deeply(
+            $older->($page),
+            { date => $previous_date },
+            'the handoff uses the oldest scanned UTC date, not the age cutoff'
+        );
+        is_deeply( $ids->( $read->( $older->($page) ) ),
+            [$older_post], 'the handoff reaches the readable post beyond the count limit' );
+    };
     LJ::unset_remote();
 };
 tzset();
