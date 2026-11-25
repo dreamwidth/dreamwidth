@@ -332,7 +332,7 @@
     <p>[% dw.ml(".fn.interests$iscomm") %]</p>
     [% form.textarea( name => 'interests',
                         title => dw.ml('.section.interests'),
-                        default => interests,
+                        value => interests,
                         rows => '10', cols => '50', wrap => 'soft' ) %]
 
     [%## CIRCLE %]

@@ -159,7 +159,8 @@ sub profile_handler {
     my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
 
     # 'Other Services' display
-    my $service_info = sub {
+    my $max_service_accounts = 26;
+    my $service_info         = sub {
         my ($site) = @_;
         $site->{title} = LJ::Lang::ml( $site->{title_ml} );
         return $site;
@@ -239,7 +240,7 @@ sub profile_handler {
             push @rows, { %$row, ct => $ct++, submitted => 1 };
         }
 
-        while ( $ct <= 26 ) {
+        while ( $ct <= $max_service_accounts ) {
             push @rows,
                 {
                 ct    => $ct++,
@@ -362,6 +363,8 @@ sub profile_handler {
         my %pending_existing;
         my %pending_legacy;
         my @pending_new;
+        my $stale_account_edit = 0;
+        my $too_many_new_rows  = 0;
         my %posted_rows = map { /\Aextservice_(?:site|val)_([1-9][0-9]*)\z/ ? ( $1 => 1 ) : () }
             keys %$POST;
         foreach my $ct ( sort { length($a) <=> length($b) || $a cmp $b } keys %posted_rows ) {
@@ -370,10 +373,10 @@ sub profile_handler {
             my $val  = $POST->{"extservice_val_$ct"}  // '';
 
             if ($a_id) {
-
-                # Only reconcile existing rows whose (service_id, account_id)
-                # identity still exists in the database.
-                next unless $existing_db_accts{"$s_id:$a_id"};
+                unless ( $existing_db_accts{"$s_id:$a_id"} ) {
+                    $stale_account_edit = 1 if $val ne '';
+                    next;
+                }
                 $pending_existing{"$s_id:$a_id"} = $val;
             }
             elsif ( $legacy_service_ids{$s_id} && !exists $pending_legacy{$s_id} ) {
@@ -381,16 +384,23 @@ sub profile_handler {
             }
             elsif ( $s_id ne '' || $val ne '' ) {
                 my $site_id = $services_by_id{$s_id} ? $s_id : '';
-                push @pending_new, { site => $site_id, value => $val }
-                    if $site_id ne '' || $val ne '';
+                next if $site_id eq '' && $val eq '';
+                if ( @pending_new >= $max_service_accounts ) {
+                    $too_many_new_rows = 1;
+                    next;
+                }
+                push @pending_new, { site => $site_id, value => $val };
             }
         }
+        $errors->add( undef, "$scope.error.extservice.removed" ) if $stale_account_edit;
 
         my $post_service_rows =
             $build_service_rows->( \%pending_existing, \%pending_legacy, \@pending_new );
         $vars->{service_rows} = $post_service_rows;
 
         my %new_accts;
+        my $remaining_accounts = scalar keys %existing_db_accts;
+        my $new_accounts       = 0;
         foreach my $row (@$post_service_rows) {
             next unless $row->{submitted};
             my $site = $row->{service} || $services_by_id{ $row->{site} // '' };
@@ -411,10 +421,21 @@ sub profile_handler {
 
             if ( my $a_id = $row->{dbid} ) {
                 push @{ $new_accts{$s_id} }, [ $a_id, $val ];
+                --$remaining_accounts unless $val;
             }
             elsif ( $val ne '' ) {
                 push @{ $new_accts{$s_id} }, $val;
+                ++$new_accounts;
             }
+        }
+        if ( $too_many_new_rows
+            || ( $new_accounts && $remaining_accounts + $new_accounts > $max_service_accounts ) )
+        {
+            $errors->add(
+                undef,
+                "$scope.error.extservice.limit",
+                { limit => $max_service_accounts }
+            );
         }
 
         # Field validation is done; bail before any saving if it failed. The

@@ -394,6 +394,30 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
 
             $editor->save_profile_accts( { $m_id => [ [ $alice_id, '' ] ] } );
 
+            my $stale_edit = $request->(
+                POST $url,
+                Content => [
+                    %$fields,
+                    name                                       => 'Profile owner',
+                    LJ__Setting__FindByEmail_opt_findbyemail   => 'N',
+                    "extservice_val_$by_dbid->{$alice_id}{ct}" => 'alice_edited@social.example',
+                    "extservice_val_$by_dbid->{$bob_id}{ct}"   => 'bob_edited@other.example',
+                    interests                                  => 'gardening',
+                    lj_form_auth                               => $token,
+                ]
+            );
+            is( $stale_edit->code, 200, 'editing a deleted account returns the editor' );
+            like(
+                $stale_edit->content,
+                qr/Other Sites account in this form was removed/i,
+                'the editor explains why the stale edit was not saved'
+            );
+            is_deeply(
+                $editor->load_profile_accts( force_db => 1 )->{$m_id},
+                [ [ $bob_id, 'bob@other.example' ] ],
+                'a stale edit prevents partial saves'
+            );
+
             my $rejected = $request->(
                 POST $url,
                 Content => [
@@ -502,6 +526,58 @@ subtest 'rejected edits keep account identities across intervening DB changes' =
     };
 };
 
+subtest 'a profile save cannot add more than 26 Other Sites accounts' => sub {
+    local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'profileOtherSitesLimitTest';
+    my $editor = temp_user();
+    my $url    = 'http://localhost/manage/profile?as=' . $editor->user;
+    my $m_id   = $mastodon->{service_id};
+    my $p_id   = $services{patreon}->{service_id};
+
+    test_psgi $app, sub {
+        my ($request) = @_;
+        my $form      = $request->( GET $url );
+        my ($token)   = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        ok( $token, 'received a profile form token' ) or return;
+
+        my %post = (
+            name                                     => 'Profile owner',
+            LJ__Setting__FindByEmail_opt_findbyemail => 'N',
+            interests                                => 'gardening',
+            lj_form_auth                             => $token,
+            (
+                map {
+                    (
+                        "extservice_site_$_" => $m_id,
+                        "extservice_val_$_"  => "user$_\@social.example"
+                    )
+                } 1 .. 26
+            ),
+        );
+        my %overflow =
+            map { ( "extservice_site_$_" => $p_id, "extservice_val_$_" => "patreon$_" ) } 27 .. 30;
+
+        my $rejected = $request->( POST $url, Content => [ %post, %overflow ] );
+        is( $rejected->code, 200, 'an oversized submission returns the editor' );
+        like(
+            $rejected->content,
+            qr/up to 26 Other Sites accounts/i,
+            'the editor explains the account limit'
+        );
+        is_deeply( $editor->load_profile_accts( force_db => 1 ),
+            {}, 'an oversized submission does not save any accounts' );
+        my ($retry_fields) = _parse_extservice_rows( $rejected->content );
+        ok( !exists $retry_fields->{extservice_val_27}, 'excess rows are not rendered' );
+        return unless $rejected->is_success;
+
+        ( $post{lj_form_auth} ) =
+            $rejected->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        my $accepted = $request->( POST $url, Content => [%post] );
+        ok( $accepted->is_redirect, 'a submission at the limit redirects' );
+        my $saved = $editor->load_profile_accts( force_db => 1 );
+        is( scalar @{ $saved->{$m_id} // [] }, 26, 'all 26 accounts at the limit are saved' );
+    };
+};
+
 subtest 'invalid new Mastodon handle survives a concurrent fill of the last slot' => sub {
     local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'profileMastodonOverflowTest';
     my $editor = temp_user();
@@ -548,12 +624,33 @@ subtest 'invalid new Mastodon handle survives a concurrent fill of the last slot
         ($token) = $rejected->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
         ok( $token, 'received token for the redisplayed form' ) or return;
         $retry_fields->{extservice_val_27} = 'fixed@social.example';
+        my $full_retry = $request->( POST $url,
+            Content => [ %$retry_fields, %profile, lj_form_auth => $token ] );
+        is( $full_retry->code, 200, 'a corrected handle still cannot exceed the account limit' );
+        like(
+            $full_retry->content,
+            qr/up to 26 Other Sites accounts/i,
+            'the editor explains why the corrected account was not saved'
+        );
+        is_deeply( $editor->load_profile_accts( force_db => 1 )->{$m_id},
+            $full, 'the over-limit retry leaves all accounts unchanged' );
+        return unless $full_retry->is_success;
+
+        ($token) = $full_retry->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+        ( $retry_fields, $by_dbid ) = _parse_extservice_rows( $full_retry->content );
+        is( $retry_fields->{extservice_val_27},
+            'fixed@social.example', 'the corrected handle is retained while the list is full' );
+        my $removed_id = $full->[0][0];
+        $retry_fields->{ 'extservice_val_' . $by_dbid->{$removed_id}{ct} } = '';
         my $accepted = $request->( POST $url,
             Content => [ %$retry_fields, %profile, lj_form_auth => $token ] );
-        ok( $accepted->is_redirect, 'fixing the handle in the extra row succeeds' );
+        ok( $accepted->is_redirect, 'replacing an account at the limit succeeds' );
         my $saved = $editor->load_profile_accts( force_db => 1 )->{$m_id};
-        is_deeply( [ grep { $_->[1] ne 'fixed@social.example' } @$saved ],
-            $full, 'the retry preserves all previous account IDs and values' );
+        is_deeply(
+            [ grep { $_->[1] ne 'fixed@social.example' } @$saved ],
+            [ grep { $_->[0] != $removed_id } @$full ],
+            'the retry preserves every account except the one explicitly cleared'
+        );
         is( scalar( grep { $_->[1] eq 'fixed@social.example' } @$saved ),
             1, 'the retry saves exactly one corrected account' );
     };
