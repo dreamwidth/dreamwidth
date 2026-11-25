@@ -51,6 +51,7 @@ propgroup colors_child {
 
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string small_media_query = generate_small_media_query();
 
     var string footer_inner_colors = generate_color_css (new Color, $*color_module_footer_background, $*color_module_title_background);
     var string entry_bar_colors = generate_color_css($*color_entry_text, $*color_entry_footer_background, $*color_entry_border);
@@ -674,6 +675,46 @@ ul.module-list { list-style: none; }
 .page-tags .tags-container .manage-tags-link a {
     color: $*color_entry_interaction_links;
     padding: 0 10px; }
+
+@media $small_media_query {
+    body { margin: 0; }
+    #canvas { margin: 0 8px; }
+
+    #primary > .inner:first-child { padding: 0; }
+    #secondary > .inner:first-child,
+    #tertiary > .inner:first-child { margin: 0; }
+
+    .entry, .comment-wrapper { border-width: 8px; }
+    .comment-wrapper { min-width: 0; }
+    #comments .comment-content { padding: 10px; }
+
+    .entry .header, .comment .header,
+    .entry-title, .comment-title {
+        overflow-wrap: anywhere;
+    }
+
+    .entry .userpic img { margin: 0; }
+    .entry-content, .comment .comment-content { clear: both; }
+
+    #content .module {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content, .comment-content, .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+    }
+
+    .comment-content:before { max-width: 100%; }
+
+    .entry-content img, .comment-content img, .module-content img {
+        max-width: 100%;
+        height: auto;
+    }
+}
 
  """;
 }
