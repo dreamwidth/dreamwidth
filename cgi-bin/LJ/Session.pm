@@ -299,7 +299,12 @@ sub update_master_cookie {
 
     if ( $LJ::PROTOCOL eq 'https' ) {
         my $cookie = $sess->domsess_cookie_string(OPENID_COOKIE);
-        _set_openid_cookie( $cookie, @expires ) if defined $cookie;
+        if ( defined $cookie ) {
+            _set_openid_cookie( $cookie, @expires );
+        }
+        else {
+            _set_openid_cookie( '', delete => 1 );
+        }
     }
 
     $sess->owner->preload_props('schemepref');

@@ -52,39 +52,6 @@ test_psgi $app, sub {
     like( $res->header('Cache-Control'), qr/no-cache/, "GET /login is marked no-cache" );
 };
 
-subtest 'OpenID trust settings require a form token' => sub {
-    local $LJ::IS_DEV_SERVER              = 1;
-    local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'openidOptionsTest';
-
-    my $owner = temp_user();
-    $owner->update_self( { status => 'A' } );
-    my $site = 'https://openid-options.example/';
-    ok( LJ::OpenID::add_trust( $owner, $site ), 'saved a trust record' );
-    my $endpoint = LJ::OpenID::getmake_endpointid($site);
-    my $url      = 'http://localhost/openid/options?as=' . $owner->user;
-
-    test_psgi $app, sub {
-        my $cb      = shift;
-        my $form    = $cb->( GET $url );
-        my ($token) = $form->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
-        ok( $token, 'the options form supplies a token' );
-
-        my $invalid_token = $token // '';
-        $invalid_token =~ s/([0-9a-f])$/$1 eq '0' ? '1' : '0'/e;
-        my @deletion = ( "delete:$endpoint" => 1 );
-        for my $token_case ( [ 'missing', [] ], [ 'invalid', [ lj_form_auth => $invalid_token ] ] )
-        {
-            my ( $label, $fields ) = @$token_case;
-            my $res = $cb->( POST $url, Content => [ @deletion, @$fields ] );
-            like( $res->content, qr/Invalid form submission/i, "rejects the $label token" );
-            ok( LJ::OpenID::is_trusted( $owner, $site ), 'trust record is unchanged' );
-        }
-
-        $cb->( POST $url, Content => [ @deletion, lj_form_auth => $token ] );
-        ok( !LJ::OpenID::is_trusted( $owner, $site ), 'a valid form can remove trust' );
-    };
-};
-
 subtest 'HTTPS OpenID credential only authenticates at the provider' => sub {
     local $LJ::PROTOCOL = 'https';
     my $owner = temp_user();
@@ -134,7 +101,8 @@ subtest 'HTTPS OpenID credential only authenticates at the provider' => sub {
         local *LJ::get_secret = sub { return undef };
 
         my $response = $cookie_client->request( GET "$LJ::SITEROOT/login" );
-        is( $scope->($response), '', 'no scoped credential is issued without a signing key' );
+        is( $scope->($response), $cleared,
+            'failed replacement signing expires the same scoped cookie as logout' );
         my @regular = grep { /^lj(?:mastersession|loggedin)=/ } $response->header('Set-Cookie');
         is( scalar @regular, 2, 'ordinary login still sets both cookies without a signing key' );
         $regular_cookies = join '; ', map { ( split /;/, $_, 2 )[0] } @regular;

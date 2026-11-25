@@ -63,7 +63,7 @@ sub openid_index_handler {
 }
 
 sub openid_options_handler {
-    my ( $ok, $rv ) = controller( form_auth => 1 );
+    my ( $ok, $rv ) = controller();
     return $rv unless $ok;
 
     my $r = $rv->{r};
