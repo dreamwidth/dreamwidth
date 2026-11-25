@@ -98,9 +98,12 @@ def env_count(name, default):
 AUTO_MERGE = os.environ.get("BELLWETHER_AUTO_MERGE", "") == "true"
 AUTO_PER_HOUR = env_count("BELLWETHER_AUTO_PER_HOUR", 2)
 # Merges after the grace period happen only in a sweep, which counts them here: Bellwether's merges
-# in the last hour, read when the first one comes due. Sweeps share one concurrency group, so they
-# never overlap and the cap holds; runs for comments on different PRs can run side by side, so
-# they leave these merges to the sweep. None outside a sweep, and until something comes due.
+# in the last hour (maintainer-requested ones too, so the hour's total stays low), read when the
+# first one comes due. Sweeps share one concurrency group, so they never overlap; runs for comments
+# on different PRs can run side by side, so they leave these merges to the sweep. None outside a
+# sweep, and until something comes due. The cap spreads merges out; it isn't a safety check, so
+# rare races (a merge whose answer was lost showing up only after the next sweep counted, or PRs
+# shifting between pages while it counts) can let one extra through.
 SWEEPING = False
 auto_merged = None
 
@@ -363,6 +366,20 @@ def finish_merge(number, comment, sha, reason=None):
     set_label(api("GET", f"/repos/{REPO}/pulls/{number}"), None)
 
 
+WAITING = ("**Ready to merge.** I merge PRs that waited out the grace period on my hourly check, "
+           f"at most {AUTO_PER_HOUR} an hour.\n\n{FOOTER}")
+
+
+def set_waiting(comment):
+    """Say a due PR is waiting for a sweep, unless the comment already records a merge under way
+    (a sweep can be merging it while a comment run looks at it)."""
+    fresh = comment if DRY_RUN else api("GET", f"/repos/{REPO}/issues/comments/{comment['id']}")
+    m = NEXT.search(fresh["body"] or "")
+    if m and m.group(0)[len(NEXT_START):].lstrip().startswith(("**Merging", "**Merged")):
+        return
+    return set_next(comment, WAITING)
+
+
 def merge_commit(number, waits=()):
     """The merge commit if the PR has merged, waiting `waits` seconds between looks, else None."""
     for wait in (0, *waits):
@@ -431,11 +448,13 @@ def decide(number, final_check=False):
         if now() < parse_time(state["ready_since"]) + timedelta(hours=hours):
             return set_next(comment, state["next"])
         if not SWEEPING:
-            return print("  due; merges after the grace period wait for the hourly sweep")
+            print("  due; merges after the grace period wait for the hourly sweep")
+            return set_waiting(comment)
         if auto_merged is None:
             auto_merged = recent_merges()
         if auto_merged >= AUTO_PER_HOUR:
-            return print(f"  due, but {auto_merged} merges already this hour; next sweep")
+            print(f"  due, but {auto_merged} merges already this hour; next sweep")
+            return set_waiting(comment)
         reason = f"{hours} hours passed with no `/hold`"
     else:
         label(state.get("label"))
@@ -467,13 +486,13 @@ def decide(number, final_check=False):
     if decide(number, final_check=True) != "ok":
         return
     set_next(comment, f"**Merging: {reason}.**")
-    if DRY_RUN:
-        return print("  would merge")
     # Once a sweep has counted this hour's merges, each merge it asks for counts from the moment
     # it's asked for: one GitHub may have made counts even when its answer was lost.
     counted = auto_merged is not None
     if counted:
         auto_merged += 1
+    if DRY_RUN:
+        return print("  would merge")
     try:
         sha = api("PUT", f"/repos/{REPO}/pulls/{number}/merge",
                   {"merge_method": "squash", "sha": state["head"],
