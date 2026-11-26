@@ -21,14 +21,17 @@ use IO::Socket::SSL qw( SSL_VERIFY_PEER );
 use Net::OpenID::ClaimedIdentity;
 use Net::OpenID::Consumer;
 use Net::OpenID::VerifiedIdentity;
+use POSIX ();
 use Test::More;
+use Time::HiRes ();
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Importer::Report;
 use DW::Importer::Sink::DryRun;
 use DW::Importer::Sink::Live;
+use DW::Locker;
 use LJ::OpenID;
-use LJ::Test qw( temp_user );
+use LJ::Test qw( temp_user with_fake_memcache );
 
 my $IJ_OPENID_SERVER = 'https://www.insanejournal.com/openid/server.bml';
 
@@ -367,14 +370,26 @@ subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists
 
     # Direct 302 to exact verified URL confirms legacy account and persists canonical key.
     $head_response = HTTP::Response->new( 302, 'Found', [ Location => $verified_url ] );
-    my ( $claimed, $reqs_ok ) = run_with_openid_http(
-        $handler,
-        sub {
-            my $csr = LJ::OpenID::consumer( make_openid_args($verified_url) );
-            my $err;
-            return LJ::User::load_from_consumer( $csr, \$err );
+    my $canonical_http = "http://dw-openid-$suffix.insanejournal.com/";
+    my ( $claimed, $reqs_ok );
+    with_fake_memcache {
+        my @urls = ( $legacy_url, $secure_legacy_url, $canonical_http, $verified_url );
+        for my $url (@urls) {
+            LJ::MemCache::set( "uidof:$url", $legacy->id, 1800 );
+            is( LJ::MemCache::get("uidof:$url"), $legacy->id, "$url is cached before migration" );
         }
-    );
+        ( $claimed, $reqs_ok ) = run_with_openid_http(
+            $handler,
+            sub {
+                my $csr = LJ::OpenID::consumer( make_openid_args($verified_url) );
+                my $err;
+                return LJ::User::load_from_consumer( $csr, \$err );
+            }
+        );
+        for my $url (@urls) {
+            is( LJ::MemCache::get("uidof:$url"), undef, "$url is invalidated by migration" );
+        }
+    };
     is( $claimed && $claimed->id,
         $legacy->id,
         'provider-confirmed verified assertion resolves to the existing legacy account' );
@@ -388,9 +403,8 @@ subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists
     );
 
     # Subsequent live and dry-run imports resolve to the same account instead of splitting it.
-    my $canonical_http = "http://dw-openid-$suffix.insanejournal.com/";
-    my $importer_u     = temp_user();
-    my $live_sink      = DW::Importer::Sink::Live->new(
+    my $importer_u = temp_user();
+    my $live_sink  = DW::Importer::Sink::Live->new(
         u    => $importer_u,
         data => { userid => $importer_u->id, import_data_id => 1 },
     );
@@ -402,6 +416,14 @@ subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists
         $legacy->id, 'subsequent live import resolves to the confirmed legacy account' );
     is( $dryrun_sink->identity_user($canonical_http),
         $legacy->id, 'subsequent dry-run import resolves to the confirmed legacy account' );
+    for my $url ( $legacy_url, $secure_legacy_url ) {
+        is( $dryrun_sink->identity_user($url),
+            $legacy->id, "dry-run import of $url resolves to the migrated account" );
+    }
+    for my $url ( $legacy_url, $secure_legacy_url ) {
+        is( $live_sink->identity_user($url),
+            $legacy->id, "live import of $url resolves to the migrated account" );
+    }
 
     # Subsequent verified login/claim resolves directly to the same account with no HEAD probe.
     my ( $again, $reqs_again ) = run_with_openid_http(
@@ -418,6 +440,9 @@ subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists
         0, 'subsequent verified resolution needs no repeat confirmation HEAD' );
     is( $legacy->openid_identity, $canonical_http,
         'confirmed legacy account now holds the canonical HTTP identity key' );
+    ok( $legacy->update_self( { statusvis => 'X' } ), 'mark migrated account expunged' );
+    ok( !LJ::User::load_existing_identity_user( 'O', $legacy_url ),
+        'migration history does not resolve an underscore lookup to an expunged account' );
     };
 
 subtest 'verified boundary and exact-precedence cases with legacy candidates present' => sub {
@@ -514,7 +539,7 @@ subtest 'verified boundary and exact-precedence cases with legacy candidates pre
         $alias->id, 'competing legacy account remains distinct and untouched' );
 };
 
-subtest 'legacy migration serializes with account creation for either canonical spelling' => sub {
+subtest 'canonical account creation can finish while legacy confirmation is pending' => sub {
     my $alias_host      = "dw_openid_${suffix}_contended.insanejournal.com";
     my $canonical_host  = "dw-openid-$suffix-contended.insanejournal.com";
     my $alias_http      = "http://$alias_host/";
@@ -532,8 +557,12 @@ subtest 'legacy migration serializes with account creation for either canonical 
             return HTTP::Response->new( 200, 'OK', [], "is_valid:true\n" )
                 if $req->method eq 'POST' && $req->uri->as_string eq $IJ_OPENID_SERVER;
             if ( $req->method eq 'HEAD' && $req->uri->as_string eq "https://$alias_host/" ) {
+                my $lock = DW::Locker->new->trylock( "openid:$canonical_host",
+                    class => 'openid_identity' );
+                ok( $lock, 'the writer lock is free while HEAD is in flight' );
+                undef $lock;
                 @competing_users = map { LJ::User::load_identity_user( 'O', $_ ) }
-                    ( $canonical_https, $canonical_http );
+                    ( $canonical_http, $canonical_https );
                 return HTTP::Response->new( 302, 'Found', [ Location => $canonical_https ] );
             }
             return HTTP::Response->new(404);
@@ -543,27 +572,67 @@ subtest 'legacy migration serializes with account creation for either canonical 
             return LJ::User::load_from_consumer($csr);
         }
     );
-    is_deeply(
-        \@competing_users,
-        [ undef, undef ],
-        'both competing writers fail closed during migration'
+    my ( $from_http, $from_https ) = @competing_users;
+    ok( $from_http, 'an import creates a canonical account while HEAD is in flight' );
+    is(
+        $from_https && $from_https->id,
+        $from_http  && $from_http->id,
+        'both spellings resolve to the same canonical account'
     );
-    is( $migrated && $migrated->id, $alias->id, 'verified migration preserves the legacy account' );
+    is(
+        $migrated  && $migrated->id,
+        $from_http && $from_http->id,
+        'verified lookup rechecks the canonical account after HEAD'
+    );
     my $dbh  = LJ::get_db_writer();
     my $rows = $dbh->selectall_arrayref(
-        'SELECT identity, userid FROM identitymap WHERE idtype=? AND identity IN (?, ?, ?)',
-        undef, 'O', $alias_http, $canonical_https, $canonical_http, );
+'SELECT identity, userid FROM identitymap WHERE idtype=? AND identity IN (?, ?, ?) ORDER BY identity',
+        undef, 'O', $alias_http, $canonical_https, $canonical_http,
+    );
     is_deeply(
         $rows,
-        [ [ $canonical_http, $alias->id ] ],
-        'only the migrated canonical row exists'
+        [ [ $canonical_http, $from_http && $from_http->id ], [ $alias_http, $alias->id ] ],
+        'the canonical winner and original legacy row remain distinct'
     );
-    for my $url ( $canonical_https, $canonical_http ) {
-        my $retried = LJ::User::load_identity_user( 'O', $url );
-        is( $retried && $retried->id, $alias->id,
-            "$url resolves to the migrated account on retry" );
-    }
+};
 
+subtest 'InsaneJournal identity writers wait for the shared lock' => sub {
+    my $canonical_host = "dw-openid-$suffix-wait.insanejournal.com";
+    my $canonical_http = "http://$canonical_host/";
+    my $alias_http     = "http://dw_openid_${suffix}_wait.insanejournal.com/";
+    my $locker         = DW::Locker->new;
+    my $lock           = $locker->trylock( "openid:$canonical_host", class => 'openid_identity' );
+    BAIL_OUT('Could not acquire canonical writer lock') unless $lock;
+
+    my $start = Time::HiRes::time();
+    ok( !LJ::User::load_identity_user( 'O', $alias_http ),
+        'underscore creation fails closed if the canonical lock stays held' );
+    cmp_ok( Time::HiRes::time() - $start, '>=', 4.5, 'contended writer waits for its lock' );
+    undef $lock;
+
+    pipe( my $ready, my $signal ) or BAIL_OUT("Could not create writer lock pipe: $!");
+    my $pid = fork();
+    BAIL_OUT("Could not fork writer lock holder: $!") unless defined $pid;
+    if ( !$pid ) {
+        close $ready;
+        my $held = $locker->trylock( "openid:$canonical_host", class => 'openid_identity' );
+        POSIX::_exit(1) unless $held;
+        syswrite( $signal, '1' );
+        close $signal;
+        Time::HiRes::sleep(0.5);
+        $held->release;
+        POSIX::_exit(0);
+    }
+    close $signal;
+    BAIL_OUT('Child did not acquire canonical writer lock') unless <$ready>;
+    close $ready;
+    my $created = LJ::User::load_identity_user( 'O', $canonical_http );
+    ok( $created, 'creation succeeds after a brief lock hold clears' );
+    waitpid( $pid, 0 );
+    is( $?, 0, 'contending writer released the lock' );
+};
+
+subtest 'canonical scheme reuse does not alias unmigrated underscore names' => sub {
     my $created_https = "https://dw-openid-$suffix-https-first.insanejournal.com/";
     my $created_http  = "http://dw-openid-$suffix-https-first.insanejournal.com/";
     my $created       = LJ::User::load_identity_user( 'O', $created_https );
@@ -571,6 +640,19 @@ subtest 'legacy migration serializes with account creation for either canonical 
     my $from_http = LJ::User::load_identity_user( 'O', $created_http );
     is( $from_http && $from_http->id,
         $created->id, 'HTTP creation reuses an existing HTTPS account' );
+
+    my $legacy_host = "dw_openid_${suffix}_https_first.insanejournal.com";
+    for my $scheme ( 'http', 'https' ) {
+        ok(
+            !LJ::User::load_existing_identity_user( 'O', "$scheme://$legacy_host/" ),
+            "$scheme underscore lookup does not match a canonical account without migration history"
+        );
+    }
+    my $legacy_account = LJ::User::load_identity_user( 'O', "http://$legacy_host/" );
+    ok(
+        $legacy_account && $legacy_account->id != $created->id,
+        'an unmigrated underscore identity creates a distinct account'
+    );
 };
 
 done_testing();
