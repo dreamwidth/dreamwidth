@@ -22,6 +22,8 @@ use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw(temp_user with_fake_memcache);
+use DW::InviteCodes;
+use DW::Pay;
 use DW::RenameToken;
 use DW::Shop::Cart;
 use DW::Shop::Engine::Stripe;
@@ -47,6 +49,8 @@ my $buyer_name = $buyer->user;
 my $admin      = temp_user();
 my $other      = temp_user();
 my @cartids;
+my @invite_ids;
+my @new_usernames;
 my $audit_constraint;
 
 ok( $admin->grant_priv('payments'), 'granted payments privilege' );
@@ -95,6 +99,14 @@ sub stored_date {
 END {
     my $dbh = LJ::get_db_writer();
     $dbh->do("ALTER TABLE statushistory DROP CHECK $audit_constraint") if $audit_constraint;
+    for my $acid (@invite_ids) {
+        $dbh->do( 'DELETE FROM shop_codes WHERE acid = ?', undef, $acid );
+        $dbh->do( 'DELETE FROM acctcode WHERE acid = ?',   undef, $acid );
+    }
+    for my $username (@new_usernames) {
+        my $user = LJ::load_user($username);
+        $user->delete_and_purge_completely if $user;
+    }
     for my $cartid (@cartids) {
         $dbh->do( 'DELETE FROM renames WHERE cartid = ?',    undef, $cartid );
         $dbh->do( 'DELETE FROM shop_cmo WHERE cartid = ?',   undef, $cartid );
@@ -371,6 +383,129 @@ with_fake_memcache {
         is( $redeemed->get_item($itemid)->deliverydate,
             $new_date, 'rename preserves the saved delivery date' );
         is( $stored_nextscan->(), $nextscan, 'rename does not shorten the retry backoff either' );
+
+        subtest 'paid invite redemption shares the admin order lock' => sub {
+            my $email       = 'invite@example.com';
+            my $invite_item = DW::Shop::Item::Account->new(
+                type           => 'paid1',
+                from_userid    => $buyer->id,
+                target_email   => $email,
+                force_spelling => 1,
+            ) or BAIL_OUT('Could not build paid invite item');
+            my $cart =
+                make_cart( $DW::Shop::STATE_PAID, $invite_item, { deliverydate => $original } );
+            my $id             = $cart->id;
+            my $scheduled_item = $cart->items->[1];
+            $invite_item->{applied} = 1;
+            $cart->save or BAIL_OUT('Could not save paid invite cart');
+            $dbh->do( 'UPDATE shop_carts SET nextscan = ? WHERE cartid = ?', undef, $nextscan, $id )
+                or BAIL_OUT( $dbh->errstr );
+
+            my ($code) = DW::InviteCodes->generate( reason => 'payment:paid:1' );
+            my ($acid) = DW::InviteCodes->decode($code);
+            push @invite_ids, $acid;
+            $dbh->do( 'INSERT INTO shop_codes (acid, cartid, itemid) VALUES (?, ?, ?)',
+                undef, $acid, $id, $invite_item->id )
+                or BAIL_OUT( $dbh->errstr );
+
+            my $busy_username = 't_' . lc LJ::rand_chars(13);
+            my $username      = 't_' . lc LJ::rand_chars(13);
+            push @new_usernames, $busy_username, $username;
+            local $LJ::DEFAULT_STYLE =
+                { core => 'core2', layout => 'ciel/layout', theme => 'ciel/indil' };
+            my $redeem = sub {
+                return LJ::User->create_personal(
+                    user  => $_[0],
+                    bdate => '1990-01-01',
+                    email => $email,
+                    code  => $code,
+                );
+            };
+            {
+                my $lock = DW::Shop::Cart->processing_lock($id)
+                    or BAIL_OUT('Could not lock paid invite cart');
+                ok( !$redeem->($busy_username), 'locked cart defers account creation' );
+                is(
+                    $dbh->selectrow_array(
+                        'SELECT userid FROM user WHERE user = ?',
+                        undef, $busy_username
+                    ),
+                    undef,
+                    'deferral leaves the username available for retry'
+                );
+                my $stored = DW::Shop::Cart->get_from_cartid($id);
+                ok(
+                    !$stored->get_item( $invite_item->id )->t_userid,
+                    'deferral leaves the paid invite unclaimed'
+                );
+            }
+
+            my %target   = ( cartid => $id, itemid => $scheduled_item->id );
+            my $adjusted = $post->( $admin, %target );
+            like(
+                $adjusted->header('Location') // '',
+                qr{/admin/pay/view\?cartid=$id\z},
+                'admin can reschedule the gift before redemption'
+            );
+
+            local $LJ::HOOKS{post_create} = [ @{ $LJ::HOOKS{post_create} || [] } ];
+            my $overlapping_update;
+            LJ::Hooks::register_hook(
+                'post_create',
+                sub {
+                    return unless $_[0]{user} eq $username;
+                    $overlapping_update = $post->( $admin, %target, deliverydate => $original );
+                }
+            );
+            my $recipient = $redeem->($username);
+            like(
+                $overlapping_update ? $overlapping_update->content : '',
+                qr/order is busy/i,
+                'admin cannot reschedule during account creation'
+            );
+            is( $recipient ? DW::Pay::get_account_type($recipient) : undef,
+                'paid', 'unlocked account creation grants the paid time' );
+            my $stored = DW::Shop::Cart->get_from_cartid($id);
+            is(
+                $stored->get_item( $invite_item->id )->t_userid,
+                $recipient ? $recipient->id : undef,
+                'paid invite records the new recipient'
+            );
+            is( $stored->get_item( $scheduled_item->id )->deliverydate,
+                $new_date, 'redemption preserves the saved delivery date' );
+            is(
+                $dbh->selectrow_array(
+                    'SELECT nextscan FROM shop_carts WHERE cartid = ?',
+                    undef, $id
+                ),
+                $nextscan,
+                'redemption preserves the retry backoff'
+            );
+            my $notes = $dbh->selectcol_arrayref(
+                'SELECT notes FROM statushistory WHERE adminid = ? AND notes LIKE ?',
+                undef, $admin->id, "%Order #$id,%" );
+            is( scalar @$notes, 1, 'only the successful reschedule leaves an audit entry' );
+            like(
+                $notes->[0] // '',
+                qr/\Q$original\E.*\Q$new_date\E/,
+                'the audit entry agrees with the saved date'
+            );
+
+            my $retried = $post->( $admin, %target, deliverydate => $original );
+            like(
+                $retried->header('Location') // '',
+                qr{/admin/pay/view\?cartid=$id\z},
+                'admin can retry after redemption releases the lock'
+            );
+            $stored = DW::Shop::Cart->get_from_cartid($id);
+            is(
+                $stored->get_item( $invite_item->id )->t_userid,
+                $recipient ? $recipient->id : undef,
+                'admin retry preserves the invite recipient'
+            );
+            is( $stored->get_item( $scheduled_item->id )->deliverydate,
+                $original, 'admin retry saves the new date' );
+        };
     };
 };
 

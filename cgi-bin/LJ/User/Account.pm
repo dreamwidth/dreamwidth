@@ -186,6 +186,23 @@ sub create_community {
 sub create_personal {
     my ( $class, %opts ) = @_;
 
+    my ( $promo_code, $invite_cart_id, $invite_itemid, $invite_cart_lock );
+    if ( my $code = $opts{code} ) {
+        $promo_code = $LJ::USE_ACCT_CODES ? DW::InviteCodes::Promo->load( code => $code ) : undef;
+        unless ($promo_code) {
+            my $itemidref;
+            if ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
+                my $item = $cart->get_item($itemidref);
+                if ( $item && $item->isa('DW::Shop::Item::Account') ) {
+                    $invite_cart_id   = $cart->id;
+                    $invite_itemid    = $itemidref;
+                    $invite_cart_lock = DW::Shop::Cart->processing_lock($invite_cart_id)
+                        or return;
+                }
+            }
+        }
+    }
+
     my $u = LJ::User->create(%opts) or return;
 
     $u->set_prop( "init_bdate", $opts{bdate} );
@@ -218,20 +235,18 @@ sub create_personal {
 
     # apply any paid time that this account should get
     if ( $opts{code} ) {
-        my $code = $opts{code};
-        my $itemidref;
-        my $promo_code =
-            $LJ::USE_ACCT_CODES ? DW::InviteCodes::Promo->load( code => $code ) : undef;
         if ($promo_code) {
             $promo_code->apply_for_user($u);
         }
-        elsif ( my $cart = DW::Shop::Cart->get_from_invite( $code, itemidref => \$itemidref ) ) {
-            my $item = $cart->get_item($itemidref);
+        elsif ($invite_cart_id) {
+            my $cart = DW::Shop::Cart->get_from_cartid($invite_cart_id);
+            my $item = $cart ? $cart->get_item($invite_itemid) : undef;
             if ( $item && $item->isa('DW::Shop::Item::Account') ) {
 
                 # first update the item's target user and the cart
                 $item->t_userid( $u->id );
-                $cart->save( no_memcache => 1 );
+                my $dbh = LJ::get_db_writer();
+                $cart->save_items($dbh) if $dbh;
 
                 # now add paid time to the user
                 my $from_u = $item->from_userid ? LJ::load_userid( $item->from_userid ) : undef;

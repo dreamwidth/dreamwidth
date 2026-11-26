@@ -122,7 +122,11 @@ sub get_from_ordernum {
 # Holds a cart stable during worker, admin, and rename item updates.
 sub processing_lock {
     my ( $class, $cartid ) = @_;
-    return LJ::locker()->trylock( "shop-cart:$cartid", class => 'shop_cart' );
+    my $lock = LJ::locker()->trylock( "shop-cart:$cartid", class => 'shop_cart' );
+    if ( !$lock && defined $DW::Locker::Error && $DW::Locker::Error ne 'lock taken' ) {
+        warn "Failed to acquire shop cart lock for order #$cartid: $DW::Locker::Error\n";
+    }
+    return $lock;
 }
 
 # returns a new cart given an invite code

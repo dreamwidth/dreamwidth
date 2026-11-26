@@ -454,7 +454,7 @@ sub save_delivery_date {
         if ( $started && !eval { $dbh->rollback } ) {
             warn "Failed to roll back delivery date change for order #$cartid: "
                 . ( $@ || $dbh->errstr );
-            $dbh->disconnect;
+            LJ::DB::disconnect_dbs();
         }
         warn "Failed to save delivery date change for order #$cartid: $error";
     }
