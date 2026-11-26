@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 416;
+use Test::More tests => 429;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -748,6 +748,44 @@ BODY
         ok( $ok, "Posted HTML with $label" ) or diag $msg;
         my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
         like( $entry->event_raw, $expected, "Body markup stays balanced with $label" );
+    }
+
+    for my $case (
+        [
+            'multiline mark around the privacy setting',
+            "<mark>\npost-security: private\n</mark>\n\nSecret",
+            'private',
+            qr{\A(?:<mark>\s*</mark>\s*)?Secret\z},
+        ],
+        [
+            'mark around the comment email setting',
+            '<mark>post-comments: noemail</mark><br>Body',
+            'public',
+            qr{\A(?:<mark></mark>)?<br>Body\z},
+        ],
+        [
+            'keyboard markup around the privacy setting',
+            '<kbd>post-security: private</kbd><br>Secret',
+            'private',
+            qr{\A(?:<kbd></kbd>)?<br>Secret\z},
+        ],
+        [
+            'inline quote around the privacy setting',
+            '<q>post-security: private</q><br>Secret',
+            'public',
+            qr{\A<q>post-security: private</q><br>Secret\z},
+        ],
+        )
+    {
+        my ( $label, $body, $security, $expected ) = @$case;
+        my $mime = build_message( "HTML with $label", 'text/html', $body );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Posted HTML with $label" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        is( $entry->security, $security, "Entry security with $label" );
+        ok( $entry->prop('opt_noemail'), "Comment email setting with $label applies" )
+            if $body =~ /post-comments:/;
+        like( $entry->event_raw, $expected, "Body markup and content with $label" );
     }
 
     for my $case ( [ 'empty', '' ], [ 'nonbreaking space', '&nbsp;' ], [ 'whitespace', " \r\n\t" ] )

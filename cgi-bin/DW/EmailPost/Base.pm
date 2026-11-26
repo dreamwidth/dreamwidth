@@ -22,11 +22,12 @@ use HTML::TokeParser ();
 use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
-my $workdir                = "/tmp";
-my $html_inline_name       = qr/(?:a|b|big|code|em|font|i|s|small|span|strong|sub|sup|tt|u)/i;
-my $html_value_inline_name = qr{
-    (?:$html_inline_name|abbr|bdi|bdo|cite|del|dfn|ins|kbd|mark|q|samp|strike|time|var)
+my $workdir          = "/tmp";
+my $html_inline_name = qr{
+    (?:a|abbr|b|bdi|bdo|big|cite|code|del|dfn|em|font|i|ins|kbd|mark
+        |s|samp|small|span|strike|strong|sub|sup|time|tt|u|var)
 }ix;
+my $html_value_inline_name = qr/(?:$html_inline_name|q)/i;
 my $html_block_name        = qr/(?:div|p)/;
 my $html_break_tag         = qr{<br[ \t]*/?>}i;
 my $html_office_open       = qr{<o:p[ \t]*>}i;
