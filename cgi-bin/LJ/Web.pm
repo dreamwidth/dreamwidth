@@ -187,6 +187,7 @@ sub valid_stylesheet_url {
 #           'type' - journaltype (affects label & list filtering)
 #           'selectonly' - 1 for just menu items, otherwise entire HTML block
 #           'foundation' - 1 for Foundation HTML, otherwise legacy HTML
+#           'list' - arrayref of usernames to offer instead of $u->get_authas_list
 #           others - arguments to pass to $u->get_authas_list.
 # </LJFUNC>
 sub make_authas_select {
@@ -198,7 +199,7 @@ sub make_authas_select {
 
     my $foundation = $opts->{foundation} || 0;
 
-    my @list = $u->get_authas_list($opts);
+    my @list = $opts->{list} ? @{ $opts->{list} } : $u->get_authas_list($opts);
 
     # only do most of form if there are options to select from
     if ( @list > 1 || $list[0] ne $u->user ) {
@@ -219,7 +220,7 @@ sub make_authas_select {
         }
         else {
             $ret = $foundation
-                ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline'>}
+                ? q{<div class='row collapse'><div class='columns small-3 medium-1'><label class='inline' for='authas'>}
                 . $label
                 . q{</label></div>}
                 . q{<div class='columns small-9 medium-11'><div class='row'>}
@@ -2355,6 +2356,7 @@ sub canonicalize_slug {
     $str =~ s/-+/-/g;
     $str =~ s/^-|-$//g;
     $str = LJ::text_trim( $str, 255, 100 );
+    $str =~ s/-$//;
 
     return $str;
 }

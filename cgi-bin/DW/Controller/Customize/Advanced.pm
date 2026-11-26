@@ -274,7 +274,7 @@ sub layers_handler {
             : '/customize/advanced/layers.tt.error.usercantuseadvanced'
         ),
         undef,
-        { authas => $rv->{authas_html} }
+        { authas_form => $rv->{authas_form} }
     ) unless $u->can_create_s2_styles || $viewall;
 
     if ( $POST->{'action:create'} && !$noactions ) {
@@ -459,7 +459,7 @@ sub styles_handler {
             : '/customize/advanced/styles.tt.error.usercantuseadvanced'
         ),
         undef,
-        { authas => $rv->{authas_html} }
+        { authas_form => $rv->{authas_form} }
     ) unless $u->can_create_s2_styles || $viewall;
 
     return error_ml('/customize/advanced/index.tt.error.advanced.editing.denied')

@@ -65,6 +65,8 @@
     END %]
 </b></p>
 
+[% INCLUDE history_pagination %]
+
 <table border='1' cellpadding='5' width='100%'>
   <thead><tr>
   [% FOREACH col IN [ 'user', 'admin', 'shtype', 'shdate', 'notes' ];
@@ -93,9 +95,24 @@
      END %]
 
   <tr><td colspan='5'><b>
-    [% '.txt.rowcount' | ml( count = count );
-       IF rows.size >= 1000; '&nbsp;'; '.txt.truncated' | ml; END %]
+    [% '.txt.rowcount' | ml( count = count ) %]
   </b></td></tr>
 
 </table>
+
+[% INCLUDE history_pagination %]
+[% END %]
+
+[% BLOCK history_pagination %]
+  [% IF pages.prev || pages.next %]
+    <ul class="pagination">
+      [% FOREACH direction IN [ 'prev', 'next' ] %]
+        [% IF pages.$direction %]
+          [% link = dw.create_url( '/admin/statushistory', keep_args => 1,
+                                  cur_args => page_args, args => { page => pages.$direction } ) %]
+          <li class="arrow"><a href="[% link | html %]">[% ".btn.$direction" | ml %]</a></li>
+        [% END %]
+      [% END %]
+    </ul>
+  [% END %]
 [% END %]

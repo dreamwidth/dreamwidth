@@ -7,7 +7,7 @@
 <p>[% '.desc.notfirst' | ml %]</p>
 <hr>
 [% IF u.status == 'A' %]
-    <h3>[% '.address.current.title' | ml %]</h3>
+    <h2>[% '.address.current.title' | ml %]</h2>
     <div style='margin: 20px 0 20px 30px;'>
     <b>[% u.email_raw %] </b>
         [%- IF lastdate -%]
@@ -15,7 +15,7 @@
         [%- END -%]
     </div>
 
-    <h3>[% '.address.old.title' | ml %]</h3>
+    <h2>[% '.address.old.title' | ml %]</h2>
     <p>[% '.address.old.text' | ml %]</p>
     [%- IF rows.size > 0 %]
         <form method='post' action='emailmanage[% getextra %]'>
@@ -44,12 +44,12 @@
         <div style='margin-left: 30px; margin-top: 10px'><i>[% '.address.old.none' | ml %]</i></div>
     [%- END -%]
 [% ELSE %]
-    <h3>[% '.notvalidated.title' | ml %]</h3>
+    <h2>[% '.notvalidated.title' | ml %]</h2>
     <p>[% dw.ml('.notvalidated.text2', {'email' => u.email_raw, 'aopts' => "href='$site.root/register'"}) %]</p>
 [% END %]
 
 [% IF deleted.size > 0 %]
-<h3>[% '.log.deleted.title' | ml %]</h3>
+<h2>[% '.log.deleted.title' | ml %]</h2>
     <ul>
     [% "<li>$d</li>" FOREACH d IN deleted %]
     </ul>

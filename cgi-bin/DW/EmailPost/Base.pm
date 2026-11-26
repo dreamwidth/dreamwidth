@@ -337,6 +337,17 @@ sub _clean_body_and_subject {
     return 1;
 }
 
+sub _choose_icon_keyword {
+    my ( $self, $sender, $keyword ) = @_;
+
+    return $keyword unless defined $keyword && lc $keyword eq 'random';
+
+    my @keywords = grep { length } map { $_->{value} } @{ $sender->icon_keyword_menu };
+    return $keyword if grep { $_ eq $keyword } @keywords;
+
+    return @keywords ? $keywords[ int rand @keywords ] : undef;
+}
+
 # Convert special email format keywords to the real format IDs used by
 # DW::Formats and LJ::CleanHTML.
 sub _choose_editor {

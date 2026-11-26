@@ -56,8 +56,98 @@ set font_module_heading_units = "em";
 ## Stylesheet
 ##===============================
 
+function header_navlinks_linear_channel(int channel) : int {
+    var int srgb = $channel * 1000 / 255;
+    return $srgb * (12 + $srgb * (682 + $srgb * 305 / 1000) / 1000) / 1000;
+}
+
+function header_navlinks_luminance(Color color) : int {
+    return (2126 * header_navlinks_linear_channel($color.r)
+        + 7152 * header_navlinks_linear_channel($color.g)
+        + 722 * header_navlinks_linear_channel($color.b)) / 10000;
+}
+
+function print_header_navlinks_stylesheet() {
+    var Color surface = $*color_header_background;
+    var bool transparent_header = $surface.as_string == "";
+    if ($transparent_header) { $surface = $*color_page_background; }
+    if ($surface.as_string == "") { $surface = "#ffffff"; }
+
+    var int background = header_navlinks_luminance($surface) + 50;
+    var int min_contrast_tenths = 47;
+    var string foreground = $background >= 228 ? "#000000" : "#ffffff";
+    foreach var Color candidate ([$*color_page_title, $*color_page_text]) {
+        if ($candidate.as_string != "") {
+            var int text = header_navlinks_luminance($candidate) + 50;
+            if ($text * 10 >= $background * $min_contrast_tenths
+                or $background * 10 >= $text * $min_contrast_tenths) {
+                $foreground = $candidate.as_string;
+                break;
+            }
+        }
+    }
+
+    var string link_background = "transparent";
+    if ($*image_background_header_url != ""
+        or ($transparent_header and $*image_background_page_url != "")) {
+        $link_background = $surface.as_string;
+    }
+    """
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    color: $foreground;
+    font-size: .9em;
+    margin: 0 0 .65em;
+    padding: 0;
+    text-align: left;
+    }
+
+#header .module-navlinks .module-content {
+    padding: 0;
+    }
+
+#header .module-navlinks ul {
+    border-bottom: 1px solid currentColor;
+    border-color: color-mix(in srgb, currentColor 35%, transparent);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2em .6em;
+    margin: 0;
+    padding: 0 0 .4em;
+    }
+
+#header .module-navlinks .module-content li {
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks a {
+    background-color: $link_background;
+    color: inherit;
+    display: block;
+    overflow-wrap: anywhere;
+    padding: .35em .45em;
+    text-decoration: none;
+    text-underline-offset: .22em;
+    }
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover {
+    text-decoration: underline;
+    }
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    }
+    """;
+}
+
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string title_colors = generate_color_css($*color_page_title, new Color, new Color);
 
     var string entry_margin = "";
     if ( $*entry_userpic_style == "" ) { $entry_margin = "140px"; }
@@ -242,12 +332,12 @@ h1#title {
     }
 
 h1#title a {
-    color: $*color_page_title;
+    $title_colors
     }
 
 h2#subtitle,
 h2#pagetitle {
-    color: $*color_page_title;
+    $title_colors
     font-weight: lighter;
     margin: 0;
     padding: 0;
@@ -893,4 +983,7 @@ ul.userlite-interaction-links li {
 $userpic_css
 
 """;
+    if ($*module_navlinks_section == "header") {
+        print_header_navlinks_stylesheet();
+    }
 }

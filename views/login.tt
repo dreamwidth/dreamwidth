@@ -114,12 +114,12 @@ reference 'perldoc perlartistic' or 'perldoc perlgpl'.
 [% END %]
 <div class="row" id="protected_login">
   <div class="columns medium-6">
-      <h4>[% '.login.header' | ml( sitename = site.name ) %]</h4>
+      <h2>[% '.login.header' | ml( sitename = site.name ) %]</h2>
         [% PROCESS "components/login.tt" %]
     </div>
 
    <div class="columns medium-6">
-    <h4>[% '.createaccount.header' | ml( sitename = site.name ) %]</h4> 
+    <h2>[% '.createaccount.header' | ml( sitename = site.name ) %]</h2>
     <form action="[% site.root %]/create" method="get"><input type="submit" value="[% '.createaccount.button' | ml %]" class="button" tabindex="18" /></form> 
       <ul> 
         <li>[% '.createaccount.whylogin.benefit1' | ml %]</li>

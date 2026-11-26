@@ -71,7 +71,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <select name='usejournal' id='js-usejournal' class='select'>
         [%- FOREACH journal IN journallist -%]
             [%- value = journal.equals( remote ) ? '' : journal.user -%]
-            <option value='[% value | html %]'[% ' selected="selected"' IF formdata.usejournal == value %]>[% journal.user | html %]</option>
+            [%- tag_permission_option = tag_permissions.${journal.user} -%]
+            <option value='[% value | html %]'[% ' selected="selected"' IF formdata.usejournal == value %][% IF tag_permission_option %] data-tag-permission='[% tag_permission_option | html %]'[% END %]>[% journal.user | html %]</option>
         [%- END -%]
         </select>
     [%- ELSIF journallist.first -%]
@@ -205,10 +206,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <label for='js-taglist' class='left options'>[% 'entryform.tags' | ml %]</label>
         <span class='taglist-field'>
         [%- form.textarea( name = "taglist", id = "js-taglist", class = "draft-autosave",
-                cols = "20", rows = "1" ) -%]
+                "aria-describedby" = "entry-tag-permission", cols = "20", rows = "1" ) -%]
         </span>
         [%- IF journalu %] <a id='js-taglist-link' target='_blank' href='[% journalu.journal_base %]/tag/'>[% '/entry/module-tags.tt.link.tagspage' | ml %]</a>[% END -%]
     </p>
+    [%- INCLUDE "entry/module-tags.tt" tag_notice_only = 1 -%]
     [%- INCLUDE "components/tag-browser.tt" -%]
 
     <p class='pkg'>

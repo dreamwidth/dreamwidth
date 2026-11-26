@@ -99,33 +99,69 @@ sub statushistory_controller {
         return DW::Template->render_template( 'admin/statushistory.tt', $vars );
     }
 
+    # Include only rows this viewer can see in the page and its lookahead.
+    unless ( $LJ::IS_DEV_SERVER || $rv->{remote}->has_priv( 'historyview', '' ) ) {
+        my %types = $rv->{remote}->priv_args('historyview');
+        my @types = map { $dbr->quote($_) } sort keys %types;
+        push @where, @types ? 'BINARY s.shtype IN (' . join( ',', @types ) . ')' : '0';
+    }
+
     my $where = "";
     $where = "WHERE " . join( " AND ", @where ) . " " if @where;
 
-    my $orderby = 's.shdate';
-    $orderby = {
+    my $sort_columns = {
         user   => "u.user",
-        admin  => "admin",
+        admin  => "ua.user",
         shdate => "s.shdate",
         shtype => "s.shtype",
         notes  => "s.notes",
-    }->{ $form_args->{'orderby'} }
-        if $form_args->{'orderby'};
-
+    };
+    my $sort = $form_args->{'orderby'} || 'shdate';
+    $sort = 'shdate' unless exists $sort_columns->{$sort};
     my $flow = 'DESC';
     $flow = 'ASC' if $form_args->{'flow'} && $form_args->{'flow'} eq 'asc';
 
-    $vars->{rows} = $dbr->selectall_arrayref(
-        "SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes "
-            . "FROM statushistory s "
-            . "LEFT JOIN useridmap ua ON s.adminid=ua.userid "
-            . "LEFT JOIN useridmap u ON s.userid=u.userid "
-            . $where
-            . "ORDER BY $orderby $flow LIMIT 1000",
-        { Slice => {} }
-    );
+    # A secondary sort for dates prevents MySQL from walking the existing indexes.
+    # Without a unique key, the order of equal dates is not guaranteed.
+    my $orderby = "$sort_columns->{$sort} $flow";
+    $orderby .= ', s.shdate, s.userid, s.adminid, BINARY s.shtype' if $sort ne 'shdate';
 
-    return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
+    my $page_size = 1000;
+    my $limit     = $page_size + 1;
+    my $page      = $form_args->{'page'} || '';
+    $page = 1 unless $page =~ /\A[1-9][0-9]{0,8}\z/;
+
+    my $query =
+          "SELECT u.user, ua.user AS admin, s.shtype, s.shdate, s.notes "
+        . "FROM statushistory s "
+        . "LEFT JOIN useridmap ua ON s.adminid=ua.userid "
+        . "LEFT JOIN useridmap u ON s.userid=u.userid "
+        . $where
+        . "ORDER BY $orderby LIMIT $limit OFFSET ";
+
+    my $rows;
+    while (1) {
+        my $offset = ( $page - 1 ) * $page_size;
+        $rows = $dbr->selectall_arrayref( $query . $offset, { Slice => {} } );
+        return error_ml( "$scope.error.db", { err => $dbr->errstr } ) if $dbr->err;
+
+        last if @$rows || $page == 1;
+        $page = 1;
+    }
+
+    my $has_next = @$rows > $page_size;
+    pop @$rows if $has_next;
+    $vars->{rows}  = $rows;
+    $vars->{pages} = {
+        current => $page,
+        prev    => $page > 1 ? $page - 1 : 0,
+        next    => $has_next ? $page + 1 : 0,
+    };
+    $vars->{page_args} = {
+        ( map { $_ => $form_args->{$_} } qw(user admin type) ),
+        orderby => $sort,
+        flow    => lc $flow,
+    };
 
     $vars->{canview} = sub {
         return 1 if $LJ::IS_DEV_SERVER;

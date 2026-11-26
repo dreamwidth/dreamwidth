@@ -729,6 +729,12 @@ entryform.switchuser=Switch account
 
 entryform.tags=Tags:
 
+entryform.tags.permission.create=You can add existing tags and create new tags in this community.
+
+entryform.tags.permission.existing=You can add existing tags, but you cannot create new tags in this community.
+
+entryform.tags.permission.none=You cannot add tags to entries in this community.
+
 entryform.update=Update Journal
 
 entryform.update2=Save to
@@ -2429,6 +2435,8 @@ rename.error.noto=No username provided to rename to.
 
 rename.error.notoken=Rename token not provided or unavailable.
 
+rename.error.redirect=You cannot rename to "[[to]]" because it redirects to "[[target]]". Please contact Support for further assistance.
+
 rename.error.reserved="[[to]]" is a reserved username.
 
 rename.error.tokenapplied=This token has already been used.
@@ -2833,7 +2841,8 @@ If posting to a community, include the community name in the to address.
   To: [[comm]]
 
 Journal options are configured by using headers at the top of the message body, separated by a blank line from the rest of the message body.  Available headers:
-  post-icon (or post-userpic): icon keywords
+  post-icon (or post-userpic): icon keyword, or "random" (unless it matches your keyword)
+  post-slug: a custom URL slug, e.g. Paris Trip becomes paris-trip
   post-tags: tag1, tag2, tag3
   post-mood: mood name
   post-music: song name
@@ -3774,6 +3783,35 @@ The [[sitename]] Team
 
 shop.expiration.comm.3.subject=[[sitename]] Account Expiration
 
+shop.expiration.comm.checkmoneyorder.0.body<<
+Dear [[touser]],
+
+Paid time for the [[sitename]] community [[commname]] has expired. You and
+your members can still use the community, but won't have access to the
+paid account features.
+
+A check or money order payment for the community is still pending. If it
+has already been mailed, please email Accounts at [[accountsemail]]. We
+can extend the community's paid time while the payment is pending.
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.comm.checkmoneyorder.3.body<<
+Dear [[touser]],
+
+Paid time for the [[sitename]] community [[commname]] will expire in
+approximately three days.
+
+A check or money order payment for the community is still pending. If it
+has already been mailed, please email Accounts at [[accountsemail]]. We
+can extend the community's paid time while the payment is pending.
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.expiration.user.0.body<<
 Dear [[touser]],
 
@@ -3900,6 +3938,33 @@ The [[sitename]] Team
 .
 
 shop.expiration.user.3.subject=[[sitename]] Account Expiration
+
+shop.expiration.user.checkmoneyorder.0.body<<
+Dear [[touser]],
+
+Your paid time on [[sitename]] has expired. You can still use your
+account, but you won't have access to the paid account features.
+
+Your check or money order payment is still pending. If you've already
+mailed it, please email Accounts at [[accountsemail]]. We can extend
+your paid time while your payment is pending.
+
+Regards,
+The [[sitename]] Team
+.
+
+shop.expiration.user.checkmoneyorder.3.body<<
+Dear [[touser]],
+
+Your paid time on [[sitename]] will expire in approximately three days.
+
+Your check or money order payment is still pending. If you've already
+mailed it, please email Accounts at [[accountsemail]]. We can extend
+your paid time while your payment is pending.
+
+Regards,
+The [[sitename]] Team
+.
 
 shop.item.account.canbeadded.alreadyperm=[[user]] has a Seed Account, so they cannot receive any additional paid time.
 

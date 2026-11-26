@@ -106,7 +106,10 @@ sub url {
     # If we're using a version (versionid defined) then we want to insert the
     # width and height to the URL.
     my $extra = $opts{extra} // '';
-    if ( $self->{mediaid} != $self->{versionid} ) {
+    if ( defined $opts{size} ) {
+        $extra .= "$opts{size}x$opts{size}/";
+    }
+    elsif ( $self->{mediaid} != $self->{versionid} ) {
         $extra .= ( $self->{url_width} // $self->{width} ) . 'x'
             . ( $self->{url_height} // $self->{height} ) . '/';
     }

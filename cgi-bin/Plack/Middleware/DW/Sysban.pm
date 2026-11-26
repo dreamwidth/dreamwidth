@@ -77,9 +77,14 @@ sub _request_ips {
     my $ip  = LJ::get_remote_ip();
     my @ips = ($ip) if $ip;
 
-    # Also check all X-Forwarded-For IPs, same as Apache path
+    # Also check all X-Forwarded-For IPs, same as Apache path, except our own
+    # trusted proxies (CDN edges, the load balancer). Every request through a
+    # CDN carries the CDN server's IP here, so a ban on one of those would
+    # block everyone routed through it.
     if ( my $forward = $env->{HTTP_X_FORWARDED_FOR} ) {
-        my %seen = map { $_ => 1 } split( /\s*,\s*/, $forward );
+        my $trusted = ref $LJ::IS_TRUSTED_PROXY eq 'CODE' ? $LJ::IS_TRUSTED_PROXY : undef;
+        my %seen    = map { $_ => 1 }
+            grep { !( $trusted && $trusted->($_) ) } split( /\s*,\s*/, $forward );
         push @ips, keys %seen;
     }
 

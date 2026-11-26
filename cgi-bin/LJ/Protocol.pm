@@ -399,7 +399,7 @@ sub getinbox {
     # get the user's inbox
     my $inbox = $u->notification_inbox or return fail( $err, 500, "Cannot get user inbox" );
 
-    my %type_number = (
+    my %legacy_type_number = (
         AddedToCircle        => 1,
         Birthday             => 2,
         CommunityInvite      => 3,
@@ -411,19 +411,12 @@ sub getinbox {
         JournalNewComment    => 9,
         JournalNewEntry      => 10,
         NewUserpic           => 11,
-        NewVGift             => 12,
         OfficialPost         => 13,
-        PermSale             => 14,
         PollVote             => 15,
-        SupOfficialPost      => 16,
         UserExpunged         => 17,
         UserMessageRecvd     => 18,
         UserMessageSent      => 19,
     );
-    my %number_type = reverse %type_number;
-
-    my @notifications;
-
     my $sync_date;
 
     # check lastsync for valid date
@@ -434,18 +427,9 @@ sub getinbox {
         }
     }
 
-    if ( $req->{gettype} ) {
-        @notifications =
-            grep { $_->event->class eq "LJ::Event::" . $number_type{ $req->{gettype} } }
-            $inbox->items;
-    }
-    else {
-        @notifications = $inbox->all_items;
-    }
-
     # By default, notifications are sorted as "oldest are the first"
     # Reverse it by "newest are the first"
-    @notifications = reverse @notifications;
+    my @notifications = reverse $inbox->all_items;
 
     $itemshow = scalar @notifications - $skip if scalar @notifications < $skip + $itemshow;
 
@@ -455,7 +439,7 @@ sub getinbox {
 
         my $raw = $item->event->raw_info( $u, { extended => $req->{extended} } );
 
-        my $type_index = $type_number{ $raw->{type} };
+        my $type_index = $legacy_type_number{ $raw->{type} };
         if ( defined $type_index ) {
             $raw->{type} = $type_index;
         }
@@ -1762,9 +1746,9 @@ sub postevent {
     # Insert the slug (try to, this will fail if this slug is already used)
     my $slug = LJ::canonicalize_slug( $req->{slug} );
     if ( defined $slug && length $slug > 0 ) {
-        $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+        $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
             undef, $ownerid, $jitemid, $slug );
-        if ( $u->err ) {
+        if ( $uowner->err ) {
             $res->{message} ||= 'Sorry, it looks like that slug has already been used. '
                 . 'Your entry has been posted without a slug, but you can still edit it to add a unique slug.';
         }
@@ -2289,14 +2273,14 @@ sub editevent {
     # present, we leave the slug alone.
     if ( exists $req->{slug} ) {
         LJ::MemCache::delete( [ $ownerid, "logslug:$ownerid:$itemid" ] );
-        $u->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
+        $uowner->do( 'DELETE FROM logslugs WHERE journalid = ? AND jitemid = ?',
             undef, $ownerid, $itemid );
 
         my $slug = LJ::canonicalize_slug( $req->{slug} );
         if ( defined $slug && length $slug > 0 ) {
-            $u->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
+            $uowner->do( 'INSERT INTO logslugs (journalid, jitemid, slug) VALUES (?, ?, ?)',
                 undef, $ownerid, $itemid, $slug );
-            if ( $u->err ) {
+            if ( $uowner->err ) {
                 $add_message->( 'Sorry, it looks like that slug has already been used. '
                         . 'Your entry has been updated, but you can still edit it again to add a unique slug.'
                 );

@@ -13,6 +13,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- PROCESS "entry/form-head.tt" -%]
+[%- slug_head = BLOCK %]
+<script>
+postFormInitData.journalBases = Object.create(null);
+[%- FOREACH journal IN journallist %]
+postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base | js %];
+[%- END %]
+</script>
+[%- END -%]
+[%- sections.head = sections.head _ slug_head -%]
 [%- dw.need_res(
     "stc/css/pages/entry/new.css"
     "stc/css/components/button-groups.css"
@@ -42,9 +51,14 @@ the same terms as Perl itself.  For a copy of the license, please reference
         <div class="row"><div class="columns">
             <div class='panel radius toolbar text-right'>
                 [%- IF remote.can_create_polls OR journalu.can_create_polls -%]
+                [%- poll_url = site.root _ "/poll/create";
+                    IF journalu.is_community;
+                        poll_journal = journalu.user | url;
+                        poll_url = poll_url _ "?authas=" _ poll_journal;
+                    END -%]
                 [%- INCLUDE "components/icon-link-decorative.tt"
                         link = {
-                            url = site.root _ "/poll/create"
+                            url = poll_url
                             newwindow = 1
                         }
                         icon = "graph-horizontal"
@@ -192,6 +206,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                                 label = journal.user
                                 value = (isJournal ? "" : journal.user)
                                 format = dw.ml( ".select.usejournal.format", { user => userFormat } )
+                                tag_permission = tag_permissions.${journal.user}
                             });
                         END
                     ~%]

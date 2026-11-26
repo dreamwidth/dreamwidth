@@ -11,6 +11,13 @@
 # Setup: the Bellwether GitHub App is installed on this repository, and its
 # private key is in the BELLWETHER_PRIVATE_KEY repository secret.
 #
+# Repository variables:
+#   BELLWETHER_ENABLED        "false" stops all of it (default: on)
+#   BELLWETHER_AUTO_MERGE     "true" merges ready PRs after the grace period
+#                             with no maintainer's go-ahead (default: off)
+#   BELLWETHER_AUTO_PER_HOUR  most of those merges per hour, made by the
+#                             hourly sweep (default: 2)
+#
 
 name: Bellwether
 
@@ -37,16 +44,24 @@ permissions:
 concurrency:
   # One run per PR at a time. A sweep can still evaluate a PR alongside a
   # comment run; each re-checks everything right before merging, and the
-  # merge call is pinned to the reviewed head.
-  group: bellwether-${{ github.event.issue.number || github.event.inputs.pr || 'sweep' }}
+  # merge call is pinned to the reviewed head. Sweeps share one group, so
+  # they never overlap: merges after the grace period happen only in a
+  # sweep, which is what keeps BELLWETHER_AUTO_PER_HOUR. CI completions get
+  # a group per commit, so one can't take a pending sweep's place.
+  group: >-
+    bellwether-${{ github.event.issue.number || github.event.inputs.pr ||
+    (github.event.workflow_run && format('ci-{0}', github.event.workflow_run.head_sha)) ||
+    'sweep' }}
   cancel-in-progress: false
 
 jobs:
   act:
     # Skip comments that can't matter: not on a PR, or neither a command nor
     # Bellwether's own status comment.
+    # BELLWETHER_ENABLED=false (a repository variable) stops everything.
     if: >-
       github.repository == 'dreamwidth/dreamwidth' &&
+      vars.BELLWETHER_ENABLED != 'false' &&
       (github.event_name != 'issue_comment' ||
        (github.event.issue.pull_request &&
         (github.event.comment.user.login == 'dw-bellwether[bot]' ||
@@ -74,4 +89,6 @@ jobs:
       - name: Act on commands and the grace period
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
+          BELLWETHER_AUTO_MERGE: ${{ vars.BELLWETHER_AUTO_MERGE }}
+          BELLWETHER_AUTO_PER_HOUR: ${{ vars.BELLWETHER_AUTO_PER_HOUR }}
         run: python3 .github/scripts/bellwether.py event

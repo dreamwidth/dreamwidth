@@ -3,6 +3,10 @@
 
 .admin.text=View a user's statushistory.
 
+.btn.next=Next page
+
+.btn.prev=Previous page
+
 .btn.search=Search
 
 .error.db=Database error: [[err]]
@@ -24,6 +28,4 @@
 .title=Status History
 
 .txt.rowcount=[[count]] rows in set
-
-.txt.truncated=[truncated]
 

@@ -4655,6 +4655,10 @@ general /manage/moodthemes.bml.yourthemes.example.none
 general /manage/moodthemes.bml.yourthemes.example.sad
 general /manage/moodthemes.bml.yourthemes.header
 general /manage/moodthemes.bml.yourthemes.nothemes
+general /media/edit.tt.order.label
+general /media/edit.tt.order.newest
+general /media/edit.tt.order.oldest
+general /media/edit.tt.order.submit
 general setting.captcha.label
 general setting.captcha.option
 general setting.captcha.option.select.image
@@ -4916,3 +4920,4 @@ general fcklang.userprompt.site
 general fcklang.userprompt.user
 general /entry/image-dialog.tt.insertimage.alt.body
 general /entry/image-dialog.tt.insertimage.alt.faqlink
+general /admin/statushistory.tt.txt.truncated

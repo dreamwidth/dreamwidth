@@ -1212,6 +1212,16 @@ property builtin string SITEROOT {
     doc_flags = "[sys]";
     des = "The base URL of the current Dreamwidth site, without a trailing slash.  Example: \"https://www.dreamwidth.com\".";
 }
+property builtin string SITELOGO {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The URL of the current site's full logo, or an empty string if no logo is configured.";
+}
+property builtin string SITELOGOICON {
+    noui = 1;
+    doc_flags = "[sys]";
+    des = "The URL of the current site's logo icon, or an empty string if no icon is configured.";
+}
 property builtin string PALIMGROOT {
     noui = 1;
     doc_flags = "[sys]";
@@ -1447,6 +1457,11 @@ property string entry_metadata_position {
     values = "top|Before entry text|bottom|After entry text";
 }
 
+property string entry_tags_position {
+    des = "Place of tags in entries";
+    values = "top|Before entry text|bottom|After entry text";
+}
+
 property string userlite_interaction_links {
     des = "Select whether user interaction links are printed as text or using the available icons";
     values = "icons|icons|text|text-only|";
@@ -1492,6 +1507,7 @@ set entry_userpic_style = "";
 set comment_userpic_style = "";
 set userpics_position = "left";
 set entry_metadata_position = "bottom";
+set entry_tags_position = "bottom";
 set userlite_interaction_links = "icons";
 set entry_management_links = "icons";
 set entry_interaction_links = "text";
@@ -4433,6 +4449,14 @@ function print_module_pagesummary_comments(string esubject, int count, string pr
     }
 }
 
+function print_module_pagesummary_entry_icons(Entry e, Image admin_post_image) : string {
+    var string icons = $e.security != "" ? $e.security_icon->as_string() : "";
+    if ($e.admin_post) {
+        $icons = $icons + $admin_post_image->as_string($*text_icon_alt_admin_post);
+    }
+    return $icons;
+}
+
 function print_module_pagesummary() {
     var Page p = get_page();
     var string[] links = [];
@@ -4463,7 +4487,7 @@ function print_module_pagesummary() {
                 $poster = "$poster in <span class='pagesummary-community'>$e.journal</span>";
             }
 
-            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+            var string prefix_icon = print_module_pagesummary_entry_icons($e, $admin_post_image);
 
             $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
         }
@@ -4476,7 +4500,7 @@ function print_module_pagesummary() {
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
-            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+            var string prefix_icon = print_module_pagesummary_entry_icons($e, $admin_post_image);
 
             if ( not $e.poster->equals($e.journal) ) {
                 $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
@@ -4493,7 +4517,7 @@ function print_module_pagesummary() {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
-            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+            var string prefix_icon = print_module_pagesummary_entry_icons($e, $admin_post_image);
 
             if ( not $e.poster->equals($e.journal) ) {
                 $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
@@ -5121,6 +5145,7 @@ function Page::print_entry(Entry e)
     """<div class="inner">\n""";
     $e->print_userpic();
     $e->print_poster();
+    if ($*entry_tags_position == "top") { $e->print_tags(); }
     if ($*entry_metadata_position == "top") { $e->print_metadata(); }
     $e->print_text();
     if ($*entry_metadata_position == "bottom") { $e->print_metadata(); }
@@ -5130,7 +5155,7 @@ function Page::print_entry(Entry e)
 
     """<div class="footer">\n""";
     """<div class="inner">\n""";
-    $e->print_tags();
+    if ($*entry_tags_position != "top") { $e->print_tags(); }
     $this->print_entry_footer($e);
     "</div>\n</div>\n";
 
