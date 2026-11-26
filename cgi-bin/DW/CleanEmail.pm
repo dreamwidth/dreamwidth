@@ -33,6 +33,7 @@ sub nonquoted_text {
     my @lines = split /$/m, $text;
 
     my $num_lines = 0;
+    my $address   = quotemeta( $LJ::BOGUS_EMAIL // '' );
 
     # remove all quoted lines, nice and easy
     foreach (@lines) {
@@ -42,8 +43,25 @@ sub nonquoted_text {
         # but this can be in various languages, so  not hardcoding the text
         last if m/^\s*-{3,}[^-]+-{3,}\s*$/;
 
-        # the bogus email we sent the comments as wrapped in <>
-        last if m/<\s?$LJ::BOGUS_EMAIL>/;
+        # Angle brackets may be literal or entity-escaped, with an optional mailto suffix.
+        # Standalone mailto forms need a terminator so longer addresses do not match.
+        if (
+            $address
+            && m{
+              <\h*$address\h*(?=>|<mailto:)
+            | &lt;\h*$address\h*(?=&gt;|&lt;mailto:)
+            | mailto:\h*$address(?=$|[\s>"'\]),;?]|&(?:gt|quot|apos|\#39);)
+        }ix
+            )
+        {
+            my $quote_start = _quote_block_start( substr $_, 0, $-[0] );
+            if ( defined $quote_start ) {
+                my $reply = substr $_, 0, $quote_start;
+                return join "", @lines[ 0 .. $num_lines - 1 ], $reply if $reply =~ /\S/;
+            }
+
+            last;
+        }
 
         $num_lines++;
     }
@@ -77,6 +95,33 @@ sub nonquoted_text {
         unless $backtrack > $max_backtrack || $backtrack >= $num_lines;
 
     return join "", @lines;
+}
+
+sub _quote_block_start {
+    my ($before_address) = @_;
+
+    # Use the innermost open block so an enclosing block can keep its reply text.
+    # Include adjacent opening wrappers and br/hr separators only if no content intervenes.
+    my @blocks;
+    my $boundary;
+    my $previous_end = -1;
+    while (
+        $before_address =~ m{\s*<(/?)([a-z][\w:-]*)(?=[\s/>])(?:[^"'<>]++|"[^"]*"|'[^']*')*>}ig )
+    {
+        my ( $closing, $tag, $start, $end ) = ( $1, lc $2, $-[0], $+[0] );
+        my $is_block = $tag =~ /\A(?:div|p|blockquote)\z/;
+        if ( !$closing && ( $is_block || $tag eq 'br' || $tag eq 'hr' ) ) {
+            $boundary = $start if $start != $previous_end;
+            push @blocks, $boundary if $is_block;
+            $previous_end = $end;
+        }
+        else {
+            pop @blocks if $is_block;
+            $previous_end = -1;
+        }
+    }
+
+    return $blocks[-1];
 }
 
 =head2 C<< $class->reply_subject( $text ) >>

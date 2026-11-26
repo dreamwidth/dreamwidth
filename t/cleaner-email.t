@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 55;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::CleanEmail;
@@ -268,6 +268,226 @@ Datum: Donnerstag, 25. April, 2013 21:15 Uhr
 foo
 }, "\$LJ::BOGUS_EMAIL"
     )
+}
+
+# seen in the wild (#2907): an HTML-only reply, where the quoted header escapes
+# the angle brackets around our address. The separator above the header is
+# not recognized, so it stays.
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{<div>reply text</div>
+<div>&nbsp;</div>
+<div>---------------</div>
+<div><b>Sent:</b> Saturday, November 20, 2021 7:27 AM<br>
+<b>From:</b> "username1 - DW Comment" &lt;dw_null@dreamwidth.org&gt;<br>
+<b>To:</b> someone@example.com<br>
+<b>Subject:</b> Reply to your comment. [ username1 - 12345 ]</div>
+<div>username1 replied to a comment you left in a Dreamwidth entry "subject".</div>
+<div>Reply to this comment by replying to this email.</div>
+}
+    );
+
+    is(
+        $nonquoted, q{<div>reply text</div>
+<div>&nbsp;</div>
+<div>---------------</div>}, "removed the quoted notification from an HTML reply"
+    );
+}
+
+foreach my $header (
+    q{<div>From: &lt;dw_null@dreamwidth.org&gt;</div>},
+    q{<p>On Monday, DW Comment <dw_null@dreamwidth.org> wrote:</p>},
+    q{<div><b>From:</b> <a href="mailto:dw_null@dreamwidth.org">DW Comment</a></div>},
+    )
+{
+    my $reply = '<div>My reply</div>';
+    is( DW::CleanEmail->nonquoted_text("$reply$header<div>Quoted text</div>\nMore quoted text"),
+        $reply, "kept the HTML reply before $header on the same line" );
+}
+
+{
+    my $gmail_reply = q{<div dir="ltr">My reply</div>};
+    my $gmail_header =
+          q{<div class="gmail_quote"><div class="gmail_attr">}
+        . q{On Mon, DW Comment &lt;<a href="mailto:dw_null@dreamwidth.org">}
+        . q{dw_null@dreamwidth.org</a>&gt; wrote:</div></div>};
+    my $outlook_reply  = q{<div>My reply</div>};
+    my $outlook_header = q{<div><b>From:</b> DW Comment &lt;dw_null@dreamwidth.org&gt;</div>};
+    my $paragraphs     = q{<div>Para 1</div><div>Para 2</div>};
+
+    foreach my $case (
+        [ 'Gmail',                               $gmail_reply,   '<br>',   $gmail_header ],
+        [ 'Outlook',                             $outlook_reply, '<hr>',   $outlook_header ],
+        [ 'multi-paragraph Gmail',               $paragraphs,    '<br>',   $gmail_header ],
+        [ 'Gmail with <br/>',                    $gmail_reply,   '<br/>',  $gmail_header ],
+        [ 'Gmail with <br />',                   $gmail_reply,   '<br />', $gmail_header ],
+        [ 'Outlook with <hr/>',                  $outlook_reply, '<hr/>',  $outlook_header ],
+        [ 'multi-paragraph Outlook with <hr />', $paragraphs,    '<hr />', $outlook_header ],
+        [
+            'Outlook with repeated separators', $paragraphs,
+            '<br> <hr tabindex="-1">',          $outlook_header
+        ],
+        )
+    {
+        my ( $name, $reply, $separator, $header ) = @$case;
+        is(
+            DW::CleanEmail->nonquoted_text(
+                "$reply$separator$header<div>Quoted text</div>\nMore quoted text"),
+            $reply,
+            "kept all authored text and stripped the quoted header in $name"
+        );
+    }
+}
+
+{
+    my $gmail_header =
+        q{<div class="gmail_quote">On Tue, Foo &lt;dw_null@dreamwidth.org&gt; wrote:</div>};
+    my $from_header = q{<div>From: &lt;dw_null@dreamwidth.org&gt;</div>};
+
+    foreach my $case (
+        [ 'unwrapped Gmail with a break',    'My reply', '<br>',         $gmail_header ],
+        [ 'unwrapped Outlook with rules',    'My reply', '<br /><hr />', $from_header ],
+        [ 'unwrapped Gmail without a break', 'My reply', '',             $gmail_header ],
+        [ 'inline HTML before Gmail', '<span>My reply</span>', '<br>', $gmail_header ],
+        )
+    {
+        my ( $name, $reply, $separator, $header ) = @$case;
+        is( DW::CleanEmail->nonquoted_text("$reply$separator$header\nQuoted text"),
+            $reply, "preserved the reply in $name" );
+    }
+
+    foreach my $header (
+        q{On Tue, Foo <dw_null@dreamwidth.org> wrote:},
+        $from_header,
+        "  $gmail_header",
+        "  <br /><hr />$from_header",
+        )
+    {
+        is( DW::CleanEmail->nonquoted_text("$header\nQuoted text"),
+            '', "discarded the standalone quote header: $header" );
+    }
+}
+
+foreach my $case (
+    [
+        'reply with a break before a nested div',
+        q{<div>First</div><div>Second<br><div>From: &lt;dw_null@dreamwidth.org&gt;</div></div>},
+        q{<div>First</div><div>Second},
+    ],
+    [
+        'reply directly before a nested blockquote',
+        q{<div>First</div><div><b>Second</b><blockquote>On Tue, <dw_null@dreamwidth.org> wrote:}
+            . "</blockquote></div><div>Quoted text</div>\nMore quoted text",
+        q{<div>First</div><div><b>Second</b>},
+    ],
+    [
+        'reply before a nested quote with its own wrapper',
+        q{<div><p>First</p><p>Second</p><hr><div class="gmail_quote"><div class="gmail_attr">}
+            . q{On Tue, <a href="mailto:dw_null@dreamwidth.org">DW Comment</a> wrote:</div></div></div>},
+        q{<div><p>First</p><p>Second</p>},
+    ],
+    [
+        'reply before a quote with a completed child block',
+        q{<div>First</div><div>Second<div><p>Sent: Tuesday</p>}
+            . q{From: &lt;dw_null@dreamwidth.org&gt;</div></div>},
+        q{<div>First</div><div>Second},
+    ],
+    )
+{
+    my ( $name, $body, $reply ) = @$case;
+    is( DW::CleanEmail->nonquoted_text($body),
+        $reply, "preserved the authored content in the $name" );
+}
+
+foreach my $address (
+    q{<dw_null@dreamwidth.org.example>},      q{&lt;dw_null@dreamwidth.org.example&gt;},
+    q{mailto:dw_null@dreamwidth.org.example}, q{dw_null@dreamwidth.org.example},
+    q{<dw_null@dreamwidth.org-example>},      q{mailto:dw_null@dreamwidth.orgfoo},
+    q{mailto:dw_null@dreamwidth.org_example},
+    )
+{
+    my $reply = "My contact is $address.\nThanks!";
+    is( DW::CleanEmail->nonquoted_text($reply), $reply, "kept a different address: $address" );
+}
+
+foreach my $address (
+    q{<DW_NULL@DREAMWIDTH.ORG>},
+    q{&LT;DW_NULL@DREAMWIDTH.ORG&GT;},
+    q{MAILTO:DW_NULL@DREAMWIDTH.ORG},
+    )
+{
+    is(
+        DW::CleanEmail->nonquoted_text("My reply\nFrom: $address\nQuoted text"),
+        'My reply',
+        "removed the quoted header with uppercase address: $address"
+    );
+}
+
+# other forms of the quoted address that the check used to miss
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+foo
+
+From: "username1 - DW Comment" <dw_null@dreamwidth.org<mailto:dw_null@dreamwidth.org>>
+username1 replied to a comment you left in a Dreamwidth entry.
+}
+    );
+
+    is(
+        $nonquoted, q{
+foo
+}, "removed quoted text when the address has a <mailto:...> suffix"
+    );
+}
+
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+foo
+
+From: username1 - DW Comment [mailto:dw_null@dreamwidth.org]
+Sent: Saturday, November 20, 2021 7:27 AM
+username1 replied to a comment you left in a Dreamwidth entry.
+}
+    );
+
+    is(
+        $nonquoted, q{
+foo
+}, "removed quoted text when the address is given as [mailto:...]"
+    );
+}
+
+# the reply itself may mention the address without quoting a header
+{
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+Try adding dw_null@dreamwidth.org to your contacts so these stop going to spam.
+Also, I loved this chapter!}
+    );
+
+    is(
+        $nonquoted, q{
+Try adding dw_null@dreamwidth.org to your contacts so these stop going to spam.
+Also, I loved this chapter!}, "kept a reply that mentions the bare address"
+    );
+}
+
+# with no address configured, ordinary markup must not end the message
+{
+    local $LJ::BOGUS_EMAIL = '';
+    my $nonquoted = DW::CleanEmail->nonquoted_text(
+        q{
+<b>foo</b>
+bar}
+    );
+
+    is(
+        $nonquoted, q{
+<b>foo</b>
+bar}, "kept all text when no bogus address is configured"
+    );
 }
 
 {
