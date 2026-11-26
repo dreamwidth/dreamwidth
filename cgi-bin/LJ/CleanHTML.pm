@@ -1974,8 +1974,14 @@ sub _escape_non_ascii_web_url {
                 return '' unless utf8::decode($decoded_host);
                 $decoded_host =~ tr/\x{3002}\x{FF0E}\x{FF61}/./;
                 my $trailing_dot = $decoded_host =~ s/\.\z// ? '.' : '';
-                my @labels       = map { NFC( lc NFKC($_) ) } split /\./, $decoded_host, -1;
-                my $idn_label    = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
+                my $idna_ignored = qr/(?:[\x{00AD}\x{034F}\x{1806}\x{180B}-\x{180D}\x{180F}\x{200B}]
+                    |[\x{2060}\x{2064}\x{FE00}-\x{FE0F}\x{FEFF}\x{E0100}-\x{E01EF}])/x;
+                my @labels = map {
+                    my $part = $_;
+                    $part =~ s/$idna_ignored+//g;
+                    NFC( lc NFKC($part) );
+                } split /\./, $decoded_host, -1;
+                my $idn_label = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
                 return '' if !@labels || grep { !/\A$idn_label\z/ || /[\p{Space}\p{C}]/ } @labels;
                 $decoded_host = join( '.', @labels ) . $trailing_dot;
                 $host = $decoded_host = URI->new("http://$decoded_host/")->host;

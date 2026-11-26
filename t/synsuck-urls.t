@@ -68,6 +68,10 @@ my $rss = encode_utf8(<<'RSS');
 <img alt="fullwidth-host" src="https://ｅxample.com/">
 <img alt="escaped-fullwidth-host" src="https://%EF%BC%A5xample.com/">
 <img alt="fullwidth-slash" src="https://example／invalid.test/">
+<img alt="ignored-host" src="https://exam&#xAD;&#x200B;ple.com/">
+<img alt="escaped-ignored-host" src="https://exam%C2%ADple.com/">
+<img alt="ignored-first-label" src="https://&#xAD;.example/">
+<img alt="ignored-last-label" src="https://example.&#xAD;/">
 <img alt="idn-ideographic-dot" src="https://example。com/image.jpg">
 <img alt="idn-fullwidth-dot" src="https://example．com/image.jpg">
 <img alt="idn-halfwidth-dot" src="https://example｡com/image.jpg">
@@ -100,6 +104,12 @@ my $rss = encode_utf8(<<'RSS');
 <a title="fullwidth-at" href="https://example＠invalid.test/">Fullwidth at sign</a>
 <a title="escaped-fullwidth-backslash" href="https://example%EF%BC%BCinvalid.test/">Escaped fullwidth backslash</a>
 <a title="compatibility-dot" href="https://example․com/">One dot leader</a>
+<a title="ignored-host" href="https://exam&shy;ple.com/">Soft hyphen</a>
+<a title="escaped-ignored-host" href="https://exam%C2%ADple.com/">Escaped soft hyphen</a>
+<a title="ignored-first-label" href="https://&shy;.example/">Empty first label</a>
+<a title="ignored-last-label" href="https://example.&shy;/">Empty last label</a>
+<a title="ignored-rooted-host" href="https://exam&#xFEFF;ple.com./">Rooted hostname</a>
+<a title="ignored-decomposed-host" href="https://e&#x34F;&#x301;.example/">Decomposed hostname</a>
 <a title="idn-japanese" href="https://例え.example/">Japanese hostname</a>
 <a title="idn-sharp-s" href="https://faß.example/">Sharp s</a>
 <a title="idn-final-sigma" href="https://ς.example/">Final sigma</a>
@@ -234,6 +244,18 @@ for my $case (
 {
     ok( $links{$case} && !exists $links{$case}{href}, "link rejects $case in the hostname" );
 }
+for my $case (qw(ignored-host escaped-ignored-host)) {
+    is( $images{$case}{src}, 'https://example.com/', "image strips $case characters" );
+    is( $links{$case}{href}, 'https://example.com/', "link strips $case characters" );
+}
+for my $case (qw(ignored-first-label ignored-last-label)) {
+    ok( $images{$case} && !exists $images{$case}{src}, "image rejects $case" );
+    ok( $links{$case}  && !exists $links{$case}{href}, "link rejects $case" );
+}
+is( $links{'ignored-rooted-host'}{href},
+    'https://example.com./', 'mapping preserves an explicit root dot' );
+is( $links{'ignored-decomposed-host'}{href},
+    'https://xn--9ca.example/', 'ignored characters are removed before Unicode normalization' );
 is(
     $links{'idn-japanese'}{href},
     'https://xn--r8jz45g.example/',
@@ -410,6 +432,17 @@ like(
 my $byte_html = '<span title="caf&eacute;">Cafe</span>';
 LJ::CleanHTML::clean_event( \$byte_html, { preformatted => 1 } );
 like( $byte_html, qr{title="caf\xC3\xA9"}, 'cleaner decodes a non-URL attribute entity as UTF-8' );
+
+for my $codepoint ( 0xAD, 0x200B, 0x2060, 0xFE0F, 0xFEFF, 0xE0100 ) {
+    my $url = encode_utf8( 'https://exam' . chr($codepoint) . 'ple.com/' );
+    is( LJ::CleanHTML::https_url($url),
+        'https://example.com/',
+        sprintf( 'image URL strips literal U+%04X from the hostname', $codepoint ) );
+}
+for my $invalid ( '%00', '%1F', '%7F', '%20', "\x{200D}", "\x{FF0F}", "\x{2024}" ) {
+    is( LJ::CleanHTML::https_url("https://exam%C2%AD${invalid}ple.com/"),
+        '', 'image URL still rejects invalid hostname characters alongside a soft hyphen' );
+}
 
 my $character_relative_html = '<p>猫<img src="../猫&#x1F600;.jpg"></p>';
 LJ::CleanHTML::resolve_relative_urls( \$character_relative_html,
