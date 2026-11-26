@@ -306,7 +306,8 @@ sub url {
 
     my $base_url = $self->ditemid;
 
-    if ( my $slug = $self->slug ) {
+    my $slug = $self->slug;
+    if ( defined $slug && length $slug > 0 ) {
         my $ymd = join( '/', split( '-', substr( $self->eventtime_mysql, 0, 10 ) ) );
         $base_url = $ymd . "/" . $slug;
     }
@@ -552,8 +553,7 @@ sub slug {
 
         my $db =
             $u->selectrow_array( q{SELECT slug FROM logslugs WHERE journalid = ? AND jitemid = ?},
-            undef, $jid, $self->{jitemid} )
-            || '';
+            undef, $jid, $self->{jitemid} ) // '';
         croak $u->errstr if $u->err;
 
         LJ::MemCache::set( [ $jid, "logslug:$jid:$self->{jitemid}" ], $db );

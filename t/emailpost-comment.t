@@ -16,12 +16,14 @@ use strict;
 use warnings;
 
 use Test::More;
+use FindBin qw($Bin);
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use DW::EmailPost::Comment;
 use LJ::Emailpost::Web;
 use LJ::Test;
+use LJ::Userpic;
 use MIME::Entity;
 
 my $subject;
@@ -146,6 +148,47 @@ subtest 'Email replies and CAPTCHA' => sub {
     is( scalar @replies, 1, 'only the successful reply was stored under the parent' );
     like( $replies[0] && $replies[0]->body_raw,
         qr/\A\Q$text\E\s*\z/, 'stored reply has the email text' );
+};
+
+subtest 'email replies can choose a random icon' => sub {
+    local $LJ::T_ALLOW_EMAILPOST  = 1;
+    local $LJ::EMAIL_REPLY_DOMAIN = 'reply.example.com';
+
+    my $commenter = temp_user();
+    $commenter->update_self( { status => 'A' } );
+    my $from = $commenter->user . '@example.com';
+    LJ::Emailpost::Web::set_allowed_senders( $commenter, { $from => { get_errors => 1 } } );
+
+    open( my $image, '<:raw', "$Bin/data/userpics/good.png" ) or die "Open icon fixture: $!";
+    my $data = do { local $/; <$image> };
+    my $icon = LJ::Userpic->create( $commenter, data => \$data ) or die 'Create icon fixture';
+
+    my $check_reply = sub {
+        my ( $header, $expected ) = @_;
+        my $entry  = $u->t_post_fake_entry;
+        my $parent = $entry->t_enter_comment( u => $u );
+        my $to     = DW::EmailPost::Comment->replyto_address( $commenter, $u,
+            $entry->ditemid, $parent->dtalkid );
+        my $mime = MIME::Entity->build(
+            From    => $from,
+            To      => $to,
+            Subject => 'A comment reply',
+            Type    => 'text/plain',
+            Data    => "$header\n\nHere is my reply to the discussion.\n",
+        );
+        my ( $ok, $message );
+        with_fake_memcache { ( $ok, $message ) = DW::EmailPost::Comment->new($mime)->process; };
+        ok( $ok, "reply with $header posts" ) or return diag $message;
+        my ($reply) = grep { $_->parenttalkid == $parent->jtalkid } $entry->comment_list;
+        is( $reply && $reply->userpic_kw, $expected,
+            "reply with $header stores the selected icon" );
+        my $selected = $reply && $reply->userpic;
+        is( $selected && $selected->id, $icon->id, 'the stored selection resolves to the icon' );
+    };
+
+    $check_reply->( 'post-icon: random', 'pic#' . $icon->id );
+    $icon->set_keywords('favorite');
+    $check_reply->( 'post-userpic: RANDOM', 'favorite' );
 };
 
 done_testing();
