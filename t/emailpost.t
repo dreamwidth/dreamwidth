@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 476;
+use Test::More tests => 477;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -1024,30 +1024,6 @@ sub build_message {
     );
 }
 
-sub get_mime {
-    my ( $filepart, $replace ) = @_;
-    $replace ||= {};
-
-    my $file   = "$Bin/data/emailpost/$filepart.txt";
-    my $tmpdir = File::Temp::tempdir( CLEANUP => 1 );
-    open( my $fh, $file )
-        or die "Couldn't open file $file: $!";
-    my $outfile = "$tmpdir/email-with-substs-$filepart";
-    open( my $newfh, "+>$outfile" )
-        or die "Couldn't open file $outfile for writing: $!";
-    while (<$fh>) {
-        s/\$\{(.+?)\}/$replace->{$1} || die "Unknown substitution: $1"/eg;
-        print $newfh $_;
-    }
-    seek( $newfh, 0, 0 );    # seek to beginning
-
-    my $parser = MIME::Parser->new;
-    $parser->output_dir($tmpdir);
-
-    my $entity;
-    return eval { $entity = $parser->parse($newfh); };
-}
-
 my $post_count = 0;
 
 sub email_entry {
@@ -1301,5 +1277,57 @@ subtest 'community slug changes use the community writer' => sub {
     ok( !LJ::Entry->new( $community, slug => 'community-second' ),
         'removed slug no longer resolves' );
 };
+
+subtest 'slug and random icon apply only before entry prose' => sub {
+    my $sender = temp_user();
+    LJ::Emailpost::Web::set_allowed_senders( $sender,
+        { $user_email_info->{FROM_EMAIL} => { get_errors => 1 } } );
+    $sender->set_prop( emailpost_pin => $emailpin );
+    add_icon( $sender, 'good.png', 'favorite' );
+
+    my @directives = ( 'post-slug: Trip Notes', 'post-icon: random' );
+    my ( $leading, $message ) = email_entry( $sender, $sender, $emailpin, @directives );
+    ok( $leading && $leading->valid, 'entry with leading directives posts' ) or diag $message;
+    is( $leading && $leading->slug,       'trip-notes', 'leading slug is stored' );
+    is( $leading && $leading->userpic_kw, 'favorite',   'leading random icon is selected' );
+
+    $directives[0] = 'post-slug: Body Text';
+    my $prose = 'Here are my notes:';
+    my ( $trailing, $trailing_message ) =
+        email_entry( $sender, $sender, $emailpin, $prose, @directives );
+    ok( $trailing && $trailing->valid, 'entry with directive-like prose posts' )
+        or diag $trailing_message;
+    is( $trailing && $trailing->slug,       '',    'slug after prose is not stored' );
+    is( $trailing && $trailing->userpic_kw, undef, 'random icon after prose is not selected' );
+    like(
+        $trailing && $trailing->event_raw,
+        qr/\A\Q$prose\E\npost-slug: Body Text\npost-icon: random\n/,
+        'both directive-like lines are retained in the entry body'
+    );
+};
+
+sub get_mime {
+    my ( $filepart, $replace ) = @_;
+    $replace ||= {};
+
+    my $file   = "$Bin/data/emailpost/$filepart.txt";
+    my $tmpdir = File::Temp::tempdir( CLEANUP => 1 );
+    open( my $fh, $file )
+        or die "Couldn't open file $file: $!";
+    my $outfile = "$tmpdir/email-with-substs-$filepart";
+    open( my $newfh, "+>$outfile" )
+        or die "Couldn't open file $outfile for writing: $!";
+    while (<$fh>) {
+        s/\$\{(.+?)\}/$replace->{$1} || die "Unknown substitution: $1"/eg;
+        print $newfh $_;
+    }
+    seek( $newfh, 0, 0 );    # seek to beginning
+
+    my $parser = MIME::Parser->new;
+    $parser->output_dir($tmpdir);
+
+    my $entity;
+    return eval { $entity = $parser->parse($newfh); };
+}
 
 1;

@@ -163,8 +163,8 @@ subtest 'email replies can choose a random icon' => sub {
     my $data = do { local $/; <$image> };
     my $icon = LJ::Userpic->create( $commenter, data => \$data ) or die 'Create icon fixture';
 
-    my $check_reply = sub {
-        my ( $header, $expected ) = @_;
+    my $post_reply = sub {
+        my ( $body, $label ) = @_;
         my $entry  = $u->t_post_fake_entry;
         my $parent = $entry->t_enter_comment( u => $u );
         my $to     = DW::EmailPost::Comment->replyto_address( $commenter, $u,
@@ -174,12 +174,18 @@ subtest 'email replies can choose a random icon' => sub {
             To      => $to,
             Subject => 'A comment reply',
             Type    => 'text/plain',
-            Data    => "$header\n\nHere is my reply to the discussion.\n",
+            Data    => $body,
         );
         my ( $ok, $message );
         with_fake_memcache { ( $ok, $message ) = DW::EmailPost::Comment->new($mime)->process; };
-        ok( $ok, "reply with $header posts" ) or return diag $message;
+        ok( $ok, "reply with $label posts" ) or do { diag $message; return };
         my ($reply) = grep { $_->parenttalkid == $parent->jtalkid } $entry->comment_list;
+        return $reply;
+    };
+
+    my $check_reply = sub {
+        my ( $header, $expected ) = @_;
+        my $reply = $post_reply->( "$header\n\nHere is my reply to the discussion.\n", $header );
         is( $reply && $reply->userpic_kw, $expected,
             "reply with $header stores the selected icon" );
         my $selected = $reply && $reply->userpic;
@@ -189,6 +195,13 @@ subtest 'email replies can choose a random icon' => sub {
     $check_reply->( 'post-icon: random', 'pic#' . $icon->id );
     $icon->set_keywords('favorite');
     $check_reply->( 'post-userpic: RANDOM', 'favorite' );
+
+    my $body  = "Here are my notes:\npost-icon: random\npost-slug: Body Text";
+    my $reply = $post_reply->( "$body\n", 'directive-like prose' );
+    ok( $reply, 'reply with directive-like prose is saved' );
+    is( $reply && $reply->userpic_kw, undef, 'random icon after reply prose is not selected' );
+    like( $reply && $reply->body_raw,
+        qr/\A\Q$body\E\s*\z/, 'both directive-like lines are retained in the reply body' );
 };
 
 {
