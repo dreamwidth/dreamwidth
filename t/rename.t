@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 169;
+use Test::More tests => 171;
 use Log::Log4perl;
 use Log::Log4perl::Appender::TestBuffer;
 use MIME::QuotedPrint qw( decode_qp );
@@ -68,6 +68,20 @@ sub token_status {
     return
         scalar LJ::get_db_writer()
         ->selectrow_array( 'SELECT status FROM renames WHERE renid=?', undef, $_[0]->id );
+}
+
+sub fail_token_write {
+    my ( $token, $change ) = @_;
+    my $original_do = LJ::get_db_writer()->can('do');
+    no warnings 'redefine';
+    local *DBI::db::do = sub {
+        my ( $db, $sql, $attrs, @values ) = @_;
+        return $original_do->(
+            $db, "SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'test customer token write failure'"
+        ) if $sql =~ /^UPDATE renames SET renuserid=/ && $values[-1] == $token->id;
+        return $original_do->(@_);
+    };
+    return $change->();
 }
 
 sub capture_errors {
@@ -1028,6 +1042,120 @@ subtest 'A failing first swap account does not stop the second account from fina
     my $redirect = LJ::load_user($aside_name);
     is( $redirect && $redirect->prop('renamedto'), $source_name,
         'The second redirect is in place' );
+};
+
+subtest 'A committed rename finalizes after its customer token write fails' => sub {
+    my $source  = temp_user();
+    my $trusted = temp_user();
+    my $oldname = $source->user;
+    my $newname = $oldname . 'new';
+    my $token   = new_token($source);
+    my $errors  = DW::FormErrors->new;
+    my $logs    = capture_errors('DW.User.Rename');
+    LJ::update_user( $source, { status => 'A' } );
+    ok( $source->add_edge( $trusted, trust => { nonotify => 1 } ), 'Create a trust relationship' );
+
+    my $renamed = eval {
+        fail_token_write(
+            $token,
+            sub {
+                $source->rename(
+                    $newname,
+                    token       => $token,
+                    redirect    => 1,
+                    del_trusted => 1,
+                    errors      => $errors
+                );
+            }
+        );
+    };
+    is( $@,       '', 'The token SQL error does not throw to the caller' );
+    is( $renamed, 0,  'Rename reports the incomplete token accounting' );
+    my ($error) = $errors->get('');
+    like(
+        $error ? $error->{message} : '',
+        qr/\Q$oldname\E to \Q$newname\E succeeded.*token accounting could not be completed/i,
+        'The form error distinguishes the committed rename from failed token accounting'
+    );
+    like( $logs->buffer, qr/test customer token write failure/, 'Logs the token SQL error' );
+    is( token_status($token), 'U', 'The failed write leaves the token unused' );
+    is( LJ::load_userid( $source->id )->user, $newname, 'The committed username is visible' );
+    my $redirect = LJ::load_user($oldname);
+    is( $redirect && $redirect->prop('renamedto'), $newname, 'The redirect is in place' );
+    ok( !$source->trusts($trusted), 'The trust relationship was removed' );
+    is(
+        LJ::get_db_writer()->selectrow_array(
+            "SELECT oldvalue FROM infohistory WHERE userid=? AND what='username'", undef,
+            $source->id
+        ),
+        $oldname,
+        'The previous username is recorded'
+    );
+};
+
+subtest 'A committed swap finalizes both accounts if either customer token write fails' => sub {
+    foreach my $failed_index ( 0, 1 ) {
+        subtest 'Customer token ' . ( $failed_index + 1 ) => sub {
+            my @accounts = $create_users->( match => 1, validated => 1 );
+            my @names    = map { $_->user } @accounts;
+            my @tokens   = map { new_token($_) } @accounts;
+            my $trusted  = temp_user();
+            my $errors   = DW::FormErrors->new;
+            my $logs     = capture_errors('DW.User.Rename');
+            foreach my $account (@accounts) {
+                ok( $account->add_edge( $trusted, trust => { nonotify => 1 } ),
+                    'Create a trust relationship' );
+                ok( $account->set_prop( renamedto => $trusted->user ),
+                    'Set an outgoing redirect property' );
+            }
+
+            my $swapped = eval {
+                fail_token_write(
+                    $tokens[$failed_index],
+                    sub {
+                        $accounts[0]->swap_usernames(
+                            $accounts[1],
+                            tokens      => \@tokens,
+                            redirect    => 0,
+                            del_trusted => 1,
+                            errors      => $errors
+                        );
+                    }
+                );
+            };
+            is( $@,       '', 'The token SQL error does not throw to the caller' );
+            is( $swapped, 0,  'Swap reports the incomplete token accounting' );
+            my @messages = map { $_->{message} } $errors->get('');
+            is( scalar @messages, 1, 'Reports only the affected token' );
+            my ( $from, $to ) = @names[ $failed_index, 1 - $failed_index ];
+            like(
+                $messages[0],
+                qr/\Q$from\E to \Q$to\E succeeded.*token accounting could not be completed/i,
+                'The form error uses the public username pair for the failed token'
+            );
+            unlike( $messages[0] // '', qr/\bex_/, 'The form error omits the temporary username' );
+            like( $logs->buffer, qr/test customer token write failure/,
+                'Logs the token SQL error' );
+            is( token_status( $tokens[$failed_index] ),
+                'U', 'The failed write leaves its token unused' );
+            is( token_status( $tokens[ 1 - $failed_index ] ), 'A', 'The other token was consumed' );
+
+            my $dbh = LJ::get_db_writer();
+            foreach my $index ( 0, 1 ) {
+                my $account = LJ::load_userid( $accounts[$index]->id );
+                is( $account->user, $names[ 1 - $index ], 'The committed username is visible' );
+                ok( !$account->prop('renamedto'), 'The outgoing redirect was cleared' );
+                ok( !$account->trusts($trusted),  'The trust relationship was removed' );
+                my $history = $dbh->selectcol_arrayref(
+"SELECT oldvalue FROM infohistory WHERE userid=? AND what='username' ORDER BY timechange",
+                    undef, $account->id
+                );
+                is( $history->[0], $names[$index], 'The public previous username is recorded' );
+                like( $history->[1], qr/^ex_/, 'The second account records its final move' )
+                    if $index;
+            }
+        };
+    }
 };
 
 subtest 'A system token apply failure does not interrupt committed renames' => sub {

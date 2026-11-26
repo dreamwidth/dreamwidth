@@ -270,7 +270,7 @@ sub rename {
 
     _clear_from_cache( $self,   $fromusername, $tousername );
     _clear_from_cache( $target, $tousername,   $aside{name} ) if $target;
-    _apply_customer_tokens( [ $opts{token}, $self, $fromusername, $tousername ] );
+    _apply_customer_tokens( $errors, [ $opts{token}, $self, $fromusername, $tousername ] );
     _finish_move_aside( $target, $tousername, \%aside, $errors ) if $target;
     _finish_rename( $self, $fromusername, $tousername, %opts );
     return $errors->exist ? 0 : 1;
@@ -347,8 +347,9 @@ sub swap_usernames {
     _clear_from_cache( $u1, $u1name,      $u2name );
     _clear_from_cache( $u2, $aside{name}, $u1name );
     _apply_customer_tokens(
-        [ $tokens[0], $u1, $u1name,      $u2name ],
-        [ $tokens[1], $u2, $aside{name}, $u1name ],
+        $errors,
+        [ $tokens[0], $u1, $u1name, $u2name ],
+        [ $tokens[1], $u2, $u2name, $u1name, $aside{name} ],
     );
     _finish_move_aside( $u2, $u2name, \%aside, $errors, $u1name );
 
@@ -507,14 +508,18 @@ sub _enqueue_community_rename_notice {
 }
 
 sub _apply_customer_tokens {
-    my @errors;
-    foreach my $change (@_) {
-        my ( $token, $user, $from, $to ) = @$change;
-        my $applied = eval { $token->apply( userid => $user->id, from => $from, to => $to ) };
-        push @errors, ( $@ || 'Could not apply customer rename token ' . $token->id )
-            unless $applied;
+    my ( $errors, @changes ) = @_;
+    foreach my $change (@changes) {
+        my ( $token, $user, $from, $to, $token_from ) = @$change;
+        my $applied =
+            eval { $token->apply( userid => $user->id, from => $token_from // $from, to => $to ); };
+        next if $applied;
+
+        $log->error( 'Could not apply customer rename token '
+                . $token->id . ': '
+                . ( $@ || 'apply returned false' ) );
+        $errors->add( '', 'rename.error.postcommittoken', { from => $from, to => $to } );
     }
-    die $errors[0] if @errors;
 }
 
 sub _finish_rename {
