@@ -4449,6 +4449,14 @@ function print_module_pagesummary_comments(string esubject, int count, string pr
     }
 }
 
+function print_module_pagesummary_entry_icons(Entry e, Image admin_post_image) : string {
+    var string icons = $e.security != "" ? $e.security_icon->as_string() : "";
+    if ($e.admin_post) {
+        $icons = $icons + $admin_post_image->as_string($*text_icon_alt_admin_post);
+    }
+    return $icons;
+}
+
 function print_module_pagesummary() {
     var Page p = get_page();
     var string[] links = [];
@@ -4479,7 +4487,7 @@ function print_module_pagesummary() {
                 $poster = "$poster in <span class='pagesummary-community'>$e.journal</span>";
             }
 
-            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+            var string prefix_icon = print_module_pagesummary_entry_icons($e, $admin_post_image);
 
             $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
         }
@@ -4492,7 +4500,7 @@ function print_module_pagesummary() {
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
 
-            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+            var string prefix_icon = print_module_pagesummary_entry_icons($e, $admin_post_image);
 
             if ( not $e.poster->equals($e.journal) ) {
                 $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
@@ -4509,7 +4517,7 @@ function print_module_pagesummary() {
             var string comment_display =
                 print_module_pagesummary_comments($e.subject, $e.comments.count, "text_read_comments", $e.comments.read_url + "#comments");
             var string poster = "<span class='pagesummary-poster'>" + $e.poster->ljuser() + "</span>";
-            var string prefix_icon = $e.admin_post ? $admin_post_image->as_string($*text_icon_alt_admin_post) : "";
+            var string prefix_icon = print_module_pagesummary_entry_icons($e, $admin_post_image);
 
             if ( not $e.poster->equals($e.journal) ) {
                 $links[size $links] = """$poster - <span class="pagesummary-subject">$prefix_icon<a href="#entry-$e.itemid" $comment_display""";
