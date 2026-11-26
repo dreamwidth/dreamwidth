@@ -119,6 +119,7 @@ sub main_loop {
 
 ## PHASE 1) PROCESS PAYMENTS
 
+    # dig up carts that are in state paid and scannable
     my $cartids = $dbh->selectcol_arrayref(
         q{SELECT cartid FROM shop_carts WHERE state = ? AND nextscan < UNIX_TIMESTAMP()},
         undef, $DW::Shop::STATE_PAID );
@@ -360,7 +361,13 @@ sub warn_user {
     }
 
     return 1 unless defined $mail;
-    return 1 if pending_self_renewal_date( $dbh, $u );
+    if ( my $renewal_date = pending_self_renewal_date( $dbh, $u ) ) {
+        $log->(
+            'Suppressing %s-day mail for %s(%d): renewal scheduled %s.',
+            $mail, $u->user, $u->id, $renewal_date
+        );
+        return 1;
+    }
 
     $log->( 'Sending %s-day expiration mail to %s(%d).', $mail, $u->user, $u->id );
     DW::Stats::increment( 'dw.shop.paid_account.warn_' . $mail, 1 );

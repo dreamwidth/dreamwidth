@@ -80,6 +80,7 @@ sub add_order {
     die $error || 'Cannot add item' unless $added;
     $cart->{nextscan} = $opts{nextscan} // ( $now + 3600 );
     $item->{applied}  = 1 if $opts{applied};
+    $cart->paymentmethod( $opts{paymentmethod} ) if $opts{paymentmethod};
     $cart->state( $opts{state} // $DW::Shop::STATE_PAID );
     $cart->save or die 'Cannot save cart';
     return $cart;
@@ -100,6 +101,11 @@ add_order( $not_renewal, $not_renewal, $past );
 my $expired = expiring_account( undef, -1, undef );
 add_order( $expired, $expired, $future );
 add_order( $expired, $expired, $later );
+add_order(
+    $expired, $expired, $today,
+    state         => $DW::Shop::STATE_PEND_PAID,
+    paymentmethod => 'checkmoneyorder'
+);
 my $no_renewal = expiring_account( undef, -1, undef );
 my $due_today  = expiring_account( undef, -1, undef );
 add_order( $due_today, $due_today, $today );
@@ -123,7 +129,7 @@ for my $maintainer (@maintainers) {
 }
 add_order( $maintainers[0], $community, $today );
 
-my ( %messages, @cart_reads, $warning_queries );
+my ( %messages, @cart_reads, $warning_queries, $worker_log );
 {
     no warnings 'redefine';
     local $dbh->{Callbacks} = {
@@ -190,8 +196,20 @@ my ( %messages, @cart_reads, $warning_queries );
         }
     };
     local $LJ::DISCONNECT_DBS = 0;
+    local *STDERR;
+    open STDERR, '>', \$worker_log or die "Cannot capture paidstatus worker log: $!";
     do "$ENV{LJHOME}/bin/worker/paidstatus";
     die $@ || $! unless ref $@ eq ref $stop;
+}
+
+for my $warning ( [ 14, $warning_14 ], [ 3, $warning_3 ] ) {
+    my ( $days, $account ) = @$warning;
+    my $identity = sprintf '%s(%d)', $account->user, $account->id;
+    like(
+        $worker_log,
+        qr/Suppressing $days-day mail for \Q$identity\E: renewal scheduled \Q$future\E/,
+        "The worker logs why it suppresses the $days-day reminder"
+    );
 }
 
 sub messages_for {
@@ -217,7 +235,8 @@ is( last_email($not_renewal), 3, 'The regular 3-day reminder is recorded' );
 
 is( scalar @{ messages_for($expired) }, 1, 'One expiration email is sent with a pending renewal' );
 like( messages_for($expired)->[0],
-    qr/\Q$future\E/, 'Expiration email gives the earliest delivery date' );
+    qr/\Q$future\E/,
+    'Expiration email gives the earliest paid delivery date over a pending check' );
 unlike(
     messages_for($expired)->[0],
     qr{\Q$later\E|\Q/account?for=self\E},
