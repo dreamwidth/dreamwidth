@@ -261,11 +261,7 @@ sub rename {
                 return 0 unless _write_username( $dbh, $target, $tousername, $aside{name} );
             }
             return 0 unless _write_username( $dbh, $source, $fromusername, $tousername );
-            return 1 unless $source->is_community;
-
-            local $source->{user} = $tousername;
-            return DW::Task::CommunityRenameNotice->enqueue( $dbh, $source->id, $fromusername,
-                $tousername, $source->profile_url );
+            return _enqueue_community_rename_notice( $dbh, $source, $fromusername, $tousername );
         }
     );
 
@@ -332,10 +328,13 @@ sub swap_usernames {
                 && _can_rename_to( $second, $u1name, $load_target, $dbh, %opts, %admin_opts );
 
             $aside{name} = _unused_ex_username( $dbh, $u2name, $errors ) or return 0;
-            return
-                   _write_username( $dbh, $second, $u2name, $aside{name} )
+            return 0
+                unless _write_username( $dbh, $second, $u2name, $aside{name} )
                 && _write_username( $dbh, $first,  $u1name,      $u2name )
                 && _write_username( $dbh, $second, $aside{name}, $u1name );
+
+            return _enqueue_community_rename_notice( $dbh, $first,  $u1name, $u2name )
+                && _enqueue_community_rename_notice( $dbh, $second, $u2name, $u1name );
         }
     );
 
@@ -486,6 +485,15 @@ sub _write_username {
     return $changed && $changed > 0;
 }
 
+sub _enqueue_community_rename_notice {
+    my ( $dbh, $user, $fromusername, $tousername ) = @_;
+    return 1 unless $user->is_community;
+
+    local $user->{user} = $tousername;
+    return DW::Task::CommunityRenameNotice->enqueue( $dbh, $user->id, $fromusername, $tousername,
+        $user->profile_url );
+}
+
 sub _finish_rename {
     my ( $self, $fromusername, $tousername, %opts ) = @_;
 
@@ -493,26 +501,34 @@ sub _finish_rename {
 
     $opts{token}->apply( userid => $self->userid, from => $fromusername, to => $tousername );
 
-    $self->apply_rename_opts(
-        from     => $fromusername,
-        to       => $tousername,
-        redirect => {
-            username => $opts{redirect},
-            email    => $opts{redirect_email},
-        },
-        del => {
-            map { $_ => $opts{$_} }
-                qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
-        },
-        user => $opts{user},
-    );
+    my $options_applied = eval {
+        $self->apply_rename_opts(
+            from     => $fromusername,
+            to       => $tousername,
+            redirect => {
+                username => $opts{redirect},
+                email    => $opts{redirect_email},
+            },
+            del => {
+                map { $_ => $opts{$_} }
+                    qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
+            },
+            user => $opts{user},
+        );
+        1;
+    };
+    $log->error( 'Could not apply post-rename options for user ' . $self->id . ": $@" )
+        unless $options_applied;
 
     # update current object to new username, and update the email under the new username
     $self->{user} = $tousername;
-    $self->update_email_alias;
-
-    # infohistory
-    $self->infohistory_add( "username", $fromusername );
+    my $updated = eval {
+        $self->update_email_alias;
+        $self->infohistory_add( "username", $fromusername );
+        1;
+    };
+    $log->error( 'Could not update post-rename records for user ' . $self->id . ": $@" )
+        unless $updated;
 
     # notification
     my $notified = eval {

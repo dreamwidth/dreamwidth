@@ -3158,25 +3158,6 @@ register_alter(
         my $dbh    = shift;
         my $runsql = shift;
 
-        foreach my $table (qw(community_rename_notice community_rename_recipient)) {
-            next unless table_relevant($table);
-            my ($engine) = $dbh->selectrow_array(
-                'SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() '
-                    . 'AND TABLE_NAME=?',
-                undef, $table
-            );
-            next unless defined $engine && lc($engine) ne 'innodb';
-            do_alter( $table, "ALTER TABLE $table ENGINE=InnoDB" );
-        }
-
-        if (   table_relevant('community_rename_recipient')
-            && column_type( 'community_rename_recipient', 'failures' ) eq '' )
-        {
-            do_alter( 'community_rename_recipient',
-'ALTER TABLE community_rename_recipient ADD failures TINYINT UNSIGNED NOT NULL DEFAULT 0'
-            );
-        }
-
         if ( column_type( "users_for_paid_accounts", "journaltype" ) eq "" ) {
             do_alter( "users_for_paid_accounts",
                 "ALTER TABLE users_for_paid_accounts ADD journaltype CHAR(1) NOT NULL DEFAULT 'P', "

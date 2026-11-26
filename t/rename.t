@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 162;
+use Test::More tests => 165;
 use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -836,6 +836,68 @@ subtest 'A failed commit discards the allocated system token' => sub {
     is( token_status($token), 'U', 'The customer token remains unused' );
 };
 
+subtest 'A move-aside logging failure does not interrupt committed renames' => sub {
+    foreach my $operation (qw(rename swap)) {
+        my $source      = temp_user();
+        my $target      = temp_comm();
+        my $source_name = $source->user;
+        my $target_name = $target->user;
+        my @tokens      = ( new_token($source) );
+        push @tokens, new_token($source) if $operation eq 'swap';
+        LJ::update_user( $source, { status => 'A' } );
+        LJ::set_rel( $target, $source, 'A' );
+
+        foreach my $account ( $source, $target ) {
+            is( LJ::get_userid( $account->user ), $account->id, 'Prime the username to ID cache' );
+            is( LJ::get_username( $account->id ), $account->user,
+                'Prime the ID to username cache' );
+            is( LJ::load_userid( $account->id )->user, $account->user, 'Prime the user cache' );
+        }
+
+        my $original_log_event = LJ::User->can('log_event');
+        my $displaced_name;
+        {
+            no warnings 'redefine';
+            local *LJ::User::log_event = sub {
+                my ( $account, $event, $details ) = @_;
+                if (   $account->id == $target->id
+                    && $event eq 'rename'
+                    && $details->{from} eq $target_name )
+                {
+                    $displaced_name = $details->{to};
+                    die 'simulated cluster outage while logging the move-aside';
+                }
+                return $original_log_event->(@_);
+            };
+            my $changed = eval {
+                return $operation eq 'rename'
+                    ? $source->rename( $target_name, token => $tokens[0] )
+                    : $source->swap_usernames( $target, tokens => \@tokens );
+            };
+            is( $@, '', "$operation does not throw after commit" );
+            ok( $changed, "$operation reports the committed change" );
+        }
+        like( $displaced_name, qr/^ex_/, "$operation attempted to log the move-aside" );
+
+        my $target_final_name = $operation eq 'swap' ? $source_name : $displaced_name;
+        is( LJ::get_username( $source->id ), $target_name, 'The source username cache is fresh' );
+        is( LJ::get_username( $target->id ),
+            $target_final_name, 'The displaced username cache is fresh' );
+        is( LJ::load_userid( $source->id )->user, $target_name, 'The source user cache is fresh' );
+        is( LJ::load_userid( $target->id )->user,
+            $target_final_name, 'The displaced user cache is fresh' );
+        is( LJ::get_userid($target_name), $source->id, 'The destination name maps to the source' );
+        is( LJ::get_userid($target_final_name),
+            $target->id, 'The final displaced name maps to the displaced account' );
+        is(
+            LJ::get_userid($source_name),
+            $operation eq 'swap' ? $target->id : 0,
+            'The former source name no longer maps to the source account'
+        );
+        is( token_status($_), 'A', "$operation consumed a customer token" ) foreach @tokens;
+    }
+};
+
 subtest 'An outbox write failure rolls back a community rename' => sub {
     my $community = temp_comm();
     my $target    = temp_comm();
@@ -1193,6 +1255,38 @@ note("-- two username swap personal <=> community ");
     is( $comm->user, $uname,    "Swap usernames comm => u" );
 }
 
+subtest 'A community swap notifies its administrator who is also a member' => sub {
+    my $admin     = temp_user();
+    my $community = temp_comm();
+    my $oldname   = $community->user;
+    my $newname   = $admin->user;
+    my $mailbox   = 'rename-swap@example.com';
+    LJ::update_user( $admin, { status => 'A', email => $mailbox } );
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $community, $admin, 'E' );
+
+    ok( $admin->swap_usernames( $community, tokens => [ new_token($admin), new_token($admin) ] ),
+        'Swap with a community whose only member is the administrator' );
+
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @messages;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @messages, $task->args->[0];
+        return 1;
+    };
+    ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'The worker finds the durable swap notice' );
+    is_deeply( [ map { @{ $_->{rcpts} } } @messages ],
+        [$mailbox], 'The administrator receives exactly one notice' );
+    my ( undef, $body ) = split /\r?\n\r?\n/, $messages[0]->{data} // '', 2;
+    $body = decode_qp( $body // '' );
+    like( $body, qr/\b\Q$oldname\E\b/, 'The notice names the original community' );
+    like( $body, qr/\b\Q$newname\E\b/, 'The notice names the renamed community' );
+};
+
 note("-- two username swap personal <=> community (with malice)");
 {
     my ( $u, $u2 ) = $create_users->( validate => 1 );
@@ -1282,4 +1376,15 @@ note("-- two username swap (community and community)");
 
     is( $c1->user, $c2sername, "Swap usernames of c1 and c2" );
     is( $c2->user, $c1sername, "Swap usernames of c2 and c1" );
+    is_deeply(
+        LJ::get_db_writer()->selectall_arrayref(
+            'SELECT commid, oldname, newname FROM community_rename_notice WHERE commid IN (?, ?) '
+                . 'ORDER BY commid',
+            undef,
+            $c1->id,
+            $c2->id
+        ),
+        [ [ $c1->id, $c1sername, $c2sername ], [ $c2->id, $c2sername, $c1sername ] ],
+        'Both communities have one notice for the final swap, not the intermediate name'
+    );
 }
