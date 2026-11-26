@@ -85,8 +85,6 @@
 
 .rte.cut.default=Read more
 
-.rte.cut.edit=Edit
-
 .rte.convert.failed=Your text could not be converted to rich text just now, so it has been left as it was. Please try again.
 
 .rte.converting=Converting your text to rich text...
@@ -100,6 +98,14 @@
 .rte.hr=Horizontal line
 
 .rte.htmlblock=HTML (kept as-is)
+
+.rte.poll.edithtml=Edit HTML
+
+.rte.poll.label=Poll
+
+.rte.poll.posted=Poll #[[id]]
+
+.rte.poll.view=View poll
 
 .rte.image=Image
 

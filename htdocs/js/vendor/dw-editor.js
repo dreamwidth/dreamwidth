@@ -15058,10 +15058,19 @@ var DWEditor = (() => {
       (m, tag, attrs) => '<dw-user data-dw-tag="' + tag.toLowerCase() + '"' + attrs + "></dw-user>"
     );
   }
+  function balancePollTags(html) {
+    return html.replace(
+      /<((?:lj-)?poll-\d+)>/g,
+      (m, tag) => '<dw-poll-ref data-dw-tag="' + tag + '"></dw-poll-ref>'
+    );
+  }
   function restoreUserTags(html) {
     return html.replace(
       /<dw-user data-dw-tag="(user|lj)"([^>]*)><\/dw-user>/g,
       (m, tag, attrs) => "<" + tag + attrs + ">"
+    ).replace(
+      /<dw-poll-ref data-dw-tag="((?:lj-)?poll-\d+)"><\/dw-poll-ref>/g,
+      (m, tag) => "<" + tag + ">"
     );
   }
   function rawBlock(html) {
@@ -15491,7 +15500,7 @@ var DWEditor = (() => {
     if (opts.casual)
       source = source.replace(/\s+$/, "");
     const tpl = document.createElement("template");
-    tpl.innerHTML = balanceUserTags(source);
+    tpl.innerHTML = balanceUserTags(balancePollTags(source));
     walk(tpl.content);
     if (opts.casual)
       casualWalk(tpl.content, opts.casual, false, false);
@@ -15583,173 +15592,56 @@ var DWEditor = (() => {
     return closer.test(trimmed) ? trimmed : null;
   }
 
-  // src/dialogs.js
-  var dialogCount = 0;
-  function buildDialog(title, fields, strings) {
-    const dialog = document.createElement("dialog");
-    dialog.className = "dw-editor-dialog";
-    const form = document.createElement("form");
-    form.method = "dialog";
-    const heading = document.createElement("h3");
-    heading.id = "dw-editor-dialog-title-" + ++dialogCount;
-    heading.textContent = title;
-    dialog.setAttribute("aria-labelledby", heading.id);
-    form.appendChild(heading);
-    const inputs = {};
-    fields.forEach((field) => {
-      const label = document.createElement("label");
-      label.textContent = field.label;
-      const input = document.createElement(field.multiline ? "textarea" : "input");
-      if (field.multiline)
-        input.rows = 5;
-      else
-        input.type = field.type || "text";
-      if (field.min != null)
-        input.min = field.min;
-      if (field.max != null)
-        input.max = field.max;
-      input.name = field.name;
-      input.value = field.value || "";
-      if (field.placeholder)
-        input.placeholder = field.placeholder;
-      if (field.required)
-        input.required = true;
-      label.appendChild(input);
-      form.appendChild(label);
-      inputs[field.name] = input;
-    });
-    const buttons = document.createElement("div");
-    buttons.className = "dw-editor-dialog-buttons";
-    const cancel = document.createElement("button");
-    cancel.type = "button";
-    cancel.textContent = strings.cancel;
-    cancel.addEventListener("click", () => {
-      dialog.returnValue = "";
-      dialog.close();
-    });
-    const ok = document.createElement("button");
-    ok.type = "submit";
-    ok.value = "ok";
-    ok.className = "dw-editor-dialog-ok";
-    ok.textContent = strings.ok;
-    buttons.appendChild(cancel);
-    buttons.appendChild(ok);
-    form.appendChild(buttons);
-    dialog.appendChild(form);
-    document.body.appendChild(dialog);
-    return new Promise((resolve) => {
-      dialog.addEventListener("close", () => {
-        const values = {};
-        Object.keys(inputs).forEach((name) => {
-          values[name] = inputs[name].value.trim();
-        });
-        dialog.remove();
-        resolve(dialog.returnValue == "ok" ? values : null);
-      });
-      dialog.showModal();
-      const first = fields.find((f) => !f.value);
-      if (first)
-        inputs[first.name].focus();
-    });
-  }
-  function linkDialog(strings, href) {
-    return buildDialog(
-      strings.linkTitle,
-      [{ name: "href", label: strings.linkUrl, value: href, required: true }],
-      strings
-    ).then((values) => values && values.href);
-  }
-  function imageDialog(strings) {
-    return buildDialog(
-      strings.imageTitle,
-      [
-        { name: "src", label: strings.imageUrl, required: true },
-        { name: "alt", label: strings.imageAlt }
-      ],
-      strings
-    );
-  }
-  function userDialog(strings) {
-    return buildDialog(
-      strings.userTitle,
-      [
-        { name: "name", label: strings.userName, required: true },
-        { name: "site", label: strings.userSite, placeholder: strings.userSiteHint }
-      ],
-      strings
-    );
-  }
-  function textDialog(title, strings, value) {
-    return buildDialog(title, [{ name: "text", label: title, value }], strings).then(
-      (values) => values ? values.text : null
-    );
-  }
-  function embedDialog(strings) {
-    return buildDialog(
-      strings.embedTitle,
-      [{ name: "code", label: strings.embedCode, required: true, multiline: true }],
-      strings
-    ).then((values) => values && values.code);
-  }
-  function tableDialog(strings) {
-    return buildDialog(
-      strings.tableTitle,
-      [
-        { name: "rows", label: strings.tableRows, value: "3", type: "number", min: 1, max: 50 },
-        { name: "cols", label: strings.tableCols, value: "3", type: "number", min: 1, max: 20 }
-      ],
-      strings
-    ).then((values) => {
-      if (!values)
-        return null;
-      const rows = Math.min(50, Math.max(1, parseInt(values.rows, 10) || 0));
-      const cols = Math.min(20, Math.max(1, parseInt(values.cols, 10) || 0));
-      return { rows, cols };
-    });
-  }
-
   // src/nodeviews.js
   var CutView = class {
     constructor(node, view, getPos, strings) {
-      this.strings = strings;
       this.dom = document.createElement("div");
       this.dom.className = "dw-editor-cut";
       this.header = document.createElement("div");
       this.header.className = "dw-editor-cut-header";
       this.header.contentEditable = "false";
-      this.label = document.createElement("span");
-      this.label.className = "dw-editor-cut-label";
-      const edit = document.createElement("button");
-      edit.type = "button";
-      edit.className = "dw-editor-cut-edit";
-      edit.textContent = strings.cutEdit;
-      edit.addEventListener("click", (e) => {
-        e.preventDefault();
-        const current = view.state.doc.nodeAt(getPos());
-        textDialog(strings.cutCaption, strings, current.attrs.text).then((text) => {
-          if (text == null)
-            return;
-          view.dispatch(
-            view.state.tr.setNodeMarkup(getPos(), null, { text })
-          );
-          view.focus();
-        });
+      const icon2 = document.createElement("span");
+      icon2.className = "dw-editor-cut-icon";
+      icon2.setAttribute("aria-hidden", "true");
+      icon2.textContent = "\u2702";
+      this.input = document.createElement("input");
+      this.input.type = "text";
+      this.input.className = "dw-editor-cut-text";
+      this.input.placeholder = strings.cutDefault;
+      this.input.setAttribute("aria-label", strings.cutCaption);
+      this.input.value = node.attrs.text || "";
+      this.input.addEventListener("input", () => {
+        const pos = getPos();
+        if (pos == null)
+          return;
+        view.dispatch(
+          view.state.tr.setNodeMarkup(pos, null, { text: this.input.value })
+        );
       });
-      this.header.appendChild(this.label);
-      this.header.appendChild(edit);
+      this.input.addEventListener("keydown", (e) => {
+        if (e.key != "Enter" && e.key != "ArrowDown")
+          return;
+        e.preventDefault();
+        const pos = getPos();
+        if (pos == null)
+          return;
+        const $inside = view.state.doc.resolve(pos + 1);
+        view.dispatch(view.state.tr.setSelection(Selection.near($inside)));
+        view.focus();
+      });
+      this.header.appendChild(icon2);
+      this.header.appendChild(this.input);
       this.dom.appendChild(this.header);
       this.contentDOM = document.createElement("div");
       this.contentDOM.className = "dw-editor-cut-content";
       this.dom.appendChild(this.contentDOM);
-      this.setLabel(node);
-    }
-    setLabel(node) {
-      this.label.textContent = node.attrs.text || this.strings.cutDefault;
     }
     update(node) {
       if (node.type.name != "cut")
         return false;
-      this.setLabel(node);
+      const text = node.attrs.text || "";
+      if (this.input.value != text)
+        this.input.value = text;
       return true;
     }
     stopEvent(event) {
@@ -15788,26 +15680,148 @@ var DWEditor = (() => {
       this.dom.title = node.attrs.site ? node.attrs.name + " @ " + node.attrs.site : node.attrs.name;
     }
   };
+  var POLL_REF = /^<(?:lj-)?poll-(\d+)>$/;
+  var POLL_MARKUP = /^<(?:lj-)?poll\b[\s\S]*<\/(?:lj-)?poll\s*>$/i;
+  function pollSummary(source) {
+    const html = String(source || "").trim();
+    const ref = POLL_REF.exec(html);
+    if (ref)
+      return { id: ref[1] };
+    if (!POLL_MARKUP.test(html))
+      return null;
+    const tpl = document.createElement("template");
+    tpl.innerHTML = html;
+    const poll = tpl.content.querySelector("poll, lj-poll");
+    if (!poll)
+      return null;
+    const clean = (text) => text.replace(/\s+/g, " ").trim();
+    const questions = Array.from(poll.querySelectorAll("poll-question, lj-pq")).map((q) => {
+      let text = "";
+      q.childNodes.forEach((child) => {
+        const tag = child.nodeType == 1 ? child.localName : null;
+        if (tag != "poll-item" && tag != "lj-pi")
+          text += child.textContent;
+      });
+      return {
+        text: clean(text),
+        type: (q.getAttribute("type") || "").toLowerCase(),
+        items: Array.from(q.querySelectorAll("poll-item, lj-pi")).map(
+          (i) => clean(i.textContent)
+        )
+      };
+    });
+    return { name: clean(poll.getAttribute("name") || ""), questions };
+  }
+  var ITEM_MARKERS = { radio: "\u25CB", check: "\u2610" };
   var HtmlBlockView = class {
     constructor(node, view, getPos, strings) {
+      this.strings = strings;
       this.dom = document.createElement("div");
       this.dom.className = "dw-editor-html-block";
       this.badge = document.createElement("div");
       this.badge.className = "dw-editor-html-badge";
       this.badge.contentEditable = "false";
-      this.badge.textContent = strings.htmlBlockLabel;
+      this.label = document.createElement("span");
+      this.badge.appendChild(this.label);
+      this.editButton = document.createElement("button");
+      this.editButton.type = "button";
+      this.editButton.className = "dw-editor-html-edit";
+      this.editButton.textContent = strings.pollEditHTML;
+      this.editButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        const pos = getPos();
+        if (pos == null)
+          return;
+        const end = pos + view.state.doc.nodeAt(pos).nodeSize - 1;
+        view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, end)));
+        view.focus();
+      });
+      this.badge.appendChild(this.editButton);
       this.dom.appendChild(this.badge);
+      this.preview = document.createElement("div");
+      this.preview.className = "dw-editor-poll-preview";
+      this.preview.contentEditable = "false";
+      this.dom.appendChild(this.preview);
       this.contentDOM = document.createElement("pre");
       this.contentDOM.className = "dw-editor-html-source";
       this.dom.appendChild(this.contentDOM);
+      this.render(node);
+    }
+    render(node) {
+      const source = node.textContent;
+      if (source === this.source)
+        return;
+      this.source = source;
+      const poll = pollSummary(source);
+      this.dom.classList.toggle("dw-editor-html-poll", !!poll);
+      this.label.textContent = poll ? this.strings.pollLabel : this.strings.htmlBlockLabel;
+      this.preview.textContent = "";
+      if (poll)
+        this.renderPoll(poll);
+    }
+    renderPoll(poll) {
+      const add = (parent, tag, className, text) => {
+        const el = document.createElement(tag);
+        el.className = className;
+        if (text != null)
+          el.textContent = text;
+        parent.appendChild(el);
+        return el;
+      };
+      if (poll.id) {
+        add(this.preview, "div", "dw-editor-poll-name", this.strings.pollPosted.replace("[[id]]", poll.id));
+        const link = add(this.preview, "a", "dw-editor-poll-link", this.strings.pollView);
+        link.href = "/poll/?id=" + poll.id;
+        link.target = "_blank";
+        link.rel = "noopener";
+        return;
+      }
+      if (poll.name)
+        add(this.preview, "div", "dw-editor-poll-name", poll.name);
+      poll.questions.forEach((q) => {
+        add(this.preview, "div", "dw-editor-poll-question", q.text);
+        if (!q.items.length)
+          return;
+        const list = add(this.preview, "ul", "dw-editor-poll-items");
+        q.items.forEach((item) => {
+          const li = add(list, "li", "", item);
+          li.setAttribute("data-marker", ITEM_MARKERS[q.type] || "\u2022");
+        });
+      });
     }
     update(node) {
-      return node.type.name == "html_block";
+      if (node.type.name != "html_block")
+        return false;
+      this.render(node);
+      return true;
+    }
+    stopEvent(event) {
+      return this.badge.contains(event.target) || this.preview.contains(event.target);
     }
     ignoreMutation(mutation) {
       return !this.contentDOM.contains(mutation.target);
     }
   };
+  function activeHtmlBlock() {
+    return new Plugin({
+      props: {
+        decorations(state) {
+          const { $head } = state.selection;
+          for (let d = $head.depth; d > 0; d--) {
+            if ($head.node(d).type.name != "html_block")
+              continue;
+            const pos = $head.before(d);
+            return DecorationSet.create(state.doc, [
+              Decoration.node(pos, pos + $head.node(d).nodeSize, {
+                class: "dw-editor-html-active"
+              })
+            ]);
+          }
+          return null;
+        }
+      }
+    });
+  }
   var HtmlInlineView = class {
     constructor(node) {
       this.dom = document.createElement("span");
@@ -17268,6 +17282,131 @@ var DWEditor = (() => {
     return [keymap(keys2), keymap(baseKeymap)];
   }
 
+  // src/dialogs.js
+  var dialogCount = 0;
+  function buildDialog(title, fields, strings) {
+    const dialog = document.createElement("dialog");
+    dialog.className = "dw-editor-dialog";
+    const form = document.createElement("form");
+    form.method = "dialog";
+    const heading = document.createElement("h3");
+    heading.id = "dw-editor-dialog-title-" + ++dialogCount;
+    heading.textContent = title;
+    dialog.setAttribute("aria-labelledby", heading.id);
+    form.appendChild(heading);
+    const inputs = {};
+    fields.forEach((field) => {
+      const label = document.createElement("label");
+      label.textContent = field.label;
+      const input = document.createElement(field.multiline ? "textarea" : "input");
+      if (field.multiline)
+        input.rows = 5;
+      else
+        input.type = field.type || "text";
+      if (field.min != null)
+        input.min = field.min;
+      if (field.max != null)
+        input.max = field.max;
+      input.name = field.name;
+      input.value = field.value || "";
+      if (field.placeholder)
+        input.placeholder = field.placeholder;
+      if (field.required)
+        input.required = true;
+      label.appendChild(input);
+      form.appendChild(label);
+      inputs[field.name] = input;
+    });
+    const buttons = document.createElement("div");
+    buttons.className = "dw-editor-dialog-buttons";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = strings.cancel;
+    cancel.addEventListener("click", () => {
+      dialog.returnValue = "";
+      dialog.close();
+    });
+    const ok = document.createElement("button");
+    ok.type = "submit";
+    ok.value = "ok";
+    ok.className = "dw-editor-dialog-ok";
+    ok.textContent = strings.ok;
+    buttons.appendChild(cancel);
+    buttons.appendChild(ok);
+    form.appendChild(buttons);
+    dialog.appendChild(form);
+    document.body.appendChild(dialog);
+    return new Promise((resolve) => {
+      dialog.addEventListener("close", () => {
+        const values = {};
+        Object.keys(inputs).forEach((name) => {
+          values[name] = inputs[name].value.trim();
+        });
+        dialog.remove();
+        resolve(dialog.returnValue == "ok" ? values : null);
+      });
+      dialog.showModal();
+      const first = fields.find((f) => !f.value);
+      if (first)
+        inputs[first.name].focus();
+    });
+  }
+  function linkDialog(strings, href) {
+    return buildDialog(
+      strings.linkTitle,
+      [{ name: "href", label: strings.linkUrl, value: href, required: true }],
+      strings
+    ).then((values) => values && values.href);
+  }
+  function imageDialog(strings) {
+    return buildDialog(
+      strings.imageTitle,
+      [
+        { name: "src", label: strings.imageUrl, required: true },
+        { name: "alt", label: strings.imageAlt }
+      ],
+      strings
+    );
+  }
+  function userDialog(strings) {
+    return buildDialog(
+      strings.userTitle,
+      [
+        { name: "name", label: strings.userName, required: true },
+        { name: "site", label: strings.userSite, placeholder: strings.userSiteHint }
+      ],
+      strings
+    );
+  }
+  function textDialog(title, strings, value) {
+    return buildDialog(title, [{ name: "text", label: title, value }], strings).then(
+      (values) => values ? values.text : null
+    );
+  }
+  function embedDialog(strings) {
+    return buildDialog(
+      strings.embedTitle,
+      [{ name: "code", label: strings.embedCode, required: true, multiline: true }],
+      strings
+    ).then((values) => values && values.code);
+  }
+  function tableDialog(strings) {
+    return buildDialog(
+      strings.tableTitle,
+      [
+        { name: "rows", label: strings.tableRows, value: "3", type: "number", min: 1, max: 50 },
+        { name: "cols", label: strings.tableCols, value: "3", type: "number", min: 1, max: 20 }
+      ],
+      strings
+    ).then((values) => {
+      if (!values)
+        return null;
+      const rows = Math.min(50, Math.max(1, parseInt(values.rows, 10) || 0));
+      const cols = Math.min(20, Math.max(1, parseInt(values.cols, 10) || 0));
+      return { rows, cols };
+    });
+  }
+
   // src/paste.js
   function rawBlockTransaction(state, html) {
     const type = state.schema.nodes.html_block;
@@ -18053,10 +18192,13 @@ var DWEditor = (() => {
     tableHeaderRow: "Toggle header row",
     tableHeaderCol: "Toggle header column",
     tableDelete: "Delete table",
-    cutEdit: "Edit",
     cutCaption: "Cut text",
     cutDefault: "Read more",
     htmlBlockLabel: "HTML (kept as-is)",
+    pollLabel: "Poll",
+    pollPosted: "Poll #[[id]]",
+    pollView: "View poll",
+    pollEditHTML: "Edit HTML",
     cancel: "Cancel",
     ok: "OK",
     linkTitle: "Add link",
@@ -18135,7 +18277,8 @@ var DWEditor = (() => {
         gapCursor(),
         trailingNode(),
         pastePlugin(),
-        tableEditing()
+        tableEditing(),
+        activeHtmlBlock()
       ]
     });
     let syncTimer = null;

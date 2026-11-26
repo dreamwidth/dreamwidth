@@ -145,13 +145,30 @@ function balanceUserTags(html) {
         );
 }
 
-// Undo balanceUserTags for markup captured as a raw chunk, so a <user> tag
-// inside a preserved table or poll comes back out exactly as a user tag.
-function restoreUserTags(html) {
+// A posted poll is stored as a placeholder tag, <poll-123>, which is never
+// closed (LJ::Poll expands it, matching exactly this spelling). A browser
+// would take it for an element still open and put everything after it inside,
+// so it's swapped for a closed placeholder before parsing.
+function balancePollTags(html) {
     return html.replace(
-        /<dw-user data-dw-tag="(user|lj)"([^>]*)><\/dw-user>/g,
-        (m, tag, attrs) => "<" + tag + attrs + ">"
+        /<((?:lj-)?poll-\d+)>/g,
+        (m, tag) => '<dw-poll-ref data-dw-tag="' + tag + '"></dw-poll-ref>'
     );
+}
+
+// Undo balanceUserTags and balancePollTags for markup captured as a raw
+// chunk, so a <user> tag or poll placeholder inside a preserved table comes
+// back out exactly as written.
+function restoreUserTags(html) {
+    return html
+        .replace(
+            /<dw-user data-dw-tag="(user|lj)"([^>]*)><\/dw-user>/g,
+            (m, tag, attrs) => "<" + tag + attrs + ">"
+        )
+        .replace(
+            /<dw-poll-ref data-dw-tag="((?:lj-)?poll-\d+)"><\/dw-poll-ref>/g,
+            (m, tag) => "<" + tag + ">"
+        );
 }
 
 function rawBlock(html) {
@@ -648,7 +665,7 @@ export function importHTML(schema, html, opts) {
     if (opts.casual) source = source.replace(/\s+$/, "");
 
     const tpl = document.createElement("template");
-    tpl.innerHTML = balanceUserTags(source);
+    tpl.innerHTML = balanceUserTags(balancePollTags(source));
     walk(tpl.content);
     if (opts.casual) casualWalk(tpl.content, opts.casual, false, false);
     return PMDOMParser.fromSchema(schema).parse(tpl.content);

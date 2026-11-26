@@ -438,8 +438,7 @@ img.ProseMirror-separator {
 .dw-editor-cut-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5em;
+    gap: 0.4em;
     padding: 2px 8px;
     background: #eef4fa;
     border-bottom: 1px dashed #9bc;
@@ -447,18 +446,36 @@ img.ProseMirror-separator {
     color: #357;
 }
 
-.dw-editor-cut-label::before {
-    content: "\2702\00a0"; /* scissors */
+/* The link text, editable in place: reads as a label until it has focus. */
+/* (Qualified so the site's own text-field styles don't apply.) */
+.dw-editor-cut .dw-editor-cut-text {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    margin: 0;
+    padding: 1px 4px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    box-shadow: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: 1.4;
 }
 
-.dw-editor-cut-edit {
-    border: none;
-    background: none;
+.dw-editor-cut .dw-editor-cut-text:hover {
+    border-color: #9bc;
+}
+
+.dw-editor-cut .dw-editor-cut-text:focus {
+    border-color: #69c;
+    background: #fff;
+    outline: none;
+}
+
+.dw-editor-cut-text::placeholder {
     color: #357;
-    text-decoration: underline;
-    font-size: inherit;
-    cursor: pointer;
-    padding: 0;
+    opacity: 0.6;
 }
 
 .dw-editor-cut-content {
@@ -498,6 +515,10 @@ img.ProseMirror-separator {
 }
 
 .dw-editor-html-badge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
     padding: 1px 8px;
     border-bottom: 1px dashed #b96;
     font-size: 0.75em;
@@ -512,6 +533,67 @@ img.ProseMirror-separator {
     font-family: monospace;
     font-size: 0.9em;
     white-space: pre-wrap;
+}
+
+/* A poll: a read-only preview, and its source only while the cursor is in it. */
+
+.dw-editor-html-edit,
+.dw-editor-poll-preview {
+    display: none;
+}
+
+.dw-editor-html-poll:not(.dw-editor-html-active) {
+    .dw-editor-html-edit,
+    .dw-editor-poll-preview {
+        display: block;
+    }
+
+    .dw-editor-html-source {
+        display: none;
+    }
+}
+
+.dw-editor-html-badge .dw-editor-html-edit {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+    padding: 0;
+    line-height: inherit;
+    color: #963;
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.dw-editor-poll-preview {
+    padding: 0.4em 0.75em;
+}
+
+.dw-editor-poll-name {
+    font-weight: bold;
+}
+
+.dw-editor-poll-question {
+    margin-top: 0.4em;
+}
+
+.dw-editor-poll-preview .dw-editor-poll-items {
+    margin: 0.2em 0 0 1.2em;
+    padding: 0;
+    list-style: none;
+
+    li::before {
+        content: attr(data-marker) "\00a0";
+        margin-left: -1.1em;
+    }
+}
+
+.dw-editor-poll-link {
+    font-size: 0.9em;
 }
 
 /* An empty inline element kept verbatim, e.g. <a name="top"></a> */

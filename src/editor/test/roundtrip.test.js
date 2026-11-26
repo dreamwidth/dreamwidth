@@ -79,6 +79,25 @@ test("polls, embeds, and tables the editor can't model are kept as raw blocks", 
     assertSurvives('<iframe src="http://example.com/v"></iframe>');
 });
 
+test("a posted poll's placeholder doesn't swallow what follows it", () => {
+    // Compared as exact text: normalized() would parse <poll-1> the same
+    // mistaken way and hide the problem.
+    const html = '<p>before</p><poll-35778>\n\n<cut text="more"><p>hidden</p></cut><p>after</p>';
+    const doc = importHTML(schema, html);
+    assert.equal(doc.child(1).type.name, "html_block");
+    assert.equal(doc.child(1).textContent, "<poll-35778>");
+    assert.equal(doc.child(2).type.name, "cut");
+    assert.equal(
+        exportHTML(schema, doc),
+        '<p>before</p>\n\n<poll-35778>\n\n<cut text="more"><p>hidden</p></cut>\n\n<p>after</p>'
+    );
+
+    // The old spelling, and a placeholder inside a preserved chunk.
+    assert.match(roundTrip("<lj-poll-2><p>x</p>"), /^<lj-poll-2>\n\n<p>x<\/p>$/);
+    const table = "<table><caption>c</caption><tbody><tr><td><poll-3></td></tr></tbody></table>";
+    assert.equal(roundTrip(table), table);
+});
+
 test("elements the schema has no model for are kept", () => {
     assertSurvives("<dl><dt>term</dt><dd>def</dd></dl>");
     assertSurvives("<p>x<wbr>y</p>");
