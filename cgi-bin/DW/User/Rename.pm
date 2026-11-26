@@ -271,9 +271,9 @@ sub rename {
     _clear_from_cache( $self,   $fromusername, $tousername );
     _clear_from_cache( $target, $tousername,   $aside{name} ) if $target;
     _apply_customer_tokens( [ $opts{token}, $self, $fromusername, $tousername ] );
-    _finish_move_aside( $target, $tousername, \%aside ) if $target;
+    _finish_move_aside( $target, $tousername, \%aside, $errors ) if $target;
     _finish_rename( $self, $fromusername, $tousername, %opts );
-    return 1;
+    return $errors->exist ? 0 : 1;
 }
 
 =head2 C<< $self->swap_usernames( $touser [, %opts ] ) >>
@@ -350,14 +350,14 @@ sub swap_usernames {
         [ $tokens[0], $u1, $u1name,      $u2name ],
         [ $tokens[1], $u2, $aside{name}, $u1name ],
     );
-    _finish_move_aside( $u2, $u2name, \%aside );
+    _finish_move_aside( $u2, $u2name, \%aside, $errors, $u1name );
 
     # ugh, but need it to avoid duplicate timestamps in infohistory
     sleep(1);
 
-    _finish_rename( $u1, $u1name,      $u2name, %opts, %admin_opts );
-    _finish_rename( $u2, $aside{name}, $u1name, %opts, %admin_opts );
-    return 1;
+    _finish_rename( $u1, $u1name, $u2name, %opts, %admin_opts );
+    _finish_rename( $u2, $aside{name}, $u1name, %opts, %admin_opts, error_from => $u2name );
+    return $errors->exist ? 0 : 1;
 }
 
 =head2 C<< $self->_clear_from_cache >>
@@ -521,19 +521,33 @@ sub _finish_rename {
     my ( $self, $fromusername, $tousername, %opts ) = @_;
 
     $self->{user} = $tousername;
-    $self->apply_rename_opts(
-        from     => $fromusername,
-        to       => $tousername,
-        redirect => {
-            username => $opts{redirect},
-            email    => $opts{redirect_email},
-        },
-        del => {
-            map { $_ => $opts{$_} }
-                qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
-        },
-        user => $opts{user},
-    );
+    my $options_applied = eval {
+        $self->apply_rename_opts(
+            from     => $fromusername,
+            to       => $tousername,
+            redirect => {
+                username => $opts{redirect},
+                email    => $opts{redirect_email},
+            },
+            del => {
+                map { $_ => $opts{$_} }
+                    qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
+            },
+            user => $opts{user},
+        );
+        1;
+    };
+    unless ($options_applied) {
+        $log->error( 'Could not apply post-rename options for user ' . $self->id . ": $@" );
+        $opts{errors}->add(
+            '',
+            'rename.error.postcommitoptions',
+            {
+                from => $opts{error_from} // $fromusername,
+                to   => $opts{error_to}   // $tousername,
+            }
+        );
+    }
 
     my $updated = eval {
         $self->update_email_alias;
@@ -806,13 +820,18 @@ sub _unused_ex_username {
 }
 
 sub _finish_move_aside {
-    my ( $user, $fromusername, $aside ) = @_;
+    my ( $user, $fromusername, $aside, $errors, $finalname ) = @_;
 
     my $token = $aside->{token};
     my $applied =
         eval { $token->apply( userid => $user->id, from => $fromusername, to => $aside->{name} ); };
     $log->error( 'Could not apply system rename token ' . $token->id . ": $@" ) unless $applied;
-    _finish_rename( $user, $fromusername, $aside->{name}, redirect => 0 );
+    _finish_rename(
+        $user, $fromusername, $aside->{name},
+        redirect => 0,
+        errors   => $errors,
+        error_to => $finalname
+    );
 }
 
 *LJ::User::can_rename_to  = \&can_rename_to;

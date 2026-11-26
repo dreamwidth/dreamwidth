@@ -64,11 +64,13 @@ sub _process_batch {
         sub {
             my $filter = defined $commid ? 'AND n.commid=?' : '';
             my $notice = $dbh->selectrow_hashref(
-                "SELECT n.* FROM community_rename_notice n WHERE (n.scanned=0 OR COALESCE((
-                     SELECT MIN(r.next_attempt) FROM community_rename_recipient r
-                      WHERE r.noticeid=n.noticeid
-                 ), 0)<=UNIX_TIMESTAMP()) $filter ORDER BY n.noticeid LIMIT 1 FOR UPDATE",
-                undef, defined $commid ? ($commid) : (),
+                "SELECT n.* FROM community_rename_notice n WHERE (n.scanned=0 OR EXISTS (
+                     SELECT 1 FROM community_rename_recipient r WHERE r.noticeid=n.noticeid
+                       AND r.failures<? AND r.next_attempt<=UNIX_TIMESTAMP()
+                 ) OR NOT EXISTS (
+                     SELECT 1 FROM community_rename_recipient r WHERE r.noticeid=n.noticeid
+                 )) $filter ORDER BY n.noticeid LIMIT 1 FOR UPDATE",
+                undef, MAX_ATTEMPTS, defined $commid ? ($commid) : (),
             ) or return;
 
             my $ready = _ready_recipients( $dbh, $notice->{noticeid} );
@@ -103,8 +105,8 @@ sub _ready_recipients {
 
     return $dbh->selectcol_arrayref(
         'SELECT mailbox FROM community_rename_recipient WHERE noticeid=? '
-            . 'AND next_attempt<=UNIX_TIMESTAMP() ORDER BY next_attempt, mailbox LIMIT ?',
-        undef, $noticeid, BATCH_SIZE
+            . 'AND failures<? AND next_attempt<=UNIX_TIMESTAMP() ORDER BY next_attempt, mailbox LIMIT ?',
+        undef, $noticeid, MAX_ATTEMPTS, BATCH_SIZE
     );
 }
 
@@ -139,8 +141,8 @@ sub _deliver {
 
     my ( $memberid, $failures ) = $dbh->selectrow_array(
         'SELECT memberid, failures FROM community_rename_recipient WHERE noticeid=? AND mailbox=? '
-            . 'AND next_attempt<=UNIX_TIMESTAMP() FOR UPDATE',
-        undef, @key
+            . 'AND failures<? AND next_attempt<=UNIX_TIMESTAMP() FOR UPDATE',
+        undef, @key, MAX_ATTEMPTS
     );
     return unless $memberid;
 
@@ -151,20 +153,24 @@ sub _deliver {
         unless defined $address;
 
     my $failed = defined $address && !eval { _queue_email( $address, $subject, $body ) };
-    if ( !$failed || ++$failures >= MAX_ATTEMPTS ) {
-        $dbh->do( 'DELETE FROM community_rename_recipient WHERE noticeid=? AND mailbox=?',
+    unless ($failed) {
+        return $dbh->do( 'DELETE FROM community_rename_recipient WHERE noticeid=? AND mailbox=?',
             undef, @key );
-        $log->error( 'Dropped a recipient from community rename notice ',
-            $notice->{noticeid}, ' after ', $failures, ' failed mail submissions' )
-            if $failed;
+    }
+
+    ++$failures;
+    $dbh->do(
+        'UPDATE community_rename_recipient SET failures=?, next_attempt=UNIX_TIMESTAMP()+? '
+            . 'WHERE noticeid=? AND mailbox=?',
+        undef, $failures, RETRY_SECS, @key
+    );
+    if ( $failures >= MAX_ATTEMPTS ) {
+        $log->error( 'A recipient for community rename notice ',
+            $notice->{noticeid},
+            ' reached ', $failures, ' failed mail submissions and was preserved for replay' );
     }
     else {
         $log->error('Could not queue a community rename notice email; will retry');
-        $dbh->do(
-            'UPDATE community_rename_recipient SET failures=?, next_attempt=UNIX_TIMESTAMP()+? '
-                . 'WHERE noticeid=? AND mailbox=?',
-            undef, $failures, RETRY_SECS, @key
-        );
     }
 }
 

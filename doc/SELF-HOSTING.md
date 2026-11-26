@@ -101,10 +101,14 @@ email worker needs a mail queue.
 
 Notices group case variants of the same address, not provider-specific aliases
 such as plus tags. The outbox checkpoints acknowledged mail submissions and
-retries rejections after one minute. It drops the recipient and logs the failure
-after ten failed submissions. It does not guarantee exactly-once delivery if
-the mail queue accepts a submission but its acknowledgement or the following
-database commit is lost.
+retries rejections after one minute. After ten failed submissions, the worker
+logs the notice ID and stops retrying that recipient automatically. The
+recipient remains in `community_rename_recipient` with its parent notice in
+`community_rename_notice`. After resolving the failure, an operator can inspect
+the retained rows and reset `failures` and `next_attempt` to `0` on the recipient
+rows to replay them. The outbox does not guarantee exactly-once delivery if the
+mail queue accepts a submission but its acknowledgement or the following database
+commit is lost.
 
 Configure the site's sender addresses and `$DOMAIN_EMAIL` for your provider.
 The old `%EMAIL_VIA_SES` hash remains supported when `%SMTP_SERVER` is unset;

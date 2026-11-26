@@ -2448,6 +2448,8 @@ rename.error.noto=No username provided to rename to.
 
 rename.error.notoken=Rename token not provided or unavailable.
 
+rename.error.postcommitoptions=The username change from [[from]] to [[to]] succeeded, but some redirect or relationship options could not be applied.
+
 rename.error.redirect=You cannot rename to "[[to]]" because it redirects to "[[target]]". Please contact Support for further assistance.
 
 rename.error.reserved="[[to]]" is a reserved username.

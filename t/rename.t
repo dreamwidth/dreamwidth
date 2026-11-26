@@ -15,7 +15,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 168;
+use Test::More tests => 169;
+use Log::Log4perl;
+use Log::Log4perl::Appender::TestBuffer;
 use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -66,6 +68,18 @@ sub token_status {
     return
         scalar LJ::get_db_writer()
         ->selectrow_array( 'SELECT status FROM renames WHERE renid=?', undef, $_[0]->id );
+}
+
+sub capture_errors {
+    my ($category) = @_;
+    my $config = qq{
+log4perl.rootLogger=OFF
+log4perl.logger.$category=ERROR, Capture
+log4perl.appender.Capture=Log::Log4perl::Appender::TestBuffer
+log4perl.appender.Capture.layout=Log::Log4perl::Layout::SimpleLayout
+};
+    Log::Log4perl::init( \$config );
+    return Log::Log4perl::Appender::TestBuffer->by_name('Capture');
 }
 
 note("-- personal-to-unregistered, no redirect");
@@ -899,14 +913,22 @@ subtest 'A move-aside logging failure does not interrupt committed renames' => s
     }
 };
 
-subtest 'A relationship removal exception is not reported as a successful rename' => sub {
+subtest 'A committed rename reports a relationship removal failure and still finalizes' => sub {
     my $source  = temp_user();
     my $trusted = temp_user();
-    my $newname = $source->user . 'new';
+    my $oldname = $source->user;
+    my $newname = $oldname . 'new';
     my $token   = new_token($source);
+    my $errors  = DW::FormErrors->new;
+    my $logs    = capture_errors('DW.User.Rename');
+    local $LJ::T_HAS_ALL_CAPS = 1;
+    local $LJ::USER_EMAIL     = 1;
+    LJ::update_user( $source, { status => 'A' } );
     ok( $source->add_edge( $trusted, trust => { nonotify => 1 } ), 'Create a trust relationship' );
 
-    my $remove_edge = LJ::User->can('remove_edge');
+    my $remove_edge       = LJ::User->can('remove_edge');
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @security_events;
     {
         no warnings 'redefine';
         local *LJ::User::remove_edge = sub {
@@ -915,19 +937,97 @@ subtest 'A relationship removal exception is not reported as a successful rename
                 if $from->id == $source->id && $to->id == $trusted->id && $edges{trust};
             return $remove_edge->(@_);
         };
-        my $renamed = eval { $source->rename( $newname, token => $token, del_trusted => 1 ) };
-        my $error   = $@;
-        ok( !$renamed, 'Rename does not report success when requested trust removal fails' );
-        like(
-            $error,
-            qr/simulated trust removal exception/,
-            'The removal exception reaches the caller'
-        );
+        local *DW::TaskQueue::dispatch = sub {
+            my ( $class, $task ) = @_;
+            push @security_events, $task if $task->isa('LJ::Event::SecurityAttributeChanged');
+            return $original_dispatch->(@_);
+        };
+        my $renamed = eval {
+            $source->rename( $newname, token => $token, del_trusted => 1, errors => $errors );
+        };
+        is( $@,       '', 'The option failure does not throw to the caller' );
+        is( $renamed, 0,  'Rename reports that the requested options did not finish' );
     }
 
+    my ($error) = $errors->get('');
+    like(
+        $error ? $error->{message} : '',
+        qr/\Q$oldname\E to \Q$newname\E succeeded.*options could not be applied/i,
+        'The form error distinguishes the completed rename from the failed options'
+    );
+    like( $logs->buffer, qr/simulated trust removal exception at /, 'Logs the full exception' );
     ok( $source->trusts($trusted), 'The interrupted trust removal did not take effect' );
     is( LJ::load_userid( $source->id )->user, $newname, 'The committed username is visible' );
     is( token_status($token), 'A', 'The committed rename still consumes the customer token' );
+
+    my $dbh = LJ::get_db_writer();
+    is(
+        $dbh->selectrow_array(
+            'SELECT rcpt FROM email_aliases WHERE alias=?',
+            undef, $source->site_email_alias
+        ),
+        $source->email_raw,
+        'The new email alias is saved'
+    );
+    is(
+        $dbh->selectrow_array(
+            "SELECT oldvalue FROM infohistory WHERE userid=? AND what='username'", undef,
+            $source->id
+        ),
+        $oldname,
+        'The previous username is recorded'
+    );
+    is( scalar @security_events, 1, 'The rename security event is dispatched' );
+};
+
+subtest 'A failing first swap account does not stop the second account from finalizing' => sub {
+    my ( $source, $target ) = $create_users->( match => 1, validated => 1 );
+    my $source_name = $source->user;
+    my $target_name = $target->user;
+    my @tokens      = ( new_token($source), new_token($target) );
+    my $errors      = DW::FormErrors->new;
+    my $logs        = capture_errors('DW.User.Rename');
+
+    my $break_redirects = LJ::User->can('break_redirects');
+    {
+        no warnings 'redefine';
+        local *LJ::User::break_redirects = sub {
+            die 'simulated redirect storage exception' if $_[0]->id == $source->id;
+            return $break_redirects->(@_);
+        };
+        my $swapped = eval {
+            $source->swap_usernames(
+                $target,
+                redirect => 1,
+                tokens   => \@tokens,
+                errors   => $errors
+            );
+        };
+        is( $@,       '', 'The first account option failure does not throw to the caller' );
+        is( $swapped, 0,  'Swap reports that the requested options did not finish' );
+    }
+
+    my ($error) = $errors->get('');
+    like(
+        $error ? $error->{message} : '',
+        qr/\Q$source_name\E to \Q$target_name\E succeeded.*options could not be applied/i,
+        'The form error identifies the affected account'
+    );
+    like( $logs->buffer, qr/simulated redirect storage exception at /, 'Logs the full exception' );
+    is( LJ::load_userid( $source->id )->user,
+        $target_name, 'The first swapped username is visible' );
+    is( LJ::load_userid( $target->id )->user,
+        $source_name, 'The second swapped username is visible' );
+    is( token_status($_), 'A', 'The committed swap consumes a customer token' ) foreach @tokens;
+
+    my ($aside_name) = LJ::get_db_writer()->selectrow_array(
+"SELECT oldvalue FROM infohistory WHERE userid=? AND what='username' ORDER BY timechange DESC",
+        undef, $target->id
+    );
+    like( $aside_name, qr/^ex_/, 'The second account records its final move' );
+    my $redirect = LJ::load_user($aside_name);
+    is( $redirect && $redirect->prop('renamedto'), $source_name,
+        'The second redirect is in place' );
 };
 
 subtest 'A system token apply failure does not interrupt committed renames' => sub {
@@ -1141,7 +1241,7 @@ subtest 'Queue failures do not undo a rename or stop other notices' => sub {
         0, 'Polling again does not replay an accepted recipient or continuation' );
 };
 
-subtest 'A permanently failing notice recipient stops retrying' => sub {
+subtest 'An exhausted recipient stops automatic retries but can be replayed' => sub {
     my $community = temp_comm();
     my $admin     = temp_user();
     my $member    = temp_user();
@@ -1155,14 +1255,16 @@ subtest 'A permanently failing notice recipient stops retrying' => sub {
     );
 
     my $dbh               = LJ::get_db_writer();
+    my $logs              = capture_errors('DW.Task.CommunityRenameNotice');
     my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my $outage            = 1;
     my @attempts;
     no warnings 'redefine';
     local *DW::TaskQueue::dispatch = sub {
         my ( $class, $task ) = @_;
         return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
         push @attempts, @{ $task->args->[0]->{rcpts} };
-        return undef;
+        return $outage ? undef : 1;
     };
 
     my $make_due = sub {
@@ -1177,10 +1279,54 @@ subtest 'A permanently failing notice recipient stops retrying' => sub {
         ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
             "Worker processes due attempt $attempt" );
     }
+    my @preserved = $dbh->selectrow_array(
+        'SELECT n.noticeid, n.scanned, r.failures FROM community_rename_notice n '
+            . 'JOIN community_rename_recipient r USING (noticeid) WHERE n.commid=? AND r.mailbox=?',
+        undef, $community->id, $mailbox
+    );
+    my ( $noticeid, $scanned, $failures ) = @preserved;
+    ok( $noticeid, 'The parent notice and its recipient are still stored' );
+    is( $scanned,  1,  'The membership scan is finished' );
+    is( $failures, 10, 'The recipient reached the retry limit' );
+    like(
+        $logs->buffer,
+        qr/10 failed mail submissions.*preserved/i,
+        'The log identifies exhaustion'
+    );
+    unlike( $logs->buffer, qr/\Q$mailbox\E/, 'The log does not expose the mailbox' );
+
     $make_due->();
     is( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
-        0, 'No work remains after the last allowed failure' );
+        0, 'The worker does not select a scanned notice with only exhausted recipients' );
     is_deeply( \@attempts, [ ($mailbox) x 10 ], 'Mail submission stops after ten failures' );
+    is_deeply(
+        scalar $dbh->selectrow_arrayref(
+            'SELECT n.noticeid, n.scanned, r.failures FROM community_rename_notice n '
+                . 'JOIN community_rename_recipient r USING (noticeid) WHERE n.commid=? AND r.mailbox=?',
+            undef,
+            $community->id,
+            $mailbox
+        ),
+        [ $noticeid, 1, 10 ],
+        'Idle polling preserves the notice and its exhausted recipient'
+    );
+
+    $outage = 0;
+    $dbh->do(
+'UPDATE community_rename_recipient SET failures=0, next_attempt=0 WHERE noticeid=? AND mailbox=?',
+        undef, $noticeid, $mailbox
+    );
+    ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'Resetting the retry state replays the notice' );
+    is_deeply( \@attempts, [ ($mailbox) x 11 ], 'The worker successfully resubmits the notice' );
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM community_rename_recipient WHERE noticeid=?', undef,
+            $noticeid
+        ),
+        0,
+        'The acknowledged recipient is deleted'
+    );
     is(
         $dbh->selectrow_array(
             'SELECT COUNT(*) FROM community_rename_notice WHERE commid=?', undef,
