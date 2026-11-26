@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 429;
+use Test::More tests => 476;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -386,7 +386,9 @@ BODY
     is( $entry->event_raw, 'A private post.', 'Wrapped header and continuation are not published' );
 
     for my $case (
-        [ 'unindented value',                   'text/plain', "post-security:\nprivate" ],
+        [ 'unindented plain-text value',        'text/plain', "post-security:\nprivate" ],
+        [ 'unindented HTML value',              'text/html',  "post-security:\nprivate" ],
+        [ 'unindented formatted HTML value',    'text/html',  "post-security:\n<b>private</b>" ],
         [ 'keyboard markup around the value',   'text/html',  'post-security: <kbd>private</kbd>' ],
         [ 'quote markup around only the value', 'text/html',  'post-security: <q>private</q>' ],
         [
@@ -410,23 +412,36 @@ BODY
         my $mime = build_message( "Privacy with $label", $type, "$headers\n\nA private post." );
         my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
         ok( $ok, "Posted entry with $label" ) or diag $msg;
-        my $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
+        my $entry = LJ::Entry->new( $u, jitemid => $jitemid + 1 );
+        ++$jitemid if $ok;
         is( $entry->security,  'private',         "Entry with $label is private" );
         is( $entry->event_raw, 'A private post.', "No setting text from $label is published" );
     }
 
-    $mime = build_message(
-        'Body PIN after an empty directive',
-        'text/plain',
-        "post-icon:\n+$emailpin\npost-security: private\n\nA private post.",
-        "$user\@$user_email_info->{POSTDOMAIN}"
-    );
-    ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
-    ok( $ok, 'Empty directive does not consume the body PIN' ) or diag $msg;
-    $entry = LJ::Entry->new( $u, jitemid => ++$jitemid );
-    is( $entry->security, 'private', 'Privacy setting after empty directive and PIN applies' );
-    is( $entry->event_raw, 'A private post.',
-        'Empty directive, PIN and setting are not published' );
+    for my $case (
+        [ 'plain-text',    'text/plain', '' ],
+        [ 'HTML',          'text/html',  '' ],
+        [ 'indented HTML', 'text/html',  '  ' ],
+        )
+    {
+        my ( $label, $type, $indent ) = @$case;
+        my $mime = build_message(
+            "$label body PIN after an empty directive",
+            $type,
+            "post-icon:\n$indent+$emailpin\npost-security: private\n\nA private post.",
+            "$user\@$user_email_info->{POSTDOMAIN}"
+        );
+        my ( $ok, $msg ) = DW::EmailPost->get_handler($mime)->process;
+        ok( $ok, "Empty directive does not consume the $label body PIN" ) or diag $msg;
+        my $entry = LJ::Entry->new( $u, jitemid => $jitemid + 1 );
+        ++$jitemid if $ok;
+        is( $entry->security, 'private', "Privacy setting after the $label PIN applies" );
+        is(
+            $entry->event_raw,
+            'A private post.',
+            "Empty directive, $label PIN and setting are not published"
+        );
+    }
 
     $mime = build_message( 'HTML with an implicit head close',
         'text/html',
@@ -627,6 +642,7 @@ BODY
 
     for my $case (
         [ 'leading break',               "<br>\n" ],
+        [ 'attributed leading break',    qq{<br class="Apple-interchange-newline">\n} ],
         [ 'compact self-closing break',  '<br/>' ],
         [ 'spaced self-closing break',   "<br />\n" ],
         [ 'nested inline break wrapper', qq{<span style="color: black"><b><br></b></span>\n} ],
@@ -683,6 +699,7 @@ BODY
         [ 'unopened div close after a setting', 'post-format: html<br></div>', "\n", '' ],
         [ 'mismatched block close',             '<div><p></div></p>',          "\n", '' ],
         [ 'block close without a break',        '<p>post-format: html</p>',    '',   '' ],
+        [ 'break with a quote class',           '<br class="gmail_quote">',    "\n", '' ],
         [
             'quote after an empty paragraph', '<p><br></p><div class="gmail_quote">', "\n",
             '</div>'
@@ -762,6 +779,18 @@ BODY
             '<mark>post-comments: noemail</mark><br>Body',
             'public',
             qr{\A(?:<mark></mark>)?<br>Body\z},
+        ],
+        [
+            'attributed break before the comment email setting',
+            qq{<br class="Apple-interchange-newline">\npost-comments: noemail\n\nBody},
+            'public',
+            qr{\A<br class="Apple-interchange-newline">\s*Body\z},
+        ],
+        [
+            'attributed break between directives',
+qq{post-security: private<br class="Apple-interchange-newline">post-comments: noemail\n\nBody},
+            'private',
+            qr{\A<br class="Apple-interchange-newline">\s*Body\z},
         ],
         [
             'keyboard markup around the privacy setting',
@@ -956,9 +985,19 @@ BODY
     );
 
     for my $case (
-        [ 'empty security',           'text/plain', 'post-security: ' ],
-        [ 'empty legacy security',    'text/plain', 'lj-security: ' ],
-        [ 'unreadable HTML security', 'text/html',  'post-security: <img alt="private">' ],
+        [ 'empty security',            'text/plain', 'post-security: ' ],
+        [ 'empty legacy security',     'text/plain', 'lj-security: ' ],
+        [ 'blank HTML separator',      'text/html',  'post-security:' ],
+        [ 'adjacent HTML directive',   'text/html',  "post-security:\npost-tags: foo" ],
+        [ 'adjacent legacy directive', 'text/html',  "post-security:\nlj-tags: foo" ],
+        [ 'plain quote in HTML',       'text/html',  "post-security:\n> private" ],
+        [ 'adjacent inline quote',     'text/html',  "post-security:\n<q>private</q>" ],
+        [ 'adjacent blockquote', 'text/html', "post-security:\n<blockquote>private</blockquote>" ],
+        [
+            'inline quote class',
+            'text/html', qq{post-security:\n<span class="gmail_quote">private</span>}
+        ],
+        [ 'unreadable HTML security', 'text/html', 'post-security: <img alt="private">' ],
         )
     {
         my ( $label, $type, $header ) = @$case;
