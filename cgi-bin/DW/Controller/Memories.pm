@@ -31,6 +31,7 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
+use LJ::Entry;
 use LJ::Memories;
 
 DW::Routing->register_string( '/tools/memories', \&memories_handler, app => 1, no_cache => 1 );
@@ -332,39 +333,23 @@ sub memadd_handler {
     }
 
     # do access check to see if they can see this entry
-    my $log = LJ::get_log2_row( $ju, $itemid );
-    if ($log) {
-        my $entry = LJ::Entry->new_from_row(%$log);
-        if ( $entry && !$entry->visible_to($remote) ) {
-            $rv->{state}        = 'cantview';
-            $rv->{offer_delete} = defined $memory ? 1 : 0;
-            return DW::Template->render_template( 'tools/memadd.tt', $rv );
-        }
+    my $entry     = LJ::Entry->new( $ju, jitemid => $itemid );
+    my $has_entry = $entry && $entry->load_view_snapshot;
+    if ( $has_entry && !$entry->visible_to($remote) ) {
+        $rv->{state}        = 'cantview';
+        $rv->{offer_delete} = defined $memory ? 1 : 0;
+        return DW::Template->render_template( 'tools/memadd.tt', $rv );
     }
 
     # do check to see if entry is deleted
-    unless ( $log || $r->did_post ) {
+    unless ( $has_entry || $r->did_post ) {
         $rv->{state}        = 'entrygone';
         $rv->{offer_delete} = defined $memory ? 1 : 0;
         return DW::Template->render_template( 'tools/memadd.tt', $rv );
     }
 
-    my $subject = $log ? LJ::get_logtext2( $ju, $itemid )->{ $log->{jitemid} }[0] : undef;
-
-    # if the entry is pre-UTF-8 conversion, the subject may need
-    # conversion into UTF-8
-    if ($log) {
-        my $dbcr  = LJ::get_cluster_reader($ju);
-        my %props = ();
-        LJ::load_log_props2( $dbcr, $log->{journalid}, [$itemid], \%props );
-        if ( $props{$itemid}->{unknown8bit} ) {
-            my $u = LJ::load_userid( $log->{journalid} );
-            my ( $error, $subj );
-            $subj    = LJ::text_convert( $subject, $u, \$error );
-            $subject = $subj unless $error;
-        }
-        LJ::text_out( \$subject );
-    }
+    my $subject = $has_entry ? $entry->subject_raw : undef;
+    LJ::text_out( \$subject ) if $has_entry;
 
     # get keywords user has used
     my $exist_kw = LJ::Memories::get_keywords($memoryu);
@@ -387,21 +372,21 @@ sub memadd_handler {
                 $selected_keyword{$kw} = 1;
             }
 
-            if ( !$log || ( $jid && $log->{anum} != $anum ) ) {
+            if ( !$has_entry || ( $jid && $entry->anum != $anum ) ) {
                 LJ::Memories::delete_by_id( $memoryu, $memory->{memid} );
                 LJ::Memories::updated_keywords($memoryu);
                 return error_ml("$ml_scope.error.entry_deleted2");
             }
         }
-        elsif ( !$log || ( $jid && $log->{anum} != $anum ) ) {
+        elsif ( !$has_entry || ( $jid && $entry->anum != $anum ) ) {
             return error_ml('error.noentry');
         }
         else {
             $rv->{title_ml} = '.title.add_memory';
 
             # this is a new memory
-            my $user = LJ::get_username( $log->{journalid} );
-            my $dt   = substr( $log->{eventtime}, 0, 10 );
+            my $user = LJ::get_username( $entry->journalid );
+            my $dt   = substr( $entry->eventtime_mysql, 0, 10 );
             $des = "$dt: $user: $subject";
         }
 
@@ -482,7 +467,7 @@ sub memadd_handler {
     }
 
     # success: offer links onward
-    my $entry = LJ::Entry->new( $ju, jitemid => $itemid );
+    $entry ||= LJ::Entry->new( $ju, jitemid => $itemid );
 
     my @keyword_links;
     foreach my $kwid (@kwid) {

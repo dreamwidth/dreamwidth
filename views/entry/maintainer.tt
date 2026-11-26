@@ -7,6 +7,7 @@
 [%- sections.title = '/entry/form.tt.title.edit' | ml -%]
 [%- delete_confirm = "entryform.delete.confirm" | ml | js -%]
 [%- deletespam_confirm = "entryform.deletespam.confirm" | ml | js -%]
+[% IF shared_edit_url %]<p><a href="[% shared_edit_url | html %]">Edit shared official post</a></p>[% END %]
 <table summary=''><tr><td>
 <div style='width: 100%; float: left;'>
 <form method='post' action='[% action | html %]' id='updateForm' name='updateForm' class='entry-maintainer-form'>[% dw.form_auth() %]

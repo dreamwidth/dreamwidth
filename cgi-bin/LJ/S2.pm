@@ -2190,6 +2190,14 @@ sub Entry {
     return $e;
 }
 
+sub shared_admin_editor_notice {
+    my ($entry) = @_;
+    my @editors = $entry->shared_admin_editor_names;
+    return '' unless @editors;
+    my $notice = 'Community admins who also edited this post: ' . join( ', ', @editors ) . '.';
+    return '<p class="shared-admin-editors">' . LJ::ehtml($notice) . '</p>';
+}
+
 #returns an S2 Entry from a user object and an entry object
 sub Entry_from_entryobj {
     my ( $u, $entry_obj, $opts ) = @_;
@@ -2235,12 +2243,17 @@ sub Entry_from_entryobj {
 
     unless ($no_entry_body) {
         LJ::expand_embedded( $journal, $jitemid, $remote, \$text );
+        my $body = $text;
         $text = DW::Logic::AdultContent->transform_post(
             post    => $text,
             journal => $journal,
             remote  => $remote,
             entry   => $entry_obj
         );
+        $text .= shared_admin_editor_notice($entry_obj)
+            if $text eq $body
+            && $entry_obj->prop('admin_post_editor')
+            && $entry_obj->visible_to($remote);
     }
 
     # journal: posted to; poster: posted by
@@ -2511,7 +2524,7 @@ sub Page {
             my $activeentry_opts = { %{ $opts || {} }, no_entry_body => 1 };
 
             # only show the entries $remote has the permission to view
-            if ( $entry_obj->visible_to($remote) ) {
+            if ( $entry_obj->load_view_snapshot && $entry_obj->visible_to($remote) ) {
                 my $activeentry = Entry_from_entryobj( $u, $entry_obj, $activeentry_opts );
                 push @{ $p->{activeentries} }, $activeentry;
 
@@ -4322,11 +4335,9 @@ sub _Entry__get_link {
     my $esnjournal = $journalu->is_community ? $journal : $poster;
 
     if ( $key eq "edit_entry" ) {
-        return $null_link
-            unless $remote
-            && ( $remote->user eq $journal
-            || $remote->user eq $poster
-            || $remote->can_manage($journalu) );
+        return $null_link unless $remote;
+        my $entry = LJ::Entry->new( $journalu, ditemid => $this->{itemid} );
+        return $null_link unless $entry->deletable_by($remote);
         return LJ::S2::Link(
             "$LJ::SITEROOT/entry/$journal/$this->{'itemid'}/edit",
             $ctx->[S2::PROPS]->{"text_edit_entry"},

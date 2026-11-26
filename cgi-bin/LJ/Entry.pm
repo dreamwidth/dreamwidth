@@ -77,6 +77,11 @@ sub reset_singletons {
     %singletons = ();
 }
 
+sub invalidate_singleton {
+    my ($self) = @_;
+    delete $singletons{ $self->journalid }{ $self->jitemid };
+}
+
 # <LJFUNC>
 # name: LJ::Entry::new
 # class: entry
@@ -459,9 +464,96 @@ sub preload_rows {
 
 sub absorb_row {
     my ( $self, %row ) = @_;
+    return if $self->{_view_snapshot};
 
     $self->{$_} = $row{$_} foreach (qw(allowmask posterid eventtime logtime security anum));
     $self->{_loaded_row} = 1;
+}
+
+sub get_view_rows {
+    my ( $class, $cluster, $items ) = @_;
+    return {} unless @$items;
+
+    my $db    = LJ::get_dbh( LJ::DB::master_role($cluster) ) or return;
+    my $pairs = join ', ', ('(?, ?)') x @$items;
+    return $db->selectall_hashref(
+        'SELECT l.journalid, l.jitemid, l.posterid, l.eventtime, l.logtime,
+                l.anum, l.security, l.allowmask, t.subject, t.event
+         FROM log2 l JOIN logtext2 t USING (journalid, jitemid)
+         WHERE (l.journalid, l.jitemid) IN (' . $pairs . ')',
+        [ 'journalid', 'jitemid' ], undef,
+        map { ( $_->{journalid}, $_->{jitemid} ) } @$items
+    );
+}
+
+sub matches_view_row {
+    my ( $class, $candidate, $row ) = @_;
+    return 0 unless $candidate && $row;
+
+    my $cand_sec  = $candidate->{security}  // '';
+    my $row_sec   = $row->{security}        // '';
+    my $cand_mask = $candidate->{allowmask} // 0;
+    my $row_mask  = $row->{allowmask}       // 0;
+
+    $cand_sec = 'private' if $cand_sec eq 'usemask' && !$cand_mask;
+    $row_sec  = 'private' if $row_sec eq 'usemask'  && !$row_mask;
+
+    return
+           defined $candidate->{anum}
+        && defined $row->{anum}
+        && $row->{anum} == $candidate->{anum}
+        && defined $candidate->{posterid}
+        && defined $row->{posterid}
+        && $row->{posterid} == $candidate->{posterid}
+        && $row_sec eq $cand_sec
+        && ( $row_sec ne 'usemask' || $row_mask == $cand_mask );
+}
+
+sub absorb_view_snapshot {
+    my ( $self, $row ) = @_;
+    return 0 unless $row;
+    return 1 if $self->{_view_snapshot} && __PACKAGE__->matches_view_row( $row, $self );
+    return 0 if $self->{_view_snapshot};
+
+    my $event = $row->{event};
+    LJ::text_uncompress( \$event );
+    $self->absorb_row(%$row);
+    $self->{_view_snapshot} = 1;
+    return $self->absorb_text( $row->{subject}, $event );
+}
+
+sub _read_view_row {
+    my ($self) = @_;
+    my ( $jid, $itemid ) = ( $self->journalid, $self->jitemid );
+    my $rows = __PACKAGE__->get_view_rows( $self->journal->clusterid,
+        [ { journalid => $jid, jitemid => $itemid } ] )
+        or return;
+    return $rows->{$jid}{$itemid};
+}
+
+sub load_view_snapshot {
+    my ($self) = @_;
+    return 1 if $self->{_view_snapshot};
+    return $self->absorb_view_snapshot( $self->_read_view_row );
+}
+
+sub load_view_entries {
+    my ( $class, $journal, $items ) = @_;
+    my $jid = $journal->id;
+    my $rows =
+        $class->get_view_rows( $journal->clusterid,
+        [ map { { journalid => $jid, jitemid => $_->{itemid} } } @$items ] )
+        or return {};
+
+    my %entries;
+    for my $item (@$items) {
+        my $itemid = $item->{itemid};
+        my $row    = $rows->{$jid}{$itemid};
+        next unless $class->matches_view_row( $item, $row );
+        my $entry = $class->new( $journal, jitemid => $itemid );
+        $entries{$itemid} = $entry if $entry->absorb_view_snapshot($row);
+    }
+    return \%entries;
 }
 
 # class method:
@@ -513,12 +605,17 @@ sub _load_text {
     my $self = $_[0];
     return 1 if $self->{_loaded_text};
 
-    my $ret = LJ::get_logtext2( $self->{'u'}, $self->{'jitemid'} );
-    my $lt  = $ret->{ $self->{jitemid} };
-    return 0 unless $lt;
+    my $row = $self->_read_view_row;
+    return 0 if $self->{_loaded_row} && !__PACKAGE__->matches_view_row( $self, $row );
 
-    $self->{subject} = $lt->[0];
-    $self->{event}   = $lt->[1];
+    return $self->absorb_view_snapshot($row);
+}
+
+sub absorb_text {
+    my ( $self, $subject, $event ) = @_;
+    delete @$self{qw(subject_orig event_orig)};
+    $self->{subject} = $subject;
+    $self->{event}   = $event;
 
     if ( $self->prop("unknown8bit") ) {
 
@@ -527,7 +624,8 @@ sub _load_text {
         $self->{event_orig}   = $self->{event};
 
         # FIXME: really convert all the props?  what if we binary-pack some in the future?
-        LJ::item_toutf8( $self->{u}, \$self->{'subject'}, \$self->{'event'}, $self->{props} );
+        my $props = $self->{_loaded_text} ? undef : $self->{props};
+        LJ::item_toutf8( $self->{u}, \$self->{'subject'}, \$self->{'event'}, $props );
     }
 
     $self->{_loaded_text} = 1;
@@ -992,22 +1090,30 @@ sub comments_manageable_by {
     return $remote->userid == $self->posterid || $remote->can_manage($u);
 }
 
-# instance method: returns bool, if remote user can edit this entry
-# use this to determine whether to, e.g., show edit buttons or an edit form
-# but don't use this when saving stuff to the database -- those need to pass through the protocol
-# does not care about readonly status, just about permissions
+# Read-only restrictions are checked separately by the edit protocol.
 sub editable_by {
-    my ( $self, $remote ) = @_;
-    return 0 unless LJ::isu($remote);
+    my ( $self, $remote, $current_props ) = @_;
+    return 0 unless LJ::isu($remote) && $remote->is_visible && !$remote->is_expunged;
     return 0 unless $self->visible_to($remote);
-
-    # remote is editing their own entry
     return 1 if $self->posterid == $remote->userid;
 
-    # editing an entry that's not your personal journal
-    return 1 if $self->journalid != $self->posterid && $remote->can_manage( $self->journal );
+    my $journal = $self->journal;
+    return 0 unless $journal->is_community    && $journal->prop('shared_admin_posts');
+    return 0 unless $remote->is_individual    && $remote->can_manage($journal);
+    return 0 unless $self->poster->is_visible && !$self->poster->is_expunged;
 
-    return 0;
+    $current_props //= $self->props;
+    return 0 if ( $current_props->{statusvis} // '' ) eq 'S';
+    return $current_props->{admin_post} && $self->_can_flag_admin_post;
+}
+
+sub deletable_by {
+    my ( $self, $remote ) = @_;
+    return 0 unless LJ::isu($remote) && !$remote->is_expunged;
+    return 0 unless $remote->is_visible || $remote->statusvis eq 'O';
+    return 0 unless $self->visible_to($remote);
+    return ( !$remote->is_readonly && $self->posterid == $remote->userid )
+        || $remote->can_manage( $self->journal );
 }
 
 # instance method:  returns bool, if remote user can view this entry
@@ -1116,9 +1222,7 @@ Returns true if this post is an official administrator post.
 sub admin_post {
     my $self = $_[0];
 
-    return 0 unless $self->journal->is_community;
-    return 0
-        unless $self->poster && $self->poster->can_manage( $self->journal );
+    return 0 unless $self->_can_flag_admin_post;
 
     if ( exists $_[1] ) {
         return $_[0]->set_prop( 'admin_post', $_[1] ? 1 : 0 );
@@ -1126,6 +1230,28 @@ sub admin_post {
     else {
         return $_[0]->prop('admin_post') ? 1 : 0;
     }
+}
+
+sub _can_flag_admin_post {
+    my ($self) = @_;
+    return
+           $self->journal->is_community
+        && $self->poster
+        && $self->poster->can_manage( $self->journal );
+}
+
+sub shared_admin_editor_names {
+    my ($self) = @_;
+    return unless $self->journal->is_community && $self->prop('admin_post_editor');
+
+    my $prop = LJ::get_prop( 'log', 'admin_post_editor' ) or return;
+    my $ids  = $self->journal->selectcol_arrayref(
+'SELECT DISTINCT new_value FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=?',
+        undef, $self->journalid, $self->jitemid, $prop->{id}
+    );
+    my $editors =
+        LJ::load_userids( grep { /\A[1-9][0-9]*\z/ && $_ != $self->posterid } @{ $ids || [] } );
+    return sort map { $_->user } grep { $_ && !$_->is_expunged } values %$editors;
 }
 
 =head2 C<< $entry->userpic >>
@@ -1726,7 +1852,7 @@ sub get_log2_row {
 # both should have the same display behavior, but we don't store the security value in memcache
     $row = pack( $LJ::LOGMEMCFMT, $item->{'posterid'}, $eventtime, $logtime, $sec,
         $item->{'ditemid'} );
-    LJ::MemCache::set( $memkey, $row );
+    LJ::MemCache::add( $memkey, $row );
 
     return $item;
 }
@@ -2125,7 +2251,7 @@ sub get_itemid_after2  { return get_itemid_near2( @_, "after" ); }
 sub get_itemid_before2 { return get_itemid_near2( @_, "before" ); }
 
 sub set_logprop {
-    my ( $u, $jitemid, $hashref, $logprops ) = @_;    # hashref to set, hashref of what was done
+    my ( $u, $jitemid, $hashref, $logprops, $defer_cache ) = @_;
 
     $jitemid += 0;
     my $uid      = $u->{'userid'} + 0;
@@ -2147,13 +2273,20 @@ sub set_logprop {
         }
     }
 
-    $u->do( "REPLACE INTO logprop2 (journalid, jitemid, propid, value) " . "VALUES $ins_values" )
-        if $ins_values;
-    $u->do( "DELETE FROM logprop2 WHERE journalid=? AND jitemid=? " . "AND propid IN ($del_ids)",
-        undef, $u->userid, $jitemid )
-        if $del_ids;
+    return undef
+        if $ins_values
+        && !
+        defined $u->do(
+        "REPLACE INTO logprop2 (journalid, jitemid, propid, value) VALUES $ins_values");
+    return undef
+        if $del_ids
+        && !
+        defined $u->do(
+        "DELETE FROM logprop2 WHERE journalid=? AND jitemid=? AND propid IN ($del_ids)",
+        undef, $u->userid, $jitemid );
 
-    LJ::MemCache::delete( [ $uid, "logprop:$uid:$jitemid" ] ) if $kill_mem;
+    LJ::MemCache::delete( [ $uid, "logprop:$uid:$jitemid" ] ) if $kill_mem && !$defer_cache;
+    return 1;
 }
 
 # <LJFUNC>
@@ -2462,6 +2595,10 @@ sub delete_entry {
     # delete from clusters
     foreach my $t (qw(logtext2 logprop2 logsec2 logslugs)) {
         $u->do("DELETE FROM $t WHERE journalid=$jid AND jitemid=$jitemid");
+    }
+    if ( my $editor_prop = LJ::get_prop( 'log', 'admin_post_editor' ) ) {
+        $u->do( 'DELETE FROM logprop_history WHERE journalid=? AND jitemid=? AND propid=?',
+            undef, $jid, $jitemid, $editor_prop->{id} );
     }
     $u->dudata_set( 'L', $jitemid, 0 );
 

@@ -265,6 +265,7 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
 
     [%- BLOCK components forCommunity = 0 %]
         [% FOREACH component = items %]
+        [%- NEXT IF shared_admin_edit && component == 'icons' -%]
         [%- IF forCommunity -%]<div class='columns medium-6 large-4 [% IF loop.count == items.size %]end[% END %]'>[%- END -%]
 
         <div class='panel component [% component %]-component[% UNLESS forCommunity || panels.show.$component -%] inactive-component[%- END -%]'
@@ -339,12 +340,16 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
                 [%- END -%]
 
                 [% IF action.edit %]
-                    [%- form.submit( value = dw.ml( '.button.delete' )
-                                     name  = "action:delete"
-                                     id    = "js-delete-button"
-                                     class = "button secondary right"
-                                    )
-                    -%]
+                    [% IF moderation_url %]
+                        <a class="button secondary right" href="[% moderation_url | html %]">Moderate this post</a>
+                    [% ELSE %]
+                        [%- form.submit( value = dw.ml( '.button.delete' )
+                                         name  = "action:delete"
+                                         id    = "js-delete-button"
+                                         class = "button secondary right"
+                                        )
+                        -%]
+                    [% END %]
                 [% END %]
             </div>
         </div>

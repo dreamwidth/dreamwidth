@@ -179,9 +179,7 @@ sub rest_get {
     if ( defined $ditemid && $ditemid ne "" ) {
         my $item = LJ::Entry->new( $journal, ditemid => $ditemid );
 
-        # $item will always exist, even if it's not actually a real entry id
-        # however, entries must have content, so no content means it's a bad object.
-        return $self->rest_error('404') unless $item->event_html;
+        return $self->rest_error('404') unless $item->load_view_snapshot && $item->correct_anum;
 
         return $self->rest_error('403') unless $item->visible_to($remote);
 
@@ -235,9 +233,10 @@ sub rest_get {
             posterid      => $journal->is_community && $poster ? $poster->id : undef,
         );
 
+        my $loaded = LJ::Entry->load_view_entries( $journal, \@items );
         my @entries;
         foreach my $it (@items) {
-            my $item  = LJ::Entry->new( $journal, jitemid => $it->{itemid} );
+            my $item  = $loaded->{ $it->{itemid} } or next;
             my $entry = $item->TO_JSON($remote);
             push @entries, $entry;
         }
@@ -268,18 +267,16 @@ sub edit_entry {
 
     # are you authorized to view this entry
     # and does the entry we got match the provided ditemid exactly?
-    my $anum   = $ditemid % 256;
-    my $itemid = $ditemid >> 8;
-    return $self->rest_error('404')
-        unless $entry_obj->editable_by($remote)
-        && $anum == $entry_obj->anum
-        && $itemid == $entry_obj->jitemid;
+    return $self->rest_error('404') unless $entry_obj->correct_anum( $ditemid % 256 );
 
-    # so at this point, we know that we are authorized to edit this entry
-    # but we need to handle things differently if we're an admin
-    # FIXME: handle communities
-    return $self->rest_error( '403', "Editing other people's entries is not supported yet." )
-        unless $entry_obj->poster->equals($remote);
+    unless ( $entry_obj->editable_by($remote) ) {
+        return $self->rest_error( '403', 'You cannot edit this community entry.' )
+            if $usejournal->is_community && $entry_obj->deletable_by($remote);
+        return $self->rest_error('404');
+    }
+
+    return $self->rest_error( '400', 'Entry text must contain a non-whitespace character.' )
+        if exists $post->{text} && ( $post->{text} // '' ) !~ /\S/;
 
     # an omitted datetime keeps the entry's current date
     if ( $post->{datetime} ) {
@@ -289,8 +286,8 @@ sub edit_entry {
         $post->{trust_datetime} = 1;
     }
 
-    my $form_req = DW::Entry::_backend_to_form( 1, $entry_obj );
-    DW::Entry::_form_to_backend( 1, $form_req, $post );
+    my $form_req = {};
+    DW::Entry::_form_to_backend( 1, $form_req, $post, partial_edit => 1 );
 
     # check for spam domains
     LJ::Hooks::run_hooks( 'spam_check', $remote, $form_req, 'entry' );
@@ -306,7 +303,7 @@ sub edit_entry {
 sub _do_edit {
     my ( $ditemid, $form_req, $auth, %opts ) = @_;
 
-    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth );
+    my $res = DW::Entry::_save_editted_entry( $ditemid, $form_req, $auth, partial_edit => 1 );
     return { success => 0, errors => [ $res->{errors} ] } if $res->{errors};
 
     my $remote  = $auth->{remote};

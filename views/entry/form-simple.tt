@@ -45,7 +45,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 <div id='updateForm'><div id='entry-form-wrapper'>
 
-[%- IF remote -%]
+[%- IF remote && !shared_admin_edit -%]
 <div id='userpic'>
     [%- IF remote.icon_keyword_menu.size > 0 -%]
         [%- INCLUDE "components/icon-select-icon.tt" -%]
@@ -133,7 +133,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
         </div>
     </div>
 
-    [%- IF remote.icon_keyword_menu.size > 0 -%]
+    [%- IF !shared_admin_edit && remote.icon_keyword_menu.size > 0 -%]
     <div class='pkg' id='icon_row'>
         <label for='prop_picture_keyword' class='left'>[% 'entryform.simple.icon' | ml %]</label>
         [%- INCLUDE "components/icon-select-dropdown.tt" omit_random_button = 1 class = "draft-autosave" -%]
@@ -306,7 +306,11 @@ the same terms as Perl itself.  For a copy of the license, please reference
         [%- END -%]
         [%- IF action.edit -%]
             [%- form.submit( name = "action:post", value = dw.ml( 'entryform.save' ) ) -%]
-            [%- form.submit( name = "action:delete", id = "js-delete-button", value = dw.ml( 'entryform.delete' ) ) -%]
+            [%- IF moderation_url -%]
+                <a href="[% moderation_url | html %]">Moderate this post</a>
+            [%- ELSE -%]
+                [%- form.submit( name = "action:delete", id = "js-delete-button", value = dw.ml( 'entryform.delete' ) ) -%]
+            [%- END -%]
         [%- ELSE -%]
             [%- post_journal = journalu ? journalu.user : remote.user -%]
             [%- form.submit( name = "action:post", id = "js-post-button",

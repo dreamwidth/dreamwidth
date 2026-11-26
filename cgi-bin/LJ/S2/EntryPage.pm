@@ -601,7 +601,8 @@ sub EntryPage_entry {
     return EntryPage_not_found( $u, $opts ) unless $entry || $ditemid_uri;
 
     $entry ||= LJ::Entry->new( $u, ditemid => $1 );
-    return EntryPage_not_found( $u, $opts ) unless $entry->correct_anum;
+    return EntryPage_not_found( $u, $opts )
+        unless $entry->load_view_snapshot && $entry->correct_anum;
 
     my $ditemid = $entry->ditemid;
     my $itemid  = $entry->jitemid;
@@ -675,6 +676,8 @@ sub EntryPage_entry {
             $LJ::REQ_GLOBAL{'tags_of_first_public_post'} = [ map { $_->{name} } @taglist ];
         }
     }
+
+    $event .= LJ::S2::shared_admin_editor_notice($entry);
 
     my $s2entry = Entry(
         $u,

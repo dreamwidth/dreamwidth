@@ -88,9 +88,12 @@ sub determine_view {
         $ljentry = LJ::Entry->new( $u, slug => $2 );
 
         # a slug under the wrong date names no entry, so it gets the missing-entry answer
-        if ( defined $ljentry ) {
+        if ( $ljentry && $ljentry->load_view_snapshot ) {
             my $dt = join( '/', split( '-', substr( $ljentry->eventtime_mysql, 0, 10 ) ) );
             undef $ljentry unless $dt eq $date;
+        }
+        else {
+            undef $ljentry;
         }
 
         if ( ( $GET{'mode'} // '' ) eq "reply" || $GET{'replyto'} || $GET{'edit'} ) {
@@ -216,7 +219,7 @@ sub determine_view {
 sub entry_hidden {
     my ( $class, $entry, $remote, %GET ) = @_;
 
-    return 1 unless $entry && $entry->correct_anum;
+    return 1 unless $entry && $entry->load_view_snapshot && $entry->correct_anum;
 
     my $canview = $GET{viewall} && $remote && $remote->has_priv('canview');
     return $entry->security ne 'public' unless $entry->visible_to( $remote, $canview );

@@ -60,6 +60,7 @@ sub watch_items {
     my $skip     = $args{skip} + 0;
     $skip = 0 if $skip < 0;
     my $getitems = $itemshow + $skip;
+    return () unless $getitems > 0;
 
     # friendspage per day is allowed only for journals with the special cap 'friendspage_per_day'
     my $events_date = $args{events_date};
@@ -68,8 +69,6 @@ sub watch_items {
     my $filter  = $args{content_filter};
     my $max_age = $LJ::MAX_FRIENDS_VIEW_AGE || 3600 * 24 * 14;                  # 2 week default.
     my $lastmax = $LJ::EndOfTime - ( $events_date || ( time() - $max_age ) );
-    my $lastmax_cutoff = 0
-        ; # if nonzero, never search for entries with rlogtime higher than this (set when cache in use)
 
     # given a hash of friends rows, strip out rows with invalid journaltype
     my $filter_journaltypes = sub {
@@ -246,11 +245,16 @@ sub watch_items {
     confess 'friends of friends mode requires memcache'
         if $args{friendsoffriends} && !@LJ::MEMCACHE_SERVERS;
 
-    my $loop      = 1;
-    my $itemsleft = $getitems;    # even though we got a bunch, potentially, they could be old
-    my $fr;
+    my $compare = sub {
+        my ( $first, $second ) = @_;
+        return $first->{rlogtime} <=> $second->{rlogtime}
+            || LJ::mysqldate_to_time( $second->{eventtime} )
+            <=> LJ::mysqldate_to_time( $first->{eventtime} )
+            || $second->{jitemid} <=> $first->{jitemid};
+    };
 
-    while ( $loop && ( $fr = $get_next_friend->() ) ) {
+    my $load_friend = sub {
+        my ($fr) = @_;
         shift @friends_buffer;
 
         # load the next recent updating friend's recent items
@@ -259,12 +263,12 @@ sub watch_items {
         $args{friends}->{$friendid}   = $fr->[3];    # friends row
         $args{friends_u}->{$friendid} = $fr->[4];    # friend u object
 
-        my @newitems = LJ::get_log2_recent_user(
+        my @candidates = LJ::get_log2_recent_user(
             {
                 clusterid   => $fr->[2],
                 userid      => $friendid,
                 remote      => $remote,
-                itemshow    => $itemsleft,
+                itemshow    => $getitems,
                 filter      => $filter,
                 notafter    => $lastmax,
                 dateformat  => $args{dateformat},
@@ -277,41 +281,22 @@ sub watch_items {
         # stamp each with clusterid if from cluster, so ljviews and other
         # callers will know which items are old (no/0 clusterid) and which
         # are new
-        $_->{clusterid} = $fr->[2] foreach @newitems;
+        $_->{clusterid} = $fr->[2] foreach @candidates;
 
-        if (@newitems) {
-            push @items, @newitems;
+        return @candidates;
+    };
 
-            $itemsleft--;
+    my @pending;
+    while ( @items < $getitems ) {
+        my $needed = $getitems - @items;
 
-            my $evtime = sub { LJ::mysqldate_to_time( $_[0]->{eventtime} ) };
-
-            # sort all the total items by rlogtime (recent at beginning).
-            # if there's an in-second tie, the "newer" post is determined by
-            # the later eventtime (if known/different from rlogtime), then by
-            # the higher jitemid, which means nothing if the posts aren't in
-            # the same journal, but means everything if they are (which happens
-            # almost never for a human, but all the time for RSS feeds)
-            @items = sort {
-                       $a->{rlogtime} <=> $b->{rlogtime}
-                    || $evtime->($b) <=> $evtime->($a)
-                    || $b->{jitemid} <=> $a->{jitemid}
-            } @items;
-
-            # cut the list down to what we need.
-            @items = splice( @items, 0, $getitems ) if ( @items > $getitems );
+        while ( my $fr = $get_next_friend->() ) {
+            last if @pending >= $needed && $fr->[1] > $pending[ $needed - 1 ]->{rlogtime};
+            @pending = sort { $compare->( $a, $b ) } ( @pending, $load_friend->($fr) );
         }
+        last unless @pending;
 
-        if ( @items == $getitems ) {
-            $lastmax = $items[-1]->{'rlogtime'};
-            $lastmax = $lastmax_cutoff if $lastmax_cutoff && $lastmax > $lastmax_cutoff;
-
-            # stop looping if we know the next friend's newest entry
-            # is greater (older) than the oldest one we've already
-            # loaded.
-            my $nextfr = $get_next_friend->();
-            $loop = 0 if ( $nextfr && $nextfr->[1] > $lastmax );
-        }
+        push @items, _load_checked_watch_text( splice( @pending, 0, $needed ) );
     }
 
     # remove skipped ones
@@ -334,6 +319,31 @@ sub watch_items {
 }
 *LJ::User::watch_items = \&watch_items;
 *DW::User::watch_items = \&watch_items;
+
+sub _load_checked_watch_text {
+    my (@items) = @_;
+    my ( %by_cluster, %visible );
+    push @{ $by_cluster{ $_->{clusterid} } }, $_ for @items;
+
+    for my $cluster ( keys %by_cluster ) {
+        my $candidates = $by_cluster{$cluster};
+        my $rows       = LJ::Entry->get_view_rows( $cluster, $candidates ) or next;
+        my %stale;
+        for my $item (@$candidates) {
+            my $row = $rows->{ $item->{journalid} }{ $item->{jitemid} };
+            unless ( LJ::Entry->matches_view_row( $item, $row ) ) {
+                $stale{ $item->{journalid} } = 1;
+                next;
+            }
+
+            my $entry = LJ::Entry->new_from_item_hash($item);
+            $visible{$item} = 1 if $entry->absorb_view_snapshot($row);
+        }
+        LJ::MemCache::delete( [ $_, "log2lt:$_" ] ) for keys %stale;
+    }
+
+    return grep { $visible{$_} } @items;
+}
 
 # name: $u->recent_items
 # des: Returns journal entries for a given account.
