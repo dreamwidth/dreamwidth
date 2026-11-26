@@ -307,11 +307,16 @@ sub apply {
     my ( $self, %opts ) = @_;
 
     # modify self
-    my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_writer() or die 'No rename token writer';
     $dbh->do(
 "UPDATE renames SET renuserid=?, fromuser=?, touser=?, rendate=?, status = 'A' WHERE renid=?",
-        undef, $opts{userid}, $opts{from}, $opts{to}, time, $self->id
-    );
+        undef,
+        $opts{userid},
+        $opts{from},
+        $opts{to},
+        time,
+        $self->id
+    ) or die 'Could not apply rename token ' . $self->id . ': ' . $dbh->errstr;
 
     # modify status in the cart
     if ( $self->cartid ) {

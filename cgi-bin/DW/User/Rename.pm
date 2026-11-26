@@ -261,10 +261,16 @@ sub rename {
                 return 0 unless _write_username( $dbh, $target, $tousername, $aside{name} );
             }
             return 0 unless _write_username( $dbh, $source, $fromusername, $tousername );
+            return 0
+                if $target
+                && !_enqueue_community_rename_notice( $dbh, $target, $tousername, $aside{name} );
             return _enqueue_community_rename_notice( $dbh, $source, $fromusername, $tousername );
         }
     );
 
+    _clear_from_cache( $self,   $fromusername, $tousername );
+    _clear_from_cache( $target, $tousername,   $aside{name} ) if $target;
+    _apply_customer_tokens( [ $opts{token}, $self, $fromusername, $tousername ] );
     _finish_move_aside( $target, $tousername, \%aside ) if $target;
     _finish_rename( $self, $fromusername, $tousername, %opts );
     return 1;
@@ -338,13 +344,19 @@ sub swap_usernames {
         }
     );
 
+    _clear_from_cache( $u1, $u1name,      $u2name );
+    _clear_from_cache( $u2, $aside{name}, $u1name );
+    _apply_customer_tokens(
+        [ $tokens[0], $u1, $u1name,      $u2name ],
+        [ $tokens[1], $u2, $aside{name}, $u1name ],
+    );
     _finish_move_aside( $u2, $u2name, \%aside );
 
     # ugh, but need it to avoid duplicate timestamps in infohistory
     sleep(1);
 
-    _finish_rename( $u1, $u1name,      $u2name, %opts, %admin_opts, token => $tokens[0] );
-    _finish_rename( $u2, $aside{name}, $u1name, %opts, %admin_opts, token => $tokens[1] );
+    _finish_rename( $u1, $u1name,      $u2name, %opts, %admin_opts );
+    _finish_rename( $u2, $aside{name}, $u1name, %opts, %admin_opts );
     return 1;
 }
 
@@ -413,8 +425,8 @@ sub _can_use_community_name {
     my ( $admin, $journal, $errors, $locked_dbh ) = @_;
 
     my $allowed = eval {
-        my $dbh = $locked_dbh || LJ::get_db_writer();
-        if ( $dbh && _is_authorized_for_comm( $admin, $journal, $dbh ) ) {
+        my $dbh = $locked_dbh || LJ::get_db_reader();
+        if ( $dbh && _is_authorized_for_comm( $admin, $journal, $locked_dbh ) ) {
             my $sql = "SELECT targetid FROM reluser FORCE INDEX (PRIMARY) "
                 . "WHERE userid=? AND type='E' AND targetid<>? LIMIT 1";
             $sql .= ' FOR UPDATE' if $locked_dbh;
@@ -494,38 +506,38 @@ sub _enqueue_community_rename_notice {
         $user->profile_url );
 }
 
+sub _apply_customer_tokens {
+    my @errors;
+    foreach my $change (@_) {
+        my ( $token, $user, $from, $to ) = @$change;
+        my $applied = eval { $token->apply( userid => $user->id, from => $from, to => $to ) };
+        push @errors, ( $@ || 'Could not apply customer rename token ' . $token->id )
+            unless $applied;
+    }
+    die $errors[0] if @errors;
+}
+
 sub _finish_rename {
     my ( $self, $fromusername, $tousername, %opts ) = @_;
 
-    _clear_from_cache( $self, $fromusername, $tousername );
-
-    $opts{token}->apply( userid => $self->userid, from => $fromusername, to => $tousername );
-
-    my $options_applied = eval {
-        $self->apply_rename_opts(
-            from     => $fromusername,
-            to       => $tousername,
-            redirect => {
-                username => $opts{redirect},
-                email    => $opts{redirect_email},
-            },
-            del => {
-                map { $_ => $opts{$_} }
-                    qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
-            },
-            user => $opts{user},
-        );
-        1;
-    };
-    $log->error( 'Could not apply post-rename options for user ' . $self->id . ": $@" )
-        unless $options_applied;
-
-    # update current object to new username, and update the email under the new username
     $self->{user} = $tousername;
+    $self->apply_rename_opts(
+        from     => $fromusername,
+        to       => $tousername,
+        redirect => {
+            username => $opts{redirect},
+            email    => $opts{redirect_email},
+        },
+        del => {
+            map { $_ => $opts{$_} }
+                qw( del_trusted_by del_watched_by del_trusted del_watched del_communities ),
+        },
+        user => $opts{user},
+    );
+
     my $updated = eval {
         $self->update_email_alias;
         $self->infohistory_add( "username", $fromusername );
-        1;
     };
     $log->error( 'Could not update post-rename records for user ' . $self->id . ": $@" )
         unless $updated;
@@ -544,6 +556,12 @@ sub _finish_rename {
     $log->error('Could not dispatch account rename security event') unless $notified;
 
     return 1;
+}
+
+sub _log_rename_event {
+    my ( $user, $event, $details ) = @_;
+    my $logged = eval { $user->log_event( $event, $details ) };
+    $log->error( "Could not log $event for user " . $user->id . ": $@" ) unless $logged;
 }
 
 =head2 C<< $self->apply_rename_opts >>
@@ -588,8 +606,9 @@ sub apply_rename_opts {
          # break outgoing redirects
          # we don't want this journal pointing anywhere else, to avoid long chains or possible loops
             $self->break_redirects;
-            DW::User::Rename->create_redirect_journal( $from, $to )
-                if $opts{redirect}->{username};
+            die "Could not create rename redirect from $from to $to"
+                if $opts{redirect}->{username}
+                && !DW::User::Rename->create_redirect_journal( $from, $to );
         }
 
         # this deletes the email under the old username
@@ -629,8 +648,8 @@ sub apply_rename_opts {
     $extra_args{to}   = $to   if $to;
 
     my $remote = LJ::isu($user) ? $user : $self;
-    $self->log_event(
-        'rename',
+    _log_rename_event(
+        $self, 'rename',
         {
             remote => $remote,
             %extra_args,
@@ -649,9 +668,11 @@ sub break_redirects {
     my $self = $_[0];
 
     if ( my $renamedto = $self->prop("renamedto") ) {
-        $self->set_prop( renamedto => undef );
-        $self->log_event( 'redirect', { renamedto => $renamedto, action => 'remove' } );
+        $self->set_prop( renamedto => undef ) or die 'Could not remove rename redirect';
+        _log_rename_event( $self, 'redirect', { renamedto => $renamedto, action => 'remove' } );
+        return 1;
     }
+    return;
 }
 
 =head2 C<< DW::User::Rename->create_redirect_journal >>
@@ -675,9 +696,8 @@ sub create_redirect_journal {
         journaltype => "R",             # redirect
     ) unless $fromu;
 
-    $fromu->set_renamed;
-    $fromu->set_prop( renamedto => $tousername );
-    $fromu->log_event( 'redirect', { renamedto => $tousername, action => "add" } );
+    return 0 unless $fromu && $fromu->set_renamed && $fromu->set_prop( renamedto => $tousername );
+    _log_rename_event( $fromu, 'redirect', { renamedto => $tousername, action => 'add' } );
 
     return 1;
 
@@ -698,7 +718,7 @@ sub break_email_redirection {
 
     return unless $from_u->is_redirect && $from_u->prop("renamedto") eq $to_u->user;
 
-    return $from_u->delete_email_alias;
+    return $from_u->delete_email_alias || die 'Could not remove rename email redirect';
 }
 
 =head2 C<< $self->delete_relationships >>
@@ -714,13 +734,13 @@ sub delete_relationships {
 
     if ( $opts{del_trusted_by} ) {
         foreach ( $self->trusted_by_users ) {
-            $_->remove_edge( $self, trust => {} );
+            $_->remove_edge( $self, trust => {} ) or die 'Could not remove incoming trust';
         }
     }
 
     if ( $opts{del_watched_by} ) {
         foreach ( $self->watched_by_users ) {
-            $_->remove_edge( $self, watch => {} );
+            $_->remove_edge( $self, watch => {} ) or die 'Could not remove incoming watch';
         }
     }
 
@@ -732,13 +752,13 @@ sub delete_relationships {
                 next;
             }
 
-            $self->remove_edge( $_, watch => {} );
+            $self->remove_edge( $_, watch => {} ) or die 'Could not remove outgoing watch';
         }
     }
 
     if ( $opts{del_trusted} ) {
         foreach ( $self->trusted_users ) {
-            $self->remove_edge( $_, trust => {} );
+            $self->remove_edge( $_, trust => {} ) or die 'Could not remove outgoing trust';
         }
     }
 
@@ -753,13 +773,13 @@ sub delete_relationships {
         }
 
         foreach (@watched_comms) {
-            $self->remove_edge( $_, watch => {} );
+            $self->remove_edge( $_, watch => {} ) or die 'Could not remove community watch';
         }
 
         my @ids         = $self->member_of_userids;
         my $memberships = LJ::load_userids(@ids) || {};
         foreach ( values %$memberships ) {
-            $self->leave_community($_);
+            $self->leave_community($_) or die 'Could not leave community';
         }
     }
 
@@ -788,7 +808,11 @@ sub _unused_ex_username {
 sub _finish_move_aside {
     my ( $user, $fromusername, $aside ) = @_;
 
-    _finish_rename( $user, $fromusername, $aside->{name}, redirect => 0, token => $aside->{token} );
+    my $token = $aside->{token};
+    my $applied =
+        eval { $token->apply( userid => $user->id, from => $fromusername, to => $aside->{name} ); };
+    $log->error( 'Could not apply system rename token ' . $token->id . ": $@" ) unless $applied;
+    _finish_rename( $user, $fromusername, $aside->{name}, redirect => 0 );
 }
 
 *LJ::User::can_rename_to  = \&can_rename_to;

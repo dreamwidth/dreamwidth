@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 165;
+use Test::More tests => 168;
 use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
@@ -612,7 +612,7 @@ subtest 'Community rename preserves memberships and notifies eligible members' =
     }
 };
 
-subtest 'A target community cannot be displaced without its membership writer' => sub {
+subtest 'Community preflight can use a reader, but displacement needs a writer' => sub {
     my $actor       = temp_user();
     my $target      = temp_comm();
     my $source_name = $actor->user;
@@ -627,7 +627,8 @@ subtest 'A target community cannot be displaced without its membership writer' =
             return undef if caller eq 'DW::User::Rename';
             return $original_writer->(@_);
         };
-        ok( !$actor->can_rename_to($target_name), 'Cannot verify that the target is empty' );
+        ok( $actor->can_rename_to($target_name),
+            'Preflight can verify the target without the writer' );
         my $result = eval { $actor->rename( $target_name, token => $token ) };
         is( $@, '', 'The writer outage does not throw' );
         ok( !$result, 'The rename fails closed' );
@@ -896,6 +897,126 @@ subtest 'A move-aside logging failure does not interrupt committed renames' => s
         );
         is( token_status($_), 'A', "$operation consumed a customer token" ) foreach @tokens;
     }
+};
+
+subtest 'A relationship removal exception is not reported as a successful rename' => sub {
+    my $source  = temp_user();
+    my $trusted = temp_user();
+    my $newname = $source->user . 'new';
+    my $token   = new_token($source);
+    ok( $source->add_edge( $trusted, trust => { nonotify => 1 } ), 'Create a trust relationship' );
+
+    my $remove_edge = LJ::User->can('remove_edge');
+    {
+        no warnings 'redefine';
+        local *LJ::User::remove_edge = sub {
+            my ( $from, $to, %edges ) = @_;
+            die 'simulated trust removal exception'
+                if $from->id == $source->id && $to->id == $trusted->id && $edges{trust};
+            return $remove_edge->(@_);
+        };
+        my $renamed = eval { $source->rename( $newname, token => $token, del_trusted => 1 ) };
+        my $error   = $@;
+        ok( !$renamed, 'Rename does not report success when requested trust removal fails' );
+        like(
+            $error,
+            qr/simulated trust removal exception/,
+            'The removal exception reaches the caller'
+        );
+    }
+
+    ok( $source->trusts($trusted), 'The interrupted trust removal did not take effect' );
+    is( LJ::load_userid( $source->id )->user, $newname, 'The committed username is visible' );
+    is( token_status($token), 'A', 'The committed rename still consumes the customer token' );
+};
+
+subtest 'A system token apply failure does not interrupt committed renames' => sub {
+    foreach my $operation (qw(rename swap)) {
+        my $source      = temp_user();
+        my $target      = temp_comm();
+        my $source_name = $source->user;
+        my $target_name = $target->user;
+        my @tokens      = ( new_token($source) );
+        push @tokens, new_token($source) if $operation eq 'swap';
+        LJ::update_user( $source, { status => 'A' } );
+        LJ::set_rel( $target, $source, 'A' );
+
+        foreach my $account ( $source, $target ) {
+            is( LJ::get_userid( $account->user ), $account->id, 'Prime the username to ID cache' );
+            is( LJ::get_username( $account->id ), $account->user,
+                'Prime the ID to username cache' );
+            is( LJ::load_userid( $account->id )->user, $account->user, 'Prime the user cache' );
+        }
+
+        my $apply = DW::RenameToken->can('apply');
+        my $displaced_name;
+        {
+            no warnings 'redefine';
+            local *DW::RenameToken::apply = sub {
+                my ( $token, %change ) = @_;
+                if ( !$token->ownerid && $change{userid} == $target->id ) {
+                    $displaced_name = $change{to};
+                    my $target_final = $operation eq 'swap' ? $source_name : $displaced_name;
+                    is( LJ::get_username( $source->id ),
+                        $target_name, 'Source name cache is already fresh' );
+                    is( LJ::get_username( $target->id ),
+                        $target_final, 'Displaced name cache is already fresh' );
+                    is( LJ::load_userid( $source->id )->user,
+                        $target_name, 'Source user cache is already fresh' );
+                    is( LJ::load_userid( $target->id )->user,
+                        $target_final, 'Displaced user cache is already fresh' );
+                    is( LJ::get_userid($target_name),
+                        $source->id, 'Destination name now maps to the source' );
+                    is( LJ::get_userid($target_final),
+                        $target->id, 'Final displaced name maps to the target' );
+                    die 'simulated system token apply exception';
+                }
+                return $apply->(@_);
+            };
+            my $changed = eval {
+                return $operation eq 'rename'
+                    ? $source->rename( $target_name, token => $tokens[0] )
+                    : $source->swap_usernames( $target, tokens => \@tokens );
+            };
+            is( $@, '', "$operation does not throw if the system token fails to apply" );
+            ok( $changed, "$operation reports the committed change" );
+        }
+
+        like( $displaced_name, qr/^ex_/, "$operation attempted to apply the move-aside token" );
+        is( token_status($_), 'A', "$operation consumed a customer token" ) foreach @tokens;
+    }
+};
+
+subtest 'Moving aside a community records its durable rename notice' => sub {
+    my $admin     = temp_user();
+    my $community = temp_comm();
+    my $oldname   = $community->user;
+    my $mailbox   = 'rename-displaced@example.com';
+    LJ::update_user( $admin, { status => 'A', email => $mailbox } );
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $community, $admin, 'E' );
+
+    ok( $admin->rename( $oldname, token => new_token($admin) ), 'Rename into the community name' );
+    my $newname = LJ::load_userid( $community->id )->user;
+    like( $newname, qr/^ex_/, 'The original community has a displaced name' );
+
+    my $dispatch = DW::TaskQueue->can('dispatch');
+    my @messages;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @messages, $task->args->[0];
+        return 1;
+    };
+    ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'The worker finds the durable displacement notice' );
+    is_deeply( [ map { @{ $_->{rcpts} } } @messages ],
+        [$mailbox], 'The community member receives exactly one notice' );
+    my ( undef, $body ) = split /\r?\n\r?\n/, ( $messages[0] || {} )->{data} // '', 2;
+    $body = decode_qp( $body // '' );
+    like( $body, qr/\b\Q$oldname\E\b/, 'The notice names the original community' );
+    like( $body, qr/\b\Q$newname\E\b/, 'The notice names the displaced community' );
 };
 
 subtest 'An outbox write failure rolls back a community rename' => sub {
