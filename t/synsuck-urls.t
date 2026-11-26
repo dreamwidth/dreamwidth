@@ -65,6 +65,9 @@ my $rss = encode_utf8(<<'RSS');
 <img alt="invalid-idn" src="http://пример..рф/путь.jpg">
 <img alt="escaped-idn" src="https://%65xample.рф/path">
 <img alt="userinfo-escaped-idn" src="https://josé@%C3%A9.example/x.jpg">
+<img alt="fullwidth-host" src="https://ｅxample.com/">
+<img alt="escaped-fullwidth-host" src="https://%EF%BC%A5xample.com/">
+<img alt="fullwidth-slash" src="https://example／invalid.test/">
 <img alt="idn-ideographic-dot" src="https://example。com/image.jpg">
 <img alt="idn-fullwidth-dot" src="https://example．com/image.jpg">
 <img alt="idn-halfwidth-dot" src="https://example｡com/image.jpg">
@@ -89,6 +92,17 @@ my $rss = encode_utf8(<<'RSS');
 <a title="idn" href="//пример.рф:8443/путь?name=猫#é">International hostname</a>
 <a title="escaped-idn" href="https://%65xample.рф/path">Escaped ASCII in IDN hostname</a>
 <a title="escaped-utf8-idn" href="//%D0%BFример.рф/path">Escaped UTF-8 in IDN hostname</a>
+<a title="fullwidth-host" href="https://ｅxample.com/">Fullwidth letter</a>
+<a title="escaped-fullwidth-host" href="https://%EF%BC%A5xample.com/">Escaped fullwidth letter</a>
+<a title="fullwidth-digit" href="//ex９ample.com/">Fullwidth digit</a>
+<a title="fullwidth-slash" href="https://example／invalid.test/">Fullwidth slash</a>
+<a title="fullwidth-colon" href="https://example：443/">Fullwidth colon</a>
+<a title="fullwidth-at" href="https://example＠invalid.test/">Fullwidth at sign</a>
+<a title="escaped-fullwidth-backslash" href="https://example%EF%BC%BCinvalid.test/">Escaped fullwidth backslash</a>
+<a title="compatibility-dot" href="https://example․com/">One dot leader</a>
+<a title="idn-japanese" href="https://例え.example/">Japanese hostname</a>
+<a title="idn-sharp-s" href="https://faß.example/">Sharp s</a>
+<a title="idn-final-sigma" href="https://ς.example/">Final sigma</a>
 <a title="idn-host-delimiter" href="https://%2Fexample.рф/">Encoded delimiter</a>
 <a title="idn-host-control" href="https://%00example.рф/">Encoded control</a>
 <a title="idn-host-whitespace" href="https://%20example.рф/">Encoded whitespace</a>
@@ -205,6 +219,29 @@ my $userinfo_escaped_idn_url = 'https://jos%C3%A9@xn--9ca.example/x.jpg';
 is( $images{'userinfo-escaped-idn'}{src},
     $userinfo_escaped_idn_url,
     'image escapes its username and converts a fully percent-escaped internationalized hostname' );
+
+for my $case (qw(fullwidth-host escaped-fullwidth-host)) {
+    is( $images{$case}{src}, 'https://example.com/', "image maps $case to ASCII" );
+    is( $links{$case}{href}, 'https://example.com/', "link maps $case to ASCII" );
+}
+is( $links{'fullwidth-digit'}{href},
+    'https://ex9ample.com/',
+    'scheme-relative link maps a fullwidth digit before resolving the URL' );
+ok( $images{'fullwidth-slash'} && !exists $images{'fullwidth-slash'}{src},
+    'image rejects a fullwidth slash in the hostname' );
+for my $case (
+    qw(fullwidth-slash fullwidth-colon fullwidth-at escaped-fullwidth-backslash compatibility-dot))
+{
+    ok( $links{$case} && !exists $links{$case}{href}, "link rejects $case in the hostname" );
+}
+is(
+    $links{'idn-japanese'}{href},
+    'https://xn--r8jz45g.example/',
+    'link encodes a Japanese hostname'
+);
+is( $links{'idn-sharp-s'}{href}, 'https://xn--fa-hia.example/', 'link preserves sharp s in IDNA' );
+is( $links{'idn-final-sigma'}{href},
+    'https://xn--3xa.example/', 'link preserves final sigma in IDNA' );
 
 for my $separator (qw(ideographic fullwidth halfwidth)) {
     is(

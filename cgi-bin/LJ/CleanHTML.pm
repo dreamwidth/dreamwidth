@@ -16,7 +16,7 @@ use strict;
 
 use URI;
 use URI::Escape qw(uri_escape uri_unescape);
-use Unicode::Normalize qw(NFC);
+use Unicode::Normalize qw(NFC NFKC);
 use Socket qw(AF_INET6 inet_pton);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
@@ -1953,12 +1953,14 @@ sub canonical_url {
 
 sub _escape_non_ascii_web_url {
     my ($url) = @_;
-    return $url if LJ::is_ascii($url);
+    return $url if !defined $url || ( LJ::is_ascii($url) && index( $url, '%' ) < 0 );
 
     my ( $prefix, $authority, $rest ) = $url =~ m{\A((?:https?:)?//)([^/?#]*)(.*)\z}is;
     return $url unless defined $prefix;
 
-    if ( $authority =~ /[^\x00-\x7F]/ ) {
+    my $host_offset = rindex( $authority, '@' ) + 1;
+    if ( $authority =~ /[^\x00-\x7F]/ || substr( $authority, $host_offset ) =~ /%[89a-f][0-9a-f]/i )
+    {
         my ( $userinfo, $host, $port ) =
             $authority =~ /\A((?:[^@]*@)?)(\[[0-9A-Fa-f:.]+\]|[^:@\[\]]+)(:[0-9]*)?\z/;
         return '' unless defined $host && $userinfo !~ /[\x00-\x20\x7F\\]/;
@@ -1971,10 +1973,11 @@ sub _escape_non_ascii_web_url {
             unless ( LJ::is_ascii($decoded_host) ) {
                 return '' unless utf8::decode($decoded_host);
                 $decoded_host =~ tr/\x{3002}\x{FF0E}\x{FF61}/./;
-                $decoded_host = lc NFC($decoded_host);
-                return '' if $decoded_host =~ /[\p{Space}\p{C}]/;
-                my $idn_label = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
-                return '' unless $decoded_host =~ /\A$idn_label(?:\.$idn_label)*\.?\z/;
+                my $trailing_dot = $decoded_host =~ s/\.\z// ? '.' : '';
+                my @labels       = map { NFC( lc NFKC($_) ) } split /\./, $decoded_host, -1;
+                my $idn_label    = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
+                return '' if !@labels || grep { !/\A$idn_label\z/ || /[\p{Space}\p{C}]/ } @labels;
+                $decoded_host = join( '.', @labels ) . $trailing_dot;
                 $host = $decoded_host = URI->new("http://$decoded_host/")->host;
             }
 
