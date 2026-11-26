@@ -407,6 +407,27 @@ ok(
 );
 ok( $links{data} && !exists $links{data}{href}, 'data link is stripped' );
 
+my $empty_href_html = '<a href="">Current page</a>';
+LJ::CleanHTML::clean_event( \$empty_href_html, { preformatted => 1 } );
+like( $empty_href_html, qr{<a\b[^>]*\bhref=""[^>]*>Current page</a>}, 'empty href is preserved' );
+
+my $whitespace_href_html = '<a href="   ">Whitespace link</a>';
+LJ::CleanHTML::clean_event( \$whitespace_href_html, { preformatted => 1 } );
+like(
+    $whitespace_href_html,
+    qr{<a\b[^>]*\bhref=""[^>]*>Whitespace link</a>},
+    'whitespace-only href becomes an empty href'
+);
+
+my $malformed_href_html = '<a href="http://пример..рф/">Malformed hostname</a>';
+LJ::CleanHTML::clean_event( \$malformed_href_html, { preformatted => 1 } );
+my $malformed_href_parser = HTML::TokeParser->new( \$malformed_href_html );
+my $malformed_href_link   = $malformed_href_parser->get_tag('a');
+ok(
+    $malformed_href_link && !exists $malformed_href_link->[1]{href},
+    'malformed internationalized href is removed rather than emptied'
+);
+
 my $placeholder_html =
     '<img src="http://пример..рф/x.jpg"><img src="https://example.test/x.jpg">';
 LJ::CleanHTML::clean_event( \$placeholder_html, { preformatted => 1, extractimages => 1 } );

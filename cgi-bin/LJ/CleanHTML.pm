@@ -938,9 +938,9 @@ TOKEN:
                     }
 
                     unless ( $hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei ) {
-                        my $url =
-                            _escape_non_ascii_web_url( canonical_url( $hash->{href}, 1 ) );
-                        if ( length $url ) {
+                        my $canonical = canonical_url( $hash->{href}, 1 );
+                        my $url       = _escape_non_ascii_web_url($canonical);
+                        if ( length $url || !length $canonical ) {
                             $hash->{href} = $url;
                         }
                         else {
