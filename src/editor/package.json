@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "esbuild src/index.js --bundle --format=iife --global-name=DWEditor --target=es2018 --outfile=../../htdocs/js/vendor/dw-editor.js",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "prosemirror-commands": "^1.5.2",
