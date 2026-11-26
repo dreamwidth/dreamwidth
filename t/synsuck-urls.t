@@ -64,6 +64,13 @@ my $rss = encode_utf8(<<'RSS');
 <img alt="idn" src="http://пример.рф/путь.jpg">
 <img alt="invalid-idn" src="http://пример..рф/путь.jpg">
 <img alt="escaped-idn" src="https://%65xample.рф/path">
+<img alt="userinfo-escaped-idn" src="https://josé@%C3%A9.example/x.jpg">
+<img alt="idn-ideographic-dot" src="https://example。com/image.jpg">
+<img alt="idn-fullwidth-dot" src="https://example．com/image.jpg">
+<img alt="idn-halfwidth-dot" src="https://example｡com/image.jpg">
+<img alt="idn-invalid-dot" src="https://example。-com/image.jpg">
+<img alt="idn-decomposed" src="https://e&#x301;.example/image.jpg">
+<img alt="userinfo-escaped-decomposed" src="https://josé@e%CC%81.example/image.jpg">
 <img alt="relative-invalid-idn" src="//пример..рф/путь.jpg">
 <img alt="userinfo" src="https://пользователь:пароль%2f@[2001:db8::1]:8443/img.png">
 <img alt="userinfo-invalid-idn" src="https://josé@пример..рф/путь.jpg">
@@ -90,6 +97,7 @@ my $rss = encode_utf8(<<'RSS');
 <a title="idn-host-bad-utf8" href="https://%FFпример.рф/">Malformed UTF-8</a>
 <a title="userinfo" href="https://josé@example.com/photo.jpg">International username</a>
 <a title="userinfo-escaped-host" href="https://josé@%65xample.com/path">Escaped hostname</a>
+<a title="userinfo-escaped-idn" href="https://josé@%C3%A9.example/x.jpg">Escaped IDN</a>
 <a title="userinfo-host-delimiter" href="https://josé@bad%2Fhost.com/">Encoded delimiter</a>
 <a title="userinfo-host-control" href="https://josé@bad%00host.com/">Encoded control</a>
 <a title="userinfo-host-bad-escape" href="https://josé@bad%ZZhost.com/">Malformed escape</a>
@@ -193,6 +201,32 @@ is(
     'https://example.xn--p1ai/path',
     'image URL decodes hostname escapes before IDNA conversion'
 );
+my $userinfo_escaped_idn_url = 'https://jos%C3%A9@xn--9ca.example/x.jpg';
+is( $images{'userinfo-escaped-idn'}{src},
+    $userinfo_escaped_idn_url,
+    'image escapes its username and converts a fully percent-escaped internationalized hostname' );
+
+for my $separator (qw(ideographic fullwidth halfwidth)) {
+    is(
+        $images{"idn-$separator-dot"}{src},
+        'https://example.com/image.jpg',
+        "image maps the $separator hostname separator to an ASCII dot"
+    );
+}
+ok(
+    $images{'idn-invalid-dot'} && !exists $images{'idn-invalid-dot'}{src},
+    'image rejects an invalid label after mapping a Unicode hostname separator'
+);
+is(
+    $images{'idn-decomposed'}{src},
+    'https://xn--9ca.example/image.jpg',
+    'image normalizes a decomposed hostname to NFC before IDNA conversion'
+);
+is(
+    $images{'userinfo-escaped-decomposed'}{src},
+    'https://jos%C3%A9@xn--9ca.example/image.jpg',
+    'image normalizes a percent-escaped decomposed hostname to NFC'
+);
 ok(
     $images{'relative-invalid-idn'} && !exists $images{'relative-invalid-idn'}{src},
     'a scheme-relative image URL with a malformed internationalized hostname loses src'
@@ -279,6 +313,9 @@ is(
     'https://jos%C3%A9@%65xample.com/path',
     'escaping the username preserves an existing escape in a valid ASCII hostname'
 );
+is( $links{'userinfo-escaped-idn'}{href},
+    $userinfo_escaped_idn_url,
+    'link escapes its username and converts a fully percent-escaped internationalized hostname' );
 
 for my $invalid_host (qw(delimiter control bad-escape)) {
     my $link = $links{"userinfo-host-$invalid_host"};
@@ -332,6 +369,10 @@ like(
     qr{src="https://images\.example\.test/%E7%8C%AB%F0%9F%98%80\.jpg"},
     'cleaner also encodes the correct URL from a Perl character string'
 );
+
+my $byte_html = '<span title="caf&eacute;">Cafe</span>';
+LJ::CleanHTML::clean_event( \$byte_html, { preformatted => 1 } );
+like( $byte_html, qr{title="caf\xC3\xA9"}, 'cleaner decodes a non-URL attribute entity as UTF-8' );
 
 my $character_relative_html = '<p>猫<img src="../猫&#x1F600;.jpg"></p>';
 LJ::CleanHTML::resolve_relative_urls( \$character_relative_html,

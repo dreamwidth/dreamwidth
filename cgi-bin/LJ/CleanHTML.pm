@@ -16,6 +16,7 @@ use strict;
 
 use URI;
 use URI::Escape qw(uri_escape uri_unescape);
+use Unicode::Normalize qw(NFC);
 use Socket qw(AF_INET6 inet_pton);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
@@ -1967,8 +1968,10 @@ sub _escape_non_ascii_web_url {
         }
         else {
             my $decoded_host = uri_unescape( LJ::no_utf8_flag($host) );
-            unless ( LJ::is_ascii($host) ) {
+            unless ( LJ::is_ascii($decoded_host) ) {
                 return '' unless utf8::decode($decoded_host);
+                $decoded_host =~ tr/\x{3002}\x{FF0E}\x{FF61}/./;
+                $decoded_host = lc NFC($decoded_host);
                 return '' if $decoded_host =~ /[\p{Space}\p{C}]/;
                 my $idn_label = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
                 return '' unless $decoded_host =~ /\A$idn_label(?:\.$idn_label)*\.?\z/;
