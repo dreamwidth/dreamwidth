@@ -63,10 +63,16 @@ my $rss = encode_utf8(<<'RSS');
     srcset="https://images.example.test/猫.jpg 1x, https://images.example.test/猫-大.jpg 2x">
 <img alt="idn" src="http://пример.рф/путь.jpg">
 <img alt="invalid-idn" src="http://пример..рф/путь.jpg">
+<img alt="escaped-idn" src="https://%65xample.рф/path">
+<img alt="relative-invalid-idn" src="//пример..рф/путь.jpg">
 <img alt="userinfo" src="https://пользователь:пароль%2f@[2001:db8::1]:8443/img.png">
 <img alt="userinfo-invalid-idn" src="https://josé@пример..рф/путь.jpg">
 <img alt="invalid-idn-srcset" src="https://images.example.test/fallback.jpg"
     srcset="https://пример..рф/путь.jpg 2x">
+<img alt="relative-idn-srcset" src="https://images.example.test/fallback.jpg"
+    srcset="//%65xample.рф/猫.jpg 1x, //пример.рф/大.jpg 2x">
+<img alt="relative-invalid-idn-srcset" src="https://images.example.test/fallback.jpg"
+    srcset="https://images.example.test/plain.jpg 1x, //пример..рф/путь.jpg 2x">
 <img alt="relative" src="../猫.jpg">
 <img alt="relative-entity" src="../猫&#x1F600;.jpg">
 <img alt="unsafe" src="JaVaScRiPt:猫" srcset="data:image/png,猫">
@@ -74,6 +80,14 @@ my $rss = encode_utf8(<<'RSS');
 <a title="relative" href="../новости">Relative</a>
 <a title="scheme-relative" href="//news.example.test/новости">Scheme-relative</a>
 <a title="idn" href="//пример.рф:8443/путь?name=猫#é">International hostname</a>
+<a title="escaped-idn" href="https://%65xample.рф/path">Escaped ASCII in IDN hostname</a>
+<a title="escaped-utf8-idn" href="//%D0%BFример.рф/path">Escaped UTF-8 in IDN hostname</a>
+<a title="idn-host-delimiter" href="https://%2Fexample.рф/">Encoded delimiter</a>
+<a title="idn-host-control" href="https://%00example.рф/">Encoded control</a>
+<a title="idn-host-whitespace" href="https://%20example.рф/">Encoded whitespace</a>
+<a title="idn-host-bad-escape" href="https://%ZZexample.рф/">Malformed escape</a>
+<a title="idn-host-bad-label" href="https://%2Dпример.рф/">Malformed label</a>
+<a title="idn-host-bad-utf8" href="https://%FFпример.рф/">Malformed UTF-8</a>
 <a title="userinfo" href="https://josé@example.com/photo.jpg">International username</a>
 <a title="userinfo-escaped-host" href="https://josé@%65xample.com/path">Escaped hostname</a>
 <a title="userinfo-host-delimiter" href="https://josé@bad%2Fhost.com/">Encoded delimiter</a>
@@ -171,8 +185,17 @@ is(
     'proxy signs the punycode hostname and percent-encoded path'
 );
 ok(
-    $images{'invalid-idn'} && !length( $images{'invalid-idn'}{src} // '' ),
-    'malformed internationalized hostname is not sent to the proxy'
+    $images{'invalid-idn'} && !exists $images{'invalid-idn'}{src},
+    'an absolute image URL with a malformed internationalized hostname loses src'
+);
+is(
+    $images{'escaped-idn'}{src},
+    'https://example.xn--p1ai/path',
+    'image URL decodes hostname escapes before IDNA conversion'
+);
+ok(
+    $images{'relative-invalid-idn'} && !exists $images{'relative-invalid-idn'}{src},
+    'a scheme-relative image URL with a malformed internationalized hostname loses src'
 );
 my $image_user = '%D0%BF%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C';
 my $image_pass = '%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C';
@@ -180,13 +203,23 @@ is( $images{userinfo}{src}, "https://$image_user:$image_pass%2f\@[2001:db8::1]:8
     'image credentials are escaped without changing the separator, existing escape, or IP literal'
 );
 ok(
-    $images{'userinfo-invalid-idn'} && !length( $images{'userinfo-invalid-idn'}{src} // '' ),
+    $images{'userinfo-invalid-idn'} && !exists $images{'userinfo-invalid-idn'}{src},
     'an absolute image URL with userinfo still rejects a malformed internationalized hostname'
 );
 is_deeply(
     $images{'invalid-idn-srcset'},
     { alt => 'invalid-idn-srcset', src => 'https://images.example.test/fallback.jpg' },
     'malformed responsive image URL falls back to src'
+);
+is(
+    $images{'relative-idn-srcset'}{srcset},
+    '//example.xn--p1ai/%E7%8C%AB.jpg 1x, //xn--e1afmkfd.xn--p1ai/%E5%A4%A7.jpg 2x',
+    'scheme-relative srcset candidates are normalized without changing their descriptors'
+);
+is_deeply(
+    $images{'relative-invalid-idn-srcset'},
+    { alt => 'relative-invalid-idn-srcset', src => 'https://images.example.test/fallback.jpg' },
+    'a malformed scheme-relative candidate drops the entire srcset'
 );
 is(
     $images{relative}{src},
@@ -220,6 +253,22 @@ is(
     'https://xn--e1afmkfd.xn--p1ai:8443/%D0%BF%D1%83%D1%82%D1%8C?name=%E7%8C%AB#%C3%A9',
     'scheme-relative link preserves the port and escapes its path, query, and fragment'
 );
+is(
+    $links{'escaped-idn'}{href},
+    'https://example.xn--p1ai/path',
+    'absolute link decodes hostname escapes before IDNA conversion'
+);
+is(
+    $links{'escaped-utf8-idn'}{href},
+    'https://xn--e1afmkfd.xn--p1ai/path',
+    'scheme-relative link decodes escaped UTF-8 alongside literal UTF-8 in the hostname'
+);
+
+for my $invalid_host (qw(delimiter control whitespace bad-escape bad-label bad-utf8)) {
+    my $link = $links{"idn-host-$invalid_host"};
+    ok( $link && !exists $link->{href},
+        "internationalized hostname with $invalid_host loses href" );
+}
 is(
     $links{userinfo}{href},
     'https://jos%C3%A9@example.com/photo.jpg',
@@ -261,6 +310,20 @@ ok(
     'entity-obfuscated javascript link is stripped'
 );
 ok( $links{data} && !exists $links{data}{href}, 'data link is stripped' );
+
+my $placeholder_html =
+    '<img src="http://пример..рф/x.jpg"><img src="https://example.test/x.jpg">';
+LJ::CleanHTML::clean_event( \$placeholder_html, { preformatted => 1, extractimages => 1 } );
+my $placeholder_parser = HTML::TokeParser->new( \$placeholder_html );
+my @placeholder_urls;
+while ( my $tag = $placeholder_parser->get_tag('a') ) {
+    push @placeholder_urls, $tag->[1]{href} if ( $tag->[1]{class} // '' ) eq 'ljimgplaceholder';
+}
+is_deeply(
+    \@placeholder_urls,
+    ['https://example.test/x.jpg'],
+    'image extraction only emits a linked placeholder for a usable URL'
+);
 
 my $character_html = '<img src="https://images.example.test/猫&#x1F600;.jpg">';
 LJ::CleanHTML::clean_event( \$character_html, { preformatted => 1 } );

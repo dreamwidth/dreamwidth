@@ -974,27 +974,35 @@ TOKEN:
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
-                    $hash->{src} = $sanitize_url->( $hash->{src} );
+                    my $src = $sanitize_url->( $hash->{src} );
+                    if ( length $src ) {
+                        $hash->{src} = $src;
+                    }
+                    else {
+                        delete $hash->{src};
+                    }
 
                     # some responsive images use srcset as well as src;
                     # both attributes should be proxied for https if requested
                     if ( defined $hash->{srcset} ) {
                         my $valid_srcset = 1;
-                        $hash->{srcset} =~ s!\b(https?://\S*[^,\s])!do {
+                        $hash->{srcset} =~ s{(?<![^,\s])((?:https?:)?//\S*[^,\s])}{do {
                             my $url = $sanitize_url->($1);
                             $valid_srcset &&= length $url;
                             $url;
-                        }!egi;
+                        }}egi;
                         delete $hash->{srcset} unless $valid_srcset;
                     }
 
                     if ($img_bad) {
-                        $newdata .=
-                              "<a class=\"ljimgplaceholder\" href=\""
-                            . LJ::ehtml( $hash->{'src'} ) . "\">"
-                            . LJ::img('placeholder') . '</a>';
+                        if ( length $src ) {
+                            $newdata .=
+                                  "<a class=\"ljimgplaceholder\" href=\""
+                                . LJ::ehtml($src) . "\">"
+                                . LJ::img('placeholder') . '</a>';
+                            $opencount{"img"}++;
+                        }
                         $alt_output = 1;
-                        $opencount{"img"}++;
                     }
                 }
 
@@ -1958,16 +1966,17 @@ sub _escape_non_ascii_web_url {
             return '' unless inet_pton( AF_INET6, $1 );
         }
         else {
+            my $decoded_host = uri_unescape( LJ::no_utf8_flag($host) );
             unless ( LJ::is_ascii($host) ) {
-                return '' unless utf8::is_utf8($host) || utf8::decode($host);
-                return '' if $host =~ /[^a-zA-Z0-9.\x80-\x{10FFFF}-]|[\p{Space}\p{C}]/;
-                $host = URI->new("http://$host/")->host;
+                return '' unless utf8::decode($decoded_host);
+                return '' if $decoded_host =~ /[\p{Space}\p{C}]/;
+                my $idn_label = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
+                return '' unless $decoded_host =~ /\A$idn_label(?:\.$idn_label)*\.?\z/;
+                $host = $decoded_host = URI->new("http://$decoded_host/")->host;
             }
 
-            return '' unless defined $host;
-            my $decoded_host = uri_unescape($host);
-            my $label        = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
-            return '' unless $decoded_host =~ /\A$label(?:\.$label)*\.?\z/;
+            my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
+            return '' unless defined $decoded_host && $decoded_host =~ /\A$label(?:\.$label)*\.?\z/;
             return '' if length($decoded_host) > ( $decoded_host =~ /\.\z/ ? 254 : 253 );
         }
 
