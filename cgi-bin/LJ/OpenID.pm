@@ -43,31 +43,58 @@ sub server {
     );
 }
 
-sub useragent {
-    my (%opts) = @_;
+my $INSANEJOURNAL_POLICY = 'LJ::OpenID::InsaneJournal';
 
-    # always use a paranoid useragent with TLS verification enabled
-    my $ua = LJ::get_useragent(
-        role     => "OpenID",
-        timeout  => $opts{timeout} // 10,
-        max_size => $opts{max_size},
+sub _apply_insanejournal_policy {
+    my ($ua) = @_;
+    return unless $ua->can('add_handler') && $ua->can('ssl_opts');
+
+    my $site_agent = $LJ::SITENAME || 'Dreamwidth OpenID';
+    my @saved_ssl;
+    my $restore_ssl = sub {
+        my ($agent) = @_;
+        $agent->ssl_opts(@saved_ssl) if @saved_ssl;
+        @saved_ssl = ();
+    };
+
+    $ua->add_handler(
+        request_prepare => sub {
+            my ( $request, $agent ) = @_;
+            $restore_ssl->($agent);
+            my $uri    = $request->uri;
+            my $scheme = lc( $uri->scheme );
+            return unless $scheme eq 'http' || $scheme eq 'https';
+            return unless ( $uri->host // '' ) =~ /(?:\A|\.)insanejournal\.com\.?\z/i;
+
+            if ( $scheme eq 'https' ) {
+                @saved_ssl =
+                    map { $_ => scalar $agent->ssl_opts($_) } qw(verify_hostname SSL_verify_mode);
+                $agent->ssl_opts( verify_hostname => 1, SSL_verify_mode => SSL_VERIFY_PEER );
+            }
+            $_[0] = $request->clone;
+            $_[0]->header( 'User-Agent' => $site_agent );
+        },
+        owner => $INSANEJOURNAL_POLICY,
     );
-    return unless $ua;
-
-    $ua->ssl_opts(
-        verify_hostname => 1,
-        SSL_verify_mode => SSL_VERIFY_PEER,
+    $ua->add_handler(
+        response_done => sub {
+            my ( undef, $agent ) = @_;
+            $restore_ssl->($agent);
+        },
     );
-
-    # identify the site rather than sending LWP's default libwww-perl agent,
-    # which Cloudflare's Browser Integrity Check rejects with 403 (error 1010)
-    my $agent =
-        $LJ::SITENAME
-        ? ( $LJ::ADMIN_EMAIL ? "$LJ::SITENAME ($LJ::ADMIN_EMAIL)" : $LJ::SITENAME )
-        : 'Dreamwidth OpenID';
-    $ua->agent($agent);
-
     return $ua;
+}
+
+sub has_insanejournal_tls_policy {
+    my ($ua) = @_;
+    return $ua->can('get_my_handler')
+        && scalar $ua->get_my_handler( 'request_prepare', owner => $INSANEJOURNAL_POLICY );
+}
+
+sub insanejournal_useragent {
+    my $ua = LJ::get_useragent( role => 'OpenID', timeout => 5 ) or return undef;
+    $ua->max_redirect(0);
+    return _apply_insanejournal_policy($ua);
 }
 
 # Returns a Consumer object
@@ -76,10 +103,12 @@ sub useragent {
 sub consumer {
     my $get_args = shift || {};
 
-    my $ua = useragent(
+    my $ua = LJ::get_useragent(
+        role     => 'OpenID',
         timeout  => 10,
         max_size => 1024 * 300,
     );
+    _apply_insanejournal_policy($ua) if $ua;
 
     my $cache = undef;
     if ( !$LJ::OPENID_STATELESS && scalar(@LJ::MEMCACHE_SERVERS) ) {

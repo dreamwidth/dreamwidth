@@ -99,7 +99,10 @@ my $verified_url = "https://dw-openid-$suffix.insanejournal.com/";
 my $legacy       = LJ::User::load_identity_user( 'O', $legacy_url );
 BAIL_OUT('Could not create the legacy OpenID fixture') unless $legacy;
 
-subtest 'OpenID consumer UA enables TLS verification and sets identifying User-Agent' => sub {
+subtest 'OpenID consumer applies InsaneJournal UA policy per request and redirect' => sub {
+    local $LJ::SITENAME    = 'Test Dreamwidth';
+    local $LJ::ADMIN_EMAIL = 'openid-admin@example.test';
+
     my $raw_ua = LJ::get_useragent( role => 'OpenID', timeout => 5 );
     isa_ok( $raw_ua, 'LWP::UserAgent::Paranoid', 'factory returns paranoid UA' );
     is( $raw_ua->ssl_opts('verify_hostname'), 0, 'factory default disables verify_hostname' );
@@ -108,13 +111,49 @@ subtest 'OpenID consumer UA enables TLS verification and sets identifying User-A
     my $csr    = LJ::OpenID::consumer();
     my $csr_ua = $csr->ua;
     isa_ok( $csr_ua, 'LWP::UserAgent::Paranoid', 'consumer UA uses paranoid factory' );
-    ok( $csr_ua->ssl_opts('verify_hostname'), 'consumer UA enables verify_hostname' );
-    ok( ( $csr_ua->ssl_opts('SSL_verify_mode') // 0 ) & SSL_VERIFY_PEER,
-        'consumer UA enables SSL_VERIFY_PEER' );
+    is( $csr_ua->ssl_opts('verify_hostname'),
+        0, 'consumer does not globally enable hostname verification' );
+    is( $csr_ua->ssl_opts('SSL_verify_mode'),
+        0, 'consumer does not globally enable peer verification' );
     is_deeply( $csr_ua->ssl_opts('SSL_alpn_protocols'),
         ['http/1.1'], 'consumer UA preserves HTTP/1.1 ALPN' );
-    unlike( $csr_ua->agent, qr/libwww-perl/i,
-        'consumer UA does not send default libwww-perl User-Agent' );
+    is( $csr_ua->agent, $raw_ua->agent, 'consumer retains the factory default User-Agent' );
+
+    my @urls = (
+        'https://other.example.test/', 'https://insanejournal.com/', $verified_url,
+        'https://insanejournal.com.example.test/',
+        'https://notinsanejournal.com/',
+    );
+    my %redirects;
+    @redirects{ @urls[ 0 .. 3 ] } = @urls[ 1 .. 4 ];
+
+    my ( $response, $requests ) = run_with_openid_http(
+        sub {
+            my ($request) = @_;
+            my $next = $redirects{ $request->uri->as_string };
+            return $next
+                ? HTTP::Response->new( 302, 'Found', [ Location => $next ] )
+                : HTTP::Response->new(200);
+        },
+        sub { return LJ::OpenID::consumer()->ua->get( $urls[0] ); }
+    );
+    ok( $response->is_success, 'consumer follows redirects in and out of InsaneJournal' );
+    is_deeply( [ map { $_->{uri} } @$requests ], \@urls, 'all redirect hops are sent' );
+    for my $request (@$requests) {
+        my $url   = $request->{uri};
+        my $is_ij = $url eq $urls[1] || $url eq $urls[2];
+        is( $request->{verify_hostname}, $is_ij ? 1 : 0, "$url has the expected hostname policy" );
+        is(
+            $request->{ssl_verify_mode},
+            $is_ij ? SSL_VERIFY_PEER : 0,
+            "$url has the expected peer policy"
+        );
+        is(
+            $request->{user_agent},
+            $is_ij ? $LJ::SITENAME : $raw_ua->agent,
+            "$url has the expected User-Agent without administrative contact information"
+        );
+    }
 };
 
 subtest 'ordinary lookups and unverified calls do not alias legacy accounts' => sub {
@@ -252,6 +291,8 @@ subtest
 
 subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists canonical key' =>
     sub {
+    local $LJ::SITENAME    = 'Test Dreamwidth';
+    local $LJ::ADMIN_EMAIL = 'openid-admin@example.test';
     my $secure_legacy_url = "https://dw_openid_$suffix.insanejournal.com/";
     my $hop_url           = "https://hop-$suffix.insanejournal.com/";
     my $head_response     = HTTP::Response->new(503);
@@ -291,6 +332,8 @@ subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists
     unlike( $head_req->{user_agent},
         qr/libwww-perl/i,
         'HEAD sent an identifying Dreamwidth User-Agent rather than libwww-perl' );
+    is( $head_req->{user_agent},
+        $LJ::SITENAME, 'HEAD does not send administrative contact information' );
 
     # Redirect to wrong path on verified host.
     $head_response = HTTP::Response->new( 302, 'Found', [ Location => "${verified_url}profile" ] );
@@ -469,6 +512,65 @@ subtest 'verified boundary and exact-precedence cases with legacy candidates pre
         0, 'exact match sends no confirmation HEAD request' );
     is( LJ::User::load_existing_identity_user( 'O', $alias_http )->id,
         $alias->id, 'competing legacy account remains distinct and untouched' );
+};
+
+subtest 'legacy migration serializes with account creation for either canonical spelling' => sub {
+    my $alias_host      = "dw_openid_${suffix}_contended.insanejournal.com";
+    my $canonical_host  = "dw-openid-$suffix-contended.insanejournal.com";
+    my $alias_http      = "http://$alias_host/";
+    my $canonical_http  = "http://$canonical_host/";
+    my $canonical_https = "https://$canonical_host/";
+    my $alias           = LJ::User::load_identity_user( 'O', $alias_http );
+    BAIL_OUT('Could not create contended legacy fixture') unless $alias;
+
+    my @competing_users;
+    my ($migrated) = run_with_openid_http(
+        sub {
+            my ($req) = @_;
+            return discovery_html($IJ_OPENID_SERVER)
+                if $req->method eq 'GET' && $req->uri->as_string eq $canonical_https;
+            return HTTP::Response->new( 200, 'OK', [], "is_valid:true\n" )
+                if $req->method eq 'POST' && $req->uri->as_string eq $IJ_OPENID_SERVER;
+            if ( $req->method eq 'HEAD' && $req->uri->as_string eq "https://$alias_host/" ) {
+                @competing_users = map { LJ::User::load_identity_user( 'O', $_ ) }
+                    ( $canonical_https, $canonical_http );
+                return HTTP::Response->new( 302, 'Found', [ Location => $canonical_https ] );
+            }
+            return HTTP::Response->new(404);
+        },
+        sub {
+            my $csr = LJ::OpenID::consumer( make_openid_args($canonical_https) );
+            return LJ::User::load_from_consumer($csr);
+        }
+    );
+    is_deeply(
+        \@competing_users,
+        [ undef, undef ],
+        'both competing writers fail closed during migration'
+    );
+    is( $migrated && $migrated->id, $alias->id, 'verified migration preserves the legacy account' );
+    my $dbh  = LJ::get_db_writer();
+    my $rows = $dbh->selectall_arrayref(
+        'SELECT identity, userid FROM identitymap WHERE idtype=? AND identity IN (?, ?, ?)',
+        undef, 'O', $alias_http, $canonical_https, $canonical_http, );
+    is_deeply(
+        $rows,
+        [ [ $canonical_http, $alias->id ] ],
+        'only the migrated canonical row exists'
+    );
+    for my $url ( $canonical_https, $canonical_http ) {
+        my $retried = LJ::User::load_identity_user( 'O', $url );
+        is( $retried && $retried->id, $alias->id,
+            "$url resolves to the migrated account on retry" );
+    }
+
+    my $created_https = "https://dw-openid-$suffix-https-first.insanejournal.com/";
+    my $created_http  = "http://dw-openid-$suffix-https-first.insanejournal.com/";
+    my $created       = LJ::User::load_identity_user( 'O', $created_https );
+    BAIL_OUT('Could not create canonical HTTPS fixture') unless $created;
+    my $from_http = LJ::User::load_identity_user( 'O', $created_http );
+    is( $from_http && $from_http->id,
+        $created->id, 'HTTP creation reuses an existing HTTPS account' );
 };
 
 done_testing();

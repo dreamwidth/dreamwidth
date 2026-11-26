@@ -19,7 +19,6 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Carp qw/ confess /;
-use IO::Socket::SSL qw(SSL_VERIFY_PEER);
 use LJ::DB;
 use LJ::Identity;
 use LJ::OpenID;
@@ -27,6 +26,7 @@ use Scalar::Util qw( blessed );
 
 use DW::Pay;
 use DW::Cache;
+use DW::Locker;
 use DW::User::OpenID;
 use DW::InviteCodes::Promo;
 
@@ -1013,30 +1013,23 @@ sub identity {
 
 # class function - load an identity user, but only if they're already known to us
 sub load_existing_identity_user {
-    my ( $type, $ident ) = @_;
+    my ( $type, $ident, $dbh, $fallback_ident ) = @_;
 
-    my $dbh = LJ::get_db_reader();
-    my $uid;
+    $dbh ||= LJ::get_db_reader();
 
     # if given an https URL, also look for existing http account
     # (we should have stripped the protocol before storing these, sigh)
-    if ( $ident =~ s/^https:// ) {
-        my $secure_ident = "https:$ident";
-        $ident = "http:$ident";
+    $fallback_ident //= $ident =~ s/^https:/http:/r if $ident =~ /^https:/;
 
-        # do the secure lookup first; if it fails, try the fallback below
-        $uid = $dbh->selectrow_array(
-            "SELECT userid FROM identitymap WHERE " . "idtype=? AND identity=?",
-            undef, $type, $secure_ident );
+    for my $url ( $ident, $fallback_ident ) {
+        next unless defined $url;
+        my $uid =
+            $dbh->selectrow_array( 'SELECT userid FROM identitymap WHERE idtype=? AND identity=?',
+            undef, $type, $url );
+        return LJ::load_userid($uid) if $uid;
     }
 
-    unless ($uid) {
-        $uid = $dbh->selectrow_array(
-            "SELECT userid FROM identitymap WHERE " . "idtype=? AND identity=?",
-            undef, $type, $ident );
-    }
-
-    return $uid ? LJ::load_userid($uid) : undef;
+    return undef;
 }
 
 my $INSANEJOURNAL_OPENID_SERVER = 'https://www.insanejournal.com/openid/server.bml';
@@ -1048,14 +1041,11 @@ sub _is_verified_insanejournal_identity {
     return 0 unless defined $vident->url && $vident->url eq $ident;
 
     # Require the consumer that discovered and verified this assertion to have
-    # TLS peer and hostname verification enabled on its user agent.
+    # InsaneJournal TLS policy enabled on its user agent.
     my $csr = $vident->{consumer};
     return 0 unless blessed($csr) && $csr->isa('Net::OpenID::Consumer');
     my $ua = $csr->ua;
-    return 0 unless blessed($ua) && $ua->can('ssl_opts');
-    return 0
-        unless $ua->ssl_opts('verify_hostname')
-        && ( ( $ua->ssl_opts('SSL_verify_mode') // 0 ) & SSL_VERIFY_PEER );
+    return 0 unless blessed($ua) && LJ::OpenID::has_insanejournal_tls_policy($ua);
 
     # Bind the assertion directly to InsaneJournal's HTTPS OpenID endpoint
     # with no delegation to another identity URL.
@@ -1088,23 +1078,32 @@ sub load_identity_user {
     my ( $type, $ident, $vident ) = @_;
 
     my $u = load_existing_identity_user( $type, $ident );
-    if (  !$u
-        && $type eq 'O'
-        && $vident
-        && $ident =~ m!\Ahttps://([a-z0-9][a-z0-9-]{0,61}[a-z0-9])\.insanejournal\.com/\z! )
-    {
-        my $slug     = $1;
+    my ( $scheme, $slug ) =
+          $type eq 'O'
+        ? $ident =~ m!\A(https?)://([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.insanejournal\.com/\z!
+        : ();
+    my ( $lock, $dbh, $canonical_http );
+    if ( defined $slug && ( !$u || $u->is_expunged ) ) {
+        my $host = "$slug.insanejournal.com";
+        $canonical_http = "http://$host/";
+        $lock           = DW::Locker->new->trylock( "openid:$host", class => 'openid_identity' )
+            or return undef;
+        $dbh = LJ::get_db_writer() or return undef;
+        my $alternate = $scheme eq 'https' ? $canonical_http : "https://$host/";
+        $u = load_existing_identity_user( $type, $ident, $dbh, $alternate );
+    }
+
+    if ( !$u && defined $scheme && $scheme eq 'https' && $vident ) {
         my $username = $slug;
         if ( $username =~ tr/-/_/ ) {
             my $legacy_host  = "$username.insanejournal.com";
             my $legacy_ident = "http://$legacy_host/";
-            if ( my $legacy = load_existing_identity_user( 'O', $legacy_ident ) ) {
+            if ( my $legacy = load_existing_identity_user( 'O', $legacy_ident, $dbh ) ) {
                 return undef
                     unless _is_verified_insanejournal_identity( $ident, $vident );
 
-                my $ua = LJ::OpenID::useragent( timeout => 5 );
+                my $ua = LJ::OpenID::insanejournal_useragent();
                 return undef unless $ua;
-                $ua->max_redirect(0);
                 my $response = $ua->head("https://$legacy_host/");
                 return undef
                     unless $response
@@ -1112,16 +1111,6 @@ sub load_identity_user {
                     && ( $response->header('Location') // '' ) eq $ident;
 
                 unless ( $legacy->is_expunged ) {
-                    my $canonical_http = "http://$slug.insanejournal.com/";
-                    my $dbh            = LJ::get_db_writer()
-                        or return undef;
-
-                    # Keep exact precedence if a separate canonical row appeared concurrently.
-                    return undef
-                        if $dbh->selectrow_array(
-                        "SELECT userid FROM identitymap WHERE idtype=? AND identity=? LIMIT 1",
-                        undef, 'O', $ident );
-
                     my $updated = $dbh->do(
                         "UPDATE IGNORE identitymap SET identity=? "
                             . "WHERE idtype=? AND identity=? AND userid=?",
@@ -1186,7 +1175,7 @@ sub load_identity_user {
 
     return undef unless $u;
 
-    my $dbh = LJ::get_db_writer();
+    $dbh ||= LJ::get_db_writer();
     return undef
         unless $dbh->do( "INSERT INTO identitymap (idtype, identity, userid) VALUES (?,?,?)",
         undef, $type, $ident, $u->id );
