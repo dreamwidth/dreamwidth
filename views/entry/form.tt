@@ -13,6 +13,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 %]
 
 [%- PROCESS "entry/form-head.tt" -%]
+[%- slug_head = BLOCK %]
+<script>
+postFormInitData.journalBases = Object.create(null);
+[%- FOREACH journal IN journallist %]
+postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base | js %];
+[%- END %]
+</script>
+[%- END -%]
+[%- sections.head = sections.head _ slug_head -%]
 [%- dw.need_res(
     "stc/css/pages/entry/new.css"
     "stc/css/components/button-groups.css"
