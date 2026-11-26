@@ -45,6 +45,162 @@
 
 .event.placeholder=Your entry text...
 
+.rte.align=Alignment
+
+.rte.align.center=Center
+
+.rte.align.justify=Justify
+
+.rte.align.left=Align left
+
+.rte.align.right=Align right
+
+.rte.block=Paragraph style
+
+.rte.block.code=Code block
+
+.rte.block.heading=Heading
+
+.rte.block.html=HTML block
+
+.rte.block.paragraph=Paragraph
+
+.rte.blockquote=Quote
+
+.rte.bold=Bold
+
+.rte.cancel=Cancel
+
+.rte.code=Code
+
+.rte.color.highlight=Highlight color
+
+.rte.color.remove=Remove text and highlight color
+
+.rte.color.text=Text color
+
+.rte.cut=Cut tag
+
+.rte.cut.caption=Cut text
+
+.rte.cut.default=Read more
+
+.rte.cut.edit=Edit
+
+.rte.convert.failed=Your text could not be converted to rich text just now, so it has been left as it was. Please try again.
+
+.rte.converting=Converting your text to rich text...
+
+.rte.embed=Embed media
+
+.rte.embed.code=Add media from other websites by copying and pasting their embed code here.
+
+.rte.embed.title=Embed media
+
+.rte.hr=Horizontal line
+
+.rte.htmlblock=HTML (kept as-is)
+
+.rte.image=Image
+
+.rte.image.alt=Alt text
+
+.rte.image.title=Add image
+
+.rte.image.url=Image URL
+
+.rte.indent=Indent
+
+.rte.italic=Italic
+
+.rte.link=Link
+
+.rte.link.title=Add link
+
+.rte.link.url=URL
+
+.rte.list.bullet=Bulleted list
+
+.rte.list.ordered=Numbered list
+
+.rte.markdown.confirm=Markdown can't be converted to rich text. Your text will be kept exactly as typed, with any Markdown symbols showing as plain characters. Switch anyway?
+
+.rte.mention.community=community
+
+.rte.mention.literal=use as typed
+
+.rte.more=More
+
+.rte.ok=OK
+
+.rte.outdent=Unindent
+
+.rte.poll=Create a poll (opens a new window; paste the poll code it gives you into the entry)
+
+.rte.redo=Redo
+
+.rte.size=Text size
+
+.rte.size.custom=Other size...
+
+.rte.size.custom.title=Text size (for example 18px, 1.5em or large)
+
+.rte.size.default=Default size
+
+.rte.size.invalid=That isn't a text size the editor understands. Try something like 18px, 1.5em or large.
+
+.rte.strike=Strikethrough
+
+.rte.table=Insert table...
+
+.rte.table.col.after=Insert column right
+
+.rte.table.col.before=Insert column left
+
+.rte.table.col.delete=Delete column
+
+.rte.table.cols=Columns
+
+.rte.table.delete=Delete table
+
+.rte.table.header.col=Toggle header column
+
+.rte.table.header.row=Toggle header row
+
+.rte.table.menu=Table
+
+.rte.table.merge=Merge cells
+
+.rte.table.row.after=Insert row below
+
+.rte.table.row.before=Insert row above
+
+.rte.table.row.delete=Delete row
+
+.rte.table.rows=Rows
+
+.rte.table.split=Split cell
+
+.rte.table.title=Insert table
+
+.rte.toolbar=Formatting
+
+.rte.underline=Underline
+
+.rte.undo=Undo
+
+.rte.user=User or community
+
+.rte.user.name=Username
+
+.rte.user.site=Site
+
+.rte.user.site.hint=leave blank for this site
+
+.rte.user.title=Link a user or community
+
+.rte0.warning=THIS ENTRY WAS CONVERTED FROM THE OLD RICH TEXT EDITOR. MAKE SURE IT LOOKS RIGHT BEFORE YOU SAVE.
+
 .select.security=Security:
 
 .select.security.access.format=an access locked entry

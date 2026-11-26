@@ -1,4 +1,5 @@
-// Native plain-editor image insertion dialog (a Foundation reveal modal).
+// Native image insertion dialog (a Foundation reveal modal). Inserts into the
+// rich text editor when it is mounted, otherwise into the plain textarea.
 // Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 (function ($) {
     "use strict";
@@ -11,26 +12,36 @@
         var url = document.getElementById("entry-image-url");
         var alt = document.getElementById("entry-image-alt");
 
-        var plain = function () { return editor.value !== "rte0"; };
+        var rich = function () { return !!(window.DWEditor && DWEditor.isActive("entry-body")); };
         var close = function () { $modal.foundation("reveal", "close"); };
-        var sync = function () {
-            open.hidden = !plain();
-            if (!plain() && $modal.hasClass("open")) close();
-        };
 
         // Open from JS so the first call also initialises Foundation's reveal
         // handlers; start each visit with empty fields.
-        $(open).on("click", function (event) {
-            event.preventDefault();
+        var openModal = function () {
+            // The body is being converted; it can't take an image right now.
+            if (window.DWConvert && DWConvert.busy()) return;
             url.value = "";
             alt.value = "";
             $modal.foundation("reveal", "open");
+        };
+        $(open).on("click", function (event) {
+            event.preventDefault();
+            openModal();
         });
+
+        // The rich editor's toolbar button opens the same dialog.
+        window.DWImageInsert = { open: openModal };
 
         $modal.find("[data-image-insert-cancel]").on("click", close);
         $modal.find("[data-image-insert-confirm]").on("click", function () {
             var src = url.value;
             if (!src) { url.focus(); return; }
+            if (window.DWConvert && DWConvert.busy()) { close(); return; }
+            if (rich()) {
+                DWEditor.insertImage("entry-body", { src: src, alt: alt.value });
+                close();
+                return;
+            }
             var escape = function (value) {
                 return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
             };
@@ -46,6 +57,5 @@
                 $modal.find("[data-image-insert-confirm]").click();
             }
         });
-        $(editor).on("change", sync); sync();
     });
 }(jQuery));

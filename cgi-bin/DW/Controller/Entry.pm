@@ -40,6 +40,7 @@ use LJ::Talk;
 use DW::External::Account;
 use DW::External::Page;
 use DW::External::Site;
+use DW::External::User;
 
 my @modules = qw(
     tags displaydate slug
@@ -47,11 +48,46 @@ my @modules = qw(
     icons crosspost sticky
 );
 
-my @sites = DW::External::Site->get_sites;
-my @sitevalues;
-foreach my $site ( sort { $a->{sitename} cmp $b->{sitename} } @sites ) {
-    push @sitevalues, { domain => $site->{domain}, sitename => $site->{sitename} };
-}
+# Head icons for the rich text editor's user chips: the local person /
+# community / feed / openid identity icons for on-site links, plus each
+# external site's badge image keyed by domain. badge_image is pure (no
+# network), so this is cheap to build once at load time.
+my $rte_user_icons = do {
+    my %local = map {
+        $_->[0] => {
+            url    => "$LJ::IMGPREFIX/silk/identity/$_->[1]",
+            width  => 16,
+            height => 16,
+        }
+    } (
+        [ P => "user.png" ],
+        [ C => "community.png" ],
+        [ Y => "feed.png" ],
+        [ I => "openid.png" ]
+    );
+
+    # Key by every recognized domain *and* alias (twitter, x, fb, ...) so the
+    # editor's @user.site autocomplete accepts exactly what markdown does, and
+    # each alias shows its canonical site's head icon. Probing the badge needs a
+    # user object, which atproto sites refuse for a dummy handle; fall back to
+    # the generic icon there so the domain is still offered for autocomplete.
+    my %site_icons;
+    foreach my $domain ( DW::External::Site->get_domains ) {
+        my $icon;
+        if ( my $eu = DW::External::User->new( user => "example", site => $domain ) ) {
+            if ( my $badge = eval { $eu->site->badge_image($eu) } ) {
+                $icon = {
+                    url    => LJ::CleanHTML::https_url( $badge->{url} ),
+                    width  => $badge->{width},
+                    height => $badge->{height},
+                };
+            }
+        }
+        $site_icons{ lc $domain } = $icon || $local{I};
+    }
+
+    to_json( { local => \%local, sites => \%site_icons, fallback => $local{I} } );
+};
 
 =head1 NAME
 
@@ -73,6 +109,12 @@ DW::Routing->register_string(
 );
 
 DW::Routing->register_string( '/__rpc_draft', \&draft_rpc_handler, app => 1, format => 'json' );
+DW::Routing->register_string(
+    '/__rpc_entry_convert', \&convert_rpc_handler,
+    app     => 1,
+    format  => 'json',
+    methods => { POST => 1 }
+);
 
 # Old-editor tabs left open across the cutover still autosave here.
 DW::Routing->register_string(
@@ -339,11 +381,7 @@ sub _render_new_form {
     # Had to wait for formdata before figuring out the editors list -- if we
     # have a WIP form submission with errors, we want to reuse what the user
     # already chose.
-    $vars->{editors} = DW::Formats::select_items(
-        current   => $vars->{formdata}->{editor},
-        preferred => $remote ? $remote->prop('entry_editor2') : '',
-    );
-    $vars->{formdata}->{editor} = $vars->{editors}->{selected};
+    _set_editors( $vars, $remote ? $remote->prop('entry_editor2') : '' );
 
     $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $vars->{journalu} );
     if ($spellcheck_requested) {
@@ -360,9 +398,6 @@ sub _render_new_form {
     $vars->{editable} = { map { $_ => 1 } @modules };
 
     $vars->{action} = { url => LJ::create_url( undef, keep_args => 1 ), };
-
-    $vars->{js_for_rte} = LJ::rte_js_vars($remote);
-    $vars->{sitevalues} = to_json( \@sitevalues );
 
     # Set up vars for drafts
 
@@ -396,6 +431,16 @@ sub _render_new_form {
         }
     }
 
+    # A draft saved in the retired rte0 format is restored as rte1: converted
+    # here, like an entry, and flagged so the page can show the warning.
+    $vars->{draft_rte0_converted} = 0;
+    if ( defined $draft_properties{editor} && DW::Formats::is_retired( $draft_properties{editor} ) )
+    {
+        $draft                        = LJ::CleanHTML::casual_to_explicit($draft);
+        $draft_properties{editor}     = DW::Formats::edit_format( $draft_properties{editor} );
+        $vars->{draft_rte0_converted} = 1;
+    }
+
     $vars->{init_draft}        = $initDraft;
     $vars->{draft}             = $draft;
     $vars->{draft_properties}  = \%draft_properties;
@@ -421,8 +466,40 @@ sub _simple_mode {
     return ( DW::Request->get->get_args->{mode} // '' ) eq 'simple' ? 1 : 0;
 }
 
+# Work out the format menu and which format is selected. An entry stored in the
+# retired rte0 format opens in the rich text editor instead (rte1). The text is
+# converted to explicit HTML here, with the cleaner's own rules (see
+# LJ::CleanHTML::casual_to_explicit), so what the editor loads (or a browser
+# without JavaScript submits) reads the same as the stored entry did. It's
+# flagged so the form can warn that the conversion needs checking. The stored
+# entry itself is untouched until the poster saves.
+sub _set_editors {
+    my ( $vars, $preferred ) = @_;
+
+    my $formdata = $vars->{formdata};
+
+    # rte0_converted stays set when the form comes back after an error, by
+    # which point the text is already explicit rte1 source.
+    my $retired = DW::Formats::is_retired( $formdata->{editor} ) ? 1 : 0;
+    $vars->{rte0_converted} = $retired || $formdata->{rte0_converted} ? 1 : 0;
+    $formdata->{event}      = LJ::CleanHTML::casual_to_explicit( $formdata->{event} ) if $retired;
+
+    $vars->{editors} = DW::Formats::select_items(
+        current   => $formdata->{editor},
+        preferred => $preferred,
+    );
+
+    # The template helper uses "formdata" to set the default values for fields,
+    # so we'll update it in place with what DW::Formats thinks we should use.
+    $formdata->{editor} = $vars->{editors}->{selected};
+}
+
 sub _render_form {
     my ($vars) = @_;
+
+    # for the rich text editor's toolbar
+    $vars->{rte_icons} = $rte_user_icons;
+    $vars->{can_embed} = LJ::is_enabled('embed_module') ? 1 : 0;
 
     return DW::Template->render_template( 'entry/form.tt', $vars ) unless _simple_mode();
 
@@ -984,14 +1061,7 @@ sub _render_edit_form {
 
     # Now that we have {formdata}->{editor}, we can get the list of available
     # editors.
-    $vars->{editors} = DW::Formats::select_items(
-        current   => $vars->{formdata}->{editor},
-        preferred => $remote->prop('entry_editor2'),
-    );
-
-    # The template helper uses "formdata" to set the default values for fields,
-    # so we'll update it in place with what DW::Formats thinks we should use.
-    $vars->{formdata}->{editor} = $vars->{editors}->{selected};
+    _set_editors( $vars, $remote->prop('entry_editor2') );
 
     $vars->{spellcheck_enabled} = _spellcheck_enabled( $remote, $journal );
     if ($spellcheck_requested) {
@@ -1016,9 +1086,6 @@ sub _render_edit_form {
         edit => 1,
         url  => LJ::create_url( undef, keep_args => 1 ),
         };
-
-    $vars->{js_for_rte} = LJ::rte_js_vars($remote);
-    $vars->{sitevalues} = to_json( \@sitevalues );
 
     return _render_form($vars);
 }
@@ -1586,7 +1653,8 @@ sub _render_preview {
     # expand existing polls (for editing, or when transferring polls to another entry)
     LJ::Poll->expand_entry( \$event );
 
-    # parse out embed tags from the RTE
+    # convert <div class="ljembed"> from the retired editor (a restored old
+    # draft, or markup pasted in) into proper embed tags
     $event = LJ::EmbedModule->transform_rte_post($event);
 
     # do first expand_embedded pass with the preview flag to extract
@@ -2002,6 +2070,47 @@ sub _options {
     return $vars;
 }
 
+# Turn casual-HTML text into the explicit HTML the rich editor needs, using the
+# cleaner's own rules (LJ::CleanHTML::casual_to_explicit) so the editor has no
+# conversion logic of its own to get wrong. It changes nothing: text in, text
+# out, for a logged-in user.
+sub convert_rpc_handler {
+    my ( $ok, $rv ) = controller();
+    return $rv unless $ok;
+
+    my $r = DW::Request->get;
+
+    my $reject = sub {
+        my ( $status, $msg ) = @_;
+        $r->status($status);
+        $r->print( to_json( { alert => $msg } ) );
+        return $r->OK;
+    };
+
+    # Refuse an oversized request before reading (and decoding) any of it. An
+    # entry can't be longer than LJ::BMAX_EVENT bytes, and form-encoding at worst
+    # triples that, so nothing legitimate is bigger than this.
+    my $max_body = 3 * LJ::BMAX_EVENT + 1024;
+    return $reject->( 413, 'Text too long.' )
+        if ( $r->header_in('Content-Length') // 0 ) > $max_body;
+
+    my $POST = $r->post_args;
+    my $from = $POST->{from} // '';
+    my $text = $POST->{text} // '';
+
+    return $reject->( 400, 'Unsupported conversion.' )
+        unless $rv->{remote} && $from =~ /^(?:html_casual0|html_casual1|rte0)$/;
+
+    # ...and the decoded text is held to the entry's own limits, in bytes and in
+    # characters, the way the entry protocol counts them.
+    my ( $bytes, $chars ) = LJ::text_length($text);
+    return $reject->( 413, 'Text too long.' )
+        if $bytes > LJ::BMAX_EVENT || $chars > LJ::CMAX_EVENT;
+
+    $r->print( to_json( { text => LJ::CleanHTML::casual_to_explicit( $text, $from ) } ) );
+    return $r->OK;
+}
+
 sub draft_rpc_handler {
     my ( $ok, $rv ) = controller();
     return $rv unless $ok;
@@ -2080,6 +2189,22 @@ sub draft_rpc_handler {
                 || ( $properties{$key} =~ /^undefined$/ ) )
             {
                 delete $properties{$key};
+            }
+        }
+
+        # The editor names the format the stored draft body is written in. The
+        # current form (draftv=2) always sends it together with the body it
+        # belongs to, so a request without a body must not change it. Pages
+        # opened before that change send the format and the body in separate
+        # requests; they get the old behavior, where it is simply applied.
+        if ( ( $POST->{draftv} // 0 ) >= 2 && !defined $POST->{saveDraft} ) {
+            my $stored = $u->prop('draft_properties');
+            my $old    = $stored ? eval { Storable::thaw($stored) } : undef;
+            if ( ref $old eq 'HASH' && defined $old->{editor} ) {
+                $properties{editor} = $old->{editor};
+            }
+            else {
+                delete $properties{editor};
             }
         }
 

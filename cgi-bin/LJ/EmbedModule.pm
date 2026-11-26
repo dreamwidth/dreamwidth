@@ -193,17 +193,66 @@ sub parse_module_embed {
 
     # ok, we can safely parse post text
     # machine state
-    my $state           = REGULAR;
-    my $p               = HTML::TokeParser->new($postref);
-    my $newtxt          = '';
-    my %embed_attrs     = ();                                # ($eid, $ewidth, $eheight);
-    my $embed           = '';
+    my $state       = REGULAR;
+    my $p           = HTML::TokeParser->new($postref);
+    my $newtxt      = '';
+    my %embed_attrs = ();                                # ($eid, $ewidth, $eheight);
+    my $embed       = '';
+    my $explicit_open   = '';    # the <site-embed ...> that opened an EXPLICIT block
     my @stack           = ();
     my $next_preview_id = 1;
 
+    my @tokens;
     while ( my $token = $p->get_token ) {
+        push @tokens, $token;
+    }
+
+    # <embed> is a void element: a bare <embed ...> is complete on its own, and
+    # waiting for a close that never comes would swallow the rest of the entry.
+    # The older container form is <embed>contents</embed>, where the contents
+    # may be anything (<noembed>, <param>, comments, other embeds...). So an
+    # <embed> is a container iff some </embed> closes it, with <embed> start and
+    # end tags paired like brackets and everything else skipped over. One pass
+    # pairs them, so it stays linear.
+    my @embed_closed_next;    # [$i]: is the <embed> at token $i closed by an </embed>?
+    {
+        my @open;
+        for my $j ( 0 .. $#tokens ) {
+            my ( $jtype, $jtag, $jattr ) = @{ $tokens[$j] };
+            next unless ( $jtype eq 'S' || $jtype eq 'E' ) && lc $jtag eq 'embed';
+            if ( $jtype eq 'S' ) {
+                push @open, $j unless $jattr->{'/'};
+            }
+            elsif (@open) {
+                $embed_closed_next[ pop @open ] = 1;
+            }
+        }
+    }
+    my $embed_is_container = sub { $embed_closed_next[ $_[0] ] };
+
+    # Save the buffered embed as a module and stand a <site-embed> tag in its place.
+    my $flush = sub {
+        $embed_attrs{id} = $class->save_module(
+            id       => ( $preview ? $next_preview_id++ : $embed_attrs{id} ),
+            contents => $embed,
+            journal  => $journal,
+            preview  => $preview,
+        );
+
+        $newtxt .= "<site-embed "
+            . join( ' ',
+            map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () }
+                qw / id width height / )
+            . "/>";
+
+        $embed       = '';
+        %embed_attrs = ();
+    };
+
+    foreach my $i ( 0 .. $#tokens ) {
+        my $token = $tokens[$i];
         my ( $type, $tag, $attr ) = @$token;
-        $tag = lc $tag;
+        $tag = lc $tag unless $type eq 'T';
         my $newstate      = undef;
         my $reconstructed = $class->reconstruct($token);
 
@@ -212,7 +261,8 @@ sub parse_module_embed {
 
                 # <lj-embed ...>, not self-closed
                 # switch to EXPLICIT state
-                $newstate = EXPLICIT;
+                $newstate      = EXPLICIT;
+                $explicit_open = $reconstructed;
 
                 # save embed id, width and height if they do exist in attributes
                 $embed_attrs{id}    = $attr->{id} if $attr->{id};
@@ -224,17 +274,26 @@ sub parse_module_embed {
             }
             elsif ( $embeddable_tags{$tag} && $type eq 'S' ) {
 
-                # <object> or <embed> or <iframe>
-                # switch to IMPLICIT state unless it is a self-closed tag
-                unless ( $attr->{'/'} ) {
+               # <object> or <embed> or <iframe>
+               # append the tag contents to new embed buffer, so we can convert in to lj-embed later
+                $embed .= $reconstructed;
+
+                if ( $attr->{'/'} ) {
+
+                    # self-closed: stays in the buffer for whatever block comes
+                    # next, and stay in REGULAR (as it always has)
+                }
+                elsif ( $tag eq 'embed' && !$embed_is_container->($i) ) {
+
+                    # a bare <embed> with no </embed> to wait for is complete
+                    $flush->();
+                }
+                else {
                     $newstate = IMPLICIT;
 
                     # tag balance
                     push @stack, $tag;
                 }
-
-               # append the tag contents to new embed buffer, so we can convert in to lj-embed later
-                $embed .= $reconstructed;
             }
             else {
                 # otherwise stay in REGULAR
@@ -242,7 +301,7 @@ sub parse_module_embed {
             }
         }
         elsif ( $state == IMPLICIT ) {
-            if ( $embeddable_tags{$tag} ) {
+            if ( $embeddable_tags{$tag} && $type ne 'T' ) {
                 if ( $type eq 'E' ) {
 
                     # </object> or </embed> or </iframe>
@@ -255,8 +314,11 @@ sub parse_module_embed {
                 elsif ( $type eq 'S' ) {
 
                     # <object> or <embed> or <iframe>
-                    # mind the tag balance, do not update it in case of a self-closed tag
-                    push @stack, $tag unless $attr->{'/'};
+                    # mind the tag balance: do not update it in case of a self-closed
+                    # tag, or an <embed> that is never closed
+                    push @stack, $tag
+                        unless $attr->{'/'}
+                        || ( $tag eq 'embed' && !$embed_is_container->($i) );
                 }
             }
 
@@ -283,27 +345,21 @@ sub parse_module_embed {
 
         # we decided to switch back to REGULAR and have something in embed buffer
         # so let's save buffer as an embed module and start all over again
-        if ( defined $newstate && $newstate == REGULAR && $embed ) {
-            $embed_attrs{id} = $class->save_module(
-                id       => ( $preview ? $next_preview_id++ : $embed_attrs{id} ),
-                contents => $embed,
-                journal  => $journal,
-                preview  => $preview,
-            );
-
-            $newtxt .= "<site-embed "
-                . join( ' ',
-                map { exists $embed_attrs{$_} ? "$_=\"$embed_attrs{$_}\"" : () }
-                    qw / id width height / )
-                . "/>";
-
-            $embed       = '';
-            %embed_attrs = ();
-        }
+        $flush->() if defined $newstate && $newstate == REGULAR && $embed;
 
         # switch the state if we have a new one
         $state = $newstate if defined $newstate;
 
+    }
+
+    # An embed that never closed can't be told apart from the text that follows
+    # it, so don't pretend to: hand the buffered markup back as written, for the
+    # cleaner to deal with, rather than dropping it (and everything after it).
+    # (Buffered self-closed tags that no block ever collected are dropped, as
+    # they always were.)
+    if ( $state != REGULAR ) {
+        $newtxt .= $explicit_open if $state == EXPLICIT;
+        $newtxt .= $embed         if $embed ne '';
     }
 
     # update passed text

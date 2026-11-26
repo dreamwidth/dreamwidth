@@ -203,8 +203,10 @@ sub clean {
         $addbreaks = 0;
     }
 
-    # Create the HTML parser we'll use to navigate the text from here on out:
-    my $p = HTML::TokeParser->new($data);
+    # Create the HTML parser we'll use to navigate the text from here on out.
+    # It numbers the tokens it hands out (1, 2, 3 ... in source order), so we can
+    # say exactly which token a report or a lookup is about.
+    my $p = LJ::CleanHTML::NumberedTokens->new($data);
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -274,6 +276,51 @@ sub clean {
         input  => 1,
         select => 1,
         option => 1,
+    };
+
+    # The opening tag of an element whose contents we're discarding has just
+    # been read. Skip to the first close tag for it, as get_tag always did (not
+    # counting nesting: a block ends at the first matching close). If there is no
+    # close tag at all after it, the element was never really closed: drop only the
+    # opening tag, so the text after it still renders -- as text, through the
+    # normal path, never as live markup. Returns true if a close was found.
+    #
+    # Whether a close exists is worked out once, for the whole text: record the
+    # last close tag of each kind, and an opener numbered after it has none. (Looking
+    # ahead from every opener instead is quadratic when there are many unclosed
+    # ones, and this runs on every entry and comment.)
+    my %last_close;
+    my $find_closes = sub {
+        my %eaten = map { $_ => 1 } grep { $action{$_} eq 'eat' } keys %action;
+        $eaten{iframe} = 1;
+
+        my $n    = 0;
+        my $scan = LJ::CleanHTML::NumberedTokens->new($data);
+        while ( my $t = $scan->get_token ) {
+            $n++;
+            next unless $t->[0] eq 'E';
+            my $ttag = lc $t->[1];
+            $last_close{$ttag} = $n if $eaten{$ttag};
+        }
+        return 1;
+    };
+    my $closes_known = 0;
+
+    my $eat_block = sub {
+        my ($tag) = @_;
+        my $opener = $p->{dw_token_number};
+
+        $closes_known ||= $find_closes->();
+        if ( $opener > ( $last_close{$tag} || 0 ) ) {
+            $opts->{dropped_hook}->($opener) if $opts->{dropped_hook};
+            return 0;
+        }
+
+        while ( my $next = $p->get_token ) {
+            next unless $next->[0] eq 'E' && lc $next->[1] eq $tag;
+            return 1;
+        }
+        return 0;
     };
 
     my $start_capture = sub {
@@ -484,8 +531,7 @@ TOKEN:
             $tag =~ s!/.+$!!;
 
             if ( defined $action{$tag} and $action{$tag} eq "eat" ) {
-                $p->unget_token($token);
-                $p->get_tag("/$tag");
+                $eat_block->($tag);
                 next;
             }
 
@@ -505,7 +551,7 @@ TOKEN:
                         if ( !$attr->{'/'} ) {
                             ## if not autoclosed tag (<iframe />),
                             ## then skip everything till the closing tag
-                            $p->get_tag("/iframe");
+                            $eat_block->("iframe");
                         }
                         next TOKEN;
                     }
@@ -1235,19 +1281,22 @@ TOKEN:
             $newdata .= $token->[1];
         }
         elsif ( $type eq "T" ) {
-            my %url      = ();
-            my $urlcount = 0;
-
             if (@eatuntil) {
+                $opts->{text_hook}->( $token->[1], { raw => 1 }, $p->{dw_token_number} )
+                    if $opts->{text_hook};
                 push @capture, $token if $capturing_during_eat;
                 next TOKEN;
             }
 
             if ($eatall) {
+                $opts->{text_hook}->( $token->[1], { raw => 1 }, $p->{dw_token_number} )
+                    if $opts->{text_hook};
                 next TOKEN;
             }
 
             if ($eating_ljuser_span) {
+                $opts->{text_hook}->( $token->[1], { raw => 1 }, $p->{dw_token_number} )
+                    if $opts->{text_hook};
                 $ljuser_text_node = $token->[1];
                 next TOKEN;
             }
@@ -1262,56 +1311,29 @@ TOKEN:
                 && !$opencount{'textarea'}
                 && !$opencount{'lj-raw'};
 
-            # Stash any URLs that should be auto-linked, and insert temporary
-            # placeholders that can survive the next few escaping steps. We'll
-            # restore the URLs later as links.
-            if ( $auto_format && $auto_links && !$opencount{'a'} ) {
-                my $match = sub {
-                    my $str = shift;
-                    if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
-                        $url{ ++$urlcount } = $1;
-                        return "&url$urlcount;$1&urlend;$2";
-                    }
-                    else {
-                        $url{ ++$urlcount } = $str;
-                        return "&url$urlcount;$str&urlend;";
-                    }
-                };
-                $token->[1] =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge;
-            }
+            # Don't mangle code spans, code blocks, things that act like code
+            # blocks, or things we KNOW have foreign @mentions in em.
+            my $convert_mentions =
+                   $at_mentions
+                && !$disable_user_conversion
+                && !$opencount{'code'}
+                && !$opencount{'pre'}
+                && !$opencount{'textarea'}
+                && !$opencount{'lj-raw'};
 
-            # escape tags in text tokens.  shouldn't belong here!
-            # especially because the parser returns things it's
-            # confused about (broken, ill-formed HTML) as text.
-            $token->[1] =~ s/</&lt;/g;
-            $token->[1] =~ s/>/&gt;/g;
+            my $text_ctx = {
+                auto_format      => $auto_format,
+                auto_links       => $auto_links,
+                in_link          => $opencount{'a'},
+                convert_mentions => $convert_mentions,
+                usertag_opts     => {%$usertag_opts},
+            };
 
-            # auto-format some stuff!
-            if ($auto_format) {
+            # casual_to_explicit watches the cleaner's own view of each text token
+            $opts->{text_hook}->( $token->[1], $text_ctx, $p->{dw_token_number} )
+                if $opts->{text_hook};
 
-                # Add linebreaks
-                $token->[1] =~ s/\r?\n/<br \/>/g;
-                if ( !$opencount{'a'} ) {
-
-                    # Restore any auto-linked URLs as real HTML links
-                    $token->[1] =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
-                }
-            }
-
-            # convert user mentions, if we're in an appropriate context
-            if ($at_mentions) {
-
-                # Don't mangle code spans, code blocks, things that act like
-                # code blocks, or things we KNOW have foreign @mentions in em.
-                if (   !$disable_user_conversion
-                    && !$opencount{'code'}
-                    && !$opencount{'pre'}
-                    && !$opencount{'textarea'}
-                    && !$opencount{'lj-raw'} )
-                {
-                    convert_user_mentions( \$token->[1], $usertag_opts );
-                }
-            }
+            $token->[1] = format_text_token( $token->[1], $text_ctx );
 
             $newdata .= $token->[1];
         }
@@ -1737,6 +1759,8 @@ sub clean_event {
             ditemid                 => $opts->{ditemid},
             errref                  => $opts->{errref},
             verbose_err             => $opts->{verbose_err},
+            text_hook               => $opts->{text_hook},
+            dropped_hook            => $opts->{dropped_hook},
         }
     );
 }
@@ -1954,6 +1978,16 @@ my %markup_formats = (
         at_mentions => 1,
         noautolinks => 1,
     },
+
+    # The rich text editor serializes to explicit HTML: paragraphs, line
+    # breaks, links, and user tags are all literal markup, so it cleans
+    # exactly like raw HTML.
+    rte1 => {
+        formatting  => 'html',
+        addbreaks   => 0,
+        at_mentions => 0,
+        noautolinks => 1,
+    },
 );
 
 # Return a group of arguments to pass to clean() based on the requested format
@@ -1966,8 +2000,183 @@ sub formatting_args {
     return %$args;
 }
 
+# Format one text token the way the cleaner does. Shared by clean() and
+# casual_to_explicit() so the rules live in one place.
+# Args: the token's text, and a hashref of:
+# - auto_format: add linebreaks and auto-link URLs (we're in html-with-auto-
+#   linebreaks and not in a context that needs to stay raw)
+# - auto_links: allow auto-linking (when auto_format is on)
+# - in_link: we're inside an <a>, so no auto-links
+# - convert_mentions: convert @mentions to users
+# - usertag_opts: passed through to the user conversion
+# - as_tags: write mentions as <user> source tags rather than rendered HTML
+# Returns the formatted text.
+sub format_text_token {
+    my ( $text, $ctx ) = @_;
+
+    my %url      = ();
+    my $urlcount = 0;
+
+    # Stash any URLs that should be auto-linked, and insert temporary
+    # placeholders that can survive the next few escaping steps. We'll
+    # restore the URLs later as links.
+    if ( $ctx->{auto_format} && $ctx->{auto_links} && !$ctx->{in_link} ) {
+        my $match = sub {
+            my $str = shift;
+            if ( $str =~ /^(.*?)(&(#39|quot|lt|gt)(;.*)?)$/ ) {
+                $url{ ++$urlcount } = $1;
+                return "&url$urlcount;$1&urlend;$2";
+            }
+            else {
+                $url{ ++$urlcount } = $str;
+                return "&url$urlcount;$str&urlend;";
+            }
+        };
+        $text =~ s!(https?://[^\s\'\"\<\>]+[a-zA-Z0-9_/&=\-])! $match->( $1 ); !ge;
+    }
+
+    # escape tags in text tokens.  shouldn't belong here!
+    # especially because the parser returns things it's
+    # confused about (broken, ill-formed HTML) as text.
+    $text =~ s/</&lt;/g;
+    $text =~ s/>/&gt;/g;
+
+    # auto-format some stuff!
+    if ( $ctx->{auto_format} ) {
+
+        # Add linebreaks
+        $text =~ s/\r?\n/<br \/>/g;
+        if ( !$ctx->{in_link} ) {
+
+            # Restore any auto-linked URLs as real HTML links
+            $text =~ s/&url(\d+);(.*?)&urlend;/<a href=\"$url{$1}\">$2<\/a>/g;
+        }
+    }
+
+    # convert user mentions, if we're in an appropriate context
+    convert_user_mentions( \$text, { %{ $ctx->{usertag_opts} || {} }, as_tags => $ctx->{as_tags} } )
+        if $ctx->{convert_mentions};
+
+    return $text;
+}
+
+# <LJFUNC>
+# name: LJ::CleanHTML::casual_to_explicit
+# class: text
+# des: Rewrite casual HTML (and the retired rte0 format, which the cleaner
+#      treats as casual HTML) as explicit HTML that renders identically when
+#      cleaned as raw HTML (or rte1): the line breaks, auto-links and @mentions
+#      the cleaner would have added become real markup.
+# info: Rather than track open tags a second time, this runs the real cleaner
+#      over a copy of the text with a text_hook that reports, for each text
+#      token, the context the cleaner itself was in (inside a table, a link,
+#      code, an eaten embed, ...). The same text is then tokenized again and each
+#      text token is formatted with format_text_token, exactly as clean() does,
+#      using the recorded context; everything else is kept as written. Text the
+#      cleaner never reached (after it gave up on malformed input) is kept as
+#      written too.
+# args: text, format
+# des-text: The source text.
+# des-format: The format it is written in: rte0 (the default), html_casual1 or
+#             html_casual0 (which differ in whether @mentions are converted).
+# returns: The explicit source text.
+# </LJFUNC>
+sub casual_to_explicit {
+    my ( $text, $format ) = @_;
+    return $text unless defined $text && length $text;
+
+    # clean() starts by doing this, so tokenize the same thing it does
+    $text = LJ::strip_request_auth($text);
+
+    my ( @seen, %dropped );
+    my $copy = $text;
+    clean_event(
+        \$copy,
+        {
+            editor       => ( $format || 'rte0' ),
+            text_hook    => sub { push @seen, [@_] },
+            dropped_hook => sub { $dropped{ $_[0] } = 1 },
+        }
+    );
+
+    # What the cleaner reported, by token number.
+    my %context = map { $_->[2] => $_->[1] } @seen;
+
+    my $p = HTML::TokeParser->new( \$text );
+    my @tokens;
+    while ( my $t = $p->get_token ) { push @tokens, $t }
+
+    # The parser closes an element left open (<script>, <style>) with a
+    # synthetic end tag that has no source text. An opener whose close is
+    # synthetic was never closed, and is left out just like one the cleaner
+    # discarded: otherwise the text after it would be hidden again by whatever
+    # closes it later.
+    my %open;
+    foreach my $i ( 0 .. $#tokens ) {
+        my ( $type, $tag ) = @{ $tokens[$i] };
+        next unless $type eq 'S' || $type eq 'E';
+        $tag = lc $tag;
+        if ( $type eq 'S' ) {
+            push @{ $open{$tag} }, $i + 1 unless $tokens[$i][4] =~ m{/>$};
+        }
+        elsif ( $tokens[$i][2] eq '' ) {
+            my $opener = pop @{ $open{$tag} || [] };
+            $dropped{$opener} = 1 if $opener;
+        }
+        else {
+            pop @{ $open{$tag} } if $open{$tag} && @{ $open{$tag} };
+        }
+    }
+
+    my $out = '';
+    my $n   = 0;
+
+    foreach my $token (@tokens) {
+        my $type = $token->[0];
+        $n++;
+
+        if ( $type eq 'T' ) {
+
+            # Tokens the cleaner consumed some other way (get_text and friends)
+            # never reached the hook; they stay as written.
+            my $ctx = $context{$n};
+
+            $out .=
+                $ctx && !$ctx->{raw}
+                ? format_text_token( $token->[1], { %$ctx, as_tags => 1 } )
+                : $token->[1];
+        }
+        elsif ( $type eq 'S' ) {
+
+            # An opener the cleaner threw away (an iframe that never closes) is
+            # left out, so the text it would have swallowed is plain text.
+            $out .= $token->[4] unless $dropped{$n};
+        }
+        elsif ( $type eq 'E' ) {
+            $out .= $token->[2];
+        }
+        else {
+            # comments, declarations, processing instructions: as written
+            $out .= $type eq 'PI' ? $token->[2] : $token->[1];
+        }
+    }
+
+    return $out;
+}
+
 sub convert_user_mentions {
     my ( $ref, $opts ) = @_;
+
+    # With as_tags, write <user> source tags instead of rendering them: the
+    # cleaner turns those into exactly the same output (see user_link_html).
+    my $link = $opts->{as_tags}
+        ? sub {
+        my ( $user, $site ) = @_;
+        my $tag = qq{<user name="$user"};
+        $tag .= qq{ site="$site"} if length $site && $site ne $LJ::DOMAIN;
+        return "$tag>";
+        }
+        : sub { return user_link_html( $_[0], $_[1], $opts ) };
 
     my $usertag = sub {
         my ( $orig, $user, $site ) = ( $_[0], $_[1], $_[2] || $LJ::DOMAIN );
@@ -1977,10 +2186,10 @@ sub convert_user_mentions {
         my ( $atuser, $atsitename ) = split /\.([^.]+)$/, ( $orig =~ tr/@//dr );
         if ($atsitename) {
             my $atsite = DW::External::Site->get_site( site => $atsitename );
-            return user_link_html( $atuser, $atsitename, $opts )
+            return $link->( $atuser, $atsitename )
                 if $atsite && $atsite->servicetype eq "atproto";
         }
-        return user_link_html( $user, $site, $opts );
+        return $link->( $user, $site );
     };
 
     # First pass is just to look for an edge case where an unescaped
@@ -2070,5 +2279,26 @@ sub legacy_markdown {
     my ($ref) = @_;
     return $$ref =~ s/^\s*!markdown\s*\r?\n//is;
 }
+
+# An HTML::TokeParser that numbers the tokens it returns (1, 2, 3 ... in source
+# order, however they were read: get_token, or get_text/get_tag reading ahead and
+# handing one back), for casual_to_explicit.
+package LJ::CleanHTML::NumberedTokens;
+use parent -norequire, 'HTML::TokeParser';
+
+sub get_token {
+    my $self  = shift;
+    my $token = $self->SUPER::get_token(@_);
+    $self->{dw_token_number} = ++$self->{dw_tokens_read} if $token;
+    return $token;
+}
+
+sub unget_token {
+    my $self = shift;
+    $self->{dw_tokens_read} -= scalar @_;
+    return $self->SUPER::unget_token(@_);
+}
+
+package LJ::CleanHTML;
 
 1;

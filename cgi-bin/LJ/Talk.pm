@@ -1506,6 +1506,7 @@ sub talkform {
     my $editors = DW::Formats::select_items(
         current   => $form->{prop_editor},
         preferred => $remote ? $remote->prop('comment_editor') : '',
+        comment   => 1,
     );
 
     my $screening = LJ::Talk::screening_level( $journalu, $opts->{ditemid} >> 8 ) // '';

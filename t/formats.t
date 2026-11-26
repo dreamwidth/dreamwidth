@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More tests => 33;
 
 BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
 use DW::Formats;
@@ -90,5 +90,49 @@ is(
     1 + scalar @DW::Formats::active_formats,
     "w/ obsolete current format, that obsolete format is added to the list."
 );
+
+note("Retired and unavailable formats");
+
+my $values = sub {
+    [ map { $_->{value} } @{ $_[0]->{items} } ]
+};
+
+$select = DW::Formats::select_items( current => 'rte0' );
+is( $select->{selected}, 'rte1', "An entry in the retired rte0 format is edited as rte1." );
+ok( !( grep { $_ eq 'rte0' } @{ $values->($select) } ), "rte0 is not offered as a choice." );
+is( DW::Formats::edit_format('rte0'), 'rte1', "edit_format maps rte0 to its editor." );
+ok( DW::Formats::is_retired('rte0'),  "rte0 is retired." );
+ok( !DW::Formats::is_retired('rte1'), "rte1 is not." );
+is( DW::Formats::upgrade('rte0'),
+    'rte0', "rte0 is not an upgrade path: stored values stay as they are." );
+
+$select = DW::Formats::select_items( preferred => 'rte0' );
+is( $select->{selected}, 'rte1', "A stored rte0 entry preference means rte1." );
+
+$select = DW::Formats::select_items( comment => 1 );
+ok( !( grep { $_ eq 'rte1' } @{ $values->($select) } ), "Comments are not offered rte1." );
+
+foreach my $pref (qw( rte0 rte1 )) {
+    $select = DW::Formats::select_items( comment => 1, preferred => $pref );
+    is( $select->{selected}, $DW::Formats::default_format,
+        "A comment preference for $pref falls back to the default format." );
+}
+
+ok( !DW::Formats::is_active( 'rte1', comment => 1 ), "rte1 is not an active comment format." );
+
+foreach my $case ( [ rte0 => $DW::Formats::default_format ], [ rte1 => 'html_raw0' ] ) {
+    my ( $current, $same ) = @$case;
+    $select =
+        DW::Formats::select_items( comment => 1, current => $current, preferred => 'markdown0' );
+    is( $select->{selected}, $same,
+        "A comment redisplayed with format $current selects $same, which renders it the same." );
+    ok(
+        !( grep { $_ eq $current } @{ $values->($select) } ),
+        "...and $current is not added to the comment menu."
+    );
+}
+
+$select = DW::Formats::select_items( comment => 1, current => 'html_casual0' );
+is( $select->{selected}, 'html_casual0', "An obsolete casual comment format is still kept." );
 
 ok( !( grep { /ljlib\.pl$/ } keys %INC ), 'ran without loading ljlib.pl' );

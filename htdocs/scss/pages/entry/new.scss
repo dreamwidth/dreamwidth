@@ -201,6 +201,30 @@
     }
 }
 
+// Subject and format menu on one line; on a narrow screen the menu wraps
+// under the subject.
+.subject-format-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 1rem;
+
+    .subject-container {
+        flex: 1 1 20rem;
+        min-width: 0;
+    }
+
+    .markup-container {
+        flex: none;
+
+        select#editor { // as wide as its longest choice, room for the arrow
+            flex-grow: 0;
+            width: auto;
+            padding-right: 1.75rem;
+        }
+    }
+}
+
 .markup-container {
     display: flex;
     align-items: center;
@@ -218,6 +242,13 @@
 
     select#editor {
         flex-grow: 1;
+    }
+
+    label.invisible { // the menu's label is for screen readers; take no room
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
     }
 }
 

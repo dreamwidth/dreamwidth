@@ -1,0 +1,625 @@
+/* htdocs/scss/components/dw-editor.scss
+ *
+ * Styles for the rich text editor (DWEditor / ProseMirror).
+ * Used on the entry forms when the "Rich Text" format is selected.
+ *
+ * Authors:
+ *     Mark Smith <mark@qq.is>
+ *
+ * Copyright (c) 2026 by Dreamwidth Studios, LLC.
+ *
+ * This program is free software; you may redistribute it and/or modify it under
+ * the same terms as Perl itself.  For a copy of the license, please reference
+ * 'perldoc perlartistic' or 'perldoc perlgpl'.
+ */
+
+/* === ProseMirror base styles (from prosemirror-view/style/prosemirror.css) === */
+
+.ProseMirror {
+    position: relative;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    white-space: break-spaces;
+    -webkit-font-variant-ligatures: none;
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0;
+}
+
+.ProseMirror pre {
+    white-space: pre-wrap;
+}
+
+.ProseMirror li {
+    position: relative;
+}
+
+.ProseMirror-hideselection *::selection {
+    background: transparent;
+}
+.ProseMirror-hideselection *::-moz-selection {
+    background: transparent;
+}
+.ProseMirror-hideselection {
+    caret-color: transparent;
+}
+
+.ProseMirror [draggable][contenteditable="false"] {
+    user-select: text;
+}
+
+.ProseMirror-selectednode {
+    outline: 2px solid #8cf;
+}
+
+/* Make sure li selections wrap around markers */
+li.ProseMirror-selectednode {
+    outline: none;
+}
+li.ProseMirror-selectednode:after {
+    content: "";
+    position: absolute;
+    left: -32px;
+    right: -2px;
+    top: -2px;
+    bottom: -2px;
+    border: 2px solid #8cf;
+    pointer-events: none;
+}
+
+img.ProseMirror-separator {
+    display: inline !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+.ProseMirror-gapcursor {
+    display: none;
+    pointer-events: none;
+    position: absolute;
+}
+
+.ProseMirror-gapcursor:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -2px;
+    width: 20px;
+    border-top: 1px solid black;
+    animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes ProseMirror-cursor-blink {
+    to {
+        visibility: hidden;
+    }
+}
+
+.ProseMirror-focused .ProseMirror-gapcursor {
+    display: block;
+}
+
+/* === Editor frame === */
+
+.dw-editor {
+    border: 1px solid #999;
+    border-radius: 3px;
+    background: #fff;
+    margin-bottom: 0.5em;
+}
+
+.dw-editor .ProseMirror {
+    min-height: 250px;
+    padding: 0.5em 0.75em;
+    outline: none;
+
+    // Markup carried through from an existing entry keeps its own style
+    // attributes; keep position:fixed/absolute ones from escaping the editor.
+    contain: paint;
+}
+
+.dw-editor .ProseMirror p {
+    margin: 0 0 0.75em;
+}
+
+.dw-editor .ProseMirror blockquote {
+    border-left: 3px solid #ccc;
+    margin-left: 0.5em;
+    padding-left: 0.75em;
+}
+
+/* Shown above the editor when an entry or draft written in the retired rich
+ * text editor (rte0) has been loaded into this one. Meant to be hard to miss. */
+
+.alert-box.rte0-warning {
+    margin-bottom: 0.75em;
+    border: 3px solid #700;
+    background: #b00;
+    color: #fff;
+    font-size: 1.15em;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+
+/* === Toolbar === */
+
+.dw-editor-toolbar {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap; // one row; what doesn't fit goes in the More panel
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border-bottom: 1px solid #ccc;
+    background: #f4f4f4;
+    border-radius: 3px 3px 0 0;
+}
+
+.dw-editor-toolbar-group {
+    display: inline-flex;
+    gap: 2px;
+    padding: 0 4px;
+    border-right: 1px solid #ddd;
+}
+
+.dw-editor-toolbar-group:last-child {
+    border-right: none;
+}
+
+.dw-editor-icon {
+    display: block;
+    margin: 0 auto;
+}
+
+.dw-editor-button {
+    min-width: 28px;
+    height: 28px;
+    margin: 0; // override Foundation's form-control bottom margin
+    padding: 0 5px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background: none;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    color: #333;
+}
+
+.dw-editor-button:hover:not(:disabled) {
+    background: #e2e2e2;
+    border-color: #ccc;
+}
+
+.dw-editor-button[aria-pressed="true"] {
+    background: #d8e4f0;
+    border-color: #9bc;
+}
+
+// The site's own button styles color a disabled button in; a toolbar button
+// that can't be used right now should just fade.
+.dw-editor-toolbar .dw-editor-button:disabled,
+.dw-editor-toolbar .dw-editor-button:disabled:hover {
+    background: none;
+    border-color: transparent;
+    color: #333;
+    opacity: 0.35;
+    cursor: default;
+}
+
+// The site's button focus style looks like a pressed button; show focus only
+// for the keyboard, as an outline.
+.dw-editor-toolbar .dw-editor-button:focus:not(:hover):not([aria-pressed="true"]):not([aria-expanded="true"]) {
+    background: none;
+    border-color: transparent;
+}
+
+.dw-editor-toolbar .dw-editor-button:focus-visible {
+    outline: 2px solid #8cf;
+    outline-offset: -1px;
+}
+
+/* The More button and the panel holding the groups that didn't fit. */
+.dw-editor-more {
+    position: relative;
+    margin-left: auto;
+    flex: none;
+}
+
+.dw-editor-more[hidden],
+.dw-editor-more-panel[hidden] {
+    display: none;
+}
+
+.dw-editor-more-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+    width: max-content;
+    max-width: 320px;
+    margin-top: 2px;
+    padding: 4px;
+    background: #f4f4f4;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dw-editor-more-panel .dw-editor-dropdown-menu {
+    left: auto;
+    right: 0;
+}
+
+.dw-editor-toolbar-group {
+    flex: none;
+}
+
+/* A button that opens a menu (alignment, tables). */
+.dw-editor-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dw-editor-dropdown-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.dw-editor-dropdown-face .dw-editor-icon {
+    display: block;
+}
+
+.dw-editor-dropdown-caret {
+    width: 0;
+    height: 0;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid currentColor;
+}
+
+.dw-editor-dropdown-button[aria-expanded="true"] {
+    background: #e2e2e2;
+    border-color: #ccc;
+}
+
+.dw-editor-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 20;
+    min-width: 12em;
+    margin-top: 2px;
+    padding: 4px 0;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dw-editor-dropdown-menu[hidden] {
+    display: none;
+}
+
+.dw-editor-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin: 0;
+    padding: 5px 12px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: #333;
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.dw-editor-dropdown-item .dw-editor-icon {
+    margin: 0;
+    flex: none;
+}
+
+.dw-editor-dropdown-item:hover:not(:disabled),
+.dw-editor-dropdown-item:focus:not(:disabled) {
+    background: #e8eef5;
+    outline: none;
+}
+
+.dw-editor-dropdown-item[aria-checked="true"] {
+    font-weight: bold;
+}
+
+.dw-editor-toolbar .dw-editor-dropdown-item:disabled,
+.dw-editor-toolbar .dw-editor-dropdown-item:disabled:hover {
+    background: none;
+    color: #999;
+    cursor: default;
+}
+
+.dw-editor-dropdown-separator {
+    height: 1px;
+    margin: 4px 0;
+    background: #ddd;
+}
+
+.dw-editor-blockselect,
+.dw-editor-sizeselect {
+    width: auto;
+    height: 28px;
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: 1.2;
+    margin: 0; // override new.css's `select { margin: 0 0 1rem }`, which
+    // otherwise makes the toolbar's flex row tall and leaves a gap under the icons
+    font-size: 13px;
+}
+
+/* A color control: the native color input sits invisibly over the button,
+ * so a click opens the browser's color picker. The bar shows the current color. */
+.dw-editor-color {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dw-editor-color input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.dw-editor-color-bar {
+    display: block;
+    width: 14px;
+    height: 3px;
+    margin-top: 1px;
+    background: transparent;
+}
+
+.dw-editor-color.dw-editor-disabled {
+    opacity: 0.4;
+}
+
+.dw-editor-color.dw-editor-disabled input[type="color"] {
+    cursor: default;
+}
+
+/* === Tables === */
+
+/* Cells get a faint outline while editing, so a table without borders can
+ * still be seen and clicked into. It isn't part of the entry. */
+.dw-editor .ProseMirror table {
+    border-collapse: collapse;
+    margin: 0.5em 0;
+}
+
+.dw-editor .ProseMirror td,
+.dw-editor .ProseMirror th {
+    min-width: 2em;
+    padding: 3px 5px;
+    outline: 1px dashed #bbb;
+    vertical-align: top;
+}
+
+/* A cell holding running text is edited in a paragraph that isn't saved. */
+.dw-editor .ProseMirror td:not([data-dw-loose]) > p,
+.dw-editor .ProseMirror th:not([data-dw-loose]) > p {
+    margin: 0;
+}
+
+.dw-editor .ProseMirror .selectedCell {
+    background: rgba(140, 200, 255, 0.35);
+}
+
+/* === Cut tag === */
+
+.dw-editor-cut {
+    border: 1px dashed #9bc;
+    border-radius: 3px;
+    margin: 0 0 0.75em;
+}
+
+.dw-editor-cut-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    padding: 2px 8px;
+    background: #eef4fa;
+    border-bottom: 1px dashed #9bc;
+    font-size: 0.85em;
+    color: #357;
+}
+
+.dw-editor-cut-label::before {
+    content: "\2702\00a0"; /* scissors */
+}
+
+.dw-editor-cut-edit {
+    border: none;
+    background: none;
+    color: #357;
+    text-decoration: underline;
+    font-size: inherit;
+    cursor: pointer;
+    padding: 0;
+}
+
+.dw-editor-cut-content {
+    padding: 0.5em 0.75em 0;
+}
+
+/* === User chip === */
+
+.dw-editor-user {
+    display: inline-block;
+    padding: 0 0.3em;
+    border: 1px solid #9bc;
+    border-radius: 3px;
+    background: #eef4fa;
+    color: #246;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.dw-editor-user-icon {
+    vertical-align: text-bottom;
+    margin-right: 2px;
+    border: 0;
+}
+
+.dw-editor-user-external {
+    border-style: dashed;
+}
+
+/* === Literal HTML block === */
+
+.dw-editor-html-block {
+    border: 1px dashed #b96;
+    border-radius: 3px;
+    margin: 0 0 0.75em;
+    background: #fdf8f2;
+}
+
+.dw-editor-html-badge {
+    padding: 1px 8px;
+    border-bottom: 1px dashed #b96;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #963;
+}
+
+.dw-editor-html-source {
+    margin: 0;
+    padding: 0.4em 0.75em;
+    font-family: monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+}
+
+/* An empty inline element kept verbatim, e.g. <a name="top"></a> */
+
+.dw-editor-html-inline {
+    display: inline-block;
+    padding: 0 4px;
+    border: 1px dashed #b96;
+    border-radius: 3px;
+    background: #fdf8f2;
+    color: #963;
+    font-family: monospace;
+    font-size: 0.8em;
+    vertical-align: baseline;
+}
+
+/* === Mention dropdown === */
+
+.dw-editor-mentions {
+    position: absolute;
+    z-index: 1000;
+    min-width: 12em;
+    max-width: 24em;
+    border: 1px solid #999;
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 0.9em;
+}
+
+.dw-editor-mention-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    padding: 3px 8px;
+    cursor: pointer;
+}
+
+.dw-editor-mention-active {
+    background: #d8e4f0;
+}
+
+.dw-editor-mention-note {
+    color: #888;
+    font-style: italic;
+}
+
+/* === Dialogs === */
+
+.dw-editor-dialog {
+    border: 1px solid #999;
+    border-radius: 4px;
+    padding: 1em 1.25em;
+    min-width: 20em;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dw-editor-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dw-editor-dialog h3 {
+    margin: 0 0 0.75em;
+    font-size: 1.1em;
+}
+
+.dw-editor-dialog label {
+    display: block;
+    margin-bottom: 0.75em;
+}
+
+.dw-editor-dialog input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.2em;
+}
+
+.dw-editor-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5em;
+    margin-top: 1em;
+}
+
+/* Over the body while casual HTML is being converted to rich text: nothing can
+ * be typed or inserted until it finishes or is cancelled. */
+
+.dw-editor-busy-host {
+    position: relative;
+}
+
+.dw-editor-busy {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75em;
+    background: rgba(255, 255, 255, 0.85);
+    font-weight: bold;
+
+    .button {
+        margin: 0;
+    }
+}

@@ -1,5 +1,5 @@
 // Simple mode of the entry form: presentation-only behaviour on top of the
-// shared entry form scripts (new.js, rte.js, drafts.js, image-insert.js).
+// shared entry form scripts (new.js, editor.js, drafts.js, image-insert.js).
 // Copyright (c) 2026 by Dreamwidth Studios, LLC. Same terms as Perl itself.
 (function ($) {
     "use strict";
@@ -10,7 +10,7 @@
         var $form = $("#js-post-entry.entry-simple");
         if (!$form.length) return;
 
-        // Rich Text / HTML tabs drive the shared format select; rte.js reacts
+        // Rich Text / HTML tabs drive the shared format select; editor.js reacts
         // to its change event exactly as it does on the advanced form. It
         // listens natively, so a jQuery-triggered event would not reach it.
         var $editor = $("#editor");
@@ -18,23 +18,29 @@
             $editor.val(value);
             $editor[0].dispatchEvent(new Event("change", { bubbles: true }));
         };
-        var lastPlain = $editor.val() !== "rte0" ? $editor.val()
-            : $editor.find("option:not([value='rte0'])").first().val();
+        // The HTML tab edits explicit HTML, so raw HTML is its default.
+        var lastPlain = $editor.val() !== "rte1" ? $editor.val()
+            : $editor.find("option[value='html_raw0']").length ? "html_raw0"
+            : $editor.find("option:not([value='rte1'])").first().val();
         var syncTabs = function () {
-            var rich = $editor.val() === "rte0";
+            var rich = $editor.val() === "rte1";
             $("#jrich").toggleClass("on", rich);
             $("#jplain").toggleClass("on", !rich);
             $("#htmltools").toggle(!rich);
             if (!rich) lastPlain = $editor.val();
         };
+        // A tab click while a conversion is running abandons it, whichever tab.
+        var cancelConversion = function () { if (window.DWConvert) DWConvert.cancel(); };
         $("#jrich a").on("click", function (e) {
             e.preventDefault();
-            if ($editor.val() === "rte0") return;
-            setEditor("rte0");
+            cancelConversion();
+            if ($editor.val() === "rte1") return;
+            setEditor("rte1");
         });
         $("#jplain a").on("click", function (e) {
             e.preventDefault();
-            if ($editor.val() !== "rte0") return;
+            cancelConversion();
+            if ($editor.val() !== "rte1") return;
             setEditor(lastPlain);
         });
         $editor.on("change", syncTabs);

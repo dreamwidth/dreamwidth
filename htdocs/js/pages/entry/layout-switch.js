@@ -15,10 +15,9 @@
         form.addEventListener("input", mark, true);
         form.addEventListener("change", mark, true);
 
+        // Edits inside the rich text editor aren't form input events.
         var richTextDirty = function () {
-            if (typeof FCKeditorAPI === "undefined") return false;
-            var editor = FCKeditorAPI.GetInstance("entry-body");
-            return !!(editor && editor.IsDirty && editor.IsDirty());
+            return !!(window.DWEditor && DWEditor.isDirty("entry-body"));
         };
 
         // Remember the chosen layout for links from the retired pages. A beacon

@@ -1812,32 +1812,6 @@ event.xpost.success.content=Crosspost to [[accountname]] successful.
 
 event.xpost.success.title=Crosspost of <a href="[[entryurl]]">[[entrydesc]]</a> to [[accountname]] action successful.
 
-fckland.ljimage=Insert/Edit Image
-
-fcklang.cutcontents=Enter your cut contents here.
-
-fcklang.cutprompt=Cut link text?
-
-fcklang.embedcontents=Add media from other websites by copying and pasting their embed code here.
-
-fcklang.embedprompt=Insert Embedded Content
-
-fcklang.invalidchars=Invalid characters in account name
-
-fcklang.ljcut=Cut
-
-fcklang.ljuser=Account
-
-fcklang.ljvideo2=Embed Media
-
-fcklang.readmore=Read more...
-
-fcklang.userprompt=Enter an account name
-
-fcklang.userprompt.site=External Site (optional)
-
-fcklang.userprompt.user=Username
-
 Help=Help
 
 img.arrow-down=Open

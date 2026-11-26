@@ -704,7 +704,8 @@ sub create_qr_div {
     }
 
     # hashref with "selected" and "items" keys
-    my $editors = DW::Formats::select_items( preferred => $remote->prop('comment_editor'), );
+    my $editors =
+        DW::Formats::select_items( preferred => $remote->prop('comment_editor'), comment => 1 );
 
     # FIXME: This is incoherent on reading/network pages. (But it's only
     # noticeable when viewing the reading/network page of someone who wouldn't
@@ -1219,7 +1220,7 @@ sub res_includes {
 
                 my $path;
                 my $mtime = _file_modtime( $key, $now );
-                if ( $key =~ m!^stc/fck/! || $LJ::FORCE_WSTAT{$key} ) {
+                if ( $LJ::FORCE_WSTAT{$key} ) {
                     $path = "w$key";    # wstc/ instead of stc/
                 }
                 else {
@@ -2046,42 +2047,6 @@ jQuery(function(jQ){
     }
 })
 </script>};
-
-    return $ret;
-}
-
-# For the Rich Text Editor
-# Set JS variables for use by the RTE
-sub rte_js_vars {
-    my ($remote) = @_;
-
-    my $ret = '';
-
-    # The JS var canmakepoll is used by fckplugin.js to change the behaviour
-    # of the poll button in the RTE.
-    # Also remove any RTE buttons that have been set to disabled.
-    my $canmakepoll = "true";
-    $canmakepoll = "false" if ( $remote && !$remote->can_create_polls );
-    $ret .= "<script type='text/javascript'>\n";
-    $ret .= "    var RTEdisabled = new Array();\n";
-    my $rte_disabled = $LJ::DISABLED{rte_buttons} || {};
-    foreach my $key ( keys %$rte_disabled ) {
-        $ret .= "    RTEdisabled['$key'] = true;" if $rte_disabled->{$key};
-    }
-
-    $ret .= qq^
-        var canmakepoll = $canmakepoll;
-
-        function removeDisabled(ToolbarSet) {
-            for (var i=0; i<ToolbarSet.length; i++) {
-                for (var j=0; j<ToolbarSet[i].length; j++) {
-                    if (RTEdisabled[ToolbarSet[i][j]] == true) ToolbarSet[i].splice(j,1);
-                }
-            }
-        }
-
-        var SiteConfig = new Object();
-    </script>^;
 
     return $ret;
 }

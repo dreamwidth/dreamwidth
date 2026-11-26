@@ -32,6 +32,19 @@ LJDraft.handleInput = function (evt) {
 
 }
 
+// Edits made inside the rich text editor don't fire input events on the
+// textarea, so editor.js reports them here. They're handled exactly like plain
+// edits: ignored where autosave isn't running (editing a published entry must
+// never write the new-entry draft), and remembered while the initial draft
+// clear is still in flight.
+LJDraft.richInput = function () {
+    if (LJDraft.bound) {
+        LJDraft.handleInput();
+    } else if (LJDraft.clearPending) {
+        LJDraft.clearPending.body = true;
+    }
+};
+
 LJDraft.currentProperties = function () {
     return {
         editor: $("#editor").val(),
@@ -55,6 +68,14 @@ LJDraft.handleChange = function (evt) {
         return;
     }
 
+    // Switching format converts the body, so the converted body and its format
+    // have to be stored together (a reload would otherwise restore the old
+    // body under the new format).
+    if (evt.target.id == "editor") {
+        LJDraft.saveBody();
+        return;
+    }
+
     // Widget initialization can dispatch delayed changes after restoration.
     // Ignore only the current saved-property snapshot; user reversions differ
     // after a real save updates that snapshot.
@@ -62,8 +83,13 @@ LJDraft.handleChange = function (evt) {
     LJDraft.saveProperties();
 }
 
-LJDraft.saveProperties = function () {
-    let newProps = {
+// The draft's properties as the server stores them. The server replaces the
+// whole set whenever it gets any of them, so they are always sent together.
+LJDraft.propertyPayload = function () {
+    let props = {
+        // Tells the server this page sends the format with its body; older
+        // pages sent them separately (see draft_rpc_handler).
+        draftv: 2,
         saveEditor: $("#editor").val(),
         saveSubject: $("#id-subject-0").val(),
         saveTaglist: $("#js-taglist").val(),
@@ -78,12 +104,15 @@ LJDraft.saveProperties = function () {
     };
 
     if ( $("#prop_picture_keyword") ) { //In case the user has no userpics
-        newProps.saveUserpic = $("#prop_picture_keyword").val();
+        props.saveUserpic = $("#prop_picture_keyword").val();
     };
 
-    LJDraft.savedProperties = LJDraft.currentProperties();
-    $.post("/__rpc_draft", newProps);
+    return props;
+};
 
+LJDraft.saveProperties = function () {
+    LJDraft.savedProperties = LJDraft.currentProperties();
+    $.post("/__rpc_draft", LJDraft.propertyPayload());
 };
 
 LJDraft.saveBody = function () {
@@ -92,20 +121,16 @@ LJDraft.saveBody = function () {
     LJDraft.saveInProg = true;
     let curBody;
 
-    if ($("#entry-body").css('display') == 'none') { // Need to check this to deal with hitting the back button
-        // Since they may start using the RTE in the middle of writing their
-        // entry, we should just get the editor each time.
-        if (! FCKeditorAPI) return;
-        var oEditor = FCKeditorAPI.GetInstance('entry-body');
-        if (oEditor.GetXHTML) {
-            curBody = oEditor.GetXHTML(true);
-            curBody = curBody.replace(/\n/g, '');
-        }
+    if (window.DWEditor && DWEditor.isActive('entry-body')) { // New rich text editor (rte1)
+        curBody = DWEditor.getHTML('entry-body');
     } else {
         curBody = $("#entry-body").val();
     }
 
-    $.post("/__rpc_draft", {"saveDraft": curBody}, function () {
+    // The body goes with the current properties (notably the format it is
+    // written in), so the two can never be stored out of step.
+    LJDraft.savedProperties = LJDraft.currentProperties();
+    $.post("/__rpc_draft", Object.assign({"saveDraft": curBody}, LJDraft.propertyPayload()), function () {
         let date = new Date();
         let msg = LJDraft.savedMsg.replace(/\[\[time\]\]/, date.toLocaleTimeString('en-US', {timeStyle: "medium"}));
         $("#draftstatus").text(msg + ' ');
@@ -115,6 +140,7 @@ LJDraft.saveBody = function () {
 };
 
 function initDraft(askToRestore) {
+    let persistConverted = false;
     if (askToRestore && restoredDraft) {
         if (confirm(confirmMsg)) {
           // If the user wants to restore the draft, we place the
@@ -123,6 +149,13 @@ function initDraft(askToRestore) {
           // A legacy saved-properties hash can lack editor. Preserve the
           // form's preferred current mode instead of clearing its selection.
           if (restoredEditor) {
+              // A draft saved in the retired rich text editor (rte0) was
+              // converted to rte1 by the server; warn that it needs checking.
+              if (restoredRte0) {
+                  $("#js-rte0-warning").removeClass('display_none');
+                  $("#js-rte0-converted").val(1);
+                  persistConverted = true;
+              }
               $("#editor").val(restoredEditor);
           }
           $("#draftstatus").text(restoredMsg);
@@ -145,6 +178,7 @@ function initDraft(askToRestore) {
             // normal autosave handlers first would let their requests race the
             // clear, so only remember changes until the clear has succeeded.
             const changed = { body: false, properties: false };
+            LJDraft.clearPending = changed;
             const initialBody = $("#entry-body").val();
             const initialProperties = LJDraft.currentProperties();
             $("#content").on("input.draft-clear", "#entry-body", function () {
@@ -157,11 +191,13 @@ function initDraft(askToRestore) {
             $("#content").on("input.draft-clear change.draft-clear", ".draft-autosave", captureProperties);
             $.post("/__rpc_draft", {clearProperties: 1, clearDraft: 1}).done(function () {
                 $("#content").off(".draft-clear");
+                LJDraft.clearPending = null;
                 bindDraftHandlersAfterInitialization();
                 if (changed.properties) LJDraft.saveProperties();
                 if (changed.body) LJDraft.saveBody();
             }).fail(function () {
                 $("#content").off(".draft-clear");
+                LJDraft.clearPending = null;
                 bindDraftHandlersAfterInitialization();
             });
             return;
@@ -169,6 +205,11 @@ function initDraft(askToRestore) {
    }
 
     bindDraftHandlersAfterInitialization();
+
+    // The stored draft is still the old editor's text under the old format.
+    // Store the converted text and its new format together, right away, so no
+    // later save can pair one with the other.
+    if (persistConverted) LJDraft.saveBody();
 }
 
 function bindDraftHandlersAfterInitialization() {
@@ -179,6 +220,7 @@ function bindDraftHandlersAfterInitialization() {
 }
 
 function bindDraftHandlers() {
+    LJDraft.bound = true;
     $("#content").on('change', '.draft-autosave', null, LJDraft.handleChange);
     $("#content").on('input', '#entry-body', null, LJDraft.handleInput);
 }
@@ -190,10 +232,5 @@ LJDraft.savedMsg = savedMsg;
 
 if (should_init != null) {
     initDraft(should_init);
-
-    // Hook into the RTE iframe once it's loaded, if we have draft support.
-    function FCKeditor_OnComplete( editor ){ 
-        editor.EditorDocument.addEventListener('input', LJDraft.handleInput);
-    };
 }
 
