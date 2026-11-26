@@ -33,7 +33,6 @@ h3.entry-title {
 .moderated-entry .header, .moderated-entry .age-restriction-reason { font-size: smaller; }
 .moderated-entry .currents {background-color: transparent; border: none; margin-left: 0;}
 .moderated-entry .currents td { padding: 0.2em 0.5em; font-size: smaller;}
-.moderated-entry h3.entry-title { margin: 0; }
 .moderated-entry .subject { margin: 10px 0; }
 
 
