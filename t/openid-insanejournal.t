@@ -445,6 +445,51 @@ subtest 'provider confirmation checks TLS, User-Agent, no-redirect, and persists
         'migration history does not resolve an underscore lookup to an expunged account' );
     };
 
+subtest 'a failed migration audit leaves the legacy identity intact' => sub {
+    my $alias_http      = "http://dw_openid_${suffix}_audit.insanejournal.com/";
+    my $alias_https     = "https://dw_openid_${suffix}_audit.insanejournal.com/";
+    my $canonical_https = "https://dw-openid-$suffix-audit.insanejournal.com/";
+    my $alias           = LJ::User::load_identity_user( 'O', $alias_http );
+    BAIL_OUT('Could not create the audit failure fixture') unless $alias;
+
+    my $dbh = LJ::get_db_writer();
+    $dbh->do( 'CREATE TEMPORARY TABLE infohistory (userid INT NOT NULL, what VARCHAR(15) NOT NULL, '
+            . 'timechange DATETIME DEFAULT CURRENT_TIMESTAMP, oldvalue VARCHAR(255), '
+            . 'other VARCHAR(30), UNIQUE (userid, what)) ENGINE=InnoDB' )
+        or die $dbh->errstr;
+    $dbh->do( 'INSERT INTO infohistory (userid, what, oldvalue) VALUES (?, ?, ?)',
+        undef, $alias->id, 'identity', 'previous audit entry' )
+        or die $dbh->errstr;
+
+    my ($migrated) = do {
+        local $dbh->{RaiseError} = 0;
+        local $dbh->{PrintError} = 0;
+        run_with_openid_http(
+            sub {
+                my ($req) = @_;
+                return discovery_html($IJ_OPENID_SERVER)
+                    if $req->method eq 'GET' && $req->uri->as_string eq $canonical_https;
+                return HTTP::Response->new( 200, 'OK', [], "is_valid:true\n" )
+                    if $req->method eq 'POST' && $req->uri->as_string eq $IJ_OPENID_SERVER;
+                return HTTP::Response->new( 302, 'Found', [ Location => $canonical_https ] )
+                    if $req->method eq 'HEAD' && $req->uri->as_string eq $alias_https;
+                return HTTP::Response->new(404);
+            },
+            sub {
+                my $csr      = LJ::OpenID::consumer( make_openid_args($canonical_https) );
+                my $verified = $csr->verified_identity or die $csr->err;
+                return LJ::User::load_identity_user( 'O', $canonical_https, $verified );
+            }
+        );
+    };
+    $dbh->do('DROP TEMPORARY TABLE infohistory') or die $dbh->errstr;
+
+    is( $migrated, undef, 'database rejection of the audit makes migration fail closed' );
+    my $mapped = $dbh->selectcol_arrayref( 'SELECT identity FROM identitymap WHERE userid=?',
+        undef, $alias->id );
+    is_deeply( $mapped, [$alias_http], 'the writer still holds the original underscore mapping' );
+};
+
 subtest 'verified boundary and exact-precedence cases with legacy candidates present' => sub {
 
     # 1. Non-root path on same InsaneJournal host with legacy candidate present.
@@ -637,6 +682,9 @@ subtest 'canonical scheme reuse does not alias unmigrated underscore names' => s
     my $created_http  = "http://dw-openid-$suffix-https-first.insanejournal.com/";
     my $created       = LJ::User::load_identity_user( 'O', $created_https );
     BAIL_OUT('Could not create canonical HTTPS fixture') unless $created;
+    my $existing_from_http = LJ::User::load_existing_identity_user( 'O', $created_http );
+    is( $existing_from_http && $existing_from_http->id,
+        $created->id, 'read-only HTTP lookup reuses an existing HTTPS account' );
     my $from_http = LJ::User::load_identity_user( 'O', $created_http );
     is( $from_http && $from_http->id,
         $created->id, 'HTTP creation reuses an existing HTTPS account' );

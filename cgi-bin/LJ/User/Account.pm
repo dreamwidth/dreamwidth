@@ -1028,13 +1028,21 @@ sub _identity_mapping_userid {
 
 # class function - load an identity user, but only if they're already known to us
 sub load_existing_identity_user {
-    my ( $type, $ident, $dbh, $fallback_ident ) = @_;
+    my ( $type, $ident, $dbh ) = @_;
 
     $dbh ||= LJ::get_db_reader();
 
+    my ( $scheme, $slug ) = $type eq 'O' ? $ident =~ $INSANEJOURNAL_IDENTITY_URL : ();
+    my $fallback_ident;
+
     # if given an https URL, also look for existing http account
     # (we should have stripped the protocol before storing these, sigh)
-    $fallback_ident //= $ident =~ s/^https:/http:/r if $ident =~ /^https:/;
+    if ( $ident =~ /^https:/ ) {
+        $fallback_ident = $ident =~ s/^https:/http:/r;
+    }
+    elsif ( defined $slug ) {
+        $fallback_ident = $ident =~ s/^http:/https:/r;
+    }
 
     for my $url ( $ident, $fallback_ident ) {
         next unless defined $url;
@@ -1042,7 +1050,6 @@ sub load_existing_identity_user {
         return LJ::load_userid($uid) if $uid;
     }
 
-    my ( $scheme, $slug ) = $type eq 'O' ? $ident =~ $INSANEJOURNAL_IDENTITY_URL : ();
     return undef unless defined $slug && $slug =~ tr/_/-/;
 
     my $host         = "$slug.insanejournal.com";
@@ -1116,6 +1123,60 @@ sub _confirms_insanejournal_redirect {
         && ( $response->header('Location') // '' ) eq $ident;
 }
 
+sub _migrate_insanejournal_identity {
+    my ( $dbh, $userid, $legacy_ident, $canonical_ident ) = @_;
+    return 0 unless $dbh->{AutoCommit};
+
+    my $migrated = eval {
+        my $engine_transactions =
+            $dbh->selectcol_arrayref( 'SELECT e.TRANSACTIONS FROM information_schema.TABLES t '
+                . 'JOIN information_schema.ENGINES e ON e.ENGINE=t.ENGINE '
+                . "WHERE t.TABLE_SCHEMA=DATABASE() AND t.TABLE_NAME IN ('identitymap', 'infohistory')"
+            );
+        die 'Could not determine identity migration table engines'
+            unless $engine_transactions && @$engine_transactions == 2;
+
+        my $transactional = !grep { $_ ne 'YES' } @$engine_transactions;
+        my $audit_exists;
+        if ($transactional) {
+            $dbh->begin_work or die $dbh->errstr;
+        }
+        else {
+            ($audit_exists) = $dbh->selectrow_array(
+'SELECT 1 FROM infohistory WHERE userid=? AND what=? AND oldvalue=CAST(? AS BINARY) LIMIT 1',
+                undef, $userid, 'identity', $legacy_ident
+            );
+            die $dbh->errstr if $dbh->err;
+        }
+
+        unless ($audit_exists) {
+            my $inserted = $dbh->do(
+                'INSERT INTO infohistory (userid, what, timechange, oldvalue) VALUES (?, ?, ?, ?)',
+                undef, $userid, 'identity', LJ::mysql_time( time(), 1 ), $legacy_ident
+            );
+            die 'Could not save identity migration audit' unless $inserted && $inserted == 1;
+        }
+
+        my $updated = $dbh->do(
+            'UPDATE identitymap SET identity=? WHERE idtype=? AND identity=? AND userid=?',
+            undef, $canonical_ident, 'O', $legacy_ident, $userid );
+        die 'Could not update identity mapping' unless $updated && $updated == 1;
+
+        if ($transactional) {
+            $dbh->commit or die $dbh->errstr;
+        }
+        1;
+    };
+    return 1 if $migrated;
+
+    $log->warn( 'Could not migrate legacy InsaneJournal identity; db_errno=', $dbh->err // 0 );
+    unless ( $dbh->{AutoCommit} ) {
+        eval { $dbh->rollback }
+            or $log->warn('Could not roll back InsaneJournal identity migration');
+    }
+    return 0;
+}
+
 # class function - load an identity user, and if we've never seen them before create a user account for them
 sub load_identity_user {
     my ( $type, $ident, $vident ) = @_;
@@ -1127,7 +1188,6 @@ sub load_identity_user {
         my $identity_host  = "$slug.insanejournal.com";
         my $canonical_host = $identity_host =~ tr/_/-/r;
         my $canonical_http = "http://$canonical_host/";
-        my $alternate      = ( $scheme eq 'https' ? 'http' : 'https' ) . "://$identity_host/";
         my ( $legacy_host, $legacy_ident, $candidate );
         if ( !$u && $scheme eq 'https' && $vident && $slug =~ /-/ ) {
             $legacy_host  = $identity_host =~ tr/-/_/r;
@@ -1144,7 +1204,7 @@ sub load_identity_user {
                 wait  => 5
             ) or return undef;
             $dbh = LJ::get_db_writer() or return undef;
-            $u   = load_existing_identity_user( $type, $ident, $dbh, $alternate );
+            $u   = load_existing_identity_user( $type, $ident, $dbh );
             last if $u || !defined $legacy_ident;
 
             my $legacy_uid = _identity_mapping_userid( 'O', $legacy_ident, $dbh ) or last;
@@ -1158,25 +1218,15 @@ sub load_identity_user {
             return undef unless $confirmed;
 
             unless ( $legacy->is_expunged ) {
-                my $updated = $dbh->do(
-                    "UPDATE IGNORE identitymap SET identity=? "
-                        . "WHERE idtype=? AND identity=? AND userid=?",
-                    undef, $canonical_http, 'O', $legacy_ident, $legacy->id
-                );
-                if ( $updated && $updated == 1 ) {
-                    $legacy->infohistory_add( 'identity', $legacy_ident );
-                    delete $legacy->{_identity};
-                    LJ::MemCache::delete( [ $legacy->id, "ident:" . $legacy->id ] );
-                    LJ::MemCache::delete("uidof:$legacy_ident");
-                    LJ::MemCache::delete("uidof:https://$legacy_host/");
-                    LJ::MemCache::delete("uidof:$canonical_http");
-                    LJ::MemCache::delete("uidof:$ident");
-                }
-                else {
-                    my $existing_uid = _identity_mapping_userid( 'O', $canonical_http, $dbh );
-                    return undef unless $existing_uid && $existing_uid == $legacy->id;
-                    delete $legacy->{_identity};
-                }
+                return undef
+                    unless _migrate_insanejournal_identity( $dbh, $legacy->id, $legacy_ident,
+                    $canonical_http );
+                delete $legacy->{_identity};
+                LJ::MemCache::delete( [ $legacy->id, "ident:" . $legacy->id ] );
+                LJ::MemCache::delete("uidof:$legacy_ident");
+                LJ::MemCache::delete("uidof:https://$legacy_host/");
+                LJ::MemCache::delete("uidof:$canonical_http");
+                LJ::MemCache::delete("uidof:$ident");
             }
 
             $u = $legacy;
