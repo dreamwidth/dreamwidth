@@ -490,6 +490,54 @@ subtest 'a failed migration audit leaves the legacy identity intact' => sub {
     is_deeply( $mapped, [$alias_http], 'the writer still holds the original underscore mapping' );
 };
 
+subtest 'HTTPS legacy mappings require confirmation and retain their scheme' => sub {
+    my $alias_host      = "dw_openid_${suffix}_secure.insanejournal.com";
+    my $alias_https     = "https://$alias_host/";
+    my $alias_http      = "http://$alias_host/";
+    my $canonical_https = "https://dw-openid-$suffix-secure.insanejournal.com/";
+    my $alias           = LJ::User::load_identity_user( 'O', $alias_https );
+    BAIL_OUT('Could not create the HTTPS legacy fixture') unless $alias;
+
+    my $redirect;
+    my $handler = sub {
+        my ($req) = @_;
+        return discovery_html($IJ_OPENID_SERVER)
+            if $req->method eq 'GET' && $req->uri->as_string eq $canonical_https;
+        return HTTP::Response->new( 200, 'OK', [], "is_valid:true\n" )
+            if $req->method eq 'POST' && $req->uri->as_string eq $IJ_OPENID_SERVER;
+        return HTTP::Response->new( 302, 'Found', [ Location => $canonical_https ] )
+            if $redirect && $req->method eq 'HEAD' && $req->uri->as_string eq $alias_https;
+        return HTTP::Response->new(404);
+    };
+    my $login = sub {
+        my $csr      = LJ::OpenID::consumer( make_openid_args($canonical_https) );
+        my $verified = $csr->verified_identity or die $csr->err;
+        return LJ::User::load_identity_user( 'O', $canonical_https, $verified );
+    };
+
+    my ($rejected) = run_with_openid_http( $handler, $login );
+    is( $rejected, undef, 'missing redirect rejects the login' );
+    is( LJ::User::load_existing_identity_user( 'O', $canonical_https ),
+        undef, 'missing redirect does not create a separate canonical account' );
+    is( $alias->openid_identity, $alias_https, 'rejection leaves the HTTPS legacy mapping intact' );
+
+    $redirect = 1;
+    my ($migrated) = run_with_openid_http( $handler, $login );
+    is( $migrated && $migrated->id, $alias->id, 'confirmed login reuses the HTTPS legacy account' );
+    is( $alias->openid_identity, $canonical_https, 'migration retains the stored HTTPS scheme' );
+    for my $url ( $alias_http, $alias_https ) {
+        my $existing = LJ::User::load_existing_identity_user( 'O', $url );
+        is( $existing && $existing->id,
+            $alias->id, "audited lookup of $url still finds the account" );
+    }
+
+    my $http_vident = Net::OpenID::VerifiedIdentity->new(
+        claimed_identity => Net::OpenID::ClaimedIdentity->new( identity => $alias_http ) );
+    my $http_login = LJ::User::load_identity_user( 'O', $alias_http, $http_vident );
+    ok( $http_login && $http_login->id != $alias->id,
+        'an HTTP login does not use the audit to select the migrated HTTPS account' );
+};
+
 subtest 'verified boundary and exact-precedence cases with legacy candidates present' => sub {
 
     # 1. Non-root path on same InsaneJournal host with legacy candidate present.
@@ -688,6 +736,14 @@ subtest 'canonical scheme reuse does not alias unmigrated underscore names' => s
     my $from_http = LJ::User::load_identity_user( 'O', $created_http );
     is( $from_http && $from_http->id,
         $created->id, 'HTTP creation reuses an existing HTTPS account' );
+
+    my $http_vident = Net::OpenID::VerifiedIdentity->new(
+        claimed_identity => Net::OpenID::ClaimedIdentity->new( identity => $created_http ) );
+    my $http_login = LJ::User::load_identity_user( 'O', $created_http, $http_vident );
+    ok(
+        $http_login && $http_login->id != $created->id,
+        'an HTTP login does not select the existing HTTPS account'
+    );
 
     my $legacy_host = "dw_openid_${suffix}_https_first.insanejournal.com";
     for my $scheme ( 'http', 'https' ) {

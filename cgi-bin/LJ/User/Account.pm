@@ -1018,58 +1018,51 @@ my $INSANEJOURNAL_IDENTITY_URL  = qr!
     \.insanejournal\.com/ \z
 !x;
 
-sub _identity_mapping_userid {
-    my ( $type, $ident, $dbh ) = @_;
-    my ($uid) =
-        $dbh->selectrow_array( 'SELECT userid FROM identitymap WHERE idtype=? AND identity=?',
-        undef, $type, $ident );
-    return $uid;
+sub _find_identity_mapping {
+    my ( $dbh, $type, @urls ) = @_;
+    for my $url (@urls) {
+        my ($uid) =
+            $dbh->selectrow_array( 'SELECT userid FROM identitymap WHERE idtype=? AND identity=?',
+            undef, $type, $url );
+        return ( $uid, $url ) if $uid;
+    }
+    return;
 }
 
 # class function - load an identity user, but only if they're already known to us
 sub load_existing_identity_user {
-    my ( $type, $ident, $dbh ) = @_;
+    my ( $type, $ident, $dbh, %opts ) = @_;
 
     $dbh ||= LJ::get_db_reader();
 
-    my ( $scheme, $slug ) = $type eq 'O' ? $ident =~ $INSANEJOURNAL_IDENTITY_URL : ();
-    my $fallback_ident;
+    my ( undef, $slug ) = $type eq 'O' ? $ident =~ $INSANEJOURNAL_IDENTITY_URL : ();
+    my @urls = ($ident);
 
     # if given an https URL, also look for existing http account
     # (we should have stripped the protocol before storing these, sigh)
     if ( $ident =~ /^https:/ ) {
-        $fallback_ident = $ident =~ s/^https:/http:/r;
+        push @urls, $ident =~ s/^https:/http:/r;
     }
-    elsif ( defined $slug ) {
-        $fallback_ident = $ident =~ s/^http:/https:/r;
+    elsif ( defined $slug && !$opts{authenticating} ) {
+        push @urls, $ident =~ s/^http:/https:/r;
     }
 
-    for my $url ( $ident, $fallback_ident ) {
-        next unless defined $url;
-        my $uid = _identity_mapping_userid( $type, $url, $dbh );
+    my ($uid) = _find_identity_mapping( $dbh, $type, @urls );
+    return LJ::load_userid($uid) if $uid;
+
+    return undef unless defined $slug && $slug =~ /_/;
+
+    for my $url (@urls) {
+        ($uid) = $dbh->selectrow_array(
+            'SELECT i.userid FROM identitymap i JOIN user u USING (userid) '
+                . 'WHERE i.idtype=? AND i.identity=? AND u.statusvis<>? AND u.clusterid<>0 '
+                . 'AND EXISTS (SELECT 1 FROM infohistory h WHERE h.userid=i.userid '
+                . 'AND h.what=? AND h.oldvalue=CAST(? AS BINARY))',
+            undef, $type, $url =~ tr/_/-/r, 'X', 'identity', $url
+        );
         return LJ::load_userid($uid) if $uid;
     }
-
-    return undef unless defined $slug && $slug =~ tr/_/-/;
-
-    my $host         = "$slug.insanejournal.com";
-    my $legacy_ident = $ident =~ s/^https:/http:/r;
-    my $uid          = $dbh->selectrow_array(
-        'SELECT i.userid FROM identitymap i JOIN user u USING (userid) '
-            . 'WHERE i.idtype=? AND i.identity IN (?, ?) AND u.statusvis<>? AND u.clusterid<>0 '
-            . 'AND EXISTS (SELECT 1 FROM infohistory h WHERE h.userid=i.userid '
-            . 'AND h.what=? AND h.oldvalue=CAST(? AS BINARY)) '
-            . 'ORDER BY i.identity=? DESC LIMIT 1',
-        undef,
-        $type,
-        "http://$host/",
-        "https://$host/",
-        'X',
-        'identity',
-        $legacy_ident,
-        "$scheme://$host/"
-    );
-    return $uid ? LJ::load_userid($uid) : undef;
+    return undef;
 }
 
 sub _is_verified_insanejournal_identity {
@@ -1181,50 +1174,57 @@ sub _migrate_insanejournal_identity {
 sub load_identity_user {
     my ( $type, $ident, $vident ) = @_;
 
-    my $u = load_existing_identity_user( $type, $ident );
+    my %lookup_opts = ( authenticating => defined $vident );
+    my $u           = load_existing_identity_user( $type, $ident, undef, %lookup_opts );
     my ( $scheme, $slug ) = $type eq 'O' ? $ident =~ $INSANEJOURNAL_IDENTITY_URL : ();
     my ( $lock, $dbh );
     if ( defined $slug && ( !$u || $u->is_expunged ) ) {
         my $identity_host  = "$slug.insanejournal.com";
         my $canonical_host = $identity_host =~ tr/_/-/r;
         my $canonical_http = "http://$canonical_host/";
-        my ( $legacy_host, $legacy_ident, $candidate );
+        my ( $legacy_host,   @legacy_urls );
+        my ( $candidate_uid, $candidate_url );
         if ( !$u && $scheme eq 'https' && $vident && $slug =~ /-/ ) {
-            $legacy_host  = $identity_host =~ tr/-/_/r;
-            $legacy_ident = "http://$legacy_host/";
-            $candidate    = load_existing_identity_user( 'O', $legacy_ident );
+            $legacy_host = $identity_host =~ tr/-/_/r;
+            @legacy_urls = ( "http://$legacy_host/", "https://$legacy_host/" );
+            ( $candidate_uid, $candidate_url ) =
+                _find_identity_mapping( LJ::get_db_reader(), 'O', @legacy_urls );
         }
 
         for my $attempt ( 1 .. 2 ) {
             my $confirmed =
-                $candidate && _confirms_insanejournal_redirect( $ident, $vident, $legacy_host );
+                $candidate_uid && _confirms_insanejournal_redirect( $ident, $vident, $legacy_host );
             $lock = DW::Locker->new->trylock(
                 "openid:$canonical_host",
                 class => 'openid_identity',
                 wait  => 5
             ) or return undef;
             $dbh = LJ::get_db_writer() or return undef;
-            $u   = load_existing_identity_user( $type, $ident, $dbh );
-            last if $u || !defined $legacy_ident;
+            $u   = load_existing_identity_user( $type, $ident, $dbh, %lookup_opts );
+            last if $u || !@legacy_urls;
 
-            my $legacy_uid = _identity_mapping_userid( 'O', $legacy_ident, $dbh ) or last;
-            my $legacy = LJ::load_userid($legacy_uid) or last;
-            unless ( $candidate && $candidate->id == $legacy->id ) {
+            my ( $legacy_uid, $legacy_url ) = _find_identity_mapping( $dbh, 'O', @legacy_urls );
+            last unless $legacy_uid;
+            unless ( $candidate_uid
+                && $candidate_uid == $legacy_uid
+                && $candidate_url eq $legacy_url )
+            {
                 return undef if $attempt == 2;
-                $candidate = $legacy;
+                ( $candidate_uid, $candidate_url ) = ( $legacy_uid, $legacy_url );
                 undef $lock;
                 next;
             }
             return undef unless $confirmed;
+            my $legacy = LJ::load_userid($legacy_uid) or return undef;
 
             unless ( $legacy->is_expunged ) {
+                my $canonical_url = $legacy_url =~ /^https:/ ? $ident : $canonical_http;
                 return undef
-                    unless _migrate_insanejournal_identity( $dbh, $legacy->id, $legacy_ident,
-                    $canonical_http );
+                    unless _migrate_insanejournal_identity( $dbh, $legacy_uid, $legacy_url,
+                    $canonical_url );
                 delete $legacy->{_identity};
                 LJ::MemCache::delete( [ $legacy->id, "ident:" . $legacy->id ] );
-                LJ::MemCache::delete("uidof:$legacy_ident");
-                LJ::MemCache::delete("uidof:https://$legacy_host/");
+                LJ::MemCache::delete("uidof:$_") for @legacy_urls;
                 LJ::MemCache::delete("uidof:$canonical_http");
                 LJ::MemCache::delete("uidof:$ident");
             }
