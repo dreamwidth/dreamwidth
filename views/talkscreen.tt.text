@@ -21,6 +21,8 @@
 
 .link=<a [[aopts]]>Go back to the entry</a>.
 
+.link.comment=<a [[aopts]]>Go back to the comment</a>.
+
 .screen.doit=Yes, screen this comment
 
 .screen.sure.body=Are you sure you want to screen <a [[aopts]]>this comment</a>?
