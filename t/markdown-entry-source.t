@@ -82,6 +82,18 @@ subtest 'Embeds on post and edit' => sub {
     );
 };
 
+subtest 'Bare embed on post' => sub {
+    my $bare_embed = '<embed src="https://example.invalid/movie.swf">';
+    my ( $result, $error ) = request( 'postevent', event => "$before\n\n$bare_embed\n\n$after" );
+    is( $error, 0, 'posted an entry with a bare embed' ) or return;
+
+    like(
+        saved_source( $result->{itemid} ),
+        qr/\A\Q$before\E\n\n<site-embed id="[1-9]\d*"\/>\n\n\Q$after\E\z/,
+        'posting replaces a bare embed without changing the surrounding Markdown'
+    );
+};
+
 subtest 'Polls on post' => sub {
     $user->update_self( { status => 'A' } );
     DW::Pay::add_paid_time( $user, 'paid', 2 );

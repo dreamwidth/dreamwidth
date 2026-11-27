@@ -210,12 +210,10 @@ sub new_from_html {
     my @polls;    # completed parsed polls
 
     my $placeholder = '<poll-placeholder>';
-    if ( index( $$postref, $placeholder ) >= 0 ) {
-        my $n = 0;
-        while ( index( $$postref, $placeholder ) >= 0 ) {
-            $placeholder = "<poll-placeholder-$n>";
-            $n++;
-        }
+    my $n           = 0;
+    while ( index( $$postref, $placeholder ) >= 0 ) {
+        $placeholder = "<poll-placeholder-$n>";
+        $n++;
     }
 
     my $p = HTML::TokeParser->new($postref);
