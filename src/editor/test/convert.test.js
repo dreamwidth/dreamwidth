@@ -78,7 +78,7 @@ test("export for casual HTML writes plain paragraphs as lines of text", () => {
     const out = roundTrip(html, {}, { flatten: true });
     assert.equal(
         out,
-        "First.\n\nSecond, with a\nbreak.<ul><li>item</li></ul>After." +
+        "First.\n\nSecond, with a\nbreak.<ul\n><li>item</li\n></ul>After." +
             '<p style="text-align: center;">Centered.</p><pre><code>keep\nme</code></pre>'
     );
     // Read back as casual HTML, the same lines come out.

@@ -1151,7 +1151,15 @@ export function exportHTML(schema, doc, opts) {
             document.createTextNode("\u0001DWRAW" + ph.getAttribute("data-key") + "\u0001")
         );
     });
-    const html = joinCuts(div.innerHTML.replace(/<\/user>/g, "")).replace(
+    let markup = div.innerHTML.replace(/<\/user>/g, "");
+    // Casual HTML: each list item on its own line. A newline between items
+    // would be a <br /> in the list, so it goes inside the tags instead,
+    // where it's only whitespace: <ul\n><li>one</li\n><li>two</li\n></ul>.
+    if (opts.flatten)
+        markup = markup
+            .replace(/<((?:ul|ol)\b[^>]*)>(?=<li[\s>])/g, "<$1\u0003>")
+            .replace(/<\/li>(?=<(?:li[\s>]|\/ul>|\/ol>))/g, "</li\u0003>");
+    const html = joinCuts(markup).replace(
         /\u0001DWRAW(\d+)\u0001/g,
         (m, key) => rawChunks[+key]
     );
