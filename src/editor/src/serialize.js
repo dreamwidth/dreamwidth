@@ -185,6 +185,70 @@ const CUT_TAG = new RegExp(
     "gi"
 );
 
+// A cut tag in a table outside any cell (around whole rows), or one that
+// starts in one cell and ends in another, can't be kept in a tree: a
+// browser moves a stray <cut> out in front of the table, so the rows it hid
+// would be saved visible. The site's cleaner reads tags, so it hides them.
+// Such a table is kept as it was written, as an HTML block. (A cut inside
+// a single cell is fine and stays editable.)
+const TABLE_SCAN =
+    /<!--[\s\S]*?-->|<(script|style|textarea|xmp|title)\b[\s\S]*?<\/\1\s*>|<(\/?)([a-zA-Z][\w:-]*)(?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*\s*\/?>/g;
+
+let keptTables = [];
+
+function keepTablesWithStrayCuts(html) {
+    const stack = [];
+    const bad = [];
+    const endCell = (t) => {
+        if (t.inCell && t.cuts != 0) t.bad = true;
+        t.inCell = false;
+        t.cuts = 0;
+    };
+    let m;
+    TABLE_SCAN.lastIndex = 0;
+    while ((m = TABLE_SCAN.exec(html))) {
+        if (!m[3]) continue;
+        const name = m[3].toLowerCase();
+        const close = !!m[2];
+        const t = stack[stack.length - 1];
+        if (name == "table") {
+            if (!close) stack.push({ start: m.index, inCell: false, cuts: 0, bad: false });
+            else if (t) {
+                endCell(t);
+                stack.pop();
+                if (t.bad) bad.push([t.start, m.index + m[0].length]);
+            }
+        } else if (!t) {
+            continue;
+        } else if (name == "td" || name == "th") {
+            endCell(t);
+            if (!close) t.inCell = true;
+        } else if (name == "tr" || name == "tbody" || name == "thead" || name == "tfoot") {
+            endCell(t);
+        } else if (name == "cut" || name == "lj-cut") {
+            if (!t.inCell) t.bad = true;
+            else if ((t.cuts += close ? -1 : 1) < 0) t.bad = true;
+        }
+    }
+    // A table never closed runs to the end.
+    stack.forEach((t) => {
+        endCell(t);
+        if (t.bad) bad.push([t.start, html.length]);
+    });
+    // Outermost first; a kept table includes any inside it.
+    bad.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+    let out = "";
+    let at = 0;
+    bad.forEach(([start, end]) => {
+        if (start < at) return;
+        out += html.slice(at, start);
+        out += '<dw-kept-table data-key="' + keptTables.length + '"></dw-kept-table>';
+        keptTables.push(html.slice(start, end));
+        at = end;
+    });
+    return out + html.slice(at);
+}
+
 function markCutTags(html) {
     return html.replace(CUT_TAG, (m, raw, close, lj, attrs) => {
         if (raw || attrs === undefined) return m;
@@ -663,6 +727,10 @@ function visit(el) {
     const tag = el.localName;
 
     if (tag == "dw-user") return;
+    if (tag == "dw-kept-table") {
+        el.replaceWith(rawBlock(restoreUserTags(keptTables[+el.getAttribute("data-key")])));
+        return;
+    }
     if (tag.indexOf("dw-") == 0) return replaceRaw(el);
     if (tag == "table") return visitTable(el);
     if (RAW_BLOCK_TAGS.has(tag)) return replaceRaw(el, true);
@@ -857,7 +925,8 @@ export function importHTML(schema, html, opts) {
     if (opts.casual) source = source.replace(/\s+$/, "");
 
     const tpl = document.createElement("template");
-    tpl.innerHTML = markCutTags(balanceUserTags(balancePollTags(source)));
+    keptTables = [];
+    tpl.innerHTML = markCutTags(keepTablesWithStrayCuts(balanceUserTags(balancePollTags(source))));
     pairCutMarkers(tpl.content);
     walk(tpl.content);
     if (opts.casual) casualWalk(tpl.content, opts.casual, false, false);
