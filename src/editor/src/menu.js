@@ -46,6 +46,7 @@ import {
     setTextStyle,
     setTextStyles,
     insertTable,
+    insertCut,
 } from "./commands.js";
 import { normalizeColor, normalizeFontSize } from "./style.js";
 
@@ -206,10 +207,6 @@ function insertHr(schema) {
     };
 }
 
-// Wrap the selection in a cut tag (or insert an empty one).
-function makeInsertCut(schema) {
-    return wrapIn(schema.nodes.cut);
-}
 
 // Options for the block-type select.
 function blockOptions(schema, strings) {
@@ -645,7 +642,7 @@ export function buildToolbar(schema, strings, pageOptions) {
         name: "cut",
         title: strings.cut,
         html: ICONS.cut,
-        command: makeInsertCut(schema),
+        command: insertCut(schema),
     });
     addButton(group, {
         name: "hr",

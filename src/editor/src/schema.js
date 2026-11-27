@@ -283,19 +283,43 @@ const nodes = {
     },
 
     // Dreamwidth cut tag. Rendered in-editor by CutView (nodeviews.js).
+    // lead: it starts partway through the paragraph before it, which is the
+    // visible start of that paragraph. tail: it ends partway through the
+    // paragraph after it. See serialize.js, which splits and rejoins them.
     cut: {
         content: "block+",
         group: "block",
         defining: true,
-        attrs: { text: { default: "" } },
+        // leadSpace/tailSpace: a space at the join, which the paragraph
+        // beside it can't hold at its edge.
+        attrs: {
+            text: { default: "" },
+            lead: { default: false },
+            tail: { default: false },
+            leadSpace: { default: false },
+            tailSpace: { default: false },
+        },
         parseDOM: [
-            { tag: "cut", getAttrs: (dom) => ({ text: dom.getAttribute("text") || "" }) },
+            {
+                tag: "cut",
+                getAttrs: (dom) => ({
+                    text: dom.getAttribute("text") || "",
+                    lead: dom.hasAttribute("data-dw-lead"),
+                    tail: dom.hasAttribute("data-dw-tail"),
+                    leadSpace: dom.getAttribute("data-dw-lead") == "space",
+                    tailSpace: dom.getAttribute("data-dw-tail") == "space",
+                }),
+            },
             { tag: "lj-cut", getAttrs: (dom) => ({ text: dom.getAttribute("text") || "" }) },
             // FCKeditor-era representation
             { tag: "div.ljcut", getAttrs: (dom) => ({ text: dom.getAttribute("text") || "" }) },
         ],
         toDOM(node) {
-            return node.attrs.text ? ["cut", { text: node.attrs.text }, 0] : ["cut", 0];
+            const attrs = {};
+            if (node.attrs.text) attrs.text = node.attrs.text;
+            if (node.attrs.lead) attrs["data-dw-lead"] = node.attrs.leadSpace ? "space" : "1";
+            if (node.attrs.tail) attrs["data-dw-tail"] = node.attrs.tailSpace ? "space" : "1";
+            return ["cut", attrs, 0];
         },
     },
 

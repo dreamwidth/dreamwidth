@@ -156,6 +156,171 @@ function balancePollTags(html) {
     );
 }
 
+// ---- Cut tags ------------------------------------------------------------
+//
+// A cut can start in the middle of a paragraph and end paragraphs later:
+//
+//     <p>Visible, and then <cut text="More">hidden.</p><p>Also hidden.</p></cut>
+//
+// The site handles that (its cleaner reads tags, not a tree), but a browser
+// would close the cut at the first </p> and leave the rest of the hidden text
+// out in the open. So each cut tag is swapped for an empty marker element
+// before parsing, and the markers are paired up afterwards; the range between
+// them becomes the cut, splitting the paragraphs it starts and ends in.
+//
+// In the editor a cut is a box. One that starts partway through a paragraph
+// is "lead"-joined to the paragraph before it (the visible start), and one
+// that ends partway through is "tail"-joined to the paragraph after it (the
+// visible rest). exportHTML joins them back up.
+
+const CUT_TAG = /<!--[\s\S]*?-->|<(script|style|textarea|xmp|title)\b[\s\S]*?<\/\1\s*>|<(\/?)(lj-)?cut((?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*\/?>/gi;
+
+function markCutTags(html) {
+    return html.replace(CUT_TAG, (m, raw, close, lj, attrs) => {
+        if (raw || m.indexOf("<!--") == 0) return m;
+        const tag = (lj || "") + "cut";
+        if (close) return '<dw-cut-close data-dw-tag="' + tag + '"></dw-cut-close>';
+        return (
+            '<dw-cut-open data-dw-tag="' +
+            tag +
+            '" data-dw-attrs="' +
+            attrs.replace(/&/g, "&amp;").replace(/"/g, "&quot;") +
+            '"></dw-cut-open>'
+        );
+    });
+}
+
+function isParagraph(node) {
+    return !!node && node.nodeType == 1 && node.localName == "p";
+}
+
+// Anything a reader would see: text that isn't just whitespace, or an element.
+function hasContent(node) {
+    return Array.from(node.childNodes).some((child) =>
+        child.nodeType == 1 ? true : child.nodeType == 3 && /\S/.test(child.data)
+    );
+}
+
+// Whether a paragraph's text ends (or starts) with whitespace. The editor
+// trims a paragraph's edges, so a join point's space is kept on the cut.
+function edgeSpace(el, atEnd) {
+    return (atEnd ? /\s$/ : /^\s/).test(el.textContent);
+}
+
+function setJoin(cut, side, para) {
+    cut.setAttribute("data-dw-" + side, edgeSpace(para, side == "lead") ? "space" : "1");
+}
+
+// The child of `ancestor` that `node` is inside.
+function childOf(ancestor, node) {
+    while (node && node.parentNode != ancestor) node = node.parentNode;
+    return node;
+}
+
+function cutFromMarker(marker) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = "<" + marker.getAttribute("data-dw-tag") + marker.getAttribute("data-dw-attrs") + ">";
+    const parsed = tpl.content.firstChild;
+    const cut = document.createElement("cut");
+    if (parsed && parsed.nodeType == 1)
+        Array.from(parsed.attributes).forEach((a) => {
+            if (a.name.indexOf("data-dw-") != 0) cut.setAttribute(a.name, a.value);
+        });
+    return cut;
+}
+
+// Turn each open/close marker pair into a <cut> around what's between them.
+// An open without a close runs to the end (as the site treats it); a close
+// without an open is dropped.
+function pairCutMarkers(root) {
+    const pairs = [];
+    const stack = [];
+    root.querySelectorAll("dw-cut-open, dw-cut-close").forEach((m) => {
+        if (m.localName == "dw-cut-open") stack.push(m);
+        else if (stack.length) pairs.push([stack.pop(), m]);
+        else m.remove();
+    });
+    while (stack.length) {
+        const end = document.createElement("dw-cut-close");
+        root.appendChild(end);
+        pairs.push([stack.pop(), end]);
+    }
+
+    // Inner cuts first, so each range holds whole cuts by the time it's taken.
+    pairs.forEach(([open, close]) => {
+        const cut = cutFromMarker(open);
+        const range = document.createRange();
+        range.setStartAfter(open);
+        range.setEndBefore(close);
+        const ancestor = range.commonAncestorContainer;
+        const contents = range.extractContents();
+        cut.appendChild(contents);
+
+        if (open.parentNode == close.parentNode) {
+            open.replaceWith(cut);
+            close.remove();
+            return;
+        }
+
+        // The cut crossed element boundaries, so it goes between the pieces
+        // it split, as a sibling of them.
+        const before = childOf(ancestor, open);
+        const after = childOf(ancestor, close);
+        ancestor.insertBefore(cut, before.nextSibling);
+        open.remove();
+        close.remove();
+        if (isParagraph(before)) {
+            if (hasContent(before)) setJoin(cut, "lead", before);
+            else before.remove();
+        }
+        if (after && isParagraph(after)) {
+            if (hasContent(after)) setJoin(cut, "tail", after);
+            else after.remove();
+        }
+        // The pieces of those paragraphs inside the cut that hold nothing.
+        [cut.firstChild, cut.lastChild].forEach((piece) => {
+            if (isParagraph(piece) && !hasContent(piece) && cut.childNodes.length > 1) piece.remove();
+        });
+    });
+}
+
+// A cut found inside a paragraph (or in a run of loose text) is lifted out of
+// it: the text before becomes the lead paragraph, the text after the tail.
+function liftCut(cut) {
+    const parent = cut.parentNode;
+    if (isParagraph(parent)) {
+        const tail = parent.cloneNode(false);
+        while (cut.nextSibling) tail.appendChild(cut.nextSibling);
+        parent.after(cut);
+        cut.after(tail);
+        if (hasContent(parent)) setJoin(cut, "lead", parent);
+        else parent.remove();
+        if (hasContent(tail)) setJoin(cut, "tail", tail);
+        else tail.remove();
+        return;
+    }
+    // Loose text beside it (an entry with no <p>s): gather the runs of inline
+    // content on each side into paragraphs. Already-joined cuts keep theirs.
+    if (cut.hasAttribute("data-dw-lead") || cut.hasAttribute("data-dw-tail")) return;
+    const run = (step) => {
+        const nodes = [];
+        for (let n = cut[step]; n && !isBlockish(n); n = n[step]) nodes.push(n);
+        return nodes;
+    };
+    const before = run("previousSibling").reverse();
+    const after = run("nextSibling");
+    const wrap = (nodes) => {
+        const p = document.createElement("p");
+        nodes[0].before(p);
+        nodes.forEach((n) => p.appendChild(n));
+        return hasContent(p) ? p : (p.replaceWith(...p.childNodes), null);
+    };
+    const lead = before.length && wrap(before);
+    const tail = after.length && wrap(after);
+    if (lead) setJoin(cut, "lead", lead);
+    if (tail) setJoin(cut, "tail", tail);
+}
+
 // Undo balanceUserTags and balancePollTags for markup captured as a raw
 // chunk, so a <user> tag or poll placeholder inside a preserved table comes
 // back out exactly as written.
@@ -479,6 +644,7 @@ function visit(el) {
 
     // Dreamwidth cut tags (and the FCK-era div representation).
     if (tag == "cut" || tag == "lj-cut" || (tag == "div" && el.classList.contains("ljcut"))) {
+        if (tag == "cut") liftCut(el);
         walk(el);
         return;
     }
@@ -665,7 +831,8 @@ export function importHTML(schema, html, opts) {
     if (opts.casual) source = source.replace(/\s+$/, "");
 
     const tpl = document.createElement("template");
-    tpl.innerHTML = balanceUserTags(balancePollTags(source));
+    tpl.innerHTML = markCutTags(balanceUserTags(balancePollTags(source)));
+    pairCutMarkers(tpl.content);
     walk(tpl.content);
     if (opts.casual) casualWalk(tpl.content, opts.casual, false, false);
     return PMDOMParser.fromSchema(schema).parse(tpl.content);
@@ -727,6 +894,70 @@ export function flattenNewlines(html) {
         .join("");
 }
 
+// The reverse of the cut splitting in importHTML. A lead-joined cut's first
+// paragraph goes back into the paragraph before it, and a tail-joined cut's
+// last paragraph takes back the paragraph after it:
+//
+//     <p>start</p> <cut><p>hidden</p></cut> <p>rest</p>
+//         -> <p>start<cut>hidden</cut>rest</p>
+//     <p>start</p> <cut><p>hidden 1</p><p>hidden 2</p></cut>
+//         -> <p>start<cut>hidden 1</p><p>hidden 2</p></cut>
+//
+// The result isn't a tree, so the DOM can't build it: the joins are marked
+// with numbered control characters and made on the serialized text. Returns
+// the function that does that.
+function markCutJoins(root) {
+    const mark = (kind, n) => "\u0002" + kind + n + "\u0002";
+    const plainP = (el) => isParagraph(el) && !el.attributes.length;
+    const joins = [];
+    root.querySelectorAll("cut").forEach((cut, n) => {
+        const lead = cut.hasAttribute("data-dw-lead");
+        const tail = cut.hasAttribute("data-dw-tail");
+        const leadSpace = cut.getAttribute("data-dw-lead") == "space";
+        const tailSpace = cut.getAttribute("data-dw-tail") == "space";
+        cut.removeAttribute("data-dw-lead");
+        cut.removeAttribute("data-dw-tail");
+        const before = cut.previousElementSibling;
+        const after = cut.nextElementSibling;
+        const first = cut.firstElementChild;
+        const last = cut.lastElementChild;
+        const joinLead = lead && isParagraph(before);
+        const joinTail = tail && plainP(after) && isParagraph(last);
+        if (!joinLead && !joinTail) return;
+
+        cut.prepend(document.createTextNode(mark("C", n)));
+        if (joinLead) {
+            before.append(document.createTextNode((leadSpace ? " " : "") + mark("L", n)));
+            if (plainP(first)) first.prepend(document.createTextNode(mark("F", n)));
+        } else if (first == last && plainP(first)) {
+            // Only the tail joins: <p><cut>hidden</cut>rest</p>.
+            first.prepend(document.createTextNode(mark("S", n)));
+        }
+        if (joinTail) {
+            last.append(document.createTextNode(mark("E", n)));
+            after.prepend(document.createTextNode(mark("T", n) + (tailSpace ? " " : "")));
+        } else if (joinLead && first == last && plainP(first)) {
+            // Only the lead joins, and the cut is that one paragraph's end:
+            // <p>start<cut>hidden</cut></p>.
+            first.append(document.createTextNode(mark("Z", n)));
+        }
+        joins.push(n);
+    });
+    return (html) => {
+        joins.forEach((n) => {
+            const m = (kind) => mark(kind, n);
+            const cutOpen = "(<cut\\b[\\s\\S]*?)" + m("C");
+            html = html
+                .replace(new RegExp(m("L") + "</p>\\s*" + cutOpen + "<p>" + m("F")), "$1")
+                .replace(new RegExp(m("L") + "</p>\\s*" + cutOpen), "$1</p>")
+                .replace(new RegExp(cutOpen + "<p>" + m("S")), "<p>$1")
+                .replace(new RegExp(m("E") + "</p>(</cut>)\\s*<p>" + m("T")), "$1")
+                .replace(new RegExp(m("Z") + "</p></cut>"), "</cut></p>");
+        });
+        return html.replace(/\u0002[A-Z]\d+\u0002/g, "");
+    };
+}
+
 // opts.flatten: produce markup safe to hand to casual HTML (no source
 // newlines for the server to turn into line breaks).
 export function exportHTML(schema, doc, opts) {
@@ -760,42 +991,40 @@ export function exportHTML(schema, doc, opts) {
     // Serialize each top-level block on its own line, for readable source if
     // the entry is later opened in raw HTML mode. rte1 never adds automatic
     // linebreaks, so the whitespace is cosmetic.
-    const parts = [];
+    const div = document.createElement("div");
     const wasRaw = render.raw;
     render.raw = true;
     try {
-        children.forEach((child) => {
-            const div = document.createElement("div");
+        children.forEach((child, i) => {
+            if (i && !opts.flatten) div.appendChild(document.createTextNode("\n\n"));
             div.appendChild(serializer.serializeNode(child, { document }));
-
-            // List items serialize as <li><p>text</p></li>, but a block <p> inside
-            // an <li> makes the browser drop the marker onto its own line with the
-            // text below it. For the common single-paragraph item, unwrap the <p>
-            // so it renders "tight" (<li>text</li>) -- matching what the editor
-            // shows. Multi-block items keep their <p>s (they're genuinely loose).
-            unwrapTightListItems(div);
-            unwrapTightCells(div);
-
-            // Swap raw-HTML placeholders for markers that survive innerHTML
-            // escaping, then substitute the literal chunks back in. </user> is
-            // conventionally omitted, but only in markup we generated -- never
-            // inside a raw chunk, which is emitted exactly as stored.
-            div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
-                ph.replaceWith(
-                    document.createTextNode("\u0001DWRAW" + ph.getAttribute("data-key") + "\u0001")
-                );
-            });
-            parts.push(
-                div.innerHTML
-                    .replace(/<\/user>/g, "")
-                    .replace(/\u0001DWRAW(\d+)\u0001/g, (m, key) => rawChunks[+key])
-            );
         });
     } finally {
         render.raw = wasRaw;
     }
 
-    const html = parts.join(opts.flatten ? "" : "\n\n");
+    // List items serialize as <li><p>text</p></li>, but a block <p> inside
+    // an <li> makes the browser drop the marker onto its own line with the
+    // text below it. For the common single-paragraph item, unwrap the <p>
+    // so it renders "tight" (<li>text</li>) -- matching what the editor
+    // shows. Multi-block items keep their <p>s (they're genuinely loose).
+    unwrapTightListItems(div);
+    unwrapTightCells(div);
+    const joinCuts = markCutJoins(div);
+
+    // Swap raw-HTML placeholders for markers that survive innerHTML
+    // escaping, then substitute the literal chunks back in. </user> is
+    // conventionally omitted, but only in markup we generated -- never
+    // inside a raw chunk, which is emitted exactly as stored.
+    div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
+        ph.replaceWith(
+            document.createTextNode("\u0001DWRAW" + ph.getAttribute("data-key") + "\u0001")
+        );
+    });
+    const html = joinCuts(div.innerHTML.replace(/<\/user>/g, "")).replace(
+        /\u0001DWRAW(\d+)\u0001/g,
+        (m, key) => rawChunks[+key]
+    );
     return opts.flatten ? flattenNewlines(html) : html;
 }
 

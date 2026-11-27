@@ -17,7 +17,7 @@ import { undo, redo } from "prosemirror-history";
 import { undoInputRule } from "prosemirror-inputrules";
 import { splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list";
 import { goToNextCell, isInTable } from "prosemirror-tables";
-import { indent, outdent, inList } from "./commands.js";
+import { indent, outdent, inList, unjoinCut } from "./commands.js";
 
 function tabCommand(schema, direction, listCommand) {
     return (state, dispatch) => {
@@ -32,7 +32,7 @@ export function buildKeymap(schema, commands) {
         "Mod-z": undo,
         "Shift-Mod-z": redo,
         "Mod-y": redo,
-        Backspace: undoInputRule,
+        Backspace: chainCommands(undoInputRule, unjoinCut(schema)),
 
         "Mod-b": toggleMark(schema.marks.strong),
         "Mod-i": toggleMark(schema.marks.em),

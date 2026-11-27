@@ -14604,19 +14604,46 @@ var DWEditor = (() => {
       }
     },
     // Dreamwidth cut tag. Rendered in-editor by CutView (nodeviews.js).
+    // lead: it starts partway through the paragraph before it, which is the
+    // visible start of that paragraph. tail: it ends partway through the
+    // paragraph after it. See serialize.js, which splits and rejoins them.
     cut: {
       content: "block+",
       group: "block",
       defining: true,
-      attrs: { text: { default: "" } },
+      // leadSpace/tailSpace: a space at the join, which the paragraph
+      // beside it can't hold at its edge.
+      attrs: {
+        text: { default: "" },
+        lead: { default: false },
+        tail: { default: false },
+        leadSpace: { default: false },
+        tailSpace: { default: false }
+      },
       parseDOM: [
-        { tag: "cut", getAttrs: (dom) => ({ text: dom.getAttribute("text") || "" }) },
+        {
+          tag: "cut",
+          getAttrs: (dom) => ({
+            text: dom.getAttribute("text") || "",
+            lead: dom.hasAttribute("data-dw-lead"),
+            tail: dom.hasAttribute("data-dw-tail"),
+            leadSpace: dom.getAttribute("data-dw-lead") == "space",
+            tailSpace: dom.getAttribute("data-dw-tail") == "space"
+          })
+        },
         { tag: "lj-cut", getAttrs: (dom) => ({ text: dom.getAttribute("text") || "" }) },
         // FCKeditor-era representation
         { tag: "div.ljcut", getAttrs: (dom) => ({ text: dom.getAttribute("text") || "" }) }
       ],
       toDOM(node) {
-        return node.attrs.text ? ["cut", { text: node.attrs.text }, 0] : ["cut", 0];
+        const attrs = {};
+        if (node.attrs.text)
+          attrs.text = node.attrs.text;
+        if (node.attrs.lead)
+          attrs["data-dw-lead"] = node.attrs.leadSpace ? "space" : "1";
+        if (node.attrs.tail)
+          attrs["data-dw-tail"] = node.attrs.tailSpace ? "space" : "1";
+        return ["cut", attrs, 0];
       }
     },
     // Dreamwidth user/journal link. serialize.js rewrites the conventionally
@@ -15064,6 +15091,141 @@ var DWEditor = (() => {
       (m, tag) => '<dw-poll-ref data-dw-tag="' + tag + '"></dw-poll-ref>'
     );
   }
+  var CUT_TAG = /<!--[\s\S]*?-->|<(script|style|textarea|xmp|title)\b[\s\S]*?<\/\1\s*>|<(\/?)(lj-)?cut((?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*\/?>/gi;
+  function markCutTags(html) {
+    return html.replace(CUT_TAG, (m, raw, close2, lj, attrs) => {
+      if (raw || m.indexOf("<!--") == 0)
+        return m;
+      const tag = (lj || "") + "cut";
+      if (close2)
+        return '<dw-cut-close data-dw-tag="' + tag + '"></dw-cut-close>';
+      return '<dw-cut-open data-dw-tag="' + tag + '" data-dw-attrs="' + attrs.replace(/&/g, "&amp;").replace(/"/g, "&quot;") + '"></dw-cut-open>';
+    });
+  }
+  function isParagraph(node) {
+    return !!node && node.nodeType == 1 && node.localName == "p";
+  }
+  function hasContent(node) {
+    return Array.from(node.childNodes).some(
+      (child) => child.nodeType == 1 ? true : child.nodeType == 3 && /\S/.test(child.data)
+    );
+  }
+  function edgeSpace(el, atEnd) {
+    return (atEnd ? /\s$/ : /^\s/).test(el.textContent);
+  }
+  function setJoin(cut, side, para) {
+    cut.setAttribute("data-dw-" + side, edgeSpace(para, side == "lead") ? "space" : "1");
+  }
+  function childOf(ancestor, node) {
+    while (node && node.parentNode != ancestor)
+      node = node.parentNode;
+    return node;
+  }
+  function cutFromMarker(marker) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = "<" + marker.getAttribute("data-dw-tag") + marker.getAttribute("data-dw-attrs") + ">";
+    const parsed = tpl.content.firstChild;
+    const cut = document.createElement("cut");
+    if (parsed && parsed.nodeType == 1)
+      Array.from(parsed.attributes).forEach((a) => {
+        if (a.name.indexOf("data-dw-") != 0)
+          cut.setAttribute(a.name, a.value);
+      });
+    return cut;
+  }
+  function pairCutMarkers(root) {
+    const pairs = [];
+    const stack = [];
+    root.querySelectorAll("dw-cut-open, dw-cut-close").forEach((m) => {
+      if (m.localName == "dw-cut-open")
+        stack.push(m);
+      else if (stack.length)
+        pairs.push([stack.pop(), m]);
+      else
+        m.remove();
+    });
+    while (stack.length) {
+      const end = document.createElement("dw-cut-close");
+      root.appendChild(end);
+      pairs.push([stack.pop(), end]);
+    }
+    pairs.forEach(([open, close2]) => {
+      const cut = cutFromMarker(open);
+      const range = document.createRange();
+      range.setStartAfter(open);
+      range.setEndBefore(close2);
+      const ancestor = range.commonAncestorContainer;
+      const contents = range.extractContents();
+      cut.appendChild(contents);
+      if (open.parentNode == close2.parentNode) {
+        open.replaceWith(cut);
+        close2.remove();
+        return;
+      }
+      const before = childOf(ancestor, open);
+      const after = childOf(ancestor, close2);
+      ancestor.insertBefore(cut, before.nextSibling);
+      open.remove();
+      close2.remove();
+      if (isParagraph(before)) {
+        if (hasContent(before))
+          setJoin(cut, "lead", before);
+        else
+          before.remove();
+      }
+      if (after && isParagraph(after)) {
+        if (hasContent(after))
+          setJoin(cut, "tail", after);
+        else
+          after.remove();
+      }
+      [cut.firstChild, cut.lastChild].forEach((piece) => {
+        if (isParagraph(piece) && !hasContent(piece) && cut.childNodes.length > 1)
+          piece.remove();
+      });
+    });
+  }
+  function liftCut(cut) {
+    const parent = cut.parentNode;
+    if (isParagraph(parent)) {
+      const tail2 = parent.cloneNode(false);
+      while (cut.nextSibling)
+        tail2.appendChild(cut.nextSibling);
+      parent.after(cut);
+      cut.after(tail2);
+      if (hasContent(parent))
+        setJoin(cut, "lead", parent);
+      else
+        parent.remove();
+      if (hasContent(tail2))
+        setJoin(cut, "tail", tail2);
+      else
+        tail2.remove();
+      return;
+    }
+    if (cut.hasAttribute("data-dw-lead") || cut.hasAttribute("data-dw-tail"))
+      return;
+    const run2 = (step) => {
+      const nodes2 = [];
+      for (let n = cut[step]; n && !isBlockish(n); n = n[step])
+        nodes2.push(n);
+      return nodes2;
+    };
+    const before = run2("previousSibling").reverse();
+    const after = run2("nextSibling");
+    const wrap2 = (nodes2) => {
+      const p = document.createElement("p");
+      nodes2[0].before(p);
+      nodes2.forEach((n) => p.appendChild(n));
+      return hasContent(p) ? p : (p.replaceWith(...p.childNodes), null);
+    };
+    const lead = before.length && wrap2(before);
+    const tail = after.length && wrap2(after);
+    if (lead)
+      setJoin(cut, "lead", lead);
+    if (tail)
+      setJoin(cut, "tail", tail);
+  }
   function restoreUserTags(html) {
     return html.replace(
       /<dw-user data-dw-tag="(user|lj)"([^>]*)><\/dw-user>/g,
@@ -15335,6 +15497,8 @@ var DWEditor = (() => {
     if (!validAttrs(el))
       return replaceRaw(el);
     if (tag == "cut" || tag == "lj-cut" || tag == "div" && el.classList.contains("ljcut")) {
+      if (tag == "cut")
+        liftCut(el);
       walk(el);
       return;
     }
@@ -15500,7 +15664,8 @@ var DWEditor = (() => {
     if (opts.casual)
       source = source.replace(/\s+$/, "");
     const tpl = document.createElement("template");
-    tpl.innerHTML = balanceUserTags(balancePollTags(source));
+    tpl.innerHTML = markCutTags(balanceUserTags(balancePollTags(source)));
+    pairCutMarkers(tpl.content);
     walk(tpl.content);
     if (opts.casual)
       casualWalk(tpl.content, opts.casual, false, false);
@@ -15547,6 +15712,50 @@ var DWEditor = (() => {
   function flattenNewlines(html) {
     return html.split(/(<(pre|textarea|script|style)\b[\s\S]*?<\/\2\s*>)/i).map((part, i) => i % 3 == 0 ? part.replace(/\s*\r?\n\s*/g, " ") : i % 3 == 1 ? part : "").join("");
   }
+  function markCutJoins(root) {
+    const mark = (kind, n) => "" + kind + n + "";
+    const plainP = (el) => isParagraph(el) && !el.attributes.length;
+    const joins = [];
+    root.querySelectorAll("cut").forEach((cut, n) => {
+      const lead = cut.hasAttribute("data-dw-lead");
+      const tail = cut.hasAttribute("data-dw-tail");
+      const leadSpace = cut.getAttribute("data-dw-lead") == "space";
+      const tailSpace = cut.getAttribute("data-dw-tail") == "space";
+      cut.removeAttribute("data-dw-lead");
+      cut.removeAttribute("data-dw-tail");
+      const before = cut.previousElementSibling;
+      const after = cut.nextElementSibling;
+      const first = cut.firstElementChild;
+      const last = cut.lastElementChild;
+      const joinLead = lead && isParagraph(before);
+      const joinTail = tail && plainP(after) && isParagraph(last);
+      if (!joinLead && !joinTail)
+        return;
+      cut.prepend(document.createTextNode(mark("C", n)));
+      if (joinLead) {
+        before.append(document.createTextNode((leadSpace ? " " : "") + mark("L", n)));
+        if (plainP(first))
+          first.prepend(document.createTextNode(mark("F", n)));
+      } else if (first == last && plainP(first)) {
+        first.prepend(document.createTextNode(mark("S", n)));
+      }
+      if (joinTail) {
+        last.append(document.createTextNode(mark("E", n)));
+        after.prepend(document.createTextNode(mark("T", n) + (tailSpace ? " " : "")));
+      } else if (joinLead && first == last && plainP(first)) {
+        first.append(document.createTextNode(mark("Z", n)));
+      }
+      joins.push(n);
+    });
+    return (html) => {
+      joins.forEach((n) => {
+        const m = (kind) => mark(kind, n);
+        const cutOpen = "(<cut\\b[\\s\\S]*?)" + m("C");
+        html = html.replace(new RegExp(m("L") + "</p>\\s*" + cutOpen + "<p>" + m("F")), "$1").replace(new RegExp(m("L") + "</p>\\s*" + cutOpen), "$1</p>").replace(new RegExp(cutOpen + "<p>" + m("S")), "<p>$1").replace(new RegExp(m("E") + "</p>(</cut>)\\s*<p>" + m("T")), "$1").replace(new RegExp(m("Z") + "</p></cut>"), "</cut></p>");
+      });
+      return html.replace(/\u0002[A-Z]\d+\u0002/g, "");
+    };
+  }
   function exportHTML(schema2, doc3, opts) {
     opts = opts || {};
     const children = [];
@@ -15557,28 +15766,30 @@ var DWEditor = (() => {
       return "";
     const rawChunks = [];
     const serializer = buildSerializer(schema2, rawChunks);
-    const parts = [];
+    const div = document.createElement("div");
     const wasRaw = render.raw;
     render.raw = true;
     try {
-      children.forEach((child) => {
-        const div = document.createElement("div");
+      children.forEach((child, i) => {
+        if (i && !opts.flatten)
+          div.appendChild(document.createTextNode("\n\n"));
         div.appendChild(serializer.serializeNode(child, { document }));
-        unwrapTightListItems(div);
-        unwrapTightCells(div);
-        div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
-          ph.replaceWith(
-            document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
-          );
-        });
-        parts.push(
-          div.innerHTML.replace(/<\/user>/g, "").replace(/\u0001DWRAW(\d+)\u0001/g, (m, key2) => rawChunks[+key2])
-        );
       });
     } finally {
       render.raw = wasRaw;
     }
-    const html = parts.join(opts.flatten ? "" : "\n\n");
+    unwrapTightListItems(div);
+    unwrapTightCells(div);
+    const joinCuts = markCutJoins(div);
+    div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
+      ph.replaceWith(
+        document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
+      );
+    });
+    const html = joinCuts(div.innerHTML.replace(/<\/user>/g, "")).replace(
+      /\u0001DWRAW(\d+)\u0001/g,
+      (m, key2) => rawChunks[+key2]
+    );
     return opts.flatten ? flattenNewlines(html) : html;
   }
   function rawBlockFromText(text) {
@@ -15635,10 +15846,18 @@ var DWEditor = (() => {
       this.contentDOM = document.createElement("div");
       this.contentDOM.className = "dw-editor-cut-content";
       this.dom.appendChild(this.contentDOM);
+      this.setJoins(node);
+    }
+    // A cut joined to the paragraph above has its link text at the end of
+    // that paragraph instead of in its own header (see cutChips).
+    setJoins(node) {
+      this.dom.classList.toggle("dw-editor-cut-lead", !!node.attrs.lead);
+      this.dom.classList.toggle("dw-editor-cut-tail", !!node.attrs.tail);
     }
     update(node) {
       if (node.type.name != "cut")
         return false;
+      this.setJoins(node);
       const text = node.attrs.text || "";
       if (this.input.value != text)
         this.input.value = text;
@@ -15852,437 +16071,112 @@ var DWEditor = (() => {
       html_inline: (node) => new HtmlInlineView(node)
     };
   }
-
-  // src/mentions.js
-  var key = new PluginKey("dwMentions");
-  var MAX_ITEMS = 8;
-  var circle = null;
-  var circleFetch = null;
-  function loadCircle(url) {
-    if (!circleFetch) {
-      circleFetch = fetch(url).then((res) => res.ok ? res.json() : { circle: [] }).then((data) => {
-        circle = data.circle || [];
-      }).catch(() => {
-        circle = [];
-      });
-    }
-    return circleFetch;
-  }
-  function getMatch(state) {
-    const sel = state.selection;
-    if (!sel.empty || !sel.$cursor)
-      return null;
-    const $cursor = sel.$cursor;
-    if ($cursor.parent.type.spec.code)
-      return null;
-    const textBefore = $cursor.parent.textBetween(
-      Math.max(0, $cursor.parentOffset - 40),
-      $cursor.parentOffset,
-      "\0",
-      "\0"
-    );
-    const match = /(?:^|[\s(])@([\w-][\w.-]{0,39})$/.exec(textBefore);
-    if (!match)
-      return null;
-    const from2 = $cursor.pos - match[1].length - 1;
-    return { from: from2, to: $cursor.pos, query: match[1] };
-  }
-  function canonicalLocal(name) {
-    return name.toLowerCase().replace(/-/g, "_");
-  }
-  function suggestionsFor(query, sites) {
-    const ext = /^([\w-]+)\.([\w.-]*)$/.exec(query);
-    if (ext && sites && sites.length) {
-      const uname = ext[1];
-      const prefix = ext[2].toLowerCase();
-      const matched = sites.filter((d) => d.indexOf(prefix) == 0).sort().slice(0, MAX_ITEMS);
-      if (matched.length)
-        return matched.map((d) => ({ username: uname, site: d, external: true }));
-    }
-    const q = canonicalLocal(query);
-    let items = [];
-    if (circle && q.length) {
-      const starts = [], contains = [];
-      circle.forEach((u) => {
-        const name = u.username.toLowerCase();
-        if (name.indexOf(q) == 0)
-          starts.push(u);
-        else if (name.indexOf(q) > 0)
-          contains.push(u);
-      });
-      items = starts.concat(contains).slice(0, MAX_ITEMS);
-    }
-    if (/^[a-z0-9_]+$/.test(q) && !items.some((u) => u.username.toLowerCase() == q))
-      items.push({ username: q, literal: true });
-    return items;
-  }
-  var MentionDropdown = class {
-    constructor(view, options) {
-      this.view = view;
-      this.options = options;
-      this.items = [];
-      this.index = 0;
-      this.match = null;
-      this.dom = document.createElement("div");
-      this.dom.className = "dw-editor-mentions";
-      this.dom.setAttribute("role", "listbox");
-      this.dom.style.display = "none";
-      document.body.appendChild(this.dom);
-      this.dom.addEventListener("mousedown", (e) => {
-        const item = e.target.closest("[data-index]");
-        if (!item)
-          return;
-        e.preventDefault();
-        this.select(+item.getAttribute("data-index"));
-      });
-      view.dom.addEventListener("blur", () => this.hide());
-    }
-    update(view) {
-      this.view = view;
-      const match = getMatch(view.state);
-      const suppressed = match && key.getState(view.state) == match.from;
-      if (!match || suppressed || !view.hasFocus()) {
-        this.hide();
-        return;
-      }
-      if (!circle) {
-        loadCircle(this.options.circleUrl).then(() => {
-          if (this.view.hasFocus())
-            this.update(this.view);
-        });
-      }
-      const prevQuery = this.match && this.match.query;
-      this.match = match;
-      this.items = suggestionsFor(match.query, this.options.sites);
-      if (match.query != prevQuery)
-        this.index = 0;
-      if (this.index >= this.items.length)
-        this.index = 0;
-      if (!this.items.length) {
-        this.hide();
-        return;
-      }
-      this.render();
-    }
-    render() {
-      this.dom.textContent = "";
-      this.items.forEach((item, i) => {
-        const row = document.createElement("div");
-        row.className = "dw-editor-mention-item" + (i == this.index ? " dw-editor-mention-active" : "");
-        row.setAttribute("role", "option");
-        row.setAttribute("aria-selected", i == this.index ? "true" : "false");
-        row.setAttribute("data-index", String(i));
-        const name = document.createElement("span");
-        name.textContent = item.username;
-        row.appendChild(name);
-        const note = document.createElement("span");
-        note.className = "dw-editor-mention-note";
-        if (item.external)
-          note.textContent = item.site;
-        else if (item.literal)
-          note.textContent = this.options.strings.mentionLiteral;
-        else if (item.journaltype == "C")
-          note.textContent = this.options.strings.mentionCommunity;
-        if (note.textContent)
-          row.appendChild(note);
-        this.dom.appendChild(row);
-      });
-      const coords = this.view.coordsAtPos(this.match.from);
-      this.dom.style.display = "block";
-      this.dom.style.left = coords.left + window.scrollX + "px";
-      this.dom.style.top = coords.bottom + window.scrollY + 2 + "px";
-      this.visible = true;
-    }
-    hide() {
-      this.match = null;
-      this.visible = false;
-      this.dom.style.display = "none";
-    }
-    move(dir) {
-      this.index = (this.index + dir + this.items.length) % this.items.length;
-      this.render();
-    }
-    select(index) {
-      const item = this.items[index];
-      const match = this.match;
-      if (!item || !match)
-        return;
-      const view = this.view;
-      const userNode = view.state.schema.nodes.user.create(
-        item.external ? { name: item.username, site: item.site } : { name: item.username, ctype: item.journaltype || "P" }
-      );
-      view.dispatch(
-        view.state.tr.replaceWith(match.from, match.to, [
-          userNode,
-          view.state.schema.text(" ")
-        ])
-      );
-      view.focus();
-    }
-    suppress() {
-      const view = this.view;
-      view.dispatch(view.state.tr.setMeta(key, this.match.from));
-      view.focus();
-    }
-    destroy() {
-      this.dom.remove();
-    }
-  };
-  function mentionsPlugin(options) {
-    let dropdown = null;
-    return new Plugin({
-      key,
-      // Plugin state: the match position the user dismissed with Escape
-      // (so it doesn't pop right back open), or null.
-      state: {
-        init: () => null,
-        apply(tr, value) {
-          const meta = tr.getMeta(key);
-          if (meta !== void 0)
-            return meta;
-          return value == null ? null : tr.mapping.map(value);
-        }
-      },
-      view(editorView) {
-        dropdown = new MentionDropdown(editorView, options);
-        return {
-          update: (view) => dropdown.update(view),
-          destroy: () => {
-            dropdown.destroy();
-            dropdown = null;
-          }
-        };
-      },
-      props: {
-        handleKeyDown(view, event) {
-          if (!dropdown || !dropdown.visible)
-            return false;
-          if (event.key == "ArrowDown") {
-            dropdown.move(1);
-            return true;
-          }
-          if (event.key == "ArrowUp") {
-            dropdown.move(-1);
-            return true;
-          }
-          if (event.key == "Enter" || event.key == "Tab") {
-            dropdown.select(dropdown.index);
-            return true;
-          }
-          if (event.key == "Escape") {
-            dropdown.suppress();
-            return true;
-          }
-          return false;
-        }
-      }
-    });
-  }
-
-  // node_modules/prosemirror-inputrules/dist/index.js
-  var InputRule = class {
-    /**
-    Create an input rule. The rule applies when the user typed
-    something and the text directly in front of the cursor matches
-    `match`, which should end with `$`.
-    
-    The `handler` can be a string, in which case the matched text, or
-    the first matched group in the regexp, is replaced by that
-    string.
-    
-    Or a it can be a function, which will be called with the match
-    array produced by
-    [`RegExp.exec`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec),
-    as well as the start and end of the matched range, and which can
-    return a [transaction](https://prosemirror.net/docs/ref/#state.Transaction) that describes the
-    rule's effect, or null to indicate the input was not handled.
-    */
-    constructor(match, handler, options = {}) {
-      this.match = match;
-      this.match = match;
-      this.handler = typeof handler == "string" ? stringHandler(handler) : handler;
-      this.undoable = options.undoable !== false;
-      this.inCode = options.inCode || false;
-      this.inCodeMark = options.inCodeMark !== false;
-    }
-  };
-  function stringHandler(string) {
-    return function(state, match, start, end) {
-      let insert = string;
-      if (match[1]) {
-        let offset = match[0].lastIndexOf(match[1]);
-        insert += match[0].slice(offset + match[1].length);
-        start += offset;
-        let cutOff = start - end;
-        if (cutOff > 0) {
-          insert = match[0].slice(offset - cutOff, offset) + insert;
-          start = end;
-        }
-      }
-      return state.tr.insertText(insert, start, end);
+  function cutChip(view, getPos, strings) {
+    const chip = document.createElement("span");
+    chip.className = "dw-editor-cut-chip";
+    chip.contentEditable = "false";
+    const icon2 = document.createElement("span");
+    icon2.className = "dw-editor-cut-icon";
+    icon2.setAttribute("aria-hidden", "true");
+    icon2.textContent = "\u2702";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "dw-editor-cut-text";
+    input.placeholder = strings.cutDefault;
+    input.setAttribute("aria-label", strings.cutCaption);
+    chip.appendChild(icon2);
+    chip.appendChild(input);
+    const cutPos = () => {
+      const pos = getPos();
+      if (pos == null)
+        return null;
+      const node = view.state.doc.nodeAt(pos + 1);
+      return node && node.type.name == "cut" ? pos + 1 : null;
     };
+    const fit = () => {
+      input.size = Math.max(4, (input.value || input.placeholder).length + 1);
+    };
+    chip.dwSync = () => {
+      const pos = cutPos();
+      if (pos == null || document.activeElement == input)
+        return;
+      const text = view.state.doc.nodeAt(pos).attrs.text || "";
+      if (input.value != text)
+        input.value = text;
+      fit();
+    };
+    input.addEventListener("input", () => {
+      fit();
+      const pos = cutPos();
+      if (pos == null)
+        return;
+      const node = view.state.doc.nodeAt(pos);
+      view.dispatch(
+        view.state.tr.setNodeMarkup(pos, null, Object.assign({}, node.attrs, { text: input.value }))
+      );
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key != "Enter" && e.key != "ArrowDown")
+        return;
+      e.preventDefault();
+      const pos = cutPos();
+      if (pos == null)
+        return;
+      view.dispatch(view.state.tr.setSelection(Selection.near(view.state.doc.resolve(pos + 1))));
+      view.focus();
+    });
+    chip.dwSync();
+    return chip;
   }
-  var MAX_MATCH = 500;
-  function inputRules({ rules }) {
-    let plugin = new Plugin({
-      state: {
-        init() {
-          return null;
-        },
-        apply(tr, prev) {
-          let stored = tr.getMeta(this);
-          if (stored)
-            return stored;
-          return tr.selectionSet || tr.docChanged ? null : prev;
-        }
-      },
+  function cutChips(strings) {
+    const key2 = new PluginKey("cutChips");
+    return new Plugin({
+      key: key2,
       props: {
-        handleTextInput(view, from2, to, text) {
-          return run(view, from2, to, text, rules, plugin);
-        },
-        handleDOMEvents: {
-          compositionend: (view) => {
-            setTimeout(() => {
-              let { $cursor } = view.state.selection;
-              if ($cursor)
-                run(view, $cursor.pos, $cursor.pos, "", rules, plugin);
-            });
-          }
+        decorations(state) {
+          const decos = [];
+          let n = 0;
+          state.doc.descendants((node, pos, parent, index) => {
+            if (node.type.name != "cut")
+              return true;
+            if (node.attrs.lead && index > 0) {
+              const before = parent.child(index - 1);
+              const start = pos - before.nodeSize;
+              decos.push(
+                Decoration.node(start, pos, { class: "dw-editor-cut-lead-para" }),
+                Decoration.widget(pos - 1, (view, getPos) => cutChip(view, getPos, strings), {
+                  side: 1,
+                  key: "cut-chip-" + n++,
+                  ignoreSelection: true,
+                  stopEvent: () => true
+                })
+              );
+            }
+            if (node.attrs.tail && index + 1 < parent.childCount) {
+              const after = parent.child(index + 1);
+              const start = pos + node.nodeSize;
+              decos.push(
+                Decoration.node(start, start + after.nodeSize, {
+                  class: "dw-editor-cut-tail-para"
+                })
+              );
+            }
+            return true;
+          });
+          return decos.length ? DecorationSet.create(state.doc, decos) : null;
         }
       },
-      isInputRules: true
-    });
-    return plugin;
-  }
-  function run(view, from2, to, text, rules, plugin) {
-    if (view.composing)
-      return false;
-    let state = view.state, $from = state.doc.resolve(from2);
-    let textBefore = $from.parent.textBetween(Math.max(0, $from.parentOffset - MAX_MATCH), $from.parentOffset, null, "\uFFFC") + text;
-    for (let i = 0; i < rules.length; i++) {
-      let rule = rules[i];
-      if (!rule.inCodeMark && $from.marks().some((m) => m.type.spec.code))
-        continue;
-      if ($from.parent.type.spec.code) {
-        if (!rule.inCode)
-          continue;
-      } else if (rule.inCode === "only") {
-        continue;
-      }
-      let match = rule.match.exec(textBefore);
-      if (!match || match[0].length < text.length)
-        continue;
-      let startPos = from2 - (match[0].length - text.length);
-      if (!rule.inCodeMark) {
-        let hasMark = false;
-        state.doc.nodesBetween(startPos, $from.pos, (node) => {
-          if (node.isInline && node.marks.some((m) => m.type.spec.code))
-            hasMark = true;
-        });
-        if (hasMark)
-          continue;
-      }
-      let tr = rule.handler(state, match, startPos, to);
-      if (!tr)
-        continue;
-      if (rule.undoable)
-        tr.setMeta(plugin, { transform: tr, from: from2, to, text });
-      view.dispatch(tr);
-      return true;
-    }
-    return false;
-  }
-  var undoInputRule = (state, dispatch) => {
-    let plugins = state.plugins;
-    for (let i = 0; i < plugins.length; i++) {
-      let plugin = plugins[i], undoable;
-      if (plugin.spec.isInputRules && (undoable = plugin.getState(state))) {
-        if (dispatch) {
-          let tr = state.tr, toUndo = undoable.transform;
-          for (let j = toUndo.steps.length - 1; j >= 0; j--)
-            tr.step(toUndo.steps[j].invert(toUndo.docs[j]));
-          if (undoable.text) {
-            let marks2 = tr.doc.resolve(undoable.from).marks();
-            tr.replaceWith(undoable.from, undoable.to, state.schema.text(undoable.text, marks2));
-          } else {
-            tr.delete(undoable.from, undoable.to);
-          }
-          dispatch(tr);
+      // A chip is kept while its cut is, so bring its text up to date when
+      // it changes some other way (undo).
+      view: () => ({
+        update(view) {
+          view.dom.querySelectorAll(".dw-editor-cut-chip").forEach((chip) => {
+            if (chip.dwSync)
+              chip.dwSync();
+          });
         }
-        return true;
-      }
-    }
-    return false;
-  };
-  var emDash = new InputRule(/--$/, "\u2014", { inCodeMark: false });
-  var ellipsis = new InputRule(/\.\.\.$/, "\u2026", { inCodeMark: false });
-  var openDoubleQuote = new InputRule(/(?:^|[\s\{\[\(\<'"\u2018\u201C])(")$/, "\u201C", { inCodeMark: false });
-  var closeDoubleQuote = new InputRule(/"$/, "\u201D", { inCodeMark: false });
-  var openSingleQuote = new InputRule(/(?:^|[\s\{\[\(\<'"\u2018\u201C])(')$/, "\u2018", { inCodeMark: false });
-  var closeSingleQuote = new InputRule(/'$/, "\u2019", { inCodeMark: false });
-  function wrappingInputRule(regexp, nodeType, getAttrs = null, joinPredicate) {
-    return new InputRule(regexp, (state, match, start, end) => {
-      let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
-      let tr = state.tr.delete(start, end);
-      let $start = tr.doc.resolve(start), range = $start.blockRange(), wrapping = range && findWrapping(range, nodeType, attrs);
-      if (!wrapping)
-        return null;
-      tr.wrap(range, wrapping);
-      let before = tr.doc.resolve(start - 1).nodeBefore;
-      if (before && before.type == nodeType && canJoin(tr.doc, start - 1) && (!joinPredicate || joinPredicate(match, before)))
-        tr.join(start - 1);
-      return tr;
+      })
     });
-  }
-  function textblockTypeInputRule(regexp, nodeType, getAttrs = null) {
-    return new InputRule(regexp, (state, match, start, end) => {
-      let $start = state.doc.resolve(start);
-      let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
-      if (!$start.node(-1).canReplaceWith($start.index(-1), $start.indexAfter(-1), nodeType))
-        return null;
-      return state.tr.delete(start, end).setBlockType(start, start, nodeType, attrs);
-    });
-  }
-
-  // src/inputrules.js
-  function markInputRule(regexp, markType) {
-    return new InputRule(regexp, (state, match, start, end) => {
-      const code = markType.schema.marks.code;
-      const $start = state.doc.resolve(start);
-      if (code.isInSet(state.storedMarks || state.selection.$from.marks()) || code.isInSet($start.marks()) || state.doc.rangeHasMark(start, end, code))
-        return null;
-      const fullStart = start + match[0].indexOf(match[1]);
-      const textStart = fullStart + match[1].indexOf(match[2]);
-      const textEnd = textStart + match[2].length;
-      let tr = state.tr;
-      if (textEnd < end)
-        tr.delete(textEnd, end);
-      if (textStart > fullStart)
-        tr.delete(fullStart, textStart);
-      tr.addMark(fullStart, fullStart + match[2].length, markType.create());
-      tr.removeStoredMark(markType);
-      return tr;
-    });
-  }
-  function buildInputRules(schema2) {
-    const rules = [
-      wrappingInputRule(/^\s*>\s$/, schema2.nodes.blockquote),
-      wrappingInputRule(
-        /^(\d+)\.\s$/,
-        schema2.nodes.ordered_list,
-        (match) => ({ start: +match[1] }),
-        (match, node) => node.childCount + node.attrs.start == +match[1]
-      ),
-      wrappingInputRule(/^\s*([-+*])\s$/, schema2.nodes.bullet_list),
-      textblockTypeInputRule(/^```$/, schema2.nodes.code_block),
-      textblockTypeInputRule(/^(#{1,4})\s$/, schema2.nodes.heading, (match) => ({
-        level: match[1].length
-      })),
-      markInputRule(/(\*\*([^*\s][^*]*[^*\s]|[^*\s])\*\*)$/, schema2.marks.strong),
-      markInputRule(/(?:^|[^*])(\*([^*\s][^*]*[^*\s]|[^*\s])\*)$/, schema2.marks.em),
-      markInputRule(/(`([^`]+)`)$/, schema2.marks.code)
-    ];
-    return inputRules({ rules });
   }
 
   // node_modules/prosemirror-commands/dist/index.js
@@ -17239,6 +17133,533 @@ var DWEditor = (() => {
       return true;
     };
   }
+  function insertCut(schema2) {
+    const wrap2 = wrapIn(schema2.nodes.cut);
+    return (state, dispatch) => {
+      const { $from, $to, empty: empty2 } = state.selection;
+      const para = $from.parent;
+      const inOne = para.type == schema2.nodes.paragraph && $from.sameParent($to) && para.content.size > 0;
+      const start = $from.start();
+      const end = $from.end();
+      const lead = inOne && $from.pos > start;
+      const tail = inOne && !empty2 && $to.pos < end;
+      if (!lead)
+        return wrap2(state, dispatch);
+      const $para = state.doc.resolve($from.before());
+      if (!$para.parent.canReplaceWith($para.index(), $para.index(), schema2.nodes.cut))
+        return false;
+      if (!dispatch)
+        return true;
+      const tr = state.tr;
+      if (tail)
+        tr.split($to.pos);
+      tr.split($from.pos);
+      const $inside = tr.doc.resolve($from.pos + 2);
+      const range = $inside.blockRange();
+      tr.wrap(range, [{ type: schema2.nodes.cut, attrs: { lead: true, tail } }]);
+      tr.setSelection(TextSelection.create(tr.doc, $from.pos + 3));
+      dispatch(tr.scrollIntoView());
+      return true;
+    };
+  }
+  function unjoinCut(schema2) {
+    const cutType = schema2.nodes.cut;
+    return (state, dispatch) => {
+      const { $from, empty: empty2 } = state.selection;
+      if (!empty2 || $from.parentOffset > 0)
+        return false;
+      const index = $from.index($from.depth - 1);
+      const container = $from.node($from.depth - 1);
+      const prev = index > 0 ? container.child(index - 1) : null;
+      if (prev && prev.type == cutType && prev.attrs.tail) {
+        if (dispatch) {
+          const pos = $from.before() - prev.nodeSize;
+          dispatch(state.tr.setNodeMarkup(pos, null, Object.assign({}, prev.attrs, { tail: false, tailSpace: false })));
+        }
+        return true;
+      }
+      for (let d = $from.depth - 1; d > 0; d--) {
+        if ($from.index(d) != 0)
+          return false;
+        const node = $from.node(d);
+        if (node.type == cutType) {
+          if (!node.attrs.lead)
+            return false;
+          if (dispatch) {
+            const attrs = Object.assign({}, node.attrs, { lead: false, leadSpace: false });
+            dispatch(state.tr.setNodeMarkup($from.before(d), null, attrs));
+          }
+          return true;
+        }
+      }
+      return false;
+    };
+  }
+  function cutJoins(schema2) {
+    const cutType = schema2.nodes.cut;
+    const para = schema2.nodes.paragraph;
+    return new Plugin({
+      key: new PluginKey("cutJoins"),
+      appendTransaction(transactions, oldState, newState) {
+        if (!transactions.some((tr2) => tr2.docChanged))
+          return null;
+        let tr = null;
+        newState.doc.descendants((node, pos, parent, index) => {
+          if (node.type != cutType || !(node.attrs.lead || node.attrs.tail))
+            return true;
+          const before = index > 0 ? parent.child(index - 1) : null;
+          const after = index + 1 < parent.childCount ? parent.child(index + 1) : null;
+          const lead = node.attrs.lead && !!before && before.type == para;
+          const tail = node.attrs.tail && !!after && after.type == para;
+          if (lead != node.attrs.lead || tail != node.attrs.tail) {
+            tr = tr || newState.tr;
+            tr.setNodeMarkup(pos, null, Object.assign({}, node.attrs, {
+              lead,
+              tail,
+              leadSpace: lead && node.attrs.leadSpace,
+              tailSpace: tail && node.attrs.tailSpace
+            }));
+          }
+          return true;
+        });
+        if (tr)
+          tr.setMeta("addToHistory", false);
+        return tr;
+      }
+    });
+  }
+
+  // src/mentions.js
+  var key = new PluginKey("dwMentions");
+  var MAX_ITEMS = 8;
+  var circle = null;
+  var circleFetch = null;
+  function loadCircle(url) {
+    if (!circleFetch) {
+      circleFetch = fetch(url).then((res) => res.ok ? res.json() : { circle: [] }).then((data) => {
+        circle = data.circle || [];
+      }).catch(() => {
+        circle = [];
+      });
+    }
+    return circleFetch;
+  }
+  function getMatch(state) {
+    const sel = state.selection;
+    if (!sel.empty || !sel.$cursor)
+      return null;
+    const $cursor = sel.$cursor;
+    if ($cursor.parent.type.spec.code)
+      return null;
+    const textBefore = $cursor.parent.textBetween(
+      Math.max(0, $cursor.parentOffset - 40),
+      $cursor.parentOffset,
+      "\0",
+      "\0"
+    );
+    const match = /(?:^|[\s(])@([\w-][\w.-]{0,39})$/.exec(textBefore);
+    if (!match)
+      return null;
+    const from2 = $cursor.pos - match[1].length - 1;
+    return { from: from2, to: $cursor.pos, query: match[1] };
+  }
+  function canonicalLocal(name) {
+    return name.toLowerCase().replace(/-/g, "_");
+  }
+  function suggestionsFor(query, sites) {
+    const ext = /^([\w-]+)\.([\w.-]*)$/.exec(query);
+    if (ext && sites && sites.length) {
+      const uname = ext[1];
+      const prefix = ext[2].toLowerCase();
+      const matched = sites.filter((d) => d.indexOf(prefix) == 0).sort().slice(0, MAX_ITEMS);
+      if (matched.length)
+        return matched.map((d) => ({ username: uname, site: d, external: true }));
+    }
+    const q = canonicalLocal(query);
+    let items = [];
+    if (circle && q.length) {
+      const starts = [], contains = [];
+      circle.forEach((u) => {
+        const name = u.username.toLowerCase();
+        if (name.indexOf(q) == 0)
+          starts.push(u);
+        else if (name.indexOf(q) > 0)
+          contains.push(u);
+      });
+      items = starts.concat(contains).slice(0, MAX_ITEMS);
+    }
+    if (/^[a-z0-9_]+$/.test(q) && !items.some((u) => u.username.toLowerCase() == q))
+      items.push({ username: q, literal: true });
+    return items;
+  }
+  var MentionDropdown = class {
+    constructor(view, options) {
+      this.view = view;
+      this.options = options;
+      this.items = [];
+      this.index = 0;
+      this.match = null;
+      this.dom = document.createElement("div");
+      this.dom.className = "dw-editor-mentions";
+      this.dom.setAttribute("role", "listbox");
+      this.dom.style.display = "none";
+      document.body.appendChild(this.dom);
+      this.dom.addEventListener("mousedown", (e) => {
+        const item = e.target.closest("[data-index]");
+        if (!item)
+          return;
+        e.preventDefault();
+        this.select(+item.getAttribute("data-index"));
+      });
+      view.dom.addEventListener("blur", () => this.hide());
+    }
+    update(view) {
+      this.view = view;
+      const match = getMatch(view.state);
+      const suppressed = match && key.getState(view.state) == match.from;
+      if (!match || suppressed || !view.hasFocus()) {
+        this.hide();
+        return;
+      }
+      if (!circle) {
+        loadCircle(this.options.circleUrl).then(() => {
+          if (this.view.hasFocus())
+            this.update(this.view);
+        });
+      }
+      const prevQuery = this.match && this.match.query;
+      this.match = match;
+      this.items = suggestionsFor(match.query, this.options.sites);
+      if (match.query != prevQuery)
+        this.index = 0;
+      if (this.index >= this.items.length)
+        this.index = 0;
+      if (!this.items.length) {
+        this.hide();
+        return;
+      }
+      this.render();
+    }
+    render() {
+      this.dom.textContent = "";
+      this.items.forEach((item, i) => {
+        const row = document.createElement("div");
+        row.className = "dw-editor-mention-item" + (i == this.index ? " dw-editor-mention-active" : "");
+        row.setAttribute("role", "option");
+        row.setAttribute("aria-selected", i == this.index ? "true" : "false");
+        row.setAttribute("data-index", String(i));
+        const name = document.createElement("span");
+        name.textContent = item.username;
+        row.appendChild(name);
+        const note = document.createElement("span");
+        note.className = "dw-editor-mention-note";
+        if (item.external)
+          note.textContent = item.site;
+        else if (item.literal)
+          note.textContent = this.options.strings.mentionLiteral;
+        else if (item.journaltype == "C")
+          note.textContent = this.options.strings.mentionCommunity;
+        if (note.textContent)
+          row.appendChild(note);
+        this.dom.appendChild(row);
+      });
+      const coords = this.view.coordsAtPos(this.match.from);
+      this.dom.style.display = "block";
+      this.dom.style.left = coords.left + window.scrollX + "px";
+      this.dom.style.top = coords.bottom + window.scrollY + 2 + "px";
+      this.visible = true;
+    }
+    hide() {
+      this.match = null;
+      this.visible = false;
+      this.dom.style.display = "none";
+    }
+    move(dir) {
+      this.index = (this.index + dir + this.items.length) % this.items.length;
+      this.render();
+    }
+    select(index) {
+      const item = this.items[index];
+      const match = this.match;
+      if (!item || !match)
+        return;
+      const view = this.view;
+      const userNode = view.state.schema.nodes.user.create(
+        item.external ? { name: item.username, site: item.site } : { name: item.username, ctype: item.journaltype || "P" }
+      );
+      view.dispatch(
+        view.state.tr.replaceWith(match.from, match.to, [
+          userNode,
+          view.state.schema.text(" ")
+        ])
+      );
+      view.focus();
+    }
+    suppress() {
+      const view = this.view;
+      view.dispatch(view.state.tr.setMeta(key, this.match.from));
+      view.focus();
+    }
+    destroy() {
+      this.dom.remove();
+    }
+  };
+  function mentionsPlugin(options) {
+    let dropdown = null;
+    return new Plugin({
+      key,
+      // Plugin state: the match position the user dismissed with Escape
+      // (so it doesn't pop right back open), or null.
+      state: {
+        init: () => null,
+        apply(tr, value) {
+          const meta = tr.getMeta(key);
+          if (meta !== void 0)
+            return meta;
+          return value == null ? null : tr.mapping.map(value);
+        }
+      },
+      view(editorView) {
+        dropdown = new MentionDropdown(editorView, options);
+        return {
+          update: (view) => dropdown.update(view),
+          destroy: () => {
+            dropdown.destroy();
+            dropdown = null;
+          }
+        };
+      },
+      props: {
+        handleKeyDown(view, event) {
+          if (!dropdown || !dropdown.visible)
+            return false;
+          if (event.key == "ArrowDown") {
+            dropdown.move(1);
+            return true;
+          }
+          if (event.key == "ArrowUp") {
+            dropdown.move(-1);
+            return true;
+          }
+          if (event.key == "Enter" || event.key == "Tab") {
+            dropdown.select(dropdown.index);
+            return true;
+          }
+          if (event.key == "Escape") {
+            dropdown.suppress();
+            return true;
+          }
+          return false;
+        }
+      }
+    });
+  }
+
+  // node_modules/prosemirror-inputrules/dist/index.js
+  var InputRule = class {
+    /**
+    Create an input rule. The rule applies when the user typed
+    something and the text directly in front of the cursor matches
+    `match`, which should end with `$`.
+    
+    The `handler` can be a string, in which case the matched text, or
+    the first matched group in the regexp, is replaced by that
+    string.
+    
+    Or a it can be a function, which will be called with the match
+    array produced by
+    [`RegExp.exec`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec),
+    as well as the start and end of the matched range, and which can
+    return a [transaction](https://prosemirror.net/docs/ref/#state.Transaction) that describes the
+    rule's effect, or null to indicate the input was not handled.
+    */
+    constructor(match, handler, options = {}) {
+      this.match = match;
+      this.match = match;
+      this.handler = typeof handler == "string" ? stringHandler(handler) : handler;
+      this.undoable = options.undoable !== false;
+      this.inCode = options.inCode || false;
+      this.inCodeMark = options.inCodeMark !== false;
+    }
+  };
+  function stringHandler(string) {
+    return function(state, match, start, end) {
+      let insert = string;
+      if (match[1]) {
+        let offset = match[0].lastIndexOf(match[1]);
+        insert += match[0].slice(offset + match[1].length);
+        start += offset;
+        let cutOff = start - end;
+        if (cutOff > 0) {
+          insert = match[0].slice(offset - cutOff, offset) + insert;
+          start = end;
+        }
+      }
+      return state.tr.insertText(insert, start, end);
+    };
+  }
+  var MAX_MATCH = 500;
+  function inputRules({ rules }) {
+    let plugin = new Plugin({
+      state: {
+        init() {
+          return null;
+        },
+        apply(tr, prev) {
+          let stored = tr.getMeta(this);
+          if (stored)
+            return stored;
+          return tr.selectionSet || tr.docChanged ? null : prev;
+        }
+      },
+      props: {
+        handleTextInput(view, from2, to, text) {
+          return run(view, from2, to, text, rules, plugin);
+        },
+        handleDOMEvents: {
+          compositionend: (view) => {
+            setTimeout(() => {
+              let { $cursor } = view.state.selection;
+              if ($cursor)
+                run(view, $cursor.pos, $cursor.pos, "", rules, plugin);
+            });
+          }
+        }
+      },
+      isInputRules: true
+    });
+    return plugin;
+  }
+  function run(view, from2, to, text, rules, plugin) {
+    if (view.composing)
+      return false;
+    let state = view.state, $from = state.doc.resolve(from2);
+    let textBefore = $from.parent.textBetween(Math.max(0, $from.parentOffset - MAX_MATCH), $from.parentOffset, null, "\uFFFC") + text;
+    for (let i = 0; i < rules.length; i++) {
+      let rule = rules[i];
+      if (!rule.inCodeMark && $from.marks().some((m) => m.type.spec.code))
+        continue;
+      if ($from.parent.type.spec.code) {
+        if (!rule.inCode)
+          continue;
+      } else if (rule.inCode === "only") {
+        continue;
+      }
+      let match = rule.match.exec(textBefore);
+      if (!match || match[0].length < text.length)
+        continue;
+      let startPos = from2 - (match[0].length - text.length);
+      if (!rule.inCodeMark) {
+        let hasMark = false;
+        state.doc.nodesBetween(startPos, $from.pos, (node) => {
+          if (node.isInline && node.marks.some((m) => m.type.spec.code))
+            hasMark = true;
+        });
+        if (hasMark)
+          continue;
+      }
+      let tr = rule.handler(state, match, startPos, to);
+      if (!tr)
+        continue;
+      if (rule.undoable)
+        tr.setMeta(plugin, { transform: tr, from: from2, to, text });
+      view.dispatch(tr);
+      return true;
+    }
+    return false;
+  }
+  var undoInputRule = (state, dispatch) => {
+    let plugins = state.plugins;
+    for (let i = 0; i < plugins.length; i++) {
+      let plugin = plugins[i], undoable;
+      if (plugin.spec.isInputRules && (undoable = plugin.getState(state))) {
+        if (dispatch) {
+          let tr = state.tr, toUndo = undoable.transform;
+          for (let j = toUndo.steps.length - 1; j >= 0; j--)
+            tr.step(toUndo.steps[j].invert(toUndo.docs[j]));
+          if (undoable.text) {
+            let marks2 = tr.doc.resolve(undoable.from).marks();
+            tr.replaceWith(undoable.from, undoable.to, state.schema.text(undoable.text, marks2));
+          } else {
+            tr.delete(undoable.from, undoable.to);
+          }
+          dispatch(tr);
+        }
+        return true;
+      }
+    }
+    return false;
+  };
+  var emDash = new InputRule(/--$/, "\u2014", { inCodeMark: false });
+  var ellipsis = new InputRule(/\.\.\.$/, "\u2026", { inCodeMark: false });
+  var openDoubleQuote = new InputRule(/(?:^|[\s\{\[\(\<'"\u2018\u201C])(")$/, "\u201C", { inCodeMark: false });
+  var closeDoubleQuote = new InputRule(/"$/, "\u201D", { inCodeMark: false });
+  var openSingleQuote = new InputRule(/(?:^|[\s\{\[\(\<'"\u2018\u201C])(')$/, "\u2018", { inCodeMark: false });
+  var closeSingleQuote = new InputRule(/'$/, "\u2019", { inCodeMark: false });
+  function wrappingInputRule(regexp, nodeType, getAttrs = null, joinPredicate) {
+    return new InputRule(regexp, (state, match, start, end) => {
+      let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
+      let tr = state.tr.delete(start, end);
+      let $start = tr.doc.resolve(start), range = $start.blockRange(), wrapping = range && findWrapping(range, nodeType, attrs);
+      if (!wrapping)
+        return null;
+      tr.wrap(range, wrapping);
+      let before = tr.doc.resolve(start - 1).nodeBefore;
+      if (before && before.type == nodeType && canJoin(tr.doc, start - 1) && (!joinPredicate || joinPredicate(match, before)))
+        tr.join(start - 1);
+      return tr;
+    });
+  }
+  function textblockTypeInputRule(regexp, nodeType, getAttrs = null) {
+    return new InputRule(regexp, (state, match, start, end) => {
+      let $start = state.doc.resolve(start);
+      let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs;
+      if (!$start.node(-1).canReplaceWith($start.index(-1), $start.indexAfter(-1), nodeType))
+        return null;
+      return state.tr.delete(start, end).setBlockType(start, start, nodeType, attrs);
+    });
+  }
+
+  // src/inputrules.js
+  function markInputRule(regexp, markType) {
+    return new InputRule(regexp, (state, match, start, end) => {
+      const code = markType.schema.marks.code;
+      const $start = state.doc.resolve(start);
+      if (code.isInSet(state.storedMarks || state.selection.$from.marks()) || code.isInSet($start.marks()) || state.doc.rangeHasMark(start, end, code))
+        return null;
+      const fullStart = start + match[0].indexOf(match[1]);
+      const textStart = fullStart + match[1].indexOf(match[2]);
+      const textEnd = textStart + match[2].length;
+      let tr = state.tr;
+      if (textEnd < end)
+        tr.delete(textEnd, end);
+      if (textStart > fullStart)
+        tr.delete(fullStart, textStart);
+      tr.addMark(fullStart, fullStart + match[2].length, markType.create());
+      tr.removeStoredMark(markType);
+      return tr;
+    });
+  }
+  function buildInputRules(schema2) {
+    const rules = [
+      wrappingInputRule(/^\s*>\s$/, schema2.nodes.blockquote),
+      wrappingInputRule(
+        /^(\d+)\.\s$/,
+        schema2.nodes.ordered_list,
+        (match) => ({ start: +match[1] }),
+        (match, node) => node.childCount + node.attrs.start == +match[1]
+      ),
+      wrappingInputRule(/^\s*([-+*])\s$/, schema2.nodes.bullet_list),
+      textblockTypeInputRule(/^```$/, schema2.nodes.code_block),
+      textblockTypeInputRule(/^(#{1,4})\s$/, schema2.nodes.heading, (match) => ({
+        level: match[1].length
+      })),
+      markInputRule(/(\*\*([^*\s][^*]*[^*\s]|[^*\s])\*\*)$/, schema2.marks.strong),
+      markInputRule(/(?:^|[^*])(\*([^*\s][^*]*[^*\s]|[^*\s])\*)$/, schema2.marks.em),
+      markInputRule(/(`([^`]+)`)$/, schema2.marks.code)
+    ];
+    return inputRules({ rules });
+  }
 
   // src/keymap.js
   function tabCommand(schema2, direction, listCommand) {
@@ -17255,7 +17676,7 @@ var DWEditor = (() => {
       "Mod-z": undo,
       "Shift-Mod-z": redo,
       "Mod-y": redo,
-      Backspace: undoInputRule,
+      Backspace: chainCommands(undoInputRule, unjoinCut(schema2)),
       "Mod-b": toggleMark(schema2.marks.strong),
       "Mod-i": toggleMark(schema2.marks.em),
       "Mod-u": toggleMark(schema2.marks.underline),
@@ -17588,9 +18009,6 @@ var DWEditor = (() => {
         );
       return true;
     };
-  }
-  function makeInsertCut(schema2) {
-    return wrapIn(schema2.nodes.cut);
   }
   function blockOptions(schema2, strings) {
     return [
@@ -18000,7 +18418,7 @@ var DWEditor = (() => {
       name: "cut",
       title: strings.cut,
       html: ICONS.cut,
-      command: makeInsertCut(schema2)
+      command: insertCut(schema2)
     });
     addButton(group, {
       name: "hr",
@@ -18278,7 +18696,9 @@ var DWEditor = (() => {
         trailingNode(),
         pastePlugin(),
         tableEditing(),
-        activeHtmlBlock()
+        activeHtmlBlock(),
+        cutJoins(schema),
+        cutChips(strings)
       ]
     });
     let syncTimer = null;

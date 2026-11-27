@@ -35,7 +35,8 @@ import { tableEditing } from "prosemirror-tables";
 
 import { schema } from "./schema.js";
 import { importHTML, exportHTML } from "./serialize.js";
-import { buildNodeViews, activeHtmlBlock } from "./nodeviews.js";
+import { buildNodeViews, activeHtmlBlock, cutChips } from "./nodeviews.js";
+import { cutJoins } from "./commands.js";
 import { mentionsPlugin } from "./mentions.js";
 import { buildInputRules } from "./inputrules.js";
 import { buildKeymap } from "./keymap.js";
@@ -205,6 +206,8 @@ export function mount(id, opts) {
             pastePlugin(),
             tableEditing(),
             activeHtmlBlock(),
+            cutJoins(schema),
+            cutChips(strings),
         ],
     });
 

@@ -508,6 +508,72 @@ img.ProseMirror-separator {
     padding: 0.5em 0.75em 0;
 }
 
+/* A cut joined to the paragraph above it starts partway through that
+ * paragraph: the link text sits at the end of the visible part, as a chip, and
+ * the box hangs directly under it. One joined to the paragraph below ends
+ * partway through: that paragraph carries straight on under the box. */
+
+.dw-editor .ProseMirror p.dw-editor-cut-lead-para {
+    margin-bottom: 0.2em;
+}
+
+.dw-editor-cut.dw-editor-cut-lead > .dw-editor-cut-header {
+    display: none;
+}
+
+.dw-editor-cut.dw-editor-cut-lead > .dw-editor-cut-content {
+    padding-top: 0.4em;
+}
+
+.dw-editor-cut.dw-editor-cut-tail {
+    margin-bottom: 0.2em;
+}
+
+.dw-editor-cut-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    margin-left: 0.3em;
+    padding: 0 0.3em;
+    border: 1px dashed var(--dw-editor-cut-line, #9bc);
+    border-radius: 3px;
+    background: var(--dw-editor-cut-bg, rgba(102, 153, 204, 0.12));
+    color: var(--dw-editor-cut-fg, inherit);
+    font-size: 0.85em;
+    line-height: 1.4;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+/* (Qualified to outrank the site's text-field styles, as for the header's.) */
+.dw-editor-cut-chip .dw-editor-cut-text,
+#updateForm .dw-editor-cut-chip .dw-editor-cut-text {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    box-shadow: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+}
+
+.dw-editor-cut-chip .dw-editor-cut-text:hover,
+#updateForm .dw-editor-cut-chip .dw-editor-cut-text:hover {
+    border-color: var(--dw-editor-cut-line, #9bc);
+}
+
+.dw-editor-cut-chip .dw-editor-cut-text:focus,
+#updateForm .dw-editor-cut-chip .dw-editor-cut-text:focus {
+    border-color: var(--dw-editor-focus, Highlight);
+    background: var(--dw-editor-bg, Field);
+    color: var(--dw-editor-fg, FieldText);
+    outline: none;
+}
+
 /* === User chip === */
 
 .dw-editor-user {
