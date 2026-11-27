@@ -3,6 +3,10 @@
  * Styles for the rich text editor (DWEditor / ProseMirror).
  * Used on the entry forms when the "Rich Text" format is selected.
  *
+ * Colors come from custom properties (--dw-editor-*), which each site scheme
+ * sets from its own form colors in skins/_skin-colors.scss. The fallbacks
+ * here are the browser's own field colors, for schemes that don't (Lynx).
+ *
  * Authors:
  *     Mark Smith <mark@qq.is>
  *
@@ -48,7 +52,7 @@
 }
 
 .ProseMirror-selectednode {
-    outline: 2px solid #8cf;
+    outline: 2px solid var(--dw-editor-focus, Highlight);
 }
 
 /* Make sure li selections wrap around markers */
@@ -62,7 +66,7 @@ li.ProseMirror-selectednode:after {
     right: -2px;
     top: -2px;
     bottom: -2px;
-    border: 2px solid #8cf;
+    border: 2px solid var(--dw-editor-focus, Highlight);
     pointer-events: none;
 }
 
@@ -84,7 +88,7 @@ img.ProseMirror-separator {
     position: absolute;
     top: -2px;
     width: 20px;
-    border-top: 1px solid black;
+    border-top: 1px solid currentColor;
     animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
 }
 
@@ -101,9 +105,10 @@ img.ProseMirror-separator {
 /* === Editor frame === */
 
 .dw-editor {
-    border: 1px solid #999;
+    border: 1px solid var(--dw-editor-border, GrayText);
     border-radius: 3px;
-    background: #fff;
+    background: var(--dw-editor-bg, Field);
+    color: var(--dw-editor-fg, FieldText);
     margin-bottom: 0.5em;
 }
 
@@ -122,19 +127,18 @@ img.ProseMirror-separator {
 }
 
 .dw-editor .ProseMirror blockquote {
-    border-left: 3px solid #ccc;
+    border-left: 3px solid var(--dw-editor-line, GrayText);
     margin-left: 0.5em;
     padding-left: 0.75em;
 }
 
 /* Shown above the editor when an entry or draft written in the retired rich
- * text editor (rte0) has been loaded into this one. Meant to be hard to miss. */
+ * text editor (rte0) has been loaded into this one. Meant to be hard to miss;
+ * its colors are the scheme's own for an .alert-box.alert. */
 
 .alert-box.rte0-warning {
     margin-bottom: 0.75em;
-    border: 3px solid #700;
-    background: #b00;
-    color: #fff;
+    border-width: 3px;
     font-size: 1.15em;
     font-weight: bold;
     letter-spacing: 0.02em;
@@ -150,8 +154,8 @@ img.ProseMirror-separator {
     align-items: center;
     gap: 2px;
     padding: 4px;
-    border-bottom: 1px solid #ccc;
-    background: #f4f4f4;
+    border-bottom: 1px solid var(--dw-editor-line, GrayText);
+    background: var(--dw-editor-chrome-bg, ButtonFace);
     border-radius: 3px 3px 0 0;
 }
 
@@ -159,7 +163,7 @@ img.ProseMirror-separator {
     display: inline-flex;
     gap: 2px;
     padding: 0 4px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--dw-editor-line, GrayText);
 }
 
 .dw-editor-toolbar-group:last-child {
@@ -178,21 +182,35 @@ img.ProseMirror-separator {
     padding: 0 5px;
     border: 1px solid transparent;
     border-radius: 3px;
+    box-shadow: none; // the site's buttons have an inset highlight
     background: none;
     font-size: 14px;
     line-height: 1;
     cursor: pointer;
-    color: #333;
+    color: var(--dw-editor-chrome-fg, ButtonText);
+}
+
+// The site's button:hover and button:focus rules make button text white,
+// and outrank a single class; keep the toolbar's own text color in every
+// state (pressed has its own, below).
+.dw-editor-toolbar .dw-editor-button:hover,
+.dw-editor-toolbar .dw-editor-button:focus {
+    color: var(--dw-editor-chrome-fg, ButtonText);
+}
+
+.dw-editor-toolbar .dw-editor-button[aria-pressed="true"] {
+    color: var(--dw-editor-pressed-fg, HighlightText);
 }
 
 .dw-editor-button:hover:not(:disabled) {
-    background: #e2e2e2;
-    border-color: #ccc;
+    background: var(--dw-editor-hover-bg, rgba(128, 128, 128, 0.25));
+    border-color: var(--dw-editor-line, GrayText);
 }
 
 .dw-editor-button[aria-pressed="true"] {
-    background: #d8e4f0;
-    border-color: #9bc;
+    background: var(--dw-editor-pressed-bg, Highlight);
+    border-color: var(--dw-editor-pressed-border, Highlight);
+    color: var(--dw-editor-pressed-fg, HighlightText);
 }
 
 // The site's own button styles color a disabled button in; a toolbar button
@@ -201,7 +219,7 @@ img.ProseMirror-separator {
 .dw-editor-toolbar .dw-editor-button:disabled:hover {
     background: none;
     border-color: transparent;
-    color: #333;
+    color: var(--dw-editor-chrome-fg, ButtonText);
     opacity: 0.35;
     cursor: default;
 }
@@ -214,7 +232,7 @@ img.ProseMirror-separator {
 }
 
 .dw-editor-toolbar .dw-editor-button:focus-visible {
-    outline: 2px solid #8cf;
+    outline: 2px solid var(--dw-editor-focus, Highlight);
     outline-offset: -1px;
 }
 
@@ -242,8 +260,8 @@ img.ProseMirror-separator {
     max-width: 320px;
     margin-top: 2px;
     padding: 4px;
-    background: #f4f4f4;
-    border: 1px solid #bbb;
+    background: var(--dw-editor-chrome-bg, ButtonFace);
+    border: 1px solid var(--dw-editor-border, GrayText);
     border-radius: 4px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
@@ -282,8 +300,8 @@ img.ProseMirror-separator {
 }
 
 .dw-editor-dropdown-button[aria-expanded="true"] {
-    background: #e2e2e2;
-    border-color: #ccc;
+    background: var(--dw-editor-hover-bg, rgba(128, 128, 128, 0.25));
+    border-color: var(--dw-editor-line, GrayText);
 }
 
 .dw-editor-dropdown-menu {
@@ -294,8 +312,8 @@ img.ProseMirror-separator {
     min-width: 12em;
     margin-top: 2px;
     padding: 4px 0;
-    background: #fff;
-    border: 1px solid #bbb;
+    background: var(--dw-editor-bg, Field);
+    border: 1px solid var(--dw-editor-border, GrayText);
     border-radius: 4px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
@@ -314,7 +332,7 @@ img.ProseMirror-separator {
     border: 0;
     border-radius: 0;
     background: none;
-    color: #333;
+    color: var(--dw-editor-fg, FieldText);
     font-size: 13px;
     line-height: 1.3;
     text-align: left;
@@ -328,8 +346,11 @@ img.ProseMirror-separator {
 }
 
 .dw-editor-dropdown-item:hover:not(:disabled),
-.dw-editor-dropdown-item:focus:not(:disabled) {
-    background: #e8eef5;
+.dw-editor-dropdown-item:focus:not(:disabled),
+.dw-editor-toolbar .dw-editor-dropdown-item:hover:not(:disabled),
+.dw-editor-toolbar .dw-editor-dropdown-item:focus:not(:disabled) {
+    color: var(--dw-editor-fg, FieldText);
+    background: var(--dw-editor-hover-bg, rgba(128, 128, 128, 0.25));
     outline: none;
 }
 
@@ -340,14 +361,14 @@ img.ProseMirror-separator {
 .dw-editor-toolbar .dw-editor-dropdown-item:disabled,
 .dw-editor-toolbar .dw-editor-dropdown-item:disabled:hover {
     background: none;
-    color: #999;
+    color: var(--dw-editor-muted, GrayText);
     cursor: default;
 }
 
 .dw-editor-dropdown-separator {
     height: 1px;
     margin: 4px 0;
-    background: #ddd;
+    background: var(--dw-editor-line, GrayText);
 }
 
 .dw-editor-blockselect,
@@ -413,7 +434,7 @@ img.ProseMirror-separator {
 .dw-editor .ProseMirror th {
     min-width: 2em;
     padding: 3px 5px;
-    outline: 1px dashed #bbb;
+    outline: 1px dashed var(--dw-editor-line, GrayText);
     vertical-align: top;
 }
 
@@ -430,7 +451,7 @@ img.ProseMirror-separator {
 /* === Cut tag === */
 
 .dw-editor-cut {
-    border: 1px dashed #9bc;
+    border: 1px dashed var(--dw-editor-cut-line, #9bc);
     border-radius: 3px;
     margin: 0 0 0.75em;
 }
@@ -440,15 +461,17 @@ img.ProseMirror-separator {
     align-items: center;
     gap: 0.4em;
     padding: 2px 8px;
-    background: #eef4fa;
-    border-bottom: 1px dashed #9bc;
+    background: var(--dw-editor-cut-bg, rgba(102, 153, 204, 0.12));
+    border-bottom: 1px dashed var(--dw-editor-cut-line, #9bc);
     font-size: 0.85em;
-    color: #357;
+    color: var(--dw-editor-cut-fg, inherit);
 }
 
 /* The link text, editable in place: reads as a label until it has focus. */
-/* (Qualified so the site's own text-field styles don't apply.) */
-.dw-editor-cut .dw-editor-cut-text {
+/* (Qualified so the site's own text-field styles don't apply, including the
+ * simple entry form's, which are scoped to #updateForm.) */
+.dw-editor-cut .dw-editor-cut-text,
+#updateForm .dw-editor-cut .dw-editor-cut-text {
     flex: 1;
     min-width: 0;
     height: auto;
@@ -463,18 +486,21 @@ img.ProseMirror-separator {
     line-height: 1.4;
 }
 
-.dw-editor-cut .dw-editor-cut-text:hover {
-    border-color: #9bc;
+.dw-editor-cut .dw-editor-cut-text:hover,
+#updateForm .dw-editor-cut .dw-editor-cut-text:hover {
+    border-color: var(--dw-editor-cut-line, #9bc);
 }
 
-.dw-editor-cut .dw-editor-cut-text:focus {
-    border-color: #69c;
-    background: #fff;
+.dw-editor-cut .dw-editor-cut-text:focus,
+#updateForm .dw-editor-cut .dw-editor-cut-text:focus {
+    border-color: var(--dw-editor-focus, Highlight);
+    background: var(--dw-editor-bg, Field);
+    color: var(--dw-editor-fg, FieldText);
     outline: none;
 }
 
 .dw-editor-cut-text::placeholder {
-    color: #357;
+    color: inherit;
     opacity: 0.6;
 }
 
@@ -482,15 +508,81 @@ img.ProseMirror-separator {
     padding: 0.5em 0.75em 0;
 }
 
+/* A cut joined to the paragraph above it starts partway through that
+ * paragraph: the link text sits at the end of the visible part, as a chip, and
+ * the box hangs directly under it. One joined to the paragraph below ends
+ * partway through: that paragraph carries straight on under the box. */
+
+.dw-editor .ProseMirror p.dw-editor-cut-lead-para {
+    margin-bottom: 0.2em;
+}
+
+.dw-editor-cut.dw-editor-cut-lead > .dw-editor-cut-header {
+    display: none;
+}
+
+.dw-editor-cut.dw-editor-cut-lead > .dw-editor-cut-content {
+    padding-top: 0.4em;
+}
+
+.dw-editor-cut.dw-editor-cut-tail {
+    margin-bottom: 0.2em;
+}
+
+.dw-editor-cut-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    margin-left: 0.3em;
+    padding: 0 0.3em;
+    border: 1px dashed var(--dw-editor-cut-line, #9bc);
+    border-radius: 3px;
+    background: var(--dw-editor-cut-bg, rgba(102, 153, 204, 0.12));
+    color: var(--dw-editor-cut-fg, inherit);
+    font-size: 0.85em;
+    line-height: 1.4;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+/* (Qualified to outrank the site's text-field styles, as for the header's.) */
+.dw-editor-cut-chip .dw-editor-cut-text,
+#updateForm .dw-editor-cut-chip .dw-editor-cut-text {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    box-shadow: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+}
+
+.dw-editor-cut-chip .dw-editor-cut-text:hover,
+#updateForm .dw-editor-cut-chip .dw-editor-cut-text:hover {
+    border-color: var(--dw-editor-cut-line, #9bc);
+}
+
+.dw-editor-cut-chip .dw-editor-cut-text:focus,
+#updateForm .dw-editor-cut-chip .dw-editor-cut-text:focus {
+    border-color: var(--dw-editor-focus, Highlight);
+    background: var(--dw-editor-bg, Field);
+    color: var(--dw-editor-fg, FieldText);
+    outline: none;
+}
+
 /* === User chip === */
 
 .dw-editor-user {
     display: inline-block;
     padding: 0 0.3em;
-    border: 1px solid #9bc;
+    border: 1px solid var(--dw-editor-cut-line, #9bc);
     border-radius: 3px;
-    background: #eef4fa;
-    color: #246;
+    background: var(--dw-editor-cut-bg, rgba(102, 153, 204, 0.12));
+    color: var(--dw-editor-cut-fg, inherit);
     font-weight: bold;
     white-space: nowrap;
 }
@@ -508,10 +600,10 @@ img.ProseMirror-separator {
 /* === Literal HTML block === */
 
 .dw-editor-html-block {
-    border: 1px dashed #b96;
+    border: 1px dashed var(--dw-editor-html-line, #b96);
     border-radius: 3px;
     margin: 0 0 0.75em;
-    background: #fdf8f2;
+    background: var(--dw-editor-html-bg, rgba(187, 153, 102, 0.08));
 }
 
 .dw-editor-html-badge {
@@ -520,11 +612,11 @@ img.ProseMirror-separator {
     justify-content: space-between;
     gap: 0.5em;
     padding: 1px 8px;
-    border-bottom: 1px dashed #b96;
+    border-bottom: 1px dashed var(--dw-editor-html-line, #b96);
     font-size: 0.75em;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #963;
+    color: var(--dw-editor-html-fg, inherit);
 }
 
 .dw-editor-html-source {
@@ -561,7 +653,7 @@ img.ProseMirror-separator {
     background: none;
     padding: 0;
     line-height: inherit;
-    color: #963;
+    color: inherit;
     font-size: inherit;
     letter-spacing: normal;
     text-transform: none;
@@ -601,10 +693,10 @@ img.ProseMirror-separator {
 .dw-editor-html-inline {
     display: inline-block;
     padding: 0 4px;
-    border: 1px dashed #b96;
+    border: 1px dashed var(--dw-editor-html-line, #b96);
     border-radius: 3px;
-    background: #fdf8f2;
-    color: #963;
+    background: var(--dw-editor-html-bg, rgba(187, 153, 102, 0.08));
+    color: var(--dw-editor-html-fg, inherit);
     font-family: monospace;
     font-size: 0.8em;
     vertical-align: baseline;
@@ -617,9 +709,10 @@ img.ProseMirror-separator {
     z-index: 1000;
     min-width: 12em;
     max-width: 24em;
-    border: 1px solid #999;
+    border: 1px solid var(--dw-editor-border, GrayText);
     border-radius: 3px;
-    background: #fff;
+    background: var(--dw-editor-bg, Field);
+    color: var(--dw-editor-fg, FieldText);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
     font-size: 0.9em;
 }
@@ -633,18 +726,20 @@ img.ProseMirror-separator {
 }
 
 .dw-editor-mention-active {
-    background: #d8e4f0;
+    background: var(--dw-editor-hover-bg, rgba(128, 128, 128, 0.25));
 }
 
 .dw-editor-mention-note {
-    color: #888;
+    color: var(--dw-editor-muted, GrayText);
     font-style: italic;
 }
 
 /* === Dialogs === */
 
 .dw-editor-dialog {
-    border: 1px solid #999;
+    border: 1px solid var(--dw-editor-border, GrayText);
+    background: var(--dw-editor-bg, Canvas);
+    color: var(--dw-editor-fg, CanvasText);
     border-radius: 4px;
     padding: 1em 1.25em;
     min-width: 20em;
@@ -698,7 +793,8 @@ img.ProseMirror-separator {
     align-items: center;
     justify-content: center;
     gap: 0.75em;
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--dw-editor-busy-bg, rgba(255, 255, 255, 0.85));
+    color: var(--dw-editor-fg, FieldText);
     font-weight: bold;
 
     .button {

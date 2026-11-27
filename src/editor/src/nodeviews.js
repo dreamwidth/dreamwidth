@@ -13,7 +13,7 @@
 // the same terms as Perl itself.  For a copy of the license, please reference
 // 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-import { Plugin, Selection, TextSelection } from "prosemirror-state";
+import { Plugin, PluginKey, Selection, TextSelection } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 // <cut>: a bordered region whose header holds the cut's link text, editable
@@ -66,10 +66,19 @@ export class CutView {
         this.contentDOM = document.createElement("div");
         this.contentDOM.className = "dw-editor-cut-content";
         this.dom.appendChild(this.contentDOM);
+        this.setJoins(node);
+    }
+
+    // A cut joined to the paragraph above has its link text at the end of
+    // that paragraph instead of in its own header (see cutChips).
+    setJoins(node) {
+        this.dom.classList.toggle("dw-editor-cut-lead", !!node.attrs.lead);
+        this.dom.classList.toggle("dw-editor-cut-tail", !!node.attrs.tail);
     }
 
     update(node) {
         if (node.type.name != "cut") return false;
+        this.setJoins(node);
         // Only when it differs, so typing in the field doesn't move its caret.
         const text = node.attrs.text || "";
         if (this.input.value != text) this.input.value = text;
@@ -312,4 +321,112 @@ export function buildNodeViews(options) {
         html_block: (node, view, getPos) => new HtmlBlockView(node, view, getPos, strings),
         html_inline: (node) => new HtmlInlineView(node),
     };
+}
+
+// A cut that starts partway through a paragraph: its link text goes where the
+// reader sees the link, at the end of the visible part of the paragraph, as a
+// small editable chip. The paragraphs it's joined to are marked so they can
+// be drawn running into the cut and out of it.
+function cutChip(view, getPos, strings) {
+    const chip = document.createElement("span");
+    chip.className = "dw-editor-cut-chip";
+    chip.contentEditable = "false";
+    const icon = document.createElement("span");
+    icon.className = "dw-editor-cut-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = "\u2702";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "dw-editor-cut-text";
+    input.placeholder = strings.cutDefault;
+    input.setAttribute("aria-label", strings.cutCaption);
+    chip.appendChild(icon);
+    chip.appendChild(input);
+
+    // The cut starts right after the end of the paragraph the chip ends.
+    const cutPos = () => {
+        const pos = getPos();
+        if (pos == null) return null;
+        const node = view.state.doc.nodeAt(pos + 1);
+        return node && node.type.name == "cut" ? pos + 1 : null;
+    };
+    const fit = () => {
+        input.size = Math.max(4, (input.value || input.placeholder).length + 1);
+    };
+    chip.dwSync = () => {
+        const pos = cutPos();
+        if (pos == null || document.activeElement == input) return;
+        const text = view.state.doc.nodeAt(pos).attrs.text || "";
+        if (input.value != text) input.value = text;
+        fit();
+    };
+    input.addEventListener("input", () => {
+        fit();
+        const pos = cutPos();
+        if (pos == null) return;
+        const node = view.state.doc.nodeAt(pos);
+        view.dispatch(
+            view.state.tr.setNodeMarkup(pos, null, Object.assign({}, node.attrs, { text: input.value }))
+        );
+    });
+    // Enter or the down arrow moves on into the cut's own text.
+    input.addEventListener("keydown", (e) => {
+        if (e.key != "Enter" && e.key != "ArrowDown") return;
+        e.preventDefault();
+        const pos = cutPos();
+        if (pos == null) return;
+        view.dispatch(view.state.tr.setSelection(Selection.near(view.state.doc.resolve(pos + 1))));
+        view.focus();
+    });
+    chip.dwSync();
+    return chip;
+}
+
+export function cutChips(strings) {
+    const key = new PluginKey("cutChips");
+    return new Plugin({
+        key,
+        props: {
+            decorations(state) {
+                const decos = [];
+                let n = 0;
+                state.doc.descendants((node, pos, parent, index) => {
+                    if (node.type.name != "cut") return true;
+                    if (node.attrs.lead && index > 0) {
+                        const before = parent.child(index - 1);
+                        const start = pos - before.nodeSize;
+                        decos.push(
+                            Decoration.node(start, pos, { class: "dw-editor-cut-lead-para" }),
+                            Decoration.widget(pos - 1, (view, getPos) => cutChip(view, getPos, strings), {
+                                side: 1,
+                                key: "cut-chip-" + n++,
+                                ignoreSelection: true,
+                                stopEvent: () => true,
+                            })
+                        );
+                    }
+                    if (node.attrs.tail && index + 1 < parent.childCount) {
+                        const after = parent.child(index + 1);
+                        const start = pos + node.nodeSize;
+                        decos.push(
+                            Decoration.node(start, start + after.nodeSize, {
+                                class: "dw-editor-cut-tail-para",
+                            })
+                        );
+                    }
+                    return true;
+                });
+                return decos.length ? DecorationSet.create(state.doc, decos) : null;
+            },
+        },
+        // A chip is kept while its cut is, so bring its text up to date when
+        // it changes some other way (undo).
+        view: () => ({
+            update(view) {
+                view.dom.querySelectorAll(".dw-editor-cut-chip").forEach((chip) => {
+                    if (chip.dwSync) chip.dwSync();
+                });
+            },
+        }),
+    });
 }

@@ -14,9 +14,9 @@
 // the same terms as Perl itself.  For a copy of the license, please reference
 // 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-import { lift } from "prosemirror-commands";
+import { lift, wrapIn } from "prosemirror-commands";
 import { sinkListItem, liftListItem } from "prosemirror-schema-list";
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, Plugin, PluginKey } from "prosemirror-state";
 import { Mark } from "prosemirror-model";
 import { CellSelection } from "prosemirror-tables";
 import { extraWithStyle, styleOfExtra, getStyleProp } from "./style.js";
@@ -323,4 +323,117 @@ export function insertTable(schema, rows, cols) {
         dispatch(tr.scrollIntoView());
         return true;
     };
+}
+
+// ---- Cut tags ------------------------------------------------------------
+
+// The Cut button. Inside a paragraph it starts the cut where the cursor is:
+// the text before stays visible, with the cut joined to it ("lead"), and the
+// text after goes behind the cut. With text selected in one paragraph, just
+// that text goes behind it, and the rest of the paragraph after the cut is
+// joined to it too ("tail"). Anywhere else -- an empty line, the start of a
+// paragraph, a selection over several blocks -- the blocks are wrapped in a
+// cut of their own, as before.
+export function insertCut(schema) {
+    const wrap = wrapIn(schema.nodes.cut);
+    return (state, dispatch) => {
+        const { $from, $to, empty } = state.selection;
+        const para = $from.parent;
+        const inOne =
+            para.type == schema.nodes.paragraph && $from.sameParent($to) && para.content.size > 0;
+        const start = $from.start();
+        const end = $from.end();
+        const lead = inOne && $from.pos > start;
+        const tail = inOne && !empty && $to.pos < end;
+        if (!lead) return wrap(state, dispatch);
+        // A cut can only go where a block can.
+        const $para = state.doc.resolve($from.before());
+        if (!$para.parent.canReplaceWith($para.index(), $para.index(), schema.nodes.cut))
+            return false;
+        if (!dispatch) return true;
+
+        const tr = state.tr;
+        if (tail) tr.split($to.pos);
+        tr.split($from.pos);
+        // The middle piece is the paragraph now starting after $from.
+        const $inside = tr.doc.resolve($from.pos + 2);
+        const range = $inside.blockRange();
+        // The hidden piece is plain text in the cut; the visible pieces keep
+        // the paragraph's attributes, and rejoin around it when saved.
+        tr.setNodeMarkup(range.start, schema.nodes.paragraph);
+        tr.wrap(range, [{ type: schema.nodes.cut, attrs: { lead: true, tail } }]);
+        tr.setSelection(TextSelection.create(tr.doc, $from.pos + 3));
+        dispatch(tr.scrollIntoView());
+        return true;
+    };
+}
+
+// Backspace at the start of what a cut is joined to undoes the join: at the
+// start of the cut's text, it stops continuing the paragraph above; at the
+// start of the paragraph after a tail-joined cut, that paragraph stands alone.
+export function unjoinCut(schema) {
+    const cutType = schema.nodes.cut;
+    return (state, dispatch) => {
+        const { $from, empty } = state.selection;
+        if (!empty || $from.parentOffset > 0) return false;
+        // The paragraph right after a tail-joined cut.
+        const index = $from.index($from.depth - 1);
+        const container = $from.node($from.depth - 1);
+        const prev = index > 0 ? container.child(index - 1) : null;
+        if (prev && prev.type == cutType && prev.attrs.tail) {
+            if (dispatch) {
+                const pos = $from.before() - prev.nodeSize;
+                dispatch(state.tr.setNodeMarkup(pos, null, Object.assign({}, prev.attrs, { tail: false, tailSpace: false })));
+            }
+            return true;
+        }
+        // The first textblock of a lead-joined cut.
+        for (let d = $from.depth - 1; d > 0; d--) {
+            if ($from.index(d) != 0) return false;
+            const node = $from.node(d);
+            if (node.type == cutType) {
+                if (!node.attrs.lead) return false;
+                if (dispatch) {
+                    const attrs = Object.assign({}, node.attrs, { lead: false, leadSpace: false });
+                    dispatch(state.tr.setNodeMarkup($from.before(d), null, attrs));
+                }
+                return true;
+            }
+        }
+        return false;
+    };
+}
+
+// A cut can only be joined to a paragraph beside it. When editing takes that
+// paragraph away (deletes it, turns it into a heading, moves the cut), the
+// join is dropped.
+export function cutJoins(schema) {
+    const cutType = schema.nodes.cut;
+    const para = schema.nodes.paragraph;
+    return new Plugin({
+        key: new PluginKey("cutJoins"),
+        appendTransaction(transactions, oldState, newState) {
+            if (!transactions.some((tr) => tr.docChanged)) return null;
+            let tr = null;
+            newState.doc.descendants((node, pos, parent, index) => {
+                if (node.type != cutType || !(node.attrs.lead || node.attrs.tail)) return true;
+                const before = index > 0 ? parent.child(index - 1) : null;
+                const after = index + 1 < parent.childCount ? parent.child(index + 1) : null;
+                const lead = node.attrs.lead && !!before && before.type == para;
+                const tail = node.attrs.tail && !!after && after.type == para;
+                if (lead != node.attrs.lead || tail != node.attrs.tail) {
+                    tr = tr || newState.tr;
+                    tr.setNodeMarkup(pos, null, Object.assign({}, node.attrs, {
+                        lead,
+                        tail,
+                        leadSpace: lead && node.attrs.leadSpace,
+                        tailSpace: tail && node.attrs.tailSpace,
+                    }));
+                }
+                return true;
+            });
+            // Part of the edit that caused it, so undoing that brings the join back.
+            return tr;
+        },
+    });
 }

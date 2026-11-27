@@ -68,10 +68,21 @@ test("flattening for casual HTML removes source newlines except in <pre>", () =>
     assert.equal(flattenNewlines(html), "<p>a</p> <p>b</p> <pre>x\ny</pre> <table> <tr> </tr></table>");
 });
 
-test("export for casual HTML emits no newlines for the server to break on", () => {
-    const html = "<p>a</p><p>b</p><pre>keep\nme</pre>";
+test("export for casual HTML writes plain paragraphs as lines of text", () => {
+    // The casual cleaner turns each newline into <br />: a blank line between
+    // paragraphs, a newline for a line break, and none beside other markup,
+    // where it would add a stray break.
+    const html =
+        "<p>First.</p><p>Second, with a<br>break.</p><ul><li>item</li></ul><p>After.</p>" +
+        '<p style="text-align: center;">Centered.</p><pre>keep\nme</pre>';
     const out = roundTrip(html, {}, { flatten: true });
-    assert.equal(out, "<p>a</p><p>b</p><pre><code>keep\nme</code></pre>");
+    assert.equal(
+        out,
+        "First.\n\nSecond, with a\nbreak.<ul><li>item</li></ul>After." +
+            '<p style="text-align: center;">Centered.</p><pre><code>keep\nme</code></pre>'
+    );
+    // Read back as casual HTML, the same lines come out.
+    assert.match(roundTrip(out, { casual }), /First\.<br><br>Second, with a<br>break\./);
 });
 
 test("pasted poll and embed code is recognized as a block", () => {

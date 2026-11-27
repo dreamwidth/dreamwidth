@@ -115,6 +115,38 @@ a.active {
     }
 }
 
+// rich text editor (components/dw-editor.scss reads these). Set on body so
+// the editor's dialogs and menus, which sit outside it, get them too. Its
+// surface matches the scheme's text fields; the cut and HTML-block tints keep
+// their hue but are mixed into the field color, so they suit light and dark
+// schemes alike.
+$dw-editor-bg: $input-bg-color !default;
+$dw-editor-fg: $input-font-color !default;
+$dw-editor-cut-hue: #6699cc !default;
+$dw-editor-html-hue: #bb9966 !default;
+
+body {
+    --dw-editor-bg: #{$dw-editor-bg};
+    --dw-editor-fg: #{$dw-editor-fg};
+    --dw-editor-border: #{$input-border-color};
+    --dw-editor-focus: #{$input-focus-border-color};
+    --dw-editor-line: #{mix( $dw-editor-fg, $dw-editor-bg, 25% )};
+    --dw-editor-muted: #{mix( $dw-editor-fg, $dw-editor-bg, 50% )};
+    --dw-editor-chrome-bg: #{mix( $dw-editor-fg, $dw-editor-bg, 6% )};
+    --dw-editor-chrome-fg: #{$dw-editor-fg};
+    --dw-editor-hover-bg: #{mix( $dw-editor-fg, $dw-editor-bg, 14% )};
+    --dw-editor-pressed-bg: #{mix( $primary-color, $dw-editor-bg, 22% )};
+    --dw-editor-pressed-border: #{mix( $primary-color, $dw-editor-bg, 55% )};
+    --dw-editor-pressed-fg: #{$dw-editor-fg};
+    --dw-editor-cut-bg: #{mix( $dw-editor-cut-hue, $dw-editor-bg, 14% )};
+    --dw-editor-cut-fg: #{mix( $dw-editor-cut-hue, $dw-editor-fg, 45% )};
+    --dw-editor-cut-line: #{mix( $dw-editor-cut-hue, $dw-editor-bg, 70% )};
+    --dw-editor-html-bg: #{mix( $dw-editor-html-hue, $dw-editor-bg, 8% )};
+    --dw-editor-html-fg: #{mix( $dw-editor-html-hue, $dw-editor-fg, 55% )};
+    --dw-editor-html-line: #{mix( $dw-editor-html-hue, $dw-editor-bg, 75% )};
+    --dw-editor-busy-bg: #{rgba( $dw-editor-bg, 0.85 )};
+}
+
 // autocomplete
 .autocomplete-container {
     background-color: $input-bg-color;

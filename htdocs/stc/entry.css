@@ -187,20 +187,22 @@
     padding: 8px 10px;
     float: left;
     outline: none;
-	border: 1px solid #ccc;
+	border: 1px solid var(--dw-editor-border, #ccc);
     border-bottom: none;
 }
 #compose-entry ul li.on {
 	
 }
+/* The selected tab joins onto the editor below it, so it takes the editor's
+ * colors, which each site scheme sets (see components/dw-editor.scss). */
 #compose-entry ul li.on a {
     font-weight: bold;
     padding-bottom: 9px;
 	margin-bottom: -2px;
-	background: #fff;
+	background: var(--dw-editor-bg, #fff);
 }
 #compose-entry ul li.on a {
-	border-bottom: 1px solid #fff;
+	border-bottom: 1px solid var(--dw-editor-bg, #fff);
 }
 #metainfo, #metainfo label, #metainfo input.text, #metainfo strong {
     font-size: 14px;
@@ -322,9 +324,12 @@
     float: none;
     margin: 0 !important;
 }
+/* The option and submit panels are a translucent gray, so they're a shade
+ * off the page in light and dark site schemes alike, and the scheme's own
+ * text and label colors stay readable on them. */
 #options, #public {
     padding: 10px;
-	background: #ddd;
+	background: rgba(128, 128, 128, 0.25);
 }
 #public {
     margin-top: 10px;
@@ -422,7 +427,7 @@
     margin-top: 10px;
     text-align: center;
     position: relative;
-	background: #eee;
+	background: rgba(128, 128, 128, 0.13);
 }
 #security_container {
     width: 600px;
