@@ -161,7 +161,10 @@
             if (pending) pending.cancel();
             if (format == prev) return;
 
-            if (format == 'rte1' && prev == 'markdown0' && !window.confirm(strings.markdownConfirm)) {
+            // An empty body has no Markdown to lose, so there's nothing to ask.
+            var hasText = /\S/.test(document.getElementById(BODY_ID).value);
+            if (format == 'rte1' && prev == 'markdown0' && hasText &&
+                !window.confirm(strings.markdownConfirm)) {
                 // Declined: put the select back and keep anything else from
                 // reacting to the change.
                 select.value = prev;

@@ -13,14 +13,13 @@
 // the same terms as Perl itself.  For a copy of the license, please reference
 // 'perldoc perlartistic' or 'perldoc perlgpl'.
 
-import { textDialog } from "./dialogs.js";
+import { Plugin, Selection, TextSelection } from "prosemirror-state";
+import { Decoration, DecorationSet } from "prosemirror-view";
 
-// <cut>: a bordered region with a non-editable header showing the cut's link
-// text, plus a button to change it.
+// <cut>: a bordered region whose header holds the cut's link text, editable
+// in place.
 export class CutView {
     constructor(node, view, getPos, strings) {
-        this.strings = strings;
-
         this.dom = document.createElement("div");
         this.dom.className = "dw-editor-cut";
 
@@ -28,48 +27,57 @@ export class CutView {
         this.header.className = "dw-editor-cut-header";
         this.header.contentEditable = "false";
 
-        this.label = document.createElement("span");
-        this.label.className = "dw-editor-cut-label";
+        const icon = document.createElement("span");
+        icon.className = "dw-editor-cut-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = "\u2702";
 
-        const edit = document.createElement("button");
-        edit.type = "button";
-        edit.className = "dw-editor-cut-edit";
-        edit.textContent = strings.cutEdit;
-        edit.addEventListener("click", (e) => {
+        // The link text is an attribute of the cut, not document text, so it
+        // gets a field of its own. Each change is a normal transaction, so
+        // undo and the draft autosave see it like any other edit.
+        this.input = document.createElement("input");
+        this.input.type = "text";
+        this.input.className = "dw-editor-cut-text";
+        this.input.placeholder = strings.cutDefault;
+        this.input.setAttribute("aria-label", strings.cutCaption);
+        this.input.value = node.attrs.text || "";
+        this.input.addEventListener("input", () => {
+            const pos = getPos();
+            if (pos == null) return;
+            view.dispatch(
+                view.state.tr.setNodeMarkup(pos, null, { text: this.input.value })
+            );
+        });
+        // Enter or the down arrow moves on into the cut's own text.
+        this.input.addEventListener("keydown", (e) => {
+            if (e.key != "Enter" && e.key != "ArrowDown") return;
             e.preventDefault();
-            const current = view.state.doc.nodeAt(getPos());
-            textDialog(strings.cutCaption, strings, current.attrs.text).then((text) => {
-                if (text == null) return;
-                view.dispatch(
-                    view.state.tr.setNodeMarkup(getPos(), null, { text: text })
-                );
-                view.focus();
-            });
+            const pos = getPos();
+            if (pos == null) return;
+            const $inside = view.state.doc.resolve(pos + 1);
+            view.dispatch(view.state.tr.setSelection(Selection.near($inside)));
+            view.focus();
         });
 
-        this.header.appendChild(this.label);
-        this.header.appendChild(edit);
+        this.header.appendChild(icon);
+        this.header.appendChild(this.input);
         this.dom.appendChild(this.header);
 
         this.contentDOM = document.createElement("div");
         this.contentDOM.className = "dw-editor-cut-content";
         this.dom.appendChild(this.contentDOM);
-
-        this.setLabel(node);
-    }
-
-    setLabel(node) {
-        this.label.textContent = node.attrs.text || this.strings.cutDefault;
     }
 
     update(node) {
         if (node.type.name != "cut") return false;
-        this.setLabel(node);
+        // Only when it differs, so typing in the field doesn't move its caret.
+        const text = node.attrs.text || "";
+        if (this.input.value != text) this.input.value = text;
         return true;
     }
 
     stopEvent(event) {
-        // Header interactions (the edit button) are ours, not ProseMirror's.
+        // Typing and clicks in the header are the field's, not ProseMirror's.
         return this.header.contains(event.target);
     }
 
@@ -116,31 +124,159 @@ export class UserView {
     }
 }
 
+// A posted poll's placeholder (<poll-123>), and a poll written out in full.
+const POLL_REF = /^<(?:lj-)?poll-(\d+)>$/;
+const POLL_MARKUP = /^<(?:lj-)?poll\b[\s\S]*<\/(?:lj-)?poll\s*>$/i;
+
+// What a poll block's preview shows: { id } for a posted poll, or { name,
+// questions: [{ text, type, items }] } for poll markup. Null for anything
+// else. Parsed in an inert template, and only text is read back out.
+export function pollSummary(source) {
+    const html = String(source || "").trim();
+    const ref = POLL_REF.exec(html);
+    if (ref) return { id: ref[1] };
+    if (!POLL_MARKUP.test(html)) return null;
+
+    const tpl = document.createElement("template");
+    tpl.innerHTML = html;
+    const poll = tpl.content.querySelector("poll, lj-poll");
+    if (!poll) return null;
+    const clean = (text) => text.replace(/\s+/g, " ").trim();
+    const questions = Array.from(poll.querySelectorAll("poll-question, lj-pq")).map((q) => {
+        let text = "";
+        q.childNodes.forEach((child) => {
+            const tag = child.nodeType == 1 ? child.localName : null;
+            if (tag != "poll-item" && tag != "lj-pi") text += child.textContent;
+        });
+        return {
+            text: clean(text),
+            type: (q.getAttribute("type") || "").toLowerCase(),
+            items: Array.from(q.querySelectorAll("poll-item, lj-pi")).map((i) =>
+                clean(i.textContent)
+            ),
+        };
+    });
+    return { name: clean(poll.getAttribute("name") || ""), questions };
+}
+
+const ITEM_MARKERS = { radio: "\u25cb", check: "\u2610" };
+
 // html_block: source-editable literal HTML, visually labeled so it's clear
-// this chunk is passed through as-is.
+// this chunk is passed through as-is. A poll shows a read-only preview
+// instead, and its source only while the cursor is in it (activeHtmlBlock
+// marks that), so the button to edit it just moves the cursor there.
 export class HtmlBlockView {
     constructor(node, view, getPos, strings) {
+        this.strings = strings;
         this.dom = document.createElement("div");
         this.dom.className = "dw-editor-html-block";
 
         this.badge = document.createElement("div");
         this.badge.className = "dw-editor-html-badge";
         this.badge.contentEditable = "false";
-        this.badge.textContent = strings.htmlBlockLabel;
+        this.label = document.createElement("span");
+        this.badge.appendChild(this.label);
+        this.editButton = document.createElement("button");
+        this.editButton.type = "button";
+        this.editButton.className = "dw-editor-html-edit";
+        this.editButton.textContent = strings.pollEditHTML;
+        this.editButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            const pos = getPos();
+            if (pos == null) return;
+            const end = pos + view.state.doc.nodeAt(pos).nodeSize - 1;
+            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, end)));
+            view.focus();
+        });
+        this.badge.appendChild(this.editButton);
         this.dom.appendChild(this.badge);
+
+        this.preview = document.createElement("div");
+        this.preview.className = "dw-editor-poll-preview";
+        this.preview.contentEditable = "false";
+        this.dom.appendChild(this.preview);
 
         this.contentDOM = document.createElement("pre");
         this.contentDOM.className = "dw-editor-html-source";
         this.dom.appendChild(this.contentDOM);
+
+        this.render(node);
+    }
+
+    render(node) {
+        const source = node.textContent;
+        if (source === this.source) return;
+        this.source = source;
+        const poll = pollSummary(source);
+        this.dom.classList.toggle("dw-editor-html-poll", !!poll);
+        this.label.textContent = poll ? this.strings.pollLabel : this.strings.htmlBlockLabel;
+        this.preview.textContent = "";
+        if (poll) this.renderPoll(poll);
+    }
+
+    renderPoll(poll) {
+        const add = (parent, tag, className, text) => {
+            const el = document.createElement(tag);
+            el.className = className;
+            if (text != null) el.textContent = text;
+            parent.appendChild(el);
+            return el;
+        };
+        if (poll.id) {
+            add(this.preview, "div", "dw-editor-poll-name", this.strings.pollPosted.replace("[[id]]", poll.id));
+            const link = add(this.preview, "a", "dw-editor-poll-link", this.strings.pollView);
+            link.href = "/poll/?id=" + poll.id;
+            link.target = "_blank";
+            link.rel = "noopener";
+            return;
+        }
+        if (poll.name) add(this.preview, "div", "dw-editor-poll-name", poll.name);
+        poll.questions.forEach((q) => {
+            add(this.preview, "div", "dw-editor-poll-question", q.text);
+            if (!q.items.length) return;
+            const list = add(this.preview, "ul", "dw-editor-poll-items");
+            q.items.forEach((item) => {
+                const li = add(list, "li", "", item);
+                li.setAttribute("data-marker", ITEM_MARKERS[q.type] || "\u2022");
+            });
+        });
     }
 
     update(node) {
-        return node.type.name == "html_block";
+        if (node.type.name != "html_block") return false;
+        this.render(node);
+        return true;
+    }
+
+    stopEvent(event) {
+        return this.badge.contains(event.target) || this.preview.contains(event.target);
     }
 
     ignoreMutation(mutation) {
         return !this.contentDOM.contains(mutation.target);
     }
+}
+
+// Marks the HTML block the cursor is in, so a poll's source shows while it's
+// being edited and its preview the rest of the time.
+export function activeHtmlBlock() {
+    return new Plugin({
+        props: {
+            decorations(state) {
+                const { $head } = state.selection;
+                for (let d = $head.depth; d > 0; d--) {
+                    if ($head.node(d).type.name != "html_block") continue;
+                    const pos = $head.before(d);
+                    return DecorationSet.create(state.doc, [
+                        Decoration.node(pos, pos + $head.node(d).nodeSize, {
+                            class: "dw-editor-html-active",
+                        }),
+                    ]);
+                }
+                return null;
+            },
+        },
+    });
 }
 
 // html_inline: an empty inline element kept verbatim (<a name="top"></a>),

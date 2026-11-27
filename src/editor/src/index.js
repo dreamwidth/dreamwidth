@@ -35,7 +35,7 @@ import { tableEditing } from "prosemirror-tables";
 
 import { schema } from "./schema.js";
 import { importHTML, exportHTML } from "./serialize.js";
-import { buildNodeViews } from "./nodeviews.js";
+import { buildNodeViews, activeHtmlBlock } from "./nodeviews.js";
 import { mentionsPlugin } from "./mentions.js";
 import { buildInputRules } from "./inputrules.js";
 import { buildKeymap } from "./keymap.js";
@@ -100,10 +100,13 @@ const DEFAULT_STRINGS = {
     tableHeaderRow: "Toggle header row",
     tableHeaderCol: "Toggle header column",
     tableDelete: "Delete table",
-    cutEdit: "Edit",
     cutCaption: "Cut text",
     cutDefault: "Read more",
     htmlBlockLabel: "HTML (kept as-is)",
+    pollLabel: "Poll",
+    pollPosted: "Poll #[[id]]",
+    pollView: "View poll",
+    pollEditHTML: "Edit HTML",
     cancel: "Cancel",
     ok: "OK",
     linkTitle: "Add link",
@@ -201,6 +204,7 @@ export function mount(id, opts) {
             trailingNode(),
             pastePlugin(),
             tableEditing(),
+            activeHtmlBlock(),
         ],
     });
 
