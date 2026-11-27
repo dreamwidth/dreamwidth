@@ -158,3 +158,20 @@ test("undoing the edit that dropped a cut's join brings the join back", async ()
     undo(state, (tr) => (state = state.applyTransaction(tr).state));
     assert.equal(exportHTML(schema, state.doc), '<p>Shown <cut text="x">secret</cut></p>');
 });
+
+test("a cut around table rows, or across cells, keeps the table as written", () => {
+    // A browser would move these cuts out in front of the table, leaving the
+    // rows and cells they hide out in the open.
+    [
+        '<table><tbody><tr><td>shown</td></tr><cut text="x"><tr><td>secret</td></tr></cut></tbody></table>',
+        "<table><tr><td>a <cut>b</td><td>secret</cut></td></tr></table>",
+    ].forEach((html) => {
+        const doc = importHTML(schema, html);
+        assert.equal(doc.firstChild.type.name, "html_block");
+        assert.equal(exportHTML(schema, doc), html);
+    });
+    // Only that table: one inside a cell of an editable table stays inside it.
+    const nested = "<table><tr><td><table><cut><tr><td>in</td></tr></cut></table></td></tr></table>";
+    assert.equal(importHTML(schema, nested).firstChild.type.name, "table");
+    assert.match(roundTrip(nested), /<table><cut><tr><td>in<\/td><\/tr><\/cut><\/table>/);
+});

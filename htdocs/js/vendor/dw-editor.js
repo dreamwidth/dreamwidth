@@ -15096,6 +15096,67 @@ var DWEditor = (() => {
     "<!--[\\s\\S]*?-->|<(script|style|textarea|xmp|title)\\b[\\s\\S]*?<\\/\\1\\s*>|<(\\/?)(lj-)?cut(?![\\w-])" + ATTRS + "|<\\/?[a-zA-Z][\\w:-]*" + ATTRS.replace("((", "(?:("),
     "gi"
   );
+  var TABLE_SCAN = /<!--[\s\S]*?-->|<(script|style|textarea|xmp|title)\b[\s\S]*?<\/\1\s*>|<(\/?)([a-zA-Z][\w:-]*)(?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*\s*\/?>/g;
+  var keptTables = [];
+  function keepTablesWithStrayCuts(html) {
+    const stack = [];
+    const bad = [];
+    const endCell = (t) => {
+      if (t.inCell && t.cuts != 0)
+        t.bad = true;
+      t.inCell = false;
+      t.cuts = 0;
+    };
+    let m;
+    TABLE_SCAN.lastIndex = 0;
+    while (m = TABLE_SCAN.exec(html)) {
+      if (!m[3])
+        continue;
+      const name = m[3].toLowerCase();
+      const close2 = !!m[2];
+      const t = stack[stack.length - 1];
+      if (name == "table") {
+        if (!close2)
+          stack.push({ start: m.index, inCell: false, cuts: 0, bad: false });
+        else if (t) {
+          endCell(t);
+          stack.pop();
+          if (t.bad)
+            bad.push([t.start, m.index + m[0].length]);
+        }
+      } else if (!t) {
+        continue;
+      } else if (name == "td" || name == "th") {
+        endCell(t);
+        if (!close2)
+          t.inCell = true;
+      } else if (name == "tr" || name == "tbody" || name == "thead" || name == "tfoot") {
+        endCell(t);
+      } else if (name == "cut" || name == "lj-cut") {
+        if (!t.inCell)
+          t.bad = true;
+        else if ((t.cuts += close2 ? -1 : 1) < 0)
+          t.bad = true;
+      }
+    }
+    stack.forEach((t) => {
+      endCell(t);
+      if (t.bad)
+        bad.push([t.start, html.length]);
+    });
+    bad.sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+    let out = "";
+    let at = 0;
+    bad.forEach(([start, end]) => {
+      if (start < at)
+        return;
+      out += html.slice(at, start);
+      out += '<dw-kept-table data-key="' + keptTables.length + '"></dw-kept-table>';
+      keptTables.push(html.slice(start, end));
+      at = end;
+    });
+    return out + html.slice(at);
+  }
   function markCutTags(html) {
     return html.replace(CUT_TAG, (m, raw, close2, lj, attrs) => {
       if (raw || attrs === void 0)
@@ -15504,6 +15565,10 @@ var DWEditor = (() => {
     const tag = el.localName;
     if (tag == "dw-user")
       return;
+    if (tag == "dw-kept-table") {
+      el.replaceWith(rawBlock(restoreUserTags(keptTables[+el.getAttribute("data-key")])));
+      return;
+    }
     if (tag.indexOf("dw-") == 0)
       return replaceRaw(el);
     if (tag == "table")
@@ -15680,7 +15745,8 @@ var DWEditor = (() => {
     if (opts.casual)
       source = source.replace(/\s+$/, "");
     const tpl = document.createElement("template");
-    tpl.innerHTML = markCutTags(balanceUserTags(balancePollTags(source)));
+    keptTables = [];
+    tpl.innerHTML = markCutTags(keepTablesWithStrayCuts(balanceUserTags(balancePollTags(source))));
     pairCutMarkers(tpl.content);
     walk(tpl.content);
     if (opts.casual)
