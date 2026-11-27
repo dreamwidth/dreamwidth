@@ -187,20 +187,22 @@
     padding: 8px 10px;
     float: left;
     outline: none;
-	border: 1px solid #ccc;
+	border: 1px solid var(--dw-editor-border, #ccc);
     border-bottom: none;
 }
 #compose-entry ul li.on {
 	
 }
+/* The selected tab joins onto the editor below it, so it takes the editor's
+ * colors, which each site scheme sets (see components/dw-editor.scss). */
 #compose-entry ul li.on a {
     font-weight: bold;
     padding-bottom: 9px;
 	margin-bottom: -2px;
-	background: #fff;
+	background: var(--dw-editor-bg, #fff);
 }
 #compose-entry ul li.on a {
-	border-bottom: 1px solid #fff;
+	border-bottom: 1px solid var(--dw-editor-bg, #fff);
 }
 #metainfo, #metainfo label, #metainfo input.text, #metainfo strong {
     font-size: 14px;
