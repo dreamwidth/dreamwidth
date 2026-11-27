@@ -69,6 +69,38 @@ function buildDialog(title, fields, strings) {
     dialog.appendChild(form);
     document.body.appendChild(dialog);
 
+    // Older browsers have no <dialog>: there it's shown as a fixed box over a
+    // backdrop, and does by hand what showModal and method="dialog" do --
+    // which, left to such a browser, would submit the page's form instead.
+    if (typeof dialog.showModal != "function") {
+        const backdrop = document.createElement("div");
+        backdrop.className = "dw-editor-dialog-backdrop";
+        dialog.classList.add("dw-editor-dialog-fallback");
+        dialog.setAttribute("role", "dialog");
+        dialog.setAttribute("aria-modal", "true");
+        dialog.returnValue = "";
+        dialog.close = () => {
+            if (!dialog.parentNode) return;
+            backdrop.remove();
+            dialog.dispatchEvent(new dialog.ownerDocument.defaultView.Event("close"));
+        };
+        dialog.showModal = () => {
+            dialog.setAttribute("open", "");
+            document.body.insertBefore(backdrop, dialog);
+        };
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            dialog.returnValue = "ok";
+            dialog.close();
+        });
+        dialog.addEventListener("keydown", (e) => {
+            if (e.key != "Escape" && e.key != "Esc") return;
+            e.preventDefault();
+            dialog.returnValue = "";
+            dialog.close();
+        });
+    }
+
     return new Promise((resolve) => {
         dialog.addEventListener("close", () => {
             const values = {};
@@ -79,8 +111,12 @@ function buildDialog(title, fields, strings) {
             resolve(dialog.returnValue == "ok" ? values : null);
         });
         dialog.showModal();
-        const first = fields.find((f) => !f.value);
-        if (first) inputs[first.name].focus();
+        // Without a real modal dialog, the editor takes the focus back once
+        // the toolbar click is done; so focus the field after that.
+        const first = fields.find((f) => !f.value) || fields[0];
+        const focus = () => first && inputs[first.name].focus();
+        focus();
+        if (dialog.classList.contains("dw-editor-dialog-fallback")) setTimeout(focus, 0);
     });
 }
 

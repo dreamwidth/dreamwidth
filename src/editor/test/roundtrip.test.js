@@ -217,3 +217,12 @@ test("nested equal generic elements are detected whatever the attribute order", 
     // Same two attributes, written in a different order: still equal marks.
     assertSurvives('<p><span class="x" style="color: red;">a <span style="color: red;" class="x">b</span></span></p>');
 });
+
+test("a blank paragraph saves as a blank line the page shows", () => {
+    // <p></p> takes no room on the page, though the editor shows a line.
+    const out = roundTrip("<p>one</p><p></p><p>two</p>");
+    assert.equal(out, "<p>one</p>\n\n<p><br></p>\n\n<p>two</p>");
+    const doc = importHTML(schema, out);
+    assert.equal(doc.child(1).content.size, 0);
+    assert.equal(roundTrip(out), out);
+});
