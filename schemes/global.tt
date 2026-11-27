@@ -123,6 +123,9 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- BLOCK block.script_init -%]
 [%- IF resource_group == "foundation" -%]
-<script>$(document).foundation();</script>
+[%# Foundation reads its data-attribute namespace from a font-family its CSS
+    sets; schemes without that CSS (Blueshift) would hand it the page font
+    instead. We never use a namespace, so say so. -%]
+<script>Foundation.global.namespace = ''; $(document).foundation();</script>
 [%- END -%]
 [%- END -%]
