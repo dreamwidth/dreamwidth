@@ -358,6 +358,9 @@ export function insertCut(schema) {
         // The middle piece is the paragraph now starting after $from.
         const $inside = tr.doc.resolve($from.pos + 2);
         const range = $inside.blockRange();
+        // The hidden piece is plain text in the cut; the visible pieces keep
+        // the paragraph's attributes, and rejoin around it when saved.
+        tr.setNodeMarkup(range.start, schema.nodes.paragraph);
         tr.wrap(range, [{ type: schema.nodes.cut, attrs: { lead: true, tail } }]);
         tr.setSelection(TextSelection.create(tr.doc, $from.pos + 3));
         dispatch(tr.scrollIntoView());
@@ -429,7 +432,7 @@ export function cutJoins(schema) {
                 }
                 return true;
             });
-            if (tr) tr.setMeta("addToHistory", false);
+            // Part of the edit that caused it, so undoing that brings the join back.
             return tr;
         },
     });

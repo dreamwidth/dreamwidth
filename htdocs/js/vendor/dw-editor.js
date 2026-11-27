@@ -15091,10 +15091,14 @@ var DWEditor = (() => {
       (m, tag) => '<dw-poll-ref data-dw-tag="' + tag + '"></dw-poll-ref>'
     );
   }
-  var CUT_TAG = /<!--[\s\S]*?-->|<(script|style|textarea|xmp|title)\b[\s\S]*?<\/\1\s*>|<(\/?)(lj-)?cut((?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*\/?>/gi;
+  var ATTRS = `((?:\\s+[^\\s=>/]+(?:\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+))?)*)\\s*\\/?>`;
+  var CUT_TAG = new RegExp(
+    "<!--[\\s\\S]*?-->|<(script|style|textarea|xmp|title)\\b[\\s\\S]*?<\\/\\1\\s*>|<(\\/?)(lj-)?cut(?![\\w-])" + ATTRS + "|<\\/?[a-zA-Z][\\w:-]*" + ATTRS.replace("((", "(?:("),
+    "gi"
+  );
   function markCutTags(html) {
     return html.replace(CUT_TAG, (m, raw, close2, lj, attrs) => {
-      if (raw || m.indexOf("<!--") == 0)
+      if (raw || attrs === void 0)
         return m;
       const tag = (lj || "") + "cut";
       if (close2)
@@ -15107,11 +15111,11 @@ var DWEditor = (() => {
   }
   function hasContent(node) {
     return Array.from(node.childNodes).some(
-      (child) => child.nodeType == 1 ? true : child.nodeType == 3 && /\S/.test(child.data)
+      (child) => child.nodeType == 1 ? true : child.nodeType == 3 && /[^ \t\n\r\f]/.test(child.data)
     );
   }
   function edgeSpace(el, atEnd) {
-    return (atEnd ? /\s$/ : /^\s/).test(el.textContent);
+    return (atEnd ? /[ \t\n\r\f]$/ : /^[ \t\n\r\f]/).test(el.textContent);
   }
   function setJoin(cut, side, para) {
     cut.setAttribute("data-dw-" + side, edgeSpace(para, side == "lead") ? "space" : "1");
@@ -15157,6 +15161,14 @@ var DWEditor = (() => {
       const ancestor = range.commonAncestorContainer;
       const contents = range.extractContents();
       cut.appendChild(contents);
+      if (ancestor.nodeType == 1 && /^[ou]l$/.test(ancestor.localName)) {
+        const items = Array.from(cut.childNodes);
+        if (items.some((n) => n.nodeType == 1 && n.localName == "li")) {
+          const list = ancestor.cloneNode(false);
+          items.forEach((n) => list.appendChild(n));
+          cut.appendChild(list);
+        }
+      }
       if (open.parentNode == close2.parentNode) {
         open.replaceWith(cut);
         close2.remove();
@@ -15195,8 +15207,12 @@ var DWEditor = (() => {
       cut.after(tail2);
       if (hasContent(parent))
         setJoin(cut, "lead", parent);
-      else
+      else {
+        const prev = parent.previousElementSibling;
+        if (prev && prev.localName == "cut")
+          prev.removeAttribute("data-dw-tail");
         parent.remove();
+      }
       if (hasContent(tail2))
         setJoin(cut, "tail", tail2);
       else
@@ -15233,7 +15249,7 @@ var DWEditor = (() => {
     ).replace(
       /<dw-poll-ref data-dw-tag="((?:lj-)?poll-\d+)"><\/dw-poll-ref>/g,
       (m, tag) => "<" + tag + ">"
-    );
+    ).replace(/(<cut\b[^>]*?) data-dw-(?:lead|tail)="[^"]*"/g, "$1").replace(/(<cut\b[^>]*?) data-dw-(?:lead|tail)="[^"]*"/g, "$1");
   }
   function rawBlock(html) {
     const block = document.createElement("dw-html-block");
@@ -15728,7 +15744,9 @@ var DWEditor = (() => {
       const first = cut.firstElementChild;
       const last = cut.lastElementChild;
       const joinLead = lead && isParagraph(before);
-      const joinTail = tail && plainP(after) && isParagraph(last);
+      const outer = lead ? before : last;
+      const sameAs = (a, b) => isParagraph(a) && isParagraph(b) && a.attributes.length == b.attributes.length && Array.from(a.attributes).every((at) => b.getAttribute(at.name) === at.value);
+      const joinTail = tail && isParagraph(last) && (plainP(after) || sameAs(after, outer));
       if (!joinLead && !joinTail)
         return;
       cut.prepend(document.createTextNode(mark("C", n)));
@@ -15750,8 +15768,8 @@ var DWEditor = (() => {
     return (html) => {
       joins.forEach((n) => {
         const m = (kind) => mark(kind, n);
-        const cutOpen = "(<cut\\b[\\s\\S]*?)" + m("C");
-        html = html.replace(new RegExp(m("L") + "</p>\\s*" + cutOpen + "<p>" + m("F")), "$1").replace(new RegExp(m("L") + "</p>\\s*" + cutOpen), "$1</p>").replace(new RegExp(cutOpen + "<p>" + m("S")), "<p>$1").replace(new RegExp(m("E") + "</p>(</cut>)\\s*<p>" + m("T")), "$1").replace(new RegExp(m("Z") + "</p></cut>"), "</cut></p>");
+        const cutOpen = '(<cut\\b(?:[^>"]|"[^"]*")*>)' + m("C");
+        html = html.replace(new RegExp(m("L") + "</p>\\s*" + cutOpen + "<p>" + m("F")), "$1").replace(new RegExp(m("L") + "</p>\\s*" + cutOpen), "$1</p>").replace(new RegExp(cutOpen + "<p>" + m("S")), "<p>$1").replace(new RegExp(m("E") + "</p>(</cut>)\\s*<p\\b[^>]*>" + m("T")), "$1").replace(new RegExp(m("Z") + "</p></cut>"), "</cut></p>");
       });
       return html.replace(/\u0002[A-Z]\d+\u0002/g, "");
     };
@@ -17180,6 +17198,7 @@ var DWEditor = (() => {
       tr.split($from.pos);
       const $inside = tr.doc.resolve($from.pos + 2);
       const range = $inside.blockRange();
+      tr.setNodeMarkup(range.start, schema2.nodes.paragraph);
       tr.wrap(range, [{ type: schema2.nodes.cut, attrs: { lead: true, tail } }]);
       tr.setSelection(TextSelection.create(tr.doc, $from.pos + 3));
       dispatch(tr.scrollIntoView());
@@ -17246,8 +17265,6 @@ var DWEditor = (() => {
           }
           return true;
         });
-        if (tr)
-          tr.setMeta("addToHistory", false);
         return tr;
       }
     });

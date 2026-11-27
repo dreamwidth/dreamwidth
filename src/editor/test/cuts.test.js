@@ -123,3 +123,38 @@ test("a cut whose paragraph is changed stops being joined to it", () => {
     assert.equal(next.doc.child(2).attrs.lead, false);
     assert.match(exportHTML(schema, next.doc), /<h2>visible<\/h2>\s*<cut text="x"><p>secret<\/p><\/cut>/);
 });
+
+test("several cuts in an entry each save in their own place", () => {
+    [
+        "<p>a <cut>x</cut></p><p><cut>z</cut> w</p>",
+        "<cut><p>x</p></cut><p>y</p><p><cut>z</cut> w</p>",
+        '<p class="z">a <cut>b</cut> c</p>',
+        "<p>a <cut>b</cut>&nbsp;</p>",
+    ].forEach((html) => assert.equal(roundTrip(html).replace(/\n/g, ""), html));
+});
+
+test("cut tags written inside attribute values are only text", () => {
+    [
+        '<p><img src="x" title="<cut>"> a</p>',
+        '<p>a <cut>b <a title="</cut>">c</a> d</cut> e</p>',
+    ].forEach((html) => assert.equal(roundTrip(html), html));
+});
+
+test("a cut across list items keeps them in their kind of list", () => {
+    const out = roundTrip("<ul><li>a <cut>b</li><li>c</cut> d</li></ul>");
+    assert.match(out, /<cut><ul><li>b<\/li><li>c<\/li><\/ul><\/cut>/);
+    assert.doesNotMatch(out, /<ol>/);
+});
+
+test("undoing the edit that dropped a cut's join brings the join back", async () => {
+    const { history, undo } = await import("prosemirror-history");
+    let state = EditorState.create({
+        doc: importHTML(schema, '<p>Shown <cut text="x">secret</cut></p>'),
+        plugins: [history(), cutJoins(schema)],
+    });
+    // Delete the visible paragraph the cut is joined to.
+    state = state.applyTransaction(state.tr.delete(0, state.doc.child(0).nodeSize)).state;
+    assert.equal(state.doc.child(0).attrs.lead, false);
+    undo(state, (tr) => (state = state.applyTransaction(tr).state));
+    assert.equal(exportHTML(schema, state.doc), '<p>Shown <cut text="x">secret</cut></p>');
+});

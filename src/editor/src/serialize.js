@@ -173,11 +173,21 @@ function balancePollTags(html) {
 // that ends partway through is "tail"-joined to the paragraph after it (the
 // visible rest). exportHTML joins them back up.
 
-const CUT_TAG = /<!--[\s\S]*?-->|<(script|style|textarea|xmp|title)\b[\s\S]*?<\/\1\s*>|<(\/?)(lj-)?cut((?:\s+[^\s=>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)*)\s*\/?>/gi;
+// Matched in one pass, left to right: comments, raw-text elements and every
+// other tag are passed over whole (so a "<cut>" in an attribute value or a
+// <textarea> is left alone), and only real cut tags are replaced.
+const ATTRS = "((?:\\s+[^\\s=>/]+(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\\s>]+))?)*)\\s*\\/?>";
+const CUT_TAG = new RegExp(
+    "<!--[\\s\\S]*?-->" +
+        "|<(script|style|textarea|xmp|title)\\b[\\s\\S]*?<\\/\\1\\s*>" +
+        "|<(\\/?)(lj-)?cut(?![\\w-])" + ATTRS +
+        "|<\\/?[a-zA-Z][\\w:-]*" + ATTRS.replace("((", "(?:("),
+    "gi"
+);
 
 function markCutTags(html) {
     return html.replace(CUT_TAG, (m, raw, close, lj, attrs) => {
-        if (raw || m.indexOf("<!--") == 0) return m;
+        if (raw || attrs === undefined) return m;
         const tag = (lj || "") + "cut";
         if (close) return '<dw-cut-close data-dw-tag="' + tag + '"></dw-cut-close>';
         return (
@@ -197,14 +207,14 @@ function isParagraph(node) {
 // Anything a reader would see: text that isn't just whitespace, or an element.
 function hasContent(node) {
     return Array.from(node.childNodes).some((child) =>
-        child.nodeType == 1 ? true : child.nodeType == 3 && /\S/.test(child.data)
+        child.nodeType == 1 ? true : child.nodeType == 3 && /[^ \t\n\r\f]/.test(child.data)
     );
 }
 
 // Whether a paragraph's text ends (or starts) with whitespace. The editor
 // trims a paragraph's edges, so a join point's space is kept on the cut.
 function edgeSpace(el, atEnd) {
-    return (atEnd ? /\s$/ : /^\s/).test(el.textContent);
+    return (atEnd ? /[ \t\n\r\f]$/ : /^[ \t\n\r\f]/).test(el.textContent);
 }
 
 function setJoin(cut, side, para) {
@@ -255,6 +265,15 @@ function pairCutMarkers(root) {
         const ancestor = range.commonAncestorContainer;
         const contents = range.extractContents();
         cut.appendChild(contents);
+        // List items split out of a list stay in that kind of list.
+        if (ancestor.nodeType == 1 && /^[ou]l$/.test(ancestor.localName)) {
+            const items = Array.from(cut.childNodes);
+            if (items.some((n) => n.nodeType == 1 && n.localName == "li")) {
+                const list = ancestor.cloneNode(false);
+                items.forEach((n) => list.appendChild(n));
+                cut.appendChild(list);
+            }
+        }
 
         if (open.parentNode == close.parentNode) {
             open.replaceWith(cut);
@@ -294,7 +313,12 @@ function liftCut(cut) {
         parent.after(cut);
         cut.after(tail);
         if (hasContent(parent)) setJoin(cut, "lead", parent);
-        else parent.remove();
+        else {
+            // Two cuts with nothing between: the first's tail is gone.
+            const prev = parent.previousElementSibling;
+            if (prev && prev.localName == "cut") prev.removeAttribute("data-dw-tail");
+            parent.remove();
+        }
         if (hasContent(tail)) setJoin(cut, "tail", tail);
         else tail.remove();
         return;
@@ -333,7 +357,9 @@ function restoreUserTags(html) {
         .replace(
             /<dw-poll-ref data-dw-tag="((?:lj-)?poll-\d+)"><\/dw-poll-ref>/g,
             (m, tag) => "<" + tag + ">"
-        );
+        )
+        .replace(/(<cut\b[^>]*?) data-dw-(?:lead|tail)="[^"]*"/g, "$1")
+        .replace(/(<cut\b[^>]*?) data-dw-(?:lead|tail)="[^"]*"/g, "$1");
 }
 
 function rawBlock(html) {
@@ -922,7 +948,13 @@ function markCutJoins(root) {
         const first = cut.firstElementChild;
         const last = cut.lastElementChild;
         const joinLead = lead && isParagraph(before);
-        const joinTail = tail && plainP(after) && isParagraph(last);
+        // The rest of the paragraph rejoins it; its own attributes are dropped,
+        // so they have to be the ones the paragraph already has.
+        const outer = lead ? before : last;
+        const sameAs = (a, b) =>
+            isParagraph(a) && isParagraph(b) && a.attributes.length == b.attributes.length &&
+            Array.from(a.attributes).every((at) => b.getAttribute(at.name) === at.value);
+        const joinTail = tail && isParagraph(last) && (plainP(after) || sameAs(after, outer));
         if (!joinLead && !joinTail) return;
 
         cut.prepend(document.createTextNode(mark("C", n)));
@@ -946,12 +978,13 @@ function markCutJoins(root) {
     return (html) => {
         joins.forEach((n) => {
             const m = (kind) => mark(kind, n);
-            const cutOpen = "(<cut\\b[\\s\\S]*?)" + m("C");
+            // This cut's opening tag, which its C marker directly follows.
+            const cutOpen = '(<cut\\b(?:[^>"]|"[^"]*")*>)' + m("C");
             html = html
                 .replace(new RegExp(m("L") + "</p>\\s*" + cutOpen + "<p>" + m("F")), "$1")
                 .replace(new RegExp(m("L") + "</p>\\s*" + cutOpen), "$1</p>")
                 .replace(new RegExp(cutOpen + "<p>" + m("S")), "<p>$1")
-                .replace(new RegExp(m("E") + "</p>(</cut>)\\s*<p>" + m("T")), "$1")
+                .replace(new RegExp(m("E") + "</p>(</cut>)\\s*<p\\b[^>]*>" + m("T")), "$1")
                 .replace(new RegExp(m("Z") + "</p></cut>"), "</cut></p>");
         });
         return html.replace(/\u0002[A-Z]\d+\u0002/g, "");
