@@ -208,6 +208,9 @@ function insertHr(schema) {
 }
 
 
+// What a colour picker holds when the text has no colour of its own.
+const NO_COLOR = "#010101";
+
 // Options for the block-type select.
 function blockOptions(schema, strings) {
     return [
@@ -294,8 +297,11 @@ export function buildToolbar(schema, strings, pageOptions) {
             wrap.classList.toggle("dw-editor-disabled", !enabled);
             const current = currentTextStyle(view.state, schema)[spec.attr];
             bar.style.backgroundColor = current || "";
-            const hex = normalizeColor(current);
-            if (hex) input.value = hex;
+            // A native picker only reports a change, so if it still held a
+            // colour the text no longer has (after Remove color), picking
+            // that colour again would do nothing. Without a colour it holds
+            // one nobody picks.
+            input.value = normalizeColor(current) || NO_COLOR;
         });
     }
 

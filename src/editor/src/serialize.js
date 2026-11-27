@@ -745,6 +745,12 @@ function visit(el) {
 
     if (KNOWN_BLOCK_TAGS.has(tag)) {
         if (tag == "pre" && !isSimplePre(el)) return replaceRaw(el, true);
+        // <p><br></p> is how an empty paragraph (a blank line) is saved.
+        if (tag == "p") {
+            const kids = Array.from(el.childNodes).filter((n) => !(n.nodeType == 3 && !/\S/.test(n.data)));
+            if (kids.length == 1 && kids[0].nodeType == 1 && kids[0].localName == "br" && !kids[0].attributes.length)
+                el.textContent = "";
+        }
         stashAttrs(el, tag == "ol" ? ["start"] : []);
         walk(el);
         return;
@@ -1065,25 +1071,55 @@ function markCutJoins(root) {
 // break, which the casual cleaner turns back into <br />s. Everything else
 // stays markup, on one line, since a newline beside it would become a
 // stray <br />. The newlines are \u0003 until flattenNewlines has run.
-function casualParagraphs(root) {
+//
+// A blank paragraph is a blank line, and an HTML block holding inline markup
+// (a link) is a line of its own, like a paragraph.
+function casualParagraphs(root, inlineRaw) {
     const plain = (el) =>
         isParagraph(el) && !el.attributes.length && el.textContent.indexOf("\u0002") < 0;
+    const rawLine = (el) =>
+        el.nodeType == 1 && el.localName == "dw-raw-placeholder" && inlineRaw(el.getAttribute("data-key"));
     let lastWasText = false;
+    let blanks = 0;
     Array.from(root.childNodes).forEach((node) => {
-        if (!plain(node)) {
+        const para = plain(node);
+        if (!para && !rawLine(node)) {
             lastWasText = false;
+            blanks = 0;
             return;
         }
-        if (!hasContent(node)) {
+        if (para && !hasContent(node)) {
+            // A blank line: one more line break before whatever comes next.
+            // (Two separate paragraphs; one after a block, which already
+            // ends its line, is a blank line by itself.)
             node.remove();
+            blanks++;
             return;
         }
-        node.querySelectorAll("br").forEach((br) => {
-            if (!br.closest("pre")) br.replaceWith(document.createTextNode("\u0003"));
-        });
-        if (lastWasText) node.before(document.createTextNode("\u0003\u0003"));
-        node.replaceWith(...node.childNodes);
+        if (para)
+            node.querySelectorAll("br").forEach((br) => {
+                if (!br.closest("pre")) br.replaceWith(document.createTextNode("\u0003"));
+            });
+        const sep = (lastWasText ? "\u0003\u0003" : "") + "\u0003".repeat(blanks);
+        if (sep) node.before(document.createTextNode(sep));
+        if (para) node.replaceWith(...node.childNodes);
         lastWasText = true;
+        blanks = 0;
+    });
+}
+
+// Whether preserved HTML starts with something that's a block on the page,
+// so it needs no line break of its own around it in casual HTML.
+function blockLevelHTML(html) {
+    return /^\s*<(?:table|div|p|ul|ol|dl|blockquote|pre|h[1-6]|hr|form|center|iframe|object|embed|video|audio|details|fieldset|cut|lj-cut|poll|lj-poll|(?:lj-)?poll-\d+|site-embed|lj-embed|lj-raw|raw-code|style|script)\b/i.test(html || "");
+}
+
+// An empty paragraph is a blank line in the editor, but <p></p> takes no
+// room on the page; a line break in it makes it the blank line it looked
+// like. (importHTML reads <p><br></p> back as an empty paragraph.)
+function blankParagraphs(root) {
+    root.querySelectorAll("p").forEach((p) => {
+        if (!p.childNodes.length) p.appendChild(document.createElement("br"));
     });
 }
 
@@ -1140,7 +1176,8 @@ export function exportHTML(schema, doc, opts) {
     unwrapTightListItems(div);
     unwrapTightCells(div);
     const joinCuts = markCutJoins(div);
-    if (opts.flatten) casualParagraphs(div);
+    if (opts.flatten) casualParagraphs(div, (key) => !blockLevelHTML(rawChunks[+key]));
+    else blankParagraphs(div);
 
     // Swap raw-HTML placeholders for markers that survive innerHTML
     // escaping, then substitute the literal chunks back in. </user> is

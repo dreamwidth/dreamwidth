@@ -15586,6 +15586,11 @@ var DWEditor = (() => {
     if (KNOWN_BLOCK_TAGS.has(tag)) {
       if (tag == "pre" && !isSimplePre(el))
         return replaceRaw(el, true);
+      if (tag == "p") {
+        const kids = Array.from(el.childNodes).filter((n) => !(n.nodeType == 3 && !/\S/.test(n.data)));
+        if (kids.length == 1 && kids[0].nodeType == 1 && kids[0].localName == "br" && !kids[0].attributes.length)
+          el.textContent = "";
+      }
       stashAttrs(el, tag == "ol" ? ["start"] : []);
       walk(el);
       return;
@@ -15840,26 +15845,44 @@ var DWEditor = (() => {
       return html.replace(/\u0002[A-Z]\d+\u0002/g, "");
     };
   }
-  function casualParagraphs(root) {
+  function casualParagraphs(root, inlineRaw) {
     const plain = (el) => isParagraph(el) && !el.attributes.length && el.textContent.indexOf("") < 0;
+    const rawLine = (el) => el.nodeType == 1 && el.localName == "dw-raw-placeholder" && inlineRaw(el.getAttribute("data-key"));
     let lastWasText = false;
+    let blanks = 0;
     Array.from(root.childNodes).forEach((node) => {
-      if (!plain(node)) {
+      const para = plain(node);
+      if (!para && !rawLine(node)) {
         lastWasText = false;
+        blanks = 0;
         return;
       }
-      if (!hasContent(node)) {
+      if (para && !hasContent(node)) {
         node.remove();
+        blanks++;
         return;
       }
-      node.querySelectorAll("br").forEach((br) => {
-        if (!br.closest("pre"))
-          br.replaceWith(document.createTextNode(""));
-      });
-      if (lastWasText)
-        node.before(document.createTextNode(""));
-      node.replaceWith(...node.childNodes);
+      if (para)
+        node.querySelectorAll("br").forEach((br) => {
+          if (!br.closest("pre"))
+            br.replaceWith(document.createTextNode(""));
+        });
+      const sep = (lastWasText ? "" : "") + "".repeat(blanks);
+      if (sep)
+        node.before(document.createTextNode(sep));
+      if (para)
+        node.replaceWith(...node.childNodes);
       lastWasText = true;
+      blanks = 0;
+    });
+  }
+  function blockLevelHTML(html) {
+    return /^\s*<(?:table|div|p|ul|ol|dl|blockquote|pre|h[1-6]|hr|form|center|iframe|object|embed|video|audio|details|fieldset|cut|lj-cut|poll|lj-poll|(?:lj-)?poll-\d+|site-embed|lj-embed|lj-raw|raw-code|style|script)\b/i.test(html || "");
+  }
+  function blankParagraphs(root) {
+    root.querySelectorAll("p").forEach((p) => {
+      if (!p.childNodes.length)
+        p.appendChild(document.createElement("br"));
     });
   }
   function exportHTML(schema2, doc3, opts) {
@@ -15888,7 +15911,9 @@ var DWEditor = (() => {
     unwrapTightCells(div);
     const joinCuts = markCutJoins(div);
     if (opts.flatten)
-      casualParagraphs(div);
+      casualParagraphs(div, (key2) => !blockLevelHTML(rawChunks[+key2]));
+    else
+      blankParagraphs(div);
     div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
       ph.replaceWith(
         document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
@@ -17867,6 +17892,36 @@ var DWEditor = (() => {
     form.appendChild(buttons);
     dialog.appendChild(form);
     document.body.appendChild(dialog);
+    if (typeof dialog.showModal != "function") {
+      const backdrop = document.createElement("div");
+      backdrop.className = "dw-editor-dialog-backdrop";
+      dialog.classList.add("dw-editor-dialog-fallback");
+      dialog.setAttribute("role", "dialog");
+      dialog.setAttribute("aria-modal", "true");
+      dialog.returnValue = "";
+      dialog.close = () => {
+        if (!dialog.parentNode)
+          return;
+        backdrop.remove();
+        dialog.dispatchEvent(new dialog.ownerDocument.defaultView.Event("close"));
+      };
+      dialog.showModal = () => {
+        dialog.setAttribute("open", "");
+        document.body.insertBefore(backdrop, dialog);
+      };
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        dialog.returnValue = "ok";
+        dialog.close();
+      });
+      dialog.addEventListener("keydown", (e) => {
+        if (e.key != "Escape" && e.key != "Esc")
+          return;
+        e.preventDefault();
+        dialog.returnValue = "";
+        dialog.close();
+      });
+    }
     return new Promise((resolve) => {
       dialog.addEventListener("close", () => {
         const values = {};
@@ -17877,9 +17932,11 @@ var DWEditor = (() => {
         resolve(dialog.returnValue == "ok" ? values : null);
       });
       dialog.showModal();
-      const first = fields.find((f) => !f.value);
-      if (first)
-        inputs[first.name].focus();
+      const first = fields.find((f) => !f.value) || fields[0];
+      const focus2 = () => first && inputs[first.name].focus();
+      focus2();
+      if (dialog.classList.contains("dw-editor-dialog-fallback"))
+        setTimeout(focus2, 0);
     });
   }
   function linkDialog(strings, href) {
@@ -18120,6 +18177,7 @@ var DWEditor = (() => {
       return true;
     };
   }
+  var NO_COLOR = "#010101";
   function blockOptions(schema2, strings) {
     return [
       { value: "paragraph", label: strings.blockParagraph, type: schema2.nodes.paragraph },
@@ -18197,9 +18255,7 @@ var DWEditor = (() => {
         wrap2.classList.toggle("dw-editor-disabled", !enabled);
         const current = currentTextStyle(view.state, schema2)[spec.attr];
         bar.style.backgroundColor = current || "";
-        const hex = normalizeColor(current);
-        if (hex)
-          input.value = hex;
+        input.value = normalizeColor(current) || NO_COLOR;
       });
     }
     function addFontSize(group2) {

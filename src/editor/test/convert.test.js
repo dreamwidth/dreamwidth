@@ -131,3 +131,13 @@ test("server-converted source for an unclosed script/style keeps its text throug
     assert.match(out, /tail<br>text/);
     assert.doesNotMatch(out, /script|style/);
 });
+
+test("blank lines and inline HTML blocks keep their lines in casual HTML", () => {
+    const html =
+        '<pre>code</pre><p><br></p><a href="https://example.com/">link</a>' +
+        "<p><br></p><p>one</p><p>two</p><p><br></p><p>three</p>";
+    assert.equal(
+        roundTrip(html, {}, { flatten: true }),
+        '<pre><code>code</code></pre>\n<a href="https://example.com/">link</a>\n\n\none\n\ntwo\n\n\nthree'
+    );
+});
