@@ -15756,6 +15756,28 @@ var DWEditor = (() => {
       return html.replace(/\u0002[A-Z]\d+\u0002/g, "");
     };
   }
+  function casualParagraphs(root) {
+    const plain = (el) => isParagraph(el) && !el.attributes.length && el.textContent.indexOf("") < 0;
+    let lastWasText = false;
+    Array.from(root.childNodes).forEach((node) => {
+      if (!plain(node)) {
+        lastWasText = false;
+        return;
+      }
+      if (!hasContent(node)) {
+        node.remove();
+        return;
+      }
+      node.querySelectorAll("br").forEach((br) => {
+        if (!br.closest("pre"))
+          br.replaceWith(document.createTextNode(""));
+      });
+      if (lastWasText)
+        node.before(document.createTextNode(""));
+      node.replaceWith(...node.childNodes);
+      lastWasText = true;
+    });
+  }
   function exportHTML(schema2, doc3, opts) {
     opts = opts || {};
     const children = [];
@@ -15781,6 +15803,8 @@ var DWEditor = (() => {
     unwrapTightListItems(div);
     unwrapTightCells(div);
     const joinCuts = markCutJoins(div);
+    if (opts.flatten)
+      casualParagraphs(div);
     div.querySelectorAll("dw-raw-placeholder").forEach((ph) => {
       ph.replaceWith(
         document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
@@ -15790,7 +15814,7 @@ var DWEditor = (() => {
       /\u0001DWRAW(\d+)\u0001/g,
       (m, key2) => rawChunks[+key2]
     );
-    return opts.flatten ? flattenNewlines(html) : html;
+    return opts.flatten ? flattenNewlines(html).replace(/\u0003/g, "\n") : html;
   }
   function rawBlockFromText(text) {
     const trimmed = String(text || "").trim();

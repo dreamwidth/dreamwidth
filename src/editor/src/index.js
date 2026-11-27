@@ -132,8 +132,9 @@ const instances = {};
 // Formats whose source the server auto-formats. Casual HTML turns newlines
 // into <br /> and links bare URLs, and it and Markdown turn @name into a user
 // tag. rte1 does none of that, so converting one of these to rich text has to
-// do it up front (see serialize.js), and converting back has to leave no source
-// newlines for the server to turn into extra line breaks. (The retired rte0
+// do it up front (see serialize.js), and converting back has to leave only
+// the newlines meant as line breaks, since the server turns every one into
+// a <br />. (The retired rte0
 // format is converted by the server before the editor ever sees it.)
 const CASUAL_FORMATS = { html_casual1: 1, html_casual0: 1 };
 const MENTION_FORMATS = { html_casual1: 1, markdown0: 1 };
@@ -293,7 +294,7 @@ export function mount(id, opts) {
 }
 
 // opts.toFormat: the format the entry is switching to. Leaving for casual HTML
-// needs newline-free output (see exportHTML), which unedited source may not
+// needs source written for it (see exportHTML), which unedited source may not
 // have, so that always rewrites the textarea. Any other destination reads the
 // same explicit HTML, so unedited text is left exactly as it was.
 export function unmount(id, opts) {

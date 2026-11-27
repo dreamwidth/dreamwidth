@@ -958,8 +958,35 @@ function markCutJoins(root) {
     };
 }
 
-// opts.flatten: produce markup safe to hand to casual HTML (no source
-// newlines for the server to turn into line breaks).
+// For casual HTML, write plain paragraphs the way casual HTML is written:
+// text with a blank line between paragraphs and a newline for each line
+// break, which the casual cleaner turns back into <br />s. Everything else
+// stays markup, on one line, since a newline beside it would become a
+// stray <br />. The newlines are \u0003 until flattenNewlines has run.
+function casualParagraphs(root) {
+    const plain = (el) =>
+        isParagraph(el) && !el.attributes.length && el.textContent.indexOf("\u0002") < 0;
+    let lastWasText = false;
+    Array.from(root.childNodes).forEach((node) => {
+        if (!plain(node)) {
+            lastWasText = false;
+            return;
+        }
+        if (!hasContent(node)) {
+            node.remove();
+            return;
+        }
+        node.querySelectorAll("br").forEach((br) => {
+            if (!br.closest("pre")) br.replaceWith(document.createTextNode("\u0003"));
+        });
+        if (lastWasText) node.before(document.createTextNode("\u0003\u0003"));
+        node.replaceWith(...node.childNodes);
+        lastWasText = true;
+    });
+}
+
+// opts.flatten: produce source for casual HTML: plain paragraphs as lines of
+// text, and no other newlines for the server to turn into line breaks.
 export function exportHTML(schema, doc, opts) {
     opts = opts || {};
 
@@ -1011,6 +1038,7 @@ export function exportHTML(schema, doc, opts) {
     unwrapTightListItems(div);
     unwrapTightCells(div);
     const joinCuts = markCutJoins(div);
+    if (opts.flatten) casualParagraphs(div);
 
     // Swap raw-HTML placeholders for markers that survive innerHTML
     // escaping, then substitute the literal chunks back in. </user> is
@@ -1025,7 +1053,7 @@ export function exportHTML(schema, doc, opts) {
         /\u0001DWRAW(\d+)\u0001/g,
         (m, key) => rawChunks[+key]
     );
-    return opts.flatten ? flattenNewlines(html) : html;
+    return opts.flatten ? flattenNewlines(html).replace(/\u0003/g, "\n") : html;
 }
 
 // If pasted plain text is Dreamwidth block markup (a poll, an embed), return
