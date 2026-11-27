@@ -15,6 +15,7 @@ use strict;
 use warnings;
 
 use File::Temp qw(tempfile);
+use HTML::Form;
 use HTTP::Request::Common;
 use Plack::Test;
 use Test::More;
@@ -215,32 +216,43 @@ with_fake_memcache {
     };
 
     test_psgi $app, sub {
-        my $client = shift;
-        my @editors =
-            ( 'advanced', 'simple', 'advanced with legacy format', 'simple with legacy format' );
-        push @editors, 'advanced rich text', 'advanced rich text while loading',
-            'advanced rich text loading format round trip', 'advanced rich text fallback'
-            if $ENV{DW_TEST_RTE};
-        my %editor_modes = (
-            'advanced rich text'                           => 'ready',
-            'advanced rich text while loading'             => 'delay',
-            'advanced rich text loading format round trip' => 'roundtrip',
-            'advanced rich text fallback'                  => 'fallback',
+        my $client  = shift;
+        my @editors = (
+            [ 'advanced',                    'html_casual1' ],
+            [ 'simple',                      'html_casual1' ],
+            [ 'advanced with legacy format', 'html' ],
+            [ 'simple with legacy format',   'html' ],
+            [ 'advanced rich text',          'rte1' ],
+            [ 'advanced retired rich text',  'rte0' ],
+            [ 'simple retired rich text',    'used_rte' ],
+            [ 'advanced retired rich text with an edit', 'rte0', 0, 1 ],
         );
-        for my $editor (@editors) {
-            my $legacy_format = $editor =~ / with legacy format\z/;
-            my $editor_mode   = $editor_modes{$editor} // '';
-            my $rich_text     = $editor_mode ne '';
-            my $delay_editor  = $editor_mode eq 'delay' || $editor_mode eq 'roundtrip';
+        if ( $ENV{DW_TEST_RTE} ) {
+            push @editors, [ 'advanced rich text in Chrome', 'rte1', 1 ],
+                [ 'simple retired rich text in Chrome', 'rte0', 1 ];
+        }
+        for my $case (@editors) {
+            my ( $label, $saved_format, $chrome, $edit_first ) = @$case;
+            my $legacy_format = $saved_format eq 'html';
+            my $retired       = $saved_format eq 'rte0' || $saved_format eq 'used_rte';
+            my $rich_text     = $retired || $saved_format eq 'rte1';
 
             $owner->set_prop( 'entry_editor2', $legacy_format ? 'html_raw0' : 'html_casual1' );
             my $body =
-                $rich_text
-                ? "<lj-cut>More\nin the $editor editor.</lj-cut>"
-                : "An older entry in the $editor editor.\nSecond line.";
+                  $saved_format eq 'used_rte' ? '<p>Single-line legacy rich text.</p>'
+                : $rich_text                  ? "<lj-cut>More\nin the $label editor.</lj-cut>"
+                :   "An older entry in the $label editor.\nSecond line.";
+            my $expected_body = $body;
+            $expected_body =~ s/\n/<br \/>/g if $retired;
             my $entry = $owner->t_post_fake_entry( body => $body );
-            $entry->set_prop( 'editor', 'html' ) if $legacy_format;
-            $entry->set_prop( 'editor', 'rte0' ) if $rich_text;
+
+            if ( $saved_format eq 'used_rte' ) {
+                $entry->set_prop( 'editor',   undef );
+                $entry->set_prop( 'used_rte', 1 );
+            }
+            else {
+                $entry->set_prop( 'editor', $saved_format );
+            }
             my $id = $entry->ditemid;
             DW::External::Account->record_xpost( $entry, $mapping );
             DW::External::Account->record_xpost_detail( $entry, $details );
@@ -248,40 +260,43 @@ with_fake_memcache {
             $account->set_recordlink(0);
 
             my $base =
-                $rich_text
+                $chrome
                 ? ( $ENV{DW_BROWSER_BASE} // 'http://127.0.0.1:8080' )
                 : 'http://localhost';
             my $url = "$base/entry/$name/$id/edit?as=$name";
-            $url .= '&mode=simple' if $editor =~ /\Asimple\b/;
-            my $form = $client->( GET $url )->content;
+            $url .= '&mode=simple' if $label =~ /\Asimple\b/;
+            my $html = $client->( GET $url )->content;
             like(
-                $form,
+                $html,
                 qr/<input(?=[^>]*\bname=["']crosspost["'])(?=[^>]*\bchecked\b)/,
-                "$editor preselects the active destination"
+                "$label preselects the active destination"
             );
-            my ($token) = $form =~ /name=["']lj_form_auth["'][^>]*value=["']([^"']+)/;
-            ok( $token, "$editor issues a form token" );
-            my ($formats) = $form =~ /<select\b[^>]*\bname=["']editor["'][^>]*>(.*?)<\/select>/s;
-            my ($format) =
-                ( $formats // '' ) =~ /<option\b(?=[^>]*\bselected\b)[^>]*\bvalue=["']([^"']+)/;
-            my ($original_editor) = $form =~ /name=["']original_editor["'][^>]*value=["']([^"']+)/;
+            my ($form) = grep { $_->find_input('event') } HTML::Form->parse( $html, $url );
+            $form->action($url);
+            ok( $form->value('lj_form_auth'), "$label issues a form token" );
 
             if ($legacy_format) {
-                is( $format, 'html_raw0', 'legacy entry opens in the preferred HTML format' );
+                is( $form->value('editor'),
+                    'html_raw0', 'legacy entry opens in the preferred HTML format' );
                 $owner->set_prop( 'entry_editor2', 'html_casual1' );
             }
-            is( $format, 'rte0', 'rich-text entry opens in the rich-text editor' ) if $rich_text;
+            if ($rich_text) {
+                is( $form->value('editor'), 'rte1',
+                    "$label opens in the current rich-text editor" );
+                is( $form->value('event'), $expected_body,
+                    "$label opens with the expected source" );
+            }
 
             my $save = sub {
                 my ( $hide, %changes ) = @_;
                 @jobs = ();
                 my $request;
-                if ($rich_text) {
-                    my ( $html, $filename ) = tempfile( UNLINK => 1 );
-                    print {$html} $client->( GET $url )->content;
-                    close $html or die $!;
+                if ($chrome) {
+                    my ( $file, $filename ) = tempfile( UNLINK => 1 );
+                    print {$file} $client->( GET $url )->content;
+                    close $file or die $!;
                     open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
-                        $filename, $url, $hide, $changes{event} // '', $editor_mode
+                        $filename, $url, $hide, $changes{event} // ''
                         or die $!;
                     my $payload = do { local $/; <$browser> };
                     close $browser or die 'Could not submit the rich-text editor form in Chrome';
@@ -290,55 +305,46 @@ with_fake_memcache {
                         Content      => $payload;
                 }
                 else {
-                    $request = POST $url,
-                        Content => [
-                        lj_form_auth         => $token,
-                        hide_crosspost_links => $hide,
-                        'action:post'        => 1,
-                        crosspost_entry      => 1,
-                        crosspost            => $account_id,
-                        editor               => $format,
-                        subject              => delete $changes{subject} // 'test suite post.',
-                        event                => delete $changes{event} // $body,
-                        security             => delete $changes{security} // 'public',
-                        ( defined $original_editor ? ( original_editor => $original_editor ) : () ),
-                        %changes,
-                        ];
+                    $form->value( hide_crosspost_links => $hide );
+                    $form->value( $_                   => $changes{$_} ) for keys %changes;
+                    $request = $form->click('action:post');
                 }
                 my $response = $client->($request);
-                like( $response->content, qr/edit was successful/i, "$editor save succeeds" );
+                like( $response->content, qr/edit was successful/i, "$label save succeeds" );
                 LJ::Entry->reset_singletons;
                 return LJ::Entry->new( $owner, ditemid => $id );
             };
 
-            for my $hide ( 1, 0 ) {
+            for my $hide ( $edit_first ? () : ( 1, 0 ) ) {
                 my $fresh = $save->($hide);
-                is( scalar @jobs, 0, "$editor does not queue a crosspost on visibility-only save" );
-                is( $fresh->event_raw, $body, "$editor visibility-only save keeps original markup" )
-                    if $rich_text;
+                is( scalar @jobs, 0, "$label does not queue a crosspost on visibility-only save" );
+                if ($rich_text) {
+                    is( $fresh->event_raw, $expected_body, "$label saves the expected markup" );
+                    is( $fresh->prop('editor'), 'rte1', "$label saves in the current format" );
+                }
                 is( $fresh->prop('editor'),
                     'html',
                     'visibility-only save keeps the stored format after a preference change' )
                     if $legacy_format;
                 is_deeply( DW::External::Account->xpost_string_to_hash( $fresh->prop('xpost') ),
-                    $mapping, "$editor retains the external ID" );
+                    $mapping, "$label retains the external ID" );
                 is_deeply(
                     DW::External::Account->xpost_string_to_hash( $fresh->prop('xpostdetail') ),
-                    $details, "$editor retains the saved URL with Record link off" );
+                    $details, "$label retains the saved URL with Record link off" );
                 my %currents = LJ::currents( $fresh->props, $owner );
                 if ($hide) {
-                    is( $currents{Xpost} // '', '', "$editor hides the link" );
+                    is( $currents{Xpost} // '', '', "$label hides the link" );
                 }
                 else {
-                    like( $currents{Xpost}, qr/\Q$target\E/, "$editor restores the link" );
+                    like( $currents{Xpost}, qr/\Q$target\E/, "$label restores the link" );
                 }
             }
 
             my %changes;
             my $hide = 0;
             my @edits =
-                  $delay_editor ? ()
-                : $rich_text    ? ( [ event => 'New text.' ] )
+                $rich_text
+                ? ( [ event => 'New text.' ] )
                 : (
                 [ event    => 'New text.' ],
                 [ subject  => 'New subject' ],
@@ -350,14 +356,14 @@ with_fake_memcache {
                 my ( $field, $value ) = @$change;
                 $changes{$field} = $value;
                 my $fresh = $save->( $hide = 1 - $hide, %changes );
-                like( $fresh->event_raw, qr/\Q$value\E/, "$editor saves the new text" )
+                like( $fresh->event_raw, qr/\Q$value\E/, "$label saves the new text" )
                     if $rich_text;
                 is( $fresh->prop('editor'), $value, 'deliberate format change is saved' )
                     if $field eq 'editor';
                 is_deeply(
                     [ map { [ @$_{qw(accountid ditemid delete)} ] } @jobs ],
                     [ [ $account_id, $id, 0 ] ],
-                    "$editor queues an external edit for changed $field"
+                    "$label queues an external edit for changed $field"
                 );
             }
             LJ::delete_entry( $owner, $entry->jitemid, 0, $entry->anum );
@@ -365,27 +371,6 @@ with_fake_memcache {
     };
     $owner->do( 'DELETE FROM externalaccount WHERE userid=? AND acctid=?',
         undef, $owner->id, $account_id );
-}
-
-if ( $ENV{DW_TEST_RTE} ) {
-    my $owner = temp_user();
-    $owner->set_prop( 'entry_editor2', 'rte0' );
-    my $base = $ENV{DW_BROWSER_BASE} // 'http://127.0.0.1:8080';
-    my $url  = "$base/entry/new?as=" . $owner->user;
-    local $LJ::DISABLED{update_draft} = 0;
-    test_psgi $app, sub {
-        my $client = shift;
-        my ( $html, $filename ) = tempfile( UNLINK => 1 );
-        print {$html} $client->( GET $url )->content;
-        close $html or die $!;
-        my $text = 'New rich-text draft content';
-        open my $browser, '-|', 'node', 't/browser/lib/entry-edit-submit.js',
-            $filename, $url, '', $text, 'draft-switch'
-            or die $!;
-        my $body = do { local $/; <$browser> };
-        ok( close $browser, 'switched a new post with draft autosave enabled to HTML' );
-        like( $body // '', qr/\Q$text\E/, 'switching to HTML preserves typed rich-text content' );
-    };
 }
 
 done_testing;

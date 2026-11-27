@@ -1862,6 +1862,8 @@ sub _is_crosspost_visibility_only {
         my $selection =
             DW::Formats::select_items( current => $old_editor, preferred => $preferred_editor );
         return 0 if $props->{editor} ne $selection->{selected};
+        $old_event = LJ::CleanHTML::casual_to_explicit($old_event)
+            if DW::Formats::is_retired($old_editor);
     }
     else {
         for my $format_prop (qw(opt_preformatted used_rte)) {
