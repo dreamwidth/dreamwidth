@@ -269,7 +269,7 @@
     padding: 2px 2px 2px 1px;
     position: relative;
     margin: 0;
-	background: #fff;
+	background: transparent;
 	border-right: 1px solid #ccc;
     border-left: 1px solid #ccc;
 }

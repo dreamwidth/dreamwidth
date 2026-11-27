@@ -126,6 +126,23 @@ img.ProseMirror-separator {
     margin: 0 0 0.75em;
 }
 
+/* The editor's own list indent, so the markers sit inside the box whatever
+ * the page does to lists (the simple form zeroes them). */
+.dw-editor .ProseMirror ul,
+.dw-editor .ProseMirror ol,
+#updateForm .dw-editor .ProseMirror ul,
+#updateForm .dw-editor .ProseMirror ol {
+    margin: 0 0 0.75em;
+    padding-left: 1.75em;
+}
+
+.dw-editor .ProseMirror li > ul,
+.dw-editor .ProseMirror li > ol,
+#updateForm .dw-editor .ProseMirror li > ul,
+#updateForm .dw-editor .ProseMirror li > ol {
+    margin-bottom: 0;
+}
+
 .dw-editor .ProseMirror blockquote {
     border-left: 3px solid var(--dw-editor-line, GrayText);
     margin-left: 0.5em;

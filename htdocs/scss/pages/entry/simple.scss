@@ -24,9 +24,10 @@
         padding: 1px 2px;
         font-size: 13px;
         line-height: normal;
-        color: #000;
-        background-color: #fff;
-        border: 1px solid #a9a9a9;
+        /* The site scheme's field colors (set in skins/_skin-colors.scss). */
+        color: var(--dw-editor-fg, #000);
+        background-color: var(--dw-editor-bg, #fff);
+        border: 1px solid var(--dw-editor-border, #a9a9a9);
         border-radius: 0;
         box-shadow: none;
         transition: none;
@@ -167,6 +168,10 @@
 
     #compose-entry ul li a { font-size: 12px; }
 
+    /* The page zeroes list indents, which would leave these bullets hanging
+     * outside the panel. */
+    .crosspost-component ul { list-style: none; }
+
     #htmltools {
         #linebreaks label { font-weight: normal; font-size: 13px; }
         #linebreaks img { vertical-align: middle; }
@@ -201,8 +206,9 @@
         min-height: 0;
         padding: 0 2px;
         font-size: 13px;
-        background: #fff;
-        border: 1px solid #a9a9a9;
+        color: var(--dw-editor-fg, #000);
+        background: var(--dw-editor-bg, #fff);
+        border: 1px solid var(--dw-editor-border, #a9a9a9);
         input.autocomplete-input {
             height: 18px;
             margin: 0;

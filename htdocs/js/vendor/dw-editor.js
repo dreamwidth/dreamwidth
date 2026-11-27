@@ -15894,7 +15894,10 @@ var DWEditor = (() => {
         document.createTextNode("DWRAW" + ph.getAttribute("data-key") + "")
       );
     });
-    const html = joinCuts(div.innerHTML.replace(/<\/user>/g, "")).replace(
+    let markup = div.innerHTML.replace(/<\/user>/g, "");
+    if (opts.flatten)
+      markup = markup.replace(/<((?:ul|ol)\b[^>]*)>(?=<li[\s>])/g, "<$1>").replace(/<\/li>(?=<(?:li[\s>]|\/ul>|\/ol>))/g, "</li>");
+    const html = joinCuts(markup).replace(
       /\u0001DWRAW(\d+)\u0001/g,
       (m, key2) => rawChunks[+key2]
     );
