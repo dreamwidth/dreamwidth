@@ -16,7 +16,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 477;
+use Test::More tests => 501;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -268,6 +268,13 @@ BODY
     my $directive    = "\npost-security: private\n\nMessage";
     my $implied_head = '<!doctype html><title>Mail</title>';
     for my $case (
+        [ 'XML declaration before a fragment', qq{<?xml version="1.0"?>$directive} ],
+        [
+            'XML declaration before a document',
+            qq{<?xml version="1.0" encoding="UTF-8"?>\n}
+                . '<html><body>post-security: private<br>Message</body></html>'
+        ],
+        [ 'XML declaration inside the body', qq{<body><?XML version="1.0"?>$directive</body>} ],
         [ 'implied body after closed head',  "$preamble$directive</html>" ],
         [ 'implied body with a div wrapper', "$preamble<div>$directive</div></html>" ],
         [ 'implied body after title',        "<head><title>Mail</title>$directive" ],
@@ -930,11 +937,16 @@ qq{post-security: private<br class="Apple-interchange-newline">post-comments: no
     }
 
     for my $case (
-        [ 'plain span prose',  '<span>Intro text</span>',    '' ],
-        [ 'quoted span',       '<span class="gmail_quote">', '</span>' ],
-        [ 'unclosed comment',  '<span><!-- mail client',     '</span>' ],
-        [ 'Office prose',      '<o:p>Intro text</o:p>',      '' ],
-        [ 'unknown namespace', '<custom:quote>Intro text',   '</custom:quote>' ],
+        [ 'plain span prose', '<span>Intro text</span>',    '' ],
+        [ 'quoted span',      '<span class="gmail_quote">', '</span>' ],
+        [ 'unclosed comment', '<span><!-- mail client',     '</span>' ],
+        [ 'XML declaration after prose',  '<span>Intro text</span><?xml version="1.0"?>', '' ],
+        [ 'XML stylesheet instruction',   '<?xml-stylesheet href="mail.css"?>',           '' ],
+        [ 'other processing instruction', '<?mail client?>',                              '' ],
+        [ 'malformed XML declaration',    '<?xml version="1.0">',                         '' ],
+        [ 'unclosed XML declaration',     '<?xml version="1.0"',                          '' ],
+        [ 'Office prose',                 '<o:p>Intro text</o:p>',                        '' ],
+        [ 'unknown namespace', '<custom:quote>Intro text', '</custom:quote>' ],
         )
     {
         my ( $label, $opening, $closing ) = @$case;

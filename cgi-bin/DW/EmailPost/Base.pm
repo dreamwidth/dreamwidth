@@ -33,6 +33,7 @@ my $html_break_tag         = qr{<br[ \t]*/?>}i;
 my $html_office_open       = qr{<o:p[ \t]*>}i;
 my $html_placeholder_space = qr/(?:[ \t\r\n\f]|&nbsp;)*+/i;
 my $html_office_close      = qr{</o:p[ \t]*>}i;
+my $html_xml_declaration   = qr{<\?xml(?:\s[^<>]*)?\?>}i;
 
 =head1 NAME
 
@@ -396,6 +397,10 @@ sub _html_header_offset {
             $offset += length $text;
             $line_start = $offset if $at_boundary;
         }
+        elsif ( $type eq 'PI' && $token->[2] =~ /\A$html_xml_declaration\z/ ) {
+            $offset += length $token->[2];
+            $line_start = $offset if $at_boundary;
+        }
         elsif ( $type eq 'S' || $type eq 'D' ) {
             my $raw    = $type eq 'S' ? $token->[4] : $text;
             my $length = length $raw;
@@ -541,6 +546,9 @@ sub _html_body_offset {
             else {
                 last;
             }
+            $offset += length $token->[2];
+        }
+        elsif ( $type eq 'PI' && $token->[2] =~ /\A$html_xml_declaration\z/ ) {
             $offset += length $token->[2];
         }
         elsif ($type eq 'C'

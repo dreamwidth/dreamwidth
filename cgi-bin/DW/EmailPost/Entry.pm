@@ -148,8 +148,7 @@ sub _set_props {
     my ( $self, $u, $email_date, %post_headers ) = @_;
 
     if ( exists $post_headers{security} && !length( $post_headers{security} // '' ) ) {
-        $self->{error} = 'A security directive requires a value.';
-        return;
+        return $self->err('A security directive requires a value.');
     }
 
     my $props = {};
