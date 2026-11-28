@@ -86,6 +86,8 @@ function Page::print_header() {
 }
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
+
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
     if ($*image_background_header_height > 0) {
@@ -614,6 +616,41 @@ function print_stylesheet () {
 
     .module-credit dd { 
         margin-right: .5em; 
+    }
+
+    @media $small_media_query {
+        body { margin: 0; }
+
+        body #canvas {
+            max-width: none;
+            padding: 0 8px;
+        }
+
+        .entry { padding: .5em; }
+        .entry .header { margin-right: 0; }
+        .comment-wrapper { min-width: 0; }
+
+        .entry .header,
+        .comment .header {
+            overflow-wrap: break-word;
+        }
+
+        .entry-content,
+        .comment-content {
+            clear: both;
+        }
+
+        .one-column-split .module-cuttagcontrols .module-content {
+            display: inline-block;
+        }
+
+        .entry-content,
+        .comment-content,
+        .module-content {
+            box-sizing: border-box;
+            max-width: 100%;
+            overflow-x: auto;
+        }
     }
 
     """;

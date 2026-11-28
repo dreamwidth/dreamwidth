@@ -41,6 +41,7 @@ set font_module_heading = "'Century Gothic', Verdana, sans-serif";
 ##===============================
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
 
     var string entry_title_font = generate_font_css($*font_entry_title, $*font_base, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
@@ -482,6 +483,58 @@ ul.userlite-interaction-links { margin-top: .5em; }
 .module-navlinks a.current {
     font-weight: bold;
     }
+
+@media $small_media_query {
+    body #canvas {
+        margin: 1em 0;
+        padding: 0 8px;
+    }
+
+    #header,
+    #footer,
+    #content {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    #primary > .inner:first-child,
+    #secondary > .inner:first-child,
+    #tertiary > .inner:first-child {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .entry .contents,
+    .comment .contents { padding: .5em; }
+
+    .comment-wrapper,
+    .comment { min-width: 0; }
+
+    .entry .header,
+    .comment .header {
+        overflow-wrap: break-word;
+    }
+
+    .entry .userpic,
+    .page-recent .entry .userpic,
+    .page-day .entry .userpic,
+    .comment .userpic {
+        margin-top: 0;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+}
 
 """;
 }
