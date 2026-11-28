@@ -205,6 +205,8 @@ function Page::print() {
 
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string small_media_query = generate_small_media_query();
+    $small_media_query = $small_media_query->replace("and (max-width:", "and not (min-width:");
 
     var string entry_userpic_margin = "";
     if ( $*entry_userpic_style == "" ) {$entry_userpic_margin = "-160px"; }
@@ -777,6 +779,44 @@ $navlinks_css
 #footer {
     text-align: center;
     }
+
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #content { margin-inline: 0; }
+    #primary { padding-inline: 0; }
+    #secondary, #tertiary { padding-inline: 12px; }
+
+    .entry .header, .comment .header {
+        display: flow-root;
+        margin-inline: 0;
+        overflow-wrap: break-word;
+    }
+
+    .entry .userpic, .comment .userpic { margin: 0 .75em .5em; }
+
+    .comment-wrapper { min-width: 0; }
+
+    .icons-container .icon {
+        float: none;
+        min-width: 0;
+        width: auto;
+    }
+
+    .entry-content, .comment-content {
+        clear: both;
+        margin: .75em 12px;
+    }
+
+    .entry-content, .comment-content, .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
 
     """;
 }
