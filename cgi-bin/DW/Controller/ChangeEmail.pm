@@ -120,10 +120,7 @@ sub changeemail_handler {
                 }
             );
 
-            my $tochange = { email => $post->{email} };
-            $tochange->{status} = 'T' if $u->{status} eq 'A';
-
-            $u->update_self($tochange);
+            $u->set_unconfirmed_email( $post->{email} );
 
             # send letter to old email address
             my @date = localtime(time);
