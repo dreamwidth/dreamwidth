@@ -6,12 +6,17 @@ defaults modern Firefox dropped (table resize handles and row/column buttons in 
 63). This page sets one up in the devcontainer, next to the Chrome that `bin/dev/screenshot` uses (see
 [SCREENSHOTS.md](SCREENSHOTS.md)).
 
-Everything below runs inside the devcontainer:
+From the checkout root on the host, open a shell in the devcontainer:
 
 ```bash
 CID=$(docker ps --filter "label=devcontainer.local_folder=$(pwd)" --format '{{.ID}}')
 docker exec -it -w /workspaces/dreamwidth $CID bash
 ```
+
+Everything after this runs in that shell, inside the container. The JavaScript examples use top-level `await`:
+save them as `.mjs` files (ES modules) and run them with `node`, or wrap them in `(async () => { ... })()` in a
+`.js` file. An `.mjs` file needs `require` made first:
+`import { createRequire } from "node:module"; const require = createRequire(import.meta.url);`.
 
 ## Current Firefox with old defaults
 
@@ -55,7 +60,9 @@ curl -sSLO $REL/waterfox-classic-2022.11.en-US.linux-x86_64.tar.bz2
 curl -sSLO $REL/waterfox-classic-2022.11.sha256
 grep linux-x86_64.tar.bz2 waterfox-classic-2022.11.sha256 | sha256sum -c -
 tar xjf waterfox-classic-2022.11.en-US.linux-x86_64.tar.bz2
-curl -sSL https://github.com/mozilla/geckodriver/releases/download/v0.20.1/geckodriver-v0.20.1-linux64.tar.gz | tar xz
+curl -sSLO https://github.com/mozilla/geckodriver/releases/download/v0.20.1/geckodriver-v0.20.1-linux64.tar.gz
+echo "b2388c4b6f0dbbdb38834912a3ffe2b11aa3c2c652a7d8d82a143ed792867328  geckodriver-v0.20.1-linux64.tar.gz" | sha256sum -c -
+tar xzf geckodriver-v0.20.1-linux64.tar.gz
 ./waterfox-classic/waterfox --version     # Waterfox Classic 2022.11
 ```
 
