@@ -604,6 +604,7 @@ class RecentNav
     var readonly string backward_url "URL to go backward in time, or blank if furthest back server will allow.";
     var int backward_skip   "Number of items we'd be skipping going back more.";
     var int backward_count  "Number of items we'd be potentially seeing going backward.";
+    var bool backward_by_date "Whether the backward link switches the reading page to date mode.";
 }
 
 class RecentPage extends Page
@@ -639,6 +640,9 @@ class FriendsPage extends RecentPage
 
     var string filter_name
     "The name of the filter in effect, if it has a name. This is only used when 'custom' [member[FriendsPage.filter_active]] is true.";
+
+    var readonly string security_filter_arg
+    "The URL-escaped value of the security query parameter, or an empty string when no security filter is active.";
 }
 
 class DayPage extends Page
@@ -1557,6 +1561,12 @@ property string text_day_next {
 set text_day_prev = "Previous Day";
 set text_day_next = "Next Day";
 
+property string text_reading_by_date {
+    des = "Text to link from the regular reading page to earlier entries by date";
+    noui = 1;
+}
+set text_reading_by_date = "Earlier entries by date";
+
 property string text_comment_from {
     des = "Text of the 'from' header in comments";
     example = "From:";
@@ -2409,13 +2419,23 @@ function RecentPage::print_body {
 
     if ($.nav.backward_url != "" or $.nav.forward_url != "") {
         if ($.nav.backward_url != "") {
-            print safe "<a href=\"" + $.nav.backward_url + "\">" + get_plural_phrase($.nav.backward_count, "text_skiplinks_back") + "</a>";
+            if ($.nav.backward_count) {
+                print safe "<a href=\"" + $.nav.backward_url + "\">" + get_plural_phrase($.nav.backward_count, "text_skiplinks_back") + "</a>";
+            } elseif ($.nav.backward_by_date) {
+                print safe """<a href="$.nav.backward_url">$*text_reading_by_date</a>""";
+            } else {
+                print safe """<a href="$.nav.backward_url">$*text_day_prev</a>""";
+            }
         }
         if ($.nav.backward_url != "" and $.nav.forward_url != "") {
             " | ";
         }
         if ($.nav.forward_url != "") {
-            print safe "<a href=\"" + $.nav.forward_url + "\">" + get_plural_phrase($.nav.forward_count, "text_skiplinks_forward") + "</a>";
+            if ($.nav.forward_count) {
+                print safe "<a href=\"" + $.nav.forward_url + "\">" + get_plural_phrase($.nav.forward_count, "text_skiplinks_forward") + "</a>";
+            } else {
+                print safe """<a href="$.nav.forward_url">$*text_day_next</a>""";
+            }
         }
     }
 }

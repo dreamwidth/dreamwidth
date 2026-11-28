@@ -390,8 +390,8 @@ sub get_times_multi {
         if ( $tu = $mem->{"tu:$uid"} ) {
             $times{updated}->{$uid} = unpack( "N", $tu );
         }
-        if ( $tc = $mem->{"tc:$_"} ) {
-            $times{created}->{$_} = $tc;
+        if ( $tc = $mem->{"tc:$uid"} ) {
+            $times{created}->{$uid} = $tc;
         }
 
         push @need => $uid
