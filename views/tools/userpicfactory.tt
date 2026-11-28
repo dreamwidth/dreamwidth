@@ -11,44 +11,51 @@
   #
 %]
 
+[%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title = '.title' | ml -%]
 
-[%- dw.need_res( "js/6alib/core.js", "js/6alib/dom.js",
-                 "js/6alib/image-region-select.js" ) -%]
+[%- dw.need_res( { group => "foundation" }, "js/6alib/core.js",
+                 "js/6alib/image-region-select.js", "js/userpicfactory.js" ) -%]
 
 [%- sections.head = BLOCK %]
     <style type="text/css">
-        div#picContainer {
-            float: left;
-            margin-bottom: 15px;
-            width: [% scaledSizeMax %]px;
-            height: [% scaledSizeMax %]px;
-            border: 2px solid #EEEEEE;
-            padding: 2px;
+        .icon-factory {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 1rem;
         }
-        div#prevcon {
+        #picContainer, .icon-factory-options {
+            max-width: 100%;
+        }
+        .icon-factory-options {
+            box-sizing: border-box;
+        }
+        .icon-factory-options ul {
+            list-style: none;
+            margin-left: 0;
+            padding-left: 0;
+        }
+        .icon-factory-options label {
+            display: inline;
+        }
+        .icon-factory-options .button {
+            margin-bottom: 0;
+        }
+        #prevcon {
             width: 100px;
             height: 100px;
             overflow: hidden;
-            display: inline;
-            float:left;
+            box-sizing: content-box;
             border: 1px solid transparent;
+            margin-bottom: 0.5em;
         }
-        ul.previewbox {
-            list-style-type: none;
-            margin-left: 0;
-        }
-        ul.previewbox li {
-            white-space: nowrap;
+        #userpicpreview {
+            max-width: none;
+            display: block;
         }
     </style>
-    <script type="text/javascript">
-        var origW = [% upf_w %];
-        var origH = [% upf_h %];
-        var scaledSizeMax = [% scaledSizeMax %];
-    </script>
 
-    <script type="text/javascript" src='[% site.jsroot %]/userpicfactory.js'></script>
 [% END %]
 
 [%- IF successcount -%]
@@ -65,27 +72,24 @@
 
 [%- picpath = dw.create_url( "/misc/mogupic", keep_args => [ 'authas', 'index' ] ) -%]
 
-    <div id="picContainer">
-      <img src="[% picpath %]" id="userpic" style="display: none;" />
+    <div class="icon-factory">
+    <div id="picContainer" hidden>
+      <img src="[% picpath %]" id="userpic" alt="" />
     </div>
-
-    <div class='highlight-box' style='float: right;'>
-    <form action="[% dw.create_url( '/manage/icons', keep_args => [ 'authas' ] ) %]"
+    <form class="highlight-box icon-factory-options"
+          action="[% dw.create_url( '/manage/icons', keep_args => [ 'authas' ] ) %]"
           method="POST" enctype='multipart/form-data'>
-    <ul class="previewbox"><li>
-      <nobr><input type="checkbox" id="constrain" onchange="setConstrain();" />
-      <label for="constrain">[% '.preview.label.constrain' | ml %]</label></nobr>
+    <ul><li>
+      <input type="checkbox" id="constrain" onchange="setConstrain();" />
+      <label for="constrain">[% '.preview.label.constrain' | ml %]</label>
       <br /><small>[% '.preview.label.constrain.shift' | ml %]</small>
     </li><li>
-      <nobr><input type="checkbox" id="borderToggle" name="border" />
-      <label for="borderToggle">[% '.preview.label.bordertoggle' | ml %]</label></nobr>
+      <input type="checkbox" id="borderToggle" name="border" />
+      <label for="borderToggle">[% '.preview.label.bordertoggle' | ml %]</label>
     </li></ul>
-    <p style="margin: 0.5em 0 0 0.5em;">
-      <small>[% '.preview.label.icon' | ml %]</small></p>
-    <div style="width: 102px; height: 102px; overflow: hidden; padding: 0 5px;">
-      <div id="prevcon">
-        <img src="[% picpath %]" id="userpicpreview" />
-      </div>
+    <small>[% '.preview.label.icon' | ml %]</small>
+    <div id="prevcon">
+      <img src="[% picpath %]" id="userpicpreview" alt="" />
     </div>
 
 [% form.hidden( name = "create", value = 1 ) %]
@@ -102,7 +106,7 @@
 [% form.hidden( name = "src", value = "factory" ) %]
 [% dw.form_auth %]
 
-[% form.submit( id = "createbtn", value = dw.ml( ".title" ) ) %]
+[% form.submit( id = "createbtn", class = "button", value = dw.ml( ".title" ) ) %]
 [% form_keepargs %]
 
     </form></div>
