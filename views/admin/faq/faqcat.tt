@@ -33,7 +33,7 @@
 </div>
 [%- END -%]
 
-<h3>[% '.editcats.title' | ml %]</h3>
+<h2>[% '.editcats.title' | ml %]</h2>
 
 [%- IF faqcat.size;
       faqcount = 0 -%]
@@ -87,7 +87,7 @@
 <p> [% '.editcats.none' | ml %]</p>
 [%- END -%]
 
-<h3>[% '.addcat.title' | ml %]</h3>
+<h2>[% '.addcat.title' | ml %]</h2>
 <p> [% '.addcat.intro' | ml %]</p>
 
 <form method='POST' action='faqcat'>

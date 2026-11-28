@@ -37,7 +37,7 @@
 <hr />
 
   [%- IF s2style -%]
-<h3>[% '.header.s2style' | ml( stylename = s2style.name ) %]</h3>
+<h2>[% '.header.s2style' | ml( stylename = s2style.name ) %]</h2>
 
 <ul>
   <li>[% '.label.styleid' | ml %] [% s2style.styleid %]</li>
