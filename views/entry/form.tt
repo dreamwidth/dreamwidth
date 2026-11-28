@@ -43,6 +43,9 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
     <input type="hidden" id="nojs" value="1" name="nojs" />
 
     [%- dw.form_auth -%]
+    [%- IF has_crosspost_links && original_editor -%]
+        [%- form.hidden( name = 'original_editor', value = original_editor ) -%]
+    [%- END -%]
 
     <div class="current-entry row"><div class="columns"><!-- Start main column sub & entry -->
 
@@ -327,6 +330,21 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
 
     <div class="row">
         <div class="columns">
+            [% IF action.edit && has_crosspost_links %]
+                <div class="crosspost-link-visibility">
+                    [% form.select( name = 'hide_crosspost_links'
+                                    id = 'hide_crosspost_links'
+                                    label = 'Links to crossposts:'
+                                    selected = hide_crosspost_links
+                                    items = [
+                                        0 'Show links on this entry'
+                                        1 'Hide links from this entry'
+                                    ]
+                                    'aria-describedby' = 'crosspost-links-help'
+                    ) %]
+                    <p id="crosspost-links-help">This only changes the links on Dreamwidth, not the posts on other sites.</p>
+                </div>
+            [% END %]
             <div class="button-bar">
                 [%- form.submit( value = dw.ml(action.edit ? '.button.edit' : '.button.post')
                                  name = "action:post"

@@ -20,6 +20,11 @@ Each test prints `PASS: ...` lines and exits non-zero on failure. Set `DW_BROWSE
 
 To check a page in Firefox or an old browser engine such as Waterfox Classic, see `doc/OLD-BROWSERS.md`.
 
+The crosspost link visibility test has optional DWEditor (`rte1`) coverage in Chrome. With the same
+setup, run `DW_TEST_RTE=1 prove t/plack-edit-crosspost-links.t`. Chrome submits the rendered form
+with and without a rich-text edit. The Perl test harness checks the stored markup and queued jobs
+without contacting an external service.
+
 ## Writing one
 
 A test here must run with that single command and no other setup:

@@ -607,6 +607,11 @@ sub props {
     return $self->{props} || {};
 }
 
+sub has_crosspost_links {
+    my ($self) = @_;
+    return scalar LJ::crosspost_urls( $self->prop('xpostdetail') );
+}
+
 sub _load_props {
     my $self = $_[0];
     return 1 if $self->{_loaded_props};
@@ -2845,6 +2850,12 @@ sub item_toutf8 {
     return;
 }
 
+sub crosspost_urls {
+    my ($detail) = @_;
+    my $refs = DW::External::Account->xpost_string_to_hash($detail);
+    return map { $_->{url} } grep { ref $_ eq 'HASH' && $_->{url} } values %$refs;
+}
+
 # function to fill in hash for basic currents
 sub currents {
     my ( $props, $u, $opts ) = @_;
@@ -2917,17 +2928,10 @@ sub currents {
     }
 
     # Crossposts
-    if ( my $xpost = $props->{"${key}xpostdetail"} ) {
-        my $xposthash  = DW::External::Account->xpost_string_to_hash($xpost);
-        my $xpostlinks = "";
-        foreach my $xpostvalue ( values %$xposthash ) {
-            if ( $xpostvalue->{url} ) {
-                my $xpost_url = LJ::no_utf8_flag( $xpostvalue->{url} );
-                $xpostlinks .= " " if $xpostlinks;
-                $xpostlinks .= "<a href='$xpost_url'>$xpost_url</a>";
-            }
-        }
-        $current{Xpost} = $xpostlinks if $xpostlinks;
+    unless ( $props->{"${key}opt_hide_xpost_links"} ) {
+        my @links = map { "<a href='$_'>$_</a>" }
+            map { LJ::no_utf8_flag($_) } crosspost_urls( $props->{"${key}xpostdetail"} );
+        $current{Xpost} = join ' ', @links if @links;
     }
 
     if ($entry) {
