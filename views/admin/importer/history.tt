@@ -89,7 +89,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </p>
 
 [%- UNLESS import.queue_complete -%]
-<p class="alert-box warning radius">[% '.queue.incomplete' | ml %]</p>
+<p class="alert-box radius">[% '.queue.incomplete' | ml %]</p>
 [%- END -%]
 
 <div class="import-actions">

@@ -32,7 +32,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 </p>
 
 [%- IF missing -%]
-<div class="alert-box warning radius">[% '.missing' | ml( count = missing ) %]</div>
+<div class="alert-box radius">[% '.missing' | ml( count = missing ) %]</div>
 [%- END -%]
 
 <pre style="white-space: pre-wrap; overflow-wrap: anywhere;">[% text | html %]</pre>
