@@ -105,8 +105,6 @@ sub sysban_controller {
             expire  => $form_args->{expire},
             bandays => $form_args->{bandays},
             note    => $form_args->{note},
-            what    => $form_args->{bantype},
-            value   => $form_args->{value},
         );
 
         return error_ml( "$scope.error.modify", { message => $modify->{message} } )
@@ -118,11 +116,11 @@ sub sysban_controller {
 
     if ( $vars->{action} eq 'add' ) {    # this action comes from the addnew form
 
-        my $bantype = $form_args->{bantype};
+        my $bantype = $form_args->{bantype} // '';
         my $remote  = $rv->{remote};
 
-        return error_ml( "$scope.error.nopriv", { bantype => $bantype } )
-            unless $remote->has_priv( 'sysban', $bantype );
+        return error_ml( "$scope.error.nopriv", { bantype => LJ::ehtml($bantype) } )
+            unless length $bantype && $remote->has_priv( 'sysban', $bantype );
 
         return error_ml("$scope.error.nonote") unless $form_args->{note};
 

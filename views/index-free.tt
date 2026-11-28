@@ -35,8 +35,10 @@
 <tr>
 <td valign='top' width="50%">
 <dl>
+[% UNLESS account_creation_blocked %]
 <dt><a href="/create/"><font size="+1"><tt><b>Create A Journal</b></tt></font></a>
 <dd>Come and create your very own [% site.nameshort %]!
+[% END %]
 <dt><a href="/entry/new"><font size="+1"><tt><b>Update Journal</b></tt></font></a>
 <dd>Update your [% site.nameshort %] from the web.
 </dl>

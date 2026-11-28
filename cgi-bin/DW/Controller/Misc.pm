@@ -30,6 +30,7 @@ use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 use LJ::BetaFeatures;
+use LJ::Sysban;
 
 DW::Routing->register_string( '/misc/feedping',           \&feedping_handler,         app  => 1 );
 DW::Routing->register_string( '/misc/get_domain_session', \&domain_session_handler,   app  => 1 );
@@ -40,10 +41,15 @@ DW::Routing->register_string( "/community/random/index",  \&random_community_han
 DW::Routing->register_string( "/beta",                    \&beta_handler,             app  => 1 );
 DW::Routing->register_string( "/site/index",              \&sitemap_handler,          app  => 1 );
 
-DW::Routing->register_static( '/index',           'index-free.tt',      app => 1 );
+DW::Routing->register_string( '/index', \&index_handler, app => 1, no_cache => 1 );
 DW::Routing->register_static( '/internal/404',    'error/404.tt',       app => 1 );
 DW::Routing->register_static( '/site/opensource', 'site/opensource.tt', app => 1 );
 DW::Routing->register_static( '/doc/s2',          'doc/s2/index.tt',    app => 1 );
+
+sub index_handler {
+    return DW::Template->render_template( 'index-free.tt',
+        { account_creation_blocked => LJ::Sysban::account_creation_blocked() } );
+}
 
 sub beta_handler {
     my ($opts) = @_;

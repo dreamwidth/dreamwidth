@@ -143,6 +143,7 @@ LJ::Hooks::register_hook(
 
         # extracted from LJ::Sysban::validate
         $hr = {
+            account_create => "Can ban account creation from specific IPs",
             email          => "Can ban specific email addresses",
             email_domain   => "Can ban entire email domains",
             invite_email   => "Can ban invites for email addresses",

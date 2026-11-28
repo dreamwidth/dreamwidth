@@ -18,8 +18,10 @@ package LJ::Sysban;
 use strict;
 use v5.10;
 use Log::Log4perl;
+use Socket qw( AF_INET AF_INET6 inet_pton inet_ntop );
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Request;
 use LJ::MemCache;
 
 =head1 Methods
@@ -70,6 +72,18 @@ sub tempban_check {
 # </LJFUNC>
 sub sysban_check {
     my ( $what, $value ) = @_;
+
+    if ( $what eq 'account_create' ) {
+        my $ip   = _account_create_ip($value) or return 0;
+        my $bans = LJ::MemCache::get('sysban:account_create');
+        unless ($bans) {
+            $bans = sysban_populate( {}, $what ) or return undef;
+            LJ::MemCache::set( 'sysban:account_create', $bans, $LJ::SYSBAN_IP_REFRESH || 120 );
+        }
+
+        my $expires = $bans->{$ip};
+        return defined $expires && ( !$expires || $expires > time() );
+    }
 
     # cache if noanon_ip ban
     if ( $what eq 'noanon_ip' ) {
@@ -312,6 +326,27 @@ sub sysban_check {
 }
 *LJ::sysban_check = \&sysban_check;
 
+sub _account_create_ip {
+    my ($value) = @_;
+    return unless defined $value && $value =~ /\A[0-9a-fA-F:.]+\z/;
+
+    my $ipv4 = inet_pton( AF_INET, $value );
+    return inet_ntop( AF_INET, $ipv4 ) if defined $ipv4;
+
+    my $ipv6 = inet_pton( AF_INET6, $value );
+    return unless defined $ipv6;
+    return inet_ntop( AF_INET, substr( $ipv6, 12 ) )
+        if substr( $ipv6, 0, 12 ) eq ( "\0" x 10 ) . "\xff\xff";
+    return inet_ntop( AF_INET6, $ipv6 );
+}
+
+sub account_creation_blocked {
+    my $request = DW::Request->get or return 0;
+    return $request->note('account_creation_blocked')
+        // $request->note(
+        account_creation_blocked => sysban_check( 'account_create', LJ::get_remote_ip() ) ? 1 : 0 );
+}
+
 # takes a hashref to populate with 'value' => expiration  pairs
 # takes a 'what' to populate the hashref with sysbans of that type
 # returns undef on failure, hashref on success
@@ -327,15 +362,17 @@ sub _db_sysban_populate {
     return undef unless $dbh;
 
     # build cache from db
+    my $starts = $what eq 'account_create' ? '>=' : '>';
     my $sth =
         $dbh->prepare( "SELECT value, UNIX_TIMESTAMP(banuntil) "
             . "FROM sysban "
             . "WHERE status='active' AND what=? "
-            . "AND NOW() > bandate "
+            . "AND NOW() $starts bandate "
             . "AND (NOW() < banuntil OR banuntil IS NULL)" );
     $sth->execute($what);
     return undef if $sth->err;
     while ( my ( $val, $exp ) = $sth->fetchrow_array ) {
+        $val = _account_create_ip($val) // next if $what eq 'account_create';
         $where->{$val} = $exp || 0;
     }
 
@@ -364,12 +401,13 @@ sub _db_sysban_populate_full {
 
     # build cache from db
     my $limitsql = $limit ? " ORDER BY banid DESC LIMIT ? OFFSET ?" : "";
+    my $starts = $what eq 'account_create' ? '>=' : '>';
     my $sth =
         $dbh->prepare( "SELECT banid, value, "
             . "UNIX_TIMESTAMP(banuntil), note "
             . "FROM sysban "
             . "WHERE status='active' AND what=? "
-            . "AND NOW() > bandate "
+            . "AND NOW() $starts bandate "
             . "AND (NOW() < banuntil OR banuntil IS NULL)"
             . $limitsql );
     $sth->execute( $what, $limit, $skip );
@@ -412,17 +450,12 @@ sub populate_full_by_value_with_expired {
 
 sub _db_sysban_populate_full_by_value {
     my ( $value, $no_expired, @types ) = @_;
+    return undef unless @types;
+
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
-    my $in_what = "";
-    my $has_all = 0;
-
-    $in_what = join ", ", map { $dbh->quote($_) } @types
-        unless $has_all;
-    $in_what = " AND what IN ( $in_what )"
-        if $in_what;
-
+    my $in_what  = join ', ', ('?') x @types;
     my $banuntil = $no_expired ? "AND ( NOW() < banuntil OR banuntil IS NULL )" : "";
 
     # build cache from db
@@ -430,13 +463,14 @@ sub _db_sysban_populate_full_by_value {
         qq{SELECT banid, what, UNIX_TIMESTAMP(banuntil), note
            FROM sysban
            WHERE status = 'active'
-                 AND value = ?
-                 $in_what
-                 AND NOW() > bandate
+                 AND what IN ($in_what)
+                 AND ((what = 'account_create' AND value = ? AND NOW() >= bandate)
+                   OR (what <> 'account_create' AND value = ? AND NOW() > bandate))
                  $banuntil
         }
     );
-    $sth->execute($value);
+    my $ip = _account_create_ip($value);
+    $sth->execute( @types, $ip, $value );
     return undef if $sth->err;
 
     my $where;
@@ -529,6 +563,10 @@ sub create {
 
     # strip out leading/trailing whitespace
     $opts{'value'} = LJ::trim( $opts{'value'} );
+    if ( $opts{what} eq 'account_create' ) {
+        $opts{value} = _account_create_ip( $opts{value} )
+            or return bless { message => 'Enter a valid IPv4 or IPv6 address' }, 'ERROR';
+    }
 
     # do insert
     $dbh->do(
@@ -580,13 +618,15 @@ sub validate {
         if !$opts->{skipexisting} && sysban_check( $what, $value );
 
     my $validate = {
+        'account_create' => sub {
+            my $ip = _account_create_ip(shift) or return 'Enter a valid IPv4 or IPv6 address';
+            return _unbannable_ip_error($ip);
+        },
         'ip' => sub {
             my $ip = shift;
 
-            while ( my ( $ip_re, $reason ) = each %LJ::UNBANNABLE_IPS ) {
-                next unless $ip =~ $ip_re;
-                return "Cannot ban IP $ip: " . LJ::ehtml($reason);
-            }
+            my $error = _unbannable_ip_error($ip);
+            return $error if $error;
 
             return $ip =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
                 ? 0
@@ -653,17 +693,24 @@ sub validate {
     return $check->($value);
 }
 
+sub _unbannable_ip_error {
+    my ($ip) = @_;
+    for my $ip_re ( keys %LJ::UNBANNABLE_IPS ) {
+        next unless $ip =~ $ip_re;
+        return "Cannot ban IP $ip: " . LJ::ehtml( $LJ::UNBANNABLE_IPS{$ip_re} );
+    }
+    return 0;
+}
+
 # <LJFUNC>
 # name: LJ::Sysban::modify
-# des: modifies the expiry or note field of an entry
-# args: banid, bandays, expiry, expirenow, note (passed in as hash)
+# des: modifies a ban's expiry or note
+# args: banid, bandays, expire, note (passed in as hash)
 # des-banid: the ban ID we're modifying
 # des-bandays: the new expiry
 # des-expire: the old expiry
 # des-note: the new note (optional)
-# des-what: the ban type
-# des-value: the ban value
-# returns: ERROR object on success, error message on failure
+# returns: ERROR object on failure
 # </LJFUNC>
 sub modify {
     my %opts = @_;
@@ -679,11 +726,18 @@ sub modify {
         return bless { message => "Note too long; must be less than 256 characters\n", }, 'ERROR';
     }
 
-    my $dbh = LJ::get_db_writer();
+    my $dbh = LJ::get_db_writer()
+        or return bless { message => 'Could not connect to the database' }, 'ERROR';
 
-    my $banid   = $dbh->quote( $opts{'banid'} );
+    my $banid   = $opts{'banid'};
     my $expire  = $opts{'expire'};
     my $bandays = $opts{'bandays'};
+
+    my ( $what, $value ) =
+        $dbh->selectrow_array( 'SELECT what, value FROM sysban WHERE banid = ?', undef, $banid );
+    return bless { message => $dbh->errstr }, 'ERROR' if $dbh->err;
+    $what  //= '';
+    $value //= '';
 
     my $banuntil = "NULL";
     if ($bandays) {
@@ -703,15 +757,14 @@ sub modify {
         }
     }
 
-    $dbh->do(
-        "UPDATE sysban SET banuntil=$banuntil,note=?
-             WHERE banid=$banid",
-        undef, $opts{note}
-    );
+    $dbh->do( "UPDATE sysban SET banuntil=$banuntil,note=? WHERE banid=?",
+        undef, $opts{note}, $banid );
 
     if ( $dbh->err ) {
         return bless { message => $dbh->errstr, }, 'ERROR';
     }
+
+    LJ::MemCache::delete('sysban:account_create') if $what eq 'account_create';
 
     # log in statushistory
     my $remote = LJ::get_remote();
@@ -722,7 +775,7 @@ sub modify {
             . "bandate="
             . LJ::mysql_time()
             . "; banuntil=$banuntil; "
-            . "what=$opts{'what'}; value=$opts{'value'}; "
+            . "what=$what; value=$value; "
             . "note=$opts{'note'};" );
 
     return $dbh->{'mysql_insertid'};
@@ -731,7 +784,7 @@ sub modify {
 
 sub ban_do {
     my ( $what, $value, $until ) = @_;
-    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    my %types = ( account_create => 1, ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};
 
     LJ::MemCache::delete("sysban:$what");
@@ -741,7 +794,7 @@ sub ban_do {
 
 sub ban_undo {
     my ( $what, $value ) = @_;
-    my %types = ( ip => 1, uniq => 1, spamreport => 1 );
+    my %types = ( account_create => 1, ip => 1, uniq => 1, spamreport => 1 );
     return unless $types{$what};
 
     LJ::MemCache::delete("sysban:$what");

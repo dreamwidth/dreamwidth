@@ -28,8 +28,9 @@ use LJ::JSON;
 # This is an application page, not a user styled page, and the default format is HTML (ie, /nav gives /nav.html)
 DW::Routing->register_regex(
     qr!^/nav(?:/([a-z]*))?$!, \&nav_handler,
-    app     => 1,
-    formats => [ 'html', 'json' ]
+    app      => 1,
+    no_cache => 1,
+    formats  => [ 'html', 'json' ]
 );
 
 # handles menu nav pages
