@@ -258,6 +258,12 @@ export function mount(id, opts) {
                 if (opts.onInput) opts.onInput();
             }
         },
+        handleDOMEvents: {
+            focus: () => {
+                noNativeTableControls();
+                return false;
+            },
+        },
     });
     toolbar.update(instance.view);
 
@@ -291,6 +297,21 @@ export function mount(id, opts) {
 
     instances[id] = instance;
     return instance;
+}
+
+// Older Gecko browsers (Pale Moon, SeaMonkey, Firefox before 63) put their
+// own resize handles and row/column buttons on a table in an editable area.
+// Those change the DOM behind the editor's back, take the clicks meant for
+// the cells, and draw the buttons wherever the page's positioning lands them.
+// The setting belongs to the document's editor, which exists once something
+// editable has focus, so it is turned off then. Other browsers ignore it.
+function noNativeTableControls() {
+    try {
+        document.execCommand("enableObjectResizing", false, "false");
+        document.execCommand("enableInlineTableEditing", false, "false");
+    } catch (e) {
+        // Not supported: there is nothing to turn off.
+    }
 }
 
 // opts.toFormat: the format the entry is switching to. Leaving for casual HTML

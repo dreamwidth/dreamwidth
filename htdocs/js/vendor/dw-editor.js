@@ -18908,6 +18908,12 @@ var DWEditor = (() => {
           if (opts.onInput)
             opts.onInput();
         }
+      },
+      handleDOMEvents: {
+        focus: () => {
+          noNativeTableControls();
+          return false;
+        }
       }
     });
     toolbar.update(instance.view);
@@ -18933,6 +18939,13 @@ var DWEditor = (() => {
     }
     instances[id] = instance;
     return instance;
+  }
+  function noNativeTableControls() {
+    try {
+      document.execCommand("enableObjectResizing", false, "false");
+      document.execCommand("enableInlineTableEditing", false, "false");
+    } catch (e) {
+    }
   }
   function unmount(id, opts) {
     const instance = instances[id];
