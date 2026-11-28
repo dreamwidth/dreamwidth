@@ -96,6 +96,7 @@ my %host_path_match = (
     "imgur.com"     => [ qr!^/a/.+?/embed!,     1 ],
     "instagram.com" => [ qr!^/p/.*/embed/$!,    1 ],
     "www.imdb.com"  => [ qr!^/videoembed/\w+$!, 0 ],
+    "itch.io"       => [ qr!\A/embed/[0-9]+\z!, 1 ],
 
     "jsfiddle.net" => [ qr!/embedded/$!, 1 ],
 

@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 196;
+use Test::More tests => 197;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -99,6 +99,43 @@ qq{<object width="640" height="385"><param name="movie" value="http://www.exampl
             }
         };
     }
+
+    subtest "allow only itch.io game card widgets", sub {
+        my $widget_url   = 'https://itch.io/embed/1731661';
+        my $widget_query = 'bg_color=000000&amp;fg_color=ffffff&amp;link_color=ee9aff'
+            . '&amp;border_color=0493e8&amp;dark=true';
+        foreach my $url ( $widget_url, "$widget_url?$widget_query" ) {
+            my $html = qq{<iframe src="$url"></iframe>};
+            LJ::CleanHTML::clean_embed( \$html );
+            is( $html, qq{<iframe src="$url"></iframe>}, "keeps widget $url" );
+        }
+
+        my $http_html = q{<iframe src="http://itch.io/embed/1731661"></iframe>};
+        LJ::CleanHTML::clean_embed( \$http_html, { display_as_content => 1 } );
+        is(
+            $http_html,
+            q{<iframe src="//itch.io/embed/1731661"></iframe>},
+            "HTTP widget inherits HTTPS on display"
+        );
+
+        foreach my $url (
+            qw(
+            https://itch.io/
+            https://itch.io/embed/
+            https://itch.io/embed/abc
+            https://itch.io/embed-upload/12345
+            https://user.itch.io/embed/12345
+            https://itch.io/embed/12345/extra
+            https://itch.io/embed/12345/../67890
+            https://itch.io/embed/%2e%2e/embed/12345
+            )
+            )
+        {
+            my $html = qq{before<iframe src="$url"></iframe>after};
+            LJ::CleanHTML::clean_embed( \$html );
+            is( $html, 'beforeafter', "rejects $url" );
+        }
+    };
 
     my $id = "ABC123abc-_";
     note("trusted site: youtube");
