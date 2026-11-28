@@ -197,6 +197,7 @@ function Page::print() {
 
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
+    var string small_media_query = generate_small_media_query();
 
     var string blockquote_background = generate_background_css ($*image_blockquote_background_url, $*image_blockquote_background_repeat, $*image_blockquote_background_position, new Color);
 
@@ -1144,6 +1145,56 @@ ul.userlite-interaction-links li {
     }
 
 $userpic_css
+
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .entry .header,
+    .comment .header,
+    .entry .metadata,
+    .comment .metadata {
+        overflow-wrap: break-word;
+    }
+
+    .entry .datetime {
+        display: block;
+        float: none;
+    }
+
+    .has-userpic .entry .contents {
+        margin-inline: 0;
+        padding-inline: 0;
+        min-height: 0;
+    }
+
+    .has-userpic .entry .userpic {
+        margin-inline: 0;
+    }
+
+    .entry-content {
+        margin-top: 0;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
 
 """;
 }
