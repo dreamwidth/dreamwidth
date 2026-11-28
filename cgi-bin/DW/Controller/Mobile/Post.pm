@@ -30,7 +30,9 @@ use DW::Controller;
 use DW::Routing;
 use DW::Template;
 
-DW::Routing->register_string( "/mobile/post", \&post_handler, app => 1 );
+# no_cache: the form carries a per-user form_auth token and the user's journal
+# list, so shared caches must not store it (the pre-TT BML page set nocache=>1).
+DW::Routing->register_string( "/mobile/post", \&post_handler, app => 1, no_cache => 1 );
 
 sub post_handler {
     my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
