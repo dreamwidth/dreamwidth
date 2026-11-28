@@ -73,17 +73,6 @@ sub dbh_by_role {
     return $LJ::DBIRole->get_dbh(@_);
 }
 
-sub root_dbh_by_name {
-    my $name = shift;
-    my $dbh  = dbh_by_role("master")
-        or die "Couldn't contact master to find name of '$name'";
-
-    my $fdsn = $dbh->selectrow_array( "SELECT rootfdsn FROM dbinfo WHERE name=?", undef, $name );
-    die "No rootfdsn found for db name '$name'\n" unless $fdsn;
-
-    return $LJ::DBIRole->get_dbh_conn($fdsn);
-}
-
 sub foreach_cluster {
     my $coderef = shift;
     my $opts    = shift || {};

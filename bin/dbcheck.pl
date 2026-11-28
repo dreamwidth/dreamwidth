@@ -12,6 +12,11 @@
 # modifications are provided under the GNU General Public License.
 # A copy of that license can be found in the LICENSE file included as
 # part of this distribution.
+#
+# Monitoring uses the application login from %LJ::DBINFO on each server.
+# On MySQL, it needs REPLICATION CLIENT for replication and binary log status.
+# PROCESS is needed for server-wide connection counts; without it, SHOW
+# PROCESSLIST only shows the configured login's own connections.
 
 use strict;
 
@@ -43,95 +48,103 @@ if ($help) {
             . "    --onlyerrors    Will be silent unless there are errors.\n" . "\n"
             . "Commands\n"
             . "   (none)           Shows replication status.\n"
-            . "   queries <host>   Shows active queries on host, sorted by running time.\n" );
+            . "   queries <host>   Shows active queries on host, sorted by running time.\n\n"
+            . "MySQL privileges for the %LJ::DBINFO login on each server:\n"
+            . "   REPLICATION CLIENT is required for replication and binary log checks.\n"
+            . "   PROCESS is required to see all connections in SHOW PROCESSLIST.\n"
+            . "   Without PROCESS, connection counts only cover that login's own connections.\n" );
 }
 
-debug("Connecting to master...");
-my $dbh = LJ::DB::dbh_by_role("master");
-die "Can't get master db handle\n" unless $dbh;
+# every database server the site connects to is listed in %LJ::DBINFO, along
+# with the roles it serves and their weights; the entry named 'master' is the
+# global master (DBI::Role implies its master role)
+my %dbinfo;        # name -> DBINFO hashref
+my %rolebyname;    # name -> rolename -> weight
 
-my %dbinfo;     # dbid -> hashref
-my %name2id;    # name -> dbid
-my $sth;
-my $masterid = 0;
+foreach my $name ( keys %LJ::DBINFO ) {
+    next if $name =~ /^_/;
+    my $src = $LJ::DBINFO{$name};
+    next unless ref $src eq "HASH";
 
-my %subclust;    # id -> name of parent  (pork-85 -> "pork")
-
-$sth = $dbh->prepare("SELECT dbid, name, masterid, rootfdsn FROM dbinfo");
-$sth->execute;
-while ( $_ = $sth->fetchrow_hashref ) {
-    if ( $_->{name} =~ /(.+)\-\d\d$/ ) {
-        $subclust{ $_->{dbid} } = $1;
-        next;
-    }
-    next unless $_->{'dbid'};
-    $dbinfo{ $_->{'dbid'} }  = $_;
-    $name2id{ $_->{'name'} } = $_->{'dbid'};
+    $dbinfo{$name} = $src;
+    my %weights = %{ $src->{role} || {} };
+    $weights{master} = 1 if $name eq "master";
+    $rolebyname{$name} = \%weights;
 }
+die "No master database is configured in %LJ::DBINFO\n" unless $dbinfo{master};
 
-my %role;        # rolename -> dbid -> [ norm, curr ]
-my %rolebyid;    # dbid -> rolename -> [ norm, curr ]
-$sth = $dbh->prepare("SELECT dbid, role, norm, curr FROM dbweights");
-$sth->execute;
-while ( $_ = $sth->fetchrow_hashref ) {
-    my $id = $_->{dbid};
-    if ( $subclust{$id} ) {
-        $id = $name2id{ $subclust{$id} };
-    }
-    next unless defined $dbinfo{$id};
-    $dbinfo{$id}->{'totalweight'} += $_->{'curr'};
-    $role{ $_->{role} }->{$id} = [ $_->{norm}, $_->{curr} ];
-    $rolebyid{$id}->{ $_->{role} } = [ $_->{norm}, $_->{curr} ];
-}
-
-my %root_handle;    # name -> $db
-my $get_root_handle = sub {
+my %handle;    # name -> $db
+my $get_handle = sub {
     my $name = shift;
-    return $root_handle{$name} if exists $root_handle{$name};
+    return $handle{$name} if exists $handle{$name};
     debug("Connecting to '$name' ...");
     $LJ::DB_TIMEOUT = 1;
-    my $db = LJ::DB::root_dbh_by_name($name);
-    debug("  ($name: failed to connect)") unless $db;
-    return $root_handle{$name} = $db;
+    my $db = $LJ::DBIRole->get_dbh_conn( { unshared => 1 },
+        $LJ::DBIRole->make_dbh_fdsn( $dbinfo{$name} ) );
+    if ($db) {
+        $db->{ShowErrorStatement} = 1;
+        $db->{HandleError}        = sub { die "$name: $_[0]\n" };
+    }
+    else {
+        debug("  ($name: failed to connect)");
+    }
+    return $handle{$name} = $db;
+};
+
+my %server_id;
+my $master_of = sub {
+    my $ss         = shift;
+    my @candidates = sort keys %dbinfo;
+    if ( my $master_id = $ss->{master_server_id} ) {
+        my @matches = grep { ( $server_id{$_} || 0 ) == $master_id } @candidates;
+        return $matches[0] if @matches == 1;
+        @candidates = @matches ? @matches : grep { !$server_id{$_} } @candidates;
+    }
+
+    return "" unless $ss->{master_host};
+    foreach my $name (@candidates) {
+        my $src = $dbinfo{$name};
+        next unless lc( $src->{host} // "" ) eq lc( $ss->{master_host} );
+        next unless ( $src->{port} || 3306 ) == ( $ss->{master_port} || 3306 );
+        return $name;
+    }
+    return "";
 };
 
 my @errors;
-my %master_status;    # dbid -> [ $file, $pos ]
+my %master_status;    # name -> [ $file, $pos ]
 
 my $check_master_status = sub {
-    my $dbid = shift;
-    my $d    = $dbinfo{$dbid};
-    die "Bogus DB: $dbid" unless $d;
-    my $db = $get_root_handle->( $d->{name} );
-    next unless $db;
+    my $name = shift;
+    die "Bogus DB: $name" unless $dbinfo{$name};
+    my $db = $get_handle->($name);
+    return unless $db;
 
     my ( $masterfile, $masterpos ) = $db->selectrow_array("SHOW MASTER STATUS");
-    $master_status{$dbid} = [ $masterfile, $masterpos ];
+    $master_status{$name} = [ $masterfile, $masterpos ];
+    my ($id) = eval { $db->selectrow_array('SELECT @@server_id') };
+    $server_id{$name} = $id if $id;
 };
 
 my $check = sub {
-    my $dbid = shift;
-    my $d    = $dbinfo{$dbid};
-    die "Bogus DB: $dbid" unless $d;
+    my $name = shift;
+    die "Bogus DB: $name" unless $dbinfo{$name};
 
     # calculate roles to show
     my $roles;
     {
         my %drole;    # display role -> 1
-        foreach my $role ( grep { $role{$_}{$dbid}[1] } keys %{ $rolebyid{$dbid} } ) {
+        foreach my $role ( grep { $rolebyname{$name}{$_} } keys %{ $rolebyname{$name} } ) {
             my $drole = $role;
             $drole{$drole} = 1;
         }
         $roles = join( ", ", sort keys %drole );
     }
 
-    my $db = $get_root_handle->( $d->{name} );
+    my $db = $get_handle->($name);
     unless ($db) {
-        printf(
-            "%4d %-18s %4s %16s  %14s  ($roles)\n",
-            $dbid, $d->{name}, $d->{masterid} ? $d->{masterid} : "",
-        ) unless $opt_err;
-        push @errors, "Can't connect to $d->{'name'}";
+        printf( "%-18s %-18s ($roles)\n", $name, "" ) unless $opt_err;
+        push @errors, "Can't connect to $name";
         return 0;
     }
 
@@ -139,7 +152,7 @@ my $check = sub {
     ( undef, $tzone ) = $db->selectrow_array("show variables like 'system_time_zone'");
     $tzone ||= "???";
 
-    $sth = $db->prepare("SHOW PROCESSLIST");
+    my $sth = $db->prepare("SHOW PROCESSLIST");
     $sth->execute;
     my $pcount_total = 0;
     my $pcount_busy  = 0;
@@ -152,7 +165,7 @@ my $check = sub {
     }
 
     my $log_count = 0;
-    if ( $master_status{$dbid} && $master_status{$dbid}->[1] ) {
+    if ( $master_status{$name} && $master_status{$name}->[1] ) {
         $sth = $db->prepare("SHOW MASTER LOGS");
         $sth->execute;
         while ( my ($log) = $sth->fetchrow_array ) {
@@ -167,7 +180,7 @@ my $check = sub {
         }
     }
 
-    my $diff;
+    my ( $diff, $master );
     if ($ss) {
         if ( $ss->{'slave_io_running'} eq "Yes" && $ss->{'slave_sql_running'} eq "Yes" ) {
             if ( $ss->{'master_log_file'} eq $ss->{'relay_master_log_file'} ) {
@@ -175,22 +188,35 @@ my $check = sub {
             }
             else {
                 $diff = "XXXXXXX";
-                push @errors, "Wrong log file: $d->{name}";
+                push @errors, "Wrong log file: $name";
             }
         }
         else {
             $diff = "XXXXXXX";
             $ss->{last_error} =~ s/[^\n\r\t\x20-\x7e]//g;
-            push @errors, "Slave not running: $d->{name}: $ss->{last_error}";
+            push @errors, "Slave not running: $name: $ss->{last_error}";
         }
 
-        my $ms = $master_status{ $d->{masterid} } || [];
+        $master = $master_of->($ss);
+        if ( !$master && ( $ss->{master_host} || $ss->{master_server_id} ) ) {
+            my $endpoint =
+                $ss->{master_host}
+                ? "$ss->{master_host}:" . ( $ss->{master_port} || 3306 )
+                : "unknown host";
+            my $id = $ss->{master_server_id} || "unknown";
+            push @errors, "$name: Unresolved master: $endpoint (server ID $id)";
+        }
+        my $ms = $master_status{$master} || [];
 
         #print "  master: [@$ms], slave at: [$ss->{master_log_file}, $ss->{read_master_log_pos}]\n";
-        if ( $ss->{master_log_file} ne $ms->[0] || $ss->{read_master_log_pos} < $ms->[1] - 20_000 )
+        if (
+            $master
+            && (   $ss->{master_log_file} ne $ms->[0]
+                || $ss->{read_master_log_pos} < $ms->[1] - 20_000 )
+            )
         {
             push @errors,
-"$d->{name}: Relay log behind: master=[@$ms], $d->{name}=[$ss->{master_log_file}, $ss->{read_master_log_pos}]";
+"$name: Relay log behind: master=[@$ms], $name=[$ss->{master_log_file}, $ss->{read_master_log_pos}]";
         }
 
     }
@@ -208,10 +234,10 @@ my $check = sub {
         $extra_version = "unknown";
     }
 
-    #print "$dbid of $d->{masterid}: $d->{name} ($roles)\n";
+    #print "$name of $master: ($roles)\n";
     printf(
-        "%4d %-18s %4s repl:%7s %4s conn:%4d/%4d  $tzone \%s ($roles)\n",
-        $dbid, $d->{name}, $d->{masterid} ? $d->{masterid} : "",
+        "%-18s %-18s repl:%7s %4s conn:%4d/%4d  $tzone \%s ($roles)\n",
+        $name, $master // "",
         $diff, $log_count ? sprintf( "<%2s>", $log_count ) : "",
         $pcount_busy, $pcount_total, $extra_version
     ) unless $opt_err;
@@ -220,8 +246,8 @@ my $check = sub {
 check_report() if $opt_checkreport;
 rate_report()  if $opt_rates;
 
-$check_master_status->($_) foreach ( sorted_dbids() );
-$check->($_)               foreach ( sorted_dbids() );
+$check_master_status->($_) foreach ( sorted_names() );
+$check->($_)               foreach ( sorted_names() );
 
 if (@errors) {
     if ($opt_err) {
@@ -242,81 +268,63 @@ if (@errors) {
 
 my $sorted_cache;
 
-sub sorted_dbids {
+sub sorted_names {
     return @$sorted_cache if $sorted_cache;
-    $sorted_cache = [ _sorted_dbids() ];
+    $sorted_cache = [ _sorted_names() ];
     return @$sorted_cache;
 }
 
-sub _sorted_dbids {
-    my @ids;
-    my %added;    # dbid -> 1
+sub _sorted_names {
+    my @names;
+    my %added;    # name -> 1
 
     my $add = sub {
-        my $dbid = shift;
-        $added{$dbid} = 1;
-        push @ids, $dbid;
+        my $name = shift;
+        $added{$name} = 1;
+        push @names, $name;
     };
 
-    my $masterid = ( keys %{ $role{'master'} } )[0];
-    $add->($masterid);
+    # master first
+    $add->("master");
 
     # then slaves
-    foreach my $id (
-        sort { $dbinfo{$a}->{name} cmp $dbinfo{$b}->{name} }
-        grep { !$added{$_} && $rolebyid{$_}->{slave} } keys %dbinfo
-        )
-    {
-        $add->($id);
+    foreach my $name ( sort grep { !$added{$_} && $rolebyname{$_}->{slave} } keys %dbinfo ) {
+        $add->($name);
     }
 
     # now, figure out which remaining are associated with cluster roles (user clusters)
-    my %minclust;     # dbid -> minimum cluster number associated
-    my %is_master;    # dbid -> bool (is cluster master)
-    foreach my $dbid ( grep { !$added{$_} } keys %dbinfo ) {
-        foreach my $role ( keys %{ $rolebyid{$dbid} || {} } ) {
+    my %minclust;     # name -> minimum cluster number associated
+    my %is_master;    # name -> bool (is cluster master)
+    foreach my $name ( grep { !$added{$_} } keys %dbinfo ) {
+        foreach my $role ( keys %{ $rolebyname{$name} || {} } ) {
             next unless $role =~ /^cluster(\d+)(.*)/;
-            $minclust{$dbid} = $1 if !$minclust{$dbid} || $1 < $minclust{$dbid};
-            $is_master{$dbid} ||= $2 eq "" || $2 eq "a" || $2 eq "b";
+            $minclust{$name} = $1 if !$minclust{$name} || $1 < $minclust{$name};
+            $is_master{$name} ||= $2 eq "" || $2 eq "a" || $2 eq "b";
         }
     }
 
     # then misc
-    foreach my $id (
-        sort { $dbinfo{$a}->{name} cmp $dbinfo{$b}->{name} }
-        grep { !$added{$_} && !$minclust{$_} } keys %dbinfo
-        )
-    {
-        $add->($id);
+    foreach my $name ( sort grep { !$added{$_} && !$minclust{$_} } keys %dbinfo ) {
+        $add->($name);
     }
 
     # then clusters, in order
-    foreach my $id (
-        sort {
-                   $minclust{$a} <=> $minclust{$b}
-                || $is_master{$b} <=> $is_master{$a}
-                || $dbinfo{$a}->{name} cmp $dbinfo{$b}->{name}
-        }
+    foreach my $name (
+        sort { $minclust{$a} <=> $minclust{$b} || $is_master{$b} <=> $is_master{$a} || $a cmp $b }
         grep { !$added{$_} && $minclust{$_} } keys %dbinfo
         )
     {
-        $add->($id);
+        $add->($name);
     }
-    return @ids;
+    return @names;
 }
 
 sub check_report {
-    foreach my $dbid (
-        sort { $dbinfo{$a}->{name} cmp $dbinfo{$b}->{name} }
-        keys %dbinfo
-        )
-    {
-        my $d = $dbinfo{$dbid};
-        die "Bogus DB: $dbid" unless $d;
-        my $db = $get_root_handle->( $d->{name} );
+    foreach my $name ( sort keys %dbinfo ) {
+        my $db = $get_handle->($name);
 
         unless ($db) {
-            print "$d->{name}\t?\t?\t?\n";
+            print "$name\t?\t?\t?\n";
             next;
         }
 
@@ -328,7 +336,7 @@ sub check_report {
                 my $v  = $ts->{$tn};
                 my $ut = $v->{Check_time} || "0000-00-00 00:00:00";
                 $ut =~ s/ /,/;
-                print "$d->{name}\t$dbname\t$tn\t$ut\t$v->{Type}-$v->{Row_format}\t$v->{Rows}\n";
+                print "$name\t$dbname\t$tn\t$ut\t$v->{Type}-$v->{Row_format}\t$v->{Rows}\n";
             }
 
         }
@@ -337,28 +345,26 @@ sub check_report {
 }
 
 sub rate_report {
-    my %prev;    # dbid -> [ time, questions ]
+    my %prev;    # name -> [ time, questions ]
 
     while (1) {
         print "\n";
         my $sum = 0;
-        foreach my $dbid ( sorted_dbids() ) {
-            my $d = $dbinfo{$dbid};
-            die "Bogus DB: $dbid" unless $d;
-            my $db = $get_root_handle->( $d->{name} );
+        foreach my $name ( sorted_names() ) {
+            my $db = $get_handle->($name);
 
             next unless $db;
             my ( undef, $qs ) = $db->selectrow_array("SHOW STATUS LIKE 'Questions'");
             my $now = Time::HiRes::time();
             my $cur = [ $now, $qs ];
-            if ( my $old = $prev{$dbid} ) {
+            if ( my $old = $prev{$name} ) {
                 my $dt   = $now - $old->[0];
                 my $qnew = $qs - $old->[1];
                 my $rate = ( $qnew / $dt );
                 $sum += $rate;
-                printf "%20s: %7.01f q/s\n", $d->{name}, $rate;
+                printf "%20s: %7.01f q/s\n", $name, $rate;
             }
-            $prev{$dbid} ||= $cur;
+            $prev{$name} ||= $cur;
         }
         printf "%20s: %7.01f q/s\n", "SUM", $sum;
 
