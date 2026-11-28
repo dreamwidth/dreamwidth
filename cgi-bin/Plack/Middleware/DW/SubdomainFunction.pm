@@ -117,8 +117,11 @@ sub call {
             # No SUBDOMAIN_FUNCTION entry: treat subdomain as username
             if ( $user eq 'shop' ) {
 
-                # Legacy shop subdomain without config: rewrite URI
+                # Legacy shop subdomain without config: rewrite URI. Keep the
+                # path the browser asked for, so URLs pointing back at this
+                # page (e.g. the domain session bounce) don't get /shop twice.
                 my $path = $r->path;
+                $r->note( original_uri => $path );
                 $path =~ s/\/$//;
                 $env->{PATH_INFO} = "/shop$path";
             }

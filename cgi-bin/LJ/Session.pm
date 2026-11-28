@@ -588,7 +588,7 @@ sub session_from_domain_cookie {
         my $rr = $opts->{redirect_ref};
         $$rr =
             "$LJ::SITEROOT/misc/get_domain_session?return="
-            . LJ::eurl( LJ::create_url( undef, keep_args => 1 ) )
+            . LJ::eurl( LJ::create_url( $r->note('original_uri'), keep_args => 1 ) )
             if $rr;
 
         return undef;
