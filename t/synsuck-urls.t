@@ -62,6 +62,8 @@ my $rss = encode_utf8(<<'RSS');
 <img alt="https" src="https://images.example.test/猫.jpg"
     srcset="https://images.example.test/猫.jpg 1x, https://images.example.test/猫-大.jpg 2x">
 <img alt="idn" src="http://пример.рф/путь.jpg">
+<img alt="idn-persian" src="https://نامه‌ای.ir/path">
+<img alt="idn-invalid-zwnj" src="https://a&#x200C;b.example/">
 <img alt="invalid-idn" src="http://пример..рф/путь.jpg">
 <img alt="escaped-idn" src="https://%65xample.рф/path">
 <img alt="userinfo-escaped-idn" src="https://josé@%C3%A9.example/x.jpg">
@@ -94,6 +96,9 @@ my $rss = encode_utf8(<<'RSS');
 <a title="relative" href="../новости">Relative</a>
 <a title="scheme-relative" href="//news.example.test/новости">Scheme-relative</a>
 <a title="idn" href="//пример.рф:8443/путь?name=猫#é">International hostname</a>
+<a title="idn-persian" href="https://نامه‌ای.ir/path">Persian hostname</a>
+<a title="idn-invalid-zwj" href="https://a&#x200D;b.example/">Invalid joiner</a>
+<a title="idn-bidi-override" href="https://a&#x202E;b.example/">Bidi override</a>
 <a title="escaped-idn" href="https://%65xample.рф/path">Escaped ASCII in IDN hostname</a>
 <a title="escaped-utf8-idn" href="//%D0%BFример.рф/path">Escaped UTF-8 in IDN hostname</a>
 <a title="fullwidth-host" href="https://ｅxample.com/">Fullwidth letter</a>
@@ -120,6 +125,8 @@ my $rss = encode_utf8(<<'RSS');
 <a title="idn-host-bad-label" href="https://%2Dпример.рф/">Malformed label</a>
 <a title="idn-host-bad-utf8" href="https://%FFпример.рф/">Malformed UTF-8</a>
 <a title="userinfo" href="https://josé@example.com/photo.jpg">International username</a>
+<a title="userinfo-underscore-host" href="https://josé@foo_bar.example/a">Underscore hostname</a>
+<a title="userinfo-escaped-underscore-host" href="https://josé@foo%5fbar.example/a">Escaped underscore</a>
 <a title="userinfo-escaped-host" href="https://josé@%65xample.com/path">Escaped hostname</a>
 <a title="userinfo-escaped-idn" href="https://josé@%C3%A9.example/x.jpg">Escaped IDN</a>
 <a title="userinfo-host-delimiter" href="https://josé@bad%2Fhost.com/">Encoded delimiter</a>
@@ -220,6 +227,15 @@ ok(
     $images{'invalid-idn'} && !exists $images{'invalid-idn'}{src},
     'an absolute image URL with a malformed internationalized hostname loses src'
 );
+my $persian_url = 'https://xn--mgba3gch31f060k.ir/path';
+is( $images{'idn-persian'}{src}, $persian_url, 'image preserves a Persian ZWNJ in Punycode' );
+is( $links{'idn-persian'}{href}, $persian_url, 'link preserves a Persian ZWNJ in Punycode' );
+ok( $images{'idn-invalid-zwnj'} && !exists $images{'idn-invalid-zwnj'}{src},
+    'image rejects a ZWNJ without a joining context' );
+
+for my $case (qw(idn-invalid-zwj idn-bidi-override)) {
+    ok( $links{$case} && !exists $links{$case}{href}, "link rejects $case in the hostname" );
+}
 is(
     $images{'escaped-idn'}{src},
     'https://example.xn--p1ai/path',
@@ -368,6 +384,16 @@ is(
     'absolute link escapes its username with an ASCII hostname'
 );
 is(
+    $links{'userinfo-underscore-host'}{href},
+    'https://jos%C3%A9@foo_bar.example/a',
+    'escaping the username preserves an underscore in an ASCII hostname'
+);
+is(
+    $links{'userinfo-escaped-underscore-host'}{href},
+    'https://jos%C3%A9@foo%5fbar.example/a',
+    'escaping the username preserves an escaped underscore in an ASCII hostname'
+);
+is(
     $links{'userinfo-escaped-host'}{href},
     'https://jos%C3%A9@%65xample.com/path',
     'escaping the username preserves an existing escape in a valid ASCII hostname'
@@ -464,6 +490,21 @@ for my $invalid ( '%00', '%1F', '%7F', '%20', "\x{200D}", "\x{FF0F}", "\x{2024}"
     is( LJ::CleanHTML::https_url("https://exam%C2%AD${invalid}ple.com/"),
         '', 'image URL still rejects invalid hostname characters alongside a soft hyphen' );
 }
+
+for my $case (
+    [ 'بَ%E2%80%8Cَب', 'xn--ngba7ia3604a', 'ZWNJ between transparent marks' ],
+    [ "क्\x{200C}ष", 'xn--11b2ezcs70k',  'ZWNJ after a virama' ],
+    [ "क्\x{200D}ष", 'xn--11b2ezcw70k',  'ZWJ after a virama' ],
+    )
+{
+    my ( $label, $punycode, $context ) = @$case;
+    is( LJ::CleanHTML::https_url("https://$label.example/"),
+        "https://$punycode.example/", "image URL preserves $context" );
+}
+is( LJ::CleanHTML::https_url("https://\x{200C}ب.example/"),
+    '', 'image URL rejects a leading ZWNJ' );
+is( LJ::CleanHTML::https_url("https://نامه‌ای\x{200C}.ir/"),
+    '', 'image URL rejects a trailing ZWNJ even if another joiner is valid' );
 
 my $character_relative_html = '<p>猫<img src="../猫&#x1F600;.jpg"></p>';
 LJ::CleanHTML::resolve_relative_urls( \$character_relative_html,

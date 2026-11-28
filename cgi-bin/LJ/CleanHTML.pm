@@ -1951,6 +1951,25 @@ sub canonical_url {
     return $url;
 }
 
+sub _valid_idn_label {
+    my ($label) = @_;
+    return 0 unless $label =~ /\A(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)\z/iaa;
+    return 0 if $label =~ /(?![\x{200C}\x{200D}])[\p{Space}\p{C}]/;
+
+    my ( $before, @parts ) = split /([\x{200C}\x{200D}])/, $label, -1;
+    while (@parts) {
+        my $joiner = shift @parts;
+        my $after  = shift @parts;
+        return 0
+            unless $before =~ /\p{Canonical_Combining_Class=Virama}\z/
+            || ( $joiner eq "\x{200C}"
+            && $before =~ /[\p{Joining_Type=L}\p{Joining_Type=D}]\p{Joining_Type=T}*\z/
+            && $after =~ /\A\p{Joining_Type=T}*[\p{Joining_Type=R}\p{Joining_Type=D}]/ );
+        $before = $after;
+    }
+    return 1;
+}
+
 sub _escape_non_ascii_web_url {
     my ($url) = @_;
     return $url if !defined $url || ( LJ::is_ascii($url) && index( $url, '%' ) < 0 );
@@ -1970,7 +1989,10 @@ sub _escape_non_ascii_web_url {
         }
         else {
             my $decoded_host = uri_unescape( LJ::no_utf8_flag($host) );
-            unless ( LJ::is_ascii($decoded_host) ) {
+            if ( LJ::is_ascii($decoded_host) ) {
+                return '' if $decoded_host =~ m{[\x00-\x20\x7F#%/:<>?@\[\]\\^|]};
+            }
+            else {
                 return '' unless utf8::decode($decoded_host);
                 $decoded_host =~ tr/\x{3002}\x{FF0E}\x{FF61}/./;
                 my $trailing_dot = $decoded_host =~ s/\.\z// ? '.' : '';
@@ -1981,15 +2003,14 @@ sub _escape_non_ascii_web_url {
                     $part =~ s/$idna_ignored+//g;
                     NFC( lc NFKC($part) );
                 } split /\./, $decoded_host, -1;
-                my $idn_label = qr/(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)/iaa;
-                return '' if !@labels || grep { !/\A$idn_label\z/ || /[\p{Space}\p{C}]/ } @labels;
+                return '' if !@labels || grep { !_valid_idn_label($_) } @labels;
                 $decoded_host = join( '.', @labels ) . $trailing_dot;
-                $host = $decoded_host = URI->new("http://$decoded_host/")->host;
-            }
+                $host         = URI->new("http://$decoded_host/")->host;
 
-            my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
-            return '' unless defined $decoded_host && $decoded_host =~ /\A$label(?:\.$label)*\.?\z/;
-            return '' if length($decoded_host) > ( $decoded_host =~ /\.\z/ ? 254 : 253 );
+                my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
+                return '' unless defined $host && $host =~ /\A$label(?:\.$label)*\.?\z/;
+                return '' if length($host) > ( $host =~ /\.\z/ ? 254 : 253 );
+            }
         }
 
         $authority =
