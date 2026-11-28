@@ -1335,6 +1335,7 @@ CREATE TABLE sysban (
     PRIMARY KEY (banid),
     status    ENUM('active','expired') NOT NULL DEFAULT 'active',
     INDEX     (status),
+    INDEX     status_what_value (status, what, value),
     bandate   DATETIME,
     banuntil  DATETIME,
     what      VARCHAR(20) NOT NULL,
@@ -4229,6 +4230,11 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
             do_alter( 'syndicated',
                 "ALTER TABLE syndicated ADD COLUMN failcount SMALLINT UNSIGNED NOT NULL DEFAULT 0"
             );
+        }
+
+        if ( table_relevant("sysban") && !index_name( "sysban", "INDEX:status-what-value" ) ) {
+            do_alter( 'sysban',
+                "ALTER TABLE sysban ADD INDEX status_what_value (status, what, value)" );
         }
     }
 );
