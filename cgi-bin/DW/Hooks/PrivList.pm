@@ -163,7 +163,10 @@ LJ::Hooks::register_hook(
             uniq           => "Can ban specific browser sessions",
             user           => "Can ban specific users",
             }
-            if $priv eq 'sysban';
+            if $priv eq 'sysban' || $priv eq 'sysbanview';
+
+        $hr = { map { $_ => "Can view $_ sysbans" } keys %$hr }
+            if $priv eq 'sysbanview';
 
         return $hr;
     }
