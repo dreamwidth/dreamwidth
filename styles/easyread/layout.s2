@@ -310,6 +310,7 @@ function Page::print()
 }
 
 function Page::print_default_stylesheet {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
     var string large_media_query = generate_large_media_query();
 
@@ -841,6 +842,52 @@ module-section-two ul.module-list li {
     }
 
 $userpic_css
+
+@media $small_media_query {
+    #canvas {
+        margin: 0;
+        padding: 0 8px;
+        overflow-wrap: break-word;
+    }
+
+    #primary, #secondary, #tertiary, #footer {
+        width: 100%;
+        box-sizing: border-box;
+        padding-inline: 0;
+    }
+
+    .has-userpic .entry .header,
+    .has-userpic .comment .header,
+    .has-userpic .entry .poster {
+        margin-inline: 0;
+    }
+
+    .has-userpic .entry .poster {
+        top: auto;
+    }
+
+    .entry .contents,
+    .entry .footer {
+        bottom: auto;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
 
 /* End of CSS file */""";
 }

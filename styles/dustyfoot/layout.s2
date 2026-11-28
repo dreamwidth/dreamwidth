@@ -229,6 +229,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
 
     var string entry_header_margin = "";
@@ -956,6 +957,42 @@ div.ContextualPopup div.Inner a:visited {
 .ContextualPopup .Relation { text-transform: lowercase; }
 
 $userpic_css
+
+@media $small_media_query {
+    #canvas {
+        width: auto;
+        margin: 0;
+        padding: 0 8px;
+        overflow-wrap: break-word;
+    }
+
+    .has-userpic .entry .header,
+    .has-userpic .comment .header {
+        margin-inline: 0;
+    }
+
+    .has-userpic .entry .userpic,
+    .has-userpic .comment .userpic {
+        margin-top: 0;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
 
 """;
 }
