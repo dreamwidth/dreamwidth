@@ -42,7 +42,7 @@ Copyright (c) 2026 by Dreamwidth Studios, LLC.
         </tr>
         <tr valign="top">
             <td align="right">[% '.in' | ml %]</td>
-            <td>[% form.textbox(name = 'usejournal', size = 20, maxlength = 25, value = formdata.usejournal) %] [% 'optional' | ml %]</td>
+            <td>[% form.textbox(name = 'usejournal', size = 20, maxlength = site.maxlength_user, value = formdata.usejournal) %] [% 'optional' | ml %]</td>
         </tr>
         <tr><td>&nbsp;</td><td>[% form.submit(value = dw.ml('.btn.proceed')) %]</td></tr>
     </table>

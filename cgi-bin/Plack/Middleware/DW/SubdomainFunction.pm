@@ -36,14 +36,16 @@ sub call {
 
     # Extract subdomain: match (subdomain).USER_DOMAIN, skip www
     if (   $LJ::USER_DOMAIN
-        && $host =~ /^(www\.)?([\w\-]{1,25})\.\Q$LJ::USER_DOMAIN\E$/
+        && $host =~ /^(www\.)?([\w\-]+)\.\Q$LJ::USER_DOMAIN\E$/
         && $2 ne "www" )
     {
-        # www.username.domain → redirect to canonical (drop www prefix)
-        return $r->redirect( "$LJ::PROTOCOL://$2.$LJ::USER_DOMAIN" . $r->path )
-            if $1 && $1 eq 'www.';
+        my ( $www, $user ) = ( $1, $2 );
+        my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
+        return $self->app->($env)
+            unless $func || $user eq 'shop' || length($user) <= $LJ::USERNAME_MAXLENGTH;
 
-        my $user = $2;
+        # www.username.domain → redirect to canonical (drop www prefix)
+        return $r->redirect( "$LJ::PROTOCOL://$user.$LJ::USER_DOMAIN" . $r->path ) if $www;
 
         # Handle __setdomsess on any subdomain — sets the domain session cookie
         # and redirects to the destination. Matches Apache::LiveJournal::trans
@@ -51,8 +53,6 @@ sub call {
         if ( $r->path eq '/__setdomsess' ) {
             return $r->redirect( LJ::Session->setdomsess_handler );
         }
-
-        my $func = $LJ::SUBDOMAIN_FUNCTION{$user};
 
         # "normal" means treat as www (ignore subdomain)
         if ( $func && $func eq 'normal' ) {
@@ -104,7 +104,7 @@ sub call {
 
             # "journal" function: URI contains /username/path
             my $uri = $r->path;
-            if ( $uri =~ m!^/(\w{1,25})(/.*)?$! ) {
+            if ( $uri =~ m!^/(\w{1,$LJ::USERNAME_MAXLENGTH})(/.*)?$! ) {
                 $env->{'dw.journal_user'} = $1;
                 $env->{'dw.journal_path'} = $2 || '/';
             }

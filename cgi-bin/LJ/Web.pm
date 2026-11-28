@@ -565,8 +565,11 @@ sub check_referer {
     return 1 if $LJ::SITEROOT   && $referer =~ m!^\Q$LJ::SITEROOT\E$uri!;
     return 1 if $LJ::DOMAIN     && $referer =~ m!^https?://\Q$LJ::DOMAIN\E$uri!;
     return 1 if $LJ::DOMAIN_WEB && $referer =~ m!^https?://\Q$LJ::DOMAIN_WEB\E$uri!;
-    return 1
-        if $referer =~ m!^https?://([A-Za-z0-9_\-]{1,25})\.\Q$LJ::DOMAIN\E$uri!;
+    if ( $LJ::DOMAIN && $referer =~ m!^https?://([A-Za-z0-9_\-]+)\.\Q$LJ::DOMAIN\E$uri! ) {
+        my $subdomain = $1;
+        return 1
+            if $LJ::SUBDOMAIN_FUNCTION{$subdomain} || length($subdomain) <= $LJ::USERNAME_MAXLENGTH;
+    }
     return 1 if $origuri =~ m!^https?://! && $origreferer eq $origuri;
 
     # Dev container: $LJ::DOMAIN is empty, so match referer host against request host

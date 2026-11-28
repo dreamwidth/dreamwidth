@@ -30,7 +30,7 @@ BEGIN {
     };
 }
 
-plan tests => 11;
+plan tests => 13;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -242,3 +242,25 @@ test_psgi $app, sub {
 
     isnt( $res->code, 303, "Stale domain session does not redirect POST requests" );
 };
+
+for my $limit ( 25, 10 ) {
+    subtest "dev impersonation at configured username limit $limit" => sub {
+        local $LJ::USERNAME_MAXLENGTH = $limit;
+        local $LJ::IS_DEV_SERVER      = 1;
+        for my $length ( $limit - 1, $limit, $limit + 1 ) {
+            reset_mocks();
+            $mock_sessobj =
+                MockSession->new( owner => MockUser->new( user => 'testuser', userid => 42 ) );
+            $mock_load_user = sub {
+                return MockUser->new( user => $_[0], userid => 43 );
+            };
+            my $user     = 'u' x $length;
+            my $expected = $length <= $limit ? $user : 'testuser';
+            test_psgi $app, sub {
+                my $cb  = shift;
+                my $res = $cb->( GET "/?as=$user" );
+                is( $res->content, "user:$expected", "dev impersonation: $length characters" );
+            };
+        }
+    };
+}

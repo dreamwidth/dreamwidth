@@ -79,12 +79,12 @@
          PROCESS searchcrit name = circle_label;
          PROCESS searchform_before;
          IF comm_page %]
-          [% '.comm.member' | ml %] <input name="user_is_member" size='15' maxlength='25' />
+          [% '.comm.member' | ml %] <input name="user_is_member" size='15' maxlength='[% site.maxlength_user %]' />
       [% ELSE -%]
-          [% '.user_trusts'     | ml %] <input name="user_trusts" size='15' maxlength='25' /><br />
-          [% '.user_trusted_by' | ml %] <input name="user_trusted_by" size='15' maxlength='25' /><br />
-          [% '.user_watches'    | ml %] <input name="user_watches" size='15' maxlength='25' /><br />
-          [% '.user_watched_by' | ml %] <input name="user_watched_by" size='15' maxlength='25' />
+          [% '.user_trusts'     | ml %] <input name="user_trusts" size='15' maxlength='[% site.maxlength_user %]' /><br />
+          [% '.user_trusted_by' | ml %] <input name="user_trusted_by" size='15' maxlength='[% site.maxlength_user %]' /><br />
+          [% '.user_watches'    | ml %] <input name="user_watches" size='15' maxlength='[% site.maxlength_user %]' /><br />
+          [% '.user_watched_by' | ml %] <input name="user_watched_by" size='15' maxlength='[% site.maxlength_user %]' />
       [% END -%]
       [% PROCESS searchform_after %]
 

@@ -16,7 +16,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 <form method='post'>
 [% dw.form_auth %]
 <p>User:
-[% form.textbox( name = "user", maxlength = "25", size = "25", value = user ) %]
+[% form.textbox( name = "user", maxlength = site.maxlength_user, size = "25", value = user ) %]
 [% form.submit( value = "Expire Sessions" ) %]
 </p>
 </form>

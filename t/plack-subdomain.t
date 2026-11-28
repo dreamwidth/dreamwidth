@@ -29,7 +29,7 @@ BEGIN {
     };
 }
 
-plan tests => 32;
+plan tests => 36;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -464,3 +464,72 @@ test_psgi $app, sub {
 
     like( $res->content, qr/^routed:/, "main domain root URI routes to homepage" );
 };
+
+subtest 'functional subdomains do not use the username limit' => sub {
+    local $LJ::USERNAME_MAXLENGTH           = 3;
+    local $LJ::SUBDOMAIN_FUNCTION{cssproxy} = 'cssproxy';
+    local $LJ::SUBDOMAIN_FUNCTION{users}    = 'journal';
+    delete local $LJ::SUBDOMAIN_FUNCTION{shop};
+
+    test_psgi $app, sub {
+        my $cb      = shift;
+        my $support = $cb->( GET 'http://support.example.org/submit' );
+        is( $support->header('Location'), "$LJ::SITEROOT/support/", 'support redirects' );
+
+        my $cssproxy = $cb->( GET 'http://cssproxy.example.org/' );
+        is( $cssproxy->content, 'routed:/extcss', 'cssproxy rewrites the path' );
+
+        my $journal = $cb->( GET 'http://users.example.org/abc/entry' );
+        is( $journal->content, 'journal:abc:/entry', 'journal function routes a valid username' );
+
+        my $shop = $cb->( GET 'http://shop.example.org/randomgift' );
+        is( $shop->content, 'routed:/shop/randomgift', 'legacy shop still rewrites the path' );
+    };
+};
+
+subtest 'referers from functional subdomains do not use the username limit' => sub {
+    local $LJ::USERNAME_MAXLENGTH = 8;
+    local %LJ::SUBDOMAIN_FUNCTION = ( community => 'journal' );
+
+    ok(
+        LJ::check_referer( '/entry', 'https://community.example.org/entry' ),
+        'accepts a configured functional subdomain longer than the username limit'
+    );
+    ok(
+        !LJ::check_referer( '/entry', 'https://unlistedx.example.org/entry' ),
+        'rejects an unconfigured subdomain longer than the username limit'
+    );
+    ok( LJ::check_referer( '/entry', 'https://someuser.example.org/entry' ),
+        'accepts a journal subdomain at the username limit' );
+    ok( !LJ::check_referer( '/entry', 'https://community.example.net/entry' ),
+        'rejects a configured label on an external domain' );
+    ok(
+        !LJ::check_referer( '/entry', 'https://community.example.org.other.test/entry' ),
+        'rejects a functional hostname that is only a prefix of the referer host'
+    );
+};
+
+for my $limit ( 25, 10 ) {
+    subtest "journal boundaries at configured username limit $limit" => sub {
+        local $LJ::USERNAME_MAXLENGTH = $limit;
+        local $LJ::SUBDOMAIN_FUNCTION{users} = 'journal';
+        for my $length ( $limit - 1, $limit, $limit + 1 ) {
+            my $user     = 'u' x $length;
+            my $expected = $length <= $limit ? $user : undef;
+            for my $url ( "http://$user.example.org/entry", "http://users.example.org/$user/entry" )
+            {
+                $journal_render_user = undef;
+                test_psgi $app, sub {
+                    my $cb = shift;
+                    $cb->( GET $url );
+                    is( $journal_render_user, $expected, "journal routing: $url" );
+                };
+            }
+            is(
+                LJ::check_referer( '/entry', "http://$user.example.org/entry" ) ? 1 : 0,
+                $length <= $limit ? 1 : 0,
+                "journal referer with $length characters"
+            );
+        }
+    };
+}
