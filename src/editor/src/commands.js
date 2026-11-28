@@ -16,7 +16,7 @@
 
 import { lift, wrapIn } from "prosemirror-commands";
 import { sinkListItem, liftListItem } from "prosemirror-schema-list";
-import { TextSelection, Plugin, PluginKey } from "prosemirror-state";
+import { TextSelection, Selection, Plugin, PluginKey } from "prosemirror-state";
 import { Mark } from "prosemirror-model";
 import { CellSelection } from "prosemirror-tables";
 import { extraWithStyle, styleOfExtra, getStyleProp } from "./style.js";
@@ -436,4 +436,28 @@ export function cutJoins(schema) {
             return tr;
         },
     });
+}
+
+// Enter on a blank last line of a code or HTML block leaves the block: the
+// blank line is dropped and a paragraph follows, as in most editors. Without
+// it the only ways out are Mod-Enter and the arrow keys.
+export function exitCodeOnBlankLine(schema) {
+    return (state, dispatch) => {
+        const { $head, empty } = state.selection;
+        const block = $head.parent;
+        if (!empty || !block.type.spec.code) return false;
+        if ($head.parentOffset != block.content.size || !block.textContent.endsWith("\n")) return false;
+        const above = $head.node(-1);
+        const after = $head.indexAfter(-1);
+        const paragraph = schema.nodes.paragraph;
+        if (!above.canReplaceWith(after, after, paragraph)) return false;
+        if (dispatch) {
+            const tr = state.tr.delete($head.pos - 1, $head.pos);
+            const pos = tr.mapping.map($head.after());
+            tr.insert(pos, paragraph.create());
+            tr.setSelection(Selection.near(tr.doc.resolve(pos + 1)));
+            dispatch(tr.scrollIntoView());
+        }
+        return true;
+    };
 }

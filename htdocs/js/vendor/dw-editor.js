@@ -17363,6 +17363,29 @@ var DWEditor = (() => {
       }
     });
   }
+  function exitCodeOnBlankLine(schema2) {
+    return (state, dispatch) => {
+      const { $head, empty: empty2 } = state.selection;
+      const block = $head.parent;
+      if (!empty2 || !block.type.spec.code)
+        return false;
+      if ($head.parentOffset != block.content.size || !block.textContent.endsWith("\n"))
+        return false;
+      const above = $head.node(-1);
+      const after = $head.indexAfter(-1);
+      const paragraph = schema2.nodes.paragraph;
+      if (!above.canReplaceWith(after, after, paragraph))
+        return false;
+      if (dispatch) {
+        const tr = state.tr.delete($head.pos - 1, $head.pos);
+        const pos = tr.mapping.map($head.after());
+        tr.insert(pos, paragraph.create());
+        tr.setSelection(Selection.near(tr.doc.resolve(pos + 1)));
+        dispatch(tr.scrollIntoView());
+      }
+      return true;
+    };
+  }
 
   // src/mentions.js
   var key = new PluginKey("dwMentions");
@@ -17817,7 +17840,7 @@ var DWEditor = (() => {
       "Mod-u": toggleMark(schema2.marks.underline),
       "Mod-`": toggleMark(schema2.marks.code),
       "Mod-k": commands.editLink,
-      Enter: splitListItem(schema2.nodes.list_item),
+      Enter: chainCommands(exitCodeOnBlankLine(schema2), splitListItem(schema2.nodes.list_item)),
       "Mod-[": outdent(schema2),
       "Mod-]": indent(schema2),
       // Tab nests a list item and otherwise moves between table cells --
@@ -18554,8 +18577,10 @@ var DWEditor = (() => {
         "separator",
         { label: strings.tableMerge, command: mergeCells },
         { label: strings.tableSplit, command: splitCell },
-        { label: strings.tableHeaderRow, command: toggleHeaderRow },
-        { label: strings.tableHeaderCol, command: toggleHeaderColumn },
+        // The table's first row and column, wherever the cursor is in it
+        // (the library's toggleHeaderRow acts on the cursor's own row).
+        { label: strings.tableHeaderRow, command: toggleHeader("row") },
+        { label: strings.tableHeaderCol, command: toggleHeader("column") },
         "separator",
         { label: strings.tableDelete, command: deleteTable }
       ]
@@ -18680,6 +18705,12 @@ var DWEditor = (() => {
       morePanel.hidden = false;
       moreBtn.setAttribute("aria-expanded", "true");
       document.addEventListener("mousedown", onOutsideMore, true);
+    });
+    morePanel.addEventListener("click", (e) => {
+      const button = e.target.closest("button");
+      if (!button || button.classList.contains("dw-editor-dropdown-button"))
+        return;
+      closeMore();
     });
     morePanel.addEventListener("keydown", (e) => {
       if (e.key != "Escape" || e.defaultPrevented)

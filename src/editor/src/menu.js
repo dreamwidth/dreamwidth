@@ -24,8 +24,7 @@ import {
     deleteColumn,
     mergeCells,
     splitCell,
-    toggleHeaderRow,
-    toggleHeaderColumn,
+    toggleHeader,
     deleteTable,
 } from "prosemirror-tables";
 import {
@@ -598,8 +597,10 @@ export function buildToolbar(schema, strings, pageOptions) {
             "separator",
             { label: strings.tableMerge, command: mergeCells },
             { label: strings.tableSplit, command: splitCell },
-            { label: strings.tableHeaderRow, command: toggleHeaderRow },
-            { label: strings.tableHeaderCol, command: toggleHeaderColumn },
+            // The table's first row and column, wherever the cursor is in it
+            // (the library's toggleHeaderRow acts on the cursor's own row).
+            { label: strings.tableHeaderRow, command: toggleHeader("row") },
+            { label: strings.tableHeaderCol, command: toggleHeader("column") },
             "separator",
             { label: strings.tableDelete, command: deleteTable },
         ],
@@ -732,6 +733,14 @@ export function buildToolbar(schema, strings, pageOptions) {
         morePanel.hidden = false;
         moreBtn.setAttribute("aria-expanded", "true");
         document.addEventListener("mousedown", onOutsideMore, true);
+    });
+    // A button used from the panel closes it, so it doesn't sit over the
+    // text; one that opens a menu (alignment, tables) leaves it open for
+    // that menu, whose items close it in turn.
+    morePanel.addEventListener("click", (e) => {
+        const button = e.target.closest("button");
+        if (!button || button.classList.contains("dw-editor-dropdown-button")) return;
+        closeMore();
     });
     morePanel.addEventListener("keydown", (e) => {
         if (e.key != "Escape" || e.defaultPrevented) return;
