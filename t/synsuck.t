@@ -15,10 +15,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 24;
+use Test::More tests => 25;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
+use LJ::CleanHTML;
 use LJ::SynSuck;
 
 sub err {
@@ -52,6 +53,44 @@ sub success {
 
     return @{ $rv->{items} };
 }
+
+subtest 'Rendering a feed item with invalid HTML' => sub {
+    my $content = q{<?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0">
+        <channel>
+            <title>Example feed</title>
+            <link>https://example.com/feed</link>
+            <description>Example feed</description>
+            <item>
+                <title>Example item</title>
+                <link>https://example.com/item</link>
+                <description><![CDATA[<p>Readable text</p><color="ff0000">Feed item remainder]]></description>
+            </item>
+        </channel>
+    </rss>};
+
+    my ($item) = success( $content, 'Malformed HTML inside valid RSS' );
+    my $entry_url = 'https://feed.example.com/123.html';
+    my $opts      = { is_syndicated => 1, preformatted => 1 };
+
+    my $listing = $item->{text};
+    LJ::CleanHTML::clean_event( \$listing, { %$opts, cuturl => $entry_url } );
+    like( $listing, qr{<p>Readable text</p>},           'Listing preserves the cleaned prefix' );
+    like( $listing, qr{<a href=['"]\Q$entry_url\E['"]}, 'Listing links to the full entry' );
+    unlike( $listing, qr/Feed item remainder/, 'Listing does not expose the raw remainder' );
+
+    my $entry = $item->{text};
+    LJ::CleanHTML::clean_event( \$entry, $opts );
+    like(
+        $entry,
+        qr/&lt;color=&quot;ff0000&quot;&gt;Feed item remainder/,
+        'Full entry shows escaped source for diagnosis'
+    );
+
+    my $ordinary = '<div class="ljcut">External text</div>';
+    LJ::CleanHTML::clean_event( \$ordinary, { %$opts, cuturl => $entry_url } );
+    like( $ordinary, qr/External text/, 'Feed markup cannot create a Dreamwidth cut' );
+};
 
 note("Error");
 {
