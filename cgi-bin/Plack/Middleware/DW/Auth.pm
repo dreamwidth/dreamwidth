@@ -38,8 +38,15 @@ sub call {
     # Resolve authenticated user from session cookies here so this middleware
     # owns bounce handling and downstream LJ::get_remote() calls retain their
     # cached fast path.
-    my $sessobj =
-        LJ::Session->session_from_cookies( redirect_ref => \$LJ::CACHE_REMOTE_BOUNCE_URL, );
+    my $sessobj;
+    {
+        # The shop rewrite is internal: domain-session return URLs must use the
+        # browser's path, or the next request will gain a second /shop prefix.
+        # Restore the routed path before any downstream middleware or controller.
+        local $env->{PATH_INFO} = $env->{'dw.shop_external_path'} // $env->{PATH_INFO};
+        $sessobj =
+            LJ::Session->session_from_cookies( redirect_ref => \$LJ::CACHE_REMOTE_BOUNCE_URL, );
+    }
 
     if ( $sessobj && $sessobj->owner ) {
         my $u = $sessobj->owner;
