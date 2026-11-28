@@ -18,6 +18,7 @@
 package DW::Controller::Admin::SpamReports;
 
 use strict;
+use Socket qw(AF_INET inet_pton);
 
 use DW::Controller;
 use DW::Controller::Admin;
@@ -33,6 +34,11 @@ DW::Controller::Admin->register_admin_page(
     ml_scope => '/admin/spamreports/index.tt',
     privs    => [ 'siteadmin:spamreports', 'siteadmin:*' ]
 );
+
+sub _is_ipv4 {
+    my ($address) = @_;
+    return $address =~ /\A[0-9.]+\z/ && defined inet_pton( AF_INET, $address );
+}
 
 sub main_controller {
     my ( $ok, $rv ) = controller(
@@ -295,7 +301,7 @@ sub main_controller {
             return error_ml("$scope.error.noip") if length $what > 45;
 
             $rv->{reason}  = LJ::Sysban::populate_full_by_value( $what, 'talk_ip_test' );
-            $rv->{is_ipv4} = ( $what =~ /^\d+\.\d+\.\d+\.\d+$/ ) ? 1 : 0;
+            $rv->{is_ipv4} = _is_ipv4($what);
             $rv->{timestr} = LJ::mysql_time();
         }
 
@@ -359,6 +365,7 @@ sub main_controller {
         $in = "'$in'";
 
         if (   $post->{sysban_ip}
+            && _is_ipv4( $post->{sysban_ip} )
             && $remote->has_priv( 'sysban', "talk_ip_test" )
             && !LJ::Sysban::validate( "talk_ip_test", $post->{sysban_ip} ) )
         {
