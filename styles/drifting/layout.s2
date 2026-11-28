@@ -285,6 +285,36 @@ propgroup customcss
 # Functions
 ################################################################################
 
+function header_navlinks_linear_channel(int channel) : int {
+    var int squared = $channel * $channel;
+    var int cubed = $squared * $channel / 255;
+    return (125 * $channel + (6822 * $squared + 3053 * $cubed) / 255) / 255;
+}
+
+function header_navlinks_luminance(Color color) : int {
+    var int red = header_navlinks_linear_channel($color->red());
+    var int green = header_navlinks_linear_channel($color->green());
+    var int blue = header_navlinks_linear_channel($color->blue());
+    return (2126 * $red + 7152 * $green + 722 * $blue) / 10000;
+}
+
+function header_navlinks_color() : Color {
+    var Color background = $*color_header_background;
+    if ($background.as_string == "") { $background = $*color_entry_background; }
+    if ($background.as_string == "") { $background = $*color_page_background; }
+    if ($background.as_string == "") { $background = new Color("#fff"); }
+
+    var int base = header_navlinks_luminance($background) + 500;
+    var Color[] candidates = [$*color_page_title, $*color_page_text];
+    foreach var Color candidate ($candidates) {
+        if ($candidate.as_string != "") {
+            var int text = header_navlinks_luminance($candidate) + 500;
+            if (2 * $text >= 9 * $base or 2 * $base >= 9 * $text) { return $candidate; }
+        }
+    }
+    return $base >= 2290 ? new Color("#000") : new Color("#fff");
+}
+
 # Prints out the stylesheet for Drifting
 ################################################################################
 function Page::print_default_stylesheet()
@@ -296,10 +326,12 @@ function Page::print_default_stylesheet()
     var string image_header_right_url = generate_image_url ($*image_header_right);
     var string page_background = generate_background_css ($*image_background_page_url, $*image_background_page_repeat, $*image_background_page_position, $*color_page_background);
     var string header_background = generate_background_css ($*image_background_header_url, $*image_background_header_repeat, $*image_background_header_position, $*color_header_background);
+    var bool header_navlinks = $*module_navlinks_show and $*module_navlinks_section == "header";
     if ($*image_background_header_height > 0) {
+        var string height_property = $header_navlinks ? "min-height" : "height";
         $header_background = """
             $header_background
-            height: """ + $*image_background_header_height + """px;""";
+            $height_property: """ + $*image_background_header_height + """px;""";
     }
     var string module_header_background = generate_background_css ($*image_module_header_url,"no-repeat","bottom right",$*color_page_background);
 
@@ -323,6 +355,69 @@ function Page::print_default_stylesheet()
     var string comment_title_font = generate_font_css($*font_comment_title, $*font_base, $*font_fallback, $*font_comment_title_size, $*font_comment_title_units);
     var string module_font = generate_font_css($*font_module_text, $*font_base, $*font_fallback, $*font_module_text_size, $*font_module_text_units);
     var string module_title_font = generate_font_css($*font_module_heading, $*font_base, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
+
+    var string header_navlinks_css = "";
+    var string header_colors = $header_background;
+    if ($header_navlinks) {
+        var Color nav_color = header_navlinks_color();
+        $header_colors = generate_color_css(new Color, $*color_header_background, new Color);
+        $header_navlinks_css = """
+    #canvas #header {
+        height: auto;
+    }
+
+    #header .header-banner {
+        display: flow-root;
+        $header_background
+    }
+
+    #header .module-navlinks {
+        background: transparent;
+        border: none;
+        color: $nav_color;
+        margin: 0;
+        padding: .375em .75em;
+        border-top: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    }
+
+    #header .module-navlinks .module-header {
+        display: none;
+    }
+
+    #header .module-navlinks .module-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: .125em .75em;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #header .module-navlinks li {
+        margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    #header .module-navlinks a {
+        display: block;
+        padding: .25em .125em;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    #header .module-navlinks a:hover,
+    #header .module-navlinks a:focus-visible {
+        text-decoration: underline;
+    }
+
+    #header .module-navlinks a:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+    """;
+    }
 
     var string userpic_css = "";
     if ($*userpics_position == "left") {
@@ -466,7 +561,7 @@ function Page::print_default_stylesheet()
     #header {
         margin-bottom: 10px;
         border: 1px solid $*color_module_border;
-        $header_background
+        $header_colors
     }
 
     #header:after {
@@ -528,6 +623,8 @@ function Page::print_default_stylesheet()
             width: 250px;
         }
     }
+
+    $header_navlinks_css
 
     /* Navigation
     ***************************************************************************/
@@ -1145,6 +1242,7 @@ function print_module_navlinks()
 ################################################################################
 function Page::print()
 {
+    var bool header_navlinks = $*module_navlinks_show and $*module_navlinks_section == "header";
     """<!DOCTYPE html>
     <html lang="en">
     <head>""";
@@ -1159,10 +1257,15 @@ function Page::print()
 
         println "<div id=\"canvas\">";
             println "<div id=\"header\">";
+            if ($header_navlinks) { println "<div class=\"header-banner\">"; }
             println "<div class=\"header-left\">";
                 $this->print_global_title();
                 $this->print_global_subtitle();
             println "</div><div class=\"header-right\"></div>";
+            if ($header_navlinks) {
+                println "</div>";
+                $this->print_module_section("header");
+            }
             println "</div>";
 
             println "<div id=\"secondary\">";
