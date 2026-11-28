@@ -116,6 +116,14 @@ use Net::Subnet;
     # Set this to the IP address of your main site.  This is used for Tor exit checking.
     #$EXTERNAL_IP = '127.0.0.1';
 
+    # Protect IPs from new ip, noanon_ip, and talk_ip_test sysbans in the admin
+    # form and console. Each key is a Perl regular expression, and its value
+    # is the reason shown when a matching ban is refused. Anchor the pattern
+    # and escape dots to match one exact IP. This does not remove existing bans.
+    # %UNBANNABLE_IPS = (
+    #     qr/\A192\.0\.2\.10\z/ => 'Office network',
+    # );
+
     # configuration/ID for statistics tracker modules which apply to
     # site pages (www, non-journal)
     %SITE_PAGESTAT_CONFIG = (
