@@ -18,6 +18,7 @@ use warnings;
 
 package DW::Worker::ChangePosterId;
 use base 'TheSchwartz::Worker';
+use DW::Locker;
 use LJ::User;
 
 sub schwartz_capabilities { return ('DW::Worker::ChangePosterId'); }
@@ -57,6 +58,10 @@ sub work {
         };
         return $job->failed("Temporary failure fixing things: $@") if $@;
     }
+
+    eval { fix_talkleft( $fu, $tu ); };
+    return $job->failed("Temporary failure fixing talkleft: $@") if $@;
+
     $job->completed;
 
     # we're done and happy
@@ -207,6 +212,137 @@ sub fix_comments {
             LJ::MemCache::delete( [ $jid, "talk2:$jid:$nodetype:$nodeid" ] );
             LJ::MemCache::delete( [ $jid, "talk2row:$jid:$jtalkid" ] );
             LJ::MemCache::delete( [ $jid, "talkprop:$jid:$jtalkid" ] );
+        }
+    }
+}
+
+sub fix_talkleft {
+    my ( $fu, $tu ) = @_;
+
+    # Expunged users have clusterid 0 and no cluster database.
+    if ( $tu->clusterid ) {
+        my $migration_key = join ':', 'change_poster_id:talkleft', $fu->id, $tu->id;
+        my $migration_lock =
+            DW::Locker->new->trylock( $migration_key, class => 'change_poster_id_talkleft' )
+            or die "Temporary failure locking talkleft migration: $DW::Locker::Error\n";
+
+        # Any old-owner drain must finish before we rewrite staging. After the
+        # rewrite, the cleaner can only drain these rows to the new owner.
+        my $lock = DW::Locker->new->trylock( 'talkleft_xfp', class => 'talkleft_xfp' )
+            or die "Temporary failure locking talkleft_xfp: $DW::Locker::Error\n";
+        my $dbh = LJ::get_db_writer()
+            or die "Temporary failure connecting to global master.\n";
+
+        while (1) {
+            my $rv = $dbh->do(
+                'UPDATE talkleft_xfp SET userid = ? WHERE userid = ? ORDER BY posttime LIMIT 100',
+                undef, $tu->id, $fu->id );
+            die $dbh->errstr if $dbh->err;
+            last unless $rv && $rv > 0;
+        }
+        $lock->release;
+
+        if ( $fu->clusterid ) {
+            my $from_dbcm = LJ::get_cluster_master($fu)
+                or die "Temporary failure connecting to cluster " . $fu->clusterid . ".\n";
+
+            my $total =
+                $from_dbcm->selectrow_array( 'SELECT COUNT(*) FROM talkleft WHERE userid = ?',
+                undef, $fu->id );
+            die $from_dbcm->errstr if $from_dbcm->err;
+
+            if ( $total > 0 ) {
+                title( $fu, $tu, 'talkleft', 0, $total );
+
+                if ( $fu->clusterid == $tu->clusterid ) {
+                    my $ct = 0;
+                    while (1) {
+                        my $rv = $from_dbcm->do(
+                            'UPDATE talkleft SET userid = ? '
+                                . 'WHERE userid = ? ORDER BY posttime LIMIT 100',
+                            undef, $tu->id, $fu->id
+                        );
+                        die $from_dbcm->errstr if $from_dbcm->err;
+                        last unless $rv && $rv > 0;
+
+                        $ct += $rv;
+                        title( $fu, $tu, 'talkleft', $ct, $total );
+                    }
+                }
+                else {
+                    my $to_dbcm = LJ::get_cluster_master($tu)
+                        or die "Temporary failure connecting to cluster " . $tu->clusterid . ".\n";
+
+                    my $ct = 0;
+                    while (1) {
+                        my $rows = $from_dbcm->selectall_arrayref(
+                            'SELECT posttime, journalid, nodetype, nodeid, jtalkid, publicitem '
+                                . 'FROM talkleft WHERE userid = ? ORDER BY posttime LIMIT 100',
+                            undef, $fu->id
+                        );
+                        die $from_dbcm->errstr if $from_dbcm->err;
+                        last unless $rows && @$rows;
+
+                        foreach my $row (@$rows) {
+                            my ( $posttime, $journalid, $nodetype, $nodeid, $jtalkid, $publicitem )
+                                = @$row;
+
+                            $ct++;
+                            title( $fu, $tu, 'talkleft', $ct, $total );
+
+                            # Avoid duplicating a row if a previous attempt crashed after
+                            # inserting on the target cluster and before deleting from the source.
+                            # The table has no unique key; we assume one row per
+                            # (userid, journalid, nodetype, nodeid, jtalkid).
+                            my $exists = $to_dbcm->selectrow_array(
+                                'SELECT 1 FROM talkleft '
+                                    . 'WHERE userid = ? AND posttime = ? AND journalid = ? '
+                                    . 'AND nodetype = ? AND nodeid = ? AND jtalkid = ? LIMIT 1',
+                                undef,
+                                $tu->id,
+                                $posttime,
+                                $journalid,
+                                $nodetype,
+                                $nodeid,
+                                $jtalkid
+                            );
+                            die $to_dbcm->errstr if $to_dbcm->err;
+
+                            unless ($exists) {
+                                $to_dbcm->do(
+                                    'INSERT INTO talkleft '
+                                        . '(userid, posttime, journalid, nodetype, '
+                                        . 'nodeid, jtalkid, publicitem) '
+                                        . 'VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                    undef,
+                                    $tu->id,
+                                    $posttime,
+                                    $journalid,
+                                    $nodetype,
+                                    $nodeid,
+                                    $jtalkid,
+                                    "$publicitem"
+                                );
+                                die $to_dbcm->errstr if $to_dbcm->err;
+                            }
+
+                            $from_dbcm->do(
+                                'DELETE FROM talkleft '
+                                    . 'WHERE userid = ? AND posttime = ? AND journalid = ? '
+                                    . 'AND nodetype = ? AND nodeid = ? AND jtalkid = ? LIMIT 1',
+                                undef,
+                                $fu->id,
+                                $posttime,
+                                $journalid,
+                                $nodetype,
+                                $nodeid,
+                                $jtalkid
+                            );
+                            die $from_dbcm->errstr if $from_dbcm->err;
+                        }
+                    }
+                }
+            }
         }
     }
 
