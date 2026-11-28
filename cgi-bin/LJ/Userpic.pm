@@ -20,6 +20,8 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Digest::MD5;
 use DW::Cache;
+use Image::ExifTool ();
+use Image::Size     ();
 use Storable;
 
 use DW::BlobStore;
@@ -799,6 +801,21 @@ sub create {
     return $pic;
 }
 
+sub get_upf_image_info {
+    my ( $class, $dataref ) = @_;
+    my ( $width, $height, $format ) = Image::Size::imgsize($dataref);
+    return unless $width && $height;
+
+    my $orientation = 1;
+    if ( $format eq 'JPG' ) {
+        my $info = Image::ExifTool::ImageInfo( $dataref, 'IFD0:Orientation', { PrintConv => 0 } );
+        $orientation = $info->{Orientation} if ( $info->{Orientation} // '' ) =~ /\A[2-8]\z/;
+    }
+
+    return ( $height, $width,  $orientation ) if $orientation >= 5;
+    return ( $width,  $height, $orientation );
+}
+
 # this will return a user's userpicfactory image stored in mogile scaled down.
 # if only $size is passed, will return image scaled so the largest dimension will
 # not be greater than $size. If $x1, $y1... are set then it will return the image
@@ -836,16 +853,28 @@ sub get_upf_scaled {
     eval "use Image::Magick (); 1;"
         or return undef;
 
-    eval "use Image::Size (); 1;"
-        or return undef;
-
     $mogkey ||= 'upf:' . $u->{userid};
     my $dataref = DW::BlobStore->retrieve( temp => $mogkey )
         or return undef;
 
-    # original width/height
-    my ( $ow, $oh ) = Image::Size::imgsize($dataref);
+    my ( $ow, $oh, $orientation ) = $class->get_upf_image_info($dataref);
     return undef unless $ow && $oh;
+
+    my $decode_image = sub {
+        my ( $width, $height ) = @_;
+        ( $width, $height ) = ( $height, $width ) if $orientation >= 5;
+        my $image = Image::Magick->new( size => "${width}x${height}" ) or return undef;
+        $image->BlobToImage($$dataref);
+        return undef unless @$image;
+        if ( $orientation != 1 ) {
+            my @orientations = qw(TopLeft TopRight BottomRight BottomLeft
+                LeftTop RightTop RightBottom LeftBottom);
+            return undef if $image->Set( orientation => $orientations[ $orientation - 1 ] );
+            return undef if $image->AutoOrient;
+            return undef if $image->Set( page => '0x0+0+0' );
+        }
+        return $image;
+    };
 
     # converts an ImageMagick object to the form returned to our callers
     my $imageParams = sub {
@@ -872,9 +901,7 @@ sub get_upf_scaled {
 
     # simple scaling mode
     if ( $mode eq "scale" ) {
-        my $image = Image::Magick->new( size => "${medw}x${medh}" )
-            or return undef;
-        $image->BlobToImage($$dataref);
+        my $image = $decode_image->( $medw, $medh ) or return undef;
         unless ( $downsize_only && ( $medw > $ow || $medh > $oh ) ) {
             $image->Resize( width => $medw, height => $medh );
         }
@@ -911,9 +938,7 @@ sub get_upf_scaled {
     $_ = int($_) foreach ( $x1, $x2, $y1, $y2, $tw, $th );
 
     # make the pristine (uncompressed) 100x100 image
-    my $timage = Image::Magick->new( size => "${decodew}x${decodeh}" )
-        or return undef;
-    $timage->BlobToImage($$dataref);
+    my $timage = $decode_image->( $decodew, $decodeh ) or return undef;
     $timage->Scale( width => $decodew, height => $decodeh );
 
     my $w   = ( $x2 - $x1 );
