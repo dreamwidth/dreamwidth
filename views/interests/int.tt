@@ -84,13 +84,13 @@
         <p>
         [%- '.nocomms2' | ml(aopts = "href='$site.root/communities/new'", num = query_count) %]</p>
     [%- END -%]
-    <h4>
+    <h3>
     [%- IF type_count.defined -%]
         [% '.filtered' | ml(num = allcount, count = type_count) %]
     [%- ELSE -%]
         [% '.matches2' | ml(num = allcount) %]
     [%- END -%]
-    </h4>
+    </h3>
     [%- IF data -%]
         <div class='navbar'>[% navbar %]</div><br />
 

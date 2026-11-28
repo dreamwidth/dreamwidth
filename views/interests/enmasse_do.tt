@@ -21,7 +21,7 @@
 [%- CALL dw.active_resource_group( "foundation" ) -%]
 [%- sections.title='.title' | ml -%]
 
-<h1>[% '.results.header' | ml %]</h1>
+<h2>[% '.results.header' | ml %]</h2>
 <p>[% enmasse_do_result | ml(intcount = $toomany) %]</p>
 <p>[% '.results.message2' | ml(aopts = "href='$u.profile_url'") %]
 [%- IF fromu -%]
