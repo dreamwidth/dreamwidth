@@ -63,28 +63,26 @@ a:active,
     text-decoration: none;
 }
 
-#canvas {
+#page {
     padding-top: 1px;  /*to ensue margin*/
     background-color: #f9fcFF;
     margin-left: 9.25em;
-    margin-top: 100px;
     border-left: 1px solid #002A82;
     border-bottom: 1px solid #002A82;
     min-height: 55em;
 }
-#page {
-    padding-top: 1px;  /*to ensue margin*/
-}
-
-
 /**
  * Header
  */
 #masthead {
-    position: absolute;
-    top: 30px;
-    right: 1em;
-    }
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-height: 100px;
+    padding: 0 1em .5em 0;
+}
+    #masthead #logo { margin: 30px 0 0 auto; }
     #sitename { font-style: italic;
         font-weight: normal;
         font-size: 175%;
@@ -92,10 +90,9 @@ a:active,
     #sitename a { color: #E6ECF9; }
 
 #account-links {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100px;
+    position: relative;
+    order: -1;
+    min-height: 100px;
     padding-top: .5em;
     text-align: left;
     font-size: small;
@@ -136,9 +133,9 @@ a:active,
         border: none;
         }
 
-#header-search { position: absolute;
-    top: 100px;
-    right: 0;
+#header-navigation { position: relative; }
+
+#header-search {
     width: 100%;
     height: 2.5em;
     text-align: right;
@@ -155,7 +152,7 @@ a:active,
  * Menu
  */
 nav { position: absolute;
-    top: 100px;
+    top: 0;
     left: 0;
     width: 9.25em;
     background-color: #3960A0;
@@ -209,7 +206,6 @@ footer {
  */
 #content { margin: 0;
     padding: 1px 1em 1em 1.5em;
-    margin-top: 2.5em;
 }
 
 #content p {

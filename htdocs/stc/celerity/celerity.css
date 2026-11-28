@@ -65,6 +65,7 @@ a:active,
     padding-top: 1px;  /*to ensure margin*/
 }
 #page {
+    position: relative;
     margin-bottom: 2em;
     padding-top: 1px;  /*to ensure margin*/
 }
@@ -82,10 +83,18 @@ a:active,
 /**
  * Header
  */
-#masthead { position: absolute;
-    top: 50px;
-    right: 25px;
-    }
+#masthead {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    box-sizing: border-box;
+    min-height: 109px;
+    padding: 2px 25px .5em 0;
+}
+#masthead #logo {
+    margin: 47px 0 0 auto;
+}
     #sitename { font-family: "Century Gothic", Verdana, sans-serif;
         font-weight: normal;
         font-size: 175%;
@@ -93,9 +102,8 @@ a:active,
     #sitename a { color: #888844; }
 
 #account-links {
-     position: absolute;
-    top: 3px;
-    left: 13em;
+    order: -1;
+    margin-left: 13em;
     text-align: left;
     font-size: small;
 }
@@ -126,9 +134,7 @@ a:active,
 }
 
 /*Scheme specific divs to contain header stripes*/
-#header-divider { position: absolute;
-    top: 110px;
-    left: 0;
+#header-divider {
     background-color: #999966;
     background-image: url("/img/celerity/dk-stripe.jpg");
     background-position: right;
@@ -142,9 +148,8 @@ a:active,
         background-position: center;
         }
 
-#header-search { position: absolute;
-    top: 140px;
-    right: 22px;
+#header-search {
+    padding: 9px 22px 0 0;
     text-align: right;
     }
 
@@ -159,7 +164,7 @@ nav { position: absolute;
     }
 nav ul { margin-left: 5px;
         margin-right: 3px;
-        margin-top: 40px;
+        margin-top: 10px;
         padding-left: 0;
         font-size: small;
         list-style: none;
@@ -173,10 +178,15 @@ nav .subnav a,
 nav .topnav a {color: #222200; }
 
 #header-userpic { text-align: center;
-    height: 100px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 1em;
+    width: 9em;
+    background-color: #DDDDAA;
     background-image: url("/img/celerity/square.jpg");
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: center 10px;
     }
     #header-userpic img { margin-top: 10px;
         border: none;
@@ -209,7 +219,6 @@ footer { border-top: 4px double #999966;
 #content {
     margin-left: 1em;
     border-left: 9em solid #DDDDAA;
-    margin-top: 170px;
     padding: 1px 1em 1em 1.5em;
     min-height: 73rem;
 }
