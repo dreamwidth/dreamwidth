@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 13;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Request::Standard;
@@ -88,8 +88,7 @@ check_post(
     }
 );
 
-# A repeated param whose last value is empty (multi=x&multi=) must keep the
-# trailing '' -- split(/\0/) drops trailing empties without a negative limit.
+# A repeated param whose last value is empty (multi=x&multi=) must keep the trailing ''.
 check_get(
     "multi=x&multi=",
     sub {
@@ -116,6 +115,63 @@ check_post(
     }
 );
 
+check_get( undef, sub { is_empty_args( DW::Request->get->get_args ) } );
+check_get( '',    sub { is_empty_args( DW::Request->get->get_args ) } );
+check_post( '', sub { is_empty_args( DW::Request->get->post_args ) } );
+
+my $encoded =
+    'leading=&zero=0&blank=&leading=x&zero=x&blank=&nul=a%00b&eq=a=b' . '&flag&&foo+%2B=a+%2Bb';
+check_get( $encoded, sub { check_decoded_args( DW::Request->get->get_args ) } );
+check_post( $encoded, sub { check_decoded_args( DW::Request->get->post_args ) } );
+
+check_get(
+    'Foo=1&f%6Fo=2&Foo=3',
+    sub {
+        my $args = DW::Request->get->get_args;
+        is_deeply(
+            [ $args->get_all('foo') ],
+            [ '1', '2', '3' ],
+            'GET lowercases decoded keys without reordering values'
+        );
+    }
+);
+
+check_get(
+    'Foo=1&f%6Fo=2&Foo=3',
+    sub {
+        my $args = DW::Request->get->get_args( preserve_case => 1 );
+        is_deeply( [ $args->get_all('Foo') ], [ '1', '3' ], 'GET can preserve uppercase keys' );
+        is_deeply( [ $args->get_all('foo') ], ['2'], 'case-preserving GET keeps keys distinct' );
+    }
+);
+
+sub is_empty_args {
+    my ($args) = @_;
+    isa_ok( $args, 'Hash::MultiValue' );
+    is_deeply( $args->as_hashref, {}, 'no arguments, not even an empty key' );
+}
+
+sub check_decoded_args {
+    my ($args) = @_;
+
+    is_deeply( [ $args->get_all('leading') ], [ '',  'x' ], 'leading empty value survives' );
+    is_deeply( [ $args->get_all('zero') ],    [ '0', 'x' ], 'leading zero stays separate' );
+    is_deeply( [ $args->get_all('blank') ],   [ '',  '' ],  'both empty values survive' );
+    is_deeply( [ $args->get_all('nul') ], ["a\0b"], 'NUL stays in its original value' );
+    is( $args->{eq},      'a=b',  'only the first equals separates key and value' );
+    is( $args->{flag},    '',     'bare key has an empty value' );
+    is( $args->{'foo +'}, 'a +b', 'plus and percent escapes decode in keys and values' );
+    ok( !exists $args->{''}, 'empty segment does not create a key' );
+
+    my @keys;
+    $args->each( sub { push @keys, $_[0]; } );
+    is_deeply(
+        \@keys,
+        [ 'leading', 'zero', 'blank', 'leading', 'zero', 'blank', 'nul', 'eq', 'flag', 'foo +' ],
+        'arguments retain their order across keys'
+    );
+}
+
 sub check_get {
     my ( $args, $sv ) = @_;
 
@@ -123,12 +179,13 @@ sub check_get {
     # look one level further up the call stack.
     local $Test::Builder::Level = $Test::Builder::Level + 1;
 
-    my $rq = HTTP::Request->new( GET => "http://www.example.com/test?$args" );
+    my $query = defined $args ? "?$args" : '';
+    my $rq    = HTTP::Request->new( GET => "http://www.example.com/test$query" );
 
     DW::Request->reset;
     my $r = DW::Request::Standard->new($rq);
 
-    subtest "GET $args", sub { $sv->() };
+    subtest "GET /test$query", sub { $sv->() };
 }
 
 sub check_post {

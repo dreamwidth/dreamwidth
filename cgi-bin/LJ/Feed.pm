@@ -78,13 +78,13 @@ sub make_feed {
         return undef;
     }
 
-    my %FORM = LJ::parse_args( $r->query_string );
+    my $form = LJ::parse_args( $r->query_string );
 
     ## load the itemids
     my ( @itemids, @items );
 
     # for consistency, we call ditemids "itemid" in user-facing settings
-    my $ditemid = defined $FORM{itemid} ? $FORM{itemid} + 0 : 0;
+    my $ditemid = ( $form->{itemid} // 0 ) + 0;
 
     if ($ditemid) {
         my $entry = LJ::Entry->new( $u, ditemid => $ditemid );
