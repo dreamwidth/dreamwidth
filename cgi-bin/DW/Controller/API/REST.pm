@@ -24,7 +24,7 @@ my $log = Log::Log4perl->get_logger(__PACKAGE__);
 use Carp qw/ croak /;
 use Hash::MultiValue;
 use JSON;
-use JSON::Validator 'validate_json';
+use JSON::Validator;
 use YAML::XS qw'LoadFile';
 
 use DW::API::Key;
@@ -372,11 +372,12 @@ sub schema {
     if ( defined $self->{schema} ) {
 
         # Make sure we've been provided a valid schema to validate against
-        my @errors = validate_json( $self->{schema}, 'http://json-schema.org/draft-07/schema#' );
+        my @errors = JSON::Validator->new->schema('http://json-schema.org/draft-07/schema#')
+            ->validate( $self->{schema} );
         croak "Invalid schema! Errors: @errors" if @errors;
 
         # make a validator against the schema
-        my $validator = JSON::Validator->new->schema( $self->{schema} );
+        my $validator = JSON::Validator->new;
 
         # turn on coercion for params, because perl doesn't care about scalar types but JSON does
         # so we're more flexible on input than output
@@ -384,6 +385,8 @@ sub schema {
             $validator = $validator->coerce( { 'booleans' => 1, 'numbers' => 1, 'strings' => 1 } );
         }
 
+        # Coercion must be set before loading the schema, which copies these options.
+        $validator->schema( $self->{schema} );
         $self->{validator} = $validator;
     }
     else {
