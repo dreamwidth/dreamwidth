@@ -17,7 +17,7 @@ import { undo, redo } from "prosemirror-history";
 import { undoInputRule } from "prosemirror-inputrules";
 import { splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list";
 import { goToNextCell, isInTable } from "prosemirror-tables";
-import { indent, outdent, inList, unjoinCut } from "./commands.js";
+import { indent, outdent, inList, unjoinCut, exitCodeOnBlankLine } from "./commands.js";
 
 function tabCommand(schema, direction, listCommand) {
     return (state, dispatch) => {
@@ -40,7 +40,7 @@ export function buildKeymap(schema, commands) {
         "Mod-`": toggleMark(schema.marks.code),
         "Mod-k": commands.editLink,
 
-        Enter: splitListItem(schema.nodes.list_item),
+        Enter: chainCommands(exitCodeOnBlankLine(schema), splitListItem(schema.nodes.list_item)),
         "Mod-[": outdent(schema),
         "Mod-]": indent(schema),
         // Tab nests a list item and otherwise moves between table cells --

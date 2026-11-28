@@ -1,7 +1,8 @@
 // src/editor/test/toolbar.test.js
 //
-// The toolbar's "More" panel, which holds the groups that don't fit on one
-// row: using a button from it closes it, so it doesn't stay over the text.
+// Toolbar behaviour: the "More" panel, which holds the groups that don't fit
+// on one row, closes once a button in it is used; the table menu's header
+// items act on the table's first row and column.
 //
 // Authors:
 //     Mark Smith <mark@qq.is>
@@ -14,7 +15,8 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import "./helpers.js";
+import { TextSelection } from "prosemirror-state";
+import { normalized } from "./helpers.js";
 
 const { mount, unmount, getHTML } = await import("../src/index.js");
 
@@ -47,4 +49,31 @@ test("a button used from the More panel closes it; a menu button leaves it open"
 
     unmount("more-test");
     textarea.remove();
+});
+
+test("the table menu's header items act on the first row and column, wherever the cursor is", () => {
+    const table = "<table><tbody><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></tbody></table>";
+    const item = (label) =>
+        Array.from(document.querySelectorAll(".dw-editor-dropdown-item")).find((b) => b.textContent == label);
+    const cases = [
+        ["Toggle header row", "<table><tbody><tr><th>a</th><th>b</th></tr><tr><td>c</td><td>d</td></tr></tbody></table>"],
+        ["Toggle header column", "<table><tbody><tr><th>a</th><td>b</td></tr><tr><th>c</th><td>d</td></tr></tbody></table>"],
+    ];
+    for (const [label, expected] of cases) {
+        const textarea = document.createElement("textarea");
+        textarea.id = "header-test";
+        textarea.value = table;
+        document.body.appendChild(textarea);
+        const { view } = mount("header-test");
+        // The cursor in the last cell, "d".
+        let at = null;
+        view.state.doc.descendants((node, pos) => {
+            if (node.isText && node.text == "d") at = pos + 1;
+        });
+        view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, at)));
+        item(label).click();
+        assert.equal(normalized(getHTML("header-test")), normalized(expected), label);
+        unmount("header-test");
+        textarea.remove();
+    }
 });

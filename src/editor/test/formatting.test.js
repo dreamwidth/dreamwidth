@@ -27,6 +27,7 @@ import {
     setTextStyles,
     insertTable,
     blockAlignment,
+    exitCodeOnBlankLine,
 } from "../src/commands.js";
 
 function assertSurvives(html, message) {
@@ -408,4 +409,31 @@ test("Markdown-style shortcuts leave text inside inline code alone", async () =>
     const handled = view.someProp("handleTextInput", (f) => f(view, from, from, "*"));
     assert.ok(!handled, "the emphasis rule didn't fire");
     view.destroy();
+});
+
+// Put the cursor at the end of the first occurrence of `text`.
+function cursorAfter(state, text) {
+    let at = null;
+    state.doc.descendants((node, pos) => {
+        if (at == null && node.isText && node.text.indexOf(text) >= 0) at = pos + node.text.indexOf(text) + text.length;
+    });
+    assert.ok(at != null, "found " + text);
+    return state.apply(state.tr.setSelection(TextSelection.create(state.doc, at)));
+}
+
+test("Enter on a blank last line leaves a code block", () => {
+    let state = cursorAfter(stateFor("<pre>code\n</pre><p>after</p>"), "code\n");
+    state = run(state, exitCodeOnBlankLine(schema));
+    assert.equal(html(state), normalized("<pre><code>code</code></pre><p><br></p><p>after</p>"));
+    assert.equal(state.selection.$head.parent.type.name, "paragraph");
+    // The new paragraph is where typing goes.
+    state = state.apply(state.tr.insertText("next"));
+    assert.equal(html(state), normalized("<pre><code>code</code></pre><p>next</p><p>after</p>"));
+});
+
+test("Enter elsewhere in a code block still adds a line", () => {
+    const command = exitCodeOnBlankLine(schema);
+    assert.equal(command(cursorAfter(stateFor("<pre>code</pre>"), "code")), false, "no blank line");
+    assert.equal(command(cursorAfter(stateFor("<pre>a\n\nb</pre>"), "a\n")), false, "not the last line");
+    assert.equal(command(cursorAfter(stateFor("<p>text\n</p>"), "text")), false, "not a code block");
 });
