@@ -2,7 +2,8 @@
 
 `bin/dev/screenshot` renders a page from the local Starman dev server (port 8080)
 to a PNG using headless Google Chrome. Use it to *see* how a change looks rather
-than only reading the HTML.
+than only reading the HTML. To check a page in an old browser engine (Waterfox
+Classic, or Firefox with old defaults), see [OLD-BROWSERS.md](OLD-BROWSERS.md).
 
 ## Prerequisites
 
