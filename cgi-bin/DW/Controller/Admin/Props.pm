@@ -12,12 +12,15 @@
 package DW::Controller::Admin::Props;
 
 use strict;
+use Encode qw(decode_utf8);
+use MIME::Base64 qw(decode_base64 encode_base64);
 use DW::Controller;
 use DW::Routing;
 use DW::Template;
 use DW::FormErrors;
 use DW::Controller::Admin;
 use DW::External::Account;
+use LJ::Location;
 
 =head1 NAME
 
@@ -47,6 +50,176 @@ DW::Controller::Admin->register_admin_page(
     ]
 );
 
+my %EDITABLE_ENTRYPROPS =
+    map { $_ => 1 } qw(adult_content current_coords current_location current_mood current_music);
+
+sub _editable_entryprop {
+    my ($name) = @_;
+    return unless $EDITABLE_ENTRYPROPS{$name};
+    my $meta = LJ::get_prop( 'log', $name ) or return;
+    return $meta if $meta->{ownership} eq 'user' && $meta->{datatype} eq 'char';
+    return;
+}
+
+sub _normalize_form_text {
+    my ($value) = @_;
+    $value =~ s/\r\n?/\n/g;
+    return $value;
+}
+
+sub _is_entryprop_text {
+    my ($value) = @_;
+    return defined $value && $value !~ /\0/ && LJ::is_utf8($value);
+}
+
+sub _entryprop_validation_error {
+    my ( $name, $value ) = @_;
+    return if $value eq '';
+    return 'Literal 0 is not supported. Leave the field blank to clear it.' if $value eq '0';
+    return 'Enter no more than ' . LJ::BMAX_PROP . ' bytes.' if length($value) > LJ::BMAX_PROP;
+    return 'Enter no more than ' . LJ::CMAX_PROP . ' characters.'
+        if length( decode_utf8($value) ) > LJ::CMAX_PROP;
+    return 'Enter none, concepts, or explicit.'
+        if $name eq 'adult_content' && $value !~ /\A(?:none|concepts|explicit)\z/;
+    return 'Enter valid coordinates, for example 45.2935N 123.3452W.'
+        if $name eq 'current_coords' && !eval { LJ::Location->new( coords => $value ) };
+    return;
+}
+
+sub _entryprop_changes {
+    my ( $post, $errors ) = @_;
+    my %changes;
+    foreach my $field ( sort grep { /^prop_/ } keys %$post ) {
+        my $name = substr( $field, length('prop_') );
+        my $meta = _editable_entryprop($name);
+        unless ($meta) {
+            $errors->add_string( '', 'That entry property is read-only.' );
+            next;
+        }
+        my @values    = $post->get_all($field);
+        my @baselines = $post->get_all("baseline_$name");
+        unless ( @values == 1 && _is_entryprop_text( $values[0] ) && @baselines == 1 ) {
+            $errors->add_string( $field, 'Reload the form and enter one valid text value.' );
+            next;
+        }
+        my $original = decode_base64( $baselines[0] );
+        unless ( encode_base64( $original, '' ) eq $baselines[0] && _is_entryprop_text($original) )
+        {
+            $errors->add_string( $field, 'Reload the form and try again.' );
+            next;
+        }
+
+        my $value = _normalize_form_text( $values[0] );
+        next if $value eq _normalize_form_text($original);
+        if ( my $error = _entryprop_validation_error( $name, $value ) ) {
+            $errors->add_string( $field, $error );
+            next;
+        }
+        $changes{$name} = { id => $meta->{id}, original => $original, value => $value };
+    }
+    return \%changes;
+}
+
+sub _save_entryprop_changes {
+    my ( $entry, $remote, $changes, $entry_props, $errors ) = @_;
+    my @names = sort keys %$changes;
+    return unless @names;
+
+    my $journal = $entry->journal;
+    if ( $journal->is_readonly ) {
+        $errors->add_string( '', 'This journal is read-only. Entry properties cannot be changed.' );
+        return;
+    }
+    if ( $entry->prop('unknown8bit') ) {
+        $errors->add( '', '/admin/entryprops.tt.error.unknown8bit' );
+        return;
+    }
+
+    my @entry_key = ( $journal->id, $entry->jitemid );
+    my $dbh       = LJ::get_cluster_master($journal);
+    unless ($dbh) {
+        $errors->add_string( '', 'Could not save entry properties. Try again later.' );
+        return;
+    }
+
+    local $dbh->{RaiseError} = 1;
+    local $dbh->{PrintError} = 0;
+    my $transaction;
+    my $saved = eval {
+        my $table = $dbh->selectrow_hashref("SHOW TABLE STATUS WHERE Name = 'logprop2'");
+        die 'Entry property saves require transactional storage'
+            unless $table && $table->{Engine} eq 'InnoDB';
+
+        $dbh->begin_work;
+        $transaction = 1;
+        my $placeholders = join ', ', ('?') x @names;
+        my $current      = $dbh->selectall_hashref(
+            'SELECT propid, value FROM logprop2 WHERE journalid = ? AND jitemid = ? '
+                . "AND propid IN ($placeholders) ORDER BY propid FOR UPDATE",
+            'propid', undef, @entry_key, map { $changes->{$_}{id} } @names
+        );
+        foreach my $name (@names) {
+            my $change = $changes->{$name};
+            my $row    = $current->{ $change->{id} };
+            if ( $row && defined $row->{value} ) {
+                $entry_props->{$name} = $row->{value};
+                next if $row->{value} eq $change->{original};
+            }
+            else {
+                delete $entry_props->{$name};
+            }
+            $errors->add_string( "prop_$name",
+"$name changed since you opened this form. Review the current properties and try again."
+            );
+        }
+        unless ( $errors->exist ) {
+            foreach my $name (@names) {
+                my $change = $changes->{$name};
+                if ( length $change->{value} ) {
+                    $dbh->do(
+'UPDATE logprop2 SET value = ? WHERE journalid = ? AND jitemid = ? AND propid = ?',
+                        undef, $change->{value}, @entry_key, $change->{id}
+                    );
+                }
+                else {
+                    $dbh->do(
+                        'DELETE FROM logprop2 WHERE journalid = ? AND jitemid = ? AND propid = ?',
+                        undef, @entry_key, $change->{id} );
+                }
+            }
+            $dbh->commit;
+            $transaction = 0;
+        }
+        !$errors->exist;
+    };
+    eval { $dbh->rollback } if $transaction;
+    unless ($saved) {
+        $errors->add_string( '', 'Could not save entry properties. Try again later.' )
+            unless $errors->exist;
+        return;
+    }
+
+    my $audit_note = 'Entry ' . $entry->ditemid . ': ' . join( ', ', @names );
+    my $recorded   = eval { LJ::statushistory_add( $journal, $remote, 'entryprops', $audit_note ) };
+    unless ($recorded) {
+        warn sprintf "Could not write entryprops audit record for journal %d, admin %d: %s\n",
+            $journal->id, $remote->id, $audit_note;
+        $errors->add_string( '', 'Changes were saved, but the audit record could not be written.' );
+    }
+
+    LJ::MemCache::delete( [ $journal->id, 'logprop:' . join( ':', @entry_key ) ] );
+    foreach my $name (@names) {
+        my $value = $changes->{$name}{value};
+        if ( length $value ) {
+            $entry_props->{$name} = $value;
+        }
+        else {
+            delete $entry_props->{$name};
+        }
+    }
+    return 1;
+}
+
 sub entryprops_handler {
     my ($opts) = @_;
 
@@ -62,19 +235,30 @@ sub entryprops_handler {
     );
     return $rv unless $ok;
 
-    my $r      = $rv->{r};
-    my $remote = $rv->{remote};
+    my $r        = $rv->{r};
+    my $remote   = $rv->{remote};
+    my $can_save = $remote->has_priv( 'canview', 'entryprops' )
+        && $remote->has_priv( 'siteadmin', 'entryprops' );
     my %entry_info;
     my @props;
+    my $saved;
 
     my $errors = DW::FormErrors->new;
     if ( $r->did_post ) {
-        my $post  = $r->post_args;
+        my $post = $r->post_args;
+        if ( $post->{_save} ) {
+            return error_ml( 'admin.noprivserror',
+                { numprivs => 1, needprivs => 'siteadmin:entryprops' } )
+                unless $can_save;
+            return error_ml('error.invalidform')
+                unless LJ::check_form_auth( $post->{lj_form_auth} )
+                && LJ::check_referer('/admin/entryprops');
+        }
         my $entry = LJ::Entry->new_from_url( LJ::trim( $post->{url} ) );
 
         my $url = LJ::ehtml( $post->{url} );
         $errors->add_string( 'url', "$url is not a valid entry URL." )
-            unless $entry && $entry->valid;
+            unless $entry && $entry->correct_anum;
 
         unless ( $errors->exist ) {
 
@@ -111,15 +295,35 @@ sub entryprops_handler {
                 server_time   => $entry->logtime_mysql,
                 adult_content => $journal->adult_content || "none",
             );
+            $entry_info{edit_url} =
+                "$LJ::SITEROOT/users/" . $journal->user . '/' . $entry->ditemid . '.html';
 
-            my %entry_props = %{ $entry->props || {} };
+            my $can_edit_entry = $can_save && !$entry->prop('unknown8bit');
+            my %entry_props    = %{ $entry->props || {} };
+            if ( $post->{_save} ) {
+                my $changes = _entryprop_changes( $post, $errors );
+                $saved =
+                    _save_entryprop_changes( $entry, $remote, $changes, \%entry_props, $errors )
+                    unless $errors->exist;
+            }
             foreach my $prop_name ( sort keys %entry_props ) {
                 my %prop = (
                     name        => $prop_name,
                     value       => $entry_props{$prop_name},
                     description => "",
                 );
-                if ( my $prop_meta = LJ::get_prop( "log", $prop_name ) ) {
+                my $raw_value = $prop{value};
+                if (   $can_edit_entry
+                    && _editable_entryprop($prop_name)
+                    && _is_entryprop_text($raw_value) )
+                {
+                    $prop{field}          = "prop_$prop_name";
+                    $prop{baseline_field} = "baseline_$prop_name";
+                    $prop{baseline}       = encode_base64( $raw_value, '' );
+                    $prop{raw_value}      = $raw_value;
+                    $prop{textarea_value} = "\n$raw_value" if $raw_value =~ /[\r\n]/;
+                }
+                if ( my $prop_meta = LJ::get_prop( 'log', $prop_name ) ) {
                     $prop{description} = $prop_meta->{des};
 
                     # an ugly hack, i know
@@ -178,9 +382,12 @@ sub entryprops_handler {
     }
 
     my $vars = {
-        entry  => %entry_info ? \%entry_info : undef,
-        props  => \@props,
-        errors => $errors,
+        entry          => %entry_info ? \%entry_info : undef,
+        props          => \@props,
+        errors         => $errors,
+        can_save       => scalar grep( $_->{field}, @props ),
+        saved          => $saved,
+        max_prop_chars => LJ::CMAX_PROP,
     };
     return DW::Template->render_template( "admin/entryprops.tt", $vars );
 }
