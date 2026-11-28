@@ -23,8 +23,9 @@ sub new {
     my %opts  = @_;
 
     my $self = {
-        status => delete $opts{status},
-        text   => delete $opts{text},
+        status    => delete $opts{status},
+        text      => delete $opts{text},
+        html_text => delete $opts{html_text},
     };
 
     croak "invalid parameter: status"
@@ -69,18 +70,14 @@ sub as_string {
 sub as_html {
     my $self = shift;
 
-    my $color;
-    if ( $self->is_error ) {
-        $color = "#FF0000";
-    }
-    elsif ( $self->is_success ) {
-        $color = "#008800";
-    }
-    else {
-        $color = "inherit";
-    }
+    my %classes = ( info => 'secondary', success => 'success', error => 'alert' );
+    my $class   = $classes{ $self->status };
+    my $label   = ucfirst $self->status;
 
-    return "<span style='color:$color;'>" . LJ::eall( $self->text ) . "</span>";
+    return
+          "<li class='alert-box $class'><strong>$label:</strong><div class='console-response-text'>"
+        . LJ::ehtml( $self->{html_text} // $self->text )
+        . "</div></li>";
 }
 
 1;
