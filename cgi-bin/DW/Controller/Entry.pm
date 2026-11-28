@@ -1625,11 +1625,11 @@ sub _render_preview {
     LJ::CleanHTML::clean_subject( \$subject );
 
     # preview poll
+    my $poll_error;
     if ( LJ::Poll->contains_new_poll( \$event ) ) {
-        my $error;
         my @polls = LJ::Poll->new_from_html(
             \$event,
-            \$error,
+            \$poll_error,
             {
                 'journalid' => $u->userid,
                 'posterid'  => $up->userid,
@@ -1637,17 +1637,16 @@ sub _render_preview {
         );
 
         my $can_create_poll = $up->can_create_polls || ( $u->is_community && $u->can_create_polls );
-        my $poll_preview    = sub {
-            my $poll = shift @polls;
-            return '' unless $poll;
-            return $can_create_poll
+        foreach my $poll (@polls) {
+            my $preview =
+                  $can_create_poll
                 ? $poll->preview
                 : qq{<div class="highlight-box">}
                 . LJ::Lang::ml('poll.error.accttype')
                 . qq{</div>};
-        };
-
-        $event =~ s/<poll-placeholder>/$poll_preview->()/eg;
+            my $ph = $poll->placeholder;
+            $event =~ s/\Q$ph\E/$preview/;
+        }
     }
 
     # expand existing polls (for editing, or when transferring polls to another entry)
@@ -1675,6 +1674,10 @@ sub _render_preview {
 
     # expand the embedded content for real
     LJ::EmbedModule->expand_entry( $u, \$event, preview => 1 );
+
+    if ($poll_error) {
+        $event = qq{<div class="highlight-box">} . LJ::ehtml($poll_error) . qq{</div>} . $event;
+    }
 
     my $ctx;
     if ( $u && $up ) {

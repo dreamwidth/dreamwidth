@@ -182,6 +182,11 @@ sub contains_new_poll {
     return ( $$postref =~ /<(?:lj-)?poll\b/i );
 }
 
+sub placeholder {
+    my ($self) = @_;
+    return $self->{_placeholder} || '<poll-placeholder>';
+}
+
 # parses poll tags and returns whatever polls were parsed out
 sub new_from_html {
     my ( $class, $postref, $error, $iteminfo ) = @_;
@@ -204,11 +209,18 @@ sub new_from_html {
 
     my @polls;    # completed parsed polls
 
+    my $placeholder = '<poll-placeholder>';
+    my $n           = 0;
+    while ( index( $$postref, $placeholder ) >= 0 ) {
+        $placeholder = "<poll-placeholder-$n>";
+        $n++;
+    }
+
     my $p = HTML::TokeParser->new($postref);
 
     my $err = sub {
         $$error = LJ::Lang::ml(@_);
-        return 0;
+        return;
     };
 
     while ( my $token = $p->get_token ) {
@@ -390,15 +402,16 @@ sub new_from_html {
                 %iopts = ();
             }
 
-            #### not a special tag.  dump it right back out.
-
-            else {
+            elsif ( $qopen || $iopen ) {
                 $append .= "<$tag";
                 foreach ( keys %$opts ) {
                     $opts->{$_} = LJ::no_utf8_flag( $opts->{$_} );
                     $append .= " $_=\"" . LJ::ehtml( $opts->{$_} ) . "\"";
                 }
                 $append .= ">";
+            }
+            else {
+                $append = $token->[4];
             }
         }
         elsif ( $type eq "E" ) {
@@ -421,9 +434,10 @@ sub new_from_html {
                 # create a fake temporary poll object
                 my $pollobj = LJ::Poll->new;
                 $pollobj->absorb_row( \%popts );
+                $pollobj->{_placeholder} = $placeholder;
                 push @polls, $pollobj;
 
-                $append .= "<poll-placeholder>";
+                $append .= $placeholder;
             }
 
             ##### end QUESTION
@@ -470,7 +484,7 @@ sub new_from_html {
             ###### not a special tag.
 
             else {
-                $append .= "</$tag>";
+                $append = ( $qopen || $iopen ) ? "</$tag>" : $token->[2];
             }
         }
         elsif ( $type eq "T" || $type eq "D" ) {
@@ -482,7 +496,7 @@ sub new_from_html {
             $newdata .= $token->[1];
         }
         elsif ( $type eq "PI" ) {
-            $newdata .= "<?$token->[1]>";
+            $newdata .= $popen ? "<?$token->[1]>" : $token->[2];
         }
         else {
             $newdata .= "<!-- OTHER: " . $type . "-->\n";
