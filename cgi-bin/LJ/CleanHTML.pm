@@ -208,6 +208,8 @@ sub clean {
     # say exactly which token a report or a lookup is about.
     my $p = LJ::CleanHTML::NumberedTokens->new($data);
 
+    $p->utf8_mode(1) unless utf8::is_utf8($$data);
+
     # Set up state variables:
     my @canonical_urls;    # extracted links
 
@@ -1433,6 +1435,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
     my $p = HTML::TokeParser->new($data);
+    $p->utf8_mode(1) unless utf8::is_utf8($$data);
 
     # where we look for relative URLs
     my $rel_source = {
