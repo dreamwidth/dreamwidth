@@ -45,8 +45,12 @@ LocalDisk requirements and limitations:
 - Failed tasks remain queued, without retry backoff, a retry limit, or a
   dead-letter queue. Persistent failures require operator attention. A crash
   after executing a task but before deleting its file can repeat its effects.
-- This setting does not replace the separate TheSchwartz database used by legacy
-  workers. Keep that configuration where those workers are enabled.
+- This setting does not replace TheSchwartz, which legacy workers still use.
+  The stock `@THESCHWARTZ_DBS` configuration uses the global database and the
+  `sch_` tables created by `bin/upgrading/update-db.pl`. If you already use a
+  separate queue database, keep its configuration; changing the connection
+  does not migrate queued jobs. For a new separate database, install
+  `doc/schwartz-schema.sql` there and configure the connection without a prefix.
 
 ## Outgoing email
 
