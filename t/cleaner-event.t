@@ -17,10 +17,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 44;
 
-BEGIN { require "$ENV{LJHOME}/t/lib/ljtestlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::CleanHTML;
+use LJ::Lang;
 use HTMLCleaner;
 
 my $orig_post;
@@ -298,5 +299,154 @@ qq{&lt;select ... &gt;&lt;option ... &gt;hello&lt;/option&gt;&lt;option ... &gt;
     is( $orig_post, $clean_post,
         "Full text of entry, with mismatched HTML tags within and with-out the cut" );
 }
+
+subtest 'Unclosed tag warnings preserve invalid markup error precedence' => sub {
+    my $source = '<strong>before <span broken!>after';
+    my ( $parse_error, $cut_warning, $full_entry_warning );
+    my $entry = $source;
+    LJ::CleanHTML::clean_event(
+        \$entry,
+        {
+            editor      => 'html_raw0',
+            cuturl      => '/123.html',
+            errref      => \$parse_error,
+            verbose_err => \$cut_warning,
+        }
+    );
+
+    my $details = ref($cut_warning) eq 'HASH' ? $cut_warning : { error => $cut_warning };
+    is( $parse_error, 'parseerror', 'The invalid markup still triggers a parse error' );
+    is( $details->{error}, '.error.markup.unclosed', 'With a cut URL, the unclosed warning wins' );
+    like( $details->{opts}{tags},
+        qr/&lt;strong&gt;.*?before/, 'The warning includes the unclosed opener and nearby source' );
+
+    $entry = $source;
+    LJ::CleanHTML::clean_event( \$entry,
+        { editor => 'html_raw0', verbose_err => \$full_entry_warning } );
+    is( $full_entry_warning->{error},
+        '.error.markup.extra', 'Without a cut URL, the detailed invalid markup warning wins' );
+};
+
+subtest 'Unclosed tag warnings identify the opening markup' => sub {
+    my $warning_for = sub {
+        my ($entry) = @_;
+        my $warning;
+        LJ::CleanHTML::clean_event( \$entry, { verbose_err => \$warning, editor => 'html_raw0' } );
+        return $warning;
+    };
+
+    my $warning = $warning_for->(
+              'distant one two three four five six seven <strong>eight nine ten eleven twelve '
+            . 'thirteen fourteen distant' );
+    like(
+        $warning->{opts}{tags},
+qr/one two three four five six seven .*?&lt;strong&gt;.*?eight nine ten eleven twelve thirteen fourteen/,
+        'Quotes the source on both sides of an unclosed opening tag'
+    );
+    unlike( $warning->{opts}{tags}, qr/distant/, 'Omits text beyond the nearby words' );
+
+    $warning =
+        $warning_for->( '<div><span>closed</span> first <span title="here > there">real &amp; '
+            . q{'quoted' "text" <b>visible</b></div>} );
+    like(
+        $warning->{opts}{tags},
+qr/&lt;span title=&quot;here &gt; there&quot;&gt;.*?real &amp;amp; &#39;quoted&#39; &quot;text&quot; &lt;b&gt;visible&lt;\/b&gt;/,
+        'Uses the misnested opener, not the earlier closed span, and escapes the quoted source'
+    );
+    unlike( $warning->{opts}{tags},
+        qr/<\/?(?:span|b|div)\b/, 'Entry markup cannot become markup in the warning' );
+
+    $warning = $warning_for->('<textarea>short entry with an unfinished input');
+    like(
+        $warning->{opts}{tags},
+        qr/&lt;textarea&gt;.*?short entry with an unfinished input/,
+        'Includes context when textarea needs its special closing treatment'
+    );
+
+    $warning = $warning_for->('<em>first <strong>second');
+    like(
+        $warning->{opts}{tags},
+        qr{<strong>&lt;strong&gt;</strong>second.*<strong>&lt;em&gt;</strong>first},
+        'Highlights each opening tag separately when both are unclosed'
+    );
+
+    my $after_applet = '<applet>hidden</applet><applet>visible <strong>tail';
+    my $applet_warning;
+    LJ::CleanHTML::clean_event( \$after_applet,
+        { verbose_err => \$applet_warning, editor => 'html_raw0' } );
+    like(
+        $after_applet,
+        qr{visible <strong>tail</strong>},
+        'Keeps content after an unclosed eaten element when generating warnings'
+    );
+    unlike( $after_applet, qr/hidden|<applet\b/, 'Still discards closed eaten elements' );
+    like(
+        $applet_warning->{opts}{tags},
+        qr{visible <strong>&lt;strong&gt;</strong>tail},
+        'Highlights the unclosed tag after an eaten element'
+    );
+
+    my $unicode = "\x{2603} outside <em>inside \x{2603}";
+    $warning = $warning_for->($unicode);
+    like(
+        $warning->{opts}{tags},
+        qr/\x{2603} outside .*?&lt;em&gt;.*?inside \x{2603}/,
+        'Reports the correct location in a character string'
+    );
+    utf8::encode($unicode);
+    $warning = $warning_for->($unicode);
+    like(
+        $warning->{opts}{tags},
+        qr/\xe2\x98\x83 outside .*?&lt;em&gt;.*?inside \xe2\x98\x83/,
+        'Reports the correct location in UTF-8 octets'
+    );
+
+    $warning = $warning_for->( ( 'w ' x 50 ) . '<em>tail' );
+    like(
+        $warning->{opts}{tags},
+        qr/\.\.\. (?:w ){7}<strong>&lt;em&gt;<\/strong>tail/,
+        'Applies seven-word limit before the opener even when character cap also triggers'
+    );
+
+    my $boundary_utf8 =
+          ( 'p' x 20 )
+        . "\x{1F600}"
+        . ( 'q' x 237 )
+        . "\x{2603} "
+        . ( 'b' x 78 )
+        . qq{<em>}
+        . ( 'e' x 79 )
+        . "\x{2603}"
+        . ( 'f' x 237 )
+        . "\x{1F600} trailing";
+    utf8::encode($boundary_utf8);
+    $warning = $warning_for->($boundary_utf8);
+    unlike( $warning->{opts}{tags}, qr/\xef\xbf\xbd/,
+'Truncating UTF-8 octets at 80- and 320-byte boundaries never produces replacement characters'
+    );
+    like(
+        $warning->{opts}{tags},
+        qr/\.\.\. \xe2\x98\x83 b{78}<strong>&lt;em&gt;<\/strong>e{79}\xe2\x98\x83 \.\.\./,
+        'UTF-8 boundary truncation preserves intact characters at the before and after cuts'
+    );
+
+    my $long_opener_utf8 = qq{<span title="} . ( 'c' x 66 ) . "\x{2603}" . ( 'd' x 20 ) . qq{">};
+    utf8::encode($long_opener_utf8);
+    my $opener_ctx = LJ::CleanHTML::_unclosed_tag_context( \$long_opener_utf8,
+        [ 'span', 0, length($long_opener_utf8) ] );
+    unlike( $opener_ctx, qr/\xef\xbf\xbd/,
+        'Truncating UTF-8 octets inside a long opening tag never produces replacement characters' );
+    like(
+        $opener_ctx,
+        qr/<strong>&lt;span title=&quot;c{66}\xe2\x98\x83\.\.\.<\/strong>/,
+        'Long opening tag truncation keeps the 80th multibyte character intact'
+    );
+
+    $warning = $warning_for->( '<strong>' . ( 'x' x 1000 ) . ' nearby words' );
+    unlike( $warning->{opts}{tags}, qr/x{100}/, 'Does not quote an unbounded word' );
+
+    ok( !defined $warning_for->('<strong>closed</strong><ul><li>optional</ul><p>optional'),
+        'No warning for closed tags or optional end tags' );
+};
 
 1;

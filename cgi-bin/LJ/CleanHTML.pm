@@ -14,6 +14,7 @@
 package LJ::CleanHTML;
 use strict;
 
+use Encode qw(decode);
 use URI;
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
@@ -138,6 +139,7 @@ sub clean {
     my $errref               = $opts->{errref};
     my $verbose_err = $opts->{verbose_err};                           # Verbose parse errors
     my @unclosed_tags;
+    my $textarea_opening;
 
     # for ajax cut tag parsing
     my $cut_retrieve = $opts->{cut_retrieve} || 0;
@@ -206,7 +208,8 @@ sub clean {
     # Create the HTML parser we'll use to navigate the text from here on out.
     # It numbers the tokens it hands out (1, 2, 3 ... in source order), so we can
     # say exactly which token a report or a lookup is about.
-    my $p = LJ::CleanHTML::NumberedTokens->new($data);
+    my %parser_opts = $verbose_err ? ( start => "'S',tagname,attr,attrseq,text,offset" ) : ();
+    my $p           = LJ::CleanHTML::NumberedTokens->new( $data, %parser_opts );
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -1103,8 +1106,14 @@ TOKEN:
                             # and only deal with non-self-closing tags
                             # which are not in a table
                             # (but we still want to close <table>; that's not yet inside the table)
-                            push @tagstack, $tag
-                                if !$slashclose && ( $tag eq "table" || !@tablescope );
+                            if ( !$slashclose
+                                && ( $tag eq 'table' || !@tablescope || $tag eq 'textarea' ) )
+                            {
+                                my $opening = [$tag];
+                                push @$opening, $token->[5], length $token->[4] if $verbose_err;
+                                push @tagstack, $opening if $tag eq 'table' || !@tablescope;
+                                $textarea_opening = $opening if $tag eq 'textarea';
+                            }
                         }
                         else { $newdata .= "&gt;"; }
                     }
@@ -1219,12 +1228,13 @@ TOKEN:
                     if ( $allow && !( $opts->{'noearlyclose'} && !$opencount{$tag} ) ) {
 
                         unless (@tablescope) {
-                            my $close;
-                            while ( ( $close = pop @tagstack ) && $close ne $tag ) {
+                            while ( my $opening = pop @tagstack ) {
+                                my ($close) = @$opening;
+                                last if $close eq $tag;
                                 $opencount{$close}--;
                                 next if $close =~ $slashclose_tags;
                                 $newdata .= "</$close>";
-                                push @unclosed_tags, "$close"
+                                push @unclosed_tags, $opening
                                     unless $close eq 'p' || $close eq 'li';
                             }
                         }
@@ -1232,7 +1242,7 @@ TOKEN:
                         # open table
                         if ( $tag eq 'table' ) {
                             pop @tablescope;
-                            pop @tagstack if $tagstack[-1] eq 'table';
+                            pop @tagstack if @tagstack && $tagstack[-1][0] eq 'table';
 
                             # closing tag within current table
                         }
@@ -1263,7 +1273,7 @@ TOKEN:
                 }
 
                 if ( defined $action{$tag}
-                    and $action{$tag} eq "conditional" && $tagstack[-1] eq $tag )
+                    and $action{$tag} eq "conditional" && @tagstack && $tagstack[-1][0] eq $tag )
                 {
                     $newdata .= "</$tag>";
                     pop @tagstack;
@@ -1378,7 +1388,7 @@ TOKEN:
     # if we have a textarea open, we *MUST* close it first
     if ( $opencount{textarea} ) {
         $newdata .= "</textarea>";
-        push @unclosed_tags, "textarea";
+        push @unclosed_tags, $textarea_opening || ['textarea'];
     }
     $opencount{textarea} = 0;
 
@@ -1386,12 +1396,13 @@ TOKEN:
     # don't close tags that don't need a closing tag -- otherwise,
     # we output the closing tags in the wrong place (eg, a </td>
     # after the <table> was closed) causing unnecessary problems
-    foreach my $tag ( reverse @tagstack ) {
+    foreach my $opening ( reverse @tagstack ) {
+        my ($tag) = @$opening;
         next if $tag =~ $slashclose_tags;
         if ( $opencount{$tag} ) {
             $newdata .= "</$tag>";
             $opencount{$tag}--;
-            push @unclosed_tags, $tag unless $tag eq 'p' || $tag eq 'li';
+            push @unclosed_tags, $opening unless $tag eq 'p' || $tag eq 'li';
         }
     }
 
@@ -1406,6 +1417,11 @@ TOKEN:
     # extra-paranoid check
     1 while $newdata =~ s/<script\b//ig;
 
+    if ( $verbose_err && ref($verbose_err) eq 'SCALAR' && @unclosed_tags ) {
+        my $tag_str = join ', ', map { _unclosed_tag_context( $data, $_ ) } @unclosed_tags;
+        $$verbose_err = { error => '.error.markup.unclosed', opts => { tags => $tag_str } };
+    }
+
     $$data = $newdata;
     $$data .= $extra_text if $extra_text;    # invalid markup error
 
@@ -1419,14 +1435,75 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
         $$data = $msg . $$data;
     }
 
-    # only add verbose errors for unclosed tags if we don't have another verbose error set
-    # otherwise, the tags error will overwrite more important errors like irreparable markup
-    if ( $verbose_err && ref($verbose_err) eq 'SCALAR' && scalar(@unclosed_tags) > 0 ) {
-        my $tag_str = "&lt;" . join( "&gt;, &lt;", @unclosed_tags ) . "&gt;";
-        $$verbose_err = { error => ".error.markup.unclosed", opts => { tags => $tag_str } };
+    return 0;
+}
+
+sub _unclosed_tag_context {
+    my ( $source, $opening ) = @_;
+    my ( $tag, $start, $length ) = @$opening;
+    return LJ::ehtml("<$tag>") unless defined $start;
+
+    my $limit  = 80;
+    my $octets = !utf8::is_utf8($$source);
+    my $span   = $octets ? $limit * 4 : $limit;
+    my $left   = $start > $span ? $start - $span : 0;
+    my $right  = $start + $length;
+    my $total  = length $$source;
+
+    # Align byte slices to UTF-8 character boundaries before decoding so valid
+    # multibyte characters are never split into replacement characters.
+    if ($octets) {
+        $left++ while $left < $start && ( ord( substr( $$source, $left, 1 ) ) & 0xC0 ) == 0x80;
     }
 
-    return 0;
+    my $before = substr( $$source, $left,  $start - $left );
+    my $opener = substr( $$source, $start, $length );
+    my $after_end = $right + $span;
+    $after_end = $total if $after_end > $total;
+    if ( $octets && $after_end < $total ) {
+        $after_end--
+            while $after_end > $right
+            && ( ord( substr( $$source, $after_end, 1 ) ) & 0xC0 ) == 0x80;
+    }
+    my $after = substr( $$source, $right, $after_end - $right );
+
+    if ($octets) {
+        $_ = decode( 'UTF-8', $_ ) for ( $before, $opener, $after );
+    }
+
+    my $omitted_before = $left > 0;
+    if ( length($before) > $limit ) {
+        $before         = substr( $before, -$limit );
+        $omitted_before = 1;
+    }
+    my $opener_truncated = length($opener) > $limit;
+    $opener = substr( $opener, 0, $limit ) if $opener_truncated;
+
+    my $omitted_after = $after_end < $total;
+    if ( length($after) > $limit ) {
+        $after         = substr( $after, 0, $limit );
+        $omitted_after = 1;
+    }
+
+    if ( $before =~ s/\A.*?\S+\s+(?=(?:\S+\s+){6}\S+\s*\z)//s ) {
+        $omitted_before = 1;
+    }
+    if ( $after =~ s/(\A\s*(?:\S+\s+){6}\S+)\s+\S.*\z/$1/s ) {
+        $omitted_after = 1;
+    }
+
+    for ( $before, $opener, $after ) {
+        s/\s+/ /g;
+        $_ = LJ::ehtml($_);
+        utf8::encode($_) if $octets;
+    }
+    $before =~ s/\A //;
+    $after  =~ s/ \z//;
+    $before = "... $before" if $omitted_before;
+    $opener .= '...'  if $opener_truncated;
+    $after  .= ' ...' if $omitted_after;
+
+    return "<q>$before<strong>$opener</strong>$after</q>";
 }
 
 # takes a reference to HTML and a base URL, and modifies HTML in place to use absolute URLs from the given base
