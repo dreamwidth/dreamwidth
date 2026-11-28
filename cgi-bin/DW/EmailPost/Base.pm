@@ -18,10 +18,22 @@ use LJ::Emailpost::Web;
 use DW::Formats;
 
 use Encode;
+use HTML::TokeParser ();
 use MIME::Words      ();
 use Unicode::MapUTF8 ();
 
-my $workdir = "/tmp";
+my $workdir          = "/tmp";
+my $html_inline_name = qr{
+    (?:a|abbr|b|bdi|bdo|big|cite|code|del|dfn|em|font|i|ins|kbd|mark
+        |s|samp|small|span|strike|strong|sub|sup|time|tt|u|var)
+}ix;
+my $html_value_inline_name = qr/(?:$html_inline_name|q)/i;
+my $html_block_name        = qr/(?:div|p)/;
+my $html_break_tag         = qr{<br[ \t]*/?>}i;
+my $html_office_open       = qr{<o:p[ \t]*>}i;
+my $html_placeholder_space = qr/(?:[ \t\r\n\f]|&nbsp;)*+/i;
+my $html_office_close      = qr{</o:p[ \t]*>}i;
+my $html_xml_declaration   = qr{<\?xml(?:\s[^<>]*)?\?>}i;
 
 =head1 NAME
 
@@ -37,7 +49,10 @@ This is the basic email posting behavior. Subclasses should implement the follow
 
 =item _parse_destination - given an auth string taken from the "to:" email header, set the user/journal/validated information
 
-=item _process - process the email. ::Base does some of the common cleanup for you. It's up to you to finish the job. Call $self->cleanup_body_final in here
+=item _process
+
+Process the email. Call C<< $self->_extract_post_headers >> before applying post options
+and C<< $self->cleanup_body_final >> before submitting the body.
 
 =back
 
@@ -130,8 +145,7 @@ sub process {
     # get the body and subject from the email
     # processed character encoding, but not cleaned up further than that
     # will probably need further processing before using as entry/comment text
-    $self->_extract_text         or return $self->send_error;
-    $self->_extract_post_headers or return $self->send_error;
+    $self->_extract_text or return $self->send_error;
 
     return $self->_process;
 }
@@ -225,30 +239,331 @@ sub _extract_text {
     return 1;
 }
 
-# extract any lj-*, post-* headers
-# these are not validated; any error-checking must be done by whatever is using them
+# Extract leading lj-* and post-* lines, including unrecognized header names.
+# The post-* values take precedence over their legacy lj-* equivalents.
 sub _extract_post_headers {
-    my $self = $_[0];
+    my ( $self, $headers ) = @_;
+    $headers //= { lj => {}, post => {} };
 
-    my ( %post_headers, $amask );
+    my $body = $self->{body};
+    pos($body) = 0;
 
-    # first look for old style lj headers
-    while ( $self->{body} =~ s/(?:^|\n)lj-(.+?):\s*(.+?)(?:$|\n)//is ) {
-        $post_headers{ lc($1) } = LJ::trim($2);
+    my $is_html = $self->{_tent} && $self->{_tent}->head->mime_type eq 'text/html';
+    my @wrappers;
+    pos($body) = _html_header_offset( $body, \@wrappers ) if $is_html;
+
+    my $start        = pos($body);
+    my $end          = $start;
+    my $markup       = '';
+    my $inline_attrs = qr{
+        \s++
+        (?:
+            [^\s"'<>\/=]++
+            (?:
+                \s*+ = \s*+
+                (?:
+                    "[^"]*" \s*+
+                    | '[^']*' \s*+
+                    | [^\s"'=<>`]++ (?: \s++ | (?=\/?\s*+>) )
+                )
+                | (?: \s++ | (?=\/?\s*+>) )
+            )
+        )*+
+    }x;
+    my $inline_tag =
+        qr{<(?:$html_value_inline_name(?:$inline_attrs)?/?>|/$html_value_inline_name\s*+>)}i;
+    my $value_markup = qr/$inline_tag|$html_office_open$html_placeholder_space$html_office_close/;
+    my $value_text   = $is_html ? qr/(?:[^<\r\n]|$value_markup)*+/ : qr/[^\r\n]*/;
+    my $value_start  = $is_html ? qr/(?:[^ \t\r\n<>]|$inline_tag)/ : qr/[^ \t\r\n<>]/;
+    my $value_end    = $is_html ? qr/(?=<)|\r?\n|\z/ : qr/\r?\n|\z/;
+    my $value_prefix = $is_html ? qr/(?:[ \t]|$value_markup)*+/ : qr/[ \t]*+/;
+    my $next_header  = qr/$value_prefix(?:lj|post)-[^:\r\n]+:/i;
+
+    while (1) {
+        if ( $is_html && $end > $start && $body =~ /\G(?=[ \t\r\n]*<)/gc ) {
+            pos($body) = _html_header_offset( $body, \@wrappers, $end );
+        }
+        my $line_start = pos($body);
+        last if $is_html && $body =~ /\G(?:[ \t]*\r?\n)*(?:lj|post)-[^:<\r\n]*</igc;
+        last unless $body =~ /\G(?:[ \t]*\r?\n)*(lj|post)-([^:\r\n]+):($value_text)$value_end/igc;
+        my ( $prefix, $name, $value ) = ( lc($1), lc($2), $3 );
+        my $retained = '';
+        $value =
+            _html_header_value( \$body, $-[3], $value, $value_markup, \@wrappers, \$retained,
+            $html_value_inline_name )
+            if $is_html;
+        $value = LJ::trim($value);
+
+        my $in_quote           = grep { $_ eq 'q' } @wrappers;
+        my $continuation_start = pos($body);
+        if (   !length($value)
+            && !$in_quote
+            && substr( $body, $continuation_start - 1, 1 ) eq "\n"
+            && $body =~
+            /\G(?!$next_header)[ \t]*+(?!\+[a-z0-9]+\b)(?=$value_start)($value_text)$value_end/igc )
+        {
+            if ($is_html) {
+                my @continuation_wrappers = @wrappers;
+                my $continuation_markup   = '';
+                my $continuation          = LJ::trim(
+                    _html_header_value(
+                        \$body,        $-[1],                   $1,
+                        $value_markup, \@continuation_wrappers, \$continuation_markup,
+                        $html_inline_name
+                    )
+                );
+                if ( length($continuation) && $continuation !~ /\A(?:>|\+[a-z0-9]+\b)/i ) {
+                    $value    = $continuation;
+                    @wrappers = @continuation_wrappers;
+                    $retained .= $continuation_markup;
+                }
+                else {
+                    pos($body) = $continuation_start;
+                }
+            }
+            else {
+                $value = LJ::trim($1);
+            }
+        }
+        $headers->{$prefix}{$name} = $value;
+        $markup .= substr( $body, $end, $line_start - $end ) . $retained;
+        $end = pos($body);
+        last if $in_quote;
     }
 
-    # next look for new style post headers
-    # so if both are specified, this value will be retained
-    while ( $self->{body} =~ s/(?:^|\n)post-(.+?):\s*(.+?)(?:$|\n)//is ) {
-        $post_headers{ lc($1) } = LJ::trim($2);
+    substr( $body, $start, $end - $start, $markup );
+    $body =~ s/\A\s*//;
+    $self->{body}         = $body;
+    $self->{post_headers} = { %{ $headers->{lj} }, %{ $headers->{post} } };
+
+    return $headers;
+}
+
+# Keep the wrapper stack in sync when a tag is consumed as part of a value.
+# Leave unmatched closes and quoted wrappers for the boundary scan to reject.
+sub _html_header_value {
+    my ( $body, $start, $value, $value_markup, $wrappers, $retained, $inline_name ) = @_;
+    my $plain  = '';
+    my $offset = 0;
+    my @openings;
+
+    while ( $value =~ /$value_markup/g ) {
+        my ( $tag_start, $tag_end ) = ( $-[0], $+[0] );
+        $plain .= substr( $value, $offset, $tag_start - $offset );
+        my $raw = substr( $value, $tag_start, $tag_end - $tag_start );
+        unless ( $raw =~ /\A$html_office_open/ || $raw =~ m{\A<$inline_name\s*/>\z} ) {
+            my $token = HTML::TokeParser->new( \$raw )->get_token;
+            if ( $token->[0] eq 'S' && _is_html_header_wrapper( $token, $inline_name ) ) {
+                push @$wrappers, $token->[1];
+                push @openings,  $raw;
+            }
+            elsif ( $token->[0] eq 'E' && _is_html_wrapper_close( $token, $wrappers ) ) {
+                pop @$wrappers;
+                if (@openings) {
+                    pop @openings;
+                }
+                else {
+                    $$retained .= $raw;
+                }
+            }
+            else {
+                pos($$body) = $start + $tag_start;
+                $offset = length $value;
+                last;
+            }
+        }
+        $offset = $tag_end;
     }
 
-    # remove any whitespace between post headers and body
-    $self->{body} =~ s/^\s*//;
+    $$retained .= join '', @openings;
+    return $plain . substr( $value, $offset );
+}
 
-    $self->{post_headers} = \%post_headers;
+# Skip leading breaks, formatting wrappers and empty Outlook <o:p> placeholders.
+# The first prose, quote container or unclosed comment ends the scan.
+sub _html_header_offset {
+    my ( $body, $wrappers, $after_header ) = @_;
+    my $offset       = $after_header // _html_body_offset($body);
+    my $line_start   = $offset;
+    my $at_boundary  = !defined $after_header || substr( $body, 0, $offset ) =~ /\n\z/;
+    my $body_content = substr( $body, $offset );
+    my $parser       = HTML::TokeParser->new( \$body_content );
+    my $document_tag = qr{<(?:!doctype[ \t]+html|html|body)(?:[ \t][^<>\r\n]*)?>}i;
 
-    return 1;
+    while ( my $token = $parser->get_token ) {
+        my ( $type, $text ) = @$token;
+        if ( $type eq 'C' ) {
+            last if $text !~ /\A<!--(?!-?>)(?:(?!--!?>)[\s\S])*+-->\z/;
+            $offset += length $text;
+            $line_start = $offset if $at_boundary;
+        }
+        elsif ( $type eq 'PI' && $token->[2] =~ /\A$html_xml_declaration\z/ ) {
+            $offset += length $token->[2];
+            $line_start = $offset if $at_boundary;
+        }
+        elsif ( $type eq 'S' || $type eq 'D' ) {
+            my $raw    = $type eq 'S' ? $token->[4] : $text;
+            my $length = length $raw;
+            if (
+                $raw =~ /\A$html_break_tag\z/
+                || (   $type eq 'S'
+                    && $text eq 'br'
+                    && _has_safe_html_header_attributes( $token, 1 ) )
+                || ( !defined $after_header && $raw =~ /\A$document_tag\z/ )
+                )
+            {
+                $at_boundary = 1 if $type eq 'S';
+            }
+            elsif ( $type eq 'S' && _is_html_header_wrapper($token) ) {
+                push @$wrappers, $text;
+                $at_boundary = 1 if $text =~ /\A$html_block_name\z/;
+            }
+            elsif ( $type eq 'S' && $raw =~ /\A$html_office_open\z/ ) {
+                my $closing = $parser->get_token or last;
+                if ( $closing->[0] eq 'T' && $closing->[1] =~ /\A$html_placeholder_space\z/ ) {
+                    $length += length $closing->[1];
+                    $closing = $parser->get_token or last;
+                }
+                last unless $closing->[0] eq 'E' && $closing->[2] =~ /\A$html_office_close\z/;
+                $length += length $closing->[2];
+            }
+            else {
+                last;
+            }
+            $offset += $length;
+            $line_start = $offset if $at_boundary && $type eq 'S';
+        }
+        elsif ( $type eq 'E' && _is_html_wrapper_close( $token, $wrappers ) ) {
+            pop @$wrappers;
+            $offset += length $token->[2];
+            $line_start = $offset if $at_boundary;
+        }
+        elsif ( $type eq 'T' ) {
+            $text =~ /\A((?:[ \t]*\r?\n)*)[ \t\f]*/;
+            if ( length $1 ) {
+                $line_start  = $offset + length $1;
+                $at_boundary = 1;
+            }
+            last
+                if $+[0] != length $text
+                && !( @$wrappers
+                && $wrappers->[-1] =~ /\A$html_block_name\z/
+                && $text =~ /\A$html_placeholder_space\z/ );
+            $offset += length $text;
+        }
+        else {
+            last;
+        }
+    }
+
+    return $line_start;
+}
+
+# Closing a matched wrapper preserves a boundary established by a break or block open.
+sub _is_html_wrapper_close {
+    my ( $token, $wrappers ) = @_;
+    my ( undef, $tag, $raw ) = @$token;
+    return @$wrappers && $tag eq $wrappers->[-1] && $raw =~ m{\A</\Q$tag\E\s*>\z}i;
+}
+
+sub _is_html_header_wrapper {
+    my ( $token, $inline_name ) = @_;
+    $inline_name //= $html_inline_name;
+    my $tag    = $token->[1];
+    my $inline = $tag =~ /\A$inline_name\z/;
+    return unless $inline || $tag =~ /\A$html_block_name\z/;
+
+    return _has_safe_html_header_attributes( $token, $inline );
+}
+
+sub _has_safe_html_header_attributes {
+    my ( $token, $allow_all ) = @_;
+    my ( undef, undef, $attrs, $attr_order ) = @$token;
+    my %seen;
+    return
+        if grep { $seen{$_}++ || ( !$allow_all && !/\A(?:align|class|dir|id|lang|style|title)\z/ ) }
+        @$attr_order;
+    return if exists $attrs->{cite} || ( $attrs->{type} // '' ) =~ /\Acite\z/i;
+
+    return !grep {
+        /\A(?:x_)*(?:gmail_(?:attr|extra|quote(?:_container)?)|yahoo_quoted|protonmail_quote
+            |moz-(?:cite-prefix|forward-container)|divrplyfwdmsg|appendonsend|olk_src_body_section
+            |zmail_extra|quoted?)\z/ix
+    } split /\s+/, join ' ', $attrs->{class} // '', $attrs->{id} // '';
+}
+
+# Skip document metadata before the body, including inert head templates and
+# noscript content. Stop when visible content begins, even without a <body> tag.
+sub _html_body_offset {
+    my ($body) = @_;
+    my $parser = HTML::TokeParser->new( \$body );
+    my ( $offset, $seen_head, $closed_head ) = ( 0, 0, 0 );
+    my @head_content;
+
+    while ( my $token = $parser->get_token ) {
+        my ( $type, $tag ) = @$token;
+        if ( $type eq 'S' ) {
+            if (@head_content) {
+                if ( $head_content[-1] eq 'template' ) {
+                    last if $tag =~ /\A(?:html|head|body|frameset)\z/;
+                    push @head_content, $tag if $tag eq 'template';
+                }
+                else {
+                    last
+                        unless $head_content[-1] eq 'noscript' && $tag =~ /\A(?:link|meta|style)\z/;
+                    push @head_content, $tag if $tag eq 'style';
+                }
+            }
+            elsif ( $tag eq 'body' ) {
+                return $offset + length $token->[4];
+            }
+            elsif ( $tag ne 'html' || $seen_head ) {
+                last if $closed_head;
+                if ( $tag =~ /\A(?:title|style|script|noscript|template)\z/ ) {
+                    push @head_content, $tag;
+                }
+                elsif ( $tag !~ /\A(?:base|link|meta)\z/ && ( $tag ne 'head' || $seen_head ) ) {
+                    last;
+                }
+                $seen_head = 1;
+            }
+            $offset += length $token->[4];
+        }
+        elsif ( $type eq 'E' ) {
+            if (@head_content) {
+                if ( $tag eq $head_content[-1] ) {
+                    pop @head_content;
+                }
+                elsif ($head_content[-1] ne 'template'
+                    || $tag =~ /\A(?:html|head|body|frameset)\z/ )
+                {
+                    last;
+                }
+            }
+            elsif ( !$closed_head && $tag eq 'head' ) {
+                $seen_head = $closed_head = 1;
+            }
+            else {
+                last;
+            }
+            $offset += length $token->[2];
+        }
+        elsif ( $type eq 'PI' && $token->[2] =~ /\A$html_xml_declaration\z/ ) {
+            $offset += length $token->[2];
+        }
+        elsif ($type eq 'C'
+            || ( $type eq 'D' && $tag =~ /\A<!doctype\s+html\b/i )
+            || ( $type eq 'T' && $tag !~ /[^ \t\r\n\f]/ )
+            || ( $type eq 'T' && @head_content && $head_content[-1] ne 'noscript' ) )
+        {
+            $offset += length $tag;
+        }
+        else {
+            last;
+        }
+    }
+
+    return @head_content ? 0 : $offset;
 }
 
 # given a content-type header, return a hash of content-type attributes

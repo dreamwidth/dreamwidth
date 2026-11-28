@@ -13,7 +13,14 @@ post-screenlevel: anon
 post-mood: curious
 
 post-music: Jonathan Coulton -- Code Monkey
-
-This is a test post.
-
+post-secruity: name of a private access group
 post-security: foo, bar
+lj-security: public
+
+For Sweeney Todd: Sweeney/Nellie,
+post-canon, pre-canon, everybody lives AU
+Unwilling to address: character x reader
+post-canon: everyone's alive
+post-war: rebuilding
+post-security: public
+lj-mood: happy

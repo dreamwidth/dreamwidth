@@ -1,0 +1,10 @@
+To: ${TEMPUSER}@${POSTDOMAIN}
+From: ${FROM_EMAIL}
+Date: Mon, 1 Jan 2007 12:28:00 -0800
+Subject: Testing emailpost headers after a body PIN
+
++${EMAILPIN}
+
+post-security: private
+
+A private post.

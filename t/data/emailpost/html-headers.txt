@@ -1,0 +1,16 @@
+To: ${TEMPUSER}+${EMAILPIN}@${POSTDOMAIN}
+From: ${FROM_EMAIL}
+Date: Mon, 1 Jan 2007 12:28:00 -0800
+Subject: Testing emailpost headers in HTML
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+
+<html>
+<body>
+post-format: html
+post-security: private
+
+<p>Story notes:</p>
+post-war: rebuilding
+</body>
+</html>
