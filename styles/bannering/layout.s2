@@ -110,6 +110,7 @@ set text_post_comment_friends = "Reply";
 ##============
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
 
     var string header_inner_background = generate_background_css ($*image_background_header_inner_url, $*image_background_header_inner_repeat, $*image_background_header_inner_position, $*color_header_inner_background);
@@ -433,6 +434,33 @@ $navlinks_css
 
 #footer { text-align: right;
     padding: .5em 2em; }
+
+@media $small_media_query {
+    #canvas { margin-inline: 0; }
+    #content { margin: 1em 0 0; padding-inline: .5em; }
+    #primary > .inner:first-child { padding-inline: 0; }
+    #header > .inner:first-child { padding-inline: 0; }
+    #header .module-navlinks { margin-bottom: 0; padding-inline: .5em; }
+
+    .has-userpic .entry .header,
+    .has-userpic .comment .header { margin-inline: 0; }
+
+    .has-userpic .entry .userpic,
+    .has-userpic .comment .userpic { margin-top: 0; }
+
+    .entry .header,
+    .comment .header { overflow-wrap: break-word; }
+
+    .entry-content,
+    .comment-content {
+        clear: both;
+        overflow-x: auto;
+    }
+
+    #content .module-content { overflow-x: auto; }
+
+    #content .module { max-width: 100%; box-sizing: border-box; }
+}
 
     """;
 }
