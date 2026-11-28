@@ -2,9 +2,17 @@
 
 .btn.deleteinactive=Delete all inactive tracked items
 
+.btn.delete=Delete tracking
+
 .btn.save=Save
 
+.check_all_email=Check all email options
+
 .confirm.deleteinactive=Are you sure you want to delete all inactive tracked items?
+
+.email=Also notify me by email
+
+.success.deleted=You have successfully deleted the tracked item.
 
 .user=View notifications for user:
 

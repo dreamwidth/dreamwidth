@@ -2514,6 +2514,7 @@ general /manage/settings/index.bml.navstrip.options.show
 general /manage/settings/index.bml.public.helper
 general /manage/settings/index.bml.stylealwaysmine
 general /manage/settings/index.bml.stylealwaysmine.text
+general /manage/settings/index.bml.success.deleteinactive2
 general /manage/settings/index.bml.title.comm
 general /manage/settings/index.bml.title.self
 general /manage/settings/index.bml.verticalincl
