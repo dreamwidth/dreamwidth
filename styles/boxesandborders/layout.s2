@@ -520,6 +520,31 @@ $navlinks_css
     text-decoration: none; }
 
 $userpic_css
+
+@media only screen and (max-width: 45em) {
+    #canvas { margin-inline: 0; }
+    #primary > .inner:first-child { padding: 8px; }
+
+    #title, #subtitle, #pagetitle { padding-right: 8px; }
+    #header-decoration { margin-left: 8px; }
+
+    #header .module-navlinks ul {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+    }
+
+    .entry-title,
+    .comment-title { overflow-wrap: anywhere; }
+
+    .entry .contents > .inner,
+    .comment .contents > .inner,
+    .module-content {
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+    }
+}
     """;
 
 
