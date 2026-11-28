@@ -58,7 +58,7 @@
         <tr class='field_block' role="row">
             <td class='field_name' role="cell">[% dw.ml('.fn.name2') %]</td>
             <td role="cell">
-                [% form.textbox( name => 'name', value => u.name_orig,
+                [% form.textbox( name => 'name', default => u.name_orig,
                                         title => dw.ml('.fn.name2'),
                                         size => '35', maxlength => '50' ) %]
                 <div class='helper'>[% dw.ml('.name') %]</div>
@@ -76,7 +76,7 @@
             <td role="cell">
                 [%# strip HTML out of title %]
                 [% form.select(  name => 'gender', title => dw.ml('.fn.gender1'),
-                                       selected => (u.prop( 'gender' ) || 'U' ),
+                                       default => (u.prop( 'gender' ) || 'U' ),
                                     items => [
                                      'F', dw.ml('.gender.female'),
                                      'M', dw.ml('.gender.male'),
@@ -94,16 +94,16 @@
             <td class='field_name' role="cell">[% dw.ml('.fn.birthday') %]</td>
             <td class='bday_field' role="cell">
                 [%- form.select( name => 'month', title => dw.ml('.fn.birthday.month'),
-                                 selected => ( bdpart.month ? bdpart.month + 0 : 0 ),
+                                 default => ( bdpart.month ? bdpart.month + 0 : 0 ),
                                 items => month_select,
                                 class => 'inline'
                                  ) -%]
-                [%- form.textbox( name => 'day', value => bdpart.day,
+                [%- form.textbox( name => 'day', default => bdpart.day,
                                  size => '3', maxlength => '2',
                                  title => dw.ml('.fn.birthday.day'),
                                 class => 'inline' ) -%]
 
-                [%- form.textbox( name => 'year', value => bdpart.year,
+                [%- form.textbox( name => 'year', default => bdpart.year,
                                  size => '5', maxlength => '4',
                                  title => dw.ml('.fn.birthday.year'),
                                 class => 'inline' ) -%]
@@ -111,7 +111,7 @@
                 <div style="padding-top: .5em;">
                 [% form.select( name => 'opt_showbday',
                                    title => dw.ml('.fn.birthday.level'),
-                                   selected => u.opt_showbday,
+                                   default => u.opt_showbday,
                                 items => [
                                  'N', dw.ml('.show.birthday.nothing2'),
                                  'D', dw.ml('.show.birthday.day2'),
@@ -123,7 +123,7 @@
                 [% form.select( name => 'opt_sharebday',
                                    title => dw.ml( '.privacy.title',
                                             { name => dw.ml('.fn.birthday' ) } ),
-                                   selected => opt_sharebday,
+                                   default => opt_sharebday,
                                    items => showtoopts,
                                    label =>  dw.ml('.showto')) %]
             </td>
@@ -132,12 +132,19 @@
         [%# location %]
         <tr class='field_block' role="row">
             <td class='field_name' role="cell">[% dw.ml('.fn.location') %]</td>
-            <td role="cell">[% location %]</td>
+            <td role="cell">[% location %]
+                <noscript>
+                    <p>[% dw.ml('.location.refresh.note') %]</p>
+                    [% form.hidden( name => 'location_country', value => location_country ) %]
+                    [% form.submit( name => 'refresh_country', value => dw.ml('.location.refresh'),
+                                    formnovalidate => 'formnovalidate' ) %]
+                </noscript>
+            </td>
             <td class='selectvis' role="cell">
             [% form.select(  name => 'opt_showlocation',
                                    title => dw.ml( '.privacy.title',
                                             { name => dw.ml('.fn.location') } ),
-                                   selected => u.opt_showlocation ,
+                                   default => u.opt_showlocation ,
                                    items => showtoopts,
                                    label =>  dw.ml('.showto')) %]
             </td>
@@ -159,7 +166,7 @@
         <tr class='field_block' role="row">
             <td class='field_name' role="cell">[% dw.ml('.fn.link2') %]</td>
             <td role="cell">[% form.textbox( name => 'url', 
-                            value => u.url,
+                            default => u.url,
                             title => dw.ml('.fn.link2'),
                             size => '45', 
                             maxlength => '255') %]
@@ -173,7 +180,7 @@
         <tr class='field_block' role="row">
             <td class='field_name' role="cell">[% dw.ml('.fn.sitename2') %]</td>
             <td role="cell">[% form.textbox( name => 'urlname', 
-                            value => u.urlname,
+                            default => u.urlname,
                             title => dw.ml('.fn.sitename2'),
                             size => '45', 
                             maxlength => '255' )%]
@@ -201,7 +208,7 @@
             <td class="selectvis" role="cell">[% form.select( name => 'opt_whatemailshow',
                         title => dw.ml( '.display.title',
                                 { name => dw.ml('.fn.email.system') } ),
-                        selected => cur,
+                        default => cur,
                         items => [
                                  'A', dw.ml('.security.visibility.privacy'),
                                  'N', dw.ml('.security.visibility.noshow') ],
@@ -228,7 +235,7 @@
                     name => 'opt_usesite',
                     title => dw.ml( '.display.title',
                         { name => dw.ml( '.fn.email.site', { siteabbrev => site.nameabbrev } ) } ),
-                    selected => checked,
+                    default => checked,
                     items => [
                         'Y', dw.ml('.security.visibility.privacy'),
                         'N', dw.ml('.security.visibility.noshow')
@@ -281,8 +288,8 @@
             </div>
         [% END %]
 
-            [%# ignore legacy userprops if %$profile_accts has been populated %]
-            [% IF profile_accts.size %]
+            [%# On POST keep submitted row positions and IDs, including unsaved additions. %]
+            [% IF profile_accts.size && !did_post %]
                 [% FOREACH p IN services %]
                     [% s_id = p.service_id;
                     NEXT UNLESS profile_accts.$s_id %]
@@ -291,7 +298,7 @@
                         [% ct = ct + 1 %]
                     [% END %]
                 [% END %]
-            [% ELSE %]
+            [% ELSIF !did_post %]
                 [% FOREACH p IN services %]
                     [% NEXT UNLESS p.userprop;
                         val = u.${p.userprop};
@@ -301,20 +308,29 @@
                 [% END %]
             [% END %]
 
-            [% WHILE ct <= 26 %]
+            [% WHILE ct <= 26;
+                dbid_name = "extservice_dbid_$ct";
+                value_name = "extservice_val_$ct";
+                existing_id = formdata.$dbid_name;
+                existing_service = existing_services.$existing_id;
+                IF did_post && existing_service;
+                    service( existing_service, [existing_id, formdata.$value_name], ct );
+                ELSE %]
                 <div class="service_block">
                 <div class='field_name service_new'>
                 [% form.select( name => "extservice_site_$ct" , class = "inline", items => service_dropdown ) %]
                 </div>
+                [% form.hidden( name => "extservice_dbid_$ct" ) IF did_post %]
                 [% form.textbox(name => "extservice_val_$ct",
                                 id => "extservice_val_$ct",
-                                value => '',
+                                default => '',
                                 title => "Username \#$ct",
                                 size => '20',
                                 class => 'inline'
                                 maxlength => 255 ) %]
                 </div>
-                [% ct = ct + 1 %]
+                [% END; # existing or new service
+                   ct = ct + 1 %]
             [% END %]
             </div>
 </td></tr>
@@ -330,7 +346,7 @@
                         title => dw.ml('.section.bio2'),
                         rows => '10', cols => '50',
                         wrap => 'soft',
-                        value => saved.bio ) %]
+                        default => saved.bio ) %]
 
     [%## INTERESTS %]
     <div class='section_head'><a name='interests'></a>[% dw.ml('.section.interests') %]</div>
@@ -338,14 +354,14 @@
         <p>[% dw.ml('.fn.commdescription2') %]</p>
         [% form.textbox( name => 'comm_theme',
                         title => dw.ml('.fn.commdesc'),
-                        value => u.comm_theme,
+                        default => u.comm_theme,
                         size => '50', maxlength => '100' ) %]
     [% END %]
 
     <p>[% dw.ml(".fn.interests$iscomm") %]</p>
     [% form.textarea( name => 'interests',
                         title => dw.ml('.section.interests'),
-                        value => interests,
+                        default => interests,
                         rows => '10', cols => '50', wrap => 'soft' ) %]
 
     [%## CIRCLE %]
@@ -363,9 +379,9 @@
             <td class='field_name' role="cell">[% dw.ml('.fn.mutualfriends3') %]</td>
             <td class="check-cell" role="cell">
                 [% form.checkbox( 
-                            name => 'opt_showmutualfriends',
+                            name => 'opt_showmutualfriends', value => 1,
                             id => 'opt_showmutualfriends', 
-                            selected => u.opt_showmutualfriends ) %]
+                            default => u.opt_showmutualfriends ) %]
             </td>
             <td class="label-cell" role="cell">
                 <label for='opt_showmutualfriends'>[% dw.ml('.mutualfriends3') %]</label>
@@ -378,9 +394,9 @@
                 [% u.is_community ? dw.ml('.fn.subscriberof') : dw.ml('.fn.friendof3') %]
             </td>
             <td class="check-cell" role="cell">
-                [% form.checkbox(  name => 'opt_hidefriendofs',
+                [% form.checkbox(  name => 'opt_hidefriendofs', value => 1,
                             id => 'opt_hidefriendofs', 
-                            selected => !u.opt_hidefriendofs )  %]
+                            default => !u.opt_hidefriendofs )  %]
             </td>
             <td class="label-cell" role="cell">
                 <label for='opt_hidefriendofs'>
@@ -393,9 +409,9 @@
         <tr class='field_block'>
             <td class='field_name' role="cell">[% dw.ml('.fn.comms') %]</td>
             <td class="check-cell" role="cell">
-                [% form.checkbox( name => 'opt_hidememberofs',
+                [% form.checkbox( name => 'opt_hidememberofs', value => 1,
                                 id => 'opt_hidememberofs', 
-                                selected => ! u.opt_hidememberofs ) %]
+                                default => ! u.opt_hidememberofs ) %]
             </td>
             <td class="label-cell" role="cell">
                 <label for='opt_hidememberofs'>[% dw.ml('.comms2') %]</label>

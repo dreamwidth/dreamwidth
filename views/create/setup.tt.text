@@ -2,4 +2,10 @@
 
 .field.name=Name
 
+.error.state.unavailable=Your state or region could not be matched to this country's choices. Select a state or change your country before saving.
+
+.location.refresh=Update state choices
+
+.location.refresh.note=After changing your country, update the state choices before entering your state or region. This does not save your profile.
+
 .title=Set Up Your [[sitename]] Account

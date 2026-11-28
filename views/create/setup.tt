@@ -49,6 +49,15 @@ the same terms as Perl itself.  For a copy of the license, please reference
 
 [%- dw.scoped_include( 'components/location.tt', countries_with_regions = countries_with_regions ) -%]
 
+<noscript>
+<div class="row"><div class="columns">
+    <p>[%- '.location.refresh.note' | ml -%]</p>
+    [%- form.hidden( name = 'location_country', value = formdata.country ) -%]
+    [%- form.submit( name = 'refresh_country', value = dw.ml( '.location.refresh' ),
+                    formnovalidate = 'formnovalidate' ) -%]
+</div></div>
+</noscript>
+
 </fieldset>
 
 <fieldset>
