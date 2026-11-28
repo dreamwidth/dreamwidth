@@ -737,11 +737,14 @@ sub load_include {
     return $val if $val;
 
     # straight database hit
-    my $dbh = LJ::get_db_writer();
-    $val = $dbh->selectrow_array( "SELECT inctext FROM includetext " . "WHERE incname=?",
-        undef, $file );
-    LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
-    return $val if $val;
+    if ( my $dbh = LJ::get_db_writer() ) {
+        $val = $dbh->selectrow_array( 'SELECT inctext FROM includetext WHERE incname=?',
+            undef, $file );
+        if ($val) {
+            LJ::MemCache::set( "includefile:$file", $val, time() + 3600 );
+            return $val;
+        }
+    }
 
     # if not in memcache, hit disk -- if it exists
     my $filename = "$LJ::HTDOCS/inc/$file";
