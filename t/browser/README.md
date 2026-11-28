@@ -18,6 +18,8 @@ node t/browser/message-length.js
 Each test prints `PASS: ...` lines and exits non-zero on failure. Set `DW_BROWSER_BASE` to test a server other than
 `http://127.0.0.1:8080`.
 
+To check a page in Firefox or an old browser engine such as Waterfox Classic, see `doc/OLD-BROWSERS.md`.
+
 ## Writing one
 
 A test here must run with that single command and no other setup:
