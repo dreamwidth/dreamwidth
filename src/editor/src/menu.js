@@ -733,6 +733,14 @@ export function buildToolbar(schema, strings, pageOptions) {
         moreBtn.setAttribute("aria-expanded", "true");
         document.addEventListener("mousedown", onOutsideMore, true);
     });
+    // A button used from the panel closes it, so it doesn't sit over the
+    // text; one that opens a menu (alignment, tables) leaves it open for
+    // that menu, whose items close it in turn.
+    morePanel.addEventListener("click", (e) => {
+        const button = e.target.closest("button");
+        if (!button || button.classList.contains("dw-editor-dropdown-button")) return;
+        closeMore();
+    });
     morePanel.addEventListener("keydown", (e) => {
         if (e.key != "Escape" || e.defaultPrevented) return;
         closeMore();

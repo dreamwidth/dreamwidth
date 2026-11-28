@@ -18681,6 +18681,12 @@ var DWEditor = (() => {
       moreBtn.setAttribute("aria-expanded", "true");
       document.addEventListener("mousedown", onOutsideMore, true);
     });
+    morePanel.addEventListener("click", (e) => {
+      const button = e.target.closest("button");
+      if (!button || button.classList.contains("dw-editor-dropdown-button"))
+        return;
+      closeMore();
+    });
     morePanel.addEventListener("keydown", (e) => {
       if (e.key != "Escape" || e.defaultPrevented)
         return;
