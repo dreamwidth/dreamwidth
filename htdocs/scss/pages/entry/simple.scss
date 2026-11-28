@@ -108,6 +108,10 @@
     #submitbar {
         label { font-size: 13px; }
         #js-security { float: none; }
+        .custom-groups {
+            margin: .5em 0;
+            text-align: left;
+        }
     }
 
     #currentdate { display: inline; }
@@ -230,8 +234,6 @@
         text-align: center;
         padding-top: 6px;
     }
-
-    #js-custom-groups-edit { margin-left: .3em; }
 
     .community-administration label {
         font-size: 11px;

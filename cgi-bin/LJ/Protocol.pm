@@ -1388,10 +1388,11 @@ sub postevent {
 
     ## if newpost_minsecurity is set, new entries have to be
     ## a minimum security level
+    my $minsecurity = $uowner->newpost_minsecurity;
     $security = "private"
-        if $uowner->{'newpost_minsecurity'} eq "private";
+        if $minsecurity eq "private";
     ( $security, $qallowmask ) = ( "usemask", 1 )
-        if $uowner->{'newpost_minsecurity'} eq "friends"
+        if $minsecurity eq "friends"
         and $security eq "public";
 
     my $qsecurity = $dbh->quote($security);
@@ -1401,10 +1402,11 @@ sub postevent {
         if $ownerid != $posterid &&                            # community post
         $req->{'security'} eq "usemask" && $qallowmask != 1;
 
-    ## make sure user can't post with "private security" on communities they don't manage
+    ## only community admins can choose private security unless it is required
     return fail( $err, 106 )
         if $ownerid != $posterid &&                            # community post
         $req->{'security'} eq "private"
+        && $minsecurity ne "private"
         && !$u->can_manage($uowner);
 
     # make sure this user isn't banned from posting here (if

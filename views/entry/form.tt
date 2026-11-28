@@ -263,6 +263,7 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
                     -%]</li>
                 </ul>
             </div>
+            [%- dw.scoped_include( "entry/module-access.tt" ) %]
         </div></div>
     </div>
     </div> <!-- End main column sub & entry -->
@@ -316,14 +317,13 @@ postFormInitData.journalBases[[% journal.user | js %]] = [% journal.journal_base
     </div>
     [%- END -%]
 
+    [%- UNLESS remote -%]
     <div class="row components js-only">
         <div class="columns">
-            [%- dw.scoped_include( "entry/module-access.tt" ) %]
-            [%- UNLESS remote -%]
-                [%- dw.scoped_include( "entry/login.tt" ) -%]
-            [%- END -%]
+            [%- dw.scoped_include( "entry/login.tt" ) -%]
         </div>
     </div>
+    [%- END -%]
 
     <div class="row">
         <div class="columns">

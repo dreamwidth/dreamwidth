@@ -169,39 +169,40 @@ var postForm = (function($) {
     var initSecurity = function($form, security_options, opts) {
         var $custom_groups = $("#js-custom-groups");
         var $custom_access_group_members = $("#js-custom-group-members");
-        var $custom_edit_button = $('<button class="secondary" data-reveal-id="js-custom-groups" aria-label="Edit custom entries">Edit</button>');
         var $security_select = $("#js-security");
+        var journalAllowsCustom = false;
+        var journalUpdate = 0;
+        var memberUpdate = 0;
 
-        // create an "edit custom groups" button
-        $security_select.closest(".fancy-select")
-                .after($custom_edit_button);
+        function usesCustomGroups() {
+            return journalAllowsCustom && $security_select.val() === "custom";
+        }
 
-        // show the custom groups modal
-        $security_select.change( function(e, init) {
-            var $this = $(this);
-
-            if ( $this.val() == "custom" ) {
-                if ( !init ) {
-                    $custom_groups.foundation('reveal', 'open');
-                }
-                $custom_edit_button.show();
+        function updateCustomGroups() {
+            var custom = usesCustomGroups();
+            $custom_groups.prop({ hidden: !custom, disabled: !custom });
+            if ( custom ) {
+                updatePostingMembers();
             } else {
-                $custom_edit_button.hide();
+                ++memberUpdate;
+                $custom_access_group_members.empty().parent().prop("hidden", true);
             }
-        }).triggerHandler("change", true);
+        }
 
         // update the list of people who can see the entry
-        function updatePostingMembers(e, useCached) {
+        function updatePostingMembers() {
+            var journal = $form.data("journal");
+            if ( !journal || !usesCustomGroups() ) return;
+            var update = ++memberUpdate;
             var members_data = []
             var requests = []
 
-            if(useCached && $custom_access_group_members.data("fetched")) return;
-            $custom_access_group_members.data("fetched", true);
-
             $custom_groups.find(":checkbox").each(function() {
                 if (this.checked) {
-                    requests.push($.getJSON("/__rpc_general?mode=list_filter_members&user=" + $form.data("journal") + "&filterid=" + this.value, function(data) {
-                        for ( member in data.filter_members.filterusers) {
+                    requests.push($.getJSON("/__rpc_general", {
+                        mode: "list_filter_members", user: journal, filterid: this.value
+                    }, function(data) {
+                        for ( var member in data.filter_members.filterusers) {
                             var the_name = data.filter_members.filterusers[member].fancy_username;
                             var position = members_data.indexOf(the_name);
                             if( position == -1) {
@@ -213,55 +214,21 @@ var postForm = (function($) {
             });
 
             $.when.apply($, requests).done(function() {
+                if ( update !== memberUpdate ) return;
                 var members_data_list = "";
                 members_data.sort();
                 members_data.forEach(function(member) {
                     members_data_list = members_data_list + "<li>" + member + "</li>";
                 });
                 
-                $custom_access_group_members.html(members_data_list);
+                $custom_access_group_members.html(members_data_list).parent()
+                    .prop("hidden", !members_data.length);
             });
         }
 
-        function saveCurrentGroups() {
-           $custom_groups.data( "original_data", $custom_groups.find("input[name=custom_bit]").serializeArray() );
-        }
-
-        function onOpen() {
-            updatePostingMembers(undefined, true);
-            saveCurrentGroups();
-        }
-
-        function close(e) {
-            e.preventDefault();
-
-            // hide the modal (retains current state)
-            $custom_groups.foundation('reveal', 'close');
-            $custom_groups.detach().appendTo(".components.js-only");
-        }
-
-        function cancel() {
-            // reset to initial selected custom groups
-            var data = $custom_groups.data("original_data");
-            var groups = {};
-            for ( var i = 0; i < data.length; i++ ) {
-                groups[data[i].value] = true;
-            }
-
-            $custom_groups.find("input[name=custom_bit]").each(function(i, elem) {
-                if (groups[elem.value]) {
-                    $(elem).prop("checked", "checked")
-                } else {
-                    $(elem).removeProp("checked");
-                }
-            });
-        }
-
-        $custom_groups.find("input[name=custom_bit]").click(updatePostingMembers);
-        $(document).on('open.fndtn.reveal', "#js-custom-groups", onOpen);
-        $("#js-custom-groups-select").click(close);
-        $custom_groups.find(".close-reveal-modal").click(cancel);
-
+        $security_select.change(updateCustomGroups);
+        $custom_groups.on("change", "input[name=custom_bit]", updatePostingMembers);
+        updateCustomGroups();
 
         // update the options when journal changes
         function adjustSecurityDropdown(data, journal) {
@@ -285,68 +252,63 @@ var postForm = (function($) {
                     '>' + security.label + '</option>';
             }
 
-            var $security = $("#js-security");
-            var oldval = $security.closest('select').find('option').filter(':selected').val();
-            var rank = { "public": "0", "access": "1", "private": "2", "custom": "3" };
+            var info = data.ret || {};
+            var isCommunity = info.is_comm;
+            var oldval = $security_select.val();
+            var minsecurity = info.minsecurity;
+            var options;
 
-            $security.empty();
-            if ( data.ret ) {
-                if ( data.ret["minsecurity"] == "friends" ) data.ret["minsecurity"] = "access";
-
-                var opts;
-                if ( data.ret['is_comm'] ) {
-                    opts = [
-                        createOption( "public" ),
-                        createOption( "members" )
-                    ];
-
-                    if ( data.ret['can_manage'] )
-                        opts.push( createOption( "admin" ) );
-                } else {
-                    opts = [
-                        createOption( "public" ),
-                        createOption( "access" ),
-                        createOption( "private" )
-                    ];
-
-                    if ( data.ret['friend_groups_exist'] )
-                        opts.push( createOption( "custom" ) );
+            if ( isCommunity ) {
+                options = ["public", "members"];
+                var hasAdminAudience = info.can_manage || minsecurity === "private";
+                if ( hasAdminAudience ) {
+                    options.push("admin");
                 }
-                $security.append(opts.join(""));
-
-                // select the minsecurity value and disable the values with lesser security
-                var minsecrank = rank[data.ret['minsecurity']] || 0;
-                $security.val(rank[oldval] >= minsecrank ? oldval : data.ret['minsecurity']);
-                if ( data.ret['minsecurity'] == 'access' ) {
-                    $security.find("option[value='public']").prop("disabled", true);
-                } else if ( data.ret['minsecurity'] == 'private' ) {
-                    $security.find("option[value='public'],option[value='access'],option[value='custom']")
-                        .prop("disabled", true);
+                if ( oldval === "custom" || (oldval === "private" && !hasAdminAudience) ) {
+                    oldval = "access";
                 }
-
-                $security.trigger( "change" );
             } else {
-                $security
-                    .append([
-                        createOption( "public" ),
-                        createOption( "access" ),
-                        createOption( "private" )
-                    ].join(""))
-                    .val(oldval)
-                    .trigger( "change" );
+                options = ["public", "access", "private"];
+                if ( info.friend_groups_exist && $custom_groups.length ) {
+                    options.push("custom");
+                }
             }
 
+            $security_select.html(options.map(createOption).join(""));
+            if ( minsecurity === "friends" || minsecurity === "access" ) {
+                $security_select.find("option[value='public']").prop("disabled", true);
+            } else if ( minsecurity === "private" ) {
+                $security_select.find("option:not([value='private'])").prop("disabled", true);
+            }
+
+            var $enabled = $security_select.find("option:enabled");
+            var $preferred = $enabled.filter(function() { return this.value === oldval; });
+            $security_select.val(($preferred.length ? $preferred : $enabled.first()).val())
+                .trigger("change");
         }
 
         $form.bind( "journalselect", function(e, journal) {
-            var anon = ! journal.name;
+            var update = ++journalUpdate;
+            journalAllowsCustom = !!journal.name && !journal.iscomm;
+            var wasCustom = $security_select.val() === "custom";
+            if ( journal.iscomm ) {
+                $security_select.find("option[value='custom']").prop("disabled", true);
+            }
+            if ( journal.iscomm && wasCustom ) {
+                $security_select.val("access").trigger("change");
+            } else {
+                updateCustomGroups();
+            }
             if ( $security_select.length > 0 ) {
-                if ( anon ) {
+                if ( !journal.name ) {
                     // no custom groups
                     adjustSecurityDropdown({})
                 } else if ( ! opts.edit ) {
-                    $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions",
-                    { "user": journal.name }, function(data) { adjustSecurityDropdown(data, journal) } );
+                    $.getJSON( Site.siteroot + "/__rpc_getsecurityoptions", { user: journal.name },
+                        function(data) {
+                            if ( update === journalUpdate ) adjustSecurityDropdown(data, journal);
+                        }
+                    );
                 }
             }
         } );
