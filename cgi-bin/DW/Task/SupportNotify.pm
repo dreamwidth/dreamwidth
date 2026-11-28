@@ -43,12 +43,7 @@ sub work {
     # causing the message not to load from the reader
     my $dbr = LJ::get_db_writer();
 
-    # now branch a bit to select the right user information
-    my $level = $type eq 'new' ? "'new', 'all'" : "'all'";
-    my $data  = $dbr->selectcol_arrayref(
-        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($level)",
-        undef, $sp->{_cat}{spcatid} );
-    my $userids = LJ::load_userids(@$data);
+    my $userids = LJ::Support::load_notification_subscribers( $dbr, $sp->{_cat}{spcatid}, $a );
 
     # prepare the email
     my $body;
@@ -87,6 +82,9 @@ sub work {
             push @emails, $email if defined $email && length $email;
         }
 
+    }
+    elsif ( $type eq 'reopen' ) {
+        ( $body, @emails ) = LJ::Support::reopen_notification( $sp, $userids, $a->{posterid} );
     }
     elsif ( $type eq 'update' ) {
 
@@ -185,9 +183,9 @@ sub work {
             fromname => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
             charset  => 'utf-8',
             subject  => (
-                $type eq 'update'
-                ? LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } )
-                : LJ::Lang::ml( "support.email.subject",              { number => $spid } )
+                $type eq 'new'
+                ? LJ::Lang::ml( "support.email.subject",              { number => $spid } )
+                : LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } )
             ),
             body => $body,
             wrap => 1,

@@ -4203,6 +4203,13 @@ support.email.notif.update.body.text<<
 
 support.email.notif.update.subject=Re: Support Request #[[number]]
 
+support.email.notif.reopen.body<<
+The requester has returned this support request to the help queue.
+
+Category: [[category]]
+Subject: [[subject]]
+.
+
 support.email.notif.update.footer<<
 You can view this request here:
 

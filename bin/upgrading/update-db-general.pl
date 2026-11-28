@@ -447,7 +447,7 @@ register_tablecreate( "supportnotify", <<'EOC');
 CREATE TABLE supportnotify (
     spcatid int(10) unsigned NOT NULL default '0',
     userid int(10) unsigned NOT NULL default '0',
-    level enum('all','new') default NULL,
+    level enum('all','new','new_and_regreen') default NULL,
 
     KEY (spcatid),
     KEY (userid),
@@ -3159,6 +3159,14 @@ register_alter(
                       "ALTER TABLE supportlog MODIFY type ENUM('req', 'answer', "
                     . "'comment', 'internal', 'screened') NOT NULL" );
 
+        }
+
+        if (   table_relevant("supportnotify")
+            && column_type( "supportnotify", "level" ) eq "enum('all','new')" )
+        {
+            do_alter( "supportnotify",
+"ALTER TABLE supportnotify MODIFY level ENUM('all','new','new_and_regreen') DEFAULT NULL"
+            );
         }
 
         if ( table_relevant("supportcat") && column_type( "supportcat", "catkey" ) eq "" ) {

@@ -808,7 +808,7 @@ sub append_request {
         $sql =
 "INSERT INTO supportlog (splid, spid, timelogged, type, faqid, userid, message) VALUES (NULL, $spid, UNIX_TIMESTAMP(), $qtype, $qfaqid, $quserid, $qmessage)";
     }
-    $dbh->do($sql);
+    $dbh->do($sql) or return undef;
     my $splid = $dbh->{'mysql_insertid'};
 
     # mark this as an interesting update
@@ -836,7 +836,12 @@ sub append_request {
         }
     }
 
-    support_notify( { spid => $spid, splid => $splid, type => 'update' } );
+    my $notification = { spid => $spid, splid => $splid, type => 'update' };
+    $notification->{regreen} = 1
+        if $re->{type} eq 'comment'
+        && $re->{requester_reply}
+        && _touch_after_requester_reply( $dbh, $spid, $re->{requester_reply} eq 'email' );
+    support_notify($notification);
 
     _index_supportlog($splid);
 
@@ -939,23 +944,99 @@ sub close_request_with_points {
 }
 
 sub touch_request {
-    my ($spid) = @_;
+    my ( $spid, %opts ) = @_;
 
     # no touching if the request is locked
     return 0 if LJ::Support::is_locked($spid);
 
-    my $dbh = LJ::get_db_writer();
+    my $dbh          = LJ::get_db_writer();
+    my $requester_id = $opts{requester_id};
+    my $regreen;
+    if ( defined $requester_id ) {
+        $regreen = _touch_request_row_locked( $dbh, $spid );
+        return 0 unless defined $regreen;
+    }
+    else {
+        _touch_request_row( $dbh, $spid ) or return 0;
+    }
 
-    $dbh->do(
+    set_points( $spid, undef, 0 );
+    support_notify( { spid => $spid, type => 'reopen', posterid => $requester_id } )
+        if $regreen;
+
+    return 1;
+}
+
+sub _touch_request_row {
+    my ( $dbh, $spid ) = @_;
+    return $dbh->do(
         "UPDATE support"
             . "   SET state='open', timeclosed=0, timetouched=UNIX_TIMESTAMP(), timemodified=UNIX_TIMESTAMP()"
             . " WHERE spid=?",
         undef, $spid
-    ) or return 0;
+    );
+}
 
-    set_points( $spid, undef, 0 );
+sub _is_regreen {
+    my ( $state, $touched, $last_help, $now ) = @_;
+    return ( ( $state // '' ) ne 'open'
+            || open_request_status( $touched, $last_help ) eq 'awaiting close' )
+        && open_request_status( $now, $last_help ) ne 'awaiting close';
+}
 
-    return 1;
+sub _touch_request_row_locked {
+    my ( $dbh, $spid ) = @_;
+    my ( $started, $regreen );
+    my $ok = eval {
+        $dbh->begin_work or die $dbh->errstr;
+        $started = 1;
+        my $before = $dbh->selectrow_arrayref(
+            'SELECT state, timetouched, timelasthelp FROM support WHERE spid=? FOR UPDATE',
+            undef, $spid );
+        die $dbh->errstr if $dbh->err;
+        if ($before) {
+            _touch_request_row( $dbh, $spid ) or die $dbh->errstr;
+            my ($touched) = $dbh->selectrow_array( 'SELECT timetouched FROM support WHERE spid=?',
+                undef, $spid );
+            die $dbh->errstr unless defined $touched;
+            $regreen = _is_regreen( @$before, $touched );
+        }
+        $dbh->commit or die $dbh->errstr;
+        1;
+    };
+    unless ($ok) {
+        $dbh->rollback if $started;
+        return undef;
+    }
+    return $regreen;
+}
+
+sub _touch_after_requester_reply {
+    my ( $dbh, $spid, $is_email ) = @_;
+    return 0 if $is_email && is_locked($spid);
+
+    for ( 1 .. 5 ) {
+        my ( $state, $touched, $last_help, $now ) = $dbh->selectrow_array(
+            'SELECT state, timetouched, timelasthelp, UNIX_TIMESTAMP() FROM support WHERE spid=?',
+            undef, $spid );
+        return 0 unless defined $now;
+
+        my $updated = $dbh->do(
+"UPDATE support SET state='open', timeclosed=0, timetouched=?, timemodified=UNIX_TIMESTAMP()"
+                . ' WHERE spid=? AND state <=> ? AND timetouched <=> ? AND timelasthelp <=> ?',
+            undef, $now, $spid, $state, $touched, $last_help
+        );
+        return 0 unless defined $updated;
+        next unless $updated > 0;
+
+        set_points( $spid, undef, 0 ) if $is_email;
+        return _is_regreen( $state, $touched, $last_help, $now );
+    }
+
+    my $regreen = _touch_request_row_locked( $dbh, $spid );
+    return 0 unless defined $regreen;
+    set_points( $spid, undef, 0 ) if $is_email;
+    return $regreen;
 }
 
 # Extra email addresses are stored as support properties
@@ -1123,6 +1204,44 @@ sub support_notify {
     return $h ? 1 : 0;
 }
 
+sub load_notification_subscribers {
+    my ( $dbh, $spcatid, $event ) = @_;
+
+    my $type   = $event->{type};
+    my @levels = $type eq 'reopen' ? ('new_and_regreen') : ('all');
+    push @levels, 'new'             if $type eq 'new';
+    push @levels, 'new_and_regreen' if $type eq 'new' || $event->{regreen};
+
+    my $placeholders = join ', ', ('?') x @levels;
+    my $userids      = $dbh->selectcol_arrayref(
+        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($placeholders)",
+        undef, $spcatid, @levels );
+    return LJ::load_userids(@$userids);
+}
+
+sub reopen_notification {
+    my ( $sp, $userids, $posterid ) = @_;
+    my $body = LJ::Lang::ml( 'support.email.notif.reopen.body',
+        { category => $sp->{_cat}{catname}, subject => $sp->{subject} } );
+    $body .= "\n\n"
+        . LJ::Lang::ml(
+        'support.email.notif.update.footer',
+        {
+            url     => "$LJ::SITEROOT/support/see_request?id=$sp->{spid}",
+            setting => "$LJ::SITEROOT/support/changenotify"
+        }
+        );
+
+    my @emails;
+    foreach my $u ( values %$userids ) {
+        next unless $u->should_receive_support_notifications( $sp->{_cat}{spcatid} );
+        next if $posterid == $u->id && !$u->prop('opt_getselfsupport');
+        my $email = $u->email_raw;
+        push @emails, $email if defined $email && length $email;
+    }
+    return ( $body, @emails );
+}
+
 package LJ::Worker::SupportNotify;
 use base 'TheSchwartz::Worker';
 
@@ -1141,12 +1260,7 @@ sub work {
     # causing the message not to load from the reader
     my $dbr = LJ::get_db_writer();
 
-    # now branch a bit to select the right user information
-    my $level = $type eq 'new' ? "'new', 'all'" : "'all'";
-    my $data  = $dbr->selectcol_arrayref(
-        "SELECT userid FROM supportnotify WHERE spcatid=? AND level IN ($level)",
-        undef, $sp->{_cat}{spcatid} );
-    my $userids = LJ::load_userids(@$data);
+    my $userids = LJ::Support::load_notification_subscribers( $dbr, $sp->{_cat}{spcatid}, $a );
 
     # prepare the email
     my $body;
@@ -1185,6 +1299,9 @@ sub work {
             push @emails, $email if defined $email && length $email;
         }
 
+    }
+    elsif ( $type eq 'reopen' ) {
+        ( $body, @emails ) = LJ::Support::reopen_notification( $sp, $userids, $a->{posterid} );
     }
     elsif ( $type eq 'update' ) {
 
@@ -1283,9 +1400,9 @@ sub work {
             fromname => LJ::Lang::ml( "support.email.fromname", { sitename => $LJ::SITENAME } ),
             charset  => 'utf-8',
             subject  => (
-                $type eq 'update'
-                ? LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } )
-                : LJ::Lang::ml( "support.email.subject",              { number => $spid } )
+                $type eq 'new'
+                ? LJ::Lang::ml( "support.email.subject",              { number => $spid } )
+                : LJ::Lang::ml( "support.email.notif.update.subject", { number => $spid } )
             ),
             body => $body,
             wrap => 1,
