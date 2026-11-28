@@ -28,7 +28,7 @@
 
 .tip.email=We need your email address to send you important information. We'll never give your email address to anyone else.
 
-.tip.password=Choose a secure password that's between [[password_minlength]] and [[password_maxlength]] characters long with at least 4 unique characters and one non-letter character (digit or symbol). Passwords can't be based on your account name, your real name, or your email address for security reasons.
+.tip.password=Choose a secure password that's between [[password_minlength]] and [[password_maxlength]] characters long with at least 4 unique characters. Passwords can't be based on your account name, your real name, or your email address for security reasons.
 
 .tip.tn_state=Due to state laws, we can't currently allow new signups from people under 18 who live in SC or TN.
 
