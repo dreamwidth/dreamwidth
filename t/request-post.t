@@ -17,12 +17,14 @@ use warnings;
 
 use Test::More tests => 5;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use lib "$ENV{LJHOME}/cgi-bin";
+use DW::Request;
 use DW::Request::Standard;
 use HTTP::Request;
 use HTTP::Request::Common;
 use Test::Exception;
 use LJ::JSON;
+use LJ::TextUtil;
 
 # Test multipart
 check_request(
