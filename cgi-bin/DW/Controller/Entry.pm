@@ -501,7 +501,8 @@ sub _render_form {
     $vars->{rte_icons} = $rte_user_icons;
     $vars->{can_embed} = LJ::is_enabled('embed_module') ? 1 : 0;
 
-    return DW::Template->render_template( 'entry/form.tt', $vars ) unless _simple_mode();
+    my $sections = { jquery_ui_autocomplete => 1 };
+    return DW::Template->render_template( 'entry/form.tt', $vars, $sections ) unless _simple_mode();
 
     LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY }, 'stc/entry.css' );
     $vars->{infobox} =
@@ -509,8 +510,8 @@ sub _render_form {
         $vars->{remote} );
 
     # share the advanced form's strings, which the shared includes resolve relatively
-    return DW::Template->render_template( 'entry/form-simple.tt', $vars,
-        { ml_scope => '/entry/form.tt' } );
+    $sections->{ml_scope} = '/entry/form.tt';
+    return DW::Template->render_template( 'entry/form-simple.tt', $vars, $sections );
 }
 
 # Echo a stale old-editor POST's exact subject/body for manual copying;
@@ -1693,7 +1694,7 @@ sub _render_preview {
     }
 
     # Include helper CSS/JS for highest fidelity previews
-    LJ::Talk::init_s2journal_js( noqr => 1, siteskin => $siteskinned );
+    LJ::Talk::init_s2journal_js( noqr => 1 );
 
     if ($siteskinned) {
         my $vars = {

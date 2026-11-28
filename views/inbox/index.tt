@@ -3,10 +3,17 @@
     'stc/css/pages/inbox.css', 
     "stc/css/components/foundation-icons.css", 
     "stc/css/components/imageshrink.css",
+    'js/jquery/jquery.ui.button.js',
+    'js/jquery/jquery.ui.dialog.js',
+    'stc/jquery/jquery.ui.theme.smoothness.css',
+    'stc/jquery/jquery.ui.button.css',
+    'stc/jquery/jquery.ui.dialog.css',
+    'stc/jquery.commentmanage.css',
     'js/jquery.inbox.js', 
     'js/jquery.esn.js', 
     'js/jquery.commentmanage.js', 
     'js/jquery.ajaxtip.js',
+    'stc/jquery.ajaxtip.css',
     "js/jquery.imageshrink.js"
     ) %]
 [%- sections.title = '.title' | ml -%]

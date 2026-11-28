@@ -162,12 +162,7 @@ sub EntryPage {
     }
 
     # include JS for quick reply, icon browser, and ajax cut tag
-    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref}
-        && ${ $opts->{handle_with_siteviews_ref} };
-    LJ::Talk::init_s2journal_js(
-        iconbrowser => 1,
-        siteskin    => $handle_with_siteviews
-    );
+    LJ::Talk::init_s2journal_js( iconbrowser => 1 );
 
     $p->{'entry'} = $s2entry;
     LJ::Hooks::run_hook( 'notify_event_displayed', $entry );
@@ -523,12 +518,16 @@ sub EntryPage {
             js/jquery/jquery.ui.position.js
             stc/jquery/jquery.ui.core.css
             stc/jquery/jquery.ui.tooltip.css
+            stc/jquery.ajaxtip.css
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
             stc/jquery.commentmanage.css
             )
     );
-    LJ::need_res( LJ::S2::tracking_popup_js() );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' )
+        if $remote;
+    LJ::S2::init_tracking_popup_js($remote);
 
     # init shortcut js if selected
     LJ::Talk::init_s2journal_shortcut_js( $remote, $p );

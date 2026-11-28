@@ -596,6 +596,7 @@ sub register_standard_resources {
         js/jquery/jquery.ui.position.js
         stc/jquery/jquery.ui.core.css
         stc/jquery/jquery.ui.tooltip.css
+        stc/jquery.ajaxtip.css
 
         js/jquery.hoverIntent.js
         js/jquery.contextualhover.js

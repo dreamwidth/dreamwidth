@@ -61,14 +61,11 @@ sub ReplyPage {
 <script type="text/javascript" src="$LJ::JSPREFIX/md5.js"></script>
 };
 
-    LJ::need_res( LJ::S2::tracking_popup_js() );
+    LJ::S2::init_tracking_popup_js($remote);
 
     # include JS for quick reply, icon browser, and ajax cut tag
-    my $handle_with_siteviews = $opts->{handle_with_siteviews_ref}
-        && ${ $opts->{handle_with_siteviews_ref} };
     LJ::Talk::init_s2journal_js(
         iconbrowser => $remote && $remote->can_use_userpic_select,
-        siteskin    => $handle_with_siteviews,
         noqr        => 1
     );
 

@@ -2624,15 +2624,23 @@ ul.userlite-interaction-links.text-links {
 
 /* ------------------------------------------------------------------------------ ICON PAGE DEFS ---------- */
 
+.ContextualPopup,
 .ui-widget-content {
     $page_background
+    }
+
+.ui-widget-content {
     width: auto;
     min-width: 20em;
     }
 
+.ContextualPopup a,
 .ui-widget-content a { color: $*color_page_link; }
+.ContextualPopup a:visited,
 .ui-widget-content a:visited { color: $*color_page_link_visited; }
+.ContextualPopup a:hover,
 .ui-widget-content a:hover { color: $*color_page_link_hover; }
+.ContextualPopup a:active,
 .ui-widget-content a:active { color: $*color_page_link_active; }
 
 .ContextualPopup .ui-tooltip-content {

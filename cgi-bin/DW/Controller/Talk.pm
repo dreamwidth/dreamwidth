@@ -383,7 +383,6 @@ sub talkpost_do_handler {
         # JS/CSS as journal pages.)
         LJ::Talk::init_s2journal_js(
             iconbrowser => 1,
-            siteskin    => 1,
             noqr        => 1
         );
 
@@ -449,7 +448,6 @@ sub talkpost_do_handler {
         # JS/CSS as journal pages.)
         LJ::Talk::init_s2journal_js(
             iconbrowser => 1,
-            siteskin    => 1,
             noqr        => 1
         );
 

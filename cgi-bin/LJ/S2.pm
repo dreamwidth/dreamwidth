@@ -136,6 +136,8 @@ sub make_journal {
     }
 
     $opts->{'ctx'} = $ctx;
+    $opts->{show_tag_navigation} =
+        $view eq 'entry' || $view eq 'reply' || ( $view eq 'lastn' && $opts->{tags} );
     $LJ::S2::CURR_CTX = $ctx;
 
     foreach ( "name", "url", "urlname" ) { LJ::text_out( \$u->{$_} ); }
@@ -206,9 +208,9 @@ sub make_journal {
 
             stc/jquery/jquery.ui.core.css
             stc/jquery/jquery.ui.tooltip.css
+            stc/jquery.ajaxtip.css
             stc/jquery/jquery.ui.button.css
             stc/jquery/jquery.ui.dialog.css
-            stc/jquery/jquery.ui.theme.smoothness.css
 
             stc/canary.css
             )
@@ -1847,9 +1849,11 @@ sub use_journalstyle_entry_page {
     return $reparse_userprop->();
 }
 
-sub tracking_popup_js {
-    return LJ::is_enabled('esn_ajax')
-        ? (
+sub init_tracking_popup_js {
+    my ($remote) = @_;
+    return unless LJ::is_enabled('esn_ajax');
+
+    LJ::need_res(
         { group => 'all' }, qw(
             js/jquery/jquery.ui.core.js
             js/jquery/jquery.ui.widget.js
@@ -1860,11 +1864,14 @@ sub tracking_popup_js {
 
             stc/jquery/jquery.ui.core.css
             stc/jquery/jquery.ui.tooltip.css
+            stc/jquery.ajaxtip.css
 
             js/jquery.esn.js
-            )
-        )
-        : ();
+            ),
+    );
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' )
+        if $remote && $remote->can_use_esn;
 }
 
 sub use_journalstyle_icons_page {
@@ -2073,6 +2080,9 @@ sub TagList {
     @$taglist = sort { $a->{name} cmp $b->{name} } @$taglist;
 
     return "" if $opts->{no_entry_body};
+    LJ::need_res( { priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' )
+        if @$taglist && $opts->{show_tag_navigation};
     return "" unless $opts->{enable_tags_compatibility} && @$taglist;
     return LJ::S2::get_tags_text( $opts->{ctx}, $taglist );
 }

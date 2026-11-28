@@ -108,7 +108,7 @@ _create: function() {
                 open: function(event, ui) {
                     var ns = event.handleObj.namespace;
                     var $trigger = $(this);
-                    var $tooltip = ui.tooltip;
+                    var $tooltip = ui.tooltip.removeClass("ui-widget ui-widget-content ui-corner-all");
                     $tooltip.promise().done(function() {
                         // turn off the mouseleave/focusout events which close the popup immediately
                         // but only once fade in is done and popup is fully visible

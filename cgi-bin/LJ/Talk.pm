@@ -1816,6 +1816,8 @@ sub init_iconbrowser_js {
         'js/jquery.iconselector.js',
         'stc/jquery.iconselector.css',
     );
+    LJ::need_res( { group => 'jquery', priority => $LJ::OLD_RES_PRIORITY },
+        'stc/jquery/jquery.ui.theme.smoothness.css' );
 
     # The Old-Old Icon Browser: Weird ancient technology. Not the exciting kind.
     # Used on: New entry page (if NOT in "updatepage" beta), inbox's "compose"
@@ -1854,7 +1856,7 @@ sub init_iconbrowser_js {
 }
 
 # convenience/deduplication function for QR, cut tag, & icon browser JS loading
-# args: hash of opts to determine which JS files to load (iconbrowser, siteskin, lastn, noqr)
+# args: hash of opts to determine which JS files to load (iconbrowser, lastn, noqr)
 # returns: nothing, just calls need_res
 sub init_s2journal_js {
     my %opts = @_;
@@ -1904,14 +1906,6 @@ sub init_s2journal_js {
         my $remote = LJ::get_remote();
         init_iconbrowser_js() if $remote && $remote->can_use_userpic_select;
     }
-
-    # if we're using the site skin, don't override the jquery-ui theme,
-    # as that's already included
-    LJ::need_res(
-        { group => "all" }, qw(
-            stc/jquery/jquery.ui.theme.smoothness.css
-            )
-    ) unless $opts{siteskin};
 
     # load for ajax cuttag and ajax quickreply - only needed on lastn-type pages
     LJ::need_res(
