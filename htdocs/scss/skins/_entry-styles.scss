@@ -118,6 +118,17 @@ ul.text-links {
 
 }
 
+// A comment title sits in a flex item, which is as wide as its longest word
+// unless words can break anywhere. This uses the same scope as the
+// _journal-typography rules so it overrides their break-word, and it also
+// covers skins that don't import those rules.
+.entry, #comments, .reply-page-wrapper, #talkpost-wrapper {
+  .comment-title {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+}
+
 /**
 * Entry-specific styles:
 */
@@ -152,6 +163,9 @@ ul.text-links {
 
   .entry-title {
     display: inline-block; // security level icon displays in front of title
+    // an inline-block is as wide as its longest word unless words can break
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
   }
 
   .access-filter img { // security level icon
