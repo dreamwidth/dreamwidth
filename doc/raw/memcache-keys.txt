@@ -103,7 +103,7 @@ includefile:<name> == text of an include file (includetext table)
 
 <uid> bdays:<uid>:<timespan> == related birthdays for timespan, either 'full' or number of months in the future
 
-<uid> rcntalk:<uid>:<maxshow> == recent talkitems cached on user, cache on number of talkitems to get
+<uid> rcntalk2:<uid> == recent talkitems cached on user
 
 <uid> timezone_guess:<uid> == guess of the user's timezone offset based on time of their most recent entry
 

@@ -1069,7 +1069,7 @@ sub talkmulti_handler {
 
         # first, unscreen everything for replycount and hasscreened to adjust
         my @unscreen = grep { $talkinfo{$_}->[0] eq "S" } @talkids;
-        LJ::Talk::unscreen_comment( $u, $itemid, @unscreen );
+        return error_ml('error.nodb') unless LJ::Talk::unscreen_comment( $u, $itemid, @unscreen );
 
         # FIXME: race condition here... somebody could get lucky and view items while unscreened.
         # then delete, updating the log2 replycount as necessary
@@ -1094,7 +1094,7 @@ sub talkmulti_handler {
 
     }
     elsif ( $mode eq "unscreen" ) {
-        LJ::Talk::unscreen_comment( $u, $itemid, @talkids );
+        return error_ml('error.nodb') unless LJ::Talk::unscreen_comment( $u, $itemid, @talkids );
         $vars = {
             title   => '.unscreened.title',
             body    => '.unscreened.body2',
@@ -1259,10 +1259,10 @@ sub talkscreen_handler {
         return $error->('/talkscreen.tt.error.privs.unscreen') unless $can_unscreen;
         if ( $POST->{'confirm'} eq 'Y' ) {
             if ( $state eq 'S' ) {
-                LJ::Talk::unscreen_comment( $u, $qitemid, $qtalkid );
+                return $error->('error.nodb')
+                    unless LJ::Talk::unscreen_comment( $u, $qitemid, $qtalkid );
             }
 
-            # FIXME: no error checking?
             return $jsres->( $mode, '/talkscreen.tt.unscreened.body' ) if $jsmode;
             $vars->{done}   = 1;
             $vars->{action} = 'unscreened';
@@ -1447,11 +1447,13 @@ sub delcomment_handler {
         if ( $POST->{delthread} && $can_delthread ) {
 
             # delete entire thread ...
-            LJ::Talk::delete_thread( $u, $tp->{'itemid'}, $tpid );
+            return $error->('error.nodb')
+                unless LJ::Talk::delete_thread( $u, $tp->{'itemid'}, $tpid );
         }
         else {
             # delete single comment...
-            LJ::Talk::delete_comment( $u, $tp->{'itemid'}, $tpid, $tp->{'state'} );
+            return $error->('error.nodb')
+                unless LJ::Talk::delete_comment( $u, $tp->{'itemid'}, $tpid, $tp->{'state'} );
         }
 
         # ban the user, if selected

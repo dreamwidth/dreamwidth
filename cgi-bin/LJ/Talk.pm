@@ -427,7 +427,7 @@ sub delete_thread {
     # get comments and delete 'em
     my @screened;
     my $ids = LJ::Talk::get_comments_in_thread( $u, $jitemid, $jtalkid, undef, \@screened );
-    LJ::Talk::unscreen_comment( $u, $jitemid, @screened ) if @screened;    # if needed only!
+    return undef unless $ids && LJ::Talk::unscreen_comment( $u, $jitemid, @screened );
     my $num = LJ::delete_comments( $u, "L", $jitemid, @$ids );
     LJ::replycount_do( $u, $jitemid, "decr", $num );
     LJ::Talk::update_commentalter( $u, $jitemid );
@@ -459,8 +459,7 @@ sub delete_comment {
     return undef unless $state;
 
     # if it's screened, unscreen it first to properly adjust logprops
-    LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid )
-        if $state eq 'S';
+    return undef if $state eq 'S' && !LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid );
 
     # now do the deletion
     my $num = LJ::delete_comments( $u, "L", $jitemid, $jtalkid );
@@ -588,32 +587,74 @@ sub unscreen_comment {
     return undef unless LJ::isu($u);
     my $itemid   = shift(@_) + 0;
     my @jtalkids = @_;
-    my $userid   = $u->id;
+    return 1 unless @jtalkids;
+
+    my $userid = $u->id;
+    my $in     = join ',', map { '?' } @jtalkids;
+    my $where  = "WHERE journalid=? AND nodetype='L' AND nodeid=? AND jtalkid IN ($in)";
+    my @args   = ( $userid, $itemid, @jtalkids );
 
     my @unscreened;
-    foreach my $jtalkid (@jtalkids) {
-        my $updated = $u->talk2_do(
-            "L",
-            $itemid,
-            undef,
-            "UPDATE talk2 SET state=IF(screened_frozen, 'F', 'A'), screened_frozen=0 "
-                . "WHERE journalid=? AND jtalkid=? AND nodetype='L' AND nodeid=? AND state='S'",
-            $userid,
-            $jtalkid,
-            $itemid
-        );
-        push @unscreened, $jtalkid if $updated && $updated > 0;
-    }
-    return unless @unscreened;
+    my $failed;
+    my $updated = $u->talk2_do(
+        'L', $itemid, undef,
+        sub {
+            my ($dbcm) = @_;
+            my $innodb = $u->is_innodb;
+            return undef unless $dbcm->{AutoCommit};
+            return undef unless $innodb ? $dbcm->begin_work : $dbcm->do('LOCK TABLES talk2 WRITE');
 
-    LJ::Talk::invalidate_talk2row_memcache( $userid, @unscreened );
+            my $count = eval {
+                my $screened = $dbcm->selectall_arrayref(
+                    "SELECT jtalkid, screened_frozen FROM talk2 $where AND state='S'"
+                        . ( $innodb ? ' FOR UPDATE' : '' ),
+                    undef, @args
+                ) or die $dbcm->errstr;
+
+                if (@$screened) {
+                    my $changed = $dbcm->do(
+                        "UPDATE talk2 SET state=IF(screened_frozen, 'F', 'A'), screened_frozen=0 "
+                            . "$where AND state='S'",
+                        undef, @args
+                    );
+                    $failed = !defined $changed || $changed != @$screened;
+                    if ($failed) {
+                        die( $dbcm->errstr || 'Unscreen updated an unexpected number of rows' )
+                            if $innodb;
+                        my $public = $dbcm->selectcol_arrayref(
+                            "SELECT jtalkid FROM talk2 $where AND state IN ('A', 'F')",
+                            undef, @args )
+                            or die $dbcm->errstr;
+                        my %public = map { $_ => 1 } @$public;
+                        @$screened = grep { $public{ $_->[0] } } @$screened;
+                    }
+                }
+
+                $dbcm->commit or die $dbcm->errstr if $innodb;
+                @unscreened = @$screened;
+                scalar @unscreened;
+            };
+            my $error = $@;
+            if ($innodb) {
+                $dbcm->rollback unless $dbcm->{AutoCommit};
+            }
+            else {
+                $dbcm->do('UNLOCK TABLES') or $failed = 1;
+            }
+            $log->warn("Could not unscreen comments: $error") if $error;
+            return $count;
+        }
+    );
+    return undef unless defined $updated;
+    return $failed ? undef : 1 unless @unscreened;
+
+    LJ::Talk::invalidate_talk2row_memcache( $userid, map { $_->[0] } @unscreened );
     LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
     LJ::replycount_do( $u, $itemid, "incr", scalar @unscreened );
-    my $dbcm        = LJ::get_cluster_master($u);
-    my $hasscreened = $dbcm->selectrow_array( "SELECT COUNT(*) FROM talk2 "
+    my $hasscreened = $u->selectrow_array( "SELECT COUNT(*) FROM talk2 "
             . "WHERE journalid=$userid AND nodeid=$itemid AND nodetype='L' AND state='S'" );
-    LJ::set_logprop( $u, $itemid, { 'hasscreened' => 0 } ) unless $hasscreened;
+    LJ::set_logprop( $u, $itemid, { 'hasscreened' => 0 } ) if defined $hasscreened && !$hasscreened;
 
     LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
@@ -622,14 +663,16 @@ sub unscreen_comment {
     # fire events so that users who missed the original notification
     # (because the comment was screened) get notified now
     my @jobs;
-    foreach my $jtalkid (@unscreened) {
+    foreach my $row (@unscreened) {
+        my ( $jtalkid, $frozen ) = @$row;
+        next if $frozen;
         push @jobs,
             LJ::Event::JournalNewComment->new_for_unscreen(
             LJ::Comment->new( $u, jtalkid => $jtalkid ) );
     }
     DW::TaskQueue->dispatch(@jobs) if @jobs;
 
-    return;
+    return $failed ? undef : 1;
 }
 
 # retrieves data from the talk2 table (but preferably memcache)
@@ -3127,7 +3170,8 @@ sub post_comment {
 
      # if parent comment is screened and we got this far, the user has the permission to unscreen it
      # in this case the parent comment needs to be unscreened and the comment posted as normal
-        LJ::Talk::unscreen_comment( $journalu, $itemid, $parent->{talkid} );
+        return ( 0, LJ::Lang::ml('error.nodb') )
+            unless LJ::Talk::unscreen_comment( $journalu, $itemid, $parent->{talkid} );
         $parent->{state} = 'A';
     }
     elsif ( $parent_state eq 'S' ) {

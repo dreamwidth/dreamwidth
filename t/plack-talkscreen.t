@@ -294,4 +294,111 @@ subtest 'Screening and freezing are independent' => sub {
     };
 };
 
+subtest 'Bulk unscreen updates and accounts for the selected screened comments' => sub {
+    my $bulk_owner = temp_user();
+    $bulk_owner->update_self( { status => 'A' } );
+    my $bulk_entry = $bulk_owner->t_post_fake_entry;
+    my $username   = $bulk_owner->user;
+    my $journalid  = $bulk_owner->id;
+    my $itemid     = $bulk_entry->jitemid;
+    my $dbcm       = LJ::get_cluster_master($bulk_owner);
+
+    with_fake_memcache {
+        my $active   = $bulk_entry->t_enter_comment( u => $author );
+        my $screened = $bulk_entry->t_enter_comment( u => $author, state => 'S' );
+        my $frozen   = $bulk_entry->t_enter_comment( u => $author, state => 'S' );
+        my $other    = $bulk_entry->t_enter_comment( u => $author, state => 'S' );
+        LJ::Talk::freeze_thread( $bulk_owner, $itemid, $frozen->jtalkid );
+
+        my $states = sub {
+            return [
+                map { $_->{state} } LJ::Talk::get_talk2_row_multi(
+                    map { [ $bulk_owner, $_->jtalkid ] } ( $active, $screened, $frozen, $other )
+                )
+            ];
+        };
+        my $has_screened = sub {
+            my %props;
+            LJ::load_log_props2( $dbcm, $journalid, [$itemid], \%props );
+            return $props{$itemid}{hasscreened};
+        };
+        my $reply_count = sub {
+            return $dbcm->selectrow_array(
+                'SELECT replycount FROM log2 WHERE journalid=? AND jitemid=?',
+                undef, $journalid, $itemid );
+        };
+
+        is_deeply( $states->(), [qw(A S S S)], 'initial states are cached' );
+        LJ::Talk::get_talk_data( $bulk_owner, 'L', $itemid );
+
+        test_psgi $app, sub {
+            my ($request) = @_;
+            my $submit = sub {
+                my ( $mode, @selected ) = @_;
+                return $request->(
+                    POST "http://localhost/talkmulti?as=$username",
+                    Content => [
+                        journal => $username,
+                        ditemid => $bulk_entry->ditemid,
+                        mode    => $mode,
+                        map { ( 'selected_' . $_->jtalkid => 1 ) } @selected,
+                    ],
+                );
+            };
+
+            my $locker = LJ::get_cluster_master( { unshared => 1 }, $bulk_owner );
+            my ($wait) = $dbcm->selectrow_array('SELECT @@SESSION.innodb_lock_wait_timeout');
+            $wait = int($wait);
+            $dbcm->do('SET SESSION innodb_lock_wait_timeout = 1') or die $dbcm->errstr;
+            my ( $failed, $failed_delete );
+            my $tested = eval {
+                $locker->begin_work or die $locker->errstr;
+                $locker->selectrow_array(
+                    'SELECT jtalkid FROM talk2 WHERE journalid=? AND jtalkid=? FOR UPDATE',
+                    undef, $journalid, $frozen->jtalkid )
+                    or die $locker->errstr;
+                $failed        = $submit->( 'unscreen', $active, $screened, $frozen );
+                $failed_delete = $submit->( 'delete',   $frozen );
+                1;
+            };
+            my $test_error = $@;
+            $locker->rollback unless $locker->{AutoCommit};
+            $dbcm->do("SET SESSION innodb_lock_wait_timeout = $wait") or die $dbcm->errstr;
+            die $test_error unless $tested;
+
+            like(
+                $failed->content,
+                qr/database temporarily unavailable/i,
+                'bulk unscreen reports a failed write'
+            );
+            like(
+                $failed_delete->content,
+                qr/database temporarily unavailable/i,
+                'bulk delete stops when unscreen fails'
+            );
+            is_deeply( $states->(), [qw(A S S S)],
+                'neither request changes any selected state on failure' );
+            is( $reply_count->(), 1, 'failed requests do not change the reply count' );
+            ok( $has_screened->(), 'failed requests leave the screened flag set' );
+
+            my $success = $submit->( 'unscreen', $active, $screened, $frozen );
+            like(
+                $success->content,
+                qr/unscreened the selected comments/i,
+                'bulk unscreen succeeds on retry'
+            );
+            is( $reply_count->(), 3, 'only the two screened selections increase the reply count' );
+            is_deeply( $states->(), [qw(A A F S)], 'row cache returns the new states' );
+            my $talk = LJ::Talk::get_talk_data( $bulk_owner, 'L', $itemid );
+            is( $talk->{ $frozen->jtalkid }{state},
+                'F', 'thread cache also returns the restored frozen state' );
+            ok( $has_screened->(), 'an unselected screened comment keeps the screened flag set' );
+
+            $submit->( 'unscreen', $active, $screened, $frozen, $other );
+            is( $reply_count->(), 4, 'repeated selections are not counted again' );
+            ok( !$has_screened->(), 'unscreening the last screened comment clears the flag' );
+        };
+    };
+};
+
 done_testing();
