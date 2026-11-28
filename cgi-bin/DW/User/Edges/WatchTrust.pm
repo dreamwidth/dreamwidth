@@ -333,12 +333,14 @@ sub mutually_trusts {
 # returns a numeric trustmask; can also be used as a setter if you specify a numeric
 # as the third argument.  in which case it returns the newly updated trustmask.
 sub trustmask {
-    my ( $from_u, $to_u ) = @_;
+    my ( $from_u, $to_u, $mask_or_opts ) = @_;
     $from_u = LJ::want_user($from_u) or return 0;
     $to_u   = LJ::want_user($to_u)   or return 0;
 
-    # if we still have an argument, we need to set someone's mask
-    if ( scalar(@_) == 3 ) {
+    my $opts = ref $mask_or_opts eq 'HASH' ? $mask_or_opts : undef;
+
+    # if we still have a mask argument, we need to set someone's mask
+    if ( scalar(@_) == 3 && !$opts ) {
 
         # make sure we trust them... we have to do this here because otherwise we could
         # implicitly create a trust relationship when one doesn't exist
@@ -347,12 +349,13 @@ sub trustmask {
 
         # we update the mask by re-adding the trust edge; this is the simplest way
         # that ensures we do everything "properly"
-        $from_u->add_edge( $to_u, trust => { mask => $_[2], nonotify => 1 } );
+        $from_u->add_edge( $to_u, trust => { mask => $mask_or_opts, nonotify => 1 } );
     }
 
     # note: we mask out the top three bits (i.e., the reserved bits and the watch bit)
     # so external callers never see them.
-    return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_u->id, $to_u->id ) & ~( 7 << 61 );
+    return DW::User::Edges::WatchTrust::Loader::_trustmask( $from_u->id, $to_u->id, $opts ) &
+        ~( 7 << 61 );
 }
 *LJ::User::trustmask = \&trustmask;
 

@@ -493,19 +493,22 @@ sub all_singletons {
 
 # class method:
 sub preload_rows {
-    my @to_load = ();
-    push @to_load, map { [ $_->journal, $_->jtalkid ] } values %unloaded_singletons;
+    my ( $class, %opts ) = @_;
+    my @pending = values %unloaded_singletons;
 
     # already loaded?
-    return 1 unless @to_load;
+    return 1 unless @pending;
+
+    # Callers using discard_pending must re-check valid and reload misses themselves.
+    %unloaded_singletons = () if $opts{discard_pending};
 
     # args: ([ journalid, jtalkid ], ...)
-    my @rows = LJ::Talk::get_talk2_row_multi(@to_load);
+    my @rows = LJ::Talk::get_talk2_row_multi( map { [ $_->journal, $_->jtalkid ] } @pending );
 
     # make a mapping of journalid-jtalkid => $row
     my %row_map = map { join( "-", $_->{journalid}, $_->{jtalkid} ) => $_ } @rows;
 
-    foreach my $obj ( values %unloaded_singletons ) {
+    foreach my $obj (@pending) {
         my $u = $obj->journal;
 
         my $row = $row_map{ join( "-", $u->id, $obj->jtalkid ) };
@@ -694,6 +697,14 @@ sub props {
     return $self->{props} || {};
 }
 
+sub absorb_props {
+    my ( $self, $props ) = @_;
+    $self->{props}         = $props // {};
+    $self->{_loaded_props} = 1;
+    delete $unloaded_prop_singletons{ $self->singletonkey };
+    return 1;
+}
+
 # class method:  preloads the props on the provided list of Comment objects.
 sub preload_props {
     my ( $class, $journalid, @to_load ) = @_;
@@ -703,9 +714,7 @@ sub preload_props {
 
     # iterate over comment objects to load and fill in their props members
     foreach my $c_obj (@to_load) {
-        $c_obj->{props}         = $prop_ret->{ $c_obj->jtalkid } || {};
-        $c_obj->{_loaded_props} = 1;
-        delete $unloaded_prop_singletons{ $c_obj->singletonkey };
+        $c_obj->absorb_props( $prop_ret->{ $c_obj->jtalkid } );
     }
 
     return 1;
@@ -730,9 +739,7 @@ sub _load_props {
 
     # iterate over comment objects to load and fill in their props members
     foreach my $c_obj (@to_load) {
-        $c_obj->{props}         = $prop_ret->{ $c_obj->jtalkid } || {};
-        $c_obj->{_loaded_props} = 1;
-        delete $unloaded_prop_singletons{ $c_obj->singletonkey };
+        $c_obj->absorb_props( $prop_ret->{ $c_obj->jtalkid } );
     }
 
     return 1;
@@ -953,7 +960,7 @@ sub viewable_by_others {
 }
 
 sub visible_to {
-    my ( $self, $u ) = @_;
+    my ( $self, $u, %opts ) = @_;
 
     my $trace = $LJ::ESN::CURRENT_TRACE // '';
 
@@ -972,7 +979,7 @@ sub visible_to {
         return 0;
     }
 
-    unless ( $self->entry->visible_to($u) ) {
+    unless ( $self->entry->visible_to( $u, undef, %opts ) ) {
         $log->debug(
             sprintf(
                 '[esn %s] visible_to: reject user=%s(%d) reason=entry_not_visible'
@@ -987,10 +994,6 @@ sub visible_to {
     my $posted_comment = $self->poster && $u->equals( $self->poster );
     my $posted_entry   = $self->entry->poster
         && $u->equals( $self->entry->poster );
-    my $posted_parent =
-           $self->parent
-        && $self->parent->poster
-        && $u->equals( $self->parent->poster );
     my $posted_by_admin = $self->poster
         && $self->poster->can_manage( $self->journal );
 
@@ -1001,7 +1004,13 @@ sub visible_to {
                $u->can_manage( $self->journal )
             || $posted_comment
             || $posted_entry
-            || ( $posted_parent && $posted_by_admin )
+            || (
+                $posted_by_admin && do {
+                    my $parent        = $self->parent;
+                    my $parent_poster = $parent && $parent->poster;
+                    $parent_poster && $u->equals($parent_poster);
+                }
+            )
         )
         )
     {
