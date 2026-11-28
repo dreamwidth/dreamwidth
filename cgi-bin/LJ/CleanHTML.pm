@@ -206,7 +206,8 @@ sub clean {
     # Create the HTML parser we'll use to navigate the text from here on out.
     # It numbers the tokens it hands out (1, 2, 3 ... in source order), so we can
     # say exactly which token a report or a lookup is about.
-    my $p = LJ::CleanHTML::NumberedTokens->new($data);
+    my $p = LJ::CleanHTML::NumberedTokens->new( $data,
+        start => "'S',tagname,attr,attrseq,text,token0" );
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -497,9 +498,9 @@ TOKEN:
             }
 
             # do some quick checking to see if this is an email address/URL, and if so, just
-            # escape it and ignore it
+            # escape it and ignore it. token0 is the original tag name without attributes.
             if ( $tag =~ m!(?:\@|://)! ) {
-                $newdata .= LJ::ehtml("<$tag>");
+                $newdata .= LJ::ehtml("<$token->[5]>");
                 next;
             }
 
