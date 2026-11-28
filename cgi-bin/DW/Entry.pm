@@ -95,6 +95,8 @@ sub _backend_to_form {
     );
 
     unless ($is_api) {
+        $otherprops{comment_settings} = 'nocomments_maintainer'
+            if $entry->comments_disabled_maintainer;
 
         # At this point we know enough to get the full list of editors (and
         # selection state) for the dropdown, but because of how the template
@@ -237,10 +239,11 @@ sub _form_to_backend {
     # old implementation of comments
     # FIXME: remove this before taking the page out of beta
     $props->{opt_screening} = $post->{opt_screening};
-    $props->{opt_nocomments} =
-        $post->{comment_settings} && $post->{comment_settings} eq "nocomments" ? 1 : 0;
-    $props->{opt_noemail} =
-        $post->{comment_settings} && $post->{comment_settings} eq "noemail" ? 1 : 0;
+    my $comment_settings = $post->{comment_settings} // '';
+    if ( $is_api || $comment_settings ne 'nocomments_maintainer' ) {
+        $props->{opt_nocomments} = $comment_settings eq 'nocomments' ? 1 : 0;
+        $props->{opt_noemail}    = $comment_settings eq 'noemail'    ? 1 : 0;
+    }
 
     # see if an "other" mood they typed in has an equivalent moodid
     if ( $props->{current_mood} ) {
