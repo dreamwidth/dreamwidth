@@ -419,8 +419,10 @@ export function buildToolbar(schema, strings, pageOptions) {
                 e.preventDefault();
                 close();
                 if (!currentView) return;
-                item.command(currentView.state, currentView.dispatch, currentView);
+                // Back to the editor first: the item is hidden now, and a
+                // dialog the command opens returns the focus to where it was.
                 currentView.focus();
+                item.command(currentView.state, currentView.dispatch, currentView);
             });
             popup.appendChild(el);
             return { el, item };
@@ -755,7 +757,18 @@ export function buildToolbar(schema, strings, pageOptions) {
         for (let i = groups.length - 1; i > 1 && overflows(); i--)
             morePanel.insertBefore(groups[i], morePanel.firstChild);
     }
-    if (typeof ResizeObserver == "function") new ResizeObserver(() => layout()).observe(dom);
+    if (typeof ResizeObserver == "function") {
+        new ResizeObserver(() => layout()).observe(dom);
+    } else {
+        // Older browsers: lay out once the toolbar is on the page, and again
+        // when the window changes size, until the editor is gone.
+        const onResize = () => {
+            if (!document.contains(dom)) return window.removeEventListener("resize", onResize);
+            layout();
+        };
+        window.addEventListener("resize", onResize);
+        setTimeout(onResize, 0);
+    }
 
     return {
         dom: dom,
