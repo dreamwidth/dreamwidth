@@ -80,6 +80,49 @@ sub manticore_db {
     return $dbsx;
 }
 
+# Read authoritative account status without replacing cached user objects.
+sub _journal_is_deleted {
+    my ($u) = @_;
+    my $dbw = LJ::get_db_writer()
+        or $log->logcroak("Global database writer not available.");
+    my ($statusvis) =
+        $dbw->selectrow_array( 'SELECT statusvis FROM user WHERE userid = ?', undef, $u->id );
+    $log->logcroak( $dbw->errstr ) if $dbw->err;
+    $log->logcroak( "Unable to load authoritative status for userid " . $u->id )
+        unless defined $statusvis;
+    return $statusvis =~ /\A[DXS]\z/ ? 1 : 0;
+}
+
+sub _update_deleted_flag {
+    my ( $dbsx, $u, $is_deleted, $col, $ids, $extra_where ) = @_;
+    my @remaining = @$ids;
+    my $extra     = $extra_where ? " AND $extra_where" : '';
+
+    while ( my @chunk = splice( @remaining, 0, _CHUNK_SIZE ) ) {
+        $dbsx->do( sprintf 'UPDATE dw1 SET is_deleted = %d WHERE journalid = %d%s AND %s IN (%s)',
+            $is_deleted, $u->id, $extra, $col, join( ',', @chunk ) );
+        $log->logcroak( $dbsx->errstr ) if $dbsx->err;
+    }
+}
+
+sub _reconcile_deleted_flag {
+    my ( $dbsx, $u, $written_deleted, $col, $ids, $extra_where ) = @_;
+    my $last = $written_deleted;
+
+    for ( 1 .. 5 ) {
+        my $current = _journal_is_deleted($u);
+        return if $current == $last;
+
+        _update_deleted_flag( $dbsx, $u, $current, $col, $ids, $extra_where );
+        $last = $current;
+    }
+
+    my $final = _journal_is_deleted($u);
+    return if $final == $last;
+    $log->logcroak( sprintf 'Status kept changing while reconciling search index for %s(%d).',
+        $u->user, $u->id );
+}
+
 sub work {
     my ( $self, $handle ) = @_;
     my $args = $self->args->[0];
@@ -139,21 +182,19 @@ sub work {
     else {
         $log->info("Requested complete recopy of user.");
 
-        # Throttle unless the caller passed force => 1. Routine dispatchers
-        # (schedulers, app hooks) should leave force unset so the 24h
-        # memcache key prevents stampedes. Explicit operator invocations
-        # (search-tool import-user, or import-all --force) pass force to
-        # bypass.
+        # Throttle only after a successful full copy, so failed work can retry.
+        # Explicit operator invocations can bypass the throttle with force.
+        my $throttle_key = [ $u->id, "search-copy-full:" . $u->id ];
         unless ( $args->{force} ) {
-            my $time = LJ::MemCache::get( [ $u->id, "search-copy-full:" . $u->id ] );
+            my $time = LJ::MemCache::get($throttle_key);
             if ( $time && $time > time() - 86400 ) {
                 $log->info("Copied less than a day ago. Skipping.");
                 return DW::Task::COMPLETED;
             }
         }
-        LJ::MemCache::set( [ $u->id, "search-copy-full:" . $u->id ], time() );
         copy_entry( $u, undef, 1 );
         copy_comment($u) if $copy_comments;
+        LJ::MemCache::set( $throttle_key, time() );
     }
 
     return DW::Task::COMPLETED;
@@ -229,6 +270,7 @@ sub copy_comment {
     my ( $entries, $comments );
     my @delete_jtalkids;
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
+    my $is_deleted  = _journal_is_deleted($u);
 
     my $in = join ',', map { int $_ } @$only_jtalkid;
     $comments = $dbfrom->selectall_hashref(
@@ -278,6 +320,7 @@ sub copy_comment {
         push @jtalkids, [ $jtalkid, $force_private ];
     }
 
+    my @inserted_jtalkids;
     my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
     while ( my @items = splice( @jtalkids, 0, _CHUNK_SIZE ) ) {
         last unless @items;
@@ -324,22 +367,24 @@ sub copy_comment {
             my $sql = sprintf(
                 'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
                     . ' allow_global_search, is_deleted, security_bits, title, body)'
-                    . ' VALUES (%d, %d, %d, %d, %d, %d, 0, %s, ?, ?)',
+                    . ' VALUES (%d, %d, %d, %d, %d, %d, %d, %s, ?, ?)',
                 $u->id, $comments->{$jid}->{nodeid},
                 $jid,
                 $comments->{$jid}->{posterid},
                 $comments->{$jid}->{datepost},
-                $allowpublic, _mva($bits),
+                $allowpublic, $is_deleted, _mva($bits),
             );
             $dbsx->do( $sql, undef, $text->{$jid}->{subject} // '', $text->{$jid}->{body} // '' );
             $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
+            push @inserted_jtalkids, int $jid;
             $ins_count++;
             $ins_min = $jid if !defined $ins_min || $jid < $ins_min;
             $ins_max = $jid if !defined $ins_max || $jid > $ins_max;
         }
     }
     if ($ins_count) {
+        _reconcile_deleted_flag( $dbsx, $u, $is_deleted, 'jtalkid', \@inserted_jtalkids );
         $log->info( sprintf 'Inserted %d comments (#%d-#%d) for %s(%d).',
             $ins_count, $ins_min, $ins_max, $u->user, $u->id );
     }
@@ -434,6 +479,8 @@ sub copy_entry {
     # be after a user already has most of their posts copied and is just
     # updating one or two.
     my $allowpublic = $u->include_in_global_search ? 1 : 0;
+    my $is_deleted  = _journal_is_deleted($u);
+    my @inserted_jitemids;
     my ( $ins_count, $ins_min, $ins_max ) = ( 0, undef, undef );
     foreach my $jitemid (@copy_jitemids) {
         my $row = $dbfrom->selectrow_hashref(
@@ -472,16 +519,20 @@ sub copy_entry {
         my $sql =
             sprintf( 'INSERT INTO dw1 (journalid, jitemid, jtalkid, poster_id, date_posted,'
                 . ' allow_global_search, is_deleted, security_bits, title, body)'
-                . ' VALUES (%d, %d, 0, %d, %d, %d, 0, %s, ?, ?)',
-            $jid, $jitemid, $row->{posterid}, $row->{date_posted}, $allowpublic, _mva($bits), );
+                . ' VALUES (%d, %d, 0, %d, %d, %d, %d, %s, ?, ?)',
+            $jid, $jitemid, $row->{posterid}, $row->{date_posted}, $allowpublic,
+            $is_deleted, _mva($bits), );
         $dbsx->do( $sql, undef, $row->{subject} // '', $row->{event} // '' );
         $log->logcroak( $dbsx->errstr ) if $dbsx->err;
 
+        push @inserted_jitemids, int $jitemid;
         $ins_count++;
         $ins_min = $jitemid if !defined $ins_min || $jitemid < $ins_min;
         $ins_max = $jitemid if !defined $ins_max || $jitemid > $ins_max;
     }
     if ($ins_count) {
+        _reconcile_deleted_flag( $dbsx, $u, $is_deleted, 'jitemid', \@inserted_jitemids,
+            'jtalkid = 0' );
         $log->info( sprintf 'Inserted %d posts (#%d-#%d) for %s(%d).',
             $ins_count, $ins_min, $ins_max, $u->user, $u->id );
     }
