@@ -26,7 +26,7 @@
 
 .error.sendfailed=The message could not be sent at this time because of a database error.  Please try again later.
 
-.formtemp=and eventually there will be a feature to allow using and editing commonly sent form messages.
+.error.form=The form message could not be found. Choose a saved form message and try again.
 
 .input.message.label=Message:
 

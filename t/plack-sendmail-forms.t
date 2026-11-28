@@ -1,0 +1,350 @@
+#!/usr/bin/perl
+#
+# Test the admin sendmail form manager and compose integration.
+#
+# Authors:
+#      Alex Southwell <saphid@users.noreply.github.com>
+#
+# Copyright (c) 2026 by Dreamwidth Studios, LLC.
+#
+# This program is free software; you may redistribute it and/or modify it under
+# the same terms as Perl itself. For a copy of the license, please reference
+# 'perldoc perlartistic' or 'perldoc perlgpl'.
+#
+
+use strict;
+use warnings;
+
+use Encode qw(decode_utf8 encode_utf8);
+use HTML::Entities qw(decode_entities);
+use HTML::Parser;
+use HTTP::Request::Common qw(GET POST);
+use Plack::Test;
+use Test::More;
+use URI;
+
+BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Test qw(temp_user);
+
+my $app = do "$ENV{LJHOME}/app.psgi";
+die $@ unless ref $app eq 'CODE';
+my $client = Plack::Test->create($app);
+
+local *LJ::send_mail = sub { die 'Unexpected email delivery' };
+
+my $admin  = temp_user();
+my $viewer = temp_user();
+$admin->grant_priv( 'siteadmin', 'sendmail' ) or die 'Could not grant sendmail privilege';
+$viewer->grant_priv( 'siteadmin', 'users' ) or die 'Could not grant unrelated privilege';
+
+local $LJ::IS_DEV_SERVER              = 1;
+local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = 'sendmailForms01';
+local %LJ::SENDMAIL_ACCOUNTS          = ( support => 'siteadmin:sendmail' );
+
+my $forms = '/admin/sendmail/forms';
+my $index = '/admin/sendmail/index';
+
+sub url {
+    my ( $path, $user, @query ) = @_;
+    my $uri = URI->new("http://localhost$path");
+    $uri->query_form( $user ? ( as => $user->user, @query ) : @query );
+    return $uri;
+}
+
+sub token {
+    my ($res)  = @_;
+    my ($auth) = $res->content =~ /name=['"]lj_form_auth['"][^>]*value=['"]([^'"]+)/;
+    return decode_entities( $auth // '' );
+}
+
+sub field {
+    my ( $res, $name ) = @_;
+    my ($input) = $res->content =~ /(<input\b[^>]*\bname="$name"[^>]*>)/;
+    my ($value) = ( $input // '' ) =~ /\bvalue="([^"]*)"/;
+    return decode_entities( $value // '' );
+}
+
+sub body_field {
+    my ( $res, $name ) = @_;
+    $name //= 'message';
+    my ($value) = $res->content =~ /<textarea\b[^>]*\bname="$name"[^>]*>(.*?)<\/textarea>/s;
+    return decode_entities( $value // '' );
+}
+
+sub submit {
+    my ( $path, $user, @fields ) = @_;
+    return $client->request( POST url( $path, $user ), Content => \@fields );
+}
+
+sub form_controls {
+    my ($res) = @_;
+    my %forms;
+    my ( $owner, $anonymous );
+    my $parser = HTML::Parser->new(
+        api_version => 3,
+        start_h     => [
+            sub {
+                my ( $tag, $attrs ) = @_;
+                if ( $tag eq 'form' ) {
+                    $owner = $attrs->{id} // ++$anonymous;
+                }
+                elsif ( $tag =~ /\A(?:button|input|select|textarea)\z/ ) {
+                    my $form = $attrs->{form} // $owner;
+                    push @{ $forms{$form} }, { tag => $tag, %$attrs } if defined $form;
+                }
+            },
+            'tagname, attr'
+        ],
+        end_h => [ sub { undef $owner if $_[0] eq 'form' }, 'tagname' ]
+    );
+    $parser->parse( decode_utf8( $res->content ) );
+    $parser->eof;
+    return values %forms;
+}
+
+sub form_with_control {
+    my ( $name, @forms ) = @_;
+    for my $controls (@forms) {
+        return $controls if grep { ( $_->{name} // '' ) eq $name } @$controls;
+    }
+    return [];
+}
+
+sub submit_labels {
+    my ($controls) = @_;
+    my @labels;
+    for my $control (@$controls) {
+        my $type = $control->{type} // ( $control->{tag} eq 'button' ? 'submit' : '' );
+        push @labels, $control->{value} if $type eq 'submit' || $type eq 'image';
+    }
+    return \@labels;
+}
+
+my $anonymous = $client->request( GET url($forms) );
+is( URI->new( $anonymous->header('Location') // '' )->path, '/login', 'requires login' );
+
+my $unauthorized = $client->request( GET url( $forms, $viewer ) );
+like(
+    $unauthorized->content,
+    qr/necessary privilege.*siteadmin:sendmail/,
+    'requires sendmail privilege'
+);
+
+my $list = $client->request( GET url( $forms, $admin ) );
+is( $list->code, 200, 'admin can view the form manager' ) or BAIL_OUT('Form manager unavailable');
+my $auth = token($list);
+ok( $auth, 'renders a form-auth token' ) or BAIL_OUT('Form manager has no form token');
+
+my $dbh = LJ::get_db_writer() or die 'No database';
+my $formid;
+
+END {
+    if ($formid) {
+        $dbh->do( 'DELETE FROM siteadmin_email_forms WHERE formid = ?',     undef, $formid );
+        $dbh->do( 'DELETE FROM siteadmin_email_history WHERE remoteid = ?', undef, $admin->id );
+    }
+}
+
+my $name    = 'Account <img src="invalid"> ' . $admin->user;
+my $subject = 'A "test" & <subject>';
+my $body    = "First line\n</textarea><script>sendmail_test()</script>\nLast line";
+my %fields  = ( action => 'save', name => $name, subject => $subject, message => $body );
+
+sub stored {
+    return $dbh->selectrow_arrayref(
+        'SELECT formid, name, subject, message FROM siteadmin_email_forms WHERE name = ?',
+        undef, $name );
+}
+
+my $no_priv = submit( $forms, $viewer, %fields, lj_form_auth => $auth );
+like(
+    $no_priv->content,
+    qr/necessary privilege.*siteadmin:sendmail/,
+    'cannot write without permission'
+);
+my $forged = submit( $forms, $admin, %fields, lj_form_auth => 'forged' );
+like( $forged->content, qr/Invalid form submission/, 'forged form token rejected' );
+ok( !stored(), 'rejected creates do not write a row' );
+
+my $invalid = submit( $forms, $admin, %{ { %fields, message => ' ' } }, lj_form_auth => $auth );
+like( $invalid->content, qr/Enter a message/, 'blank body is rejected' );
+ok( !stored(), 'invalid form is not stored' );
+
+my $long_subject = submit(
+    $forms, $admin,
+    %{ { %fields, subject => encode_utf8( "\x{e9}" x 130 ) } },
+    lj_form_auth => $auth
+);
+like( $long_subject->content, qr/Enter a single-line subject/, 'rejects an oversized subject' );
+ok( !stored(), 'oversized subject is not stored' );
+
+my $multiline_name =
+    submit( $forms, $admin, %{ { %fields, name => "First\r\nSecond" } }, lj_form_auth => $auth );
+like( $multiline_name->content, qr/Enter a single-line name/, 'rejects a multiline name' );
+
+my $create = submit( $forms, $admin, %fields, lj_form_auth => $auth );
+is( $create->code, 303, 'create redirects to GET' );
+my $row = stored();
+ok( $row, 'created form is persisted' ) or BAIL_OUT('No saved form');
+$formid = $row->[0];
+is_deeply( $row, [ $formid, $name, $subject, $body ], 'stores plain text without HTML encoding' );
+
+$list = $client->request( GET url( $forms, $admin ) );
+like( $list->content, qr/Account &lt;img /, 'list label is escaped' );
+unlike( $list->content, qr/<img src="invalid">/, 'stored markup does not become an image' );
+my $edit = $client->request( GET url( $forms, $admin, id => $formid ) );
+is( field( $edit, 'subject' ), $subject, 'editor prefills subject' );
+is( body_field($edit), $body, 'editor prefills body as text' );
+unlike( $edit->content, qr/<script>sendmail_test\(\)<\/script>/, 'editor cannot execute body' );
+
+my $zero = submit(
+    $forms, $admin,
+    action       => 'save',
+    name         => '0',
+    subject      => '0',
+    message      => '0',
+    id           => $formid,
+    lj_form_auth => token($edit)
+);
+is( $zero->code, 303, 'accepts zero as nonempty text in every field' );
+is_deeply(
+    $dbh->selectrow_arrayref(
+        'SELECT name, subject, message FROM siteadmin_email_forms WHERE formid = ?',
+        undef, $formid
+    ),
+    [ '0', '0', '0' ],
+    'persists zero in every field'
+);
+
+my $zero_edit = $client->request( GET url( $forms, $admin, id => $formid ) );
+like(
+    $zero_edit->content,
+    qr{href="/admin/sendmail/forms\?id=$formid">0</a>},
+    'manager lists zero as the form name'
+);
+is( field( $zero_edit, 'name' ),    '0', 'manager prefills zero name' );
+is( field( $zero_edit, 'subject' ), '0', 'manager prefills zero subject' );
+is( body_field($zero_edit), '0', 'manager prefills zero body' );
+
+my $zero_compose = $client->request( GET url( $index, $admin ) );
+like(
+    $zero_compose->content,
+    qr{<option value="$formid"[^>]*>0</option>},
+    'compose offers the saved form named zero'
+);
+my $zero_load = submit(
+    $index, $admin,
+    load_form    => 1,
+    form_id      => $formid,
+    lj_form_auth => token($zero_compose)
+);
+is( field( $zero_load, 'subject' ), '0', 'loading prefills zero subject' );
+is( body_field($zero_load), '0', 'loading prefills zero body' );
+
+my $zero_send = submit(
+    $index, $admin,
+    account      => 'support',
+    subject      => '0',
+    message      => '0',
+    lj_form_auth => token($zero_load)
+);
+like( $zero_send->content, qr/specify a recipient/, 'zero draft reaches recipient validation' );
+unlike(
+    $zero_send->content,
+    qr/(?:subject|text) cannot be blank/,
+    'compose accepts zero subject and body as nonempty'
+);
+is( field( $zero_send, 'subject' ), '0', 'compose keeps zero subject after validation error' );
+is( body_field($zero_send), '0', 'compose keeps zero body after validation error' );
+
+my $blank_send = submit(
+    $index, $admin,
+    account      => 'support',
+    subject      => ' ',
+    message      => ' ',
+    lj_form_auth => token($zero_load)
+);
+like( $blank_send->content, qr/subject cannot be blank/, 'compose rejects whitespace subject' );
+like( $blank_send->content, qr/text cannot be blank/,    'compose rejects whitespace body' );
+
+my $updated = encode_utf8("R\x{e9}vis\x{e9}") . ' ' . $subject;
+my $save    = submit(
+    $forms, $admin, %{ { %fields, subject => $updated } },
+    id           => $formid,
+    lj_form_auth => token($edit)
+);
+is( $save->code, 303, 'edit redirects to GET' );
+is_deeply( stored(), [ $formid, $name, $updated, $body ], 'edit updates the same form' );
+
+my $compose       = $client->request( GET url( $index, $admin ) );
+my @controls      = form_controls($compose);
+my $send_controls = form_with_control( 'sendto', @controls );
+is_deeply( submit_labels($send_controls),
+    ['Send Message'], 'compose has only one submit control so Enter sends instead of loading' );
+my $load_controls = form_with_control( 'form_id', @controls );
+is_deeply( submit_labels($load_controls), ['Load form message'], 'selector has its own form' );
+my %load_fields = map { ( $_->{name}, $_->{value} ) }
+    grep { $_->{name} && ( $_->{type} // '' ) eq 'hidden' } @$load_controls;
+like( $compose->content, qr{href="(?:/admin/sendmail/)?forms"}, 'compose links to manager' );
+like(
+    $compose->content,
+    qr/<option value="$formid"[^>]*>Account &lt;img /,
+    'saved form is offered with an escaped label'
+);
+
+my ($sent_before) =
+    $dbh->selectrow_array( 'SELECT COUNT(*) FROM siteadmin_email_history WHERE remoteid = ?',
+    undef, $admin->id );
+my @draft = (
+    account => 'support',
+    sendto  => 'recipient@example.invalid',
+    request => 17,
+    notes   => 'Keep this',
+    subject => 'Draft subject',
+    message => 'Draft body'
+);
+my $load = submit( $index, $admin, @draft, %load_fields, form_id => $formid );
+is( $load->code, 200, 'load renders the compose form' );
+is( field( $load, 'subject' ), $updated, 'loads saved subject' );
+is( body_field($load), $body, 'loads saved body' );
+is( field( $load, 'sendto' ), 'recipient@example.invalid', 'keeps recipient' );
+is( field( $load, 'request' ), '17', 'keeps support request' );
+is( body_field( $load, 'notes' ), 'Keep this', 'keeps team notes' );
+my $loaded_compose = form_with_control( 'sendto', form_controls($load) );
+my ($reqsubj) = grep { ( $_->{name} // '' ) eq 'reqsubj' } @$loaded_compose;
+ok( $reqsubj && !exists $reqsubj->{checked}, 'keeps support subject option unchecked' );
+unlike( $load->content, qr/<script>sendmail_test\(\)<\/script>/, 'compose cannot execute body' );
+my ($sent_after) =
+    $dbh->selectrow_array( 'SELECT COUNT(*) FROM siteadmin_email_history WHERE remoteid = ?',
+    undef, $admin->id );
+is( $sent_after, $sent_before, 'loading does not create send history' );
+
+my $bad_delete = submit( $forms, $admin, action => 'delete', id => $formid );
+like( $bad_delete->content, qr/Invalid form submission/, 'delete requires a token' );
+ok( stored(), 'rejected delete leaves form intact' );
+my $delete = submit( $forms, $admin, action => 'delete', id => $formid, lj_form_auth => $auth );
+is( $delete->code, 303, 'delete redirects to GET' );
+ok( !stored(), 'delete removes the row' );
+
+my $gone = $client->request( GET url( $forms, $admin, id => $formid ) );
+like( $gone->content, qr/form message could not be found/i,
+    'missing form does not open an editor' );
+my $stale = submit( $forms, $admin, %fields, id => $formid, lj_form_auth => $auth );
+like( $stale->content, qr/form message could not be found/i,
+    'edit cannot recreate a deleted form' );
+ok( !stored(), 'stale edits do not write a row' );
+my $missing = submit( $index, $admin, @draft, %load_fields, form_id => $formid );
+like(
+    $missing->content,
+    qr/form message could not be found/i,
+    'missing selection reports an error'
+);
+is( field( $missing, 'subject' ), 'Draft subject', 'missing selection keeps subject' );
+is( body_field($missing), 'Draft body', 'missing selection keeps body' );
+
+my $send = submit( $index, $admin, %{ { @draft, sendto => '' } }, lj_form_auth => token($compose) );
+like( $send->content, qr/specify a recipient/, 'compose-only POST validates the recipient' );
+is( field( $send, 'subject' ), 'Draft subject', 'compose-only POST keeps the edited subject' );
+is( body_field($send), 'Draft body', 'compose-only POST keeps the edited body' );
+
+done_testing;

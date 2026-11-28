@@ -18,14 +18,27 @@
     </style>
 [% END %]
 
-<p>[% '.intro' | ml %] [% '.lookup' | ml( url = 'lookup' ) %] [% '.formtemp' | ml %]</p>
+<p>[% '.intro' | ml %] [% '.lookup' | ml( url = 'lookup' ) %]. <a href="/admin/sendmail/forms">Manage form messages</a>.</p>
 
 [%- INCLUDE components/errors.tt errors = errors -%]
 
-<form method="POST">
+[%- IF has_menu && form_menu %]
+<form id="sendmail-load" method="POST">
+    [% dw.form_auth %]
+    [% form.hidden( name = 'load_form', value = '1' ) %]
+    <p>
+        [% form.select( label = dw.ml( '.select.form.label' ), name = 'form_id', items = form_menu ) %]
+        [% form.submit( value = 'Load form message' ) %]
+        <br />Loading replaces the subject and message without sending email.
+    </p>
+    <noscript><p>Without JavaScript, loading a form also clears the other draft fields.</p></noscript>
+</form>
+[%- END %]
 
-[%- IF has_menu -%]
-    [% dw.form_auth %]<p>
+[%- IF has_menu %]
+<form id="sendmail-compose" method="POST">
+    [% dw.form_auth %]
+    <p>
     [%- form.select( label = dw.ml( ".select.account.label" ),
                      name = "account", id = "account",
                      items = account_menu );
@@ -54,7 +67,7 @@
 
     [%- form.checkbox( label = dw.ml( ".check.supportreq.label" ),
                        name = "reqsubj", id = "reqsubj",
-                       selected = 1, value = 1 );
+                       selected = reqsubj_checked ? 1 : 0, value = 1 );
     -%]</p><p>
 
     <label for="notes">[%- ".input.notes.label" | ml -%]</label><br />
@@ -65,9 +78,19 @@
 
     [%- form.submit( value = dw.ml( ".submit" ) );
     -%]</p>
+</form>
+
+    [%- IF form_menu %]
+<script>
+    document.getElementById('sendmail-load').addEventListener('formdata', (event) => {
+        const draft = new FormData(document.getElementById('sendmail-compose'));
+        for (const name of ['account', 'sendto', 'subject', 'message', 'request', 'reqsubj', 'notes']) {
+            if (draft.has(name)) event.formData.set(name, draft.get(name));
+        }
+    });
+</script>
+    [%- END %]
 
 [%- ELSE -%]
     <div class='error-box message-box'>[% '.noaddresses' | ml %]</div>
 [%- END -%]
-
-</form>

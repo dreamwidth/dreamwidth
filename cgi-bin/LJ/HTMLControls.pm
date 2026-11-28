@@ -436,7 +436,7 @@ sub html_textarea {
 
     my $disabled = $opts->{disabled} ? " disabled='disabled'" : "";
     my $ehtml = $opts->{noescape} ? 0 : 1;
-    my $value = $opts->{value} || '';
+    my $value = $opts->{value} // '';
     $value = ehtml($value) if $ehtml;
 
     my $ret = "<textarea";

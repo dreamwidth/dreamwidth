@@ -2937,6 +2937,17 @@ CREATE TABLE siteadmin_email_history (
 )
 EOC
 
+register_tablecreate( "siteadmin_email_forms", <<'EOC');
+CREATE TABLE siteadmin_email_forms (
+    formid   INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name     VARCHAR(255) NOT NULL,
+    subject  VARCHAR(255) NOT NULL,
+    message  MEDIUMTEXT NOT NULL,
+
+    PRIMARY KEY (formid)
+)
+EOC
+
 # FIXME: add alt text, etc. mediaprops?
 register_tablecreate( "media", <<'EOC');
 CREATE TABLE `media` (
