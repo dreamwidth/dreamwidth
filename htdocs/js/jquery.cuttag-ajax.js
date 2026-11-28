@@ -4,6 +4,8 @@ var isExpandingAll = 0;
 
 var loadPending = 0;
 
+var entryDetails;
+
 // Test for SVG support from
 // http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 // If we expand SVG usage on the site this function should get
@@ -157,6 +159,9 @@ $.widget("dw.cuttag", {
             replaceDiv.html(resObj.text)
                 .css("display","block").addClass("cuttag-open");
 
+            if ( isExpandingAll && entryDetails )
+                replaceDiv.find("details").filter(entryDetails).prop("open", true);
+
             var closeEnd = $("<span>");
             var a = $("<a>",{
                 href: "#cuttag_" + self.identifier,
@@ -212,7 +217,7 @@ $.widget("dw.cuttag_controls", {
         var self = this;
         var cuttags = $("span.cuttag[id]");
 
-        if ( cuttags.size() == 0 ) return;
+        if ( cuttags.size() == 0 && !$(entryDetails).length ) return;
 
         self.update();
     },
@@ -234,11 +239,15 @@ $.widget("dw.cuttag_controls", {
             }
         });
 
+        var details = $(entryDetails);
+        var canExpand = aria_closed || details.not("[open]").length;
+        var canCollapse = aria_open || details.filter("[open]").length;
+
         var el_exp = $("<img>", {
             alt: self.config.text.expand,
             title: self.config.text.expand,
             src: Site.imgprefix + collapseall_img,
-            style: aria_closed ? self.config.image_style.enabled : self.config.image_style.disabled
+            style: canExpand ? self.config.image_style.enabled : self.config.image_style.disabled
         });
 
         if ( isExpandingAll ) {
@@ -248,15 +257,15 @@ $.widget("dw.cuttag_controls", {
             el_exp.attr("alt",self.config.text.expanding);
         }
 
-        if ( aria_closed ) {
-            var a_exp = $("<a>",{
-                'aria-controls': aria_closed
-            });
+        if ( canExpand ) {
+            var a_exp = $("<a>");
+            if ( aria_closed ) a_exp.attr("aria-controls", aria_closed);
             a_exp.append(el_exp);
             el_exp = a_exp;
 
             a_exp.click(function() {
-                isExpandingAll = 1;
+                $(entryDetails).prop("open", true);
+                isExpandingAll = aria_closed ? 1 : 0;
                 var cuttags = $("span.cuttag[id]");
                 cuttags.each(function (_,element) {
                     $(element).data("dw-cuttag").open();
@@ -269,17 +278,17 @@ $.widget("dw.cuttag_controls", {
             alt: self.config.text.collapse,
             title: self.config.text.collapse,
             src: Site.imgprefix + expandall_img,
-            style: aria_open ? self.config.image_style.enabled : self.config.image_style.disabled
+            style: canCollapse ? self.config.image_style.enabled : self.config.image_style.disabled
         });
-        if ( aria_open ) {
-            var a_col = $("<a>",{
-                'aria-controls': aria_open
-            });
+        if ( canCollapse ) {
+            var a_col = $("<a>");
+            if ( aria_open ) a_col.attr("aria-controls", aria_open);
             a_col.append(el_col);
             el_col = a_col;
             a_col.click(function() {
                 isExpandingAll = 0;
                 to_do = 1;
+                $(entryDetails).prop("open", false);
                 cuttags.each(function (_,element) {
                     var widget = $(element).data("dw-cuttag");
                     if ( widget )
@@ -294,10 +303,26 @@ $.widget("dw.cuttag_controls", {
 $.extend( $.dw.cuttag_controls, {
     initControls: function() {
         var controls = $(".cutTagControls");
+        if ( !controls.length ) return;
+
+        if ( $("head meta[name='dw-reading-page']").length ) entryDetails = ".entry-content details";
 
         controls.each(function (_,element) {
             $(element).cuttag_controls();
         });
+
+        if ( !entryDetails ) return;
+
+        var updateQueued = false;
+        document.addEventListener("toggle", function(event) {
+            if ( updateQueued || !$(event.target).is(entryDetails) ) return;
+
+            updateQueued = true;
+            window.requestAnimationFrame(function() {
+                updateQueued = false;
+                $.dw.cuttag_controls.updateAll();
+            });
+        }, true);
     },
     updateAll: function() {
         var controls = $(".cutTagControls");

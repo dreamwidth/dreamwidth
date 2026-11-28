@@ -1066,6 +1066,12 @@ TOKEN:
                                 if exists $hash->{$_};
                         }
 
+                        $newdata .= ' open=""'
+                            if $allow
+                            && $tag eq 'details'
+                            && $opts->{details_open}
+                            && !exists $hash->{open};
+
                         if ($slashclose) {
                             if ( $tag =~ $slashclose_tags ) {
 
@@ -1741,6 +1747,7 @@ sub clean_event {
             maximgheight            => $opts->{maximgheight},
             imageplaceundef         => $opts->{imageplaceundef},
             ljcut_disable           => $opts->{ljcut_disable},
+            details_open            => $opts->{details_open},
             noearlyclose            => 1,
             extractimages           => $opts->{extractimages} ? 1 : 0,
             noexpandembedded        => $opts->{noexpandembedded} ? 1 : 0,
