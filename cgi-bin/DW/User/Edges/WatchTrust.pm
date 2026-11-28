@@ -143,7 +143,9 @@ sub _add_wt_edge {
     # delete friend-of memcache keys for anyone who was added
     my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
     LJ::MemCache::delete( [ $from_userid, "trustmask:$from_userid:$to_userid" ] );
-    DW::Cache->request->remove( 'trustmask', "$from_userid:$to_userid" );
+
+    # A following filter update must see this write even if the reader is behind.
+    DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $mask );
     LJ::memcache_kill( $to_userid,   'wt_edges_rev' );
     LJ::memcache_kill( $from_userid, 'wt_edges' );
     LJ::memcache_kill( $from_userid, 'wt_list' );
@@ -197,40 +199,34 @@ sub _del_wt_edge {
     my $do_watch = $de_watch ? 1 : 0;
     my $do_trust = $de_trust ? 1 : 0;
 
-    # get what we know
-    my $does_watch = $from_u->watches($to_u);
-    my $does_trust = $from_u->trusts($to_u);
-    return 1 unless $does_watch || $does_trust;
-
-    # make sure we have a valid edge to remove
-    return 1
-        unless ( $de_watch && $does_watch )
-        || ( $de_trust && $does_trust );
-
     my $dbh = LJ::get_db_writer()
         or return 0;
+    my ( $from_userid, $to_userid ) = ( $from_u->id, $to_u->id );
+    my $existing = $dbh->selectrow_array(
+        'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+        undef, $from_userid, $to_userid );
+    return 0 if $dbh->err;
+    $existing ||= 0;
 
-    # deletes are easy, these are cases where we're removing both edges,
-    # or removing the only remaining edge
-    if (   ( $de_watch && $de_trust )
-        || ( $de_watch && $does_watch && !$does_trust )
-        || ( $de_trust && $does_trust && !$does_watch ) )
-    {
+    my $watch_bit = 1 << 61;
+    unless ( ( $do_watch && ( $existing & $watch_bit ) ) || ( $do_trust && ( $existing & 1 ) ) ) {
+        DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $existing );
+        return 1;
+    }
 
-        $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
-            undef, $from_u->id, $to_u->id );
-        return 0 if $dbh->err;
-
-        # at this point, we're guaranteed to have only the other edge remaining
+    my $mask = 0;
+    $mask |= $existing & $watch_bit   unless $do_watch;
+    $mask |= $existing & ~( 7 << 61 ) unless $do_trust;
+    if ( $mask & ( $watch_bit | 1 ) ) {
+        $dbh->do( 'UPDATE wt_edges SET groupmask = ? WHERE from_userid = ? AND to_userid = ?',
+            undef, $mask, $from_userid, $to_userid );
     }
     else {
-
-        my $mask = $de_trust ? 1 << 61 : $from_u->trustmask($to_u);
-
-        $dbh->do( 'UPDATE wt_edges SET groupmask = ? WHERE from_userid = ? AND to_userid = ?',
-            undef, $mask, $from_u->id, $to_u->id );
-        return 0 if $dbh->err;
+        $mask = 0;
+        $dbh->do( 'DELETE FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $from_userid, $to_userid );
     }
+    return 0 if $dbh->err;
 
     # kill memcaches
     LJ::memcache_kill( $from_u, 'wt_edges' );
@@ -240,8 +236,8 @@ sub _del_wt_edge {
     LJ::memcache_kill( $from_u, 'trusted' );
     LJ::memcache_kill( $to_u,   'watched_by' );
     LJ::memcache_kill( $to_u,   'trusted_by' );
-    LJ::MemCache::delete( [ $from_u->id, "trustmask:" . $from_u->id . ":" . $to_u->id ] );
-    DW::Cache->request->remove( 'trustmask', $from_u->id . ":" . $to_u->id );
+    LJ::MemCache::delete( [ $from_userid, "trustmask:$from_userid:$to_userid" ] );
+    DW::Cache->request->set( 'trustmask', "$from_userid:$to_userid", $mask );
 
     # fire notifications if we have theschwartz
     my $notify =
@@ -854,6 +850,9 @@ sub delete_trust_group {
     my $bit = $grp->{groupnum} + 0;
     return 0 unless $bit >= 1 && $bit <= 60;
 
+    # This cleanup is intentionally non-transactional across entries, tags, and edges.
+    # If an edge operation fails, keep the group row so a retry can finish cleanup.
+
     # remove all posts from allowing that group:
     my @posts_to_clean = @{
         $u->selectcol_arrayref(
@@ -890,16 +889,36 @@ sub delete_trust_group {
         or return 0;
 
     # iterate over everybody in this group and remove the bit
-    my $tglist = $u->trust_group_members( id => $bit, force_database => 1 );
-    foreach my $tid ( keys %{ $tglist || {} } ) {
+    my $members = $dbh->selectcol_arrayref(
+        'SELECT to_userid FROM wt_edges WHERE from_userid = ? AND groupmask & (1 << ?)',
+        undef, $userid, $bit );
+    return 0 if $dbh->err;
+
+    my $had_edge_error = 0;
+    foreach my $tid (@$members) {
         $dbh->do(
 q{UPDATE wt_edges SET groupmask = groupmask & ~(1 << ?) WHERE from_userid = ? AND to_userid = ?},
-            undef, $bit, $u->id, $tid
+            undef, $bit, $userid, $tid
         );
 
-        # don't forget memcache
+        my $mask;
+        $mask = $dbh->selectrow_array(
+            'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+            undef, $userid, $tid )
+            unless $dbh->err;
+        my $edge_error = $dbh->err;
+
         LJ::MemCache::delete( [ $userid, "trustmask:$userid:$tid" ] );
-        DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
+        if ($edge_error) {
+            DW::Cache->request->remove( 'trustmask', "$userid:$tid" );
+            $had_edge_error = 1;
+            next;
+        }
+        DW::Cache->request->set( 'trustmask', "$userid:$tid", ( $mask // 0 ) + 0 );
+    }
+    if ($had_edge_error) {
+        LJ::memcache_kill( $userid, 'wt_list' );
+        return 0;
     }
 
     # finally remove the trust group, huzzah

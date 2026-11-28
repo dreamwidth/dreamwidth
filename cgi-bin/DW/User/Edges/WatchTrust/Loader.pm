@@ -28,8 +28,8 @@ use DW::Cache;
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
 
-    # Memoize per request; the trustmask cache is cleared in LJ::start_request
-    # (via DW::Cache) and invalidated on edge changes.
+    # Edge writes populate this cache with the updated mask for the current request.
+    # LJ::start_request clears it via DW::Cache.
     my $reqkey = "$from_userid:$to_userid";
     my $cached = DW::Cache->request->get( 'trustmask', $reqkey );
     return $cached if defined $cached;
