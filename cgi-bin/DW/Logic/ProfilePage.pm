@@ -539,7 +539,7 @@ sub _basic_info_website {
             $urlname = LJ::ehtml( $urlname || $url );
             if ($url) {
                 $ret->[0] = _profile_ml('.label.website');
-                $ret->[1] = { url => $url, text => $urlname };
+                $ret->[1] = { url => $url, text => $urlname, ugc => 1 };
             }
         }
         else {
@@ -797,6 +797,7 @@ sub external_services {
             url      => $url,
             image    => $site->{imgfile},
             title_ml => $site->{title_ml},
+            ugc      => 1,
         };
     };
 

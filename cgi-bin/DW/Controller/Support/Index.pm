@@ -40,7 +40,7 @@ sub index_handler {
     my $vars = {};
 
     my $currentproblems = LJ::load_include("support-currentproblems");
-    LJ::CleanHTML::clean_event( \$currentproblems, {} );
+    LJ::CleanHTML::clean_event( \$currentproblems, { ugc_links => 0 } );
     $vars->{currentproblems} = $currentproblems;
 
     # Get remote username and journal URL, or example user's username and journal URL

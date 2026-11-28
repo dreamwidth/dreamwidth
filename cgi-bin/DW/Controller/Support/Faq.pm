@@ -297,9 +297,9 @@ sub faqbrowse_handler {
         $question =~ s/\n/<br \/>/g;
 
         # Clean this as if it were an entry, but don't allow lj-cuts
-        LJ::CleanHTML::clean_event( \$summary, { 'ljcut_disable' => 1 } )
+        LJ::CleanHTML::clean_event( \$summary, { ljcut_disable => 1, ugc_links => 0 } )
             if $display_summary;
-        LJ::CleanHTML::clean_event( \$answer, { 'ljcut_disable' => 1 } )
+        LJ::CleanHTML::clean_event( \$answer, { ljcut_disable => 1, ugc_links => 0 } )
             if $display_answer;
 
         # Highlight search terms

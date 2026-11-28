@@ -73,14 +73,14 @@ is(
 # plain URL containing user tag, with autolinks enabled
 is(
     $clean->( $url, editor => undef, preformatted => 0, noautolinks => 0 ),
-'<a href="https://medium.com/@username/title-of-page">https://medium.com/@username/title-of-page</a>',
+'<a href="https://medium.com/@username/title-of-page" rel="ugc">https://medium.com/@username/title-of-page</a>',
     'user tag in auto-linked URL not converted'
 );
 
 # linked URL containing user tag
 is(
     $clean->("[link from \@system]($url)"),
-    qq{<p><a href="$url">link from $lju_sys_no_link</a></p>},
+    qq{<p><a href="$url" rel="ugc">link from $lju_sys_no_link</a></p>},
     'user tag in href not converted, but user tag in link text converted (using de-linked form) []'
 );
 
@@ -121,7 +121,7 @@ is(
 # HTML within Markdown is passed through, but Markdown can build new tags around it and user tags get processed
 is(
     $clean->(qq{<a href="$url">link from \@system</a>}),
-    qq{<p><a href="$url">link from $lju_sys_no_link</a></p>},
+    qq{<p><a href="$url" rel="ugc">link from $lju_sys_no_link</a></p>},
     'user tags work the same in HTML-in-Markdown as in plain Markdown'
 );
 
