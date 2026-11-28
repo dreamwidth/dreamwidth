@@ -757,6 +757,7 @@ class IconsPage extends Page
 
     var readonly string{} sort_urls "An associative array of link for various sort orders.";
     var readonly string[] sort_keyseq "A list of sort orders, indicated by key.";
+    function builtin print_sort_option(string order, string label) "Prints a sort control for the Icons page.";
     function print_icon_manage_link
     "Prints out a link to the icon management page, if the viewer can manage icons.";
 }
@@ -6689,12 +6690,9 @@ function IconsPage::print_body {
     """<div class="sorting-options">\n<ul>\n""";
     var int sort_ct = 0;
     foreach var string k ($.sort_keyseq) {
-        var string text = lang_icon_sortorder_title($k);
-        if ( $k == $.sortorder ) {
-            print safe """<li class='$k active'>$text""";
-        } else {
-            print safe """<li class='$k'><a href='$.sort_urls{$k}'>$text</a>""";
-        }
+        var string active = $k == $.sortorder ? " active" : "";
+        """<li class='$k$active'>""";
+        $this->print_sort_option($k, lang_icon_sortorder_title($k));
         if ( (++$sort_ct) < size $.sort_keyseq) { print $*text_default_separator; }
         "</li>\n";
     }

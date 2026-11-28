@@ -351,6 +351,19 @@ sub render {
         }
     }
 
+    if (   $mode eq 'icons'
+        && $u
+        && $r->did_post
+        && defined( my $order = $r->post_args->{icon_view_order} ) )
+    {
+        return $r->FORBIDDEN
+            unless $remote && LJ::check_form_auth( $r->post_args->{lj_form_auth} );
+        return $r->HTTP_BAD_REQUEST unless $order eq 'upload' || $order eq 'keyword';
+        $remote->iconbrowser_keywordorder( $order eq 'keyword' ? 'Y' : 'N' );
+        return $r->redirect(
+            LJ::create_url( undef, viewing_style => 1, keep_args => [qw(view inactive)] ) );
+    }
+
     # Journal rendering shares the native request with the controller.
     my $handle_with_siteviews = 0;
     my %headers;
