@@ -31,6 +31,8 @@ use DW::API::Key;
 use DW::OAuth::Access;
 use DW::OAuth::Consumer;
 use DW::OAuth::Request;
+use DW::Shop;
+use DW::Shop::Cart;
 use LJ::JSON;
 use LJ::Session;
 use LJ::Test qw(temp_user);
@@ -546,6 +548,42 @@ subtest 'Stripe webhook response handling' => sub {
         );
         is( $signed->code, 400, 'signed cookieless webhook rejects an unsupported event' );
         like( $signed->content, qr/Unsupported event/, 'signed event reaches the Stripe engine' );
+    };
+};
+
+subtest 'Stripe retries a completed checkout when payments are disabled' => sub {
+    local $LJ::DISABLED{payments}         = 1;
+    local $LJ::DOMAIN_SHOP                = 'localhost';
+    local $LJ::STRIPE{webhook_key}        = 'test-webhook-key';
+    local $LJ::_T_UNIQCOOKIE_CURRENT_UNIQ = LJ::UniqCookie->generate_uniq_ident;
+
+    my $cart = DW::Shop::Cart->new_cart($visible);
+    $cart->state($DW::Shop::STATE_PEND_PAID);
+
+    my $event = to_json(
+        {
+            type => 'checkout.session.completed',
+            data => { object => { client_reference_id => $cart->id } },
+        }
+    );
+    my $timestamp = time();
+    my $signature = hmac_sha256_hex( "$timestamp.$event", $LJ::STRIPE{webhook_key} );
+    my $request   = POST 'http://localhost/shop/stripe-webhook',
+        'Stripe-Signature' => "t=$timestamp,v1=$signature",
+        Content_Type       => 'application/json',
+        Content            => $event;
+
+    test_psgi $app, sub {
+        my $cb = shift;
+
+        is( $cb->( $request->clone )->code, 503, 'disabled payments request a retry' );
+        is( DW::Shop::Cart->get_from_cartid( $cart->id )->state,
+            $DW::Shop::STATE_PEND_PAID, 'disabled payments leave the order pending' );
+
+        local $LJ::DISABLED{payments} = 0;
+        is( $cb->( $request->clone )->code, 200, 'retry succeeds when payments resume' );
+        is( DW::Shop::Cart->get_from_cartid( $cart->id )->state,
+            $DW::Shop::STATE_PAID, 'retry marks the order paid' );
     };
 };
 
