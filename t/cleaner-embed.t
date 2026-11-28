@@ -17,7 +17,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 196;
+use Test::More tests => 197;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
@@ -87,6 +87,20 @@ qq{<object width="640" height="385"><param name="movie" value="http://www.exampl
     $clean_post = qq{};
     $clean->();
     is( $orig_post, $clean_post, "<iframe> tag" );
+
+    subtest "blorbo.social post embeds", sub {
+        my $post_url = 'https://blorbo.social/@azurelunatic/109485527427943661';
+        my $iframe   = qq{<iframe src="$post_url/embed" width="400"></iframe>};
+        $orig_post = $iframe . qq{<script src="https://blorbo.social/embed.js"></script>};
+        $clean->();
+        is( $orig_post, $iframe, "keep the post iframe without the external script" );
+
+        foreach my $url ( $post_url, "$post_url/embed/extra", "$post_url/embed.js" ) {
+            $orig_post = qq{<iframe src="$url"></iframe>};
+            $clean->();
+            is( $orig_post, '', "reject non-embed URL $url" );
+        }
+    };
 
     foreach my $provider ( 'blip.tv/play/x11Xx11Xx.html', 'vid.me/e/v63?stats=1&amp;tools=1' ) {
         subtest "remove retired provider $provider", sub {
