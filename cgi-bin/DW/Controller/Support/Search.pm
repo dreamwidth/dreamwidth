@@ -25,7 +25,7 @@ use DW::Search;
 DW::Routing->register_string( "/support/search", \&search_handler, app => 1 );
 
 sub search_handler {
-    my ( $ok, $rv ) = controller( authas => 1, form_auth => 0 );
+    my ( $ok, $rv ) = controller( authas => 1, form_auth => 0, allow_invisible => 1 );
     return $rv unless $ok;
     my $remote = $rv->{remote};
 

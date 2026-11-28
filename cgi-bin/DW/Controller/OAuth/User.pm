@@ -30,7 +30,7 @@ DW::Routing->register_regex( qr!^/oauth/token/(\d+)$!,             \&token_handl
 DW::Routing->register_regex( qr!^/oauth/token/(\d+)/deauthorize$!, \&delete_handler, app => 1 );
 
 sub index_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r    = $rv->{r};
@@ -62,7 +62,7 @@ sub index_handler {
 sub token_handler {
     my $consumer_id = $_[1];
 
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r    = $rv->{r};
@@ -93,7 +93,7 @@ sub token_handler {
 sub delete_handler {
     my $consumer_id = $_[1];
 
-    my ( $ok, $rv ) = controller( form_auth => 1 );
+    my ( $ok, $rv ) = controller( form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $r = $rv->{r};

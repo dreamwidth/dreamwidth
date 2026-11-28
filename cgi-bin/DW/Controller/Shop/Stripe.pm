@@ -19,11 +19,13 @@ package DW::Controller::Shop::Stripe;
 use strict;
 use Carp qw/ confess /;
 use Digest::SHA qw/ hmac_sha256_hex /;
+use HTTP::Status qw/ HTTP_SERVICE_UNAVAILABLE is_error /;
 
 use LJ::JSON;
 use DW::Routing;
 use DW::Controller;
 use DW::Controller::Shop;
+use DW::Request;
 use DW::Shop::Engine::Stripe;
 
 DW::Routing->register_string( '/shop/stripe-checkout', \&stripe_checkout_handler, app => 1 );
@@ -50,6 +52,12 @@ sub stripe_checkout_handler {
 
 sub stripe_webhook_handler {
     my ( $ok, $rv ) = _stripe_controller( anonymous => 1 );
+    unless ($ok) {
+        my $r      = DW::Request->get;
+        my $status = ref $rv || !$rv ? $r->status : $rv;
+        return $rv if is_error( $status // 0 );
+        return HTTP_SERVICE_UNAVAILABLE;
+    }
 
     my $r        = $rv->{r};
     my $raw_json = $r->content;

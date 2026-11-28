@@ -34,7 +34,7 @@ DW::Routing->register_string( '/support/faqsearch', \&faqsearch_handler, app => 
 sub faq_handler {
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $remote = $rv->{remote};
@@ -112,7 +112,7 @@ sub faqpop_handler {
     my $r   = DW::Request->get;
     my $get = $r->get_args;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $vars = {};
@@ -160,7 +160,7 @@ sub faqpop_handler {
 sub faqbrowse_handler {
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $remote = $rv->{remote};
@@ -371,7 +371,7 @@ sub faqbrowse_handler {
 sub faqsearch_handler {
     my $r = DW::Request->get;
 
-    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1 );
+    my ( $ok, $rv ) = controller( anonymous => 1, form_auth => 1, allow_invisible => 1 );
     return $rv unless $ok;
 
     my $remote = $rv->{remote};
