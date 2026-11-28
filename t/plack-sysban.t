@@ -30,7 +30,7 @@ BEGIN {
     };
 }
 
-plan tests => 12;
+plan tests => 15;
 
 # Load the Plack app
 my $app_file = "$ENV{LJHOME}/app.psgi";
@@ -224,5 +224,44 @@ test_psgi $app, sub {
         my $res = $cb->( GET "/", 'X-Forwarded-For' => '203.0.113.5, 198.51.100.7' );
 
         is( $res->code, 403, "IP ban on the client behind a trusted proxy still blocks" );
+    };
+}
+
+# Tests 13-15: CDN proxies ($LJ::IS_CDN_PROXY) are trusted only when the
+# request carries the shared secret header. Other customers of the same CDN
+# can route requests to us with any X-Forwarded-For, but not the secret, so
+# for them the CDN server itself counts as the client.
+{
+    local $LJ::TRUST_X_HEADERS  = 1;
+    local $LJ::IS_TRUSTED_PROXY = sub { $_[0] eq '127.0.0.1' };
+    local $LJ::IS_CDN_PROXY     = sub { $_[0] eq '198.51.100.20' };
+    local $LJ::CDN_PROXY_SECRET = 'test-secret';
+    my @xff = ( 'X-Forwarded-For' => '203.0.113.5, 198.51.100.20' );
+
+    reset_mocks();
+    $mock_ip_bans{'198.51.100.20'} = 1;
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET "/", @xff, 'X-DW-WAF-Bypass' => 'test-secret' );
+
+        is( $res->code, 200, "CDN hop with the secret is trusted, so its ban is skipped" );
+    };
+
+    reset_mocks();
+    $mock_ip_bans{'198.51.100.20'} = 1;
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET "/", @xff );
+
+        is( $res->code, 403, "CDN hop without the secret is treated as the client" );
+    };
+
+    reset_mocks();
+    $mock_ip_bans{'198.51.100.20'} = 1;
+    test_psgi $app, sub {
+        my $cb  = shift;
+        my $res = $cb->( GET "/", @xff, 'X-DW-WAF-Bypass' => 'wrong' );
+
+        is( $res->code, 403, "CDN hop with the wrong secret is treated as the client" );
     };
 }
