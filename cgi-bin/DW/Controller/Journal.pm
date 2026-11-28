@@ -388,7 +388,16 @@ sub render {
 
     # External redirect
     return $r->redirect( $opts->{'redir'} ) if $opts->{'redir'};
-    return $opts->{'handler_return'} if defined $opts->{'handler_return'};
+
+    my $handler_return = $opts->{'handler_return'};
+    return $handler_return if defined $handler_return && $handler_return != 304;
+
+    my $personalized = $handle_with_siteviews || ( $mode ne 'res' && $mode ne 'data' );
+    $r->header_out( 'Cache-Control',
+        $personalized ? 'private, no-cache' : 'private, proxy-revalidate' );
+    $r->header_out_add( 'Vary', 'Cookie' ) if $personalized;
+
+    return $handler_return if defined $handler_return;
 
     # Siteviews handling
     return DW::Template->render_string( $html, $opts->{siteviews_extra_content} )
@@ -462,7 +471,6 @@ sub render {
     }
 
     $r->content_type( $opts->{'contenttype'} );
-    $r->header_out( "Cache-Control", "private, proxy-revalidate" );
 
     $html .= ( "<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxx -->\n" x 100 ) if $generate_iejunk;
 
