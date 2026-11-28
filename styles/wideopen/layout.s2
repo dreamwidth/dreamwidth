@@ -431,6 +431,7 @@ function Page::print() {
 ##===============================
 
 function print_stylesheet () {
+    var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
 
     var string header_paddingtop = ($*image_background_header_url != "") ? "65px" : "40px";
@@ -1164,6 +1165,63 @@ ul.comment-interaction-links a {
      padding: 0 .5em;
      }
 
+@media $small_media_query {
+    #canvas {
+        margin-inline: 0;
+        padding-inline: 8px;
+    }
+
+    #content,
+    #footer > .inner:first-child {
+        margin-inline: 0;
+    }
+
+    #header {
+        padding-inline: 0;
+    }
+
+    .entry,
+    .page-read .entry,
+    .comment {
+        padding-inline: 0;
+    }
+
+    .entry .header,
+    .entry .entry-title,
+    .comment .header,
+    .comment .comment-title {
+        overflow-wrap: anywhere;
+    }
+
+    .entry .userpic,
+    .comment .userpic {
+        position: static;
+    }
+
+    .comment-wrapper {
+        min-width: 0;
+    }
+
+    #canvas .module {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content,
+    .comment-content,
+    .module-content {
+        overflow-x: auto;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .entry-content img,
+    .comment-content img,
+    .module-content img {
+        max-width: 100%;
+        height: auto;
+    }
+}
 
 """;
 }
