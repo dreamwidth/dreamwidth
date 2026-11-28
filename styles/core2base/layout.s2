@@ -251,6 +251,80 @@ propgroup customcss {
     property use custom_css;
 }
 
+function tabula_rasa_header_luminance(Color color) : int
+"Approximate relative sRGB luminance on a 0–1000 scale using integer arithmetic."
+{
+    var int[] channels = [$color.r, $color.g, $color.b];
+    var int[] weights = [213, 715, 72];
+    var int luminance = 0;
+    foreach var int index (0 .. 2) {
+        var int channel = $channels[$index];
+        var int linear = ((305 * $channel / 255 + 682) * $channel / 255 + 13) * $channel / 255;
+        $luminance = $luminance + $weights[$index] * $linear;
+    }
+    return $luminance / 1000;
+}
+
+function tabula_rasa_header_nav_color() : string
+"Use a readable theme foreground when possible, with a safety margin for rounded luminance."
+{
+    var Color background = $*color_header_background;
+    if ($background.as_string == "") { $background = $*color_page_background; }
+    if ($background.as_string == "") { return "CanvasText"; }
+
+    var int backdrop = tabula_rasa_header_luminance($background) + 50;
+    foreach var Color candidate ([$*color_page_title, $*color_page_text]) {
+        if ($candidate.as_string == "") { continue; }
+        var int foreground = tabula_rasa_header_luminance($candidate) + 50;
+        if (10 * ($foreground - 3) >= 45 * ($backdrop + 3) or
+            10 * ($backdrop - 3) >= 45 * ($foreground + 3)) {
+            return $candidate.as_string;
+        }
+    }
+    return $backdrop <= 229 ? "#fff" : "#000";
+}
+
+function print_tabularasa_header_navlinks_css() {
+    if ($*module_navlinks_section != "header") { return; }
+
+    var string nav_color = tabula_rasa_header_nav_color();
+    """
+#header .module-navlinks {
+    background: transparent;
+    border: 0;
+    margin: 0;
+    color: $nav_color;
+}
+
+#header .module.module-navlinks { padding: 0; }
+
+#header .module-navlinks ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .2em 1em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+#header .module-navlinks a {
+    display: inline-block;
+    padding-block: .25em;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: .15em;
+}
+
+#header .module-navlinks a:is(:hover, :focus-visible) { text-decoration-thickness: .13em; }
+#header .module-navlinks .current { font-weight: bold; }
+""";
+}
+
 function Page::print_default_stylesheet() {
     var string small_media_query = generate_small_media_query();
     var string medium_media_query = generate_medium_media_query();
