@@ -20,6 +20,9 @@ form { margin-left: 2em; }
 .error { color: #c00; }
 </style>
 <title>[% '.page.title' | ml %]</title>
+[%# The standalone mobile page bypasses the site scheme's resource includes. %]
+<link rel="stylesheet" href="[% site.statroot | html %]/css/components/password-visibility.css" />
+<script defer src="[% site.jsroot | html %]/components/password-visibility.js"></script>
 </head>
 <body>
 [% '.login.back' | ml( aopts => "href='./'", sitename => site.nameshort ) %]
@@ -36,7 +39,8 @@ form { margin-left: 2em; }
 <form method='post' action='[% site.root %]/mobile/login'>
 [% dw.form_auth %]
 [% '.form.username' | ml %]: <input name='user' size='15' /><br />
-[% '.form.password' | ml %]: <input name='password' type='password' size='15' />
+<label for="mobile_login_password">[% '.form.password' | ml %]:</label>
+[% form.password(name = 'password', id = 'mobile_login_password', size = 15) %]
 <input type='submit' value="[% '.form.button' | ml %]" />
 </form>
 

@@ -343,11 +343,13 @@ sub labelfy {
 # name: LJ::html_text
 # class: component
 # des: Creates a text input field, for single-line input.
-# info: Allows 'type' =&gt; 'password' flag.
+# info: Password inputs include a visibility button unless 'no_password_visibility' is set.
 # args:
 # des-:
 # returns: The generated HTML.
 # </LJFUNC>
+my $password_field_id = 0;
+
 sub html_text {
     my $opts = shift;
 
@@ -358,15 +360,38 @@ sub html_text {
         if $opts->{type}
         && ( $opts->{type} eq 'password'
         || $opts->{type} eq 'search' );
+    my $visibility = $type eq 'password' && !$opts->{no_password_visibility};
+    if ($visibility) {
+        $opts = {%$opts};
+        $opts->{id} ||= 'password-field-' . ++$password_field_id;
+        $opts->{'data-password-field'} = 1;
+        $opts->{autocapitalize}        = 'none';
+        $opts->{autocorrect}           = 'off';
+        $opts->{spellcheck}            = 'false';
+    }
     my $ret = '';
     $ret .= "<input type=\"$type\"";
-    foreach ( grep { !/^(type|disabled|raw|noescape)$/ } keys %$opts ) {
+    foreach ( grep { !/^(type|disabled|raw|noescape|no_password_visibility)$/ } keys %$opts ) {
         my $val = defined $opts->{$_} ? $opts->{$_} : '';
         $ret .= " $_=\"" . ( $ehtml ? LJ::ehtml($val) : $val ) . "\"";
     }
     if ( $opts->{'raw'} ) { $ret .= " $opts->{'raw'}"; }
     $ret .= "$disabled />";
-    return $ret;
+    return $ret unless $visibility;
+
+    LJ::need_res(
+        { group => 'all' },
+        'js/components/password-visibility.js',
+        'stc/css/components/password-visibility.css'
+    );
+
+    my $id = LJ::ehtml( $opts->{id} );
+    my $tabindex =
+        defined $opts->{tabindex} ? ' tabindex="' . LJ::ehtml( $opts->{tabindex} ) . '"' : '';
+    return
+          qq{<span class="password-visibility">$ret}
+        . qq{<button type="button" data-password-visibility hidden aria-controls="$id"}
+        . qq{ aria-label="Show password"$tabindex>Show</button></span>};
 }
 
 # <LJFUNC>

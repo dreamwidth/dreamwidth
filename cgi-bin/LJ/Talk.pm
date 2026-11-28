@@ -1896,6 +1896,8 @@ sub init_s2journal_js {
         { group => "all" }, qw(
             js/jquery.talkform.js
             stc/css/components/talkform.css
+            js/components/password-visibility.js
+            stc/css/components/password-visibility.css
             )
     ) if $opts{noqr};
 

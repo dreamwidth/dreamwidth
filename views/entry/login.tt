@@ -26,9 +26,8 @@ the same terms as Perl itself.  For a copy of the license, please reference
         maxlength = "27"
         "aria-required" = "true"
     ) -%]
-    [%- form.textbox(
+    [%- form.password(
         label = dw.ml( 'sitescheme.accountlinks.login.password' )
-        type = "password"
         name = "password"
         size = "20"
         maxlength = site.maxlength_pass
