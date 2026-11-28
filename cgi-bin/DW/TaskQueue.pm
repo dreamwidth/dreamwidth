@@ -143,7 +143,8 @@ sub dispatch {
         for my $type ( keys %by_type ) {
             my $batch = $by_type{$type};
             $log->debug( 'Inserting ' . scalar(@$batch) . " $type tasks into TaskQueue." );
-            $rv &&= $self->send(@$batch);
+            my $sent = $self->send(@$batch);
+            $rv &&= $sent;
         }
     }
 

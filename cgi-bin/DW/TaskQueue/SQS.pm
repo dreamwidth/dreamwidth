@@ -22,6 +22,7 @@ use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
 use Paws;
+use Scalar::Util qw(blessed);
 use Time::HiRes qw/ time /;
 use UUID::Tiny qw/ :std /;
 
@@ -150,9 +151,8 @@ sub _get_queue_for_task {
     return ( $queue_name, $self->{queues}->{$queue_name} = $queue_url );
 }
 
-# Send a group of tasks to SQS. Returns 1 if all succeeded or undef if there was one
-# or more failures. TODO: might be nice to make it so callers can determine which messages
-# succeeded, maybe?
+# Bulk sends report request failures, not entry failures, so callers do not retry
+# already accepted tasks. A single-task send reports either kind of failure.
 sub send {
     my ( $self, @tasks ) = @_;
     return undef unless @tasks;
@@ -174,15 +174,29 @@ sub send {
             ' bytes to queue: ', $queue_name );
         my $res =
             eval { $self->{sqs}->SendMessageBatch( QueueUrl => $queue_url, Entries => \@messages ) };
-        if ( $@ && $@->isa('Paws::Exception') ) {
-            $log->error( 'Failed to send SQS message batch: ', $@->message );
-            DW::Stats::increment( 'dw.taskqueue.action.send_error', scalar(@messages), $tags );
-            return undef;
+        my $exception = $@;
+        my $failed    = $res ? scalar @{ $res->Failed || [] } : scalar @messages;
+        my $sent      = scalar(@messages) - $failed;
+        if ($sent) {
+            DW::Stats::increment( 'dw.taskqueue.action.send_ok', $sent, $tags );
+            DW::Stats::increment( 'dw.taskqueue.sent_messages',  $sent, $tags );
         }
-        else {
-            $log->debug( 'Successfully sent ', scalar(@messages), ' messages.' );
-            DW::Stats::increment( 'dw.taskqueue.action.send_ok', scalar(@messages), $tags );
-            DW::Stats::increment( 'dw.taskqueue.sent_messages',  scalar(@messages), $tags );
+        if ($failed) {
+            my @detail;
+            unless ($res) {
+                my $message =
+                    blessed($exception) && $exception->can('message')
+                    ? $exception->message
+                    : $exception;
+                @detail = ( ': ', $message ) if defined $message && length $message;
+            }
+            $log->error(
+                'Failed to send ',
+                $failed, ' SQS message(s) to queue: ',
+                $queue_name, @detail
+            );
+            DW::Stats::increment( 'dw.taskqueue.action.send_error', $failed, $tags );
+            return undef if !$res || @tasks == 1;
         }
 
         @messages   = ();
@@ -214,8 +228,6 @@ sub send {
         $send->() or return undef;
     }
 
-    # If any messages had failed, we would have early returned elsewhere when a
-    # call to $send failed
     return 1;
 }
 

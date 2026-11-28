@@ -15,13 +15,17 @@
 use strict;
 use warnings;
 
-use Test::More tests => 154;
+use Test::More tests => 171;
+use Log::Log4perl;
+use Log::Log4perl::Appender::TestBuffer;
+use MIME::QuotedPrint qw( decode_qp );
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Test qw( temp_user temp_comm );
 use DW::FormErrors;
 use DW::User::Rename;
 use DW::RenameToken;
+use DW::TaskQueue;
 
 my $create_users = sub {
     my %opts = @_;
@@ -59,6 +63,38 @@ my $create_users = sub {
 };
 
 sub new_token { return DW::RenameToken->create_token( ownerid => $_[0]->id ) }
+
+sub token_status {
+    return
+        scalar LJ::get_db_writer()
+        ->selectrow_array( 'SELECT status FROM renames WHERE renid=?', undef, $_[0]->id );
+}
+
+sub fail_token_write {
+    my ( $token, $change ) = @_;
+    my $original_do = LJ::get_db_writer()->can('do');
+    no warnings 'redefine';
+    local *DBI::db::do = sub {
+        my ( $db, $sql, $attrs, @values ) = @_;
+        return $original_do->(
+            $db, "SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'test customer token write failure'"
+        ) if $sql =~ /^UPDATE renames SET renuserid=/ && $values[-1] == $token->id;
+        return $original_do->(@_);
+    };
+    return $change->();
+}
+
+sub capture_errors {
+    my ($category) = @_;
+    my $config = qq{
+log4perl.rootLogger=OFF
+log4perl.logger.$category=ERROR, Capture
+log4perl.appender.Capture=Log::Log4perl::Appender::TestBuffer
+log4perl.appender.Capture.layout=Log::Log4perl::Layout::SimpleLayout
+};
+    Log::Log4perl::init( \$config );
+    return Log::Log4perl::Appender::TestBuffer->by_name('Capture');
+}
 
 note("-- personal-to-unregistered, no redirect");
 {
@@ -463,10 +499,9 @@ note("-- username issues");
 
 note("-- community-to-unregistered");
 {
-    my $admin       = temp_user();
-    my $fromu       = temp_comm();
-    my $oldusername = $fromu->username;
-    my $tousername  = $fromu->username . "_renameto";
+    my $admin      = temp_user();
+    my $fromu      = temp_comm();
+    my $tousername = $fromu->username . "_renameto";
 
     ok( !$admin->can_manage($fromu), "User cannot manage community fromu." );
     ok(
@@ -495,18 +530,940 @@ note("-- community-to-unregistered");
 
     ok( !$fromu->can_rename_to($tousername),
         "Cannot rename community without providing a user doing the renaming" );
-
-    my $member = temp_user();
-    $member->join_community($fromu);
-    ok( !$fromu->can_rename_to( $oldusername, user => $admin ),
-        "Cannot rename a community with members" );
-
-    $member->leave_community($fromu);
-    ok(
-        $fromu->can_rename_to( $oldusername, user => $admin ),
-        "Can rename community again, no members."
-    );
 }
+
+subtest 'Community rename preserves memberships and notifies eligible members' => sub {
+    my $community = temp_comm();
+    my $oldname   = $community->user;
+    my $newname   = $oldname . '_renamed';
+    my $admin     = temp_user();
+    my $coadmin   = temp_user();
+    my $watcher   = temp_user();
+
+    LJ::update_user( $admin,   { status => 'A', email => 'rename-admin@example.com' } );
+    LJ::update_user( $coadmin, { status => 'A', email => 'rename-coadmin@example.com' } );
+    LJ::update_user( $watcher, { status => 'A', email => 'rename-watcher@example.com' } );
+    LJ::set_rel( $community, $admin,   'A' );
+    LJ::set_rel( $community, $coadmin, 'A' );
+    $watcher->add_edge( $community, watch => {} );
+
+    my $make_member = sub {
+        my (%fields) = @_;
+        my $member = temp_user();
+        LJ::set_rel( $community, $member, 'E' );
+        LJ::update_user( $member, { status => 'A', %fields } );
+        return $member;
+    };
+
+    my $member = $make_member->( email => 'rename-member@example.com' );
+    my $second = $make_member->( email => 'rename-second@example.com' );
+    $make_member->( email => 'Rename-Member@example.com' );
+    $make_member->( email => 'rename-unverified@example.com', status => 'N' );
+    $make_member->( email => 'rename-deleted@example.com', statusvis => 'D' );
+    $make_member->( email => 'rename-suspended@example.com', statusvis => 'S' );
+    $make_member->( email => 'rename-purged@example.com', statusvis => 'X' );
+    $make_member->( email => 'rename-invalid@@example.com' );
+    $make_member->( email => '' );
+    LJ::set_rel( $community, $coadmin, 'E' );
+
+    my @members_before    = sort { $a <=> $b } $community->member_userids;
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @mail;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @mail, $task->args->[0];
+        return 1;
+    };
+
+    my $token = new_token($admin);
+    ok( !$community->rename( $newname, token => new_token($member), user => $member ),
+        'A member without admin rights cannot rename the community' );
+    my $occupied = temp_comm();
+    LJ::set_rel( $occupied, $admin,  'A' );
+    LJ::set_rel( $occupied, $second, 'E' );
+    ok(
+        !$community->rename( $occupied->user, token => $token, user => $admin ),
+        'A rename cannot displace another community that has members'
+    );
+    is( $community->user, $oldname, 'Denied rename does not change the name' );
+    is_deeply( \@mail, [], 'Denied rename does not queue mail' );
+
+    ok(
+        $community->can_rename_to( $newname, user => $admin ),
+        'Admin can rename a community with members'
+    );
+    ok( $community->rename( $newname, token => $token, user => $admin, redirect => 1 ),
+        'Rename succeeds with members' );
+    is_deeply( \@mail, [], 'The rename does not expand recipients' );
+    ok(
+        DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'The worker finds and processes the committed notice'
+    );
+
+    my $renamed = LJ::load_user($newname);
+    my $old     = LJ::load_user($oldname);
+    is( $renamed && $renamed->userid, $community->userid, 'The new name keeps the same ID' );
+    my ($mapped_name) = LJ::get_db_writer()
+        ->selectrow_array( 'SELECT user FROM useridmap WHERE userid=?', undef, $community->userid );
+    is( $mapped_name, $newname, 'The name map and community account agree' );
+    ok( $old && $old->is_redirect, 'The old name is a redirect' );
+    is( $old && $old->prop('renamedto'), $newname, 'The old name redirects to the new name' );
+    is_deeply( [ sort { $a <=> $b } $community->member_userids ],
+        \@members_before, 'The full membership list stays intact' );
+    ok( $renamed && $member->member_of($renamed) && $second->member_of($renamed),
+        'Members still belong to the renamed community' );
+    ok( $renamed && $admin->can_manage_other($renamed) && $coadmin->can_manage_other($renamed),
+        'Both admins still manage the renamed community' );
+    is_deeply(
+        [
+            sort map {
+                map { lc $_ }
+                    @{ $_->{rcpts} }
+            } @mail
+        ],
+        [qw( rename-coadmin@example.com rename-member@example.com rename-second@example.com )],
+        'Only distinct verified mailboxes of eligible members receive email'
+    );
+    is( scalar @mail, 3, 'Each mailbox gets a separate notice' );
+
+    my $profile = $renamed ? $renamed->profile_url : '';
+    foreach my $message (@mail) {
+        my ( undef, $body ) = split /\r?\n\r?\n/, $message->{data}, 2;
+        $body = decode_qp( $body // '' );
+        is( scalar @{ $message->{rcpts} }, 1, 'The envelope names a single recipient' );
+        like( $body, qr/\b\Q$oldname\E\b/, 'The email body names the old community' );
+        like( $body, qr/\b\Q$newname\E\b/, 'The email body names the renamed community' );
+        like( $body, qr/\Q$profile\E/,     'The email body links to the renamed profile' );
+        like( $body, qr/leave from the community's profile/i, 'The email explains how to leave' );
+    }
+};
+
+subtest 'Community preflight can use a reader, but displacement needs a writer' => sub {
+    my $actor       = temp_user();
+    my $target      = temp_comm();
+    my $source_name = $actor->user;
+    my $target_name = $target->user;
+    my $token       = new_token($actor);
+    LJ::set_rel( $target, $actor, 'A' );
+
+    my $original_writer = LJ->can('get_db_writer');
+    {
+        no warnings 'redefine';
+        local *LJ::get_db_writer = sub {
+            return undef if caller eq 'DW::User::Rename';
+            return $original_writer->(@_);
+        };
+        ok( $actor->can_rename_to($target_name),
+            'Preflight can verify the target without the writer' );
+        my $result = eval { $actor->rename( $target_name, token => $token ) };
+        is( $@, '', 'The writer outage does not throw' );
+        ok( !$result, 'The rename fails closed' );
+    }
+    is( LJ::load_userid( $actor->userid,  1 )->user, $source_name, 'The source is unchanged' );
+    is( LJ::load_userid( $target->userid, 1 )->user, $target_name, 'The target is unchanged' );
+    is( token_status($token), 'U', 'The token is still unused' );
+    {
+        my $original_read = DBI::db->can('selectcol_arrayref');
+        no warnings 'redefine';
+        local *DBI::db::selectcol_arrayref = sub {
+            my ( $db, $sql ) = @_;
+            die 'simulated membership read error' if $sql =~ /FROM reluser.*type='E'/;
+            return $original_read->(@_);
+        };
+        ok( !$actor->can_rename_to($target_name), 'A membership query exception blocks preflight' );
+        ok(
+            !$actor->rename( $target_name, token => $token ),
+            'A membership query exception blocks displacement'
+        );
+    }
+    ok( $actor->rename( $target_name, token => $token ), 'The same token works after recovery' );
+};
+
+subtest 'A stale vacancy cannot authorize moving aside a different account' => sub {
+    my $actor         = temp_user();
+    my $target        = temp_comm();
+    my $source_name   = $actor->user;
+    my $target_name   = $target->user;
+    my $token         = new_token($actor);
+    my $original_load = LJ->can('load_user');
+    my $lookups       = 0;
+
+    {
+        no warnings 'redefine';
+        local *LJ::load_user = sub {
+            return undef if $_[0] eq $target_name && !$lookups++;
+            return $original_load->(@_);
+        };
+        ok(
+            !$actor->rename( $target_name, token => $token ),
+            'The exact occupying account must be authorized'
+        );
+    }
+    is( LJ::load_userid( $actor->userid,  1 )->user, $source_name, 'The source is unchanged' );
+    is( LJ::load_userid( $target->userid, 1 )->user, $target_name, 'The target is unchanged' );
+    is( token_status($token), 'U', 'The token is still unused' );
+};
+
+subtest 'A stale target lookup cannot authorize a community swap' => sub {
+    my $actor       = temp_user();
+    my $community   = temp_comm();
+    my $source_name = $actor->user;
+    my $target_name = $community->user;
+    my @tokens      = ( new_token($actor), new_token($actor) );
+    LJ::update_user( $actor, { status => 'A' } );
+    LJ::set_rel( $community, $actor,      'A' );
+    LJ::set_rel( $community, temp_user(), 'E' );
+    my $original_load = LJ->can('load_user');
+    my $lookups       = 0;
+
+    {
+        no warnings 'redefine';
+        local *LJ::load_user = sub {
+            return undef if $_[0] eq $target_name && !$lookups++;
+            return $original_load->(@_);
+        };
+        ok(
+            !$actor->swap_usernames( $community, tokens => \@tokens ),
+            'An occupied community cannot be swapped using a stale vacancy'
+        );
+    }
+    is( LJ::load_userid( $actor->userid,     1 )->user, $source_name, 'The source is unchanged' );
+    is( LJ::load_userid( $community->userid, 1 )->user, $target_name, 'The target is unchanged' );
+    is_deeply( [ map { token_status($_) } @tokens ], [ 'U', 'U' ], 'Both tokens are still unused' );
+};
+
+subtest 'A failed source write rolls back the target move' => sub {
+    my $actor       = temp_user();
+    my $target      = temp_comm();
+    my $source_name = $actor->user;
+    my $target_name = $target->user;
+    my $token       = new_token($actor);
+    LJ::set_rel( $target, $actor, 'A' );
+
+    my $dbh = LJ::get_db_writer();
+    {
+        my $original_do = $dbh->can('do');
+        no warnings 'redefine';
+        local *DBI::db::do = sub {
+            my ( $db, $sql, $attrs, @values ) = @_;
+            return '0E0'
+                if $sql =~ /UPDATE user JOIN useridmap/ && $values[2] == $actor->userid;
+            return $original_do->(@_);
+        };
+        ok(
+            !$actor->rename( $target_name, token => $token ),
+            'The failed write refuses the rename'
+        );
+    }
+    is( LJ::load_userid( $actor->userid,  1 )->user, $source_name, 'The source is unchanged' );
+    is( LJ::load_userid( $target->userid, 1 )->user, $target_name, 'The target move rolled back' );
+    is(
+        $dbh->selectrow_array(
+            'SELECT user FROM useridmap WHERE userid=?', undef, $target->userid
+        ),
+        $target_name,
+        'The target name map also rolled back'
+    );
+    is( token_status($token), 'U', 'The token is still unused' );
+    ok( $actor->rename( $target_name, token => $token ), 'The same token works on retry' );
+};
+
+subtest 'System token allocation failure leaves both usernames unchanged' => sub {
+    my $dbh = LJ::get_db_writer();
+    foreach my $operation (qw(rename swap)) {
+        my $source      = temp_user();
+        my $target      = temp_comm();
+        my $source_name = $source->user;
+        my $target_name = $target->user;
+        my @tokens      = ( new_token($source) );
+        push @tokens, new_token($source) if $operation eq 'swap';
+        LJ::update_user( $source, { status => 'A' } );
+        LJ::set_rel( $target, $source, 'A' );
+        my $change = sub {
+            return $operation eq 'rename'
+                ? $source->rename( $target_name, token => $tokens[0] )
+                : $source->swap_usernames( $target, tokens => \@tokens );
+        };
+
+        LJ::load_user($source_name);
+        LJ::load_user($target_name);
+        my $allocations = 0;
+        {
+            no warnings 'redefine';
+            local *DW::RenameToken::create_token = sub {
+                $allocations++;
+                die 'simulated system token allocation failure';
+            };
+            my $changed = eval { $change->() };
+            is( $@, '', "$operation reports allocation failure without throwing" );
+            ok( !$changed, "$operation fails when the system token cannot be allocated" );
+        }
+        is( $allocations, 1, "$operation attempted system token allocation" );
+
+        foreach my $account ( [ $source->id, $source_name ], [ $target->id, $target_name ] ) {
+            my ( $userid, $name ) = @$account;
+            my $stored_names = $dbh->selectrow_arrayref(
+                'SELECT user.user, useridmap.user FROM user JOIN useridmap USING (userid) '
+                    . 'WHERE userid=?',
+                undef, $userid
+            );
+            is_deeply(
+                $stored_names,
+                [ $name, $name ],
+                "$operation leaves both name records intact"
+            );
+            my $cached = LJ::load_user($name);
+            is( $cached && $cached->id, $userid, "$operation leaves the name lookup consistent" );
+        }
+        is_deeply(
+            [ map { token_status($_) } @tokens ],
+            [ ('U') x @tokens ],
+            "$operation does not consume customer tokens on failure"
+        );
+        ok( $change->(), "$operation succeeds on retry with the same tokens" );
+        is_deeply(
+            [ map { token_status($_) } @tokens ],
+            [ ('A') x @tokens ],
+            "$operation consumes customer tokens only on success"
+        );
+    }
+};
+
+subtest 'A failed commit discards the allocated system token' => sub {
+    my $source      = temp_user();
+    my $target      = temp_comm();
+    my $source_name = $source->user;
+    my $target_name = $target->user;
+    my $token       = new_token($source);
+    LJ::set_rel( $target, $source, 'A' );
+
+    my $dbh             = LJ::get_db_writer();
+    my $original_create = DW::RenameToken->can('create_token');
+    my $system_token;
+    {
+        no warnings 'redefine';
+        local *DW::RenameToken::create_token = sub { $system_token = $original_create->(@_) };
+        local *DBI::db::commit               = sub { die 'simulated commit failure' };
+        ok(
+            !$source->rename( $target_name, token => $token ),
+            'The failed commit refuses the rename'
+        );
+    }
+    ok( $system_token, 'A system token was reserved before commit' ) or return;
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM renames WHERE renid=?',
+            undef, $system_token->id
+        ),
+        0,
+        'The reserved token does not remain after rollback'
+    );
+    is( LJ::load_userid( $source->id, 1 )->user, $source_name, 'The source name rolled back' );
+    is( LJ::load_userid( $target->id, 1 )->user, $target_name, 'The target name rolled back' );
+    is( token_status($token), 'U', 'The customer token remains unused' );
+};
+
+subtest 'A move-aside logging failure does not interrupt committed renames' => sub {
+    foreach my $operation (qw(rename swap)) {
+        my $source      = temp_user();
+        my $target      = temp_comm();
+        my $source_name = $source->user;
+        my $target_name = $target->user;
+        my @tokens      = ( new_token($source) );
+        push @tokens, new_token($source) if $operation eq 'swap';
+        LJ::update_user( $source, { status => 'A' } );
+        LJ::set_rel( $target, $source, 'A' );
+
+        foreach my $account ( $source, $target ) {
+            is( LJ::get_userid( $account->user ), $account->id, 'Prime the username to ID cache' );
+            is( LJ::get_username( $account->id ), $account->user,
+                'Prime the ID to username cache' );
+            is( LJ::load_userid( $account->id )->user, $account->user, 'Prime the user cache' );
+        }
+
+        my $original_log_event = LJ::User->can('log_event');
+        my $displaced_name;
+        {
+            no warnings 'redefine';
+            local *LJ::User::log_event = sub {
+                my ( $account, $event, $details ) = @_;
+                if (   $account->id == $target->id
+                    && $event eq 'rename'
+                    && $details->{from} eq $target_name )
+                {
+                    $displaced_name = $details->{to};
+                    die 'simulated cluster outage while logging the move-aside';
+                }
+                return $original_log_event->(@_);
+            };
+            my $changed = eval {
+                return $operation eq 'rename'
+                    ? $source->rename( $target_name, token => $tokens[0] )
+                    : $source->swap_usernames( $target, tokens => \@tokens );
+            };
+            is( $@, '', "$operation does not throw after commit" );
+            ok( $changed, "$operation reports the committed change" );
+        }
+        like( $displaced_name, qr/^ex_/, "$operation attempted to log the move-aside" );
+
+        my $target_final_name = $operation eq 'swap' ? $source_name : $displaced_name;
+        is( LJ::get_username( $source->id ), $target_name, 'The source username cache is fresh' );
+        is( LJ::get_username( $target->id ),
+            $target_final_name, 'The displaced username cache is fresh' );
+        is( LJ::load_userid( $source->id )->user, $target_name, 'The source user cache is fresh' );
+        is( LJ::load_userid( $target->id )->user,
+            $target_final_name, 'The displaced user cache is fresh' );
+        is( LJ::get_userid($target_name), $source->id, 'The destination name maps to the source' );
+        is( LJ::get_userid($target_final_name),
+            $target->id, 'The final displaced name maps to the displaced account' );
+        is(
+            LJ::get_userid($source_name),
+            $operation eq 'swap' ? $target->id : 0,
+            'The former source name no longer maps to the source account'
+        );
+        is( token_status($_), 'A', "$operation consumed a customer token" ) foreach @tokens;
+    }
+};
+
+subtest 'A committed rename reports a relationship removal failure and still finalizes' => sub {
+    my $source  = temp_user();
+    my $trusted = temp_user();
+    my $oldname = $source->user;
+    my $newname = $oldname . 'new';
+    my $token   = new_token($source);
+    my $errors  = DW::FormErrors->new;
+    my $logs    = capture_errors('DW.User.Rename');
+    local $LJ::T_HAS_ALL_CAPS = 1;
+    local $LJ::USER_EMAIL     = 1;
+    LJ::update_user( $source, { status => 'A' } );
+    ok( $source->add_edge( $trusted, trust => { nonotify => 1 } ), 'Create a trust relationship' );
+
+    my $remove_edge       = LJ::User->can('remove_edge');
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @security_events;
+    {
+        no warnings 'redefine';
+        local *LJ::User::remove_edge = sub {
+            my ( $from, $to, %edges ) = @_;
+            die 'simulated trust removal exception'
+                if $from->id == $source->id && $to->id == $trusted->id && $edges{trust};
+            return $remove_edge->(@_);
+        };
+        local *DW::TaskQueue::dispatch = sub {
+            my ( $class, $task ) = @_;
+            push @security_events, $task if $task->isa('LJ::Event::SecurityAttributeChanged');
+            return $original_dispatch->(@_);
+        };
+        my $renamed = eval {
+            $source->rename( $newname, token => $token, del_trusted => 1, errors => $errors );
+        };
+        is( $@,       '', 'The option failure does not throw to the caller' );
+        is( $renamed, 0,  'Rename reports that the requested options did not finish' );
+    }
+
+    my ($error) = $errors->get('');
+    like(
+        $error ? $error->{message} : '',
+        qr/\Q$oldname\E to \Q$newname\E succeeded.*options could not be applied/i,
+        'The form error distinguishes the completed rename from the failed options'
+    );
+    like( $logs->buffer, qr/simulated trust removal exception at /, 'Logs the full exception' );
+    ok( $source->trusts($trusted), 'The interrupted trust removal did not take effect' );
+    is( LJ::load_userid( $source->id )->user, $newname, 'The committed username is visible' );
+    is( token_status($token), 'A', 'The committed rename still consumes the customer token' );
+
+    my $dbh = LJ::get_db_writer();
+    is(
+        $dbh->selectrow_array(
+            'SELECT rcpt FROM email_aliases WHERE alias=?',
+            undef, $source->site_email_alias
+        ),
+        $source->email_raw,
+        'The new email alias is saved'
+    );
+    is(
+        $dbh->selectrow_array(
+            "SELECT oldvalue FROM infohistory WHERE userid=? AND what='username'", undef,
+            $source->id
+        ),
+        $oldname,
+        'The previous username is recorded'
+    );
+    is( scalar @security_events, 1, 'The rename security event is dispatched' );
+};
+
+subtest 'A failing first swap account does not stop the second account from finalizing' => sub {
+    my ( $source, $target ) = $create_users->( match => 1, validated => 1 );
+    my $source_name = $source->user;
+    my $target_name = $target->user;
+    my @tokens      = ( new_token($source), new_token($target) );
+    my $errors      = DW::FormErrors->new;
+    my $logs        = capture_errors('DW.User.Rename');
+
+    my $break_redirects = LJ::User->can('break_redirects');
+    {
+        no warnings 'redefine';
+        local *LJ::User::break_redirects = sub {
+            die 'simulated redirect storage exception' if $_[0]->id == $source->id;
+            return $break_redirects->(@_);
+        };
+        my $swapped = eval {
+            $source->swap_usernames(
+                $target,
+                redirect => 1,
+                tokens   => \@tokens,
+                errors   => $errors
+            );
+        };
+        is( $@,       '', 'The first account option failure does not throw to the caller' );
+        is( $swapped, 0,  'Swap reports that the requested options did not finish' );
+    }
+
+    my ($error) = $errors->get('');
+    like(
+        $error ? $error->{message} : '',
+        qr/\Q$source_name\E to \Q$target_name\E succeeded.*options could not be applied/i,
+        'The form error identifies the affected account'
+    );
+    like( $logs->buffer, qr/simulated redirect storage exception at /, 'Logs the full exception' );
+    is( LJ::load_userid( $source->id )->user,
+        $target_name, 'The first swapped username is visible' );
+    is( LJ::load_userid( $target->id )->user,
+        $source_name, 'The second swapped username is visible' );
+    is( token_status($_), 'A', 'The committed swap consumes a customer token' ) foreach @tokens;
+
+    my ($aside_name) = LJ::get_db_writer()->selectrow_array(
+"SELECT oldvalue FROM infohistory WHERE userid=? AND what='username' ORDER BY timechange DESC",
+        undef, $target->id
+    );
+    like( $aside_name, qr/^ex_/, 'The second account records its final move' );
+    my $redirect = LJ::load_user($aside_name);
+    is( $redirect && $redirect->prop('renamedto'), $source_name,
+        'The second redirect is in place' );
+};
+
+subtest 'A committed rename finalizes after its customer token write fails' => sub {
+    my $source  = temp_user();
+    my $trusted = temp_user();
+    my $oldname = $source->user;
+    my $newname = $oldname . 'new';
+    my $token   = new_token($source);
+    my $errors  = DW::FormErrors->new;
+    my $logs    = capture_errors('DW.User.Rename');
+    LJ::update_user( $source, { status => 'A' } );
+    ok( $source->add_edge( $trusted, trust => { nonotify => 1 } ), 'Create a trust relationship' );
+
+    my $renamed = eval {
+        fail_token_write(
+            $token,
+            sub {
+                $source->rename(
+                    $newname,
+                    token       => $token,
+                    redirect    => 1,
+                    del_trusted => 1,
+                    errors      => $errors
+                );
+            }
+        );
+    };
+    is( $@,       '', 'The token SQL error does not throw to the caller' );
+    is( $renamed, 0,  'Rename reports the incomplete token accounting' );
+    my ($error) = $errors->get('');
+    like(
+        $error ? $error->{message} : '',
+        qr/\Q$oldname\E to \Q$newname\E succeeded.*token accounting could not be completed/i,
+        'The form error distinguishes the committed rename from failed token accounting'
+    );
+    like( $logs->buffer, qr/test customer token write failure/, 'Logs the token SQL error' );
+    is( token_status($token), 'U', 'The failed write leaves the token unused' );
+    is( LJ::load_userid( $source->id )->user, $newname, 'The committed username is visible' );
+    my $redirect = LJ::load_user($oldname);
+    is( $redirect && $redirect->prop('renamedto'), $newname, 'The redirect is in place' );
+    ok( !$source->trusts($trusted), 'The trust relationship was removed' );
+    is(
+        LJ::get_db_writer()->selectrow_array(
+            "SELECT oldvalue FROM infohistory WHERE userid=? AND what='username'", undef,
+            $source->id
+        ),
+        $oldname,
+        'The previous username is recorded'
+    );
+};
+
+subtest 'A committed swap finalizes both accounts if either customer token write fails' => sub {
+    foreach my $failed_index ( 0, 1 ) {
+        subtest 'Customer token ' . ( $failed_index + 1 ) => sub {
+            my @accounts = $create_users->( match => 1, validated => 1 );
+            my @names    = map { $_->user } @accounts;
+            my @tokens   = map { new_token($_) } @accounts;
+            my $trusted  = temp_user();
+            my $errors   = DW::FormErrors->new;
+            my $logs     = capture_errors('DW.User.Rename');
+            foreach my $account (@accounts) {
+                ok( $account->add_edge( $trusted, trust => { nonotify => 1 } ),
+                    'Create a trust relationship' );
+                ok( $account->set_prop( renamedto => $trusted->user ),
+                    'Set an outgoing redirect property' );
+            }
+
+            my $swapped = eval {
+                fail_token_write(
+                    $tokens[$failed_index],
+                    sub {
+                        $accounts[0]->swap_usernames(
+                            $accounts[1],
+                            tokens      => \@tokens,
+                            redirect    => 0,
+                            del_trusted => 1,
+                            errors      => $errors
+                        );
+                    }
+                );
+            };
+            is( $@,       '', 'The token SQL error does not throw to the caller' );
+            is( $swapped, 0,  'Swap reports the incomplete token accounting' );
+            my @messages = map { $_->{message} } $errors->get('');
+            is( scalar @messages, 1, 'Reports only the affected token' );
+            my ( $from, $to ) = @names[ $failed_index, 1 - $failed_index ];
+            like(
+                $messages[0],
+                qr/\Q$from\E to \Q$to\E succeeded.*token accounting could not be completed/i,
+                'The form error uses the public username pair for the failed token'
+            );
+            unlike( $messages[0] // '', qr/\bex_/, 'The form error omits the temporary username' );
+            like( $logs->buffer, qr/test customer token write failure/,
+                'Logs the token SQL error' );
+            is( token_status( $tokens[$failed_index] ),
+                'U', 'The failed write leaves its token unused' );
+            is( token_status( $tokens[ 1 - $failed_index ] ), 'A', 'The other token was consumed' );
+
+            my $dbh = LJ::get_db_writer();
+            foreach my $index ( 0, 1 ) {
+                my $account = LJ::load_userid( $accounts[$index]->id );
+                is( $account->user, $names[ 1 - $index ], 'The committed username is visible' );
+                ok( !$account->prop('renamedto'), 'The outgoing redirect was cleared' );
+                ok( !$account->trusts($trusted),  'The trust relationship was removed' );
+                my $history = $dbh->selectcol_arrayref(
+"SELECT oldvalue FROM infohistory WHERE userid=? AND what='username' ORDER BY timechange",
+                    undef, $account->id
+                );
+                is( $history->[0], $names[$index], 'The public previous username is recorded' );
+                like( $history->[1], qr/^ex_/, 'The second account records its final move' )
+                    if $index;
+            }
+        };
+    }
+};
+
+subtest 'A system token apply failure does not interrupt committed renames' => sub {
+    foreach my $operation (qw(rename swap)) {
+        my $source      = temp_user();
+        my $target      = temp_comm();
+        my $source_name = $source->user;
+        my $target_name = $target->user;
+        my @tokens      = ( new_token($source) );
+        push @tokens, new_token($source) if $operation eq 'swap';
+        LJ::update_user( $source, { status => 'A' } );
+        LJ::set_rel( $target, $source, 'A' );
+
+        foreach my $account ( $source, $target ) {
+            is( LJ::get_userid( $account->user ), $account->id, 'Prime the username to ID cache' );
+            is( LJ::get_username( $account->id ), $account->user,
+                'Prime the ID to username cache' );
+            is( LJ::load_userid( $account->id )->user, $account->user, 'Prime the user cache' );
+        }
+
+        my $apply = DW::RenameToken->can('apply');
+        my $displaced_name;
+        {
+            no warnings 'redefine';
+            local *DW::RenameToken::apply = sub {
+                my ( $token, %change ) = @_;
+                if ( !$token->ownerid && $change{userid} == $target->id ) {
+                    $displaced_name = $change{to};
+                    my $target_final = $operation eq 'swap' ? $source_name : $displaced_name;
+                    is( LJ::get_username( $source->id ),
+                        $target_name, 'Source name cache is already fresh' );
+                    is( LJ::get_username( $target->id ),
+                        $target_final, 'Displaced name cache is already fresh' );
+                    is( LJ::load_userid( $source->id )->user,
+                        $target_name, 'Source user cache is already fresh' );
+                    is( LJ::load_userid( $target->id )->user,
+                        $target_final, 'Displaced user cache is already fresh' );
+                    is( LJ::get_userid($target_name),
+                        $source->id, 'Destination name now maps to the source' );
+                    is( LJ::get_userid($target_final),
+                        $target->id, 'Final displaced name maps to the target' );
+                    die 'simulated system token apply exception';
+                }
+                return $apply->(@_);
+            };
+            my $changed = eval {
+                return $operation eq 'rename'
+                    ? $source->rename( $target_name, token => $tokens[0] )
+                    : $source->swap_usernames( $target, tokens => \@tokens );
+            };
+            is( $@, '', "$operation does not throw if the system token fails to apply" );
+            ok( $changed, "$operation reports the committed change" );
+        }
+
+        like( $displaced_name, qr/^ex_/, "$operation attempted to apply the move-aside token" );
+        is( token_status($_), 'A', "$operation consumed a customer token" ) foreach @tokens;
+    }
+};
+
+subtest 'Moving aside a community records its durable rename notice' => sub {
+    my $admin     = temp_user();
+    my $community = temp_comm();
+    my $oldname   = $community->user;
+    my $mailbox   = 'rename-displaced@example.com';
+    LJ::update_user( $admin, { status => 'A', email => $mailbox } );
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $community, $admin, 'E' );
+
+    ok( $admin->rename( $oldname, token => new_token($admin) ), 'Rename into the community name' );
+    my $newname = LJ::load_userid( $community->id )->user;
+    like( $newname, qr/^ex_/, 'The original community has a displaced name' );
+
+    my $dispatch = DW::TaskQueue->can('dispatch');
+    my @messages;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @messages, $task->args->[0];
+        return 1;
+    };
+    ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'The worker finds the durable displacement notice' );
+    is_deeply( [ map { @{ $_->{rcpts} } } @messages ],
+        [$mailbox], 'The community member receives exactly one notice' );
+    my ( undef, $body ) = split /\r?\n\r?\n/, ( $messages[0] || {} )->{data} // '', 2;
+    $body = decode_qp( $body // '' );
+    like( $body, qr/\b\Q$oldname\E\b/, 'The notice names the original community' );
+    like( $body, qr/\b\Q$newname\E\b/, 'The notice names the displaced community' );
+};
+
+subtest 'An outbox write failure rolls back a community rename' => sub {
+    my $community = temp_comm();
+    my $target    = temp_comm();
+    my $admin     = temp_user();
+    my $oldname   = $community->user;
+    my $newname   = $target->user;
+    my $token     = new_token($admin);
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $target,    $admin, 'A' );
+
+    my $dbh         = LJ::get_db_writer();
+    my $original_do = $dbh->can('do');
+    no warnings 'redefine';
+    local *DBI::db::do = sub {
+        my ( $db, $sql ) = @_;
+        die 'simulated outbox write exception' if $sql =~ /^INSERT INTO community_rename_notice /;
+        return $original_do->(@_);
+    };
+    ok( !$community->rename( $newname, token => $token, user => $admin, redirect => 1 ),
+        'Rename fails closed if the durable notice cannot be written' );
+    is( LJ::load_userid( $community->id, 1 )->user, $oldname, 'Source name rolled back' );
+    is( LJ::load_userid( $target->id,    1 )->user, $newname, 'Destination name rolled back' );
+    is( token_status($token), 'U', 'The token remains unused' );
+};
+
+subtest 'Queue failures do not undo a rename or stop other notices' => sub {
+    my $community = temp_comm();
+    my $admin     = temp_user();
+    my $oldname   = $community->user;
+    my $target    = temp_comm();
+    my $newname   = $target->user;
+    my $token     = new_token($admin);
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $target,    $admin, 'A' );
+    my @mailboxes = (
+        qw(rename-fail@example.com rename-leave@example.com),
+        map { sprintf 'rename-next-%02d@example.com', $_ } 1 .. 24
+    );
+    my $leaving;
+
+    foreach my $mailbox (@mailboxes) {
+        my $member = temp_user();
+        LJ::set_rel( $community, $member, 'E' );
+        LJ::update_user( $member, { status => 'A', email => $mailbox } );
+        $leaving = $member if $mailbox eq 'rename-leave@example.com';
+    }
+
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my ( @security_events, @attempts );
+    my $fail_recipient = 1;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        if ( $task->isa('LJ::Event::SecurityAttributeChanged') ) {
+            push @security_events, $task;
+            die 'simulated security notification exception';
+        }
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        my ($recipient) = @{ $task->args->[0]->{rcpts} };
+        push @attempts, $recipient;
+        die 'simulated per-recipient exception'
+            if $fail_recipient && $recipient eq $mailboxes[0];
+        return undef if $fail_recipient && $recipient eq $mailboxes[1];
+        return 1;
+    };
+    my $renamed =
+        eval { $community->rename( $newname, token => $token, user => $admin, redirect => 1 ) };
+    is( $@, '', 'The failed enqueue does not throw from rename' );
+    ok( $renamed, 'Rename reports success even if notification enqueue fails' );
+    is( $community->user, $newname, 'The rename is committed' );
+    like( LJ::load_userid( $target->id, 1 )->user, qr/^ex_/, 'The destination moved aside' );
+    is( token_status($token), 'A', 'The source token was applied' );
+    my $redirect = LJ::load_user($oldname);
+    is( $redirect && $redirect->prop('renamedto'), $newname, 'The redirect is in place' );
+    is( scalar @security_events, 2, 'Both security events were attempted' );
+    is_deeply( \@attempts, [], 'The web request does not dispatch mail' );
+
+    my $poll = DW::Task::CommunityRenameNotice->can('process_pending');
+    ok( $poll, 'The worker can recover committed notices without a queue message' ) or return;
+    ok( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+        'The worker finds the notice' );
+    is_deeply(
+        \@attempts,
+        [ @mailboxes[ 0 .. 24 ] ],
+        'One bounded batch is attempted despite the first dispatch exception'
+    );
+    {
+        my $original_do = LJ::get_db_writer()->can('do');
+        local *DBI::db::do = sub {
+            my ( $db, $sql ) = @_;
+            die 'simulated continuation checkpoint exception'
+                if $sql =~ /^UPDATE community_rename_notice SET after_mailbox=/;
+            return $original_do->(@_);
+        };
+        is( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+            0, 'A failed continuation checkpoint leaves the next page pending' );
+    }
+    is( scalar @attempts, 25, 'No accepted mail is replayed when the next page fails' );
+    ok(
+        $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+        'A later batch can finish without waiting for the failed dispatch'
+    );
+    is_deeply( \@attempts, \@mailboxes, 'All recipients are attempted' );
+
+    $leaving->leave_community($community);
+    LJ::get_db_writer()->do(
+        'UPDATE community_rename_recipient SET next_attempt=0 WHERE noticeid IN '
+            . '(SELECT noticeid FROM community_rename_notice WHERE commid=?)',
+        undef, $community->id
+    );
+    @attempts       = ();
+    $fail_recipient = 0;
+    ok( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ), 'The retry finishes' );
+    is_deeply(
+        \@attempts,
+        [ $mailboxes[0] ],
+        'Only the still-eligible failed recipient is retried'
+    );
+    is( $poll->( 'DW::Task::CommunityRenameNotice', $community->id ),
+        0, 'Polling again does not replay an accepted recipient or continuation' );
+};
+
+subtest 'An exhausted recipient stops automatic retries but can be replayed' => sub {
+    my $community = temp_comm();
+    my $admin     = temp_user();
+    my $member    = temp_user();
+    my $mailbox   = 'rename-permanent-failure@example.com';
+    LJ::set_rel( $community, $admin,  'A' );
+    LJ::set_rel( $community, $member, 'E' );
+    LJ::update_user( $member, { status => 'A', email => $mailbox } );
+    ok(
+        $community->rename( $community->user . 'new', token => new_token($admin), user => $admin ),
+        'Rename stages a notice'
+    );
+
+    my $dbh               = LJ::get_db_writer();
+    my $logs              = capture_errors('DW.Task.CommunityRenameNotice');
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my $outage            = 1;
+    my @attempts;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @attempts, @{ $task->args->[0]->{rcpts} };
+        return $outage ? undef : 1;
+    };
+
+    my $make_due = sub {
+        $dbh->do(
+            'UPDATE community_rename_recipient SET next_attempt=0 WHERE noticeid IN '
+                . '(SELECT noticeid FROM community_rename_notice WHERE commid=?)',
+            undef, $community->id
+        );
+    };
+    foreach my $attempt ( 1 .. 10 ) {
+        $make_due->();
+        ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+            "Worker processes due attempt $attempt" );
+    }
+    my @preserved = $dbh->selectrow_array(
+        'SELECT n.noticeid, n.scanned, r.failures FROM community_rename_notice n '
+            . 'JOIN community_rename_recipient r USING (noticeid) WHERE n.commid=? AND r.mailbox=?',
+        undef, $community->id, $mailbox
+    );
+    my ( $noticeid, $scanned, $failures ) = @preserved;
+    ok( $noticeid, 'The parent notice and its recipient are still stored' );
+    is( $scanned,  1,  'The membership scan is finished' );
+    is( $failures, 10, 'The recipient reached the retry limit' );
+    like(
+        $logs->buffer,
+        qr/10 failed mail submissions.*preserved/i,
+        'The log identifies exhaustion'
+    );
+    unlike( $logs->buffer, qr/\Q$mailbox\E/, 'The log does not expose the mailbox' );
+
+    $make_due->();
+    is( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        0, 'The worker does not select a scanned notice with only exhausted recipients' );
+    is_deeply( \@attempts, [ ($mailbox) x 10 ], 'Mail submission stops after ten failures' );
+    is_deeply(
+        scalar $dbh->selectrow_arrayref(
+            'SELECT n.noticeid, n.scanned, r.failures FROM community_rename_notice n '
+                . 'JOIN community_rename_recipient r USING (noticeid) WHERE n.commid=? AND r.mailbox=?',
+            undef,
+            $community->id,
+            $mailbox
+        ),
+        [ $noticeid, 1, 10 ],
+        'Idle polling preserves the notice and its exhausted recipient'
+    );
+
+    $outage = 0;
+    $dbh->do(
+'UPDATE community_rename_recipient SET failures=0, next_attempt=0 WHERE noticeid=? AND mailbox=?',
+        undef, $noticeid, $mailbox
+    );
+    ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'Resetting the retry state replays the notice' );
+    is_deeply( \@attempts, [ ($mailbox) x 11 ], 'The worker successfully resubmits the notice' );
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM community_rename_recipient WHERE noticeid=?', undef,
+            $noticeid
+        ),
+        0,
+        'The acknowledged recipient is deleted'
+    );
+    is(
+        $dbh->selectrow_array(
+            'SELECT COUNT(*) FROM community_rename_notice WHERE commid=?', undef,
+            $community->id
+        ),
+        0,
+        'The completed notice is deleted'
+    );
+};
 
 note("-- community-to-personal");
 {
@@ -693,6 +1650,38 @@ note("-- two username swap personal <=> community ");
     is( $comm->user, $uname,    "Swap usernames comm => u" );
 }
 
+subtest 'A community swap notifies its administrator who is also a member' => sub {
+    my $admin     = temp_user();
+    my $community = temp_comm();
+    my $oldname   = $community->user;
+    my $newname   = $admin->user;
+    my $mailbox   = 'rename-swap@example.com';
+    LJ::update_user( $admin, { status => 'A', email => $mailbox } );
+    LJ::set_rel( $community, $admin, 'A' );
+    LJ::set_rel( $community, $admin, 'E' );
+
+    ok( $admin->swap_usernames( $community, tokens => [ new_token($admin), new_token($admin) ] ),
+        'Swap with a community whose only member is the administrator' );
+
+    my $original_dispatch = DW::TaskQueue->can('dispatch');
+    my @messages;
+    no warnings 'redefine';
+    local *DW::TaskQueue::dispatch = sub {
+        my ( $class, $task ) = @_;
+        return $original_dispatch->(@_) unless $task->isa('DW::Task::SendEmail');
+        push @messages, $task->args->[0];
+        return 1;
+    };
+    ok( DW::Task::CommunityRenameNotice->process_pending( $community->id ),
+        'The worker finds the durable swap notice' );
+    is_deeply( [ map { @{ $_->{rcpts} } } @messages ],
+        [$mailbox], 'The administrator receives exactly one notice' );
+    my ( undef, $body ) = split /\r?\n\r?\n/, $messages[0]->{data} // '', 2;
+    $body = decode_qp( $body // '' );
+    like( $body, qr/\b\Q$oldname\E\b/, 'The notice names the original community' );
+    like( $body, qr/\b\Q$newname\E\b/, 'The notice names the renamed community' );
+};
+
 note("-- two username swap personal <=> community (with malice)");
 {
     my ( $u, $u2 ) = $create_users->( validate => 1 );
@@ -782,4 +1771,15 @@ note("-- two username swap (community and community)");
 
     is( $c1->user, $c2sername, "Swap usernames of c1 and c2" );
     is( $c2->user, $c1sername, "Swap usernames of c2 and c1" );
+    is_deeply(
+        LJ::get_db_writer()->selectall_arrayref(
+            'SELECT commid, oldname, newname FROM community_rename_notice WHERE commid IN (?, ?) '
+                . 'ORDER BY commid',
+            undef,
+            $c1->id,
+            $c2->id
+        ),
+        [ [ $c1->id, $c1sername, $c2sername ], [ $c2->id, $c2sername, $c1sername ] ],
+        'Both communities have one notice for the final swap, not the intermediate name'
+    );
 }

@@ -2898,6 +2898,33 @@ CREATE TABLE renames (
 )
 EOC
 
+register_tablecreate( 'community_rename_notice', <<'EOC');
+CREATE TABLE community_rename_notice (
+    noticeid BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    commid INT UNSIGNED NOT NULL,
+    oldname VARCHAR(25) NOT NULL,
+    newname VARCHAR(25) NOT NULL,
+    profile TEXT NOT NULL,
+    after_mailbox VARBINARY(200) NOT NULL DEFAULT '',
+    scanned TINYINT NOT NULL DEFAULT 0,
+
+    INDEX (commid)
+) ENGINE=InnoDB
+EOC
+
+register_tablecreate( 'community_rename_recipient', <<'EOC');
+CREATE TABLE community_rename_recipient (
+    noticeid BIGINT UNSIGNED NOT NULL,
+    mailbox VARBINARY(200) NOT NULL,
+    memberid INT UNSIGNED NOT NULL,
+    next_attempt INT UNSIGNED NOT NULL DEFAULT 0,
+    failures TINYINT UNSIGNED NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (noticeid, mailbox),
+    INDEX (noticeid, next_attempt)
+) ENGINE=InnoDB
+EOC
+
 register_tablecreate( "bannotes", <<'EOC');
 CREATE TABLE bannotes (
     journalid    INT UNSIGNED NOT NULL,
