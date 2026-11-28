@@ -22,6 +22,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
             name = "comment_settings"
             id = "comment_settings"
             class = "draft-autosave"
+            hint = comments_disabled_by_maintainer ? dw.ml('entryform.comment.settings.nocomments.admin') : ''
 
             items = [
                 ""              "Journal Default"

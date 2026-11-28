@@ -1274,7 +1274,7 @@ sub comments_disabled_poster {
     return $_[0]->prop('opt_nocomments');
 }
 
-# return whether this post had its comments disabled by a community maintainer (not by the poster, who can override the community moderator)
+# return whether the community maintainer, rather than the poster, disabled comments
 sub comments_disabled_maintainer {
     my $self = $_[0];
 

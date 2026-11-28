@@ -52,6 +52,7 @@
     </p>
     [% END %]
     [% UNLESS props.opt_nocomments %]
+    <input type='hidden' name='opt_nocomments_maintainer_present' value='1' />
     <p class='pkg'>
         <label for='prop_opt_nocomments_maintainer' class='left options'>[% 'entryform.comment.disable' | ml %]</label>
         [% form.checkbox(name='prop_opt_nocomments_maintainer', id='prop_opt_nocomments_maintainer', class='check', value='1', selected=props.opt_nocomments_maintainer) %]
