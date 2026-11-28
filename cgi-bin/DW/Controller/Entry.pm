@@ -288,7 +288,7 @@ sub new_handler {
         }
         else {
             $errors->add( undef, 'bml.badinput.body1' )
-                unless LJ::text_in($post);
+                unless DW::Entry::validate_form_text($post);
 
             $errors->add( undef, "error.invalidform" )
                 unless $okay_formauth;
@@ -938,7 +938,7 @@ sub _edit {
         }
         else {
             $errors->add( undef, 'bml.badinput.body1' )
-                unless LJ::text_in($post);
+                unless $mode_delete || DW::Entry::validate_form_text($post);
             $errors->add( undef, "error.invalidform" )
                 unless $okay_formauth;
 
