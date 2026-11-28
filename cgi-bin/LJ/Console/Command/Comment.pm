@@ -16,6 +16,7 @@ package LJ::Console::Command::Comment;
 use strict;
 use base qw(LJ::Console::Command);
 use Carp qw(croak);
+use LJ::Lang;
 
 sub cmd { "comment" }
 
@@ -81,15 +82,18 @@ sub execute {
     elsif ( $action eq 'unscreen' ) {
         return $self->error("Comment is not screened.")
             unless $comment->is_screened;
-        LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid );
+        return $self->error( LJ::Lang::ml('error.nodb') )
+            unless LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid );
 
     }
     elsif ( $action eq 'delete' ) {
-        LJ::Talk::delete_comment( $u, $jitemid, $jtalkid, $comment->state );
+        return $self->error( LJ::Lang::ml('error.nodb') )
+            unless LJ::Talk::delete_comment( $u, $jitemid, $jtalkid, $comment->state );
 
     }
     elsif ( $action eq 'delete_thread' ) {
-        LJ::Talk::delete_thread( $u, $jitemid, $jtalkid );
+        return $self->error( LJ::Lang::ml('error.nodb') )
+            unless LJ::Talk::delete_thread( $u, $jitemid, $jtalkid );
     }
 
     my $remote = LJ::get_remote();

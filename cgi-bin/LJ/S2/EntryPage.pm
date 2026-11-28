@@ -370,7 +370,7 @@ sub EntryPage {
                 threadroot_url => $threadroot_url,
                 'screened'     => $com->{'state'} eq "S" ? 1 : 0,
                 'screened_noshow'     => 0,
-                'frozen'              => $com->{'state'} eq "F" ? 1 : 0,
+                'frozen'              => LJ::Talk::comment_is_frozen($com),
                 'deleted'             => 0,
                 'fromsuspended'       => 0,
                 'link_keyseq'         => ['delete_comment'],
@@ -422,6 +422,7 @@ sub EntryPage {
             if ( $com->{'state'} eq "S" && !$com->{'_show'} ) {
                 $s2com->{'screened'}        = 1;
                 $s2com->{'screened_noshow'} = 1;
+                $s2com->{'frozen'}          = 0;
                 $s2com->{'full'}            = 0;
                 $s2com->{'poster'}          = undef;
                 $s2com->{'userpic'}         = undef;

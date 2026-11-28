@@ -299,6 +299,13 @@ sub can_unfreeze {
     return LJ::Talk::can_unscreen(@_);
 }
 
+sub comment_is_frozen {
+    my ($comment) = @_;
+    return 0 unless $comment && $comment->{state};
+    return ( $comment->{state} eq 'F'
+            || ( $comment->{state} eq 'S' && $comment->{screened_frozen} ) ) ? 1 : 0;
+}
+
 # <LJFUNC>
 # name: LJ::Talk::screening_level
 # des: Determines the screening level of a particular post given the relevant information.
@@ -355,7 +362,7 @@ sub get_comments_in_thread {
     $u = LJ::want_user($u);
     $jitemid += 0;
     $jtalkid += 0;
-    $onlystate = uc $onlystate;
+    $onlystate = uc( $onlystate // '' );
     return undef
         unless $u
         && $jitemid
@@ -420,7 +427,7 @@ sub delete_thread {
     # get comments and delete 'em
     my @screened;
     my $ids = LJ::Talk::get_comments_in_thread( $u, $jitemid, $jtalkid, undef, \@screened );
-    LJ::Talk::unscreen_comment( $u, $jitemid, @screened ) if @screened;    # if needed only!
+    return undef unless $ids && LJ::Talk::unscreen_comment( $u, $jitemid, @screened );
     my $num = LJ::delete_comments( $u, "L", $jitemid, @$ids );
     LJ::replycount_do( $u, $jitemid, "decr", $num );
     LJ::Talk::update_commentalter( $u, $jitemid );
@@ -452,8 +459,7 @@ sub delete_comment {
     return undef unless $state;
 
     # if it's screened, unscreen it first to properly adjust logprops
-    LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid )
-        if $state eq 'S';
+    return undef if $state eq 'S' && !LJ::Talk::unscreen_comment( $u, $jitemid, $jtalkid );
 
     # now do the deletion
     my $num = LJ::delete_comments( $u, "L", $jitemid, $jtalkid );
@@ -478,9 +484,8 @@ sub freeze_thread {
     my ( $u, $jitemid, $jtalkid ) = @_;
 
     # now we need to update the states
-    my $ids = LJ::Talk::get_comments_in_thread( $u, $jitemid, $jtalkid, 'A' );
-    LJ::Talk::freeze_comments( $u, "L", $jitemid, 0, $ids );
-    return 1;
+    my $ids = LJ::Talk::get_comments_in_thread( $u, $jitemid, $jtalkid );
+    return $ids && LJ::Talk::freeze_comments( $u, "L", $jitemid, 0, $ids );
 }
 
 # <LJFUNC>
@@ -497,9 +502,8 @@ sub unfreeze_thread {
     my ( $u, $jitemid, $jtalkid ) = @_;
 
     # now we need to update the states
-    my $ids = LJ::Talk::get_comments_in_thread( $u, $jitemid, $jtalkid, 'F' );
-    LJ::Talk::freeze_comments( $u, "L", $jitemid, 1, $ids );
-    return 1;
+    my $ids = LJ::Talk::get_comments_in_thread( $u, $jitemid, $jtalkid );
+    return $ids && LJ::Talk::freeze_comments( $u, "L", $jitemid, 1, $ids );
 }
 
 # <LJFUNC>
@@ -530,17 +534,18 @@ sub freeze_comments {
     my $qnodeid   = $nodeid + 0;
 
     # now perform action
-    my $in       = join( ',', map { $_ + 0 } @$ids );
+    my $in = join( ',', map { $_ + 0 } @$ids );
     my $newstate = $unfreeze ? 'A' : 'F';
-    my $res      = $u->talk2_do( $nodetype, $nodeid, undef,
-              "UPDATE talk2 SET state = '$newstate' "
+    my $oldstate = $unfreeze ? 'F' : 'A';
+    my $frozen   = $unfreeze ? 0   : 1;
+    my $res = $u->talk2_do( $nodetype, $nodeid, undef,
+              "UPDATE talk2 SET screened_frozen = IF(state = 'S', $frozen, 0), "
+            . "state = IF(state = 'S', 'S', '$newstate') "
             . "WHERE journalid = $quserid AND nodetype = $qnodetype "
-            . "AND nodeid = $qnodeid AND jtalkid IN ($in)" );
-
-    # invalidate talk2row memcache props
-    LJ::Talk::invalidate_talk2row_memcache( $u->id, @$ids );
+            . "AND nodeid = $qnodeid AND jtalkid IN ($in) AND state IN ('$oldstate', 'S')" );
 
     return undef unless $res;
+    LJ::Talk::invalidate_talk2row_memcache( $u->id, @$ids );
     return 1;
 }
 
@@ -556,7 +561,7 @@ sub screen_comment {
     my $userid = $u->{'userid'} + 0;
 
     my $updated = $u->talk2_do( "L", $itemid, undef,
-              "UPDATE talk2 SET state='S' "
+              "UPDATE talk2 SET screened_frozen=(state='F'), state='S' "
             . "WHERE journalid=$userid AND jtalkid IN ($in) "
             . "AND nodetype='L' AND nodeid=$itemid "
             . "AND state NOT IN ('S','D')" );
@@ -582,36 +587,74 @@ sub unscreen_comment {
     return undef unless LJ::isu($u);
     my $itemid   = shift(@_) + 0;
     my @jtalkids = @_;
+    return 1 unless @jtalkids;
 
-    my $in = join( ',', map { $_ + 0 } @jtalkids );
-    return unless $in;
+    my $userid = $u->id;
+    my $in     = join ',', map { '?' } @jtalkids;
+    my $where  = "WHERE journalid=? AND nodetype='L' AND nodeid=? AND jtalkid IN ($in)";
+    my @args   = ( $userid, $itemid, @jtalkids );
 
-    my $userid = $u->{'userid'} + 0;
-    my $prop   = LJ::get_prop( "log", "hasscreened" );
+    my @unscreened;
+    my $failed;
+    my $updated = $u->talk2_do(
+        'L', $itemid, undef,
+        sub {
+            my ($dbcm) = @_;
+            my $innodb = $u->is_innodb;
+            return undef unless $dbcm->{AutoCommit};
+            return undef unless $innodb ? $dbcm->begin_work : $dbcm->do('LOCK TABLES talk2 WRITE');
 
-    my $updated = $u->talk2_do( "L", $itemid, undef,
-              "UPDATE talk2 SET state='A' "
-            . "WHERE journalid=$userid AND jtalkid IN ($in) "
-            . "AND nodetype='L' AND nodeid=$itemid "
-            . "AND state='S'" );
-    return undef unless $updated;
+            my $count = eval {
+                my $screened = $dbcm->selectall_arrayref(
+                    "SELECT jtalkid, screened_frozen FROM talk2 $where AND state='S'"
+                        . ( $innodb ? ' FOR UPDATE' : '' ),
+                    undef, @args
+                ) or die $dbcm->errstr;
 
-    LJ::Talk::invalidate_talk2row_memcache( $u->id, @jtalkids );
+                if (@$screened) {
+                    my $changed = $dbcm->do(
+                        "UPDATE talk2 SET state=IF(screened_frozen, 'F', 'A'), screened_frozen=0 "
+                            . "$where AND state='S'",
+                        undef, @args
+                    );
+                    $failed = !defined $changed || $changed != @$screened;
+                    if ($failed) {
+                        die( $dbcm->errstr || 'Unscreen updated an unexpected number of rows' )
+                            if $innodb;
+                        my $public = $dbcm->selectcol_arrayref(
+                            "SELECT jtalkid FROM talk2 $where AND state IN ('A', 'F')",
+                            undef, @args )
+                            or die $dbcm->errstr;
+                        my %public = map { $_ => 1 } @$public;
+                        @$screened = grep { $public{ $_->[0] } } @$screened;
+                    }
+                }
+
+                $dbcm->commit or die $dbcm->errstr if $innodb;
+                @unscreened = @$screened;
+                scalar @unscreened;
+            };
+            my $error = $@;
+            if ($innodb) {
+                $dbcm->rollback unless $dbcm->{AutoCommit};
+            }
+            else {
+                $dbcm->do('UNLOCK TABLES') or $failed = 1;
+            }
+            $log->warn("Could not unscreen comments: $error") if $error;
+            return $count;
+        }
+    );
+    return undef unless defined $updated;
+    return $failed ? undef : 1 unless @unscreened;
+
+    LJ::Talk::invalidate_talk2row_memcache( $userid, map { $_->[0] } @unscreened );
     LJ::MemCache::delete( [ $userid, "activeentries:$userid" ] );
 
-    # update in-memory singletons so they reflect the new state
-    foreach my $jtalkid (@jtalkids) {
-        my $c = LJ::Comment->new( $u, jtalkid => $jtalkid );
-        $c->{state} = 'A' if $c->{_loaded_row};
-    }
-
-    if ( $updated > 0 ) {
-        LJ::replycount_do( $u, $itemid, "incr", $updated );
-        my $dbcm        = LJ::get_cluster_master($u);
-        my $hasscreened = $dbcm->selectrow_array( "SELECT COUNT(*) FROM talk2 "
-                . "WHERE journalid=$userid AND nodeid=$itemid AND nodetype='L' AND state='S'" );
-        LJ::set_logprop( $u, $itemid, { 'hasscreened' => 0 } ) unless $hasscreened;
-    }
+    LJ::replycount_do( $u, $itemid, "incr", scalar @unscreened );
+    my $hasscreened = $u->selectrow_array( "SELECT COUNT(*) FROM talk2 "
+            . "WHERE journalid=$userid AND nodeid=$itemid AND nodetype='L' AND state='S'" );
+    LJ::set_logprop( $u, $itemid, { 'hasscreened' => 0 } ) if defined $hasscreened && !$hasscreened;
 
     LJ::MemCache::delete( [ $userid, "screenedcount:$userid:$itemid" ] );
 
@@ -620,14 +663,16 @@ sub unscreen_comment {
     # fire events so that users who missed the original notification
     # (because the comment was screened) get notified now
     my @jobs;
-    foreach my $jtalkid (@jtalkids) {
+    foreach my $row (@unscreened) {
+        my ( $jtalkid, $frozen ) = @$row;
+        next if $frozen;
         push @jobs,
             LJ::Event::JournalNewComment->new_for_unscreen(
             LJ::Comment->new( $u, jtalkid => $jtalkid ) );
     }
     DW::TaskQueue->dispatch(@jobs) if @jobs;
 
-    return;
+    return $failed ? undef : 1;
 }
 
 # retrieves data from the talk2 table (but preferably memcache)
@@ -642,9 +687,9 @@ sub get_talk_data {
     my $ret = {};
 
     # check for data in memcache
-    my $DATAVER     = "3";        # single character
-    my $PACK_FORMAT = "NNNNC";    ## $talkid, $parenttalkid, $poster, $time, $state
-    my $RECORD_SIZE = 17;
+    my $DATAVER     = "4";       # single character
+    my $PACK_FORMAT = "NNNNCC";  ## $talkid, $parenttalkid, $poster, $time, $state, $screened_frozen
+    my $RECORD_SIZE = 18;
 
     my $memkey  = [ $u->{'userid'}, "talk2:$u->{'userid'}:$nodetype:$nodeid" ];
     my $lockkey = $memkey->[1];
@@ -690,16 +735,17 @@ sub get_talk_data {
     my $memcache_decode = sub {
         my $n = ( length($packed) - 1 ) / $RECORD_SIZE;
         for ( my $i = 0 ; $i < $n ; $i++ ) {
-            my ( $talkid, $par, $poster, $time, $state ) =
+            my ( $talkid, $par, $poster, $time, $state, $screened_frozen ) =
                 unpack( $PACK_FORMAT, substr( $packed, $i * $RECORD_SIZE + 1, $RECORD_SIZE ) );
             $state = chr($state);
             $ret->{$talkid} = {
-                talkid        => $talkid,
-                state         => $state,
-                posterid      => $poster,
-                datepost_unix => $time,
-                datepost      => LJ::mysql_time($time),    # timezone surely fucked.  deprecated.
-                parenttalkid  => $par,
+                talkid          => $talkid,
+                state           => $state,
+                posterid        => $poster,
+                datepost_unix   => $time,
+                datepost        => LJ::mysql_time($time),    # timezone surely fucked.  deprecated.
+                parenttalkid    => $par,
+                screened_frozen => $screened_frozen,
             };
 
             # comments are counted if they're 'A'pproved or 'F'rozen
@@ -754,7 +800,7 @@ sub get_talk_data {
     my $sth =
         $dbcr->prepare( "SELECT t.jtalkid AS 'talkid', t.posterid, "
             . "t.datepost, UNIX_TIMESTAMP(t.datepost) as 'datepost_unix', "
-            . "t.parenttalkid, t.state "
+            . "t.parenttalkid, t.state, t.screened_frozen "
             . "FROM talk2 t "
             . "WHERE t.journalid=? AND t.nodetype=? AND t.nodeid=?" );
 
@@ -770,9 +816,9 @@ sub get_talk_data {
         # sequential memcache round-trips on large threads.
         $memval .= pack( $PACK_FORMAT,
             $r->{'talkid'},        $r->{'parenttalkid'}, $r->{'posterid'},
-            $r->{'datepost_unix'}, ord( $r->{'state'} ) );
+            $r->{'datepost_unix'}, ord( $r->{'state'} ), $r->{screened_frozen} );
 
-        $rp_ourcount++ if $r->{'state'} eq "A";
+        $rp_ourcount++ if $r->{state} eq 'A' || $r->{state} eq 'F';
     }
     LJ::MemCache::set( $memkey, $memval );
     $lock->release;    # release before the separately-locked replycount fixup
@@ -934,7 +980,7 @@ sub load_comments {
                 my $poster    = LJ::load_userid( $post->{posterid} );
                 my %filtermap = (
                     screened => sub { return $state eq 'S' },
-                    frozen   => sub { return $state eq 'F' },
+                    frozen   => sub { return comment_is_frozen($post) },
                     visible  => sub {
                         return 0 if $state eq 'S';
                         return 0 if $poster && $poster->is_suspended;
@@ -2073,7 +2119,7 @@ sub get_talk2_row {
     my ( $dbcr, $journalid, $jtalkid ) = @_;
     return $dbcr->selectrow_hashref(
         'SELECT journalid, jtalkid, nodetype, nodeid, parenttalkid, '
-            . '       posterid, datepost, state '
+            . '       posterid, datepost, state, screened_frozen '
             . 'FROM talk2 WHERE journalid = ? AND jtalkid = ?',
         undef,
         $journalid + 0,
@@ -2180,7 +2226,7 @@ CLUSTER:
         my $where = join( " OR ", @where );
         my $sth =
             $dbcr->prepare( "SELECT journalid, jtalkid, nodetype, nodeid, parenttalkid, "
-                . "       posterid, datepost, state "
+                . "       posterid, datepost, state, screened_frozen "
                 . "FROM talk2 WHERE $where" );
         $sth->execute(@vals);
 
@@ -2222,7 +2268,9 @@ sub invalidate_talk2row_memcache {
     foreach my $jtalkid (@jtalkids) {
         my $memkey = [ $jid, "talk2row:$jid:$jtalkid" ];
         LJ::MemCache::delete($memkey);
+        LJ::Comment->invalidate_row( $jid, $jtalkid );
     }
+    LJ::MemCache::delete( [ $jid, "rcntalk2:$jid" ] );
 
     return 1;
 }
@@ -2748,7 +2796,7 @@ sub prepare_and_validate_comment {
 
     # no replying to frozen comments
     my $parent_state = $parpost->{state} // '';
-    return $mlerr->("$tp_d.error.noreply_frozen") if $parent_state eq 'F';
+    return $mlerr->("$tp_d.error.noreply_frozen") if LJ::Talk::comment_is_frozen($parpost);
 
     # Next: Permissions checks! Easily solved, just become someone else.
 
@@ -3122,7 +3170,8 @@ sub post_comment {
 
      # if parent comment is screened and we got this far, the user has the permission to unscreen it
      # in this case the parent comment needs to be unscreened and the comment posted as normal
-        LJ::Talk::unscreen_comment( $journalu, $itemid, $parent->{talkid} );
+        return ( 0, LJ::Lang::ml('error.nodb') )
+            unless LJ::Talk::unscreen_comment( $journalu, $itemid, $parent->{talkid} );
         $parent->{state} = 'A';
     }
     elsif ( $parent_state eq 'S' ) {

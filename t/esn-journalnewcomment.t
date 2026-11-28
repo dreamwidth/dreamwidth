@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 50;
+use Test::More tests => 54;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Protocol;
@@ -362,12 +362,33 @@ test_esn_flow(
         $email = $got_notified->($u1);
         ok( !$email, "Unscreen: u1 not notified of screened reply" );
 
-        # unscreen the reply
-        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $screened_reply->jtalkid );
+        my $frozen_reply = $comment->t_reply( u => $u3, state => 'S' );
+        LJ::Talk::freeze_thread( $u2, $entry->jitemid, $frozen_reply->jtalkid );
+        ok( !$got_notified->($u1), 'Unscreen: a screened frozen reply sends no notification' );
+        my %last_body;
+        my $count_email = $LJ::_T_EMAIL_NOTIFICATION;
+        local $LJ::_T_EMAIL_NOTIFICATION = sub {
+            my ( $recipient, $body ) = @_;
+            $last_body{ $recipient->id } = $body;
+            return $count_email->(@_);
+        };
 
-        # u1 SHOULD now be notified
+        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $comment->jtalkid,
+            $screened_reply->jtalkid, $frozen_reply->jtalkid );
+
         $email = $got_notified->($u1);
-        ok( $email, "Unscreen: u1 notified after reply unscreened" );
+        is( $email, 1, 'Unscreen: only the newly active reply triggers a notification' );
+        like(
+            $last_body{ $u1->id },
+            qr/\Q@{[$screened_reply->url]}\E/,
+            'Unscreen: the notification links to the newly active reply'
+        );
+        ok( $frozen_reply->is_frozen, 'Unscreen: the other public reply remains frozen' );
+
+        LJ::Talk::unscreen_comment( $u2, $entry->jitemid, $screened_reply->jtalkid,
+            $frozen_reply->jtalkid );
+        ok( !$got_notified->($u1),
+            'Unscreen: repeating the action sends no duplicate notification' );
 
         $subsc->delete;
 

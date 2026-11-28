@@ -368,11 +368,12 @@ sub talk2_do {
     # Same lock name as get_talk_data's read path, so a write and a
     # read-repopulate don't run at once.
     my $lock = DW::Locker->new->trylock( $lockkey, class => 'talk2_do', wait => 10 );
-    my $ret  = $u->do( $sql, undef, @args );
+    return undef if ref $sql eq 'CODE' && !$lock;
+    my $ret = ref $sql eq 'CODE' ? $sql->( $u->{_dbcm} ) : $u->do( $sql, undef, @args );
     $$errref = $u->errstr if ref $errref && $u->err;
 
     # invalidate before releasing, to keep the stale-read window small
-    LJ::MemCache::delete( $memkey, 0 ) if int($ret);
+    LJ::MemCache::delete( $memkey, 0 ) if defined $ret && int($ret);
     $lock->release if $lock;
 
     return $ret;
