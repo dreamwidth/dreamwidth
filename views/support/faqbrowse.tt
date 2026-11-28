@@ -39,10 +39,9 @@
     [%- END -%]
     [%- FOR f IN faqs -%]
         [%- IF faqcatarg -%]
-            <h1>
-                <a id='faq[% f.faqid %]'></a>
+            <h2 id='faq[% f.faqid %]'>
                 <a style='text-decoration: none;' href='faqbrowse?faqid=[% f.faqid %]'>&#x00bb; [%- f.question -%]</a>
-            </h1>
+            </h2>
         [%- END -%]
         <div style='margin-left: 20px;'>
             [%- IF f.display_summary -%]

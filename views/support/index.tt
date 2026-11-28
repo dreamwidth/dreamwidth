@@ -18,12 +18,12 @@ the same terms as Perl itself. For a copy of the license, please reference
 <div class='columns medium-6'>
     [%# Known Issues Box %]
         <div class='panel radius bluebox'>
-            <h3>[% '.knownissues.head' | ml %]</h3>
+            <h2>[% '.knownissues.head' | ml %]</h2>
             [% currentproblems %]
     </div>
     [%# Ask a Question Box %]
         <div class='panel radius greenbox'>
-            <h3>[% '.ask.head' | ml %]</h3>
+            <h2>[% '.ask.head' | ml %]</h2>
             <p>[% '.ask.text' | ml ( aopts = 'href=/support/submit' ) %]</p>
             <p>[% '.search.text' | ml ( aopts = 'href=/support/history' ) %]</p>
     </div>
@@ -32,12 +32,12 @@ the same terms as Perl itself. For a copy of the license, please reference
 <div class='columns medium-6'>
     [%# Did You Know Box %]
         <div class='panel radius greenbox'>
-            <h3>[% '.volunteer.head' | ml %]</h3>
+            <h2>[% '.volunteer.head' | ml %]</h2>
             <p>[% '.volunteer.text2' | ml( sitename = site.nameshort, aoptshelp = 'href=/support/help', aoptspoints = 'href=/support/highscores' ) %]</p>
         </div>
     [%# FAQ Box %]    
         <div class='panel radius bluebox'>
-            <h3>[% '.faq.head' | ml %]</h3>
+            <h2>[% '.faq.head' | ml %]</h2>
             <p>[% '.faq.text' | ml %]</p>
             <div align='center'>
                 <form method='GET' action='[% site.root %]/support/faqsearch'>

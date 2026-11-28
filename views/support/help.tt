@@ -42,13 +42,13 @@ function doClick(spid) {
 [% END -%]
 
 [%- IF heading == 'closed' %]
-<h1>[% '.state.closed.title' | ml %]</h1>
+<h2>[% '.state.closed.title' | ml %]</h2>
 <p>[% dw.ml( '.state.closed.text', { clickurl => clickurl } ) %]</p>
 [%- ELSIF heading == 'youreplied' %]
-<h1>[% '.state.youreplied.title' | ml %]</h1>
+<h2>[% '.state.youreplied.title' | ml %]</h2>
 <p>[% '.state.youreplied.text' | ml %]</p>
 [%- ELSE %]
-<h1>[% '.state.else.title' | ml %]</h1>
+<h2>[% '.state.else.title' | ml %]</h2>
 <p>[% dw.ml( '.state.else.text', { statelink => statelink } ) %]</p>
 [%- END %]
 
