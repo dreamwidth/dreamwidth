@@ -15,6 +15,9 @@ package LJ::CleanHTML;
 use strict;
 
 use URI;
+use URI::Escape qw(uri_escape uri_unescape);
+use Unicode::Normalize qw(NFC NFKC);
+use Socket qw(AF_INET6 inet_pton);
 use HTMLCleaner;
 use LJ::CSS::Cleaner;
 use HTML::TokeParser;
@@ -60,6 +63,13 @@ sub mangle_email_address {
 sub helper_preload {
     my $p = HTML::TokeParser->new("");
     eval { $p->DESTROY(); };
+}
+
+sub _new_html_parser {
+    my ( $class, $data ) = @_;
+    my $parser = $class->new($data);
+    $parser->utf8_mode( !utf8::is_utf8($$data) );
+    return $parser;
 }
 
 # this treats normal characters and &entities; as single characters
@@ -206,7 +216,7 @@ sub clean {
     # Create the HTML parser we'll use to navigate the text from here on out.
     # It numbers the tokens it hands out (1, 2, 3 ... in source order), so we can
     # say exactly which token a report or a lookup is about.
-    my $p = LJ::CleanHTML::NumberedTokens->new($data);
+    my $p = _new_html_parser( 'LJ::CleanHTML::NumberedTokens', $data );
 
     # Set up state variables:
     my @canonical_urls;    # extracted links
@@ -295,7 +305,7 @@ sub clean {
         $eaten{iframe} = 1;
 
         my $n    = 0;
-        my $scan = LJ::CleanHTML::NumberedTokens->new($data);
+        my $scan = _new_html_parser( 'LJ::CleanHTML::NumberedTokens', $data );
         while ( my $t = $scan->get_token ) {
             $n++;
             next unless $t->[0] eq 'E';
@@ -928,7 +938,14 @@ TOKEN:
                     }
 
                     unless ( $hash->{href} =~ s/^(?:lj|site):(?:\/\/)?(.*)$/ExpandLJURL($1)/ei ) {
-                        $hash->{href} = canonical_url( $hash->{href}, 1 );
+                        my $canonical = canonical_url( $hash->{href}, 1 );
+                        my $url       = _escape_non_ascii_web_url($canonical);
+                        if ( length $url || !length $canonical ) {
+                            $hash->{href} = $url;
+                        }
+                        else {
+                            delete $hash->{href};
+                        }
                     }
                 }
 
@@ -954,25 +971,39 @@ TOKEN:
 
                     my $sanitize_url = sub {
                         my $url = canonical_url( $_[0], 1 );
-                        return $url if $to_external_site;
+                        return _escape_non_ascii_web_url($url) if $to_external_site;
                         return https_url( $url, journal => $journal, ditemid => $ditemid );
                     };
 
-                    $hash->{src} = $sanitize_url->( $hash->{src} );
+                    my $src = $sanitize_url->( $hash->{src} );
+                    if ( length $src ) {
+                        $hash->{src} = $src;
+                    }
+                    else {
+                        delete $hash->{src};
+                    }
 
                     # some responsive images use srcset as well as src;
                     # both attributes should be proxied for https if requested
                     if ( defined $hash->{srcset} ) {
-                        $hash->{srcset} =~ s!\b(http://\S+)!$sanitize_url->( $1 )!egi;
+                        my $valid_srcset = 1;
+                        $hash->{srcset} =~ s{(?<![^,\s])((?:https?:)?//\S*[^,\s])}{do {
+                            my $url = $sanitize_url->($1);
+                            $valid_srcset &&= length $url;
+                            $url;
+                        }}egi;
+                        delete $hash->{srcset} unless $valid_srcset;
                     }
 
                     if ($img_bad) {
-                        $newdata .=
-                              "<a class=\"ljimgplaceholder\" href=\""
-                            . LJ::ehtml( $hash->{'src'} ) . "\">"
-                            . LJ::img('placeholder') . '</a>';
+                        if ( length $src ) {
+                            $newdata .=
+                                  "<a class=\"ljimgplaceholder\" href=\""
+                                . LJ::ehtml($src) . "\">"
+                                . LJ::img('placeholder') . '</a>';
+                            $opencount{"img"}++;
+                        }
                         $alt_output = 1;
-                        $opencount{"img"}++;
                     }
                 }
 
@@ -1432,7 +1463,7 @@ qq{<div style="color: #000; font: 12px Verdana, Arial, Sans-Serif; background-co
 # takes a reference to HTML and a base URL, and modifies HTML in place to use absolute URLs from the given base
 sub resolve_relative_urls {
     my ( $data, $base ) = @_;
-    my $p = HTML::TokeParser->new($data);
+    my $p = _new_html_parser( 'HTML::TokeParser', $data );
 
     # where we look for relative URLs
     my $rel_source = {
@@ -1466,6 +1497,14 @@ TOKEN:
                     next unless defined $hash->{$k} && $hash->{$k} !~ /^[a-z]+:/;
                     my $rel_url = $hash->{$k};
                     $global_did_mod = $did_mod = 1;
+
+                    if ( $rel_url =~ m!\A//! ) {
+                        $rel_url = _escape_non_ascii_web_url($rel_url);
+                        unless ( length $rel_url ) {
+                            delete $hash->{$k};
+                            next;
+                        }
+                    }
 
                     $base_uri ||= URI->new($base);
                     $hash->{$k} = URI->new_abs( $rel_url, $base_uri )->as_string;
@@ -1912,11 +1951,81 @@ sub canonical_url {
     return $url;
 }
 
+sub _valid_idn_label {
+    my ($label) = @_;
+    return 0 unless $label =~ /\A(?!-)[a-z0-9\x80-\x{10FFFF}-]+(?<!-)\z/iaa;
+    return 0 if $label =~ /(?![\x{200C}\x{200D}])[\p{Space}\p{C}]/;
+
+    my ( $before, @parts ) = split /([\x{200C}\x{200D}])/, $label, -1;
+    while (@parts) {
+        my $joiner = shift @parts;
+        my $after  = shift @parts;
+        return 0
+            unless $before =~ /\p{Canonical_Combining_Class=Virama}\z/
+            || ( $joiner eq "\x{200C}"
+            && $before =~ /[\p{Joining_Type=L}\p{Joining_Type=D}]\p{Joining_Type=T}*\z/
+            && $after =~ /\A\p{Joining_Type=T}*[\p{Joining_Type=R}\p{Joining_Type=D}]/ );
+        $before = $after;
+    }
+    return 1;
+}
+
+sub _escape_non_ascii_web_url {
+    my ($url) = @_;
+    return $url if !defined $url || ( LJ::is_ascii($url) && index( $url, '%' ) < 0 );
+
+    my ( $prefix, $authority, $rest ) = $url =~ m{\A((?:https?:)?//)([^/?#]*)(.*)\z}is;
+    return $url unless defined $prefix;
+
+    my $host_offset = rindex( $authority, '@' ) + 1;
+    if ( $authority =~ /[^\x00-\x7F]/ || substr( $authority, $host_offset ) =~ /%[89a-f][0-9a-f]/i )
+    {
+        my ( $userinfo, $host, $port ) =
+            $authority =~ /\A((?:[^@]*@)?)(\[[0-9A-Fa-f:.]+\]|[^:@\[\]]+)(:[0-9]*)?\z/;
+        return '' unless defined $host && $userinfo !~ /[\x00-\x20\x7F\\]/;
+
+        if ( $host =~ /\A\[(.+)\]\z/ ) {
+            return '' unless inet_pton( AF_INET6, $1 );
+        }
+        else {
+            my $decoded_host = uri_unescape( LJ::no_utf8_flag($host) );
+            if ( LJ::is_ascii($decoded_host) ) {
+                return '' if $decoded_host =~ m{[\x00-\x20\x7F#%/:<>?@\[\]\\^|]};
+            }
+            else {
+                return '' unless utf8::decode($decoded_host);
+                $decoded_host =~ tr/\x{3002}\x{FF0E}\x{FF61}/./;
+                my $trailing_dot = $decoded_host =~ s/\.\z// ? '.' : '';
+                my $idna_ignored = qr/(?:[\x{00AD}\x{034F}\x{1806}\x{180B}-\x{180D}\x{180F}\x{200B}]
+                    |[\x{2060}\x{2064}\x{FE00}-\x{FE0F}\x{FEFF}\x{E0100}-\x{E01EF}])/x;
+                my @labels = map {
+                    my $part = $_;
+                    $part =~ s/$idna_ignored+//g;
+                    NFC( lc NFKC($part) );
+                } split /\./, $decoded_host, -1;
+                return '' if !@labels || grep { !_valid_idn_label($_) } @labels;
+                $decoded_host = join( '.', @labels ) . $trailing_dot;
+                $host         = URI->new("http://$decoded_host/")->host;
+
+                my $label = qr/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?/iaa;
+                return '' unless defined $host && $host =~ /\A$label(?:\.$label)*\.?\z/;
+                return '' if length($host) > ( $host =~ /\.\z/ ? 254 : 253 );
+            }
+        }
+
+        $authority =
+            uri_escape( LJ::no_utf8_flag($userinfo), '^\x00-\x7F' ) . $host . ( $port // '' );
+    }
+
+    return $prefix . $authority . uri_escape( LJ::no_utf8_flag($rest), '^\x00-\x7F' );
+}
+
 sub https_url {
     my ( $url, %opts ) = @_;
+    $url = _escape_non_ascii_web_url($url);
 
     # https:// and the relative // protocol don't need proxying
-    return $url if $url =~ m!^(?:https://|//)!;
+    return $url if !$url || $url =~ m!^(?:https://|//)!;
 
     # if this link is on a site that supports HTTPS, upgrade the protocol
     my $https_ok = %LJ::KNOWN_HTTPS_SITES ? \%LJ::KNOWN_HTTPS_SITES : {};
