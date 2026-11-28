@@ -15,6 +15,7 @@ package LJ::OpenID;
 
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
+use IO::Socket::SSL qw(SSL_VERIFY_PEER);
 use LJ::OpenID::Cache;
 use Net::OpenID::Server;
 use Net::OpenID::Consumer;
@@ -42,18 +43,72 @@ sub server {
     );
 }
 
+my $INSANEJOURNAL_POLICY = 'LJ::OpenID::InsaneJournal';
+
+sub _apply_insanejournal_policy {
+    my ($ua) = @_;
+    return unless $ua->can('add_handler') && $ua->can('ssl_opts');
+
+    my $site_agent = $LJ::SITENAME || 'Dreamwidth OpenID';
+    my @saved_ssl;
+    my $restore_ssl = sub {
+        my ($agent) = @_;
+        $agent->ssl_opts(@saved_ssl) if @saved_ssl;
+        @saved_ssl = ();
+    };
+
+    $ua->add_handler(
+        request_prepare => sub {
+            my ( $request, $agent ) = @_;
+            $restore_ssl->($agent);
+            my $uri    = $request->uri;
+            my $scheme = lc( $uri->scheme );
+            return unless $scheme eq 'http' || $scheme eq 'https';
+            return unless ( $uri->host // '' ) =~ /(?:\A|\.)insanejournal\.com\.?\z/i;
+
+            if ( $scheme eq 'https' ) {
+                @saved_ssl =
+                    map { $_ => scalar $agent->ssl_opts($_) } qw(verify_hostname SSL_verify_mode);
+                $agent->ssl_opts( verify_hostname => 1, SSL_verify_mode => SSL_VERIFY_PEER );
+            }
+            $_[0] = $request->clone;
+            $_[0]->header( 'User-Agent' => $site_agent );
+        },
+        owner => $INSANEJOURNAL_POLICY,
+    );
+    $ua->add_handler(
+        response_done => sub {
+            my ( undef, $agent ) = @_;
+            $restore_ssl->($agent);
+        },
+    );
+    return $ua;
+}
+
+sub has_insanejournal_tls_policy {
+    my ($ua) = @_;
+    return $ua->can('get_my_handler')
+        && scalar $ua->get_my_handler( 'request_prepare', owner => $INSANEJOURNAL_POLICY );
+}
+
+sub insanejournal_useragent {
+    my $ua = LJ::get_useragent( role => 'OpenID', timeout => 5 ) or return undef;
+    $ua->max_redirect(0);
+    return _apply_insanejournal_policy($ua);
+}
+
 # Returns a Consumer object
 # When planning to verify identity, needs GET
 # arguments passed in
 sub consumer {
     my $get_args = shift || {};
 
-    # always use a paranoid useragent
     my $ua = LJ::get_useragent(
-        role     => "OpenID",
+        role     => 'OpenID',
         timeout  => 10,
         max_size => 1024 * 300,
     );
+    _apply_insanejournal_policy($ua) if $ua;
 
     my $cache = undef;
     if ( !$LJ::OPENID_STATELESS && scalar(@LJ::MEMCACHE_SERVERS) ) {
