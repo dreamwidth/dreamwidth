@@ -29,10 +29,6 @@
     box-shadow: 0 4px 14px rgba(0, 0, 0, .24);
 }
 
-.ui-tooltip.ContextualPopup {
-    border-width: 1px;
-}
-
 .gradation .ContextualPopup {
     background: #252a30;
     color: #f2f4f7;
@@ -73,8 +69,7 @@
     color: #afd5ff;
 }
 
-.ContextualPopup a:hover,
-.ContextualPopup a:focus {
+.ContextualPopup a:where(:hover, :focus) {
     text-decoration: underline;
 }
 

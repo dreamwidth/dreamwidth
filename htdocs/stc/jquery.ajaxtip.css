@@ -10,12 +10,12 @@
  * 'perldoc perlartistic' or 'perldoc perlgpl'.
  */
 
-.ui-tooltip.ajaxtip {
+.ajaxtip {
     background: #fff;
     color: #262c33;
     border: 1px solid #909aa5;
 }
 
-.ui-tooltip.ajaxtip a {
+.ajaxtip a {
     color: #154779;
 }

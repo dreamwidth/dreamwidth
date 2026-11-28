@@ -165,6 +165,8 @@ test_psgi $app, sub {
             like( $response->content, qr{href="[^"]*/delcomment\?}, 'can delete a comment' );
             like( stylesheets($response), $gradation_theme_order,
                 'Dark Hive is applied after the comment management theme' );
+            like( stylesheets($response), qr/$ajaxtip.*$dark_hive/s,
+                'Dark Hive is applied after the comment feedback defaults' );
         };
 
         subtest 'subscription controls' => sub {
@@ -174,6 +176,8 @@ test_psgi $app, sub {
             like( $response->content, qr/jquery\.esn\.js/, 'includes subscription controls' );
             like( stylesheets($response), $gradation_theme_order,
                 'Dark Hive is applied after the subscription theme' );
+            like( stylesheets($response), qr/$ajaxtip.*$dark_hive/s,
+                'Dark Hive is applied after the subscription feedback defaults' );
         };
 
         subtest 'tag navigation' => sub {
@@ -248,6 +252,11 @@ S2
             stylesheets($response),
             qr/$contextual.*\Q$stylesheet\E/s,
             'Venture loads after the default contextual menu styles'
+        );
+        like(
+            stylesheets($response),
+            qr/$ajaxtip.*\Q$stylesheet\E/s,
+            'Venture loads after the default feedback styles'
         );
 
         my $style = $request->( GET "$journal$stylesheet" );

@@ -19,4 +19,4 @@
 * html .ui-tooltip {
 	background-image: none;
 }
-body .ui-tooltip { border-width:2px; }
+body .ui-tooltip:where(:not(.ContextualPopup, .ajaxtip)) { border-width:2px; }
