@@ -120,7 +120,7 @@ sub openid_server_handler {
         if ( $trust_root eq 'http://www.livejournal.com/'
         && $return_to =~ m|^https://www\.livejournal\.com/| );
 
-    my $nos = LJ::OpenID::server( $get, $r->post_args );
+    my $nos = LJ::OpenID::server( $get, $r->post_args, \&LJ::OpenID::provider_user );
     my ( $type, $data ) = $nos->handle_page( redirect_for_setup => 1 );
 
     return $r->redirect($data) if $type eq "redirect";

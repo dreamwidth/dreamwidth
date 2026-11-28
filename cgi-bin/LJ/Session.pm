@@ -18,7 +18,8 @@ use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
 use DW::Auth::TOTP;
 
-use constant VERSION => 1;
+use constant VERSION       => 1;
+use constant OPENID_COOKIE => '__Secure-ljopenid';
 
 # how long a trust cookie vouches for a browser after it was last signed:
 # the "long" session length, so the bypass never outlives the session that
@@ -253,7 +254,8 @@ sub domsess_cookie_string {
 
     # compute a signed domain key
     my ( $time, $key ) = LJ::get_secret();
-    my $sig = domsess_signature( $time, $sess, $domcook );
+    return undef unless $key;
+    my $sig = domsess_signature( $time, $sess, $domcook, $key );
 
     # the cookie
     my $ver = VERSION;
@@ -294,6 +296,16 @@ sub update_master_cookie {
         http_only  => 1,
         @expires,
     );
+
+    if ( $LJ::PROTOCOL eq 'https' ) {
+        my $cookie = $sess->domsess_cookie_string(OPENID_COOKIE);
+        if ( defined $cookie ) {
+            _set_openid_cookie( $cookie, @expires );
+        }
+        else {
+            _set_openid_cookie( '', delete => 1 );
+        }
+    }
 
     $sess->owner->preload_props('schemepref');
 
@@ -465,6 +477,7 @@ sub helper_url {
 
         my $sess   = $u->session;
         my $cookie = $sess->domsess_cookie_string($domcook);
+        return $dest unless defined $cookie;
         return
               $url
             . "__setdomsess?dest="
@@ -770,6 +783,30 @@ sub clear_master_cookie {
         path       => '/',
         delete     => 1
     );
+
+    _set_openid_cookie( '', delete => 1 ) if $LJ::PROTOCOL eq 'https';
+}
+
+sub _set_openid_cookie {
+    my ( $value, @opts ) = @_;
+    return set_cookie(
+        OPENID_COOKIE() => $value,
+        domain          => $LJ::DOMAIN_WEB || $LJ::DOMAIN,
+        path            => '/openid/server',
+        http_only       => 1,
+        same_site       => 'None',
+        @opts,
+    );
+}
+
+sub session_from_openid_cookie {
+    my ($class) = @_;
+    return undef unless $LJ::PROTOCOL eq 'https';
+
+    my $request = DW::Request->get or return undef;
+    my $value = $request->cookie(OPENID_COOKIE) or return undef;
+    return valid_domain_cookie( OPENID_COOKIE, $value, undef,
+        { ignore_li_cook => 1, ignore_age => 1 } );
 }
 
 # CLASS method for getting the length of a given session type in seconds
@@ -826,12 +863,9 @@ sub setdomsess_handler {
 ############################################################################
 
 sub domsess_signature {
-    my ( $time, $sess, $domcook ) = @_;
+    my ( $time, $sess, $domcook, $secret ) = @_;
 
-    my $u      = $sess->owner;
-    my $secret = LJ::get_secret($time);
-
-    my $data = join( "-", $sess->{auth}, $domcook, $u->{userid}, $sess->{sessid}, $time );
+    my $data = join( "-", $sess->{auth}, $domcook, $sess->{userid}, $sess->{sessid}, $time );
     my $sig  = hmac_sha1_hex( $data, $secret );
     return $sig;
 }
@@ -931,6 +965,7 @@ sub set_cookie {
     my $path      = delete $opts{path};
     my $expires   = delete $opts{expires};
     my $delete    = delete $opts{delete};
+    my $same_site = delete $opts{same_site};
     croak( "Invalid cookie options: " . join( ", ", keys %opts ) ) if %opts;
 
     # expires can be absolute or relative.  this is gross or clever, your pick.
@@ -947,6 +982,7 @@ sub set_cookie {
         domain   => $domain || undef,
         path     => $path || undef,
         httponly => $http_only ? 1 : 0,
+        SameSite => $same_site,
     );
 
 }
@@ -990,6 +1026,7 @@ sub valid_domain_cookie {
     return $not_valid->("bogus params") if $bogus;
     return $not_valid->("wrong gen") unless valid_cookie_generation($gen);
     return $not_valid->("wrong ver") if $version != VERSION;
+    return $not_valid->("invalid signing time") unless defined $time && $time =~ /\A[1-9][0-9]*\z/;
 
     # have to be relatively new.  these shouldn't last longer than a day
     # or so anyway.
@@ -1014,8 +1051,10 @@ sub valid_domain_cookie {
             unless $sess_licook eq $li_cook;
     }
 
-    my $correct_sig = domsess_signature( $time, $sess, $domcook );
-    return $not_valid->("signature wrong") unless $correct_sig eq $sig;
+    my $secret = LJ::get_secret($time)
+        or return $not_valid->("no signing key");
+    my $correct_sig = domsess_signature( $time, $sess, $domcook, $secret );
+    return $not_valid->("signature wrong") unless defined $sig && $correct_sig eq $sig;
 
     return $sess;
 }
