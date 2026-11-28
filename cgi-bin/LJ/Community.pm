@@ -119,8 +119,8 @@ sub accept_comm_invite {
     # get their invite to make sure they have one
     my $dbcr = LJ::get_cluster_def_reader($u);
     return LJ::error('db') unless $dbcr;
-    my $argstr = $dbcr->selectrow_array(
-        'SELECT args FROM inviterecv WHERE userid = ? AND commid = ? '
+    my ( $maintid, $argstr ) = $dbcr->selectrow_array(
+        'SELECT maintid, args FROM inviterecv WHERE userid = ? AND commid = ? '
             . 'AND recvtime > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))',
         undef, $u->{userid}, $cu->{userid}
     );
@@ -156,6 +156,8 @@ sub accept_comm_invite {
     return LJ::error('db') unless $cu->writer;
     $cu->do( "UPDATE invitesent SET status = 'accepted' WHERE commid = ? AND userid = ?",
         undef, $cu->{userid}, $u->{userid} );
+
+    $cu->notify_administrator_add( $u, LJ::load_userid($maintid) ) if $args->{admin};
 
     # done
     return 1;
@@ -244,6 +246,22 @@ sub get_pending_invites {
     );
     return undef if $dbcr->err;
     return $pending;
+}
+
+sub should_offer_comm_invite {
+    my ( $user, $community ) = @_;
+    $community = LJ::want_user($community);
+    return 0 unless LJ::isu($user) && $community;
+
+    my $pending = $user->get_pending_invites || [];
+    my ($invite) = grep { $_->[0] == $community->id } @$pending;
+    return 0 unless $invite;
+
+    my %args;
+    LJ::decode_url_string( $invite->[3], \%args );
+    return 1 unless $args{member};
+
+    return $user->can_join( $community, moderated_add => 1 ) ? 1 : 0;
 }
 
 # des: Revokes a list of outstanding invitations to a community.
