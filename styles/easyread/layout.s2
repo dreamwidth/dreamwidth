@@ -853,7 +853,7 @@ $userpic_css
     #primary, #secondary, #tertiary, #footer {
         width: 100%;
         box-sizing: border-box;
-        padding-inline: 8px;
+        padding-inline: 0;
     }
 
     .has-userpic .entry .header,

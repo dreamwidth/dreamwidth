@@ -18,7 +18,6 @@ use warnings;
 use Test::More;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
-use DW::BML;
 use DW::Request::Standard;
 use HTTP::Request;
 use LJ::S2;
@@ -96,8 +95,8 @@ for my $layout (qw(dustyfoot easyread)) {
         }
     }
 
-    like( $rules{'#canvas'} // '', qr/\bmargin:\s*0;/, "$layout removes wide page margins" );
-    like( $rules{'#canvas'} // '', qr/\bpadding:\s*0\s+\d+px;/, "$layout uses fixed page gutters" );
+    like( $rules{'#canvas'} // '', qr/\bmargin:\s*0;/,        "$layout removes wide page margins" );
+    like( $rules{'#canvas'} // '', qr/\bpadding:\s*0\s+8px;/, "$layout uses 8px page gutters" );
     like( $rules{'#canvas'} // '', qr/\boverflow-wrap:\s*break-word;/, "$layout wraps long words" );
     like( $rules{'.comment-wrapper'} // '',
         qr/\bmin-width:\s*0;/, "$layout lets threaded comments fit the available width" );
@@ -119,6 +118,10 @@ for my $layout (qw(dustyfoot easyread)) {
     }
 
     if ( $layout eq 'easyread' ) {
+        for my $section (qw(primary secondary tertiary footer)) {
+            like( $rules{"#$section"} // '',
+                qr/\bpadding-inline:\s*0;/, "$layout adds no gutter padding to #$section" );
+        }
         my $poster = $rules{'.has-userpic .entry .poster'} // '';
         like( $poster, qr/\bmargin-inline:\s*0;/, "$layout resets the poster's horizontal offset" );
         like( $poster, qr/\btop:\s*auto;/,        "$layout resets the poster's vertical offset" );
