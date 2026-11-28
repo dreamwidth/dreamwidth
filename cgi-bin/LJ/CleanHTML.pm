@@ -41,6 +41,7 @@ sub mangle_email_address {
 #        'mode' => 'allow',
 #        'deny' => [qw(marquee)],
 #        'remove' => [qw()],
+#        'nonesting' => [qw(big)], # drop these tags (and their end tags) when one is already open
 #        'maximgwidth' => 100,
 #        'maximgheight' => 100,
 #        'keepcomments' => 1,
@@ -163,6 +164,12 @@ sub clean {
     }
 
     $action{'script'} = "eat";
+
+    # Tags that can't be nested: a second <big> inside an open <big> is dropped,
+    # since stacked <big> tags grow the text without limit. %nested_dropped
+    # counts the dropped ones so their end tags are dropped too.
+    my %nonesting = map { $_ => 1 } @{ $opts->{nonesting} || [] };
+    my %nested_dropped;
 
     # if removing sizes, remove heading tags
     if ($remove_sizes) {
@@ -533,6 +540,16 @@ TOKEN:
             if ( defined $action{$tag} and $action{$tag} eq "eat" ) {
                 $eat_block->($tag);
                 next;
+            }
+
+            if ( $nonesting{$tag} ) {
+                if ( $opencount{$tag} ) {
+                    $nested_dropped{$tag}++;
+                    next TOKEN;
+                }
+
+                # nothing of this tag is open any more, so no dropped end tags are pending
+                $nested_dropped{$tag} = 0;
             }
 
             # force this specific instance of the tag to be allowed (for conditional)
@@ -1160,6 +1177,12 @@ TOKEN:
             # user conversion once we've exited a blockquote.
             if ( $disable_user_conversion && $tag eq 'blockquote' ) {
                 $disable_user_conversion = 0;
+            }
+
+            # this closes a nested tag that we dropped, so drop it too
+            if ( $nested_dropped{$tag} ) {
+                $nested_dropped{$tag}--;
+                next TOKEN;
             }
 
             my $allow;
@@ -1804,7 +1827,7 @@ sub get_okay_comment_tags {
 # ref: scalarref of text to clean, gets cleaned in-place
 # opts:  either a hashref of opts:
 #         - preformatted:  if true, don't insert breaks and auto-linkify
-#         - anon_comment:  don't linkify things, and prevent <a> tags
+#         - anon_comment:  don't linkify things, prevent <a> tags, and don't let <big> nest
 #       or, opts can just be a boolean scalar, which implies the performatted tag
 sub clean_comment {
     my ( $ref, $opts ) = @_;
@@ -1855,6 +1878,7 @@ sub clean_comment {
             textonly           => $opts->{textonly} ? 1 : 0,
             remove_positioning => 1,
             remove_abs_sizes   => $opts->{anon_comment},
+            nonesting          => $opts->{anon_comment} ? [qw( big )] : [],
         }
     );
 }
