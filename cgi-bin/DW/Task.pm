@@ -21,6 +21,7 @@ use v5.10;
 use Log::Log4perl;
 my $log = Log::Log4perl->get_logger(__PACKAGE__);
 
+use DW::Stats;
 use LJ::JSON;
 use MIME::Base64 qw/ encode_base64 decode_base64 /;
 use Storable qw/ nfreeze thaw /;
