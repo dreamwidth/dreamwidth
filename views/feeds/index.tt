@@ -35,6 +35,9 @@
 
 [%- IF poplist -%]
     <h1>[% '.add.pop.title' | ml %]</h1>
+    [%- IF subscription_failed %]
+    <p class="error" role="alert">Could not subscribe to all selected feeds. Select the feeds you want to retry and submit again.</p>
+    [%- END %]
     <p>[% '.add.pop.text' | ml %]</p>
 
     <form method='post' action='./'>

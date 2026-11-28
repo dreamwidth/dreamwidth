@@ -478,9 +478,9 @@ sub alloc_global_counter {
 #       'F' == filter id, 'Y' = pic/keYword mapping id
 #       'A' == mediA item id, 'O' == cOllection id,
 #       'N' == collectioN item id, 'B' == api key id,
-#       'P' == Profile account id
+#       'P' == Profile account id, 'G' == trust group revision
 #
-#       remaining unused letters: G H J U W
+#       remaining unused letters: H J U W
 #
 sub alloc_user_counter {
     my ( $u, $dom, $opts ) = @_;
@@ -488,7 +488,7 @@ sub alloc_user_counter {
 
     ##################################################################
     # IF YOU UPDATE THIS MAKE SURE YOU ADD INITIALIZATION CODE BELOW #
-    return undef unless $dom =~ /^[LTMPSRKCOVEQDIZXFYABN]$/;
+    return undef unless $dom =~ /^[LTMPSRKCOVEQDIZXFYABNG]$/;
     ##################################################################
 
     my $dbh = LJ::get_db_writer();
@@ -652,6 +652,9 @@ sub alloc_user_counter {
         $newmax =
             $u->selectrow_array( "SELECT MAX(account_id) FROM user_profile_accts WHERE userid = ?",
             undef, $uid );
+    }
+    elsif ( $dom eq "G" ) {
+        $newmax = 0;
     }
     else {
         die "No user counter initializer defined for area '$dom'.\n";

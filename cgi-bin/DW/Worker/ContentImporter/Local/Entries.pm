@@ -91,7 +91,7 @@ Returns (1, $res) on success, (undef, $res) on error.
 =cut
 
 sub post_event {
-    my ( $class, $data, $map, $u, $posteru, $evt, $errors ) = @_;
+    my ( $class, $data, $map, $u, $posteru, $evt, $errors, %opts ) = @_;
 
     return if $map->{ $evt->{key} };
 
@@ -157,34 +157,62 @@ sub post_event {
         $proto{prop_opt_backdated} = 1;
     }
 
-    my %res;
-    LJ::do_request(
-        {
-            mode       => 'postevent',
-            user       => $posteru ? $posteru->user : $u->user,
-            usejournal => $posteru ? $u->user : undef,
-            ver        => $LJ::PROTOCOL_VER,
-            %proto,
-        },
-        \%res,
-        {
-            u                       => $posteru || $u,
-            u_owner                 => $u,
-            importer_bypass         => 1,
-            allow_truncated_subject => 1,
-        }
-    );
+    my $do_post = sub {
+        my %res;
+        LJ::do_request(
+            {
+                mode       => 'postevent',
+                user       => $posteru ? $posteru->user : $u->user,
+                usejournal => $posteru ? $u->user : undef,
+                ver        => $LJ::PROTOCOL_VER,
+                %proto,
+            },
+            \%res,
+            {
+                u                       => $posteru || $u,
+                u_owner                 => $u,
+                importer_bypass         => 1,
+                allow_truncated_subject => 1,
+            }
+        );
+        return \%res;
+    };
 
-    if ( $res{success} eq 'FAIL' ) {
-        push @$errors, "Failed to post: $res{errmsg}";
-        return ( undef, \%res );
+    my $res;
+    if (   exists $opts{group_revision}
+        && $proto{security} eq 'usemask'
+        && ( $proto{allowmask} & ~1 ) )
+    {
+        $res = $u->with_trust_groups_lock(
+            sub {
+                my $current_rev = $u->trust_group_revision;
+                return { success => 'FAIL', errmsg => 'Unable to read access filters.' }
+                    unless defined $current_rev;
+                if ( !defined $opts{group_revision} || $current_rev != $opts{group_revision} ) {
+                    $proto{security}  = 'private';
+                    $proto{allowmask} = 0;
+                    push @$errors,
+'Access filters changed after the imported filter map was created, so the entry was made private.';
+                }
+                return $do_post->();
+            }
+        );
+        $res ||= { success => 'FAIL', errmsg => 'Access filters are busy. Try again.' };
+    }
+    else {
+        $res = $do_post->();
+    }
+
+    if ( $res->{success} eq 'FAIL' ) {
+        push @$errors, "Failed to post: $res->{errmsg}";
+        return ( undef, $res );
 
     }
     else {
         $u->do( "UPDATE log2 SET logtime = ? where journalid = ? and jitemid = ?",
-            undef, $evt->{logtime}, $u->userid, $res{itemid} );
-        $map->{ $evt->{key} } = $res{itemid};
-        return ( 1, \%res );
+            undef, $evt->{logtime}, $u->userid, $res->{itemid} );
+        $map->{ $evt->{key} } = $res->{itemid};
+        return ( 1, $res );
 
     }
 

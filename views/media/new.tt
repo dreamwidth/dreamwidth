@@ -30,6 +30,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
 ) -%]
 
 <p>[% dw.ml(".intro" {aopts1 => '/file/list', aopts2 => '/file/edit'}) %]</p>
+<p>New uploads are private until you save their descriptions and security.</p>
 
 <div class="row">
     <div class="large-12 columns">
@@ -120,6 +121,7 @@ the same terms as Perl itself.  For a copy of the license, please reference
                 ) -%]
             </div>
         </div>
+        [%- INCLUDE 'media/access-filters.tt' name = 'group' selected = {} -%]
         [%- INCLUDE row_with_field( label = dw.ml( ".label.alttext" ), name = "alttext", type = "text" ) %]
         [%- INCLUDE row_with_field( label = dw.ml( ".label.description" ), name = "description", type = "textarea" ) %]
         [%- INCLUDE row_with_field( label = "Image Code", name="generated-code" ) -%]

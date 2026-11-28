@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use LJ::Console;
@@ -65,6 +65,50 @@ $u->grant_priv("changejournaltype");
 }
 
 my $types = { 'community' => 'C', 'person' => 'P' };
+
+subtest 'failed trust cleanup prevents conversion' => sub {
+    my $blocked_comm = temp_user();
+    $blocked_comm->update_self( { status => 'A' } );
+    ok(
+        $u2->add_edge( $blocked_comm, trust => { nonotify => 1 } ),
+        'a user trusts the journal while it is a personal account'
+    );
+    like( $run->( 'change_journal_type ' . $blocked_comm->user . " community $owner" ),
+        qr/^success:/, 'converts the journal to a community with incoming trust' );
+    is( $u2->trustmask_from_primary($blocked_comm), 1, 'the community has an incoming trust edge' );
+    my $get_cache = \&LJ::MemCache::get;
+    no warnings 'redefine';
+    local *LJ::MemCache::get = sub {
+        my ($key) = @_;
+        return pack( 'N', 50000 )
+            if ref $key eq 'ARRAY' && $key->[1] eq 'trusted_by:' . $blocked_comm->id;
+        return $get_cache->(@_);
+    };
+    is( scalar( $blocked_comm->trusted_by_userids ), 0, 'cached reverse list omits the grant' );
+
+    my $lock = $u2->lock_trust_groups;
+    ok( $lock, 'holds the trust owner lock' );
+    like(
+        $run->( 'change_journal_type ' . $blocked_comm->user . " person $owner" ),
+        qr/^error: .*remove.*trust/i,
+        'reports failed cleanup instead of successful conversion'
+    );
+    $lock->release if $lock;
+
+    is( LJ::load_user( $blocked_comm->user )->journaltype, 'C', 'account remains a community' );
+    is( $u2->trustmask_from_primary($blocked_comm), 1, 'the contended trust edge remains' );
+    my $dbh = LJ::get_db_writer();
+    ok(
+        $dbh->selectrow_array(
+            'SELECT 1 FROM community WHERE userid = ?',
+            undef, $blocked_comm->id
+        ),
+        'the community settings row remains'
+    );
+    like( $run->( 'change_journal_type ' . $blocked_comm->user . " person $owner" ),
+        qr/^success:/, 'conversion succeeds after contention ends' );
+    is( $u2->trustmask_from_primary($blocked_comm) || 0, 0, 'writer-only grant is removed' );
+};
 
 foreach my $to (qw(person community)) {
     is(

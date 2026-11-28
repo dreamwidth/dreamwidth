@@ -403,7 +403,7 @@ sub _rename {
 
     $token->apply( userid => $self->userid, from => $fromusername, to => $tousername );
 
-    $self->apply_rename_opts(
+    my $incomplete = $self->apply_rename_opts(
         from     => $fromusername,
         to       => $tousername,
         redirect => {
@@ -416,6 +416,7 @@ sub _rename {
         },
         user => $opts{user},
     );
+    @{ $opts{incomplete_relationships} } = @$incomplete if $opts{incomplete_relationships};
 
     # update current object to new username, and update the email under the new username
     $self->{user} = $tousername;
@@ -439,7 +440,8 @@ sub _rename {
 
 =head2 C<< $self->apply_rename_opts >>
 
-Apply the stated rename options. Will log.
+Apply the stated rename options. Logs completed changes and returns an arrayref of incomplete
+relationship category codes.
 
 
 Arguments are:
@@ -513,7 +515,8 @@ sub apply_rename_opts {
         $extra_args{break} = join( ":", @break );
     }
 
-    $extra_args{del} = $self->delete_relationships( %{ $opts{del} } )
+    my @incomplete;
+    $extra_args{del} = $self->delete_relationships( %{ $opts{del} }, incomplete => \@incomplete )
         if %{ $opts{del} || {} };
 
     $extra_args{from} = $from if $from;
@@ -528,6 +531,7 @@ sub apply_rename_opts {
         }
     ) unless $self->is_expunged;    # if expunged, we don't need this info anymore
                                     # also, would error; don't have a cluster 0
+    return \@incomplete;
 }
 
 =head2 C<< $self->break_redirects >>
@@ -592,9 +596,22 @@ sub break_email_redirection {
     return $from_u->delete_email_alias;
 }
 
+sub _rename_wt_users {
+    my ( $self, $reverse, $mask ) = @_;
+    my ( $source, $target ) = $reverse ? qw(to_userid from_userid) : qw(from_userid to_userid);
+    my $dbh = LJ::get_db_writer() or return;
+    my $ids = $dbh->selectcol_arrayref(
+        "SELECT $target FROM wt_edges WHERE $source = ? AND groupmask & ?",
+        undef, $self->id, $mask );
+    return unless $ids && !$dbh->err;
+    my $users = LJ::load_userids(@$ids) || {};
+    return [ map { $users->{$_} } @$ids ];
+}
+
 =head2 C<< $self->delete_relationships >>
 
-Delete a list of relationships. Returns a string representation of which relationships were deleted.
+Delete a list of relationships. Returns codes for categories that completed without errors.
+If passed C<incomplete>, fills that arrayref with the category codes that did not complete.
 
 =cut
 
@@ -603,54 +620,53 @@ sub delete_relationships {
 
     return unless $self->is_personal;
 
-    if ( $opts{del_trusted_by} ) {
-        foreach ( $self->trusted_by_users ) {
-            $_->remove_edge( $self, trust => {} );
+    my %failed;
+    foreach my $relationship ( [ trusted_by => 'TB', trust => 1 ],
+        [ watched_by => 'WB', watch => 1 << 61 ] )
+    {
+        my ( $name, $code, $edge, $mask ) = @$relationship;
+        next unless $opts{"del_$name"};
+        my $users = _rename_wt_users( $self, 1, $mask );
+        $failed{$code} = 1 unless $users;
+        foreach my $user ( @{ $users || [] } ) {
+            $failed{$code} = 1 unless $user && $user->remove_edge( $self, $edge => {} );
         }
     }
 
-    if ( $opts{del_watched_by} ) {
-        foreach ( $self->watched_by_users ) {
-            $_->remove_edge( $self, watch => {} );
-        }
-    }
-
-    my @watched_comms;
-    if ( $opts{del_watched} ) {
-        foreach ( $self->watched_users ) {
-            if ( $_->is_community ) {
-                push @watched_comms, $_ if $opts{del_communities};
+    if ( $opts{del_watched} || $opts{del_communities} ) {
+        my $users       = _rename_wt_users( $self, 0, 1 << 61 );
+        my $mark_failed = sub {
+            $failed{W} = 1 if $opts{del_watched};
+            $failed{C} = 1 if $opts{del_communities};
+        };
+        $mark_failed->() unless $users;
+        foreach my $user ( @{ $users || [] } ) {
+            unless ($user) {
+                $mark_failed->();
                 next;
             }
-
-            $self->remove_edge( $_, watch => {} );
+            my ( $option, $code ) =
+                $user->is_community ? ( 'del_communities', 'C' ) : ( 'del_watched', 'W' );
+            next unless $opts{$option};
+            $failed{$code} = 1 unless $self->remove_edge( $user, watch => {} );
         }
     }
 
     if ( $opts{del_trusted} ) {
-        foreach ( $self->trusted_users ) {
-            $self->remove_edge( $_, trust => {} );
+        my $users = _rename_wt_users( $self, 0, 1 );
+        $failed{T} = 1 unless $users;
+        foreach my $user ( @{ $users || [] } ) {
+            $failed{T} = 1 unless $user && $self->remove_edge( $user, trust => {} );
         }
     }
 
     # remove admin and community membership edges
     if ( $opts{del_communities} ) {
 
-       # we already have a list of watched communities if we'd fetched the list of journals we watch
-        unless ( $opts{del_watched} ) {
-            foreach ( $self->watched_users ) {
-                push @watched_comms, $_ if $_->is_community;
-            }
-        }
-
-        foreach (@watched_comms) {
-            $self->remove_edge( $_, watch => {} );
-        }
-
         my @ids         = $self->member_of_userids;
         my $memberships = LJ::load_userids(@ids) || {};
         foreach ( values %$memberships ) {
-            $self->leave_community($_);
+            $failed{C} = 1 unless $self->leave_community($_);
         }
     }
 
@@ -661,7 +677,8 @@ sub delete_relationships {
     push @del, "W"  if $opts{del_watched};
     push @del, "C"  if $opts{del_communities};
 
-    return join ":", @del;
+    @{ $opts{incomplete} } = grep { $failed{$_} } @del if $opts{incomplete};
+    return join ":", grep { !$failed{$_} } @del;
 }
 
 =head2 C<< $self->_rename_to_ex( $tousername ) >>

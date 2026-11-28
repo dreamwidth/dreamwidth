@@ -150,10 +150,24 @@ sub visible_to {
 
     # simple usemask checking...
     if ( $self->security eq 'usemask' ) {
-        my $gmask = $u->trustmask($other_u);
+        my $allowmask = int $self->allowmask;
+        return 0 unless $allowmask;
+        return $u->trustmask($other_u) & 1 unless $allowmask & ~1;
 
-        my $allowed = int $gmask & int $self->allowmask;
-        return $allowed ? 1 : 0;
+        return $u->with_trust_groups_lock(
+            sub {
+                return 0 unless $u->writer;
+                my $current_mask = $u->selectrow_array(
+                    q{SELECT allowmask FROM media
+                      WHERE userid = ? AND mediaid = ? AND state = 'A' AND security = 'usemask'},
+                    undef, $u->id, $self->id
+                );
+                return 0 if $u->err || !$current_mask;
+
+                my $membership = $u->trustmask_from_primary($other_u);
+                return ( ( $membership // 0 ) & $current_mask ) ? 1 : 0;
+            }
+        ) || 0;
     }
 
     # totally failed.

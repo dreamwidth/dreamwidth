@@ -65,8 +65,10 @@ sub post_entry {
     my ( $self, $entry, %opts ) = @_;
 
     my $posteru = $opts{posterid} ? LJ::load_userid( $opts{posterid} ) : undef;
-    return DW::Worker::ContentImporter::Local::Entries->post_event( $self->{data},
-        $self->entry_map, $self->{u}, $posteru, $entry, $opts{errors} );
+    return DW::Worker::ContentImporter::Local::Entries->post_event( $self->{data}, $self->entry_map,
+        $self->{u}, $posteru, $entry, $opts{errors},
+        ( exists $opts{group_revision} ? ( group_revision => $opts{group_revision} ) : () ),
+    );
 }
 
 sub update_entry_icon {
@@ -100,27 +102,33 @@ sub merge_tags {
 }
 
 sub merge_trust_groups {
-    my ( $self, $groups ) = @_;
+    my ( $self, $groups, %opts ) = @_;
     return DW::Worker::ContentImporter::Local::TrustGroups->merge_trust_groups( $self->{u},
-        $groups );
+        $groups, %opts );
 }
 
 sub save_groupmap {
-    my ( $self, $map ) = @_;
+    my ( $self, $map, $revision ) = @_;
     my $data = $self->{data};
+
+    my $stored =
+        defined $revision
+        ? { map { $_ => "$map->{$_}:$revision" } keys %$map }
+        : $map;
 
     my $dbh = LJ::get_db_writer()
         or croak 'unable to get global database handle';
-    $dbh->do(
+    my $rows = $dbh->do(
         q{UPDATE import_data SET groupmap = ?
           WHERE userid = ? AND import_data_id = ?},
-        undef, nfreeze($map), $self->{u}->id, $data->{import_data_id}
+        undef, nfreeze($stored), $self->{u}->id, $data->{import_data_id}
     );
+    return defined $rows;
 }
 
 sub merge_trust {
-    my ( $self, $friends ) = @_;
-    return DW::Worker::ContentImporter->merge_trust( $self->{u}, {}, $friends );
+    my ( $self, $friends, %opts ) = @_;
+    return DW::Worker::ContentImporter->merge_trust( $self->{u}, \%opts, $friends );
 }
 
 sub merge_interests {
@@ -249,7 +257,7 @@ sub _matching_account {
     return undef;
 }
 
-sub groupmap {
+sub _load_groupmap {
     my ($self) = @_;
     my $data = $self->{data};
 
@@ -258,7 +266,37 @@ sub groupmap {
     my $row = $dbh->selectrow_array(
         'SELECT groupmap FROM import_data WHERE userid = ? AND import_data_id = ?',
         undef, $data->{userid}, $data->{import_data_id} );
-    return $row ? thaw($row) : {};
+    my $raw = $row ? thaw($row) : {};
+    return ( {}, undef ) unless ref $raw eq 'HASH' && %$raw;
+
+    my ( %map, $revision );
+    my $versioned = 1;
+    while ( my ( $remote, $val ) = each %$raw ) {
+        if ( defined $val && !ref $val && $val =~ /\A([1-9][0-9]?):([0-9]+)\z/ ) {
+            $map{$remote} = $1 + 0;
+            $versioned = 0 if defined $revision && $revision ne $2;
+            $revision //= $2;
+        }
+        elsif ( defined $val && !ref $val && $val =~ /\A([1-9][0-9]?)\z/ ) {
+            $map{$remote} = $1 + 0;
+            $versioned = 0;
+        }
+        else {
+            $versioned = 0;
+        }
+    }
+    return ( \%map, $versioned ? $revision : undef );
+}
+
+sub groupmap {
+    my ($self) = @_;
+    my ($map)  = $self->_load_groupmap;
+    return $map;
+}
+
+sub groupmap_with_revision {
+    my ($self) = @_;
+    return $self->_load_groupmap;
 }
 
 sub usermap_lookup {

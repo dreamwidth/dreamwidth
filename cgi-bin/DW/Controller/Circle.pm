@@ -53,6 +53,7 @@ sub individual_edit_handler {
     }
 
     my %edges;
+    my $access_error          = 'Could not save access changes. Reload the page and try again.';
     my $calculate_member_edge = sub {
         my $edge = {
             show => 1,
@@ -133,15 +134,34 @@ sub individual_edit_handler {
 # populate access filters (only allow to modify access filters if we can still grant access -- if we can't, no filters for them;
 # only thing they can do is remove existing access)
         my @access_filters;
-        foreach my $filter ( $can_trust ? $remote->trust_groups : () ) {
-            my $g  = $filter->{groupnum};
-            my $ck = ( $remote->trustmask($target_u) & ( 1 << $g ) );
-            push @access_filters,
+        if ($can_trust) {
+            my $lock     = $remote->lock_trust_groups;
+            my $groups   = $lock && $remote->trust_groups( force_database => 1 );
+            my $revision = $groups ? $remote->trust_group_revision : undef;
+            my $mask     = defined $revision ? $remote->trustmask_from_primary($target_u) : undef;
+            if ( defined $mask ) {
+                $edge->{on}             = $mask & 1;
+                $edge->{group_revision} = $revision;
+                foreach my $filter (
+                    sort {
+                               $a->{sortorder} <=> $b->{sortorder}
+                            || $a->{groupname} cmp $b->{groupname}
+                    } values %$groups
+                    )
                 {
-                label    => $filter->{groupname},
-                name     => "bit_$g",
-                selected => $ck
-                };
+                    my $bit = $filter->{groupnum};
+                    push @access_filters,
+                        {
+                        label    => $filter->{groupname},
+                        name     => "bit_$bit",
+                        selected => $mask & ( 1 << $bit ),
+                        };
+                }
+            }
+            else {
+                $edge->{status_error} =
+                    'Could not load access filters. Reload the page and try again.';
+            }
         }
         $edge->{filters} = \@access_filters;
         my $action = $get->{action} // '';
@@ -279,49 +299,42 @@ sub individual_edit_handler {
                 $calculate_edges->("member");
             }
         }
-        unless ( $edges{access}->{error} ) {
-            my $already_trusted = $remote->trusts($target_u) ? 1 : 0;
-
-            my $did_change_access         = $post->{"action:access"};
-            my $did_change_access_filters = $post->{"action:accessfilters"};
-
-            my $do_grant_access = ( $did_change_access && $post->{new_state} eq "on" )
-                || ( $did_change_access_filters && !$already_trusted ) ? 1 : 0;
-            my $do_revoke_access    = $did_change_access && $post->{new_state} eq "off";
-            my $do_update_trustmask = $did_change_access_filters || $do_grant_access;
-
-            if ($do_grant_access) {
-
-                # grant access
-                $remote->add_edge(
-                    $target_u,
-                    trust => {
-                        nonotify => $already_trusted ? 1 : 0,
+        my $access_state = $post->{"action:access"} ? ( $post->{new_state} // '' ) : '';
+        if (   $edges{access}
+            && !$edges{access}->{error}
+            && ( $access_state =~ /\A(?:on|off)\z/ || $post->{"action:accessfilters"} ) )
+        {
+            my $saved = $remote->with_trust_groups_lock(
+                sub {
+                    if ( $access_state eq 'off' ) {
+                        return $remote->remove_edge( $target_u, trust => {} );
                     }
-                );
-            }
 
-            if ($do_revoke_access) {
-                $remote->remove_edge(
-                    $target_u,
-                    trust => {
-                        nonotify => $already_trusted ? 0 : 1,
+                    my $current = $remote->trustmask_from_primary($target_u);
+                    return 0 unless defined $current;
+                    my $groups   = $remote->trust_groups( force_database => 1 ) or return 0;
+                    my $revision = $remote->trust_group_revision;
+                    return 0
+                        unless defined $revision
+                        && defined $post->{group_revision}
+                        && $post->{group_revision} eq $revision;
+
+                    my $mask = 1;
+                    foreach my $bit ( 1 .. 60 ) {
+                        next unless $groups->{$bit} && $post->{"bit_$bit"};
+                        $mask |= 1 << $bit;
                     }
-                );
-            }
-
-            if ($do_update_trustmask) {
-
-                # calculate trustmask
-                my $gmask = 1;
-                foreach my $bit ( 1 .. 60 ) {
-                    next unless $post->{"bit_$bit"};
-                    $gmask |= ( 1 << $bit );
+                    return $remote->add_edge(
+                        $target_u,
+                        trust => {
+                            mask     => $mask,
+                            nonotify => ( $current & 1 ) ? 1 : 0,
+                        }
+                    );
                 }
-                $remote->trustmask( $target_u, $gmask );
-            }
-
+            );
             $calculate_edges->("access");
+            $edges{access}->{status_error} = $access_error unless $saved;
         }
 
         unless ( $edges{subscribe}->{error} ) {
@@ -334,6 +347,7 @@ sub individual_edit_handler {
                 || ( $did_change_subscribe_filters && !$already_watched );
             my $do_unsubscribe    = $did_change_subscribe && $post->{new_state} eq "off";
             my $do_update_filters = $did_change_subscribe_filters || $do_subscribe;
+            my $saved             = 1;
 
             if ($do_subscribe) {
 
@@ -341,7 +355,7 @@ sub individual_edit_handler {
                 #my $bg = LJ::color_to_db( "#ffffff" );
 
                 # subscribe
-                $remote->add_edge(
+                $saved = $remote->add_edge(
                     $target_u,
                     watch => {
 
@@ -353,7 +367,7 @@ sub individual_edit_handler {
             }
 
             if ($do_unsubscribe) {
-                $remote->remove_edge(
+                $saved = $remote->remove_edge(
                     $target_u,
                     watch => {
                         nonotify => $already_watched ? 0 : 1,
@@ -361,7 +375,7 @@ sub individual_edit_handler {
                 );
             }
 
-            if ($do_update_filters) {
+            if ( $saved && $do_update_filters ) {
                 my @content_filters = $remote->content_filters;
                 my $filter_id;
                 foreach my $filter (@content_filters) {
@@ -380,6 +394,8 @@ sub individual_edit_handler {
             }
 
             $calculate_edges->("subscribe");
+            $edges{subscribe}->{status_error} = 'Could not save subscription changes. Try again.'
+                unless $saved;
         }
     }
 

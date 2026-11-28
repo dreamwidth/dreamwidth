@@ -262,7 +262,7 @@ sub render {
     my %GET = LJ::parse_args($args);
 
     # Try DW::Routing first for user-context controllers
-    my $ret = DW::Routing->call( username => $user );
+    my $ret = DW::Routing->call( username => $user, uri => $uri );
     return $ret if defined $ret;
 
     # Parse the URI into a view mode

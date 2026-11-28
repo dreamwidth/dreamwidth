@@ -2716,8 +2716,9 @@ sub editcircle {
     my ( $req, $err, $flags ) = @_;
     return undef unless authenticate( $req, $err, $flags );
 
-    my $u   = $flags->{u};
-    my $res = {};
+    my $u          = $flags->{u};
+    my $res        = {};
+    my $save_error = 'Could not save all Circle changes.';
 
     if ( ref $req->{settrustgroups} eq 'HASH' ) {
         while ( my ( $bit, $group ) = each %{ $req->{settrustgroups} } ) {
@@ -2732,13 +2733,13 @@ sub editcircle {
 
             $params{sortorder} = $sortorder if defined $sortorder;
             $params{is_public} = $public    if defined $public;
-            $u->edit_trust_group(%params);
+            $u->edit_trust_group(%params) or return fail( $err, 501, $save_error );
         }
     }
 
     if ( ref $req->{deletetrustgroups} eq 'ARRAY' ) {
         foreach my $bit ( @{ $req->{deletetrustgroups} } ) {
-            $u->delete_trust_group( id => $bit );
+            $u->delete_trust_group( id => $bit ) or return fail( $err, 501, $save_error );
         }
     }
 
@@ -2790,7 +2791,7 @@ sub editcircle {
                         mask     => $row->{groupmask},
                         nonotify => 1,
                     }
-                );
+                ) or return fail( $err, 501, $save_error );
             }
             else {
                 if ( $row->{edge} & 1 ) {
@@ -2799,7 +2800,7 @@ sub editcircle {
                         trust => {
                             nonotify => $u->trusts($other_userid) ? 1 : 0,
                         }
-                    );
+                    ) or return fail( $err, 501, $save_error );
                 }
                 else {
                     $u->remove_edge(
@@ -2807,7 +2808,7 @@ sub editcircle {
                         trust => {
                             nonotify => $u->trusts($other_userid) ? 0 : 1,
                         }
-                    );
+                    ) or return fail( $err, 501, $save_error );
                 }
                 if ( $row->{edge} & 2 ) {
                     my $fg = $row->{fgcolor} || "#000000";
@@ -2819,7 +2820,7 @@ sub editcircle {
                             bgcolor  => LJ::color_todb($bg),
                             nonotify => $u->watches($other_userid) ? 1 : 0,
                         }
-                    );
+                    ) or return fail( $err, 501, $save_error );
                 }
                 else {
                     $u->remove_edge(
@@ -2827,7 +2828,7 @@ sub editcircle {
                         watch => {
                             nonotify => $u->watches($other_userid) ? 0 : 1,
                         }
-                    );
+                    ) or return fail( $err, 501, $save_error );
                 }
                 if ( $row->{edge} ) {
                     my $myid  = $u->userid;

@@ -47,9 +47,9 @@ sub execute {
     return $self->error('Invalid user.')
         unless $to_u;
 
-    my @groups = grep { $_ >= 1 && $_ <= 60 } map { $_ + 0 } split( /,/, $grouplist || '' );
+    my @groups = split /,/, $grouplist // '', -1;
     return $self->error('Invalid groups, try something like: 3,4,19,23')
-        if $grouplist && scalar(@groups) <= 0;
+        if grep { !/\A\s*\d{1,2}\s*\z/ || $_ < 1 || $_ > 60 } @groups;
     return $self->error('Can only specify groups for add_access command.')
         if $cmd ne 'add_access' && @groups;
 
@@ -66,7 +66,7 @@ sub execute {
                 watch => {
                     nonotify => $remote->watches($to_u) ? 1 : 0,
                 }
-            );
+            ) or return $self->error('Could not save Circle changes.');
         }
         else {
             return $self->error("Error: $edge_err");
@@ -79,28 +79,33 @@ sub execute {
             watch => {
                 nonotify => $remote->watches($to_u) ? 0 : 1,
             }
-        );
+        ) or return $self->error('Could not save Circle changes.');
 
     }
     elsif ( $cmd eq 'add_access' ) {
-        my $mask = 0;
-        $mask += ( 1 << $_ ) foreach @groups;
+        return $self->error("Error: $edge_err")
+            unless $remote->can_trust( $to_u, errref => \$edge_err );
 
-        my $existing_mask = $remote->trustmask($to_u);
-        $mask |= $existing_mask;
+        my $saved = $remote->with_trust_groups_lock(
+            sub {
+                my $mask = $remote->trustmask_from_primary($to_u);
+                return 0 unless defined $mask;
 
-        if ( $remote->can_trust( $to_u, errref => \$edge_err ) ) {
-            $remote->add_edge(
-                $to_u,
-                trust => {
-                    mask     => $mask,
-                    nonotify => $remote->trusts($to_u) ? 1 : 0,
+                if (@groups) {
+                    my $owned = $remote->trust_groups( force_database => 1 ) or return 0;
+                    if ( grep { !$owned->{ $_ + 0 } } @groups ) {
+                        $edge_err = 'An access filter does not exist.';
+                        return 0;
+                    }
                 }
-            );
-        }
-        else {
-            return $self->error("Error: $edge_err");
-        }
+
+                my $nonotify = $mask & 1 ? 1 : 0;
+                $mask |= 1 << $_ foreach @groups;
+                return $remote->add_edge( $to_u,
+                    trust => { mask => $mask, nonotify => $nonotify } );
+            }
+        );
+        return $self->error( $edge_err || 'Could not save Circle changes.' ) unless $saved;
 
     }
     elsif ( $cmd eq 'del_access' ) {
@@ -109,7 +114,7 @@ sub execute {
             trust => {
                 nonotify => $remote->trusts($to_u) ? 0 : 1,
             }
-        );
+        ) or return $self->error('Could not save Circle changes.');
 
     }
     elsif ( $cmd eq 'get_read' ) {

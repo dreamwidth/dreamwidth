@@ -24,6 +24,19 @@ use strict;
 use Carp qw/ confess /;
 use DW::Cache;
 
+sub _read_trustmask {
+    my ( $db, $from_userid, $to_userid ) = @_;
+    return undef unless $db;
+    my ($mask) = $db->selectrow_array(
+        'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
+        undef, $from_userid, $to_userid );
+    return $db->err ? undef : ( $mask // 0 ) + 0;
+}
+
+sub _trustmask_from_primary {
+    return _read_trustmask( LJ::get_db_writer(), @_ );
+}
+
 # returns trustmask between two users
 sub _trustmask {
     my ( $from_userid, $to_userid ) = @_;
@@ -40,11 +53,8 @@ sub _trustmask {
         my $dbr = LJ::get_db_reader();
         die "No database reader available" unless $dbr;
 
-        $mask = $dbr->selectrow_array(
-            'SELECT groupmask FROM wt_edges WHERE from_userid = ? AND to_userid = ?',
-            undef, $from_userid, $to_userid );
-        return 0 if $dbr->err;    # transient error: don't cache
-        $mask = $mask ? $mask + 0 : 0;    # force numeric
+        $mask = _read_trustmask( $dbr, $from_userid, $to_userid );
+        return 0 unless defined $mask;    # transient error: don't cache
 
         LJ::MemCache::set( $memkey, $mask, 3600 );
     }
@@ -203,7 +213,7 @@ sub _wt_list_db {
 
     # get a lock
     my $lock = LJ::locker()->trylock( "get_wt_list:$userid", class => 'watchtrust', wait => 10 );
-    return {} unless $lock;
+    return $args{force_database} ? undef : {} unless $lock;
 
     my $release_lock = sub {
         $lock->release;
@@ -274,10 +284,16 @@ sub _wt_list_db {
     my @cols = qw/ to_userid fgcolor bgcolor groupmask showbydefault /;
 
     # try the SQL on the master database
+    unless ($dbh) {
+        return $release_lock->(undef) if $args{force_database};
+        confess 'No database writer available';
+    }
     my $sth = $dbh->prepare( 'SELECT to_userid, fgcolor, bgcolor, groupmask, showbydefault '
             . 'FROM wt_edges WHERE from_userid = ?' );
-    $sth->execute($userid);
-    confess $dbh->errstr if $dbh->err;
+    unless ( $sth && $sth->execute($userid) ) {
+        return $release_lock->(undef) if $args{force_database};
+        confess $dbh->errstr;
+    }
 
     # iterate over each row and prepare result
     while ( my @row = $sth->fetchrow_array ) {
@@ -302,6 +318,11 @@ sub _wt_list_db {
         }
     }
 
+    if ( $sth->err ) {
+        return $release_lock->(undef) if $args{force_database};
+        confess $sth->errstr;
+    }
+
     # now stuff in memcache
     LJ::MemCache::set( $memkey, $mempack );
 
@@ -311,7 +332,7 @@ sub _wt_list_db {
 
 # returns a hashref for a trust group
 sub _trust_groups {
-    my ( $u, $bit, $name ) = @_;
+    my ( $u, $bit, $name, $force_database ) = @_;
 
     # memcache data version number
     my $ver = 2;
@@ -360,24 +381,25 @@ sub _trust_groups {
     # check memcache
     my $userid = $u->id;
     my $memkey = [ $userid, "trust_group:$userid" ];
-    $fg = LJ::MemCache::get($memkey);
-    return $find_grp->() if $fg;
+    unless ($force_database) {
+        $fg = LJ::MemCache::get($memkey);
+        return $find_grp->() if $fg;
+    }
 
     # check database
     $fg = [$ver];
-    my $db = LJ::get_cluster_def_reader($u);
+    my $db = $force_database ? LJ::get_cluster_master($u) : LJ::get_cluster_def_reader($u);
     return undef unless $db;
 
-    my $sth = $db->prepare( 'SELECT userid, groupnum, groupname, sortorder, is_public '
-            . 'FROM trust_groups WHERE userid = ?' );
-    $sth->execute($userid);
+    my $rows = $db->selectall_arrayref(
+'SELECT userid, groupnum, groupname, sortorder, is_public FROM trust_groups WHERE userid = ?',
+        undef, $userid
+    );
     return LJ::error($db) if $db->err;
-
-    my @row;
-    push @$fg, [@row] while @row = $sth->fetchrow_array;
+    push @$fg, @$rows;
 
     # set in memcache
-    LJ::MemCache::set( $memkey, $fg );
+    LJ::MemCache::set( $memkey, $fg ) unless $force_database;
 
     return $find_grp->();
 }

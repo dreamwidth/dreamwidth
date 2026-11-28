@@ -85,7 +85,7 @@ sub _process {
 
     # insert any images.
     # must be done after we've processed the props, to make sure we respect security settings
-    $self->insert_images;
+    my $image_upload_failed = $self->insert_images;
 
     # do a final cleanup of the body text
     $self->cleanup_body_final;
@@ -116,6 +116,10 @@ sub _process {
         { noauth => 1, allow_truncated_subject => 1 } );
     return $self->send_error( LJ::Protocol::error_message($post_error) ) if $post_error;
 
+    $self->send_error(
+'Your entry was posted, but one or more pictures could not be uploaded. Try uploading the missing pictures again.',
+        nolog => 1
+    ) if $image_upload_failed;
     $self->dblog( s => $self->{subject} );
     return ( 1, "Post success" );
 }
@@ -241,6 +245,7 @@ sub _set_props {
 
     my $security;
     my $amask;
+    my $group_revision;
 
     # "lc" is right here because groupnames are forcibly lowercased in
     # LJ::User->trust_groups;
@@ -254,14 +259,22 @@ sub _set_props {
         }
     }
     elsif ($security) {               # Assume a trust group list if unknown security.
-            # Get the mask for the requested trust group list, discarding those
-            # that don't exist.
+        my $lock = $u->lock_trust_groups( wait => 2 )
+            or return $self->err('Access filters are busy. Please try again.');
+        my $groups = $u->trust_groups( force_database => 1 );
+        $group_revision = $u->trust_group_revision;
+        return $self->err('Unable to read access filters.')
+            unless $groups && defined $group_revision;
+        my %group_ids = map { lc( $_->{groupname} ) => $_->{groupnum} }
+            sort { $b->{groupnum} <=> $a->{groupnum} } values %$groups;
+        $lock->release;
+
         $amask = 0;
         my @unrecognized = ();
         foreach my $groupname ( split( /\s*,\s*/, $security ) ) {
-            my $group = $u->trust_groups( name => $groupname );
-            if ($group) {
-                $amask |= ( 1 << $group->{groupnum} );
+            my $id = $group_ids{$groupname};
+            if ($id) {
+                $amask |= ( 1 << $id );
             }
             else {
                 push @unrecognized, $groupname;
@@ -282,10 +295,11 @@ sub _set_props {
         }
     }
 
-    $self->{props}    = $props;
-    $self->{security} = $security;
-    $self->{amask}    = $amask;
-    $self->{time}     = $time;
+    $self->{props}          = $props;
+    $self->{security}       = $security;
+    $self->{amask}          = $amask;
+    $self->{group_revision} = $group_revision;
+    $self->{time}           = $time;
 
     return 1;
 }
@@ -302,15 +316,15 @@ sub insert_images {
     my ($self) = @_;
 
     # upload picture attachments
-    # undef return value? retry posting for later.
-    my $fb_upload = $self->_upload_images(
-        security  => $self->{security},
-        allowmask => $self->{amask},
+    my ( $images, $failure ) = $self->_upload_images(
+        security       => $self->{security},
+        allowmask      => $self->{amask},
+        group_revision => $self->{group_revision},
     );
 
     # if we found and successfully uploaded some images...
-    if ( ref $fb_upload eq 'ARRAY' ) {
-        my $fb_html = join( '<br />', map { '<img src="' . $_->url . '" />' } @$fb_upload );
+    if (@$images) {
+        my $fb_html = join( '<br />', map { '<img src="' . $_->url . '" />' } @$images );
 
         ##
         ## A problem was here:
@@ -324,47 +338,32 @@ sub insert_images {
         $self->{body} .= '<br />' . $fb_html;
     }
 
-    # at this point, there are either no images in the message ($fb_upload == 1)
-    # or we had some error during upload that we may or may not want to retry
-    # from.  $fb_upload contains the http error code.
-    if (
-        $fb_upload == 400        # bad http request
-        || $fb_upload == 1401    # user has exceeded the fb quota
-        || $fb_upload == 1402    # user has exceeded the fb quota
-        )
-    {
-        # don't retry these errors, go ahead and post the body
-        # to the journal, postfixed with the remote error.
-        $self->{body} .= "\n";
-        $self->{body} .= "(Your picture was not posted)";
+    if ($failure) {
+        $self->{body} .=
+            @$images ? "\n(Some pictures were not posted)" : "\n(Your picture was not posted)";
     }
+    return $failure && $failure eq 'upload';
 }
 
-# Return codes
-# 1 - no images found in mime entity
-# undef - failure during upload
-# http_code - failure during upload w/ code
-# hashref - { title => url } for each image uploaded
 sub _upload_images {
     my ( $self, %opts ) = @_;
 
     my @imgs = $self->get_entity( $self->{_entity}, 'image' );
-    return 1 unless scalar @imgs;
+    return ( [], undef ) unless @imgs;
 
-    return 1401 unless DW::Media->can_upload_media( $self->{u} );    # error code from insert_images
+    return ( [], 'quota' ) unless DW::Media->can_upload_media( $self->{u} );
 
     my @images;
     foreach my $img_entity (@imgs) {
         my $obj = DW::Media->upload_media(
             user => $self->{u},
             data => $img_entity->bodyhandle->as_string,
-            %opts,                                                   # Should contain security.
+            %opts,    # Should contain security.
         );
         push @images, $obj if $obj;
     }
 
-    return unless scalar @images;
-    return \@images;
+    return ( \@images, @images < @imgs ? 'upload' : undef );
 }
 
 sub _check_pin_validity {

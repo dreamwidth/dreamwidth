@@ -409,7 +409,36 @@ sub convert_handler {
         }
 
         unless ( $errors->exist ) {
-            $cu->update_self( { journaltype => 'C', password => '' } );
+            my $converted = $cu->with_trust_groups_lock(
+                sub {
+                    my $dbh     = LJ::get_db_writer() or return;
+                    my $targets = $dbh->selectcol_arrayref(
+'SELECT to_userid FROM wt_edges WHERE from_userid = ? AND groupmask & (1 | (1 << 61))',
+                        undef, $cu->id
+                    );
+                    return unless $targets && !$dbh->err;
+                    my $users = LJ::load_userids(@$targets) || {};
+                    foreach my $target (@$targets) {
+                        return
+                            unless $users->{$target} && $cu->remove_edge(
+                            $users->{$target},
+                            watch => { nonotify => 1 },
+                            trust => { nonotify => 1 }
+                            );
+                    }
+
+                    $errors->add_string( 'cuser',
+                        'Could not change the account type after removing outgoing relationships.' )
+                        unless $cu->update_self( { journaltype => 'C', password => '' } );
+                    return 1;
+                }
+            );
+            $errors->add_string( 'cuser',
+'Could not remove all outgoing relationships. The account was not converted, but some relationships may have been removed.'
+            ) unless $converted;
+        }
+
+        unless ( $errors->exist ) {
             $cu->invalidate_directory_record;
 
             # handle admin edges
@@ -431,14 +460,6 @@ sub convert_handler {
                     moderated         => $post->{moderated},
                 }
             );
-
-            # delete existing watchlist & trustlist
-            foreach ( $cu->watched_users ) {
-                $cu->remove_edge( $_, watch => {} );
-            }
-            foreach ( $cu->trusted_users ) {
-                $cu->remove_edge( $_, trust => {} );
-            }
 
             # log this to statushistory
             my $msg = "account '" . $cu->user . "' converted to community";

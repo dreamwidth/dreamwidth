@@ -24,13 +24,21 @@ $(function() {
             if (form_field.name == "generated-code") return;
 
             if ( ! data[file_id] )
-                data[file_id] = {};
+                data[file_id] = { groups: [] };
 
-            data[file_id][form_field.name] = form_field.value;
-
-            if (form_field.name == "security" && form_field.value == "usemask")
-                data[file_id]["allowmask"] = 1;
-
+            if (form_field.name == "group") {
+                if (form_field.checked) data[file_id].groups.push(form_field.value);
+            } else {
+                data[file_id][form_field.name] = form_field.value;
+            }
+        });
+        $.each(data, function(file_id, metadata) {
+            if (metadata.security == "custom") {
+                metadata.security = "usemask";
+            } else {
+                delete metadata.groups;
+                if (metadata.security == "usemask") metadata.allowmask = 1;
+            }
         });
 
         $.ajax( Site.siteroot + '/api/v1/file/edit', {
@@ -81,7 +89,7 @@ $(function() {
     .end()
     .fileupload({
         dataType: 'json',
-        url: Site.siteroot + '/api/v1/file/new',
+        url: Site.siteroot + '/api/v1/file/new?initial_security=private',
 
         autoUpload: false,
 
@@ -98,10 +106,10 @@ $(function() {
                 .prependTo( $output );
 
             data.context
-                .find("label").attr( "for", function() {
+                .find("label[data-for-name]").attr( "for", function() {
                     return $(this).data("for-name") + _uiCounter;
                 }).end()
-                .find(":input").attr( "id", function() {
+                .find(":input:not([name=group])").attr( "id", function() {
                     return this.name + _uiCounter;
                 })
 
@@ -171,25 +179,23 @@ $(function() {
     // now make sure we upload the metadata in case we tried to submit metadata
     // before we got an id back (from the file upload)
     .on( 'fileuploadstop', function(data) {
-        if ( _metadataInProgress ) {
-            // now submit all form fields...
-            _doEditRequest( $('.upload-form :input') );
-            _metadataInProgress = false;
-        }
-
         _uploadInProgress = false;
+        if ( _metadataInProgress ) {
+            _metadataInProgress = false;
+            _doEditRequest( $('.upload-form :input[data-file-id]') );
+        }
     })
 
     $('.upload-form').submit(function(e) {
         e.preventDefault();
         e.stopPropagation();
 
-        var formFields = $(':input[data-file-id]', this);
-        if ( formFields.length < $("input[type=text], select", this).length ) {
+        if ( _uploadInProgress ) {
             _metadataInProgress = true;
+            return;
         }
 
-        _doEditRequest( formFields );
+        _doEditRequest( $(':input[data-file-id]', this) );
     });
 
     // error handler when uploading an image
