@@ -20,16 +20,15 @@ use warnings;
 
 use Test::More tests => 1;
 
-BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+BEGIN { $LJ::_T_CONFIG = 1; }
 
+use lib "$ENV{LJHOME}/cgi-bin";
 use LJ::CleanHTML;
+use LJ::Config;
+use LJ::Hooks;
 use HTMLCleaner;
 
-# Cleaning <embed> tags within LJ::CleanHTML::clean_event pulls in LJ::Hooks
-# which ultimately pulls in ljlib.pl.
-#
-# Separated out into its own file so that the rest of cleaner-event.t can be
-# made independent of ljlib.pl
+LJ::Config->load;
 
 my $orig_post;
 my $clean_post;
