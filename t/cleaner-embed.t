@@ -17,13 +17,47 @@
 use strict;
 use warnings;
 
-use Test::More tests => 196;
+use Test::More tests => 198;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 
 use LJ::CleanHTML;
 use LJ::EmbedModule;
-use LJ::Test qw( temp_user );
+use LJ::Test qw( temp_user with_fake_memcache );
+
+subtest 'display does not add a referrer policy to the editing source' => sub {
+    with_fake_memcache {
+        my $journal  = temp_user();
+        my $moduleid = LJ::EmbedModule->save_module(
+            journal  => $journal,
+            contents => q{<iframe src="https://www.youtube.com/embed/ABC123abc-_"></iframe>},
+        );
+        my $memkey = LJ::EmbedModule->memkey( $journal->userid, $moduleid );
+        LJ::MemCache::delete($memkey);
+        ok( !defined LJ::MemCache::get($memkey), 'display starts with a cold cache' );
+
+        my $displayed = LJ::EmbedModule->module_content(
+            journalid          => $journal->userid,
+            moduleid           => $moduleid,
+            display_as_content => 1,
+        )->{content};
+        like(
+            $displayed,
+            qr/referrerpolicy="strict-origin-when-cross-origin"/,
+            'the displayed player gets the default referrer policy'
+        );
+        ok( defined LJ::MemCache::get($memkey), 'the display read warms the cache' );
+
+        my $editing = qq{<site-embed id="$moduleid"/>};
+        LJ::EmbedModule->expand_entry( $journal, \$editing, edit => 1 );
+        like(
+            $editing,
+            qr{<iframe src="(?:https:)?//www\.youtube\.com/embed/ABC123abc-_"},
+            'editing still expands the stored iframe'
+        );
+        unlike( $editing, qr/\breferrerpolicy=/, 'the editing source has no referrer policy' );
+    };
+};
 
 note("Testing clean_embed (we provide the contents to be cleaned directly)");
 {
@@ -101,6 +135,35 @@ qq{<object width="640" height="385"><param name="movie" value="http://www.exampl
     }
 
     my $id = "ABC123abc-_";
+    subtest 'referrer policy for displayed YouTube players', sub {
+        foreach my $host ( 'www.youtube.com', 'www.youtube-nocookie.com' ) {
+            my $html = qq{<iframe src="https://$host/embed/$id"></iframe>};
+            LJ::CleanHTML::clean_embed( \$html, { display_as_content => 1 } );
+            is(
+                $html,
+qq{<iframe src="//$host/embed/$id" referrerpolicy="strict-origin-when-cross-origin"></iframe>},
+                "$host gets an origin-only cross-origin referrer by default"
+            );
+        }
+
+        my $html =
+qq{<iframe src="https://www.youtube.com/embed/$id" referrerpolicy="no-referrer"></iframe>};
+        LJ::CleanHTML::clean_embed( \$html, { display_as_content => 1 } );
+        is(
+            $html,
+            qq{<iframe src="//www.youtube.com/embed/$id" referrerpolicy="no-referrer"></iframe>},
+            'an explicit referrer policy is preserved'
+        );
+
+        $html = q{<iframe src="https://player.vimeo.com/video/123456789"></iframe>};
+        LJ::CleanHTML::clean_embed( \$html, { display_as_content => 1 } );
+        is(
+            $html,
+            q{<iframe src="//player.vimeo.com/video/123456789"></iframe>},
+            'other providers do not get a referrer policy'
+        );
+    };
+
     note("trusted site: youtube");
     $orig_post =
 qq{<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/$id?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>};
