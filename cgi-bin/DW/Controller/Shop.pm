@@ -26,6 +26,7 @@ use DW::Routing;
 use DW::Shop;
 use DW::Template;
 use LJ::JSON;
+use URI::Escape ();
 
 # routing directions
 DW::Routing->register_string( '/shop',          \&shop_index_handler,    app => 1 );
@@ -60,6 +61,7 @@ sub _shop_controller {
         my $path = $r->uri // '';
         $path =~ s!^/shop(?=/|$)!!;
         $path =~ s!^/+!!;
+        $path = URI::Escape::uri_escape( $path, '^A-Za-z0-9\-._~/' );
         my $dest = "$shoproot/$path";
         my $qs   = $r->query_string;
         $dest .= "?$qs" if defined $qs && length $qs;

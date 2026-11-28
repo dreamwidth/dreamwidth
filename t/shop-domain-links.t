@@ -24,6 +24,7 @@ BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
 use DW::Controller::Create;
 use DW::Controller::Shop;
 use DW::Request;
+use DW::Request::Plack;
 use DW::Request::Standard;
 use HTTP::Request;
 use LJ::Test qw( temp_user );
@@ -113,6 +114,25 @@ subtest 'off-domain shop redirects preserve subpath and query string' => sub {
     }
 
     {
+        DW::Request->reset;
+        my $r = DW::Request::Plack->new(
+            {
+                REQUEST_METHOD => 'GET',
+                HTTP_HOST      => 'www.example.org',
+                PATH_INFO      => '/shop/foo?bar',
+                QUERY_STRING   => '',
+            }
+        );
+        my ( $ok, $rv ) = DW::Controller::Shop::_shop_controller( anonymous => 1 );
+        is( $ok, 0, 'off-domain Plack request with decoded ? stops controller' );
+        is(
+            $r->header_out('Location'),
+            'https://shop.example.org/foo%3Fbar',
+            'decoded ? in Plack path_info is re-escaped instead of becoming a query string'
+        );
+    }
+
+    {
         my $r = _make_request( GET => 'https://shop.example.org/shop/account?for=self' );
         my ( $ok, $rv ) = DW::Controller::Shop::_shop_controller( anonymous => 1 );
         is( $ok, 1, 'request on DOMAIN_SHOP proceeds without redirecting' );
@@ -123,6 +143,34 @@ subtest 'off-domain shop redirects preserve subpath and query string' => sub {
         my $r = _make_request( GET => 'https://SHOP.EXAMPLE.ORG/shop/account?for=self' );
         my ( $ok, $rv ) = DW::Controller::Shop::_shop_controller( anonymous => 1 );
         is( $ok, 1, 'uppercase DOMAIN_SHOP host proceeds without redirecting' );
+    }
+};
+
+subtest 'register_standard_resources skips jQuery case-insensitively on DOMAIN_SHOP' => sub {
+    local $LJ::DOMAIN_WEB  = 'www.example.org';
+    local $LJ::DOMAIN_SHOP = 'shop.example.org';
+
+    foreach my $case (
+        [ 'www.example.org',  1, 'main web host loads jQuery' ],
+        [ 'shop.example.org', 0, 'lowercase DOMAIN_SHOP skips jQuery' ],
+        [ 'SHOP.EXAMPLE.ORG', 0, 'uppercase DOMAIN_SHOP skips jQuery' ],
+        )
+    {
+        my ( $host, $expect_jquery, $label ) = @$case;
+        local @LJ::NEEDED_RES;
+        local %LJ::NEEDED_RES;
+        DW::Request->reset;
+        DW::Request::Plack->new(
+            {
+                REQUEST_METHOD => 'GET',
+                HTTP_HOST      => $host,
+                PATH_INFO      => '/shop',
+                QUERY_STRING   => '',
+            }
+        );
+        LJ::register_standard_resources();
+        my $has_jquery = $LJ::NEEDED_RES{'foundation-js/jquery/jquery-1.8.3.js'} ? 1 : 0;
+        is( $has_jquery, $expect_jquery, $label );
     }
 };
 
