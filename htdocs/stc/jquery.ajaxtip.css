@@ -19,3 +19,13 @@
 .ajaxtip a {
     color: #154779;
 }
+
+:where(.gradation) .ajaxtip {
+    background: #252a30;
+    color: #f2f4f7;
+    border-color: #808b96;
+}
+
+:where(.gradation) .ajaxtip a {
+    color: #afd5ff;
+}
