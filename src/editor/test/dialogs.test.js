@@ -43,3 +43,26 @@ test("without <dialog> support, Cancel and Escape close it with nothing", async 
         .dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", cancelable: true }));
     assert.equal(await result, null);
 });
+
+test("without <dialog> support, focus stays in the dialog, Escape works from anywhere, and focus goes back", async () => {
+    const behind = document.createElement("div");
+    behind.contentEditable = "true";
+    behind.tabIndex = 0;
+    document.body.appendChild(behind);
+
+    behind.focus();
+    const result = linkDialog(strings, "");
+    const field = document.querySelector(".dw-editor-dialog input");
+    behind.focus();
+    assert.equal(document.activeElement, field, "focus is sent back to the dialog");
+
+    document.body.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true }));
+    assert.equal(await result, null);
+
+    // Closed, it gives the focus back and lets go of the page.
+    assert.equal(document.activeElement, behind, "focus returns to where it was");
+    const esc = new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true });
+    behind.dispatchEvent(esc);
+    assert.ok(!esc.defaultPrevented);
+    behind.remove();
+});

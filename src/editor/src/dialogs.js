@@ -79,24 +79,44 @@ function buildDialog(title, fields, strings) {
         dialog.setAttribute("role", "dialog");
         dialog.setAttribute("aria-modal", "true");
         dialog.returnValue = "";
+        // A modal keeps the focus inside it and answers Escape wherever the
+        // focus is; without these, a click on the backdrop or a Tab sends
+        // keys to the editor behind the dialog.
+        const onKey = (e) => {
+            if (e.key != "Escape" && e.key != "Esc") return;
+            e.preventDefault();
+            e.stopPropagation();
+            dialog.returnValue = "";
+            dialog.close();
+        };
+        const onFocus = (e) => {
+            if (dialog.contains(e.target)) return;
+            e.stopPropagation();
+            const field = dialog.querySelector("input, textarea");
+            if (field) field.focus();
+        };
+        const keepFocus = (e) => e.preventDefault();
+        // ...and, closed, gives the focus back to where it was (the editor).
+        let returnTo = null;
         dialog.close = () => {
             if (!dialog.parentNode) return;
+            document.removeEventListener("keydown", onKey, true);
+            document.removeEventListener("focusin", onFocus, true);
             backdrop.remove();
             dialog.dispatchEvent(new dialog.ownerDocument.defaultView.Event("close"));
+            if (returnTo && document.contains(returnTo)) returnTo.focus();
         };
         dialog.showModal = () => {
+            returnTo = document.activeElement;
             dialog.setAttribute("open", "");
             document.body.insertBefore(backdrop, dialog);
+            document.addEventListener("keydown", onKey, true);
+            document.addEventListener("focusin", onFocus, true);
         };
+        backdrop.addEventListener("mousedown", keepFocus);
         form.addEventListener("submit", (e) => {
             e.preventDefault();
             dialog.returnValue = "ok";
-            dialog.close();
-        });
-        dialog.addEventListener("keydown", (e) => {
-            if (e.key != "Escape" && e.key != "Esc") return;
-            e.preventDefault();
-            dialog.returnValue = "";
             dialog.close();
         });
     }

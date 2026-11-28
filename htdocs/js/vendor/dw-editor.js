@@ -17899,26 +17899,45 @@ var DWEditor = (() => {
       dialog.setAttribute("role", "dialog");
       dialog.setAttribute("aria-modal", "true");
       dialog.returnValue = "";
-      dialog.close = () => {
-        if (!dialog.parentNode)
-          return;
-        backdrop.remove();
-        dialog.dispatchEvent(new dialog.ownerDocument.defaultView.Event("close"));
-      };
-      dialog.showModal = () => {
-        dialog.setAttribute("open", "");
-        document.body.insertBefore(backdrop, dialog);
-      };
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        dialog.returnValue = "ok";
-        dialog.close();
-      });
-      dialog.addEventListener("keydown", (e) => {
+      const onKey = (e) => {
         if (e.key != "Escape" && e.key != "Esc")
           return;
         e.preventDefault();
+        e.stopPropagation();
         dialog.returnValue = "";
+        dialog.close();
+      };
+      const onFocus = (e) => {
+        if (dialog.contains(e.target))
+          return;
+        e.stopPropagation();
+        const field = dialog.querySelector("input, textarea");
+        if (field)
+          field.focus();
+      };
+      const keepFocus = (e) => e.preventDefault();
+      let returnTo = null;
+      dialog.close = () => {
+        if (!dialog.parentNode)
+          return;
+        document.removeEventListener("keydown", onKey, true);
+        document.removeEventListener("focusin", onFocus, true);
+        backdrop.remove();
+        dialog.dispatchEvent(new dialog.ownerDocument.defaultView.Event("close"));
+        if (returnTo && document.contains(returnTo))
+          returnTo.focus();
+      };
+      dialog.showModal = () => {
+        returnTo = document.activeElement;
+        dialog.setAttribute("open", "");
+        document.body.insertBefore(backdrop, dialog);
+        document.addEventListener("keydown", onKey, true);
+        document.addEventListener("focusin", onFocus, true);
+      };
+      backdrop.addEventListener("mousedown", keepFocus);
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        dialog.returnValue = "ok";
         dialog.close();
       });
     }
@@ -18363,8 +18382,8 @@ var DWEditor = (() => {
           close2();
           if (!currentView)
             return;
-          item.command(currentView.state, currentView.dispatch, currentView);
           currentView.focus();
+          item.command(currentView.state, currentView.dispatch, currentView);
         });
         popup.appendChild(el);
         return { el, item };
@@ -18686,8 +18705,17 @@ var DWEditor = (() => {
       for (let i = groups.length - 1; i > 1 && overflows(); i--)
         morePanel.insertBefore(groups[i], morePanel.firstChild);
     }
-    if (typeof ResizeObserver == "function")
+    if (typeof ResizeObserver == "function") {
       new ResizeObserver(() => layout()).observe(dom);
+    } else {
+      const onResize = () => {
+        if (!document.contains(dom))
+          return window.removeEventListener("resize", onResize);
+        layout();
+      };
+      window.addEventListener("resize", onResize);
+      setTimeout(onResize, 0);
+    }
     return {
       dom,
       commands: { editLink },
