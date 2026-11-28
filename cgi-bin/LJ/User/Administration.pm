@@ -238,6 +238,11 @@ sub banned_userids {
     return LJ::load_rel_user( $u, 'B' );
 }
 
+sub can_ban_user {
+    my ( $u, $target ) = @_;
+    return $target && !$u->equals($target) && $target->is_individual && !$target->is_expunged;
+}
+
 sub ban_note {
     my ( $u, $ban_u, $text ) = @_;
 
@@ -308,7 +313,7 @@ sub ban_user {
 sub ban_user_multi {
     my ( $u, @banlist ) = @_;
 
-    LJ::set_rel_multi( map { [ $u->id, $_, 'B' ] } @banlist );
+    my $saved = LJ::set_rel_multi( map { [ $u->id, $_, 'B' ] } @banlist );
 
     my $us = LJ::load_userids(@banlist);
     foreach my $banuid (@banlist) {
@@ -316,7 +321,7 @@ sub ban_user_multi {
         LJ::Hooks::run_hooks( 'ban_set', $u, $us->{$banuid} ) if $us->{$banuid};
     }
 
-    return 1;
+    return $saved;
 }
 
 # return if $target is banned from $u's journal
@@ -334,7 +339,7 @@ sub has_banned {
 sub unban_user_multi {
     my ( $u, @unbanlist ) = @_;
 
-    LJ::clear_rel_multi( map { [ $u->id, $_, 'B' ] } @unbanlist );
+    my $saved = LJ::clear_rel_multi( map { [ $u->id, $_, 'B' ] } @unbanlist );
     $u->ban_note( \@unbanlist, '' );
 
     my $us = LJ::load_userids(@unbanlist);
@@ -343,7 +348,7 @@ sub unban_user_multi {
         LJ::Hooks::run_hooks( 'ban_unset', $u, $us->{$banuid} ) if $us->{$banuid};
     }
 
-    return 1;
+    return $saved;
 }
 
 ########################################################################

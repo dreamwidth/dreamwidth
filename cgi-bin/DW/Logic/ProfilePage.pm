@@ -63,7 +63,8 @@ sub action_links {
     my $user_link_bar = $u->user_link_bar( $remote, class_prefix => "profile" );
     my @ret           = $user_link_bar->get_links(
         "manage_membership", "trust",   "watch",  "post",
-        "track",             "message", "search", "buyaccount"
+        "track",             "message", "search", "buyaccount",
+        "ban"
     );
     return \@ret;
 }

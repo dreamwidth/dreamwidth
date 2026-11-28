@@ -535,6 +535,32 @@ sub search {
     return $self->fix_link($link);
 }
 
+=head2 C<< $obj->ban >>
+
+Returns a link to confirm banning or unbanning the profile account.
+
+=cut
+
+sub ban {
+    my ($self) = @_;
+    my $u      = $self->{u};
+    my $remote = $self->{remote};
+    return undef unless $remote && $remote->can_ban_user($u);
+
+    my $banned = $remote->has_banned($u);
+    my $label  = $banned ? 'Unban user' : 'Ban user';
+    my $icon   = $banned ? 'site/tick' : 'comments/delete';
+    return $self->fix_link(
+        {
+            url   => "$LJ::SITEROOT/manage/banusers/confirm?userid=" . $u->id,
+            image => "$LJ::IMGPREFIX/silk/$icon.png",
+            text  => $label,
+            title => $label,
+            class => 'ban',
+        }
+    );
+}
+
 =head2 C<< $obj->buyaccount >>
 
 Returns a hashref with the appropriate icon/link/text for buying this user a paid account.

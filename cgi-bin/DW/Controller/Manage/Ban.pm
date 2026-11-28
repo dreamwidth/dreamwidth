@@ -23,6 +23,59 @@ use DW::Routing;
 use DW::Template;
 
 DW::Routing->register_string( "/manage/banusers", \&ban_handler, app => 1 );
+DW::Routing->register_string(
+    '/manage/banusers/confirm', \&ban_confirm_handler,
+    app      => 1,
+    no_cache => 1
+);
+
+sub ban_confirm_handler {
+    my ( $ok, $rv ) = controller( form_auth => 1 );
+    return $rv unless $ok;
+
+    my $r      = $rv->{r};
+    my $remote = $rv->{remote};
+    my $args   = $r->did_post ? $rv->{post_args} : $r->get_args;
+    my $userid = $args->{userid} // '';
+    my $target = $userid =~ /\A[1-9][0-9]{0,9}\z/ ? LJ::load_userid($userid) : undef;
+    return DW::Template->render_template( 'error.tt',
+        { message => 'This account cannot be banned or unbanned here.' } )
+        unless $remote->can_ban_user($target);
+
+    my $banned = $remote->has_banned($target);
+    if ( $r->did_post ) {
+        my $action = $args->{action} // '';
+        return error_ml('error.invalidform') unless $action eq 'ban' || $action eq 'unban';
+
+        my $saved = 1;
+        if ( $action eq 'ban' && !$banned ) {
+            my $banned_users = $remote->banned_userids || [];
+            return DW::Template->render_template( 'error.tt',
+                { message => 'You have reached the maximum number of banned users.' } )
+                if @$banned_users >= ( $LJ::MAX_BANS || 5000 );
+            $saved = $remote->ban_user_multi( $target->id );
+        }
+        elsif ( $action eq 'unban' && $banned ) {
+            $saved = $remote->unban_user_multi( $target->id );
+        }
+
+        return DW::Template->render_template( 'error.tt',
+            { message => 'Could not save the ban change. Please try again.' } )
+            unless $saved;
+        return $r->redirect( $target->profile_url );
+    }
+
+    return DW::Template->render_template(
+        'manage/banusers-confirm.tt',
+        {
+            target      => $target,
+            action      => $banned ? 'unban' : 'ban',
+            label       => $banned ? 'Unban user' : 'Ban user',
+            action_url  => "$LJ::SITEROOT/manage/banusers/confirm",
+            profile_url => $target->profile_url,
+        }
+    );
+}
 
 sub ban_handler {
     my ($opts) = @_;
