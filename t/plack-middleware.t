@@ -22,29 +22,9 @@ use strict;
 use warnings;
 use v5.10;
 
+use lib "$ENV{LJHOME}/cgi-bin";
+
 use Test::More tests => 12;
-use Test::MockObject;
-
-BEGIN {
-    require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
-}
-
-# Mock dependencies
-my $mock = Test::MockObject->new();
-
-$mock->fake_module(
-    'LJ' => (
-        start_request => sub { },
-        end_request   => sub { },
-        urandom_int   => sub { return int( rand(1000000) ); },
-    )
-);
-
-$mock->fake_module(
-    'LJ::Procnotify' => (
-        check => sub { },
-    )
-);
 
 # Test middleware loading
 use_ok('Plack::Middleware::DW::RequestWrapper');
