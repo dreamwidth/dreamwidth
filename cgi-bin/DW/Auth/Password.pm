@@ -139,7 +139,7 @@ sub _check_modern_dversion {
 sub _check_api_keys {
     my ( $class, $u, $password, %opts ) = @_;
 
-    my @keys = @{ DW::API::Key->get_keys_for_user($u) || [] };
+    my @keys = @{ DW::API::Key->get_keys_for_auth($u) || [] };
     foreach my $key (@keys) {
         my $crypt = Authen::Passphrase::Clear->new( $key->hash );
         return 1 if $crypt->match($password);

@@ -161,7 +161,7 @@ sub _auth_wsse {
 
     if ( DW::Auth::TOTP->is_enabled($u) ) {
         return $fail->('ip_ratelimiting') if LJ::login_ip_banned($u);
-        for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
+        for my $key ( @{ DW::API::Key->get_keys_for_auth($u) || [] } ) {
             for my $nonce ( $creds{nonce}, MIME::Base64::decode_base64( $creds{nonce} ) ) {
                 return ( $u, undef )
                     if Digest::SHA1::sha1_base64( $nonce . $creds{created} . $key->hash ) eq
@@ -250,7 +250,7 @@ sub api_key_authenticate {
     my ( $class, $u, $credential, $hashed ) = @_;
     return 0 unless $u && $u->is_person && defined $credential;
     return 0 if LJ::login_ip_banned($u);
-    for my $key ( @{ DW::API::Key->get_keys_for_user($u) || [] } ) {
+    for my $key ( @{ DW::API::Key->get_keys_for_auth($u) || [] } ) {
         return 1 if $credential eq ( $hashed ? Digest::MD5::md5_hex( $key->hash ) : $key->hash );
     }
     LJ::handle_bad_login($u);

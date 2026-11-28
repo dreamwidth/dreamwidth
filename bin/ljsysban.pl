@@ -116,6 +116,12 @@ if ($banlength) {
 # add new ban
 if ($add) {
 
+    if ( $what eq 'openid_domain' ) {
+        my ( $host, $error ) = LJ::Sysban::parse_openid_domain($value);
+        die "$error\n" if $error;
+        $value = $host;
+    }
+
     $status = ( $status eq 'expired' ? 'expired' : 'active' );
 
     $dbh->do(
@@ -150,13 +156,25 @@ if ($modify) {
     # load selected ban
     my $ban = $dbh->selectrow_hashref( "SELECT * FROM sysban WHERE banid=?", undef, $banid );
     die $dbh->errstr if $dbh->err;
+    my $old_what = $ban->{what};
+
+    if (   ( $what || $ban->{what} ) eq 'openid_domain'
+        && ( defined $value || $ban->{what} ne 'openid_domain' ) )
+    {
+        my ( $host, $error ) = LJ::Sysban::parse_openid_domain( $value // $ban->{value} );
+        die "$error\n" if $error;
+        $value = $host;
+    }
 
     my @set = ();
 
     # ip/uniq ban and we're going to change the value
-    if (   ( $value && $value ne $ban->{'value'} )
-        || $banuntil && $banuntil ne $ban->{'banuntil'}
-        || ( $status && $status ne $ban->{'status'} && $status eq 'expired' ) )
+    if (
+        $old_what ne 'openid_domain'
+        && (   ( $value && $value ne $ban->{'value'} )
+            || $banuntil && $banuntil ne $ban->{'banuntil'}
+            || ( $status && $status ne $ban->{'status'} && $status eq 'expired' ) )
+        )
     {
 
         LJ::Sysban::ban_undo( $ban->{what}, $value || $ban->{value} );
@@ -169,9 +187,12 @@ if ($modify) {
     }
 
     # ip/uniq ban and we are going to change the value
-    if (   ( $value && $value ne $ban->{'value'} )
-        || $banuntil && $banuntil ne $ban->{'banuntil'}
-        || ( $status && $status ne $ban->{'status'} && $status eq 'active' ) )
+    if (
+        $ban->{what} ne 'openid_domain'
+        && (   ( $value && $value ne $ban->{'value'} )
+            || $banuntil && $banuntil ne $ban->{'banuntil'}
+            || ( $status && $status ne $ban->{'status'} && $status eq 'active' ) )
+        )
     {
 
         my $new_value    = $value || $ban->{value};
@@ -214,6 +235,10 @@ if ($modify) {
     # do update
     $dbh->do( "UPDATE sysban SET " . join( ", ", @set ) . " WHERE banid=?", undef,
         $ban->{'banid'} );
+    if ( $old_what eq 'openid_domain' || $ban->{what} eq 'openid_domain' ) {
+        die $dbh->errstr if $dbh->err;
+        LJ::Sysban::ban_undo('openid_domain');
+    }
 
     # log in statushistory
     my $msg;

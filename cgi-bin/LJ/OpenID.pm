@@ -16,6 +16,7 @@ package LJ::OpenID;
 use strict;
 use Digest::SHA1 qw(sha1 sha1_hex);
 use LJ::OpenID::Cache;
+use LJ::Sysban;
 use Net::OpenID::Server;
 use Net::OpenID::Consumer;
 
@@ -70,6 +71,64 @@ sub consumer {
     );
 
     return $csr;
+}
+
+sub sysban_error {
+    return _sysban_error( 0, @_ );
+}
+
+sub _sysban_error {
+    my ( $discovered, @urls ) = @_;
+    my %checked;
+    foreach my $url (@urls) {
+        next unless defined $url && !$checked{$url}++;
+        next
+            unless $discovered
+            ? LJ::Sysban::openid_discovered_sysban_check($url)
+            : LJ::Sysban::sysban_check( 'openid_domain', $url );
+
+        my $sitename = LJ::ehtml($LJ::SITENAMESHORT);
+        return
+              "We're sorry, but $sitename has restricted OpenID logins from your OpenID provider. "
+            . 'Please contact us if you believe this restriction is in error.';
+    }
+    return;
+}
+
+sub _claimed_sysban_error {
+    my ( $claimed_id, $allow_identifier_select ) = @_;
+    my $claimed  = $claimed_id->claimed_url;
+    my $delegate = $claimed_id->delegated_url;
+
+    # In OpenID 2.0 discovery, this marker asks the provider to choose an identity.
+    # It is not itself a claimed or delegated identity. Still check the provider endpoint.
+    my $select = 'http://specs.openid.net/auth/2.0/identifier_select';
+    if (   $allow_identifier_select
+        && $claimed_id->protocol_version == 2
+        && defined $claimed
+        && $claimed eq $select
+        && defined $delegate
+        && $delegate eq $select )
+    {
+        return _sysban_error( 1, $claimed_id->identity_server );
+    }
+
+    $delegate = LJ::trim($delegate);
+    return _sysban_error(
+        1, $claimed,
+        $claimed_id->identity_server,
+        ( $delegate =~ m{\Ahttps?://}i ? $delegate : () )
+    );
+}
+
+sub claimed_sysban_error {
+    my ($claimed_id) = @_;
+    return _claimed_sysban_error( $claimed_id, 1 );
+}
+
+sub verified_sysban_error {
+    my ($verified_id) = @_;
+    return _claimed_sysban_error( $verified_id->{claimed_identity}, 0 );
 }
 
 sub consumer_secret {

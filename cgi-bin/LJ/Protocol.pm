@@ -3508,7 +3508,7 @@ sub check_login {
     my ( $u, $chal, $res, $banned, $opts ) = @_;
     return 0 unless $u;
 
-    my @keys = @{ DW::API::Key->get_keys_for_user($u) || [] };
+    my @keys = @{ DW::API::Key->get_keys_for_auth($u) || [] };
     return 0 unless @keys;
 
     # set the IP banned flag, if it was provided.

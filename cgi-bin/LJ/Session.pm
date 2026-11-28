@@ -16,6 +16,7 @@ use strict;
 use Carp qw(croak);
 use Digest::HMAC_SHA1 qw(hmac_sha1 hmac_sha1_hex);
 use LJ::Utils;
+use LJ::Sysban;
 use DW::Auth::TOTP;
 
 use constant VERSION => 1;
@@ -368,9 +369,12 @@ sub owner {
     return LJ::load_userid( $sess->{userid} );
 }
 
-# instance method:  has this session expired, or is it IP bound and
-# bound to the wrong IP?
 sub valid {
+    my ($sess) = @_;
+    return $sess->_valid_credentials && !LJ::Sysban::openid_account_banned( $sess->owner );
+}
+
+sub _valid_credentials {
     my $sess = shift;
     my $now  = time();
     my $err  = sub { 0; };
@@ -566,6 +570,12 @@ sub session_from_cookies {
         $sessobj = LJ::Session->session_from_master_cookie( \%getopts, @cookies );
     }
 
+    if ( $sessobj && LJ::Sysban::openid_account_banned( $sessobj->owner ) ) {
+        $sessobj->destroy;
+        LJ::Session->clear_master_cookie;
+        return undef;
+    }
+
     return $sessobj;
 }
 
@@ -600,7 +610,7 @@ sub session_from_domain_cookie {
     my $domcook = LJ::Session->domain_cookie;
 
     foreach my $cookie (@cookies) {
-        my $sess = valid_domain_cookie( $domcook, $cookie->[0], $li_cook );
+        my $sess = _session_from_signed_domain_cookie( $domcook, $cookie->[0], $li_cook );
         return $sess if $sess;
     }
 
@@ -701,7 +711,7 @@ COOKIE:
             next COOKIE;
         }
 
-        unless ( $sess->valid ) {
+        unless ( $sess->_valid_credentials ) {
             $err->("expired or IP bound problems");
             next COOKIE;
         }
@@ -955,6 +965,12 @@ sub set_cookie {
 # as the current logged-in cookie $li_cook which says the master
 # session's uid/sessid
 sub valid_domain_cookie {
+    my $sess = _session_from_signed_domain_cookie(@_);
+    return undef unless $sess && !LJ::Sysban::openid_account_banned( $sess->owner );
+    return $sess;
+}
+
+sub _session_from_signed_domain_cookie {
     my ( $domcook, $val, $li_cook, $opts ) = @_;
     $opts ||= {};
 
@@ -1005,7 +1021,7 @@ sub valid_domain_cookie {
         or return $not_valid->("no session $sessid");
 
     # the master session can't be expired or ip-bound to wrong IP
-    return $not_valid->("not valid") unless $sess->valid;
+    return $not_valid->("not valid") unless $sess->_valid_credentials;
 
     # the per-domain cookie has to match the session of the master cookie
     unless ( $opts->{ignore_li_cook} ) {

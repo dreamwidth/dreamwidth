@@ -22,6 +22,7 @@ use strict;
 use warnings;
 use Carp;
 
+use LJ::Sysban;
 use LJ::Utils;
 
 # Usage: new_for_user ( user )
@@ -31,6 +32,7 @@ sub new_for_user {
     my ( $self, $u ) = @_;
     my $user = LJ::want_user($u)
         or croak "need a user!\n";
+    return undef if LJ::Sysban::openid_account_banned($user);
 
     my $id = LJ::alloc_user_counter( $user, 'B' )
         or croak 'Unable to allocate user counter for API key.';
@@ -75,6 +77,7 @@ sub get_key {
     # to the account takes effect immediately.
     my $user = LJ::want_user( $keydata->{userid} );
     return undef unless $user && $user->is_visible;
+    return undef if LJ::Sysban::openid_account_banned($user);
 
     return $class->_create( $user, $keydata->{keyid}, $keydata->{hash} );
 }
@@ -102,6 +105,12 @@ sub get_keys_for_user {
 
     # sort oldest to newest (predictable ordering for management page)
     return [ sort { $a->{keyid} <=> $b->{keyid} } @keylist ];
+}
+
+sub get_keys_for_auth {
+    my ( $class, $u ) = @_;
+    return undef if LJ::Sysban::openid_account_banned($u);
+    return $class->get_keys_for_user($u);
 }
 
 # Usage: create ( user, key )
