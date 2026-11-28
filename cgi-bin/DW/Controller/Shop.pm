@@ -296,13 +296,20 @@ sub shop_confirm_handler {
     my $scope = "/shop/confirm.tt";
 
     my ( $ordernum, $token, $payerid ) = ( $GET->{ordernum}, $GET->{token}, $GET->{PayerID} );
-    my ( $cart, $eng, $paymentmethod );
+    my ( $cart, $eng, $paymentmethod, $lock );
 
     # use ordernum if we have it, otherwise use token/payerid
     if ($ordernum) {
         $cart = DW::Shop::Cart->get_from_ordernum($ordernum);
         return error_ml("$scope.error.invalidordernum")
             unless $cart;
+
+        if ( $r->did_post && $cart->paymentmethod eq 'checkmoneyorder' ) {
+            $lock = DW::Shop::Cart->processing_lock( $cart->id )
+                or return error_ml('error.pay.cmo.engbadstate');
+            $cart = DW::Shop::Cart->get_from_ordernum($ordernum)
+                or return error_ml("$scope.error.invalidordernum");
+        }
 
         $paymentmethod = $cart->paymentmethod;
         my $paymentmethod_class =

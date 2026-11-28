@@ -2445,6 +2445,8 @@ rename.error.tokenduplicate=The same token was provided twice; two distinct toke
 
 rename.error.tokeninvalid=The provided token is not a valid token.
 
+rename.error.tokenorderbusy=The order for this rename token is being updated. Try again in a moment.
+
 rename.error.tokentoofew=Too few tokens; you need two to perform a swap.
 
 rename.error.unauthorized2=[[to]] is not under your control. Both accounts need to have the same verified email address and the same password for this operation.

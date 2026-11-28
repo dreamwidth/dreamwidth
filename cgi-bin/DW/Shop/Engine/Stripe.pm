@@ -152,6 +152,9 @@ sub process_webhook {
             unless defined $cartid;
         $cartid += 0;
 
+        my $lock = DW::Shop::Cart->processing_lock($cartid)
+            or return ( 503, 'Cart busy; please retry.' );
+
         my $cart = DW::Shop::Cart->get_from_cartid($cartid);
         return ( 400, 'Invalid client_reference_id (cart not found).' )
             unless defined $cart;

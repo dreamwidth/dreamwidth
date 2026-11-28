@@ -391,6 +391,9 @@ sub scan_cart {
     my $dbh    = shift;
     my $cartid = shift() + 0;
 
+    my $lock = DW::Shop::Cart->processing_lock($cartid)
+        or return $log->( 'scan_cart(%d): Cart is locked, will retry later.', $cartid );
+
     # easy sub for setting nextscan on this cart
     my $nextscan = sub {
         $dbh->do( q{UPDATE shop_carts SET nextscan = UNIX_TIMESTAMP() + ? WHERE cartid = ?},
