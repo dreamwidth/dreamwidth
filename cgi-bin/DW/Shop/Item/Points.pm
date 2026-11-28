@@ -101,12 +101,13 @@ sub _apply_userid {
     $self->{applied} = 1;
 
     # now we have to mail this code
-    my $word = $fu->equals($u) ? 'self' : 'other';
-    my $body = LJ::Lang::ml(
-        "shop.email.gift.$word.body",
+    my $word      = $fu->equals($u)  ? 'self' : 'other';
+    my $body_type = $self->anonymous ? 'anon' : $word;
+    my $body      = LJ::Lang::ml(
+        "shop.email.gift.$body_type.body",
         {
             touser   => $u->display_name,
-            fromuser => $fu->display_name,
+            fromuser => $self->anonymous ? '' : $fu->display_name,
             sitename => $LJ::SITENAME,
             gift     => sprintf( '%d %s Points', $self->points, $LJ::SITENAMESHORT ),
         }
@@ -171,6 +172,11 @@ sub can_be_added_user {
 
     # make sure no sysban is in effect here
     my $fromu = LJ::load_userid( $self->from_userid );
+    if ( $self->anonymous && $fromu && $target_u->equals($fromu) ) {
+        $$errref = LJ::Lang::ml('shop.item.points.canbeadded.anonymousself');
+        return 0;
+    }
+
     if ( $fromu && $target_u->has_banned($fromu) ) {
         $$errref = LJ::Lang::ml('shop.item.points.canbeadded.banned');
         return 0;

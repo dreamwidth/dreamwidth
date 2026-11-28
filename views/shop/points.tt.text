@@ -13,5 +13,7 @@
 
 .buying.points.range=(30 to 5,000)
 
+.giftfor.anonymous=Do you want to make this an anonymous gift?
+
 .title=[[sitename]] Points Shop
 

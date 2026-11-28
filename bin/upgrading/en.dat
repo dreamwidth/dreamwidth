@@ -3454,6 +3454,18 @@ shop.email.email.other=[[fromuser]] has chosen to purchase a [[sitename]] accoun
 
 shop.email.email.subject=[[sitename]] Account Purchase
 
+shop.email.gift.anon.body<<
+Dear [[touser]],
+
+Your [[sitename]] account has received an anonymous gift!  Your account
+has been credited with:
+
+    [[gift]]
+
+Regards,
+The [[sitename]] Team
+.
+
 shop.email.gift.other.body<<
 Dear [[touser]],
 
@@ -4012,6 +4024,8 @@ contact us for assistance.
 
 
 .
+
+shop.item.points.canbeadded.anonymousself=You can't make an anonymous points purchase for your own account.
 
 shop.item.points.canbeadded.banned=You are restricted from making purchases for this journal.
 

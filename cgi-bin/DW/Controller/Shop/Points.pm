@@ -44,6 +44,8 @@ sub shop_points_handler {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
+        $rv->{anonymous} = $args->{anonymous} ? 1 : 0;
+
         my $u      = LJ::load_user( $args->{foruser} );
         my $points = int( $args->{points} + 0 );
         my $item;    # provisionally create the item to access object methods
@@ -56,7 +58,8 @@ sub shop_points_handler {
             $item = DW::Shop::Item::Points->new(
                 target_userid => $u->id,
                 from_userid   => $remote->id,
-                points        => $points
+                points        => $points,
+                anonymous     => $rv->{anonymous},
             )
             )
         {
@@ -94,6 +97,8 @@ sub shop_points_handler {
             $rv->{foru} = LJ::load_user($for);
         }
     }
+
+    $rv->{can_gift_anonymously} = !$rv->{foru} || !$rv->{foru}->equals($remote);
 
     return DW::Template->render_template( 'shop/points.tt', $rv );
 }
