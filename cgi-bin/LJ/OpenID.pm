@@ -110,6 +110,11 @@ sub is_identity {
     # canonicalize trailing slash
     $ident .= "/" unless $ident =~ m!/$!;
 
+    # a default port names the same URL, as when a relying party follows
+    # a redirect to https://user.example.com:443/
+    $ident =~ s!^(https://[^/:]+):443/!$1/!;
+    $ident =~ s!^(http://[^/:]+):80/!$1/!;
+
     my $user = $u->user;
     my $url  = $u->journal_base . "/";
 
