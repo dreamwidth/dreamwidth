@@ -416,9 +416,8 @@ def decide(number, final_check=False):
                                          state.get("fix_failed_at"))
 
     def label(name):
-        # The final check re-runs this function; label once. A state from before triage sent its
-        # label has none, and then triage's own labels stand.
-        if not final_check and name:
+        # A state from before triage sent its label has none, and then triage's own labels stand.
+        if name:
             set_label(pr, name)
     print(f"  gates_ok={state['gates_ok']} needs_approval={state['needs_approval']} "
           f"ready={state['ready']} go={go} hold={hold} changes_requested={changes} fixing={fixing}")
@@ -438,7 +437,6 @@ def decide(number, final_check=False):
         label(state.get("label"))
         return set_next(comment, state["next"])
     if go:
-        label("bw: merging")
         reason = f"{', '.join(go)} approved it"
     elif state["ready"] and state.get("ready_since") and AUTO_MERGE:
         label(state.get("label"))
@@ -473,6 +471,7 @@ def decide(number, final_check=False):
     if pr.get("mergeable") is False:
         problems.append("it has merge conflicts")
     if problems:
+        label(state.get("label"))
         return set_next(comment, f"**Not merged yet: {'; '.join(problems)}.** "
                                  f"I'll merge it once that's sorted.\n\n{FOOTER}")
     if waiting:
@@ -488,6 +487,7 @@ def decide(number, final_check=False):
     if decide(number, final_check=True) != "ok":
         return
     set_next(comment, f"**Merging: {reason}.**")
+    label("bw: merging")
     # Once a sweep has counted this hour's merges, each merge it asks for counts from the moment
     # it's asked for: one GitHub may have made counts even when its answer was lost.
     counted = auto_merged is not None
@@ -510,6 +510,7 @@ def decide(number, final_check=False):
             other = merge_commit(number)
             if other is not None:
                 return finish_merge(number, comment, other)
+            label(state.get("label"))
             return set_next(comment, f"**Merge failed.** GitHub said: {error_detail(e)}\n\n{FOOTER}")
         sha = None
         print(f"  merge answered {e.code}; checking whether it merged")
