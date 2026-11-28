@@ -82,11 +82,14 @@ no strict "vars";
     }
     else {
         # Should always be https except on dev servers
-        $PROTOCOL          ||= "https";
-        $DOMAIN_WEB        ||= "www.$DOMAIN";
-        $DOMAIN_SHOP       ||= $DOMAIN_WEB;
-        $SITEROOT          ||= "$PROTOCOL://$DOMAIN_WEB";
-        $SHOPROOT          ||= "$PROTOCOL://$DOMAIN_WEB/shop";
+        $PROTOCOL    ||= "https";
+        $DOMAIN_WEB  ||= "www.$DOMAIN";
+        $DOMAIN_SHOP ||= $DOMAIN_WEB;
+        $SITEROOT    ||= "$PROTOCOL://$DOMAIN_WEB";
+        $SHOPROOT ||=
+            $DOMAIN_SHOP ne $DOMAIN_WEB
+            ? "$PROTOCOL://$DOMAIN_SHOP"
+            : "$PROTOCOL://$DOMAIN_WEB/shop";
         $RELATIVE_SITEROOT ||= "//$DOMAIN_WEB";
     }
     $IMGPREFIX    ||= "$SITEROOT/img";

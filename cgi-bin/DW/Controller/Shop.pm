@@ -54,8 +54,16 @@ sub _shop_controller {
     }
 
     # if they aren't on the shop domain, redirect
-    if ( $LJ::DOMAIN_SHOP && $r->host ne $LJ::DOMAIN_SHOP ) {
-        return ( 0, $r->redirect("$LJ::SHOPROOT/") );
+    if ( $LJ::DOMAIN_SHOP && lc( $r->host ) ne lc($LJ::DOMAIN_SHOP) ) {
+        my $shoproot = $LJ::SHOPROOT;
+        $shoproot =~ s!/+$!!;
+        my $path = $r->uri // '';
+        $path =~ s!^/shop(?=/|$)!!;
+        $path =~ s!^/+!!;
+        my $dest = "$shoproot/$path";
+        my $qs   = $r->query_string;
+        $dest .= "?$qs" if defined $qs && length $qs;
+        return ( 0, $r->redirect($dest) );
     }
 
     # basic controller setup

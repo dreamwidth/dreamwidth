@@ -689,7 +689,7 @@ sub upgrade_handler {
     return $r->redirect( LJ::create_url( $urls{next} ) )
         unless LJ::is_enabled('payments') && $remote->is_personal && !$remote->is_paid;
 
-    return $r->redirect( LJ::create_url("/shop/account?for=self") )
+    return $r->redirect("$LJ::SHOPROOT/account?for=self")
         if $r->did_post;
 
     my $step = 3;
