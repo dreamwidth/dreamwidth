@@ -50,6 +50,30 @@ set font_module_heading_units = "em";
 ## Stylesheet
 ##===============================
 
+function navlinks_linear_channel(int channel) : int
+"Approximate a linear sRGB channel on a scale of 0 to 1000 using integer arithmetic."
+{
+    return ((305 * $channel / 255 + 682) * $channel / 255 + 13) * $channel / 255;
+}
+
+function navlinks_luminance(Color swatch) : int {
+    return (213 * navlinks_linear_channel($swatch.r) + 715 * navlinks_linear_channel($swatch.g)
+        + 72 * navlinks_linear_channel($swatch.b)) / 1000;
+}
+
+function navlinks_foreground(Color background) : string {
+    foreach var Color foreground ([$*color_page_title, $*color_page_text]) {
+        if ($foreground.as_string != "") {
+            if ($background.as_string == "") { return "$foreground"; }
+            var int bg = navlinks_luminance($background) + 50;
+            var int fg = navlinks_luminance($foreground) + 50;
+            if ($fg * 10 >= $bg * 46 or $bg * 10 >= $fg * 46) { return "$foreground"; }
+        }
+    }
+    if ($background.as_string == "") { return "inherit"; }
+    return navlinks_luminance($background) >= 179 ? "#000000" : "#ffffff";
+}
+
 function print_stylesheet () {
     var string medium_media_query = generate_medium_media_query();
 
@@ -755,4 +779,62 @@ ul.userlite-interaction-links.icon-links li {
 $userpic_css
 
 """;
+
+    if ($*module_navlinks_section == "header") {
+        var Color background = $*color_header_background;
+        if ($background.as_string == "") { $background = $*color_page_background; }
+        var string foreground = navlinks_foreground($background);
+        """
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: $foreground;
+    margin: 0 0 .65em;
+    padding: 0;
+    font-size: 1em;
+    letter-spacing: normal;
+    line-height: 1.4;
+    text-align: start;
+    }
+
+#header .module-navlinks .module-content {
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .15em 1em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks li {
+    margin: 0;
+    padding: 0;
+    }
+
+#header .module-navlinks a {
+    display: block;
+    padding: .2em 0;
+    color: inherit;
+    overflow-wrap: anywhere;
+    text-underline-offset: .2em;
+    }
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus-visible {
+    text-decoration: underline;
+    }
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    }
+""";
+    }
 }
