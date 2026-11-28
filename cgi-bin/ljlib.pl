@@ -518,7 +518,7 @@ sub register_standard_resources {
     my $NO_JQUERY = 0;
     if (   $LJ::DOMAIN_SHOP
         && $LJ::DOMAIN_SHOP ne $LJ::DOMAIN_WEB
-        && $r->host eq $LJ::DOMAIN_SHOP )
+        && lc( $r->host ) eq lc($LJ::DOMAIN_SHOP) )
     {
         $NO_JQUERY = 1;
     }
