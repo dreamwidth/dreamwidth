@@ -46,7 +46,8 @@
         ju = get_journal( r );
         lr = get_comment( r, ju ) -%]
 
-[% '.txt.row' | ml( hours = num_hours(r.posttime), journal = ju.ljuser_display ) %]
+[% '.txt.row' | ml( timestamp = timestamp_utc(r.posttime),
+                    hours = num_hours(r.posttime), journal = ju.ljuser_display ) %]
 
     [%- lr_url = talklink( lr, r, ju );
         IF lr_url -%]
