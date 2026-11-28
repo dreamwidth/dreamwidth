@@ -538,6 +538,81 @@ subtest 'HTTPS legacy mappings require confirmation and retain their scheme' => 
         'an HTTP login does not use the audit to select the migrated HTTPS account' );
 };
 
+for my $scenario ( 'ambiguous', 'expunged' ) {
+    subtest "legacy scheme collision with $scenario HTTP mapping" => sub {
+        my $alias_host      = "dw_openid_${suffix}_${scenario}.insanejournal.com";
+        my $alias_http      = "http://$alias_host/";
+        my $alias_https     = "https://$alias_host/";
+        my $canonical_https = "https://dw-openid-$suffix-$scenario.insanejournal.com/";
+        my $canonical_http  = $canonical_https =~ s/^https:/http:/r;
+        my $https_account   = LJ::User::load_identity_user( 'O', $alias_https );
+        my $http_vident     = Net::OpenID::VerifiedIdentity->new(
+            claimed_identity => Net::OpenID::ClaimedIdentity->new( identity => $alias_http ) );
+        my $http_account = LJ::User::load_identity_user( 'O', $alias_http, $http_vident );
+        BAIL_OUT('Could not create both legacy scheme fixtures')
+            unless $https_account && $http_account && $https_account->id != $http_account->id;
+
+        my $handler = sub {
+            my ($req) = @_;
+            return discovery_html($IJ_OPENID_SERVER)
+                if $req->method eq 'GET' && $req->uri->as_string eq $canonical_https;
+            return HTTP::Response->new( 200, 'OK', [], "is_valid:true\n" )
+                if $req->method eq 'POST' && $req->uri->as_string eq $IJ_OPENID_SERVER;
+            return HTTP::Response->new( 302, 'Found', [ Location => $canonical_https ] )
+                if $req->method eq 'HEAD' && $req->uri->as_string eq $alias_https;
+            return HTTP::Response->new(404);
+        };
+        my $login = sub {
+            my $csr = LJ::OpenID::consumer( make_openid_args($canonical_https) );
+            return LJ::User::load_from_consumer($csr);
+        };
+        my $dbh      = LJ::get_db_writer();
+        my $mappings = sub {
+            return $dbh->selectall_arrayref(
+'SELECT identity, userid FROM identitymap WHERE idtype=? AND identity IN (?, ?, ?, ?) ORDER BY identity',
+                undef, 'O', $alias_http, $alias_https, $canonical_http, $canonical_https,
+            );
+        };
+
+        if ( $scenario eq 'ambiguous' ) {
+            my $ambiguous = LJ::User::load_existing_identity_user( 'O', $alias_http );
+            is( $ambiguous, undef,
+                'the reader does not choose between two eligible legacy accounts' );
+            my ($rejected) = run_with_openid_http( $handler, $login );
+            is( $rejected, undef, 'verified login fails closed with two eligible legacy accounts' );
+            is_deeply(
+                $mappings->(),
+                [ [ $alias_http, $http_account->id ], [ $alias_https, $https_account->id ] ],
+                'ambiguity leaves both legacy mappings intact and creates no canonical mapping'
+            );
+            return;
+        }
+
+        ok( $http_account->update_self( { statusvis => 'X' } ), 'mark the HTTP account expunged' );
+        my $existing = LJ::User::load_existing_identity_user( 'O', $alias_http );
+        is( $existing && $existing->id,
+            $https_account->id,
+            'non-authenticated lookup prefers the active HTTPS legacy mapping' );
+        my $http_lookup =
+            LJ::User::load_existing_identity_user( 'O', $alias_http, undef, authenticating => 1 );
+        is( $http_lookup && $http_lookup->id,
+            $http_account->id, 'HTTP authentication still cannot select the HTTPS legacy mapping' );
+
+        my ($migrated) = run_with_openid_http( $handler, $login );
+        is( $migrated && $migrated->id,
+            $https_account->id, 'verified HTTPS login reuses the active HTTPS legacy account' );
+        is_deeply(
+            $mappings->(),
+            [ [ $alias_http, $http_account->id ], [ $canonical_https, $https_account->id ] ],
+            'only the active HTTPS mapping moves; no replacement account receives the canonical URL'
+        );
+        my $audited = LJ::User::load_existing_identity_user( 'O', $alias_http );
+        is( $audited && $audited->id,
+            $https_account->id,
+            'the expunged HTTP mapping does not mask the audited active HTTPS mapping' );
+    };
+}
+
 subtest 'verified boundary and exact-precedence cases with legacy candidates present' => sub {
 
     # 1. Non-root path on same InsaneJournal host with legacy candidate present.
