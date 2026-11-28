@@ -33,7 +33,12 @@ td, th { padding: 4px; }
 [%# This is not stripped, as it is supposed to match the console command %] 
     <li>syn_merge <strong>[% merge.0.user %]</strong> to <strong>[% merge.1.user %]</strong> using
         <strong>[% url_to | html %]</strong>
-        [% IF merge.2 %][% ELSE %]<strong>[ failure: [% merge.3 %] ]</strong>[% END %]
+        [% IF !merge.2 %]<strong>[ failure: [% merge.3 | html %] ]</strong>[% END %]
+        [% IF merge.4.size %]
+            <ul>
+                [% FOREACH warning IN merge.4 %]<li>Warning: [% warning | html %]</li>[% END %]
+            </ul>
+        [% END %]
     </li>
 [% END -%]
 </ul>

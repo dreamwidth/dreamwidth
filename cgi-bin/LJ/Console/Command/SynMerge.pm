@@ -51,10 +51,12 @@ sub execute {
     return $self->error("Fourth argument must be 'using'.")
         if $using ne 'using';
 
-    my ( $ok, $msg ) =
+    my ( $ok, $msg, $warnings ) =
         LJ::Feed::merge_feed( from_name => $from_user, to_name => $to_user, url => $url );
     return $self->error($msg) unless $ok;
-    return $self->print($msg);
+    $self->print($msg);
+    $self->info("Warning: $_") foreach @$warnings;
+    return 1;
 }
 
 1;

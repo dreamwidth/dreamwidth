@@ -22,6 +22,7 @@
 package DW::User::ContentFilters::Filter;
 use strict;
 
+use DW::Locker;
 use Storable qw/ nfreeze thaw /;
 
 # this just returns a base object from the input parameters.  the object itself
@@ -314,6 +315,8 @@ sub _save {
     my $u    = $self->owner;
     my $data = $self->data;    # do this in case we called _save before load
 
+    my $lock = _lock_and_normalize_feed_members( $u->id, $data );
+
     $u->do( q{REPLACE INTO content_filter_data (userid, filterid, data) VALUES (?, ?, ?)},
         undef, $u->id, $self->id, nfreeze($data) );
     die $u->errstr if $u->err;
@@ -321,6 +324,98 @@ sub _save {
     $u->memc_set( 'cfd:' . $self->id, $data, 3600 );
 
     return 1;
+}
+
+# Merges publish redirects first, then take this lock before reading the owner's
+# filters. A save either sees the redirect or finishes before the migration reads it.
+sub lock_feed_merge {
+    my ($ownerid) = @_;
+    return DW::Locker->new->trylock(
+        "content_filter_feed_merge:$ownerid",
+        class => 'content_filter_feed_merge',
+        wait  => 10
+    );
+}
+
+sub _lock_and_normalize_feed_members {
+    my ( $ownerid, $data ) = @_;
+    my @members = grep { /\A[1-9][0-9]*\z/ } keys %$data;
+    return unless @members;
+
+    my $dbh          = LJ::get_db_writer() or die 'Unable to load feed redirects';
+    my $placeholders = join( ',', ('?') x @members );
+    my $feed_ids     = $dbh->selectcol_arrayref(
+        "SELECT userid FROM user WHERE userid IN ($placeholders) AND journaltype IN ('Y', 'R')",
+        undef, @members );
+    die $dbh->errstr if $dbh->err;
+    return unless @$feed_ids;
+
+    # The initial read includes both feed types, so a feed redirected while
+    # acquiring the lock is still checked by the second read.
+    my $lock = lock_feed_merge($ownerid)
+        or die "Unable to lock reading filter save for user $ownerid: $DW::Locker::Error";
+    $placeholders = join( ',', ('?') x @$feed_ids );
+    my $redirects = $dbh->selectcol_arrayref(
+        "SELECT userid FROM user WHERE userid IN ($placeholders) "
+            . "AND journaltype = 'R' AND statusvis = 'R' ORDER BY userid",
+        undef, @$feed_ids
+    );
+    die $dbh->errstr if $dbh->err;
+    foreach my $source_id (@$redirects) {
+        my $target_id = resolve_feed_target( $dbh, $source_id );
+        remap_feed_member( $data, $source_id, $target_id )
+            if $target_id && $target_id != $source_id;
+    }
+
+    return $lock;
+}
+
+# Resolve renamedto on the writers: in-flight requests can have pre-merge userprops cached.
+sub resolve_feed_target {
+    my ( $dbh, $userid ) = @_;
+    my $select  = 'SELECT userid, clusterid, dversion, journaltype, statusvis FROM user';
+    my $current = $dbh->selectrow_hashref( "$select WHERE userid = ?", undef, $userid );
+    die $dbh->errstr if $dbh->err;
+
+    my ( $prop, %seen );
+    while ( $current && !$seen{ $current->{userid} }++ ) {
+        return $current->{userid} if $current->{journaltype} eq 'Y';
+        return unless $current->{journaltype} eq 'R' && $current->{statusvis} eq 'R';
+
+        $prop ||= LJ::get_prop( 'user', 'renamedto' ) or die 'Unable to load renamedto property';
+        my $clustered = $current->{dversion} >= $prop->{cldversion};
+        my $table     = $clustered ? 'userproplite2' : 'userprop';
+        my $writer    = $clustered ? LJ::get_cluster_master( $current->{clusterid} ) : $dbh;
+        die "Unable to load redirect for user $current->{userid}" unless $writer;
+        my $name =
+            $writer->selectrow_array( "SELECT value FROM $table WHERE userid = ? AND upropid = ?",
+            undef, $current->{userid}, $prop->{id} );
+        die $writer->errstr if $writer->err;
+        $name = LJ::canonical_username($name);
+        return unless $name;
+
+        $current = $dbh->selectrow_hashref( "$select WHERE user = ?", undef, $name );
+        die $dbh->errstr if $dbh->err;
+    }
+    return;
+}
+
+sub remap_feed_member {
+    my ( $data, $from_id, $to_id ) = @_;
+    my $from_row = delete $data->{$from_id};
+    $from_row = {} unless ref $from_row eq 'HASH';
+    delete @$from_row{qw(tags tagmode)};
+
+    my $custom = grep { $from_row->{$_} && $from_row->{$_} ne 'any' } qw(adultcontent postertype);
+    return if exists $data->{$to_id} && !$custom;
+
+    my $to_row = $data->{$to_id};
+    if ( ref $to_row eq 'HASH' ) {
+        foreach my $field (qw(tags tagmode)) {
+            $from_row->{$field} = $to_row->{$field} if exists $to_row->{$field};
+        }
+    }
+    $data->{$to_id} = $from_row;
 }
 
 # some simple accessors... we don't really support using these as setters
