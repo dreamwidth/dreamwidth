@@ -8,8 +8,6 @@
       "js/pages/manage/circle-edit.js"
 ) -%]
 
-<form method='post' name='editFriends' action='edit'>
-        [% dw.form_auth() %]
         <p>[% dw.ml( '.circle.intro2', { aopts1 => "href='#editpeople'", aopts2 => "href='#editcomms'", aopts3 => "href='#editfeeds'", aopts4 => "href='${site.root}/manage/settings/?cat=notifications'", aopts5 => "href='${site.root}/manage/banusers'" }) %]</p>
         <p>[% dw.ml( '.circle.intro.feeds', { sitename => site.nameshort, aopts => "href='${site.root}/feeds'" }) %]</p>
 
@@ -20,6 +18,15 @@
         [% END %]
 
         <h2>[% dw.ml('.circle.header') %]</h2>
+        [% IF show_purge %]
+        <form method="post">
+            [% dw.form_auth() %]
+            [% form.submit( name = 'preview_purged', value = dw.ml('.purge.button'), class = 'secondary button' ) %]
+        </form>
+        [% END %]
+
+<form method='post' name='editFriends' action='edit'>
+        [% dw.form_auth() %]
         [% BLOCK standoutbox %]
         <div class="action-box">
             <div class="inner">

@@ -111,6 +111,8 @@
 
 .foreground=Foreground
 
+.purge.button=Remove Purged Members
+
 .friend=Friend
 
 .hover=Hover your mouse pointer over a color to display its name and hex value.
