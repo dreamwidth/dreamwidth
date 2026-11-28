@@ -79,6 +79,21 @@ var string module_text_font = generate_font_css($*font_module_text, $*font_fallb
 var string module_heading_font = generate_font_css($*font_module_heading, $*font_fallback, $*font_module_heading_size, $*font_module_heading_units);
 var string entry_title_font = generate_font_css($*font_entry_title, $*font_fallback, $*font_entry_title_size, $*font_entry_title_units);
 
+var Color header_color = $*color_header_background.as_string == "" ? $*color_page_background : $*color_header_background;
+var Color title_color = $*color_page_title.as_string == "" ? $*color_page_text : $*color_page_title;
+var Color nav_paper = "#f8f4e9";
+var Color nav_ink = "#222222";
+if ($header_color.as_string != "") {
+    if ($header_color->lightness() < 100) {
+        $nav_paper = "#272422";
+        $nav_ink = "#fff8ed";
+    }
+    $nav_paper = $nav_paper->blend($header_color, 16);
+}
+if ($title_color.as_string != "") {
+    $nav_ink = $nav_ink->blend($title_color, 16);
+}
+
 var string entry_background = generate_background_css ($*image_background_entry_url, $*image_background_entry_repeat, $*image_background_entry_position, $*color_entry_background);
     var string module_background = generate_background_css ($*image_background_module_url, $*image_background_module_repeat, $*image_background_module_position, $*color_module_background);
     var string entry_colors = generate_color_css($*color_entry_text, $*color_entry_background, $*color_entry_border);
@@ -230,6 +245,50 @@ img, img a {
 .module-userprofile .userpic {text-align: center;}
 
 /*** ----- Journal Navlinks ------ ***/
+
+#header .module-navlinks {
+    background: transparent;
+    border: none;
+    margin: 0 0 .75em;
+}
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35em .45em;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#header .module-navlinks li {
+    margin: 0;
+    min-width: 0;
+}
+
+#header .module-navlinks a {
+    display: block;
+    padding: .35em .65em;
+    border-radius: .2em;
+    background-color: $nav_paper;
+    color: $nav_ink;
+    font-size: .875em;
+    font-style: normal;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    text-decoration: none;
+    text-underline-offset: .2em;
+}
+
+#header .module-navlinks a.current,
+#header .module-navlinks a:hover {
+    text-decoration: underline;
+}
+
+#header .module-navlinks a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -3px;
+}
 
 .module-navlinks {
     margin-top:1em;
