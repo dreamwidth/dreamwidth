@@ -388,7 +388,17 @@ sub render {
 
     # External redirect
     return $r->redirect( $opts->{'redir'} ) if $opts->{'redir'};
-    return $opts->{'handler_return'} if defined $opts->{'handler_return'};
+
+    # A 304 (feeds return it; stylesheets set it and return OK) must carry the
+    # same Cache-Control as the 200 below, or a cache revalidating a private
+    # page would lose its policy. Siteviews 200s and other statuses get the
+    # middleware default instead.
+    if ( defined $opts->{'handler_return'} ) {
+        my $status = $opts->{'handler_return'} || $r->status // 0;
+        $r->header_out( "Cache-Control", "private, proxy-revalidate" )
+            if $status == 304 && !$handle_with_siteviews;
+        return $opts->{'handler_return'};
+    }
 
     # Siteviews handling
     return DW::Template->render_string( $html, $opts->{siteviews_extra_content} )

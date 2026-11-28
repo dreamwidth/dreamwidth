@@ -305,6 +305,11 @@ builder {
     # Middleware for ensuring we have the Unique Cookie set up
     enable 'DW::UniqCookie';
 
+    # Default dynamic responses to "Cache-Control: private, no-cache" unless the
+    # handler set its own. Inside the static layers so static files don't get it,
+    # and outside Auth, Sysban and RateLimit so their redirects, 403s and 429s do.
+    enable 'DW::CacheControl';
+
     # Middleware for doing user authentication (get remote, dev server ?as= support)
     enable 'DW::Auth';
 

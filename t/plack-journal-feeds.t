@@ -69,6 +69,17 @@ test_psgi $app, sub {
     my $conditional   = $cb->( GET "$base/rss", 'If-Modified-Since' => $last_modified, );
     is( $conditional->code,    304, 'RSS conditional request returns not-modified status' );
     is( $conditional->content, '',  'RSS not-modified response has no body' );
+    is(
+        $conditional->header('Cache-Control'),
+        $first->header('Cache-Control'),
+        'RSS 304 repeats the private 200 policy'
+    );
+
+    # An error from the same path is left to the middleware's no-cache default,
+    # so a browser doesn't reuse the 404 after the viewer gains access.
+    my $missing = $cb->( GET "$base/rss?itemid=999999999" );
+    is( $missing->code, 404, 'RSS for an inaccessible entry is not found' );
+    ok( !defined $missing->header('Cache-Control'), 'RSS 404 does not get the journal policy' );
 };
 
 done_testing;

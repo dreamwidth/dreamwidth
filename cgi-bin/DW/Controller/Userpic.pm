@@ -28,6 +28,12 @@ use LJ::Userpic;
 
 DW::Routing->register_regex( qr!^/userpic/(\d+)/(\d+)$!, \&userpic_handler, app => 1 );
 
+# Userpic bytes don't change, so cache a year at the CDN (s-maxage); the
+# shorter browser max-age bounds how long a suspended pic lingers in a
+# browser after the CDN is purged. Sent on 304s too, so revalidation
+# doesn't replace it.
+my $USERPIC_CACHE_CONTROL = 'public, max-age=86400, s-maxage=31536000, no-transform';
+
 sub userpic_handler {
     my ($opts) = @_;
     my $r = DW::Request->get;
@@ -52,6 +58,7 @@ sub userpic_handler {
     # A pic that still exists can't change (picids are never re-used and the
     # contents are immutable), so it's safe to 304 without loading the blob.
     if ( $r->header_in('If-Modified-Since') ) {
+        $r->header_out( 'Cache-Control' => $USERPIC_CACHE_CONTROL );
         $r->status(304);
         return $r->OK;
     }
@@ -59,12 +66,9 @@ sub userpic_handler {
     my $data = $pic->imagedata
         or return $r->NOT_FOUND;
 
-    # Userpic bytes don't change, so cache a year at the CDN (s-maxage); the
-    # shorter browser max-age bounds how long a suspended pic lingers in a
-    # browser after the CDN is purged.
     $r->content_type( $pic->mimetype );
     $r->header_out( 'Content-Length' => length $data );
-    $r->header_out( 'Cache-Control'  => 'public, max-age=86400, s-maxage=31536000, no-transform' );
+    $r->header_out( 'Cache-Control'  => $USERPIC_CACHE_CONTROL );
     $r->header_out( 'Last-Modified'  => LJ::time_to_http( $pic->pictime ) );
     $r->print($data);
 

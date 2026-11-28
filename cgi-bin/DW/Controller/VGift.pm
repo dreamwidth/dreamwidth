@@ -38,6 +38,9 @@ sub vgift_handler {
     # IMS is valid unless the request is coming from the admin interface
     my $referer = $r->header_in('Referer') || '';
     if ( $r->header_in('If-Modified-Since') && $referer !~ m!^\Q$LJ::SITEROOT\E/admin/! ) {
+
+        # Same policy as the 200, so revalidation doesn't change it
+        $r->header_out( 'Cache-Control' => 'no-transform' );
         $r->status(304);
         return $r->OK;
     }
