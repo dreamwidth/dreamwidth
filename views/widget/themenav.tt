@@ -46,7 +46,7 @@
 
     <ul class='theme-nav-small nostyle section-nav'>
         <li class='first'>
-            <a href='[%dw.url("/customize/advanced/", keep_args => 1) %]'>
+            <a href='[% site.root %]/customize/advanced/[% getextra | html %]'>
                 [% dw.ml('widget.themenav.developer') %]
             </a>
             [% upsell %]

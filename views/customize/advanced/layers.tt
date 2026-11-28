@@ -2,8 +2,9 @@
 
     [%# start of output %]
     [%- sections.title = '.title' | ml -%]
+    [%- escaped_authas = authas | html -%]
     [% dw.ml("Backlink", {
-        'link' => "$site.root/customize/advanced/",
+        'link' => "$site.root/customize/advanced/$escaped_authas",
         'text' => dw.ml('.back2'),
     }) %]
     [% dw.ml("Actionlink", {'link' => "<a href='$site.root/doc/s2/'>" _ dw.ml('.nav.documentation') _ "</a>"}) %]

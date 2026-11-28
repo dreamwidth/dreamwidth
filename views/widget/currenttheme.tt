@@ -34,7 +34,7 @@
     [%- END -%]
 
     [% UNLESS no_layer_edit %]
-        <li><a href='[% site.root %]/customize/advanced/'>
+        <li><a href='[% site.root %]/customize/advanced/[% getextra | html %]'>
             [% dw.ml('widget.currenttheme.options.advancedcust') %]
         </a></li>
         [% IF theme.layoutid && !theme.layout_uniq -%]
@@ -43,7 +43,7 @@
             </a></li>
         [%- END -%]
         [%- IF theme.themeid && !theme.uniq -%]
-            <li><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.themid %]'>
+            <li><a href='[% site.root %]/customize/advanced/layeredit?id=[% theme.themeid %]'>
                 [% dw.ml('widget.currenttheme.options.editthemelayer') %]
             </a></li>
         [%- END -%]

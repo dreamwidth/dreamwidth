@@ -32,7 +32,7 @@ DW::Routing->register_string( '/customize/advanced/layersource', \&layersource_h
 DW::Routing->register_string( '/customize/advanced/layeredit',   \&layeredit_handler,   app => 1 );
 
 sub advanced_handler {
-    my ( $ok, $rv ) = controller();
+    my ( $ok, $rv ) = controller( authas => 1 );
     return $rv unless $ok;
 
     my $r             = $rv->{r};
@@ -45,6 +45,7 @@ sub advanced_handler {
     $vars->{u}             = $u;
     $vars->{remote}        = $remote;
     $vars->{no_layer_edit} = $no_layer_edit;
+    $vars->{authas}        = $u->user ne $remote->user ? '?authas=' . $u->user : '';
 
     return DW::Template->render_template( 'customize/advanced/index.tt', $vars );
 
@@ -132,7 +133,11 @@ sub layerbrowse_handler {
         # do they have access?
         my $isadmin =
             !defined $pub->{$id} && $remote && $remote->has_priv( 'siteadmin', 'styleview' );
-        my $can_manage = $remote && $remote->can_manage( LJ::load_userid( $layer->{userid} ) );
+        my $owner      = LJ::load_userid( $layer->{userid} );
+        my $can_manage = $remote && $owner && $remote->can_manage($owner);
+
+        $vars->{layer_list_authas} = '?authas=' . $owner->user
+            if !defined $pub->{$id} && $can_manage && !$remote->equals($owner);
 
         $vars->{srcview}    = $srcview;
         $vars->{isadmin}    = $isadmin;
@@ -229,7 +234,7 @@ sub layers_handler {
     my $POST          = $r->post_args;
     my $u             = $rv->{u};
     my $remote        = $rv->{remote};
-    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $remote );
+    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
     my $GET           = $r->get_args;
     my $authas        = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
@@ -431,7 +436,7 @@ sub styles_handler {
     my $POST          = $r->post_args;
     my $u             = $rv->{u};
     my $remote        = $rv->{remote};
-    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $remote );
+    my $no_layer_edit = LJ::Hooks::run_hook( "no_theme_or_layer_edit", $u );
     my $GET           = $r->get_args;
     my $authas        = $u->user ne $remote->user ? "?authas=" . $u->user : "";
 
@@ -473,6 +478,7 @@ sub styles_handler {
         $getextra_amp = "&user=" . $u->user;
     }
 
+    $vars->{noactions}    = $noactions;
     $vars->{getextra}     = $getextra;
     $vars->{getextra_amp} = $getextra_amp;
 

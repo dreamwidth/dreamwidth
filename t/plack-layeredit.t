@@ -20,6 +20,7 @@ use HTTP::Request::Common;
 use Plack::Test;
 
 BEGIN { $LJ::_T_CONFIG = 1; require "$ENV{LJHOME}/cgi-bin/ljlib.pl"; }
+use LJ::Hooks;
 use LJ::Session;
 use LJ::Test qw(temp_user temp_comm);
 
@@ -113,13 +114,79 @@ my $get_text = \&LJ::Lang::get_text;
 
 }
 
-$comm->update_self( { caps => 2 } );
 my $session = LJ::Session->create($admin) or die 'create administrator session';
 my $cookie =
       'ljmastersession='
     . $session->master_cookie_string
     . '; ljloggedin='
     . $session->loggedin_cookie_string;
+
+subtest 'advanced customization backlinks preserve only community context' => sub {
+    test_psgi $app, sub {
+        my $cb              = shift;
+        my $community_query = '?authas=' . $comm->user;
+
+        for my $route (qw(layers styles)) {
+            my $res = $cb->( GET "$base/$route$community_query", Cookie => $cookie );
+            like(
+                $res->content,
+                qr{href="[^"]*/customize/advanced/\Q$community_query\E">&lt;&lt;</a>},
+                "$route backlink keeps the selected community"
+            );
+        }
+
+        ok( $admin->grant_priv( 'siteadmin', 'styleview' ), 'grant site admin style access' );
+
+        for my $route (qw(layers styles)) {
+            my $res = $cb->( GET "$base/$route?user=" . $stranger->user, Cookie => $cookie );
+            like(
+                $res->content,
+                qr{href="[^"]*/customize/advanced/">&lt;&lt;</a>},
+                "$route backlink drops the admin viewing parameter"
+            );
+        }
+
+        $admin->revoke_priv( 'siteadmin', 'styleview' );
+    };
+};
+
+subtest 'advanced customization uses the selected journal edit policy' => sub {
+    my $hook = 'no_theme_or_layer_edit';
+    LJ::Hooks::are_hooks($hook);
+    local $LJ::HOOKS{$hook};
+    my $restricted = $comm;
+    LJ::Hooks::register_hook( $hook, sub { $_[0]->equals($restricted) } );
+
+    test_psgi $app, sub {
+        my $cb             = shift;
+        my $community_name = $comm->user;
+        for my $case (
+            [
+                'landing page', '',
+                qr{href="[^"]*/customize/advanced/layers\?authas=\Q$community_name\E"}
+            ],
+            [ 'layers', '/layers', qr{\bname="action:create"} ],
+            [ 'styles', '/styles', qr{\bname="action:create"} ],
+            )
+        {
+            my ( $page, $suffix, $control ) = @$case;
+            my $url = "$base$suffix?authas=$community_name";
+            $restricted = $comm;
+            my $denied = $cb->( GET $url, Cookie => $cookie );
+            is( $denied->code, 200, "$page renders for the restricted community" );
+            ok( $denied->content !~ $control,
+                "$page: restricted community offers no edit control" );
+
+            $restricted = $admin;
+            my $allowed = $cb->( GET $url, Cookie => $cookie );
+            is( $allowed->code, 200, "$page renders for the unrestricted community" );
+            ok( $allowed->content =~ $control,
+                "$page: maintainer's restriction doesn't apply to community" );
+        }
+    };
+};
+
+$comm->update_self( { caps => 2 } );
 test_psgi $app, sub {
     my $cb = shift;
     my ( $admin_name, $community_name ) = ( $admin->user, $comm->user );

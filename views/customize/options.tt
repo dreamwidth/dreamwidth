@@ -22,4 +22,4 @@ A copy of that license is included in the repository LICENSE file.
 <div class="customize-wrapper one-percent">[% customize_theme %]</div>
 <a name="layout"></a><div class="layout-selector-wrapper pkg">[% layout_chooser %]</div>
 <h2 class="widget-header">[% dw.ml('.advanced') %]</h2>
-<a href="advanced/">[% dw.ml('.advanced') %]</a>
+<a href="[% advanced_url | html %]">[% dw.ml('.advanced') %]</a>
