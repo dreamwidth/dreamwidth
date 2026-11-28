@@ -6,14 +6,14 @@
 [% IF duplicate %]
     <div class='warning-box message-box'>
         <div class='title'>[% dw.ml('.payment.failed.title') %]</div>
-        <p>[% dw.ml('.payment.failed.duplicate') %]</p>
+        <p>[% dw.ml('.payment.failed.duplicate', { aopts => "href='${site.root}/support/submit'" }) %]</p>
     </div>
 [% END %]
 
 [% IF failed %]
     <div class='warning-box message-box'>
         <div class='title'>[% dw.ml('.payment.failed.title') %]</div>
-        <p>[% dw.ml('.payment.failed.other') %]</p>
+        <p>[% dw.ml('.payment.failed.other', { aopts => "href='${site.root}/support/submit'" }) %]</p>
     </div>
 [% END %]
 
