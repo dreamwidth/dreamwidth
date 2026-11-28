@@ -43,6 +43,8 @@ sub shop_transfer_points_handler {
         my $args = $r->post_args;
         die "invalid auth\n" unless LJ::check_form_auth( $args->{lj_form_auth} );
 
+        $rv->{formdata} = { foruser => $args->{foruser}, points => $args->{points} };
+
         my $u      = LJ::load_user( $args->{foruser} );
         my $points = int( $args->{points} + 0 );
 
