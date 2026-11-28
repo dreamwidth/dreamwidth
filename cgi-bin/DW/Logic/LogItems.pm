@@ -576,14 +576,32 @@ sub recent_items {
         $posterwhere = "";
     }
 
+    my $sql_table =
+        $jitemidwhere ? "log2 USE INDEX ($sort_key, PRIMARY)" : "log2 USE INDEX ($sort_key)";
+    my $sql_where =
+        "journalid=$userid $sql_select $secwhere $jitemidwhere $securitywhere $posterwhere";
+    if ( !$jitemidwhere && !$args{ymd} && $itemload > 0 ) {
+        $sql_where .= qq{
+            AND $sort_key <= (
+                SELECT MAX($sort_key) FROM (
+                    SELECT $sort_key
+                    FROM $sql_table
+                    WHERE $sql_where
+                    ORDER BY journalid, $sort_key
+                    LIMIT $itemload
+                ) AS page_time_window
+            )
+        };
+    }
+
     $sql = qq{
         SELECT jitemid AS 'itemid', posterid, security, $extra_sql
                DATE_FORMAT(eventtime, "$dateformat") AS 'alldatepart', anum,
                DATE_FORMAT(logtime, "$dateformat") AS 'system_alldatepart',
                allowmask, eventtime, logtime
-        FROM log2 USE INDEX ($sort_key)
-        WHERE journalid=$userid $sql_select $secwhere $jitemidwhere $securitywhere $posterwhere
-        ORDER BY journalid, $sort_key
+        FROM $sql_table
+        WHERE $sql_where
+        ORDER BY journalid, $sort_key, jitemid DESC
         $sql_limit
     };
 
