@@ -23,6 +23,7 @@ save them as `.mjs` files (ES modules) and run them with `node`, or wrap them in
 Often enough, and easier to drive: puppeteer controls current Firefox directly.
 
 ```bash
+bin/dev/screenshot /login >/dev/null   # first run only: installs puppeteer-core in /opt/dw-screenshot
 cd /tmp && npx -y @puppeteer/browsers install firefox@stable --path /opt/dw-firefox
 ```
 
