@@ -93,6 +93,43 @@ if ($*userpics_position == "left") {
     """;
 }
 
+var string header_navlinks_css = "";
+if ( $*module_navlinks_section == "header" ) {
+    var Color navlink_color = isnull $*color_page_title ? $*color_page_text : $*color_page_title;
+    var string navlink_color_css = isnull $navlink_color ? "inherit" : "$navlink_color";
+    $header_navlinks_css = """
+#header .module-navlinks {
+    margin: 0 0 .75em;
+    padding: 0 0 .35em;
+    color: $navlink_color_css;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid currentColor;
+    }
+
+#header .module-navlinks .module-header { display: none; }
+
+#header .module-navlinks .module-list {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: .75em;
+    }
+
+#header .module-navlinks .module-list li { margin: 0; }
+
+#header .module-navlinks a {
+    display: block;
+    padding: .3em 0;
+    color: inherit;
+    text-decoration: none;
+    }
+
+#header .module-navlinks a.current { font-weight: bold; }
+#header .module-navlinks a:hover,
+#header .module-navlinks a:focus { text-decoration: underline; }
+""";
+}
+
 """
 
 /* Tranquility III
@@ -154,6 +191,8 @@ dl dt { font-weight: bold; }
 #subtitle { font-size: large; }
 
 #pagetitle { font-size: medium; }
+
+$header_navlinks_css
 
 /* Main Column
 ******************************/
