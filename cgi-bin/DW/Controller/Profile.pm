@@ -110,11 +110,12 @@ sub profile_handler {
         }
     }
 
-    # can't view suspended/deleted profiles unless you have viewall
-    my $viewall = 0;
-    ($viewall) = $remote->view_priv_check( $u, $get->{viewall}, 'profile' ) if $remote;
+    # Suspended/deleted profile access does not imply access to private information.
+    my ( $viewall, $viewsome ) = ( 0, 0 );
+    ( $viewall, $viewsome ) = $remote->view_priv_check( $u, $get->{viewall}, 'profile' )
+        if $remote;
 
-    unless ($viewall) {
+    unless ($viewsome) {
         return DW::Template->render_template( 'error/suspended.tt', { u => $u, remote => $remote } )
             if $u->is_suspended;
 
@@ -128,7 +129,11 @@ sub profile_handler {
 
     my $vars = { u => $u, remote => $remote, is_full => $is_full };
 
-    $vars->{profile} = $u->profile_page( $remote, viewall => $viewall );
+    $vars->{profile} = $u->profile_page(
+        $remote,
+        viewall     => $viewall,
+        public_only => $viewsome && !$viewall && ( $u->is_suspended || $u->is_deleted )
+    );
 
     # block robots?
     $vars->{robot_meta_tags} = LJ::robot_meta_tags()
