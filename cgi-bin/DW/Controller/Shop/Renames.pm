@@ -55,7 +55,6 @@ sub shop_renames_handler {
         'for'        => $for,
         remote       => $remote,
         cart_display => $rv->{cart_display},
-        date         => DateTime->today,
         formdata     => $post || { username => $GET->{user}, anonymous => ( $remote ? 0 : 1 ) }
     };
 
@@ -69,10 +68,6 @@ sub shop_renames_handler {
         }
         elsif ( $post->{for} eq 'gift' ) {
             DW::Pay::for_gift( $remote, $post->{username}, $errors, $item_data );
-        }
-
-        if ( $post->{deliverydate} ) {
-            DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
         }
 
         unless ( $errors->exist ) {

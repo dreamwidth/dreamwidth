@@ -949,6 +949,7 @@ sub for_gift {
     }
 }
 
+# Retained only in case the shop frontend restores delivery-date scheduling.
 sub validate_deliverydate {
     my ( $deliverydate, $errors, $item_data ) = @_;
     $deliverydate =~ /(\d{4})-(\d{2})-(\d{2})/;

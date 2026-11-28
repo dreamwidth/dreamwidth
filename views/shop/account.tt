@@ -110,8 +110,6 @@
         [% END %]
     [% END %]
 
-    [%- INCLUDE "shop/deliverydate.tt" -%]
-
     [% IF for && ! (for == 'self') %]
         <div class="row">
             <div class="columns">

@@ -133,10 +133,6 @@ sub shop_account_handler {
             }
         }
 
-        if ( $post->{deliverydate} ) {
-            DW::Pay::validate_deliverydate( $post->{deliverydate}, $errors, $item_data );
-        }
-
         unless ( $post->{accttype} ) {
             $errors->add( 'accttype', 'widget.shopitemoptions.error.notype' );
         }
@@ -173,11 +169,6 @@ sub shop_account_handler {
                     my $exptime = DateTime->from_epoch( epoch => $paid_status->{expiretime} );
                     my $newtime = DateTime->now;
 
-                    if ( my $future_ymd = $item->deliverydate ) {
-                        my ( $y, $m, $d ) = split /-/, $future_ymd;
-                        $newtime = DateTime->new( year => $y + 0, month => $m + 0, day => $d + 0 );
-                    }
-
                     my $to_day = sub { return $_[0]->truncate( to => 'day' ) };
 
                     if ( DateTime->compare( $to_day->($exptime), $to_day->($newtime) ) ) {
@@ -188,16 +179,11 @@ sub shop_account_handler {
                         # FIXME: this should be DW::BusinessRules::Pay::DWS::CONVERSION_RATE
                         my $prem_d = int( $paid_d * 0.7 );
 
-                        my $ml_args =
-                            { date => $exptime->ymd, premium_num => $prem_d, paid_num => $paid_d };
-
-                        # but only include date if the logged-in user owns the account
-                        delete $ml_args->{date} unless $remote && $remote->can_purchase_for($u);
-
-                        $errors->add( undef, '/shop/account.tt.error.premiumconvert', $ml_args );
-                        $errors->add( undef, '/shop/account.tt.error.premiumconvert.postdate',
-                            $ml_args )
-                            if $ml_args->{date};
+                        $errors->add(
+                            undef,
+                            '/shop/account.tt.error.premiumconvert',
+                            { premium_num => $prem_d, paid_num => $paid_d }
+                        );
                         $premium_convert = 1;
 
                     }
@@ -247,7 +233,6 @@ sub shop_account_handler {
     $vars->{prem_convert}   = $premium_convert;
     $vars->{email_checkbox} = $email_checkbox;
     $vars->{get_opts}       = $get_opts;
-    $vars->{date}           = DateTime->today;
     $vars->{allow_convert}  = DW::Shop::Item::Account->allow_account_conversion( $remote, 'paid' );
 
     return DW::Template->render_template( 'shop/account.tt', $vars );
