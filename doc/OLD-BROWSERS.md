@@ -47,7 +47,7 @@ The real old engine. Puppeteer can't drive it, so it runs under geckodriver 0.20
 Gecko 56.
 
 ```bash
-apt-get update -q && apt-get install -y -q libdbus-glib-1-2   # Waterfox needs dbus-glib
+apt-get update -q && apt-get install -y -q libdbus-glib-1-2 xvfb   # dbus-glib for Waterfox, Xvfb for a display
 
 mkdir -p /opt/dw-waterfox && cd /opt/dw-waterfox
 REL=https://github.com/WaterfoxCo/Waterfox-Classic/releases/download/2022.11-classic
@@ -59,8 +59,15 @@ curl -sSL https://github.com/mozilla/geckodriver/releases/download/v0.20.1/gecko
 ./waterfox-classic/waterfox --version     # Waterfox Classic 2022.11
 ```
 
-Start geckodriver (`/opt/dw-waterfox/geckodriver --port 4444 &`) and drive it over the W3C WebDriver HTTP API,
-for example with `fetch` from Node:
+Run it on a virtual display, not with `-headless`: a headless window never has the focus, so no focus events fire
+and anything that depends on them (the editor's own focus handling) can't be tested. Start Xvfb and geckodriver:
+
+```bash
+Xvfb :99 -screen 0 1280x1024x24 &
+DISPLAY=:99 /opt/dw-waterfox/geckodriver --port 4444 &
+```
+
+Then drive it over the W3C WebDriver HTTP API, for example with `fetch` from Node:
 
 ```js
 const WD = "http://127.0.0.1:4444";
@@ -78,13 +85,13 @@ async function wd(method, path, body) {
 
 sid = (await wd("POST", "", { capabilities: { alwaysMatch: {
     pageLoadStrategy: "none",
-    "moz:firefoxOptions": { binary: "/opt/dw-waterfox/waterfox-classic/waterfox", args: ["-headless"] },
+    "moz:firefoxOptions": { binary: "/opt/dw-waterfox/waterfox-classic/waterfox" },
 } } })).sessionId;
 
 await wd("POST", "/url", { url: "http://127.0.0.1:8080/entry/new" });
 const ok = await wd("POST", "/execute/sync", { script: "return document.readyState", args: [] });
 // Elements: POST /element {using: "css selector", value}, then /element/<id>/click or
-// /element/<id>/value {text, value: [...chars]} to type ("" is Enter).
+// /element/<id>/value {text, value: [...chars]} to type ("\uE007" is Enter).
 // Real keys: POST /actions. Screenshots: GET /screenshot (base64 PNG).
 await wd("DELETE", "");
 ```
@@ -101,6 +108,7 @@ await wd("DELETE", "");
   perl -e 'require "$ENV{LJHOME}/cgi-bin/ljlib.pl";
     my $u = LJ::load_user("shotuser"); $u->set_prop(entry_draft => ""); $u->clear_prop("draft_properties");'
   ```
+- **Check `document.hasFocus()`** if focus behaviour looks wrong. It is false in a headless window.
 - **Set form values from script** when a key sequence is awkward. Set the element's `value`, then dispatch a
   `change` event (for example the entry form's `#editor` select).
 - **Stop it with `pkill geckodriver; pkill -f waterfox-classic/waterfox`.** Run each as its own command: a
