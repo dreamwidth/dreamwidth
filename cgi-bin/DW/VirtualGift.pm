@@ -248,7 +248,7 @@ sub edit {
     # update objects in memory
     $self->{$_} = $vg{$_} foreach @keys;
     $self->_remove_from_memcache;    # LJ::MemCacheable
-    $self->_expire_relevant_keys(@keys);
+    $self->_expire_aggregate_keys(@keys);
 
     return $self;
 }
@@ -486,7 +486,7 @@ sub delete {
 
     # wipe the relevant keys from memcache
     LJ::MemCache::delete( $self->num_sold_memkey );
-    $self->_expire_relevant_keys;
+    $self->_expire_aggregate_keys;
     $self->_remove_from_memcache;    # LJ::MemCacheable
 
     return 1;
@@ -700,34 +700,8 @@ sub num_sold {
 }
 
 # 3. Memcache methods
-sub _expire_relevant_keys {
-
-    # this is called from delete/edit to expire specific keys
-    # relevant to the particular object being acted on.
-    my ( $self, @props ) = @_;
-    return undef unless $self->id;
-    @props = PROPLIST unless @props;
-    my %prop = map { $_ => 1 } @props;
-
-    if ( $prop{mime_small} ) {
-
-        # expire memcache for img_small (set in Apache::LiveJournal)
-        LJ::MemCache::delete( $self->img_memkey('small') );
-    }
-
-    if ( $prop{mime_large} ) {
-
-        # expire memcache for img_large (set in Apache::LiveJournal)
-        LJ::MemCache::delete( $self->img_memkey('large') );
-    }
-
-    return $self->_expire_aggregate_keys(@props);
-}
-
 sub _expire_aggregate_keys {
 
-    # this is called from create/edit to expire aggregate keys
-    # based on specified values, or from _expire_relevant_keys.
     my ( $self, @props ) = @_;
     return undef unless $self->id;
     @props = PROPLIST unless @props;
@@ -776,13 +750,6 @@ sub _expire_taglist_keys {
     # or tagid lists - these are uncached every few minutes
 
     return $self;
-}
-
-sub img_memkey {
-    my ( $self, $size ) = @_;
-    return undef unless $size && $size =~ /^(small|large)$/;
-    return undef unless my $id = $self->id;
-    return [ $id, "mogp.vg.$size.$id" ];
 }
 
 sub created_by_memkey {
