@@ -343,45 +343,56 @@ sub _db_sysban_populate {
 
 }
 
-# <LJFUNC>
-# name: LJ::Sysban::populate_full
-# des: populates a hashref with sysbans of given type
-# args: where, what
-# des-where: the hashref to populate with hash of hashes:
-#            value => { expire => expiration, note => note,
-#                        banid => banid } for each ban
-# des-what: the type of sysban to look up
-# returns: hashref on success, undef on failure
-# </LJFUNC>
-sub populate_full {
-    return _db_sysban_populate_full(@_);
-}
+=head2 C<< LJ::Sysban::list_full_by_type( $what, $limit, $skip ) >>
 
-sub _db_sysban_populate_full {
-    my ( $where, $what, $limit, $skip ) = @_;
+List the active sysbans of the given type, newest first. If C<$limit> is given,
+return at most that many bans, after skipping the newest C<$skip>. Every ban is
+its own element, so several bans on the same value are all listed.
+Returns an arrayref of hashes in the format:
+    { banid => banid, value => value, expire => expiration, note => note }
+or undef on failure.
+
+=cut
+
+sub list_full_by_type {
+    my ( $what, $limit, $skip ) = @_;
     my $dbh = LJ::get_db_writer();
     return undef unless $dbh;
 
-    # build cache from db
-    my $limitsql = $limit ? " ORDER BY banid DESC LIMIT ? OFFSET ?" : "";
-    my $sth =
-        $dbh->prepare( "SELECT banid, value, "
-            . "UNIX_TIMESTAMP(banuntil), note "
-            . "FROM sysban "
-            . "WHERE status='active' AND what=? "
-            . "AND NOW() > bandate "
-            . "AND (NOW() < banuntil OR banuntil IS NULL)"
-            . $limitsql );
-    $sth->execute( $what, $limit, $skip );
-    return undef if $sth->err;
-    while ( my ( $banid, $val, $exp, $note ) = $sth->fetchrow_array ) {
-        $where->{$val}->{banid}  = $banid || 0;
-        $where->{$val}->{expire} = $exp   || 0;
-        $where->{$val}->{note}   = $note  || 0;
+    my @bind     = ($what);
+    my $limitsql = "";
+    if ($limit) {
+        $limitsql = "LIMIT ? OFFSET ?";
+        push @bind, $limit, $skip || 0;
     }
 
-    return $where;
+    # banid is unique, so this order is stable across LIMIT/OFFSET pages
+    my $sth = $dbh->prepare(
+        qq{SELECT banid, value, UNIX_TIMESTAMP(banuntil), note
+           FROM sysban
+           WHERE status = 'active'
+                 AND what = ?
+                 AND NOW() > bandate
+                 AND ( NOW() < banuntil OR banuntil IS NULL )
+           ORDER BY banid DESC
+           $limitsql
+        }
+    );
+    $sth->execute(@bind);
+    return undef if $sth->err;
 
+    my @bans;
+    while ( my ( $banid, $val, $exp, $note ) = $sth->fetchrow_array ) {
+        my $data = {
+            banid  => $banid || 0,
+            value  => $val,
+            expire => $exp || 0,
+            note   => $note || 0,
+        };
+        push @bans, $data;
+    }
+
+    return \@bans;
 }
 
 =head2 C<< LJ::Sysban::populate_full_by_value( $value, @types ) >>
