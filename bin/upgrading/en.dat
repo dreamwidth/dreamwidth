@@ -2351,6 +2351,8 @@ profile.service.lastfm=Last.fm
 
 profile.service.livejournal=LiveJournal
 
+profile.service.mastodon=Mastodon
+
 profile.service.medium=Medium
 
 profile.service.patreon=Patreon

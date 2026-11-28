@@ -15,6 +15,8 @@
 
 .error.bio.toolong=Your bio is too long.
 
+.error.mastodon.handle=Enter a Mastodon handle with a username and server, such as @alice@example.social.
+
 .error.day.notinmonth=Invalid day for that month.
 
 .error.day.outofrange=Invalid date.  Enter a day from 1-31.
@@ -24,6 +26,10 @@
 .error.email.none=You must provide your email address
 
 .error.email.no_space=No spaces are allowed in an email address.
+
+.error.extservice.limit=You can save up to [[limit]] Other Sites accounts. Clear any accounts you do not want to keep before adding more.
+
+.error.extservice.removed=An Other Sites account in this form was removed since you opened the page. Review the list and add the account again if you still want to show it.
 
 .error.findbyemail=Invalid option for find by email.
 
@@ -86,6 +92,8 @@
 .fn.link2=Link URL
 
 .fn.location=Location
+
+.fn.mastodon.handle=For Mastodon, enter your full handle, such as @alice@example.social.
 
 .fn.mutualfriends3=Mutual Lists
 

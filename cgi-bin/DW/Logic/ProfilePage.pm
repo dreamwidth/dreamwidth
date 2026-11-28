@@ -786,10 +786,7 @@ sub external_services {
     my $info = sub {
         my ( $acct, $site ) = @_;
 
-        my $url =
-            defined $site->{url_format}
-            ? sprintf( $site->{url_format}, LJ::eurl($acct) )
-            : undef;
+        my $url = DW::External::ProfileServices->account_url( $site, $acct );
 
         return {
             type     => $site->{name},

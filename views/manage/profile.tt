@@ -263,58 +263,45 @@
             </tr>
             <tr role="row">
             <td colspan=3 class="services" role="cell">
+             <p class="helper">[% dw.ml('.fn.mastodon.handle') %]</p>
              <div class="other_services">
-        [% ct = 1; %]
         [% MACRO service(p, val, ct) BLOCK %]
             <div class="service_block">
                 <div class='field_name'>[% p.title %]</div>
                 [% form.hidden( name => "extservice_site_$ct", value => p.service_id ) %]
                 [% form.hidden( name => "extservice_dbid_$ct", value => val.0 ) IF val.0 %]
-                [% form.textbox( name => "extservice_val_$ct",
-                                id => "extservice_val_$ct",
-                                value => val.1,
-                                title => "$p.title Username",
-                                size => 20,
-                                class => "inline",
-                                maxlength => p.maxlen )
-                                %]
+                <div class="service_value">
+                    [% form.textbox( name => "extservice_val_$ct",
+                                     id => "extservice_val_$ct",
+                                     value => val.1,
+                                     title => "$p.title Username",
+                                     size => 20,
+                                     class => "inline",
+                                     maxlength => p.maxlen ) %]
+                </div>
             </div>
         [% END %]
 
-            [%# ignore legacy userprops if %$profile_accts has been populated %]
-            [% IF profile_accts.size %]
-                [% FOREACH p IN services %]
-                    [% s_id = p.service_id;
-                    NEXT UNLESS profile_accts.$s_id %]
-                    [% FOREACH val IN profile_accts.$s_id %]
-                        [% service( p, val, ct ) %]
-                        [% ct = ct + 1 %]
-                    [% END %]
+            [% FOREACH row IN service_rows %]
+                [% ct = row.ct %]
+                [% IF row.service %]
+                    [% service( row.service, [ row.dbid, row.value ], ct ) %]
+                [% ELSE %]
+                    <div class="service_block">
+                        <div class='field_name service_new'>
+                            [% form.select( name => "extservice_site_$ct", class => "inline", items => service_dropdown, selected => row.site ) %]
+                        </div>
+                        <div class="service_value">
+                            [% form.textbox( name => "extservice_val_$ct",
+                                             id => "extservice_val_$ct",
+                                             value => row.value,
+                                             title => "Username \#$ct",
+                                             size => '20',
+                                             class => 'inline',
+                                             maxlength => 255 ) %]
+                        </div>
+                    </div>
                 [% END %]
-            [% ELSE %]
-                [% FOREACH p IN services %]
-                    [% NEXT UNLESS p.userprop;
-                        val = u.${p.userprop};
-                        NEXT UNLESS val %]
-                    [% service(p, [0, val], ct) %]
-                    [% ct = ct + 1 %]
-                [% END %]
-            [% END %]
-
-            [% WHILE ct <= 26 %]
-                <div class="service_block">
-                <div class='field_name service_new'>
-                [% form.select( name => "extservice_site_$ct" , class = "inline", items => service_dropdown ) %]
-                </div>
-                [% form.textbox(name => "extservice_val_$ct",
-                                id => "extservice_val_$ct",
-                                value => '',
-                                title => "Username \#$ct",
-                                size => '20',
-                                class => 'inline'
-                                maxlength => 255 ) %]
-                </div>
-                [% ct = ct + 1 %]
             [% END %]
             </div>
 </td></tr>

@@ -159,7 +159,8 @@ sub profile_handler {
     my $opt_sharebday = ( $u->opt_sharebday =~ m/^(A|F|N|R)$/ ) ? $u->opt_sharebday : 'F';
 
     # 'Other Services' display
-    my $service_info = sub {
+    my $max_service_accounts = 26;
+    my $service_info         = sub {
         my ($site) = @_;
         $site->{title} = LJ::Lang::ml( $site->{title_ml} );
         return $site;
@@ -168,6 +169,90 @@ sub profile_handler {
     my @services = map $service_info->($_), @{ DW::External::ProfileServices->list };
     my @dropdown = ( '' => '' );
     push @dropdown, ( $_->{service_id} => $_->{title} ) foreach @services;
+    my %services_by_id = map { $_->{service_id} => $_ } @services;
+
+    my $stored_service_rows = sub {
+        my ($accounts) = @_;
+        my @rows;
+        if (%$accounts) {
+            foreach my $site (@services) {
+                foreach my $acct ( @{ $accounts->{ $site->{service_id} } || [] } ) {
+                    push @rows,
+                        {
+                        service => $site,
+                        dbid    => $acct->[0],
+                        value   => $acct->[1],
+                        };
+                }
+            }
+        }
+        else {
+            foreach my $site (@services) {
+                next unless $site->{userprop};
+                my $val = $u->{ $site->{userprop} };
+                next unless $val;
+                push @rows,
+                    {
+                    service => $site,
+                    dbid    => 0,
+                    value   => $val,
+                    };
+            }
+        }
+        return @rows;
+    };
+
+    my @db_service_rows = $stored_service_rows->($profile_accts);
+
+    my $build_service_rows = sub {
+        my ( $pending_existing, $pending_legacy, $pending_new ) = @_;
+        my @rows;
+        my $ct = 1;
+
+        foreach my $row (@db_service_rows) {
+            my $s_id      = $row->{service}{service_id};
+            my $a_id      = $row->{dbid};
+            my $val       = $row->{value};
+            my $submitted = 0;
+
+            if ($a_id) {
+                if ( $pending_existing && exists $pending_existing->{"$s_id:$a_id"} ) {
+                    $val       = $pending_existing->{"$s_id:$a_id"};
+                    $submitted = 1;
+                }
+            }
+            elsif ( $pending_legacy && exists $pending_legacy->{$s_id} ) {
+                $val       = $pending_legacy->{$s_id};
+                $submitted = 1;
+            }
+
+            push @rows,
+                {
+                ct        => $ct++,
+                service   => $row->{service},
+                dbid      => $a_id,
+                value     => $val // '',
+                submitted => $submitted,
+                };
+        }
+
+        foreach my $row ( @{ $pending_new || [] } ) {
+            push @rows, { %$row, ct => $ct++, submitted => 1 };
+        }
+
+        while ( $ct <= $max_service_accounts ) {
+            push @rows,
+                {
+                ct    => $ct++,
+                site  => '',
+                value => '',
+                };
+        }
+
+        return \@rows;
+    };
+
+    my $service_rows = $build_service_rows->();
 
     # Email display
     # This is one prop in the backend, but two form fields on the settings page
@@ -196,6 +281,7 @@ sub profile_handler {
         checked          => $checked,
         cur              => $cur,
         profile_accts    => $profile_accts,
+        service_rows     => $service_rows,
         profile_email    => DW::Setting::ProfileEmail->option($u),
         location => LJ::Widget::Location->render( skip_timezone => 1, minimal_display => 1 ),
         set_profile_settings_extra => LJ::Hooks::run_hook( "profile_settings_extra", $u )
@@ -260,6 +346,96 @@ sub profile_handler {
         # bio
         if ( defined $POST->{'bio'} and length( $POST->{'bio'} ) >= LJ::BMAX_BIO ) {
             $errors->add( 'bio', "$scope.error.bio.toolong" );
+        }
+
+        my %existing_db_accts;
+        my %legacy_service_ids;
+        foreach my $row (@db_service_rows) {
+            my $s_id = $row->{service}{service_id};
+            if ( my $a_id = $row->{dbid} ) {
+                $existing_db_accts{"$s_id:$a_id"} = 1;
+            }
+            else {
+                $legacy_service_ids{$s_id} = 1;
+            }
+        }
+
+        my %pending_existing;
+        my %pending_legacy;
+        my @pending_new;
+        my $stale_account_edit = 0;
+        my $too_many_new_rows  = 0;
+        my %posted_rows = map { /\Aextservice_(?:site|val)_([1-9][0-9]*)\z/ ? ( $1 => 1 ) : () }
+            keys %$POST;
+        foreach my $ct ( sort { length($a) <=> length($b) || $a cmp $b } keys %posted_rows ) {
+            my $s_id = $POST->{"extservice_site_$ct"} // '';
+            my $a_id = $POST->{"extservice_dbid_$ct"} // '';
+            my $val  = $POST->{"extservice_val_$ct"}  // '';
+
+            if ($a_id) {
+                unless ( $existing_db_accts{"$s_id:$a_id"} ) {
+                    $stale_account_edit = 1 if $val ne '';
+                    next;
+                }
+                $pending_existing{"$s_id:$a_id"} = $val;
+            }
+            elsif ( $legacy_service_ids{$s_id} && !exists $pending_legacy{$s_id} ) {
+                $pending_legacy{$s_id} = $val;
+            }
+            elsif ( $s_id ne '' || $val ne '' ) {
+                my $site_id = $services_by_id{$s_id} ? $s_id : '';
+                next if $site_id eq '' && $val eq '';
+                if ( @pending_new >= $max_service_accounts ) {
+                    $too_many_new_rows = 1;
+                    next;
+                }
+                push @pending_new, { site => $site_id, value => $val };
+            }
+        }
+        $errors->add( undef, "$scope.error.extservice.removed" ) if $stale_account_edit;
+
+        my $post_service_rows =
+            $build_service_rows->( \%pending_existing, \%pending_legacy, \@pending_new );
+        $vars->{service_rows} = $post_service_rows;
+
+        my %new_accts;
+        my $remaining_accounts = scalar keys %existing_db_accts;
+        my $new_accounts       = 0;
+        foreach my $row (@$post_service_rows) {
+            next unless $row->{submitted};
+            my $site = $row->{service} || $services_by_id{ $row->{site} // '' };
+            next unless $site;
+
+            my $s_id  = $site->{service_id};
+            my $field = "extservice_val_$row->{ct}";
+            my $val   = $row->{value} // '';
+
+            if ( $site->{name} eq 'mastodon' ) {
+                $val = LJ::trim($val);
+                if ( $val ne '' && !DW::External::ProfileServices->account_url( $site, $val ) ) {
+                    $errors->add( $field, "$scope.error.mastodon.handle" );
+                    next;
+                }
+            }
+            $val = LJ::text_trim( $val, 255, $site->{maxlen} );
+
+            if ( my $a_id = $row->{dbid} ) {
+                push @{ $new_accts{$s_id} }, [ $a_id, $val ];
+                --$remaining_accounts unless $val;
+            }
+            elsif ( $val ne '' ) {
+                push @{ $new_accts{$s_id} }, $val;
+                ++$new_accounts;
+            }
+        }
+        if ( $too_many_new_rows
+            || ( $new_accounts && $remaining_accounts + $new_accounts > $max_service_accounts ) )
+        {
+            $errors->add(
+                undef,
+                "$scope.error.extservice.limit",
+                { limit => $max_service_accounts }
+            );
         }
 
         # Field validation is done; bail before any saving if it failed. The
@@ -394,24 +570,6 @@ sub profile_handler {
             }
             $u->set_prop( \%prop, undef, { skip_db => 1 } );
 
-            # update external services
-            my %services = map { $_->{service_id} => $_ } @{ DW::External::ProfileServices->list };
-            my %new_accts;
-
-            foreach my $ct ( 1 .. 26 ) {
-                my $s_id = $POST->{"extservice_site_$ct"};
-                next unless $s_id;
-                my $val = $POST->{"extservice_val_$ct"} // '';
-                $val = LJ::text_trim( $val, 255, $services{$s_id}->{maxlen} );
-                $new_accts{$s_id} //= [];
-                if ( my $a_id = $POST->{"extservice_dbid_$ct"} ) {
-                    push @{ $new_accts{$s_id} }, [ $a_id, $val ];
-                }
-                else {
-                    push @{ $new_accts{$s_id} }, $val if $val ne '';
-                }
-            }
-
             $u->save_profile_accts( \%new_accts );
 
             # location or bday could've changed... (who cares about checking exactly)
@@ -494,7 +652,9 @@ sub profile_handler {
         # interest validation (above) can add errors after the main save; if so,
         # re-render with them instead of reporting success
         if ( $errors->exist ) {
-            $vars->{errors} = $errors;
+            @db_service_rows = $stored_service_rows->( $u->load_profile_accts( force_db => 1 ) );
+            $vars->{service_rows} = $build_service_rows->();
+            $vars->{errors}       = $errors;
             return DW::Template->render_template( 'manage/profile.tt', $vars );
         }
 
