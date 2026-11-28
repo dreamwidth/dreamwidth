@@ -60,7 +60,8 @@ use constant E_TEMP => 0;
 use constant E_PERM => 1;
 
 # maximum items for get_friends_page function
-use constant FRIEND_ITEMS_LIMIT => 50;
+use constant FRIEND_ITEMS_LIMIT            => 50;
+use constant SYN_SUBJECT_TOOLTIP_MAX_BYTES => 4096;
 
 # Lower bound for sync queries when the client has no lastsync yet. This is
 # MySQL's minimum valid DATETIME: strict sql_mode (NO_ZERO_DATE) rejects
@@ -1113,9 +1114,17 @@ sub common_event_validation {
     return fail( $err, 409 ) if $did_trim;
 
     $did_trim = 0;
+    my $untrimmed_subject = $req->{'subject'};
     $req->{'subject'} =
         LJ::text_trim( $req->{'subject'}, LJ::BMAX_SUBJECT, LJ::CMAX_SUBJECT, \$did_trim );
     return fail( $err, 411 ) if $did_trim && !$flags->{allow_truncated_subject};
+    $flags->{_syn_full_subject} = undef;
+    if ( $did_trim && $flags->{preserve_syn_subject} ) {
+        $flags->{_syn_full_subject} =
+            length($untrimmed_subject) > SYN_SUBJECT_TOOLTIP_MAX_BYTES
+            ? LJ::text_trim( $untrimmed_subject, SYN_SUBJECT_TOOLTIP_MAX_BYTES )
+            : $untrimmed_subject;
+    }
 
     foreach ( keys %{ $req->{'props'} } ) {
 
@@ -1466,7 +1475,10 @@ sub postevent {
     }
 
     my $dupsig = Digest::MD5::md5_hex(
-        join( '', map { $req->{$_} } qw(subject event usejournal security allowmask) ) );
+        join( '',
+            $flags->{_syn_full_subject} // $req->{subject},
+            map { $req->{$_} } qw(event usejournal security allowmask) )
+    );
     my $lock_key = "post-$ownerid";
 
     # release our duplicate lock
@@ -1649,21 +1661,24 @@ sub postevent {
     #### /embedding
 
     # record journal's disk usage
-    my $bytes = length($event) + length( $req->{'subject'} );
+    my $syn_full_subject = $flags->{_syn_full_subject};
+    my $bytes = length($event) + length( $req->{'subject'} ) + length( $syn_full_subject // '' );
     $uowner->dudata_set( 'L', $jitemid, $bytes );
 
     $uowner->do(
-        "INSERT INTO logtext2 (journalid, jitemid, subject, event) "
-            . "VALUES ($ownerid, $jitemid, ?, ?)",
-        undef, $req->{'subject'}, LJ::text_compress($event)
+        "INSERT INTO logtext2 (journalid, jitemid, subject, event, syn_full_subject) "
+            . "VALUES ($ownerid, $jitemid, ?, ?, ?)",
+        undef, $req->{'subject'}, LJ::text_compress($event), $syn_full_subject
     );
     if ( $uowner->err ) {
         my $msg = $uowner->errstr;
         LJ::delete_entry( $uowner, $jitemid );    # roll-back
         return fail( $err, 501, "logtext:$msg" );
     }
-    LJ::MemCache::set( [ $ownerid, "logtext:$clusterid:$ownerid:$jitemid" ],
-        [ $req->{'subject'}, $event ] );
+    LJ::MemCache::set(
+        [ $ownerid, "logtext:$clusterid:$ownerid:$jitemid" ],
+        [ $req->{'subject'}, $event, $syn_full_subject ]
+    );
 
     # warn the user of any bad markup errors
     my $clean_event = $event;
@@ -1907,8 +1922,9 @@ sub editevent {
 
     my $ditemid = $itemid * 256 + $oldevent->{anum};
 
-    ( $oldevent->{subject}, $oldevent->{event} ) = $dbcm->selectrow_array(
-        "SELECT subject, event FROM logtext2 " . "WHERE journalid=$ownerid AND jitemid=$itemid" );
+    ( $oldevent->{subject}, $oldevent->{event}, $oldevent->{syn_full_subject} ) =
+        $dbcm->selectrow_array( "SELECT subject, event, syn_full_subject FROM logtext2 "
+            . "WHERE journalid=$ownerid AND jitemid=$itemid" );
 
     LJ::text_uncompress( \$oldevent->{'event'} );
 
@@ -2050,7 +2066,9 @@ sub editevent {
     $event = LJ::EmbedModule->transform_rte_post($event);
     LJ::EmbedModule->parse_module_embed( $owneru, \$event );
 
-    my $bytes = length($event) + length( $req->{'subject'} );
+    my $syn_full_subject =
+        $flags->{'use_old_content'} ? $oldevent->{syn_full_subject} : $flags->{_syn_full_subject};
+    my $bytes = length($event) + length( $req->{'subject'} ) + length( $syn_full_subject // '' );
 
     my $eventtime =
         sprintf( "%04d-%02d-%02d %02d:%02d", map { $req->{$_} } qw(year mon day hour min) );
@@ -2153,25 +2171,27 @@ sub editevent {
         return fail( $err, 501, $dbcm->errstr ) if $uowner->err;
     }
 
-    LJ::MemCache::set( [ $ownerid, "logtext:$clusterid:$ownerid:$itemid" ],
-        [ $req->{'subject'}, $event ] );
-
     if (
         !$flags->{'use_old_content'}
         && (   $event ne $oldevent->{'event'}
-            || $req->{'subject'} ne $oldevent->{'subject'} )
+            || $req->{'subject'} ne $oldevent->{'subject'}
+            || ( $syn_full_subject // '' ) ne ( $oldevent->{syn_full_subject} // '' ) )
         )
     {
         $uowner->do(
-            "UPDATE logtext2 SET subject=?, event=? "
+            "UPDATE logtext2 SET subject=?, event=?, syn_full_subject=? "
                 . "WHERE journalid=$ownerid AND jitemid=$itemid",
-            undef, $req->{'subject'}, LJ::text_compress($event)
+            undef, $req->{'subject'}, LJ::text_compress($event), $syn_full_subject
         );
         return fail( $err, 501, $uowner->errstr ) if $uowner->err;
 
         # update disk usage
         $uowner->dudata_set( 'L', $itemid, $bytes );
     }
+    LJ::MemCache::set(
+        [ $ownerid, "logtext:$clusterid:$ownerid:$itemid" ],
+        [ $req->{'subject'}, $event, $syn_full_subject ]
+    );
 
     my $clean_event = $event;
     my $errref;

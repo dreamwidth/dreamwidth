@@ -702,6 +702,7 @@ CREATE TABLE logtext2 (
     jitemid MEDIUMINT UNSIGNED NOT NULL,
     subject VARCHAR(255) DEFAULT NULL,
     event MEDIUMTEXT,
+    syn_full_subject MEDIUMTEXT,
 
     PRIMARY KEY (journalid, jitemid)
 ) max_rows=100000000
@@ -4229,6 +4230,11 @@ q{INSERT INTO media_versions (userid, mediaid, versionid, width, height, filesiz
             do_alter( 'syndicated',
                 "ALTER TABLE syndicated ADD COLUMN failcount SMALLINT UNSIGNED NOT NULL DEFAULT 0"
             );
+        }
+
+        if ( table_relevant('logtext2') && column_type( 'logtext2', 'syn_full_subject' ) eq '' ) {
+            do_alter( 'logtext2',
+                'ALTER TABLE logtext2 ADD COLUMN syn_full_subject MEDIUMTEXT, ALGORITHM=INSTANT' );
         }
     }
 );
