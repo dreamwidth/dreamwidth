@@ -501,19 +501,34 @@ ul.module-list-item li { padding: 0 0 0 9px; margin: 0; list-style: none;  }
     letter-spacing: 0.15em;
 }
 
-.module-calendar table { text-align: center; margin: 0 auto;}
+.module-calendar:not(.calendar-horizontal) {
+    padding-inline: 6px;
+}
+
+.module-calendar .module-header {
+    /* Keep this 14px margin plus the 6px calendar padding equal to .module's 20px inline padding. */
+    margin-inline: 14px;
+}
+
+.module-calendar table {
+    border-collapse: collapse;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 14em;
+}
 
 .module-calendar th {
+    text-align: center;
     text-transform: uppercase;
     background: $*color_calendar_header_background;
     color: $*color_calendar_header_text;
-    margin: 0 1px;
-    padding: 3px 8px;
+    padding: 3px 0;
     border: 1px solid $*color_module_text;
 }
 .module-calendar td {
     text-transform: uppercase;
-    margin: 0 1px;
+    padding-inline: 0;
     border: 1px solid $*color_module_text;
 }
 
@@ -521,11 +536,13 @@ ul.module-list-item li { padding: 0 0 0 9px; margin: 0; list-style: none;  }
     text-transform: uppercase;
     background: $*color_calendar_entryday_background;
     color: $*color_calendar_entryday_text;
-    margin: 0 1px;
     border: 1px solid $*color_module_text;
 }
 
-.module-calendar td.entry-day a {color:$*color_calendar_entryday_link;}
+.module-calendar td.entry-day a {
+    color: $*color_calendar_entryday_link;
+    padding-inline: 0;
+}
 
 /*------------------------------------- extras  -------------------------------------*/
 
